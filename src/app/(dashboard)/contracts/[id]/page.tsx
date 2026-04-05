@@ -2,8 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { FieldReview } from "@/components/contracts/field-review";
-import { FileText, Download, ArrowLeft, User, Calendar } from "lucide-react";
+import { AddFieldForm } from "@/components/contracts/add-field-form";
+import { ExtractButton } from "@/components/contracts/extract-button";
+import { DownloadButton } from "@/components/contracts/download-button";
+import { UploadMoreFiles } from "@/components/contracts/upload-more-files";
+import { FileText, ArrowLeft, User, Calendar } from "lucide-react";
 import Link from "next/link";
+import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
+import { ContractStatusTransition } from "@/components/contracts/contract-status-transition";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -30,22 +36,6 @@ export default async function ContractDetailPage(props: {
 
   const auditEvents = auditEventsData ?? [];
 
-  const statusStyles: Record<string, string> = {
-    draft: "bg-gray-100 text-gray-700",
-    pending_review: "bg-amber-100 text-amber-700",
-    active: "bg-green-100 text-green-700",
-    expired: "bg-red-100 text-red-700",
-    terminated: "bg-gray-100 text-gray-700",
-  };
-
-  const statusLabels: Record<string, string> = {
-    draft: "Draft",
-    pending_review: "Pending Review",
-    active: "Active",
-    expired: "Expired",
-    terminated: "Terminated",
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -62,10 +52,10 @@ export default async function ContractDetailPage(props: {
             </h1>
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                statusStyles[contract.status]
+                STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
               }`}
             >
-              {statusLabels[contract.status]}
+              {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
             </span>
           </div>
           {contract.counterparty && (
@@ -82,10 +72,24 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-6 lg:col-span-2">
           {/* Extracted fields */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Extracted Fields
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Extracted Fields
+              </h2>
+              <ExtractButton
+                contractId={contract.id}
+                hasFiles={!!contract.contract_files?.length}
+              />
+            </div>
             <FieldReview fields={contract.extracted_fields || []} />
+            <div className="mt-4">
+              <AddFieldForm
+                contractId={contract.id}
+                existingFieldNames={(contract.extracted_fields || []).map(
+                  (f: { field_name: string }) => f.field_name
+                )}
+              />
+            </div>
           </div>
 
           {/* Files */}
@@ -126,19 +130,32 @@ export default async function ContractDetailPage(props: {
                           </p>
                         </div>
                       </div>
-                      <button className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                        <Download size={16} />
-                      </button>
+                      <DownloadButton
+                        storagePath={file.storage_path}
+                        fileName={file.file_name}
+                      />
                     </li>
                   )
                 )}
               </ul>
             )}
+            <UploadMoreFiles contractId={contract.id} />
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Status transition */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <h3 className="mb-3 text-sm font-semibold text-gray-900">
+              Status
+            </h3>
+            <ContractStatusTransition
+              contractId={contract.id}
+              currentStatus={contract.status}
+            />
+          </div>
+
           {/* Metadata */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">

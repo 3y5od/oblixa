@@ -8,8 +8,26 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error && data.user) {
+      const { data: existingMembership } = await supabase
+        .from("organization_members")
+        .select("id")
+        .eq("user_id", data.user.id)
+        .limit(1)
+        .single();
+
+      if (!existingMembership) {
+        const fullName = data.user.user_metadata?.full_name;
+        await supabase.rpc("create_user_org", {
+          user_id: data.user.id,
+          org_name: fullName
+            ? `${fullName}'s Organization`
+            : "My Organization",
+        });
+      }
+
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

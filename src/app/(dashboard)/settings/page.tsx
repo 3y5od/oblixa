@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
+import { ProfileForm } from "@/components/settings/profile-form";
+import { OrgForm } from "@/components/settings/org-form";
 import type { OrganizationMember } from "@/lib/types";
 
 export default async function SettingsPage() {
@@ -35,6 +37,10 @@ export default async function SettingsPage() {
     members = (data as OrganizationMember[]) || [];
   }
 
+  const orgName =
+    (membership as OrganizationMember & { organizations: { name: string } } | null)
+      ?.organizations?.name || "";
+
   const roleLabels: Record<string, string> = {
     admin: "Admin",
     editor: "Editor",
@@ -45,53 +51,38 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
-      {/* Profile */}
       <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile</h2>
-        <dl className="grid grid-cols-2 gap-4">
-          <div>
-            <dt className="text-sm text-gray-500">Name</dt>
-            <dd className="text-sm font-medium text-gray-900">
-              {profile?.full_name || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500">Email</dt>
-            <dd className="text-sm font-medium text-gray-900">
-              {user.email || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500">Account created</dt>
-            <dd className="text-sm text-gray-900">
-              {user.created_at
-                ? format(new Date(user.created_at), "MMM d, yyyy")
-                : "—"}
-            </dd>
-          </div>
-        </dl>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
+          <p className="text-xs text-gray-400">
+            Joined{" "}
+            {user.created_at
+              ? format(new Date(user.created_at), "MMM d, yyyy")
+              : "—"}
+          </p>
+        </div>
+        <ProfileForm
+          fullName={profile?.full_name ?? null}
+          email={user.email || ""}
+        />
       </section>
 
-      {/* Organization */}
       {membership && (
         <section className="rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Organization
-          </h2>
-          <dl className="mb-6 grid grid-cols-2 gap-4">
-            <div>
-              <dt className="text-sm text-gray-500">Name</dt>
-              <dd className="text-sm font-medium text-gray-900">
-                {(membership as OrganizationMember & { organizations: { name: string } }).organizations?.name || "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Your role</dt>
-              <dd className="text-sm font-medium text-gray-900">
-                {roleLabels[membership.role] || membership.role}
-              </dd>
-            </div>
-          </dl>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Organization</h2>
+            <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+              {roleLabels[membership.role] || membership.role}
+            </span>
+          </div>
+
+          <div className="mb-6">
+            <OrgForm
+              organizationId={membership.organization_id}
+              name={orgName}
+              isAdmin={membership.role === "admin"}
+            />
+          </div>
 
           <h3 className="text-sm font-semibold text-gray-900 mb-3">
             Team members

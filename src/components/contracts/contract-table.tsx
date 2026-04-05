@@ -4,22 +4,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { FileText, ChevronRight } from "lucide-react";
 import type { Contract } from "@/lib/types";
-
-const statusStyles: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  pending_review: "bg-amber-100 text-amber-700",
-  active: "bg-green-100 text-green-700",
-  expired: "bg-red-100 text-red-700",
-  terminated: "bg-gray-100 text-gray-700",
-};
-
-const statusLabels: Record<string, string> = {
-  draft: "Draft",
-  pending_review: "Pending Review",
-  active: "Active",
-  expired: "Expired",
-  terminated: "Terminated",
-};
+import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
 
 interface ContractTableProps {
   contracts: Contract[];
@@ -89,10 +74,10 @@ export function ContractTable({ contracts }: ContractTableProps) {
               <td className="whitespace-nowrap px-6 py-4">
                 <span
                   className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    statusStyles[contract.status] || statusStyles.draft
+                    STATUS_STYLES[contract.status] || STATUS_STYLES.draft
                   }`}
                 >
-                  {statusLabels[contract.status] || contract.status}
+                  {STATUS_LABELS[contract.status] || contract.status}
                 </span>
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">

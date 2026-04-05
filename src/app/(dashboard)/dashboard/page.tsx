@@ -36,24 +36,22 @@ export default async function DashboardPage() {
     );
   }
 
-  // Fetch contracts
-  const { data: contractsData } = await supabase
-    .from("contracts")
-    .select("*, owner:profiles!contracts_owner_id_fkey(full_name, email)")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false });
+  const [{ data: contractsData }, { data: dateFieldsData }] = await Promise.all([
+    supabase
+      .from("contracts")
+      .select("*, owner:profiles!contracts_owner_id_fkey(full_name, email)")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("extracted_fields")
+      .select("*, contracts!inner(id, title, organization_id)")
+      .eq("contracts.organization_id", orgId)
+      .eq("status", "approved")
+      .in("field_name", ["notice_window", "renewal_date", "end_date"])
+      .not("field_value", "is", null),
+  ]);
 
   const contracts = contractsData ?? [];
-
-  // Fetch approved date fields for upcoming actions
-  const { data: dateFieldsData } = await supabase
-    .from("extracted_fields")
-    .select("*, contracts!inner(id, title, organization_id)")
-    .eq("contracts.organization_id", orgId)
-    .eq("status", "approved")
-    .in("field_name", ["notice_window", "renewal_date", "end_date"])
-    .not("field_value", "is", null);
-
   const dateFields = dateFieldsData ?? [];
 
   const today = new Date();

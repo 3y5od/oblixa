@@ -13,6 +13,8 @@ export type FieldSource = "ai" | "human";
 export interface Organization {
   id: string;
   name: string;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
   created_at: string;
   updated_at: string;
 }

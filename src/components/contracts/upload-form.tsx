@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Upload, X, FileText } from "lucide-react";
 import { createContract } from "@/actions/contracts";
 
@@ -9,15 +9,10 @@ interface UploadFormProps {
 }
 
 export function UploadForm({ organizationId }: UploadFormProps) {
-  const [state, action, pending] = useActionState(
-    async (_prev: { error?: string } | undefined, formData: FormData) => {
-      formData.set("organizationId", organizationId);
-      return createContract(formData);
-    },
-    undefined
-  );
-
   const [files, setFiles] = useState<File[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFiles(newFiles: FileList | null) {
@@ -35,11 +30,29 @@ export function UploadForm({ organizationId }: UploadFormProps) {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function handleSubmit() {
+    const form = formRef.current;
+    if (!form) return;
+
+    const formData = new FormData(form);
+    formData.delete("files");
+    formData.set("organizationId", organizationId);
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
+    setError(null);
+    startTransition(async () => {
+      const result = await createContract(formData);
+      if (result?.error) setError(result.error);
+    });
+  }
+
   return (
-    <form action={action} className="space-y-6">
-      {state?.error && (
+    <form ref={formRef} action={handleSubmit} className="space-y-6">
+      {error && (
         <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-          {state.error}
+          {error}
         </div>
       )}
 
@@ -118,11 +131,13 @@ export function UploadForm({ organizationId }: UploadFormProps) {
         <input
           ref={fileInputRef}
           type="file"
-          name="files"
           multiple
           accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           className="hidden"
-          onChange={(e) => handleFiles(e.target.files)}
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = "";
+          }}
         />
 
         {files.length > 0 && (
@@ -161,10 +176,10 @@ export function UploadForm({ organizationId }: UploadFormProps) {
         </a>
         <button
           type="submit"
-          disabled={pending}
+          disabled={isPending}
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {pending ? "Uploading..." : "Create contract"}
+          {isPending ? "Uploading..." : "Create contract"}
         </button>
       </div>
     </form>
