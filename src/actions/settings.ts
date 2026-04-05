@@ -1,9 +1,10 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -12,7 +13,7 @@ export async function updateProfile(formData: FormData) {
 
   const fullName = formData.get("fullName") as string;
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("profiles")
     .update({ full_name: fullName || null })
     .eq("id", user.id);
@@ -28,6 +29,7 @@ export async function updateProfile(formData: FormData) {
 
 export async function updateOrganization(formData: FormData) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -37,7 +39,7 @@ export async function updateOrganization(formData: FormData) {
   const orgId = formData.get("organizationId") as string;
   const name = formData.get("name") as string;
 
-  const { data: membership } = await supabase
+  const { data: membership } = await admin
     .from("organization_members")
     .select("role")
     .eq("organization_id", orgId)
@@ -48,7 +50,7 @@ export async function updateOrganization(formData: FormData) {
     return { error: "Only admins can update the organization" };
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("organizations")
     .update({ name })
     .eq("id", orgId);

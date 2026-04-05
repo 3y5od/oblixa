@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { differenceInDays } from "date-fns";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { UpcomingActions } from "@/components/dashboard/upcoming-actions";
@@ -7,23 +7,8 @@ import Link from "next/link";
 import type { Contract, ExtractedField } from "@/lib/types";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  // Get user's org
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
-
-  const orgId = membership?.organization_id;
-  if (!orgId) {
+  const ctx = await getAuthContext();
+  if (!ctx) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
@@ -36,13 +21,15 @@ export default async function DashboardPage() {
     );
   }
 
+  const { orgId, admin } = ctx;
+
   const [{ data: contractsData }, { data: dateFieldsData }] = await Promise.all([
-    supabase
+    admin
       .from("contracts")
       .select("*, owner:profiles!contracts_owner_id_fkey(full_name, email)")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false }),
-    supabase
+    admin
       .from("extracted_fields")
       .select("*, contracts!inner(id, title, organization_id)")
       .eq("contracts.organization_id", orgId)

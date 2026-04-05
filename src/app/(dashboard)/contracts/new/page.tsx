@@ -1,22 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { UploadForm } from "@/components/contracts/upload-form";
 
 export default async function NewContractPage() {
-  const supabase = await createClient();
+  const ctx = await getAuthContext();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
-
-  if (!membership) {
+  if (!ctx) {
     return (
       <div className="text-center py-20">
         <p className="text-sm text-gray-500">No organization found.</p>
@@ -30,7 +18,7 @@ export default async function NewContractPage() {
         Upload Contract
       </h1>
       <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <UploadForm organizationId={membership.organization_id} />
+        <UploadForm organizationId={ctx.orgId} />
       </div>
     </div>
   );

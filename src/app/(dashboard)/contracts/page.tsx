@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { ContractTable } from "@/components/contracts/contract-table";
 import Link from "next/link";
 
@@ -12,24 +12,12 @@ export default async function ContractsPage(props: {
   searchParams: Promise<{ status?: string; search?: string; owner?: string }>;
 }) {
   const searchParams = await props.searchParams;
-  const supabase = await createClient();
+  const ctx = await getAuthContext();
+  if (!ctx) return null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { orgId, admin } = ctx;
 
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
-
-  const orgId = membership?.organization_id;
-  if (!orgId) return null;
-
-  const { data: membersData } = await supabase
+  const { data: membersData } = await admin
     .from("organization_members")
     .select("user_id, profiles(full_name, email)")
     .eq("organization_id", orgId)
@@ -43,7 +31,7 @@ export default async function ContractsPage(props: {
     };
   });
 
-  let query = supabase
+  let query = admin
     .from("contracts")
     .select("*, owner:profiles!contracts_owner_id_fkey(full_name, email)")
     .eq("organization_id", orgId)

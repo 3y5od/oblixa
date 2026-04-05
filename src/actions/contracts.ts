@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -15,6 +15,7 @@ const REMINDER_OFFSETS_DAYS = [30, 14, 7, 1];
 
 export async function createContract(formData: FormData) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -26,7 +27,7 @@ export async function createContract(formData: FormData) {
   const contractType = formData.get("contractType") as string | null;
   const organizationId = formData.get("organizationId") as string;
 
-  const { data: contract, error } = await supabase
+  const { data: contract, error } = await admin
     .from("contracts")
     .insert({
       title,
@@ -48,7 +49,7 @@ export async function createContract(formData: FormData) {
 
     const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await admin.storage
       .from("contracts")
       .upload(storagePath, file);
 
@@ -57,7 +58,7 @@ export async function createContract(formData: FormData) {
       continue;
     }
 
-    await supabase.from("contract_files").insert({
+    await admin.from("contract_files").insert({
       contract_id: contract.id,
       file_name: file.name,
       file_type: file.type,
@@ -67,7 +68,7 @@ export async function createContract(formData: FormData) {
     });
   }
 
-  await supabase.from("audit_events").insert({
+  await admin.from("audit_events").insert({
     organization_id: organizationId,
     contract_id: contract.id,
     user_id: user.id,
@@ -89,13 +90,14 @@ export async function updateContractField(
   newValue?: string
 ) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data: field } = await supabase
+  const { data: field } = await admin
     .from("extracted_fields")
     .select("*, contracts!inner(id, organization_id, owner_id)")
     .eq("id", fieldId)
@@ -114,7 +116,7 @@ export async function updateContractField(
     updateData.source = "human";
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("extracted_fields")
     .update(updateData)
     .eq("id", fieldId);
@@ -123,7 +125,7 @@ export async function updateContractField(
 
   const contract = field.contracts as { id: string; organization_id: string; owner_id: string | null };
 
-  await supabase.from("audit_events").insert({
+  await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
     contract_id: contract.id,
     user_id: user.id,
@@ -141,7 +143,7 @@ export async function updateContractField(
     resolvedValue
   ) {
     await scheduleReminders(
-      supabase,
+      admin,
       contract.id,
       fieldId,
       field.field_name,
@@ -151,7 +153,7 @@ export async function updateContractField(
   }
 
   if (action === "rejected" && DATE_FIELDS.has(field.field_name)) {
-    await supabase
+    await admin
       .from("reminders")
       .delete()
       .eq("field_id", fieldId);
@@ -161,7 +163,7 @@ export async function updateContractField(
 }
 
 async function scheduleReminders(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: Awaited<ReturnType<typeof createAdminClient>>,
   contractId: string,
   fieldId: string,
   fieldName: string,
@@ -199,13 +201,14 @@ export async function addManualField(
   fieldValue: string
 ) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data: contract } = await supabase
+  const { data: contract } = await admin
     .from("contracts")
     .select("id, organization_id, owner_id")
     .eq("id", contractId)
@@ -213,7 +216,7 @@ export async function addManualField(
 
   if (!contract) return { error: "Contract not found" };
 
-  const { data: inserted, error } = await supabase
+  const { data: inserted, error } = await admin
     .from("extracted_fields")
     .insert({
       contract_id: contractId,
@@ -229,7 +232,7 @@ export async function addManualField(
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_events").insert({
+  await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
     contract_id: contractId,
     user_id: user.id,
@@ -239,7 +242,7 @@ export async function addManualField(
 
   if (DATE_FIELDS.has(fieldName) && fieldValue) {
     await scheduleReminders(
-      supabase,
+      admin,
       contractId,
       inserted.id,
       fieldName,
@@ -253,13 +256,14 @@ export async function addManualField(
 
 export async function uploadAdditionalFiles(contractId: string, formData: FormData) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data: contract } = await supabase
+  const { data: contract } = await admin
     .from("contracts")
     .select("id, organization_id")
     .eq("id", contractId)
@@ -276,7 +280,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 
     const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await admin.storage
       .from("contracts")
       .upload(storagePath, file);
 
@@ -285,7 +289,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
       continue;
     }
 
-    await supabase.from("contract_files").insert({
+    await admin.from("contract_files").insert({
       contract_id: contract.id,
       file_name: file.name,
       file_type: file.type,
@@ -298,7 +302,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
   }
 
   if (uploaded > 0) {
-    await supabase.from("audit_events").insert({
+    await admin.from("audit_events").insert({
       organization_id: contract.organization_id,
       contract_id: contract.id,
       user_id: user.id,
@@ -366,7 +370,8 @@ export async function getFileDownloadUrl(storagePath: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data, error } = await supabase.storage
+  const admin = await createAdminClient();
+  const { data, error } = await admin.storage
     .from("contracts")
     .createSignedUrl(storagePath, 60 * 60);
 
@@ -379,6 +384,7 @@ export async function updateContractStatus(
   newStatus: string
 ) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -390,7 +396,7 @@ export async function updateContractStatus(
     return { error: "Invalid status" };
   }
 
-  const { data: contract } = await supabase
+  const { data: contract } = await admin
     .from("contracts")
     .select("organization_id, title, status")
     .eq("id", contractId)
@@ -398,14 +404,14 @@ export async function updateContractStatus(
 
   if (!contract) return { error: "Contract not found" };
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("contracts")
     .update({ status: newStatus })
     .eq("id", contractId);
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_events").insert({
+  await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
     contract_id: contractId,
     user_id: user.id,
@@ -418,20 +424,21 @@ export async function updateContractStatus(
 
 export async function deleteContract(contractId: string) {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data: contract } = await supabase
+  const { data: contract } = await admin
     .from("contracts")
     .select("organization_id, title")
     .eq("id", contractId)
     .single();
 
   if (contract) {
-    await supabase.from("audit_events").insert({
+    await admin.from("audit_events").insert({
       organization_id: contract.organization_id,
       contract_id: contractId,
       user_id: user.id,
@@ -440,7 +447,7 @@ export async function deleteContract(contractId: string) {
     });
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("contracts")
     .delete()
     .eq("id", contractId);

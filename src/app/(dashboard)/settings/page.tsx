@@ -1,41 +1,36 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
 import type { OrganizationMember } from "@/lib/types";
 
 export default async function SettingsPage() {
-  const supabase = await createClient();
+  const ctx = await getAuthContext();
+  if (!ctx) return null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { user, orgId, admin } = ctx;
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  const { data: membership } = await supabase
+  const { data: membership } = await admin
     .from("organization_members")
     .select("*, organizations(name)")
     .eq("user_id", user.id)
+    .eq("organization_id", orgId)
     .limit(1)
     .single();
 
-  const orgId = membership?.organization_id;
-
   let members: OrganizationMember[] = [];
-  if (orgId) {
-    const { data } = await supabase
-      .from("organization_members")
-      .select("*, profiles(full_name, email)")
-      .eq("organization_id", orgId)
-      .order("created_at", { ascending: true });
-    members = (data as OrganizationMember[]) || [];
-  }
+  const { data } = await admin
+    .from("organization_members")
+    .select("*, profiles(full_name, email)")
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: true });
+  members = (data as OrganizationMember[]) || [];
 
   const orgName =
     (membership as OrganizationMember & { organizations: { name: string } } | null)

@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, ensureUserOrg } from "@/lib/supabase/server";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -27,15 +27,11 @@ export async function signUp(formData: FormData) {
     return { success: "Check your email to confirm your account." };
   }
 
-  // Auto-create org and membership for new user
   if (data.user) {
-    const { error: orgError } = await supabase.rpc("create_user_org", {
-      user_id: data.user.id,
-      org_name: fullName ? `${fullName}'s Organization` : "My Organization",
-    });
-    if (orgError) {
-      console.error("Failed to create org:", orgError.message);
-    }
+    await ensureUserOrg(
+      data.user.id,
+      fullName ? `${fullName}'s Organization` : "My Organization"
+    );
   }
 
   redirect("/dashboard");

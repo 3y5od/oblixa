@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { resolveSubscriptionStatus } from "@/lib/stripe";
 import { SubscribeButton, ManageSubscriptionButton } from "@/components/settings/billing-actions";
@@ -9,17 +9,16 @@ export default async function BillingPage(props: {
   searchParams: Promise<{ success?: string; canceled?: string }>;
 }) {
   const searchParams = await props.searchParams;
-  const supabase = await createClient();
+  const ctx = await getAuthContext();
+  if (!ctx) return null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { user, orgId, admin } = ctx;
 
-  const { data: membership } = await supabase
+  const { data: membership } = await admin
     .from("organization_members")
     .select("role, organizations(id, name, stripe_customer_id, stripe_subscription_id)")
     .eq("user_id", user.id)
+    .eq("organization_id", orgId)
     .limit(1)
     .single();
 

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 
 export async function POST() {
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -12,7 +13,7 @@ export async function POST() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { data: membership } = await supabase
+  const { data: membership } = await admin
     .from("organization_members")
     .select("organizations(stripe_customer_id)")
     .eq("user_id", user.id)

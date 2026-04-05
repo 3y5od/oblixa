@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { FieldReview } from "@/components/contracts/field-review";
@@ -15,19 +15,23 @@ export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await props.params;
-  const supabase = await createClient();
+  const ctx = await getAuthContext();
+  if (!ctx) return null;
 
-  const { data: contract } = await supabase
+  const { orgId, admin } = ctx;
+
+  const { data: contract } = await admin
     .from("contracts")
     .select(
       "*, owner:profiles!contracts_owner_id_fkey(full_name, email), contract_files(*), extracted_fields(*)"
     )
     .eq("id", id)
+    .eq("organization_id", orgId)
     .single();
 
   if (!contract) notFound();
 
-  const { data: auditEventsData } = await supabase
+  const { data: auditEventsData } = await admin
     .from("audit_events")
     .select("*")
     .eq("contract_id", id)

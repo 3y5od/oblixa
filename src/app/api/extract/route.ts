@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { extractTextFromBuffer } from "@/lib/extraction/parse-document";
 import { extractFieldsFromText } from "@/lib/extraction/extract-fields";
 
@@ -11,6 +11,7 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
+  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { data: files } = await supabase
+  const { data: files } = await admin
     .from("contract_files")
     .select("*")
     .eq("contract_id", contractId);
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
 
   for (const file of files) {
     try {
-      const { data: fileData, error } = await supabase.storage
+      const { data: fileData, error } = await admin.storage
         .from("contracts")
         .download(file.storage_path);
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
   const fields = await extractFieldsFromText(combinedText);
 
   if (fields.length > 0) {
-    const { data: existing } = await supabase
+    const { data: existing } = await admin
       .from("extracted_fields")
       .select("field_name")
       .eq("contract_id", contractId);
@@ -79,18 +80,18 @@ export async function POST(request: Request) {
       }));
 
     if (newFields.length > 0) {
-      await supabase.from("extracted_fields").insert(newFields);
+      await admin.from("extracted_fields").insert(newFields);
     }
   }
 
-  const { data: contract } = await supabase
+  const { data: contract } = await admin
     .from("contracts")
     .select("organization_id")
     .eq("id", contractId)
     .single();
 
   if (contract) {
-    await supabase.from("audit_events").insert({
+    await admin.from("audit_events").insert({
       organization_id: contract.organization_id,
       contract_id: contractId,
       user_id: user.id,
