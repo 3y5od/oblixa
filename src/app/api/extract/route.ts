@@ -1,25 +1,44 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { extractTextFromBuffer } from "@/lib/extraction/parse-document";
-import { extractFieldsFromText } from "@/lib/extraction/extract-fields";
-import {
-  preprocessContractTextForExtraction,
-  substantiveTextCharCount,
-} from "@/lib/extraction/preprocess-text";
+import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
+import { startExtractionJob } from "@/lib/extraction-job";
+import { isUuid } from "@/lib/security/validation";
 import {
-  finishExtractionJob,
-  startExtractionJob,
-} from "@/lib/extraction-job";
-import * as Sentry from "@sentry/nextjs";
+  getClientIpFromRequest,
+  rateLimitCheck,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
+
+/** Large PDFs + OpenAI can exceed default serverless limits on some hosts */
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
-  const { contractId } = (await request.json()) as { contractId: string };
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
+  }
 
-  if (!contractId) {
+  const rawId =
+    body !== null &&
+    typeof body === "object" &&
+    "contractId" in body &&
+    (body as { contractId: unknown }).contractId != null
+      ? String((body as { contractId: unknown }).contractId).trim()
+      : "";
+
+  if (!rawId) {
     return NextResponse.json({ error: "contractId required" }, { status: 400 });
   }
+
+  if (!isUuid(rawId)) {
+    return NextResponse.json({ error: "Invalid contractId" }, { status: 400 });
+  }
+
+  const contractId = rawId;
 
   const supabase = await createClient();
   const admin = await createAdminClient();
@@ -27,6 +46,22 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const ip = getClientIpFromRequest(request);
+  const rateKey = user ? `extract:${user.id}:${ip}` : `extract:anon:${ip}`;
+  const rl = await rateLimitCheck(rateKey, RATE_LIMITS.extract);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many extraction requests. Try again shortly." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
+
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
@@ -79,139 +114,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const fail = async (message: string, httpStatus: number) => {
-    await finishExtractionJob(admin, contractId, false, message);
-    return NextResponse.json({ error: message }, { status: httpStatus });
-  };
+  const orgId = contract.organization_id;
+  const uid = user.id;
 
-  try {
-    const { data: filesRaw } = await admin
-      .from("contract_files")
-      .select("*")
-      .eq("contract_id", contractId);
-
-    const files = [...(filesRaw ?? [])].sort((a, b) =>
-      (a.file_name || "").localeCompare(b.file_name || "")
-    );
-
-    if (!files.length) {
-      return await fail("No files found", 404);
-    }
-
-    const textChunks = await Promise.all(
-      files.map(async (file) => {
-        try {
-          const { data: fileData, error } = await admin.storage
-            .from("contracts")
-            .download(file.storage_path);
-
-          if (error || !fileData) {
-            console.error(`Download failed for ${file.file_name}:`, error?.message);
-            return "";
-          }
-
-          const buffer = Buffer.from(await fileData.arrayBuffer());
-          const text = await extractTextFromBuffer(buffer, file.file_type);
-          return `\n--- ${file.file_name} ---\n${text}\n`;
-        } catch (err) {
-          console.error(`Parse failed for ${file.file_name}:`, err);
-          return "";
-        }
-      })
-    );
-
-    const combinedText = preprocessContractTextForExtraction(
-      textChunks.join("")
-    );
-
-    if (!combinedText.trim()) {
-      return await fail("Could not extract text from any files", 422);
-    }
-
-    const textChars = substantiveTextCharCount(combinedText);
-    if (textChars < 200) {
-      return await fail(
-        "Very little text was extracted from the file(s). Scanned PDFs (images only) are not supported—use a text-based PDF or DOCX, or run OCR first.",
-        422
-      );
-    }
-
-    const searchCap = 120_000;
-    await admin
-      .from("contracts")
-      .update({ search_document: combinedText.slice(0, searchCap) })
-      .eq("id", contractId);
-
-    let fields: Awaited<ReturnType<typeof extractFieldsFromText>>;
+  after(async () => {
     try {
-      fields = await extractFieldsFromText(combinedText);
+      await runExtractionPipeline({
+        contractId,
+        userId: uid,
+        organizationId: orgId,
+      });
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "AI extraction request failed";
-      console.error("OpenAI extraction error:", err);
-      return await fail(msg, 502);
+      console.error("[api/extract] after() pipeline error:", err);
     }
+  });
 
-    if (fields.length === 0) {
-      return await fail(
-        "Extraction did not return usable fields. Verify OPENAI_API_KEY, model access, and try again (see server logs).",
-        422
-      );
-    }
-
-    let inserted = 0;
-    if (fields.length > 0) {
-      const { data: existing } = await admin
-        .from("extracted_fields")
-        .select("field_name")
-        .eq("contract_id", contractId);
-
-      const existingNames = new Set((existing ?? []).map((e) => e.field_name));
-
-      const newFields = fields
-        .filter((f) => !existingNames.has(f.field_name))
-        .map((f) => ({
-          contract_id: contractId,
-          field_name: f.field_name,
-          field_value: f.field_value,
-          source_snippet: f.source_snippet,
-          confidence: f.confidence,
-          source: "ai" as const,
-          status: "pending" as const,
-        }));
-
-      if (newFields.length > 0) {
-        await admin.from("extracted_fields").insert(newFields);
-        inserted = newFields.length;
-      }
-    }
-
-    await admin.from("audit_events").insert({
-      organization_id: contract.organization_id,
-      contract_id: contractId,
-      user_id: user.id,
-      action: "extraction.completed",
-      details: {
-        fields_returned: fields.length,
-        fields_inserted: inserted,
-        text_chars: textChars,
-      },
-    });
-
-    await finishExtractionJob(admin, contractId, true);
-
-    return NextResponse.json({
-      extracted: fields.length,
-      inserted,
-      textChars,
-    });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Extraction failed";
-    console.error("Extraction pipeline error:", err);
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureException(err, { extra: { contractId } });
-    }
-    await finishExtractionJob(admin, contractId, false, msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
+  return NextResponse.json(
+    {
+      accepted: true,
+      async: true,
+      message: "Extraction started",
+    },
+    { status: 202 }
+  );
 }

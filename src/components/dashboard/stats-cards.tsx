@@ -1,4 +1,3 @@
-import { FileText, AlertCircle, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
 interface StatsCardsProps {
@@ -9,6 +8,40 @@ interface StatsCardsProps {
   missingCriticalCount: number;
 }
 
+/** Short uppercase labels — keep single line at typical column widths; detail in `name` below. */
+const metricsConfig = [
+  {
+    name: "Portfolio",
+    sub: "Contracts",
+    valueKey: "totalContracts" as const,
+    href: "/contracts" as const,
+  },
+  {
+    name: "Review",
+    sub: "Pending",
+    valueKey: "pendingReview" as const,
+    href: "/contracts?status=pending_review" as const,
+  },
+  {
+    name: "Horizon",
+    sub: "≤30 days",
+    valueKey: "upcomingDeadlines" as const,
+    href: "/contracts" as const,
+  },
+  {
+    name: "Active",
+    sub: "In force",
+    valueKey: "activeContracts" as const,
+    href: "/contracts?status=active" as const,
+  },
+  {
+    name: "Gaps",
+    sub: "Key dates",
+    valueKey: "missingCriticalCount" as const,
+    href: "#missing-critical" as const,
+  },
+] as const;
+
 export function StatsCards({
   totalContracts,
   pendingReview,
@@ -16,85 +49,90 @@ export function StatsCards({
   activeContracts,
   missingCriticalCount,
 }: StatsCardsProps) {
-  const stats = [
-    {
-      name: "Total contracts",
-      value: totalContracts,
-      icon: FileText,
-      iconWrap: "border-zinc-200/90 bg-zinc-50 text-zinc-600",
-      href: "/contracts" as const,
-    },
-    {
-      name: "Pending review",
-      value: pendingReview,
-      icon: AlertCircle,
-      iconWrap: "border-amber-200/70 bg-amber-50/80 text-amber-800",
-      href: "/contracts?status=pending_review" as const,
-    },
-    {
-      name: "Upcoming deadlines",
-      value: upcomingDeadlines,
-      icon: Clock,
-      iconWrap: "border-rose-200/70 bg-rose-50/80 text-rose-800",
-      href: "/contracts" as const,
-    },
-    {
-      name: "Active contracts",
-      value: activeContracts,
-      icon: CheckCircle,
-      iconWrap: "border-emerald-200/70 bg-emerald-50/80 text-emerald-800",
-      href: "/contracts?status=active" as const,
-    },
-    {
-      name: "Missing key dates",
-      value: missingCriticalCount,
-      icon: AlertTriangle,
-      iconWrap: "border-orange-200/70 bg-orange-50/70 text-orange-900",
-      href: "#missing-critical" as const,
-    },
-  ];
+  const values = {
+    totalContracts,
+    pendingReview,
+    upcomingDeadlines,
+    activeContracts,
+    missingCriticalCount,
+  };
+
+  const toneFor = (
+    key: (typeof metricsConfig)[number]["valueKey"],
+    value: number
+  ): "default" | "urgent" | "attention" | "warning" => {
+    if (key === "upcomingDeadlines" && value > 0) return "urgent";
+    if (key === "pendingReview" && value > 0) return "attention";
+    if (key === "missingCriticalCount" && value > 0) return "warning";
+    return "default";
+  };
+
+  const valueClass = (tone: ReturnType<typeof toneFor>) => {
+    switch (tone) {
+      case "urgent":
+        return "text-rose-700";
+      case "attention":
+        return "text-amber-800";
+      case "warning":
+        return "text-orange-800";
+      default:
+        return "text-zinc-950";
+    }
+  };
+
+  const cellClass =
+    "ui-transition-surface flex h-full min-h-[7.5rem] flex-col px-5 py-6 hover:bg-zinc-50/80 sm:min-h-0 sm:px-6";
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {stats.map((stat) => {
-        const inner = (
-          <>
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex rounded-lg border p-2.5 ${stat.iconWrap}`}
+    <div className="ui-card ui-card-hover overflow-hidden">
+      <div className="grid grid-cols-2 divide-x divide-zinc-100 border-b border-zinc-100/80 lg:grid-cols-5">
+        {metricsConfig.map((m) => {
+          const value = values[m.valueKey];
+          const tone = toneFor(m.valueKey, value);
+          const inner = (
+            <>
+              {/* Fixed-height label band so values align across columns when labels wrap on small screens */}
+              <div className="flex min-h-[2.5rem] items-start">
+                <p className="ui-metric-label line-clamp-2 leading-snug">{m.sub}</p>
+              </div>
+              <p
+                className={`ui-metric-value mt-3 tabular-nums ${valueClass(tone)}`}
               >
-                <stat.icon size={18} strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-zinc-500">{stat.name}</p>
-                <p className="mt-0.5 text-2xl font-bold tabular-nums tracking-tight text-zinc-900">
-                  {stat.value}
-                </p>
-              </div>
-            </div>
-          </>
-        );
-        if (stat.href === "#missing-critical") {
+                {value}
+              </p>
+              <p className="mt-2 text-[12px] font-medium leading-tight text-zinc-400">
+                {m.name}
+              </p>
+            </>
+          );
+          const label = `${m.name}: ${value}`;
+          if (m.href === "#missing-critical") {
+            return (
+              <a
+                key={m.name}
+                href={m.href}
+                aria-label={label}
+                className={cellClass}
+              >
+                {inner}
+              </a>
+            );
+          }
           return (
-            <a
-              key={stat.name}
-              href={stat.href}
-              className="ui-card block p-5 transition-[border-color,background-color] hover:border-orange-200/80 hover:bg-orange-50/20"
+            <Link
+              key={m.name}
+              href={m.href}
+              aria-label={label}
+              className={cellClass}
             >
               {inner}
-            </a>
+            </Link>
           );
-        }
-        return (
-          <Link
-            key={stat.name}
-            href={stat.href}
-            className="ui-card block p-5 transition-[border-color,background-color] hover:border-zinc-300/90 hover:bg-zinc-50/40"
-          >
-            {inner}
-          </Link>
-        );
-      })}
+        })}
+      </div>
+      <p className="border-t border-zinc-100/80 bg-zinc-50/30 px-5 py-3.5 text-center text-[11px] leading-relaxed text-zinc-400 sm:px-6">
+        Snapshot of your workspace — click a metric to filter
+      </p>
     </div>
   );
 }

@@ -2,10 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import type { ContractStatus } from "@/lib/types";
+import { FIELD_NAMES, type ContractStatus } from "@/lib/types";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
-import { getAppBaseUrl } from "@/lib/app-url";
+import { resolveAppBaseUrl } from "@/lib/app-url";
+import { mapDataSourceError } from "@/lib/errors/user-facing";
+import { readApiJson } from "@/lib/parse-api-response";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
+import { isContractStoragePathSafe, isUuid } from "@/lib/security/validation";
+import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -21,6 +25,13 @@ const ALLOWED_TYPES = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
+
+const ALLOWED_MANUAL_FIELD_NAMES = new Set<string>(FIELD_NAMES);
+
+const MAX_CONTRACT_TITLE = 500;
+const MAX_COUNTERPARTY_LEN = 500;
+const MAX_CONTRACT_TYPE_LEN = 120;
+const MAX_MANUAL_FIELD_VALUE_LEN = 4000;
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   draft: ["pending_review"],
@@ -72,12 +83,20 @@ export async function createContract(formData: FormData) {
   if (!user) return { error: "Not authenticated" };
 
   const title = (formData.get("title") as string)?.trim();
-  const counterparty = formData.get("counterparty") as string | null;
-  const contractType = formData.get("contractType") as string | null;
-  const organizationId = formData.get("organizationId") as string;
+  const counterparty = (formData.get("counterparty") as string | null)?.trim() ?? null;
+  const contractType = (formData.get("contractType") as string | null)?.trim() ?? null;
+  const organizationId = (formData.get("organizationId") as string)?.trim() ?? "";
 
   if (!title) return { error: "Title is required" };
   if (!organizationId) return { error: "Organization is required" };
+  if (!isUuid(organizationId)) return { error: "Invalid organization" };
+  if (title.length > MAX_CONTRACT_TITLE) return { error: "Title is too long" };
+  if (counterparty && counterparty.length > MAX_COUNTERPARTY_LEN) {
+    return { error: "Counterparty is too long" };
+  }
+  if (contractType && contractType.length > MAX_CONTRACT_TYPE_LEN) {
+    return { error: "Contract type is too long" };
+  }
 
   if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
     return { error: "Access denied" };
@@ -100,7 +119,7 @@ export async function createContract(formData: FormData) {
     .select()
     .single();
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   const files = formData.getAll("files") as File[];
   const validFiles = files.filter((f) => {
@@ -118,7 +137,8 @@ export async function createContract(formData: FormData) {
 
   await Promise.all(
     validFiles.map(async (file) => {
-      const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+      const safeName = sanitizeUploadedFileName(file.name);
+      const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
       const { error: uploadError } = await admin.storage
         .from("contracts")
@@ -131,7 +151,7 @@ export async function createContract(formData: FormData) {
 
       await admin.from("contract_files").insert({
         contract_id: contract.id,
-        file_name: file.name,
+        file_name: safeName,
         file_type: file.type,
         file_size: file.size,
         storage_path: storagePath,
@@ -167,16 +187,22 @@ export async function updateContractField(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(fieldId)) return { error: "Invalid field" };
 
   const { data: field } = await admin
     .from("extracted_fields")
-    .select("*, contracts!inner(id, organization_id, owner_id)")
+    .select(
+      "field_name, field_value, source_snippet, source, contracts!inner(id, organization_id, owner_id)"
+    )
     .eq("id", fieldId)
     .single();
 
   if (!field) return { error: "Field not found" };
 
-  const contract = field.contracts as { id: string; organization_id: string; owner_id: string | null };
+  const contractRel = field.contracts as unknown;
+  const contract = (
+    Array.isArray(contractRel) ? contractRel[0] : contractRel
+  ) as { id: string; organization_id: string; owner_id: string | null };
 
   if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
     return { error: "Access denied" };
@@ -206,6 +232,9 @@ export async function updateContractField(
   };
 
   if (action === "edited" && newValue !== undefined) {
+    if (newValue.length > MAX_MANUAL_FIELD_VALUE_LEN) {
+      return { error: "Value is too long" };
+    }
     updateData.field_value = newValue;
     updateData.source = "human";
   }
@@ -215,7 +244,7 @@ export async function updateContractField(
     .update(updateData)
     .eq("id", fieldId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -299,6 +328,13 @@ export async function addManualField(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+  if (!ALLOWED_MANUAL_FIELD_NAMES.has(fieldName)) {
+    return { error: "Invalid field name" };
+  }
+  if (fieldValue.length > MAX_MANUAL_FIELD_VALUE_LEN) {
+    return { error: "Value is too long" };
+  }
 
   const { data: contract } = await admin
     .from("contracts")
@@ -329,7 +365,7 @@ export async function addManualField(
     .select()
     .single();
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -361,6 +397,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -389,7 +426,8 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
           throw new Error(`${file.name}: unsupported file type`);
         }
 
-        const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+        const safeName = sanitizeUploadedFileName(file.name);
+        const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
         const { error: uploadError } = await admin.storage
           .from("contracts")
@@ -401,7 +439,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 
         await admin.from("contract_files").insert({
           contract_id: contract.id,
-          file_name: file.name,
+          file_name: safeName,
           file_type: file.type,
           file_size: file.size,
           storage_path: storagePath,
@@ -433,19 +471,45 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 }
 
 async function triggerExtraction(contractId: string) {
-  const appUrl = getAppBaseUrl();
+  const appUrl = await resolveAppBaseUrl();
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
-  await fetch(`${appUrl}/api/extract`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: cookieHeader,
-    },
-    body: JSON.stringify({ contractId }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${appUrl}/api/extract`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+      },
+      body: JSON.stringify({ contractId }),
+    });
+  } catch (err) {
+    console.error("[triggerExtraction] network error:", err);
+    return;
+  }
+
+  const { data, isJson } = await readApiJson<{ error?: string }>(res);
+  if (!isJson) {
+    console.error(
+      "[triggerExtraction] non-JSON response",
+      res.status,
+      "— check NEXT_PUBLIC_APP_URL matches this deployment."
+    );
+    return;
+  }
+  if (!res.ok) {
+    if (res.status === 409) {
+      return;
+    }
+    console.error(
+      "[triggerExtraction] failed:",
+      res.status,
+      data.error ?? "(no error message)"
+    );
+  }
 }
 
 export async function runExtraction(contractId: string) {
@@ -455,6 +519,7 @@ export async function runExtraction(contractId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
 
   const admin = await createAdminClient();
   const { data: contract } = await admin
@@ -472,30 +537,67 @@ export async function runExtraction(contractId: string) {
   const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
   if (writeErr) return writeErr;
 
-  const appUrl = getAppBaseUrl();
+  const appUrl = await resolveAppBaseUrl();
 
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
-  const res = await fetch(`${appUrl}/api/extract`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: cookieHeader,
-    },
-    body: JSON.stringify({ contractId }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${appUrl}/api/extract`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+      },
+      body: JSON.stringify({ contractId }),
+    });
+  } catch {
+    return {
+      error:
+        "Could not reach the extraction service. Check your connection and NEXT_PUBLIC_APP_URL.",
+    };
+  }
 
-  const data = (await res.json()) as {
+  const { data, isJson, rawPreview } = await readApiJson<{
     error?: string;
     extracted?: number;
     inserted?: number;
     textChars?: number;
-  };
-  if (!res.ok) return { error: data.error || "Extraction failed" };
+    accepted?: boolean;
+    async?: boolean;
+  }>(res);
+
+  if (!isJson) {
+    return {
+      error: `Unexpected response from server (${res.status}). If this persists, verify NEXT_PUBLIC_APP_URL points to this app. ${rawPreview.slice(0, 120)}`,
+    };
+  }
+
+  if (res.status === 202 && data.accepted && data.async) {
+    return {
+      success: true,
+      async: true as const,
+      extracted: 0,
+      inserted: 0,
+    };
+  }
+
+  if (!res.ok) {
+    if (res.status === 409) {
+      return {
+        error:
+          data.error ||
+          "An extraction is already running. Wait for it to finish or refresh the page.",
+      };
+    }
+    return { error: data.error || `Extraction failed (${res.status})` };
+  }
+
   return {
     success: true,
+    async: false as const,
     extracted: data.extracted ?? 0,
     inserted: data.inserted ?? 0,
     textChars: data.textChars,
@@ -510,6 +612,7 @@ export async function batchApproveReadyFields(contractId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -560,8 +663,9 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const organizationId = formData.get("organizationId") as string;
+  const organizationId = (formData.get("organizationId") as string)?.trim() ?? "";
   if (!organizationId) return { error: "Organization is required" };
+  if (!isUuid(organizationId)) return { error: "Invalid organization" };
 
   if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
     return { error: "Access denied" };
@@ -585,7 +689,8 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   const rowErrors: string[] = [];
 
   for (const file of validFiles) {
-    const title = titleFromFileName(file.name);
+    const safeName = sanitizeUploadedFileName(file.name);
+    const title = titleFromFileName(safeName).slice(0, MAX_CONTRACT_TITLE);
     const { data: contract, error: insertErr } = await admin
       .from("contracts")
       .insert({
@@ -601,11 +706,11 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
       .single();
 
     if (insertErr || !contract) {
-      rowErrors.push(`${file.name}: ${insertErr?.message ?? "insert failed"}`);
+      rowErrors.push(`${safeName}: ${insertErr?.message ?? "insert failed"}`);
       continue;
     }
 
-    const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+    const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
     const { error: uploadError } = await admin.storage
       .from("contracts")
@@ -613,13 +718,13 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
 
     if (uploadError) {
       await admin.from("contracts").delete().eq("id", contract.id);
-      rowErrors.push(`${file.name}: ${uploadError.message}`);
+      rowErrors.push(`${safeName}: ${uploadError.message}`);
       continue;
     }
 
     await admin.from("contract_files").insert({
       contract_id: contract.id,
-      file_name: file.name,
+      file_name: safeName,
       file_type: file.type,
       file_size: file.size,
       storage_path: storagePath,
@@ -660,6 +765,9 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId) || !isUuid(newOwnerId)) {
+    return { error: "Invalid request" };
+  }
 
   const { data: contract } = await admin
     .from("contracts")
@@ -685,7 +793,7 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
     .update({ owner_id: newOwnerId })
     .eq("id", contractId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin
     .from("reminders")
@@ -711,6 +819,9 @@ export async function getFileDownloadUrl(storagePath: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isContractStoragePathSafe(storagePath)) {
+    return { error: "Invalid file path" };
+  }
 
   const admin = await createAdminClient();
 
@@ -732,7 +843,7 @@ export async function getFileDownloadUrl(storagePath: string) {
     .from("contracts")
     .createSignedUrl(storagePath, 60 * 60);
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   return { url: data.signedUrl };
 }
 
@@ -747,6 +858,7 @@ export async function updateContractStatus(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
 
   const validStatuses = ["draft", "pending_review", "active", "expired", "terminated"];
   if (!validStatuses.includes(newStatus)) {
@@ -779,7 +891,7 @@ export async function updateContractStatus(
     .update({ status: newStatus })
     .eq("id", contractId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -800,6 +912,7 @@ export async function deleteContract(contractId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -826,7 +939,7 @@ export async function deleteContract(contractId: string) {
     .delete()
     .eq("id", contractId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,

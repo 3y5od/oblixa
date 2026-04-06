@@ -32,7 +32,13 @@ export default async function DashboardLayout({
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
         />
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto px-5 py-8 outline-none md:px-10 md:py-10"
+        >
+          <div className="mx-auto max-w-[1600px]">{children}</div>
+        </main>
         <LegalFooter />
       </div>
     </div>

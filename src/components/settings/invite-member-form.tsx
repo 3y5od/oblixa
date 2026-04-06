@@ -17,9 +17,8 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
     <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
       <h3 className="text-sm font-semibold text-zinc-900">Invite teammate</h3>
       <p className="mt-1 text-xs text-zinc-600">
-        Sends an email invite from Supabase Auth. They will join this workspace when they
-        accept. If the address already has an account, use Supabase dashboard or ask them to
-        sign in and contact an admin.
+        Sends a secure email invite. They join this workspace after signing up or signing in
+        with the same email. Invites expire after seven days.
       </p>
       <form
         className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end"

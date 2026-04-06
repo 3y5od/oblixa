@@ -1,16 +1,17 @@
-import { createAdminClient } from "@/lib/supabase/server";
+import type { createAdminClient } from "@/lib/supabase/server";
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import type { Contract } from "@/lib/types";
+
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
 /**
  * Contracts in pending_review or active with no approved value for any of
  * end_date, renewal_date, or notice_window.
  */
 export async function getContractsMissingCriticalFields(
+  admin: Admin,
   orgId: string
 ): Promise<Pick<Contract, "id" | "title" | "counterparty">[]> {
-  const admin = await createAdminClient();
-
   const { data: contracts } = await admin
     .from("contracts")
     .select("id, title, counterparty")

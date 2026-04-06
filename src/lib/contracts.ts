@@ -2,11 +2,16 @@ import type { ContractStatus, Profile } from "@/lib/types";
 import type { createAdminClient } from "@/lib/supabase/server";
 
 export const STATUS_STYLES: Record<ContractStatus, string> = {
-  draft: "border border-zinc-200/90 bg-zinc-50 text-zinc-700",
-  pending_review: "border border-amber-200/70 bg-amber-50/90 text-amber-900",
-  active: "border border-emerald-200/70 bg-emerald-50/90 text-emerald-900",
-  expired: "border border-red-200/70 bg-red-50/90 text-red-800",
-  terminated: "border border-zinc-200/80 bg-zinc-50 text-zinc-600",
+  draft:
+    "border border-zinc-200/80 bg-zinc-50/90 font-semibold text-zinc-600 shadow-sm",
+  pending_review:
+    "border border-amber-200/60 bg-amber-50/80 font-semibold text-amber-900 shadow-sm",
+  active:
+    "border border-emerald-200/50 bg-emerald-50/70 font-semibold text-emerald-900 shadow-sm",
+  expired:
+    "border border-rose-200/60 bg-rose-50/80 font-semibold text-rose-900 shadow-sm",
+  terminated:
+    "border border-zinc-200/70 bg-zinc-100/50 font-semibold text-zinc-600 shadow-sm",
 };
 
 export const STATUS_LABELS: Record<ContractStatus, string> = {
@@ -25,10 +30,10 @@ export const STATUS_LABELS: Record<ContractStatus, string> = {
 export async function attachOwnerProfiles<T extends { owner_id: string | null }>(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   contracts: T[]
-): Promise<(T & { owner: Pick<Profile, "full_name" | "email"> | null })[]> {
+): Promise<(T & { owner?: Pick<Profile, "full_name" | "email"> })[]> {
   const ownerIds = [...new Set(contracts.map((c) => c.owner_id).filter(Boolean))] as string[];
   if (ownerIds.length === 0) {
-    return contracts.map((c) => ({ ...c, owner: null }));
+    return contracts.map((c) => ({ ...c }));
   }
 
   const { data: profiles } = await admin
@@ -38,8 +43,10 @@ export async function attachOwnerProfiles<T extends { owner_id: string | null }>
 
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-  return contracts.map((c) => ({
-    ...c,
-    owner: c.owner_id ? (profileMap.get(c.owner_id) as Pick<Profile, "full_name" | "email"> | undefined) ?? null : null,
-  }));
+  return contracts.map((c) => {
+    const owner = c.owner_id
+      ? (profileMap.get(c.owner_id) as Pick<Profile, "full_name" | "email"> | undefined)
+      : undefined;
+    return owner ? { ...c, owner } : { ...c };
+  });
 }

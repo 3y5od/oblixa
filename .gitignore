@@ -1,8 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# See https://help.github.com/articles/ignoring-files/
 
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,33 +10,59 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# Next.js
+.next/
+out/
 
-# next.js
-/.next/
-/out/
+# Production / output
+build/
+dist/
 
-# production
-/build
+# Testing & coverage
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
-# misc
-.DS_Store
-*.pem
+# Vercel / Turborepo
+.vercel
+.turbo
 
-# debug
+# TypeScript
+*.tsbuildinfo
+
+# ESLint / Prettier (local caches)
+.eslintcache
+.prettiercache
+
+# Debug logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# Environment (never commit secrets)
 .env*
 !.env.example
 
-# vercel
-.vercel
+# TLS / keys
+*.pem
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors & temp files
+.idea/
+*.swp
+*.swo
+*~
+
+# Sentry CLI (may contain auth)
+.sentryclirc
+
+# Supabase CLI (local state)
+supabase/.branches
+supabase/.temp

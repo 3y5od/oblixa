@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { readApiJson } from "@/lib/parse-api-response";
 
 export function SubscribeButton() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,18 @@ export function SubscribeButton() {
     setError(null);
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      const data = await res.json();
+      const { data, isJson, rawPreview } = await readApiJson<{
+        url?: string;
+        error?: string;
+      }>(res);
+      if (!isJson) {
+        setError(
+          res.ok
+            ? "Unexpected response from billing. Please try again."
+            : `Billing error (${res.status}). ${rawPreview.slice(0, 160)}`
+        );
+        return;
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -54,7 +66,18 @@ export function ManageSubscriptionButton() {
     setError(null);
     try {
       const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const data = await res.json();
+      const { data, isJson, rawPreview } = await readApiJson<{
+        url?: string;
+        error?: string;
+      }>(res);
+      if (!isJson) {
+        setError(
+          res.ok
+            ? "Unexpected response from billing. Please try again."
+            : `Billing error (${res.status}). ${rawPreview.slice(0, 160)}`
+        );
+        return;
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {

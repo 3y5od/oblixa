@@ -53,29 +53,27 @@ export default async function NewContractPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-          Upload Contract
-        </h1>
-        <p className="text-sm text-zinc-500">
-          Drag in files or browse. After saving, you can run AI extraction from the
-          contract page.
+    <div className="mx-auto max-w-2xl space-y-10">
+      <header className="border-b border-zinc-200/60 pb-8">
+        <p className="ui-eyebrow">New record</p>
+        <h1 className="ui-display-title mt-2">Upload contract</h1>
+        <p className="ui-muted mt-3">
+          Add files and metadata. After saving, run AI extraction from the contract
+          detail page.
         </p>
-      </div>
+      </header>
 
-      <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950">
-        <p className="font-medium text-sky-900">From email</p>
-        <p className="mt-1 text-sky-900/90">
-          Save PDF or DOCX attachments from your inbox to your computer, then upload them
-          here. There is no inbox integration in this version — this keeps the trust loop
-          simple and under your control.
+      <div className="rounded-2xl border border-indigo-200/50 bg-gradient-to-br from-indigo-50/40 to-white px-5 py-4 text-[13px] leading-relaxed text-zinc-700">
+        <p className="font-semibold text-zinc-900">From email</p>
+        <p className="mt-1.5 text-zinc-600">
+          Save PDF or DOCX attachments locally, then upload here. No inbox integration
+          in this version — keeping the trust loop explicit.
         </p>
       </div>
 
       <RecentUploads files={recentFiles} />
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="ui-card p-6 md:p-8">
         <UploadForm
           organizationId={ctx.orgId}
           disabled={!!disabledReason}

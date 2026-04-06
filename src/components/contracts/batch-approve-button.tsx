@@ -51,7 +51,13 @@ export function BatchApproveButton({
         {isPending ? "Approving…" : "Approve all ready fields"}
       </button>
       {message && (
-        <p className="text-sm text-zinc-600 sm:max-w-md sm:text-right">{message}</p>
+        <p
+          className="text-sm text-zinc-600 sm:max-w-md sm:text-right"
+          role="status"
+          aria-live="polite"
+        >
+          {message}
+        </p>
       )}
     </div>
   );

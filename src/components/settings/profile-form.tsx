@@ -42,12 +42,17 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700">Email</label>
+          <label htmlFor="profile-email-readonly" className="block text-sm font-medium text-zinc-700">
+            Email
+          </label>
           <input
-            type="text"
-            disabled
+            id="profile-email-readonly"
+            type="email"
+            readOnly
             value={email}
-            className="ui-input mt-1 border-zinc-200 bg-zinc-50 text-zinc-500"
+            autoComplete="email"
+            aria-readonly="true"
+            className="ui-input mt-1 cursor-default border-zinc-200 bg-zinc-50 text-zinc-500"
           />
         </div>
       </div>
@@ -56,8 +61,9 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           type="submit"
           disabled={pending}
           className="ui-btn-primary disabled:opacity-50"
+          aria-busy={pending}
         >
-          {pending ? "Saving..." : "Save changes"}
+          {pending ? "Saving…" : "Save changes"}
         </button>
       </div>
     </form>

@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useTransition, type KeyboardEvent } from "react";
+import {
+  memo,
+  useState,
+  useTransition,
+  useRef,
+  type KeyboardEvent,
+} from "react";
 import { Check, X, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
 import type { ExtractedField } from "@/lib/types";
 
 const statusBadge: Record<string, string> = {
-  pending: "border border-amber-200/70 bg-amber-50/90 text-amber-900",
-  approved: "border border-emerald-200/70 bg-emerald-50/90 text-emerald-900",
-  rejected: "border border-red-200/70 bg-red-50/90 text-red-800",
-  edited: "border border-sky-200/70 bg-sky-50/90 text-sky-900",
+  pending: "border border-amber-200/70 bg-amber-50/90 text-amber-950",
+  approved: "border border-emerald-200/60 bg-emerald-50/80 text-emerald-900",
+  rejected: "border border-red-200/60 bg-red-50/80 text-red-900",
+  edited: "border border-indigo-200/50 bg-indigo-50/70 text-indigo-950",
 };
 
 function confidenceLabel(c: number | null): string {
@@ -20,9 +26,9 @@ function confidenceLabel(c: number | null): string {
 
 function confidenceTone(c: number | null): string {
   if (c == null) return "text-zinc-400";
-  if (c >= 0.75) return "text-emerald-800";
+  if (c >= 0.75) return "text-emerald-700";
   if (c >= 0.45) return "text-amber-700";
-  return "text-red-700";
+  return "text-rose-700";
 }
 
 interface FieldReviewProps {
@@ -34,9 +40,11 @@ interface FieldReviewProps {
 export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
   if (fields.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-200/90 bg-zinc-50/20 p-8 text-center">
-        <p className="text-sm text-zinc-500">
-          No extracted fields yet. Fields will appear after the document is processed.
+      <div className="rounded-2xl border border-dashed border-zinc-200/90 bg-zinc-50/30 px-8 py-12 text-center">
+        <p className="text-[13px] leading-relaxed text-zinc-500">
+          No extracted fields yet. Run{" "}
+          <span className="font-semibold text-zinc-800">Extract fields with AI</span>{" "}
+          after upload. Image-only PDFs are not supported — use text-based PDF or DOCX.
         </p>
       </div>
     );
@@ -45,51 +53,85 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
   const hasPending = fields.some((f) => f.status === "pending");
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {canEdit && hasPending && (
-        <p className="text-xs text-zinc-500">
-          <span className="font-medium text-zinc-700">Keyboard:</span> Focus a
-          pending row (Tab), then{" "}
-          <kbd className="rounded border border-zinc-300 bg-zinc-50 px-1 font-mono text-[0.7rem]">
-            A
-          </kbd>{" "}
-          approve,{" "}
-          <kbd className="rounded border border-zinc-300 bg-zinc-50 px-1 font-mono text-[0.7rem]">
-            R
-          </kbd>{" "}
-          reject,{" "}
-          <kbd className="rounded border border-zinc-300 bg-zinc-50 px-1 font-mono text-[0.7rem]">
-            E
-          </kbd>{" "}
-          edit. Disabled while typing in an input.
-        </p>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-xl border border-zinc-200/70 bg-white px-4 py-3 text-[12px] text-zinc-500 shadow-sm">
+          <span className="font-semibold text-zinc-700">Shortcuts</span>
+          <span className="hidden sm:inline text-zinc-300">·</span>
+          <span>
+            <kbd className="ui-kbd">A</kbd> approve · <kbd className="ui-kbd">R</kbd> reject ·{" "}
+            <kbd className="ui-kbd">E</kbd> edit · <kbd className="ui-kbd">Esc</kbd> cancel
+          </span>
+        </div>
       )}
-      <div className="overflow-x-auto rounded-xl border border-zinc-200/85 bg-surface">
-      <table className="min-w-full divide-y divide-zinc-200/80 text-sm">
-        <thead>
-          <tr>
-            <th className="ui-table-header px-4 py-3">Field</th>
-            <th className="ui-table-header px-4 py-3">Value</th>
-            <th className="ui-table-header px-4 py-3">Confidence</th>
-            <th className="ui-table-header px-4 py-3">Source</th>
-            <th className="ui-table-header px-4 py-3">Status</th>
-            {canEdit && (
-              <th className="ui-table-header px-4 py-3 text-right">Actions</th>
-            )}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-200/60 bg-surface">
-          {fields.map((field) => (
-            <FieldRow key={field.id} field={field} canEdit={canEdit} />
-          ))}
-        </tbody>
-      </table>
+      <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse text-[13px]">
+            <caption className="sr-only">
+              Extracted contract fields — approve, reject, or edit pending rows
+            </caption>
+            <thead>
+              <tr className="border-b border-zinc-200/80 bg-zinc-50/90">
+                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left first:pl-6">
+                  Field
+                </th>
+                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                  Value
+                </th>
+                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                  Model confidence
+                </th>
+                <th className="ui-table-header min-w-[220px] whitespace-nowrap px-4 py-3.5 text-left">
+                  Source evidence
+                </th>
+                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                  Status
+                </th>
+                {canEdit && (
+                  <th className="ui-table-header whitespace-nowrap px-4 py-3.5 pr-6 text-right">
+                    Actions
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {fields.map((field) => (
+                <FieldRow key={field.id} field={field} canEdit={canEdit} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean }) {
+function focusNextPendingRow(row: HTMLTableRowElement | null) {
+  if (!row?.parentElement) return;
+  const parent = row.parentElement;
+  queueMicrotask(() => {
+    requestAnimationFrame(() => {
+      let el: Element | null = row.nextElementSibling;
+      while (el) {
+        if (el instanceof HTMLTableRowElement && el.tabIndex === 0) {
+          el.focus();
+          return;
+        }
+        el = el.nextElementSibling;
+      }
+      parent.querySelector<HTMLTableRowElement>("tr[tabindex='0']")?.focus();
+    });
+  });
+}
+
+const FieldRow = memo(function FieldRow({
+  field,
+  canEdit,
+}: {
+  field: ExtractedField;
+  canEdit: boolean;
+}) {
+  const rowRef = useRef<HTMLTableRowElement>(null);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.field_value || "");
   const [isPending, startTransition] = useTransition();
@@ -117,6 +159,7 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
         return;
       }
       if (result && "success" in result && result.success) {
+        const wasPending = currentField.status === "pending";
         setCurrentField((prev) => ({
           ...prev,
           status: action,
@@ -125,18 +168,21 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
             : {}),
         }));
         setEditing(false);
+        if (wasPending && (action === "approved" || action === "rejected" || action === "edited")) {
+          focusNextPendingRow(rowRef.current);
+        }
       }
     });
   }
 
   const rowBg =
     currentField.status === "pending"
-      ? "bg-amber-50/40"
+      ? "bg-amber-50/25"
       : currentField.status === "approved"
-        ? "bg-green-50/30"
+        ? "bg-emerald-50/15"
         : currentField.status === "rejected"
-          ? "bg-red-50/30"
-          : "bg-sky-50/35";
+          ? "bg-rose-50/20"
+          : "bg-indigo-50/15";
 
   const rowKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
     if (!canEdit || currentField.status !== "pending" || editing) return;
@@ -158,44 +204,53 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
     }
   };
 
+  const fieldLabel = currentField.field_name.replace(/_/g, " ");
+
   return (
     <tr
+      ref={rowRef}
       id={`field-${currentField.id}`}
-      className={`scroll-mt-24 outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30 focus-visible:ring-offset-2 ${rowBg}`}
+      className={`scroll-mt-28 outline-none transition-colors focus-visible:bg-zinc-50/80 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/20 ${rowBg}`}
       tabIndex={canEdit && currentField.status === "pending" && !editing ? 0 : -1}
       onKeyDown={rowKeyDown}
     >
-      <td className="whitespace-nowrap px-3 py-3 align-top font-medium text-zinc-900">
-        {currentField.field_name.replace(/_/g, " ")}
-        <div className="mt-0.5 text-xs font-normal text-zinc-400">
-          {currentField.source === "ai" ? "AI" : "Human"}
-        </div>
+      <td className="whitespace-nowrap px-4 py-4 align-top first:pl-6">
+        <p className="font-semibold capitalize text-zinc-900">{fieldLabel}</p>
+        <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+          {currentField.source === "ai" ? "AI extraction" : "Human entry"}
+        </p>
       </td>
-      <td className="max-w-[220px] px-3 py-3 align-top text-zinc-800">
+      <td className="max-w-[min(280px,32vw)] px-4 py-4 align-top text-zinc-800">
         {editing ? (
           <div className="flex flex-col gap-2">
             <input
               type="text"
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              className="ui-input py-1.5 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setEditing(false);
+                  setActionError(null);
+                }
+              }}
+              className="ui-input py-2 text-[13px]"
+              aria-label={`Edit ${fieldLabel}`}
             />
-            {actionError && (
-              <p className="text-xs text-red-600">{actionError}</p>
-            )}
-            <div className="flex flex-wrap gap-1.5">
+            {actionError && <p className="text-xs font-medium text-red-700">{actionError}</p>}
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => handleAction("edited", editValue)}
                 disabled={isPending}
-                className="ui-btn-primary px-2.5 py-1 text-xs disabled:opacity-50"
+                className="ui-btn-primary px-3 py-1.5 text-xs disabled:opacity-50"
               >
                 Save
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="ui-btn-secondary px-2.5 py-1 text-xs"
+                className="ui-btn-secondary px-3 py-1.5 text-xs"
               >
                 Cancel
               </button>
@@ -203,61 +258,73 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
           </div>
         ) : (
           <>
-            {currentField.field_value || (
-              <span className="italic text-zinc-400">Unknown</span>
-            )}
+            <span className="font-medium">
+              {currentField.field_value || (
+                <span className="font-normal italic text-zinc-400">Unknown</span>
+              )}
+            </span>
             {needsCitation && (
-              <p className="mt-1 text-xs text-amber-800">
-                Add a source by saving an edit (marks the value as human-verified), or reject
-                this AI extraction.
+              <p className="mt-2 rounded-lg border border-amber-200/60 bg-amber-50/50 px-2.5 py-2 text-[11px] leading-snug text-amber-950">
+                Citation required: edit to add source text, or reject this extraction.
               </p>
             )}
             {actionError && (
-              <p className="mt-1 text-xs text-red-600">{actionError}</p>
+              <p className="mt-2 text-xs font-medium text-red-700">{actionError}</p>
             )}
           </>
         )}
       </td>
-      <td className="whitespace-nowrap px-3 py-3 align-top">
+      <td className="whitespace-nowrap px-4 py-4 align-top">
         <span
-          className={`text-xs font-medium ${confidenceTone(currentField.confidence)}`}
+          className={`text-[13px] font-semibold tabular-nums ${confidenceTone(currentField.confidence)}`}
           title="Model-reported certainty (0–100%)"
         >
           {confidenceLabel(currentField.confidence)}
         </span>
       </td>
-      <td className="max-w-[280px] px-3 py-3 align-top text-xs text-zinc-600">
+      <td className="max-w-[min(320px,40vw)] px-4 py-4 align-top">
         {currentField.source_snippet ? (
-          <span className="italic">&ldquo;{currentField.source_snippet}&rdquo;</span>
+          <blockquote className="ui-source-quote rounded-r-lg text-[13px] leading-snug">
+            <span className="italic text-zinc-700">
+              &ldquo;{currentField.source_snippet}&rdquo;
+            </span>
+          </blockquote>
         ) : (
-          <span className="text-zinc-400">—</span>
+          <span className="text-[13px] text-zinc-400">—</span>
         )}
       </td>
-      <td className="whitespace-nowrap px-3 py-3 align-top">
+      <td className="whitespace-nowrap px-4 py-4 align-top">
         <span
-          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
             statusBadge[currentField.status]
           }`}
         >
-          {currentField.status}
+          {currentField.status === "pending"
+            ? "Pending"
+            : currentField.status === "approved"
+              ? "Approved"
+              : currentField.status === "rejected"
+                ? "Rejected"
+                : "Edited"}
         </span>
       </td>
       {canEdit && (
-        <td className="whitespace-nowrap px-3 py-3 align-top text-right">
+        <td className="whitespace-nowrap px-4 py-4 pr-6 align-top text-right">
           {currentField.status === "pending" && !editing && (
-            <div className="flex justify-end gap-0.5">
+            <div className="inline-flex rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-0.5 shadow-sm">
               <button
                 type="button"
                 onClick={() => handleAction("approved")}
                 disabled={isPending || needsCitation}
-                className="rounded-lg p-1.5 text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg p-2 text-emerald-700 transition-colors hover:bg-white hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
                 title={
                   needsCitation
-                    ? "Add a source citation by editing the field first"
+                    ? "Add a source citation by editing first"
                     : "Approve"
                 }
+                aria-label={`Approve ${fieldLabel}`}
               >
-                <Check size={16} />
+                <Check size={17} aria-hidden strokeWidth={2} />
               </button>
               <button
                 type="button"
@@ -266,19 +333,21 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
                   setEditValue(currentField.field_value || "");
                 }}
                 disabled={isPending}
-                className="rounded-lg p-1.5 text-sky-700 transition-colors hover:bg-sky-50 disabled:opacity-50"
+                className="rounded-lg p-2 text-[var(--accent)] transition-colors hover:bg-white hover:shadow-sm disabled:opacity-50"
                 title="Edit"
+                aria-label={`Edit ${fieldLabel}`}
               >
-                <Pencil size={16} strokeWidth={1.75} />
+                <Pencil size={17} strokeWidth={1.75} aria-hidden />
               </button>
               <button
                 type="button"
                 onClick={() => handleAction("rejected")}
                 disabled={isPending}
-                className="rounded-lg p-1.5 text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50"
+                className="rounded-lg p-2 text-rose-700 transition-colors hover:bg-white hover:shadow-sm disabled:opacity-50"
                 title="Reject"
+                aria-label={`Reject ${fieldLabel}`}
               >
-                <X size={16} />
+                <X size={17} aria-hidden />
               </button>
             </div>
           )}
@@ -286,4 +355,4 @@ function FieldRow({ field, canEdit }: { field: ExtractedField; canEdit: boolean 
       )}
     </tr>
   );
-}
+});

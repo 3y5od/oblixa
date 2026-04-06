@@ -2,26 +2,40 @@
 
 import { redirect } from "next/navigation";
 import { createClient, ensureUserOrg } from "@/lib/supabase/server";
-import { getAppBaseUrl } from "@/lib/app-url";
+import { resolveAppBaseUrl } from "@/lib/app-url";
+import { mapAuthError } from "@/lib/errors/user-facing";
+import {
+  getClientIpFromHeaders,
+  rateLimitCheck,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 export async function signUp(formData: FormData) {
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`signup:${ip}`, RATE_LIMITS.signUp);
+  if (!rl.ok) {
+    return { error: "Too many sign-up attempts. Try again later." };
+  }
+
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const fullName = formData.get("fullName") as string;
 
+  const appUrl = await resolveAppBaseUrl();
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${getAppBaseUrl()}/auth/callback`,
+      emailRedirectTo: `${appUrl}/auth/callback`,
     },
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   if (data.user && !data.session) {
@@ -39,6 +53,12 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signIn(formData: FormData) {
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`signin:${ip}`, RATE_LIMITS.signIn);
+  if (!rl.ok) {
+    return { error: "Too many sign-in attempts. Try again in a few minutes." };
+  }
+
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
@@ -47,7 +67,7 @@ export async function signIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   redirect("/dashboard");
@@ -60,15 +80,23 @@ export async function signOut() {
 }
 
 export async function forgotPassword(formData: FormData) {
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`forgot:${ip}`, RATE_LIMITS.forgotPassword);
+  if (!rl.ok) {
+    return { error: "Too many reset requests. Try again later." };
+  }
+
   const supabase = await createClient();
   const email = formData.get("email") as string;
 
+  const appUrl = await resolveAppBaseUrl();
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${getAppBaseUrl()}/reset-password`,
+    redirectTo: `${appUrl}/reset-password`,
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   return { success: "Check your email for a password reset link." };
@@ -81,7 +109,7 @@ export async function resetPassword(formData: FormData) {
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   redirect("/dashboard");

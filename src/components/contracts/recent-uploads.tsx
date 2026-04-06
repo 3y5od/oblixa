@@ -25,8 +25,8 @@ export function RecentUploads({ files }: { files: RecentFileRow[] }) {
       <div className="border-b border-zinc-200 px-4 py-3">
         <h2 className="text-sm font-semibold text-zinc-900">Recent uploads</h2>
         <p className="text-xs text-zinc-500">
-          Latest files stored for your organization. Status: stored in Supabase
-          (ready for extraction after contract is saved).
+          Latest files attached to contracts in your workspace. Open a contract to run
+          extraction or continue review.
         </p>
       </div>
       <ul className="divide-y divide-zinc-100 max-h-64 overflow-y-auto">

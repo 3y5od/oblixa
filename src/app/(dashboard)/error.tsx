@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
 export default function DashboardError({
@@ -18,12 +19,12 @@ export default function DashboardError({
     <div className="flex items-center justify-center py-20">
       <div className="mx-auto max-w-md text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-red-200/80 bg-red-50">
-          <AlertCircle className="h-6 w-6 text-red-700" strokeWidth={1.75} />
+          <AlertCircle className="h-6 w-6 text-red-700" strokeWidth={1.75} aria-hidden />
         </div>
         <h2 className="mt-4 text-lg font-bold tracking-tight text-zinc-900">
           Something went wrong
         </h2>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-zinc-500" role="status">
           An unexpected error occurred. Please try again.
         </p>
         {error.digest && (
@@ -31,12 +32,18 @@ export default function DashboardError({
             Error ID: {error.digest}
           </p>
         )}
-        <button
-          onClick={() => unstable_retry()}
-          className="mt-6 ui-btn-primary"
-        >
-          Try again
-        </button>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => unstable_retry()}
+            className="ui-btn-primary px-5 py-2.5"
+          >
+            Try again
+          </button>
+          <Link href="/dashboard" className="ui-btn-secondary px-5 py-2.5">
+            Back to dashboard
+          </Link>
+        </div>
       </div>
     </div>
   );

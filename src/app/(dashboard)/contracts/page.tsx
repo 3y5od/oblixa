@@ -161,53 +161,58 @@ export default async function ContractsPage(props: {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-8">
+      <header className="flex flex-col gap-6 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="ui-page-title">Contracts</h1>
-          <p className="ui-muted mt-1.5 max-w-xl">
-            Filter and paginate your workspace. Use the{" "}
+          <p className="ui-eyebrow">Portfolio</p>
+          <h1 className="ui-display-title mt-2">Contracts</h1>
+          <p className="ui-muted mt-3 max-w-xl">
+            Search, filter by deadline and owner, and open the{" "}
             <Link href="/contracts/review" className="ui-link">
               review queue
             </Link>{" "}
-            for contracts that still need field approval.
+            for pending field approval.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <a href="/api/export/contracts" className="ui-btn-secondary px-4 py-2">
+          <a href="/api/export/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Export CSV
           </a>
-          <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2">
+          <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Bulk import
           </Link>
-          <Link href="/contracts/new" className="ui-btn-primary px-4 py-2">
-            Upload contract
+          <Link href="/contracts/new" className="ui-btn-primary px-5 py-2.5">
+            Upload
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="flex flex-col gap-4">
-        <form className="flex flex-wrap items-end gap-4" action="/contracts" method="get">
-          <div>
-            <label className="ui-label mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <div className="flex flex-col gap-6">
+        <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
+          <form className="flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end" action="/contracts" method="get">
+          <div className="min-w-0 flex-1 lg:max-w-md">
+            <label htmlFor="contract-search" className="ui-label-caps">
               Search
             </label>
             <input
+              id="contract-search"
               name="search"
-              type="text"
-              placeholder="Title, counterparty, type, fees, dates…"
+              type="search"
+              placeholder="Title, counterparty, type, dates…"
               defaultValue={searchParams.search || ""}
-              className="ui-input w-72"
+              className="ui-input w-full"
+              autoComplete="off"
             />
           </div>
-          <div>
-            <label className="ui-label mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <div className="w-full lg:w-auto">
+            <label htmlFor="contract-deadline-filter" className="ui-label-caps">
               Key dates
             </label>
             <select
+              id="contract-deadline-filter"
               name="deadline"
               defaultValue={deadline}
-              className="ui-input w-auto min-w-[11rem] py-2"
+              className="ui-input w-full min-w-0 py-2.5 lg:w-auto lg:min-w-[12rem]"
             >
               {DEADLINE_OPTIONS.map((o) => (
                 <option key={o.value || "any"} value={o.value}>
@@ -223,16 +228,14 @@ export default async function ContractsPage(props: {
             <input type="hidden" name="owner" value={searchParams.owner} />
           )}
           <input type="hidden" name="page" value="1" />
-          <button type="submit" className="ui-btn-secondary px-4 py-2">
-            Apply
+          <button type="submit" className="ui-btn-primary w-full lg:w-auto lg:shrink-0">
+            Apply filters
           </button>
         </form>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Status
-          </span>
-          <div className="flex flex-wrap gap-1.5">
+        <div className="mt-6 flex flex-col gap-3 border-t border-zinc-100 pt-6">
+          <span className="ui-label-caps mb-0">Status</span>
+          <div className="flex flex-wrap gap-2">
             {statuses.map((s) => (
               <Link
                 key={s.value}
@@ -240,10 +243,10 @@ export default async function ContractsPage(props: {
                   ...baseParams,
                   status: s.value || undefined,
                 })}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
                   (searchParams.status || "") === s.value
-                    ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
-                    : "text-zinc-600 hover:bg-zinc-100/90"
+                    ? "bg-[var(--accent)] text-[var(--accent-fg)] shadow-sm"
+                    : "bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/60 hover:text-zinc-900"
                 }`}
               >
                 {s.label}
@@ -253,21 +256,19 @@ export default async function ContractsPage(props: {
         </div>
 
         {members.length > 1 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              Owner
-            </span>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-col gap-3 border-t border-zinc-100 pt-6">
+            <span className="ui-label-caps mb-0">Owner</span>
+            <div className="flex flex-wrap gap-2">
               <Link
                 href={buildFilterUrl({
                   status: searchParams.status,
                   search: searchParams.search,
                   deadline: searchParams.deadline,
                 })}
-                className={`rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
                   !searchParams.owner
-                    ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
-                    : "text-zinc-600 hover:bg-zinc-100/90"
+                    ? "bg-[var(--accent)] text-[var(--accent-fg)] shadow-sm"
+                    : "bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/60 hover:text-zinc-900"
                 }`}
               >
                 All
@@ -281,10 +282,10 @@ export default async function ContractsPage(props: {
                     deadline: searchParams.deadline,
                     owner: m.id,
                   })}
-                  className={`rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
                     searchParams.owner === m.id
-                      ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
-                      : "text-zinc-600 hover:bg-zinc-100/90"
+                      ? "bg-[var(--accent)] text-[var(--accent-fg)] shadow-sm"
+                      : "bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/60 hover:text-zinc-900"
                   }`}
                 >
                   {m.label}
@@ -293,6 +294,7 @@ export default async function ContractsPage(props: {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       <ContractTable

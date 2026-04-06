@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { FIELD_NAMES } from "@/lib/types";
 
 function csvEscape(value: string | null | undefined): string {
   if (value == null || value === "") return "";
-  const t = String(value);
+  let t = String(value);
+  // CSV / spreadsheet formula injection (OWASP)
+  if (/^[=+\-@\t\r]/.test(t)) {
+    t = `'${t}`;
+  }
   if (/[",\n\r]/.test(t)) {
     return `"${t.replace(/"/g, '""')}"`;
   }
@@ -44,7 +49,10 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: mapDataSourceError(error.message) },
+      { status: 500 }
+    );
   }
 
   const ownerIds = [

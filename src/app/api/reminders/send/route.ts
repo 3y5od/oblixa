@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { sendReminderEmail } from "@/lib/email";
-import { getAppBaseUrl } from "@/lib/app-url";
+import { getRequestOrigin } from "@/lib/app-url";
+import * as Sentry from "@sentry/nextjs";
+
+function pingCronMonitor(payload: Record<string, unknown>) {
+  const url = process.env.CRON_HEALTHCHECK_URL?.trim();
+  if (!url) return;
+  void fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, route: "reminders/send" }),
+  }).catch(() => {});
+}
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -50,13 +61,23 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("[reminders/cron] query error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureMessage(error.message, {
+        level: "error",
+        extra: { route: "reminders/send", code: error.code },
+      });
+    }
+    return NextResponse.json(
+      { error: "Could not load reminders. Try again later." },
+      { status: 500 }
+    );
   }
 
   const list = reminders ?? [];
   const candidates = list.length;
 
   if (candidates === 0) {
+    pingCronMonitor({ ok: true, sent: 0, candidates: 0, skipped_no_email: 0 });
     return NextResponse.json({
       sent: 0,
       candidates: 0,
@@ -104,6 +125,12 @@ export async function GET(request: Request) {
       continue;
     }
 
+    const targetDate = new Date(field.field_value);
+    if (Number.isNaN(targetDate.getTime())) {
+      errors.push(`${reminder.id}: invalid date in field_value`);
+      continue;
+    }
+
     const recipientEmail = reminder.recipient_id
       ? (emailMap.get(reminder.recipient_id) ?? null)
       : null;
@@ -113,7 +140,6 @@ export async function GET(request: Request) {
       continue;
     }
 
-    const targetDate = new Date(field.field_value);
     const daysUntil = Math.max(
       0,
       Math.ceil(
@@ -121,7 +147,7 @@ export async function GET(request: Request) {
       )
     );
 
-    const appUrl = getAppBaseUrl();
+    const appUrl = getRequestOrigin(request);
     const hash =
       reminder.field_id != null ? `#field-${reminder.field_id}` : "";
     const result = await sendReminderEmail({
@@ -139,10 +165,25 @@ export async function GET(request: Request) {
       continue;
     }
 
-    await supabase
+    const { error: markSentErr } = await supabase
       .from("reminders")
       .update({ sent_at: new Date().toISOString() })
       .eq("id", reminder.id);
+
+    if (markSentErr) {
+      console.error(
+        `[reminders/cron] sent email but failed to mark sent_at for ${reminder.id}:`,
+        markSentErr.message
+      );
+      if (process.env.SENTRY_DSN) {
+        Sentry.captureMessage(markSentErr.message, {
+          level: "error",
+          extra: { route: "reminders/send", reminderId: reminder.id },
+        });
+      }
+      errors.push(`${reminder.id}: email sent but DB mark failed — ${markSentErr.message}`);
+      continue;
+    }
 
     sent++;
   }
@@ -150,6 +191,14 @@ export async function GET(request: Request) {
   console.info(
     `[reminders/cron] date=${today} candidates=${candidates} sent=${sent} skipped_no_email=${skippedNoEmail} errors=${errors.length}`
   );
+
+  pingCronMonitor({
+    ok: errors.length === 0,
+    sent,
+    candidates,
+    skipped_no_email: skippedNoEmail,
+    error_count: errors.length,
+  });
 
   return NextResponse.json({
     sent,

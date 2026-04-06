@@ -29,15 +29,16 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`flex flex-col border-r border-zinc-200/90 bg-surface transition-all duration-200 ${
-        collapsed ? "w-16" : "w-64"
+      aria-label="Workspace"
+      className={`flex flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out ${
+        collapsed ? "w-[4.25rem]" : "w-64"
       }`}
     >
-      <div className="flex h-14 items-center justify-between border-b border-zinc-200/90 px-3">
+      <div className="flex h-[3.75rem] items-center justify-between border-b border-white/[0.06] px-3">
         {!collapsed && (
           <Link
             href="/dashboard"
-            className="text-[15px] font-bold tracking-tight text-zinc-900"
+            className="pl-1 text-[15px] font-semibold tracking-tight text-white"
           >
             ContractOps
           </Link>
@@ -45,13 +46,19 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+          className={`rounded-lg p-2 text-zinc-400 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.08] hover:text-zinc-200 ${collapsed ? "mx-auto" : ""}`}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {collapsed ? (
+            <ChevronRight size={18} aria-hidden />
+          ) : (
+            <ChevronLeft size={18} aria-hidden />
+          )}
         </button>
       </div>
 
-      <nav className="flex-1 space-y-0.5 px-2 py-4">
+      <nav className="flex-1 space-y-1 px-2.5 py-5" aria-label="Primary navigation">
         {navigation.map((item) => {
           const isActive =
             item.href === "/settings"
@@ -65,28 +72,31 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-zinc-100 text-zinc-900 ring-1 ring-zinc-200/80"
-                  : "text-zinc-600 hover:bg-zinc-50/80 hover:text-zinc-900"
+              className={`ui-sidebar-link ${
+                isActive ? "ui-sidebar-link-active" : "ui-sidebar-link-idle"
               }`}
               title={collapsed ? item.name : undefined}
             >
-              <item.icon size={18} strokeWidth={1.75} className="shrink-0 opacity-90" />
+              <item.icon
+                size={18}
+                strokeWidth={1.65}
+                className="shrink-0 opacity-90"
+                aria-hidden
+              />
               {!collapsed && <span>{item.name}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-zinc-200/90 p-2">
+      <div className="border-t border-white/[0.06] p-2.5">
         <form action={signOut}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.06] hover:text-zinc-100"
             title={collapsed ? "Sign out" : undefined}
           >
-            <LogOut size={18} strokeWidth={1.75} className="shrink-0 opacity-90" />
+            <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-90" aria-hidden />
             {!collapsed && <span>Sign out</span>}
           </button>
         </form>

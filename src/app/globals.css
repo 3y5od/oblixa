@@ -1,97 +1,231 @@
 @import "tailwindcss";
 
-/* ─── Design tokens (premium SaaS: cool zinc, subtle borders, minimal shadow) ─── */
+/* ContractOps — premium B2B: calm neutrals, single accent, editorial spacing */
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-sans-display), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.625rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
 }
 
 :root {
-  --canvas: oklch(0.978 0.004 260);
-  --surface: oklch(0.999 0.002 260);
-  --surface-raised: oklch(0.997 0.003 260);
+  /* Warm stone canvas — less cold than pure zinc */
+  --canvas: oklch(0.972 0.004 75);
+  --surface: oklch(0.998 0.002 75);
+  --surface-raised: oklch(0.995 0.003 75);
+  /* Deep slate-blue accent — trustworthy, not loud */
+  --accent: oklch(0.42 0.09 250);
+  --accent-fg: oklch(0.985 0.01 250);
+  --sidebar: oklch(0.17 0.02 260);
+  --sidebar-border: oklch(0.24 0.02 260);
+  /* Motion — short, ease-out; respect reduced-motion below */
+  --ui-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ui-duration: 160ms;
+  --ui-duration-slow: 220ms;
   color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ui-duration: 0.01ms;
+    --ui-duration-slow: 0.01ms;
+  }
 }
 
 @layer base {
   html {
-    @apply scroll-smooth;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
     @apply min-h-full bg-canvas font-sans text-[15px] leading-relaxed text-zinc-600 antialiased;
-    font-feature-settings:
-      "cv02",
-      "cv03",
-      "cv04",
-      "cv11",
-      "ss01";
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "liga" 1;
   }
 
   ::selection {
-    @apply bg-sky-200/60 text-zinc-900;
+    @apply bg-indigo-200/50 text-zinc-900;
   }
 }
 
-/* ─── Shared UI primitives (cohesive radius, thin borders, tactile controls) ─── */
 @layer components {
+  /* Surfaces — subtle shadow lift on hover (cards that are links get this via parent or .ui-card-hover) */
   .ui-card {
-    @apply rounded-xl border border-zinc-200/90 bg-surface shadow-none;
+    @apply rounded-2xl border border-zinc-200/70 bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-[box-shadow,border-color] ease-out;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  .ui-card-hover {
+    @apply hover:border-zinc-200 hover:shadow-[0_4px_20px_rgba(15,23,42,0.06)];
+  }
+
+  .ui-card-quiet {
+    @apply rounded-2xl border border-zinc-200/50 bg-zinc-50/40 transition-colors ease-out;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-card-raised {
-    @apply rounded-xl border border-zinc-200/80 bg-surface-raised shadow-none;
+    @apply rounded-2xl border border-zinc-200/60 bg-surface-raised shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[box-shadow,border-color] ease-out;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
   }
 
+  .ui-card-hero {
+    @apply rounded-2xl border border-zinc-200/70 bg-surface shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-[box-shadow,border-color] ease-out;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  /* Form controls */
   .ui-input {
-    @apply block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 shadow-none transition-[border-color,box-shadow] placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-sky-500/15;
+    @apply block w-full rounded-xl border border-zinc-200/90 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-none placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/15;
+    transition-property: border-color, box-shadow;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-label {
-    @apply mb-1.5 block text-sm font-medium text-zinc-600;
+    @apply mb-1.5 block text-[13px] font-medium text-zinc-600;
   }
 
+  .ui-label-caps {
+    @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500;
+  }
+
+  /* Buttons */
   .ui-btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-900/90 bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white transition-[background-color,border-color,color,box-shadow] hover:border-zinc-800 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 active:bg-zinc-950 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-fg)] shadow-sm hover:brightness-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/30 focus-visible:ring-offset-2 motion-safe:active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45;
+    transition-property: background-color, transform, box-shadow, filter;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-secondary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-sm font-medium text-zinc-700 transition-[background-color,border-color,color,box-shadow] hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 active:bg-zinc-100/80 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm hover:border-zinc-300 hover:bg-zinc-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 active:bg-zinc-100/80 disabled:pointer-events-none disabled:opacity-45;
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-transparent bg-transparent px-3.5 py-2 text-sm font-medium text-zinc-600 transition-[background-color,border-color,color] hover:bg-zinc-100/80 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-transparent px-3.5 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+    transition-property: background-color, color;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-danger {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-2 text-sm font-medium text-red-700 transition-[background-color,border-color,color] hover:border-red-300 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/20 focus-visible:ring-offset-2 active:bg-red-100/60 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-red-200/90 bg-white px-4 py-2.5 text-sm font-semibold text-red-800 hover:border-red-300 hover:bg-red-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+    transition-property: background-color, border-color;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-link {
-    @apply font-medium text-sky-700 underline-offset-2 transition-colors hover:text-sky-800 hover:underline;
+    @apply font-semibold text-[var(--accent)] underline decoration-zinc-300/80 underline-offset-[3px] hover:decoration-[var(--accent)] hover:text-zinc-900;
+    transition-property: color, text-decoration-color;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
+  /* Tables */
   .ui-table-header {
-    @apply bg-zinc-50/80 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-500;
+    @apply bg-zinc-50/90 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500;
   }
 
+  .ui-table-row {
+    @apply border-b border-zinc-100 hover:bg-zinc-50/60;
+    transition-property: background-color;
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  /* Typography */
   .ui-page-title {
-    @apply text-2xl font-bold tracking-tight text-zinc-900;
+    @apply text-2xl font-semibold tracking-tight text-zinc-900 sm:text-[1.75rem] sm:leading-tight;
+  }
+
+  .ui-display-title {
+    @apply text-3xl font-semibold tracking-tight text-zinc-950 sm:text-[2rem] sm:leading-[1.15];
   }
 
   .ui-section-title {
-    @apply text-lg font-semibold tracking-tight text-zinc-900;
+    @apply text-[15px] font-semibold tracking-tight text-zinc-900;
+  }
+
+  .ui-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500;
   }
 
   .ui-muted {
-    @apply text-sm text-zinc-500;
+    @apply text-sm leading-relaxed text-zinc-500;
+  }
+
+  .ui-prose-label {
+    @apply text-xs font-medium text-zinc-500;
+  }
+
+  /* Status chips — refined, not toy-like */
+  .ui-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-semibold tracking-tight;
+  }
+
+  /* Metric strip (dashboard) */
+  .ui-metric-value {
+    @apply text-[1.75rem] font-semibold tabular-nums tracking-tight text-zinc-950 sm:text-[2rem];
+  }
+
+  .ui-metric-label {
+    @apply text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500;
+  }
+
+  /* Sidebar chrome — ~4.5:1 idle text on dark bg; stronger hover */
+  .ui-sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium;
+    transition-property: background-color, color;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  .ui-sidebar-link-active {
+    @apply bg-white/[0.1] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)];
+  }
+
+  .ui-sidebar-link-idle {
+    @apply text-zinc-300 hover:bg-white/[0.06] hover:text-white;
+  }
+
+  /* Field review — source block */
+  .ui-source-quote {
+    @apply border-l-[3px] border-[var(--accent)] bg-zinc-50/80 py-2 pl-3 pr-2 text-[13px] leading-snug text-zinc-700;
+  }
+
+  /* Keyboard hints */
+  .ui-kbd {
+    @apply inline-flex min-w-[1.25rem] items-center justify-center rounded border border-zinc-200 bg-white px-1 py-0.5 font-mono text-[10px] font-medium text-zinc-600 shadow-[0_1px_0_rgba(15,23,42,0.06)];
+  }
+
+  /** List / row hovers — respects --ui-duration for reduced motion */
+  .ui-transition-surface {
+    transition-property: background-color, color, border-color, box-shadow;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
   }
 }

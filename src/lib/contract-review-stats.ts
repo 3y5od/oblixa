@@ -1,6 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
-import { CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
+import { CONTRACT_LIST_ROW_COLUMNS, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -91,7 +91,7 @@ export async function fetchReviewQueuePage(
 
   const { data: contractRows, error } = await admin
     .from("contracts")
-    .select("*")
+    .select(CONTRACT_LIST_ROW_COLUMNS)
     .eq("organization_id", orgId)
     .in("id", [...unionIds])
     .order("created_at", { ascending: true });

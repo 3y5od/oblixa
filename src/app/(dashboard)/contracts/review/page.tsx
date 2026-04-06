@@ -39,38 +39,46 @@ export default async function ContractReviewQueuePage(props: {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="space-y-8">
+      <header className="flex flex-col gap-6 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="ui-page-title">Review queue</h1>
+          <p className="ui-eyebrow">Field approval</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="ui-display-title">Review queue</h1>
             {queue.total > 0 && (
-              <span className="rounded-full border border-amber-200/80 bg-amber-50/90 px-2.5 py-0.5 text-xs font-semibold text-amber-950">
+              <span className="rounded-full border border-amber-200/70 bg-amber-50/90 px-3 py-1 text-[12px] font-semibold text-amber-950">
                 {queue.total} need attention
               </span>
             )}
           </div>
-          <p className="ui-muted mt-1.5 max-w-2xl">
-            Contracts in <strong className="font-semibold text-zinc-700">pending review</strong>{" "}
-            or with{" "}
-            <strong className="font-semibold text-zinc-700">pending extracted fields</strong>,
-            ordered so the largest review backlogs surface first.
+          <p className="ui-muted mt-3 max-w-2xl">
+            Contracts in <strong className="font-semibold text-zinc-800">pending review</strong>{" "}
+            or with <strong className="font-semibold text-zinc-800">pending extracted fields</strong>,
+            ordered so larger backlogs surface first.
           </p>
         </div>
-        <Link href="/contracts" className="ui-btn-secondary shrink-0 px-4 py-2">
+        <Link href="/contracts" className="ui-btn-secondary shrink-0 px-5 py-2.5">
           All contracts
         </Link>
-      </div>
+      </header>
 
       {queue.total === 0 ? (
-        <div className="rounded-xl border border-dashed border-emerald-200/70 bg-emerald-50/25 px-6 py-12 text-center">
-          <p className="text-sm font-semibold text-zinc-900">Queue is clear</p>
-          <p className="mt-1 text-sm text-zinc-600">
-            Nothing is waiting on field approval right now.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-emerald-200/60 bg-gradient-to-b from-emerald-50/30 to-white px-8 py-16 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700/80">
+            Clear
           </p>
-          <Link href="/contracts" className="ui-btn-primary mt-6">
-            Browse contracts
-          </Link>
+          <p className="mt-3 text-lg font-semibold text-zinc-900">Nothing in the queue</p>
+          <p className="mt-2 max-w-md text-[14px] leading-relaxed text-zinc-500">
+            When contracts need field approval, they appear here for fast review.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/contracts" className="ui-btn-primary px-6">
+              Browse contracts
+            </Link>
+            <Link href="/contracts/new" className="ui-btn-secondary px-6">
+              Upload contract
+            </Link>
+          </div>
         </div>
       ) : (
         <ContractTable

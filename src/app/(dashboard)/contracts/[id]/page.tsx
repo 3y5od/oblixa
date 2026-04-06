@@ -37,19 +37,21 @@ export default async function ContractDetailPage(props: {
   ] = await Promise.all([
     admin
       .from("contracts")
-      .select("*, contract_files(*), extracted_fields(*)")
+      .select(
+        "id, organization_id, title, counterparty, contract_type, status, owner_id, created_by, created_at, updated_at, contract_files(*), extracted_fields(*)"
+      )
       .eq("id", id)
       .eq("organization_id", orgId)
       .single(),
     admin
       .from("audit_events")
-      .select("*")
+      .select("id, action, created_at")
       .eq("contract_id", id)
       .order("created_at", { ascending: false })
       .limit(20),
     admin
       .from("reminders")
-      .select("*")
+      .select("id, reminder_type, reminder_date, sent_at")
       .eq("contract_id", id)
       .order("reminder_date", { ascending: true }),
     admin
@@ -59,7 +61,9 @@ export default async function ContractDetailPage(props: {
       .order("created_at", { ascending: true }),
     admin
       .from("contract_extraction_jobs")
-      .select("*")
+      .select(
+        "id, contract_id, organization_id, status, attempt_count, last_error, started_at, completed_at"
+      )
       .eq("contract_id", id)
       .maybeSingle(),
   ]);
@@ -98,61 +102,113 @@ export default async function ContractDetailPage(props: {
   const pendingFieldsCount = (contract.extracted_fields ?? []).filter(
     (f: { status: string }) => f.status === "pending"
   ).length;
+  const filesCount = contract.contract_files?.length ?? 0;
+  const fieldsCount = contract.extracted_fields?.length ?? 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          href="/contracts"
-          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h1 className="ui-page-title">{contract.title}</h1>
-            <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
-              }`}
-            >
-              {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
-            </span>
+    <div className="space-y-8">
+      <div className="ui-card-hero overflow-hidden">
+        <div className="border-b border-zinc-100/90 bg-gradient-to-br from-zinc-50/90 via-white to-white px-6 py-8 md:px-10">
+          <Link
+            href="/contracts"
+            className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
+          >
+            <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+            Contracts
+          </Link>
+          <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <p className="ui-eyebrow">Agreement</p>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <h1 className="ui-display-title max-w-3xl">{contract.title}</h1>
+                <span
+                  className={`ui-badge shrink-0 ${
+                    STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
+                  }`}
+                >
+                  {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
+                </span>
+              </div>
+              {(contract.counterparty || contract.contract_type) && (
+                <p className="mt-3 text-[15px] text-zinc-600">
+                  {contract.counterparty && (
+                    <span className="font-medium text-zinc-800">{contract.counterparty}</span>
+                  )}
+                  {contract.counterparty && contract.contract_type && (
+                    <span className="text-zinc-300"> · </span>
+                  )}
+                  {contract.contract_type && (
+                    <span className="text-zinc-500">{contract.contract_type}</span>
+                  )}
+                </p>
+              )}
+            </div>
           </div>
-          {contract.counterparty && (
-            <p className="mt-1 text-sm text-zinc-500">
-              {contract.counterparty}
-              {contract.contract_type && ` · ${contract.contract_type}`}
-            </p>
-          )}
+          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-zinc-200/60 pt-8 sm:grid-cols-4">
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Pending review
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
+                {pendingFieldsCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Fields tracked
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
+                {fieldsCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Documents
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
+                {filesCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Reminders
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
+                {upcomingReminders.length}
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <div
-            id="extracted-fields"
-            className="scroll-mt-24 ui-card p-6 shadow-none"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="ui-section-title">Extracted fields</h2>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <div id="extracted-fields" className="scroll-mt-28 ui-card overflow-hidden">
+            <div className="flex flex-col gap-4 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
+              <div>
+                <h2 className="ui-section-title text-base">Extracted fields</h2>
+                <p className="mt-1 text-[12px] text-zinc-500">
+                  Review AI output before it drives reminders
+                </p>
+              </div>
               <ExtractButton
                 contractId={contract.id}
                 hasFiles={!!contract.contract_files?.length}
                 canEdit={canEdit}
+                extractionJob={extractionJob}
               />
             </div>
-            <ExtractionJobAlert job={extractionJob} />
-            <BatchApproveButton
-              contractId={contract.id}
-              pendingCount={pendingFieldsCount}
-              canEdit={canEdit}
-            />
-            <FieldReview
-              fields={contract.extracted_fields || []}
-              canEdit={canEdit}
-            />
-            <div className="mt-4">
+            <div className="space-y-5 px-4 py-6 md:px-8">
+              <ExtractionJobAlert job={extractionJob} />
+              <BatchApproveButton
+                contractId={contract.id}
+                pendingCount={pendingFieldsCount}
+                canEdit={canEdit}
+              />
+              <FieldReview
+                fields={contract.extracted_fields || []}
+                canEdit={canEdit}
+              />
               <AddFieldForm
                 contractId={contract.id}
                 existingFieldNames={(contract.extracted_fields || []).map(
@@ -163,73 +219,86 @@ export default async function ContractDetailPage(props: {
             </div>
           </div>
 
-          <div className="ui-card p-6 shadow-none">
-            <h2 className="ui-section-title mb-4">Documents</h2>
-            {!contract.contract_files?.length ? (
-              <p className="text-sm text-zinc-500">No files uploaded.</p>
-            ) : (
-              <ul className="divide-y divide-zinc-100">
-                {contract.contract_files.map(
-                  (file: {
-                    id: string;
-                    file_name: string;
-                    file_type: string;
-                    file_size: number;
-                    storage_path: string;
-                    created_at: string;
-                  }) => (
-                    <li
-                      key={file.id}
-                      className="flex items-center justify-between py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText size={20} className="text-zinc-400" />
-                        <div>
-                          <p className="text-sm font-medium text-zinc-900">
-                            {file.file_name}
-                          </p>
-                          <p className="text-xs text-zinc-500">
-                            {formatFileSize(file.file_size)} ·
-                            Uploaded{" "}
-                            {format(
-                              new Date(file.created_at),
-                              "MMM d, yyyy"
-                            )}
-                            {" · "}
-                            <span className="text-green-700">Stored</span>
-                          </p>
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+              <h2 className="ui-section-title text-base">Source documents</h2>
+              <p className="mt-1 text-[12px] text-zinc-500">
+                Signed files stored for this agreement
+              </p>
+            </div>
+            <div className="px-6 py-5 md:px-8">
+              {!contract.contract_files?.length ? (
+                <p className="text-[13px] text-zinc-500">No files uploaded yet.</p>
+              ) : (
+                <ul className="divide-y divide-zinc-100">
+                  {contract.contract_files.map(
+                    (file: {
+                      id: string;
+                      file_name: string;
+                      file_type: string;
+                      file_size: number;
+                      storage_path: string;
+                      created_at: string;
+                    }) => (
+                      <li
+                        key={file.id}
+                        className="flex items-center justify-between gap-4 py-4 first:pt-0"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200/80 bg-zinc-50/80">
+                            <FileText size={18} className="text-zinc-500" aria-hidden />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[14px] font-semibold text-zinc-900">
+                              {file.file_name}
+                            </p>
+                            <p className="mt-0.5 text-[12px] text-zinc-500">
+                              {formatFileSize(file.file_size)}
+                              <span className="text-zinc-300"> · </span>
+                              {format(new Date(file.created_at), "MMM d, yyyy")}
+                              <span className="text-zinc-300"> · </span>
+                              <span className="font-medium text-emerald-700">Stored</span>
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <DownloadButton
-                        storagePath={file.storage_path}
-                        fileName={file.file_name}
-                      />
-                    </li>
-                  )
-                )}
-              </ul>
-            )}
-            <UploadMoreFiles contractId={contract.id} canEdit={canEdit} />
+                        <DownloadButton
+                          storagePath={file.storage_path}
+                          fileName={file.file_name}
+                        />
+                      </li>
+                    )
+                  )}
+                </ul>
+              )}
+              <div className="mt-6 border-t border-zinc-100 pt-6">
+                <UploadMoreFiles contractId={contract.id} canEdit={canEdit} />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="ui-card p-6 shadow-none">
-            <h3 className="mb-3 text-sm font-semibold text-zinc-900">
-              Status
-            </h3>
-            <ContractStatusTransition
-              contractId={contract.id}
-              currentStatus={contract.status}
-              canEdit={canEdit}
-            />
+        <div className="space-y-8">
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="ui-section-title text-base">Workflow status</h3>
+            </div>
+            <div className="p-6">
+              <ContractStatusTransition
+                contractId={contract.id}
+                currentStatus={contract.status}
+                canEdit={canEdit}
+              />
+            </div>
           </div>
 
-          <div className="ui-card p-6 shadow-none">
-            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900">
-              <Bell size={16} className="text-zinc-500" />
-              Reminders
-            </h3>
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="flex items-center gap-2 ui-section-title text-base">
+                <Bell size={17} className="text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
+                Reminders
+              </h3>
+            </div>
+            <div className="p-6">
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-medium uppercase text-zinc-500">
@@ -312,12 +381,14 @@ export default async function ContractDetailPage(props: {
                 )}
               </div>
             </div>
+            </div>
           </div>
 
-          <div className="ui-card p-6 shadow-none">
-            <h3 className="mb-4 text-sm font-semibold text-zinc-900">
-              Details
-            </h3>
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="ui-section-title text-base">Ownership & record</h3>
+            </div>
+            <div className="p-6">
             <dl className="space-y-3">
               <div className="flex items-center gap-2">
                 <User size={14} className="text-zinc-400" />
@@ -353,12 +424,14 @@ export default async function ContractDetailPage(props: {
               contractTitle={contract.title}
               canEdit={canEdit}
             />
+            </div>
           </div>
 
-          <div className="ui-card p-6 shadow-none">
-            <h3 className="mb-4 text-sm font-semibold text-zinc-900">
-              Activity
-            </h3>
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="ui-section-title text-base">Activity</h3>
+            </div>
+            <div className="p-6">
             {auditEvents.length === 0 ? (
               <p className="text-sm text-zinc-500">No activity recorded.</p>
             ) : (
@@ -387,6 +460,7 @@ export default async function ContractDetailPage(props: {
                 )}
               </ul>
             )}
+            </div>
           </div>
         </div>
       </div>

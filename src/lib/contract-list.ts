@@ -3,6 +3,10 @@ import type { Contract } from "@/lib/types";
 
 export const CONTRACTS_PAGE_SIZE = 25;
 
+/** List/table rows: omits `search_document` (up to ~120k chars) for bandwidth and memory. */
+export const CONTRACT_LIST_ROW_COLUMNS =
+  "id, organization_id, title, counterparty, contract_type, status, owner_id, created_by, created_at, updated_at";
+
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
 export interface ContractListFilterInput {
@@ -34,7 +38,7 @@ export async function fetchContractsPage(
 
   let q = admin
     .from("contracts")
-    .select("*", { count: "exact" })
+    .select(CONTRACT_LIST_ROW_COLUMNS, { count: "exact" })
     .eq("organization_id", filters.orgId)
     .order("created_at", { ascending: false });
 

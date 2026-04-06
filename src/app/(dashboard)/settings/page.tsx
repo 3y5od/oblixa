@@ -4,6 +4,10 @@ import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
 import { DemoSeedButton } from "@/components/settings/demo-seed-button";
 import { InviteMemberForm } from "@/components/settings/invite-member-form";
+import {
+  PendingInvitesList,
+  type PendingInviteRow,
+} from "@/components/settings/pending-invites";
 import type { OrganizationMember } from "@/lib/types";
 
 export default async function SettingsPage() {
@@ -16,24 +20,37 @@ export default async function SettingsPage() {
     await Promise.all([
       admin
         .from("profiles")
-        .select("*")
+        .select("full_name")
         .eq("id", user.id)
         .single(),
       admin
         .from("organization_members")
-        .select("*, organizations(name)")
+        .select("id, organization_id, role, organizations(name)")
         .eq("user_id", user.id)
         .eq("organization_id", orgId)
         .limit(1)
         .single(),
       admin
         .from("organization_members")
-        .select("*, profiles(full_name, email)")
+        .select("id, organization_id, user_id, role, created_at, profiles(full_name, email)")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: true }),
     ]);
 
-  const members = (membersData as OrganizationMember[]) || [];
+  const members = (membersData ?? []) as unknown as OrganizationMember[];
+
+  let pendingInvites: PendingInviteRow[] = [];
+  if (membership && membership.role === "admin") {
+    const { data: invData } = await admin
+      .from("organization_invites")
+      .select("id, email, role, expires_at, created_at")
+      .eq("organization_id", orgId)
+      .is("consumed_at", null)
+      .is("revoked_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false });
+    pendingInvites = (invData ?? []) as PendingInviteRow[];
+  }
 
   const orgName =
     (membership as OrganizationMember & { organizations: { name: string } } | null)
@@ -46,35 +63,46 @@ export default async function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <h1 className="ui-page-title">Settings</h1>
+    <div className="mx-auto max-w-3xl space-y-10">
+      <header className="border-b border-zinc-200/60 pb-8">
+        <p className="ui-eyebrow">Workspace</p>
+        <h1 className="ui-display-title mt-2">Settings</h1>
+        <p className="ui-muted mt-3">
+          Profile, organization, and team access for your workspace.
+        </p>
+      </header>
 
-      <section className="ui-card p-6 shadow-none">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="ui-section-title">Profile</h2>
-          <p className="text-xs text-zinc-400">
-            Joined{" "}
-            {user.created_at
-              ? format(new Date(user.created_at), "MMM d, yyyy")
-              : "—"}
-          </p>
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="ui-section-title text-base">Profile</h2>
+            <p className="text-[12px] text-zinc-400">
+              Joined{" "}
+              {user.created_at
+                ? format(new Date(user.created_at), "MMM d, yyyy")
+                : "—"}
+            </p>
+          </div>
         </div>
+        <div className="p-6 md:p-8">
         <ProfileForm
           fullName={profile?.full_name ?? null}
           email={user.email || ""}
         />
+        </div>
       </section>
 
       {membership && (
-        <section className="ui-card p-6 shadow-none">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="ui-section-title">Organization</h2>
-            <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2.5 py-0.5 text-xs font-semibold text-zinc-700">
+        <section className="ui-card overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <h2 className="ui-section-title text-base">Organization</h2>
+            <span className="inline-flex rounded-full border border-zinc-200/80 bg-white px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
 
-          <div className="mb-6">
+          <div className="p-6 md:p-8">
+          <div className="mb-8">
             <OrgForm
               organizationId={membership.organization_id}
               name={orgName}
@@ -117,7 +145,10 @@ export default async function SettingsPage() {
           </div>
 
           {membership.role === "admin" && (
-            <InviteMemberForm organizationId={membership.organization_id} />
+            <>
+              <InviteMemberForm organizationId={membership.organization_id} />
+              <PendingInvitesList invites={pendingInvites} />
+            </>
           )}
 
           {membership.role === "admin" && (
@@ -125,6 +156,7 @@ export default async function SettingsPage() {
               <DemoSeedButton />
             </div>
           )}
+          </div>
         </section>
       )}
     </div>

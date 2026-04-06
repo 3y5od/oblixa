@@ -1,4 +1,6 @@
-import { createAdminClient } from "@/lib/supabase/server";
+import type { createAdminClient } from "@/lib/supabase/server";
+
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
 function startOfCurrentMonthIso(): string {
   const d = new Date();
@@ -7,8 +9,7 @@ function startOfCurrentMonthIso(): string {
   return d.toISOString();
 }
 
-export async function getOrgUsageStats(orgId: string) {
-  const admin = await createAdminClient();
+export async function getOrgUsageStats(admin: Admin, orgId: string) {
   const since = startOfCurrentMonthIso();
 
   const [

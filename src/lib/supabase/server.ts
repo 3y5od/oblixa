@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -27,7 +28,8 @@ export async function createClient() {
   );
 }
 
-export async function createAdminClient() {
+/** One service-role client per request (safe to reuse; avoids duplicate handshakes). */
+export const createAdminClient = cache(async () => {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -38,7 +40,7 @@ export async function createAdminClient() {
       },
     }
   );
-}
+});
 
 export async function getUserOrgId(userId: string): Promise<string | null> {
   const admin = await createAdminClient();
@@ -56,8 +58,11 @@ export async function getUserOrgId(userId: string): Promise<string | null> {
  * Uses the anon client for auth verification and the admin client for
  * data queries, bypassing RLS which can fail when the JWT isn't properly
  * propagated to PostgREST in Server Components.
+ *
+ * Deduplicated per React request via `cache` so parallel layouts / imports
+ * don’t repeat `getUser()` and membership lookups.
  */
-export async function getAuthContext() {
+export const getAuthContext = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -80,7 +85,7 @@ export async function getAuthContext() {
     role: membership.role as string,
     admin,
   };
-}
+});
 
 export async function ensureUserOrg(userId: string, orgName: string) {
   const admin = await createAdminClient();

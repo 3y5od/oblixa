@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { Calendar, ArrowRight } from "lucide-react";
+import { format, isValid } from "date-fns";
+import { ArrowUpRight } from "lucide-react";
 import type { Contract, ExtractedField } from "@/lib/types";
 
 interface UpcomingAction {
-  contract: Contract;
-  field: ExtractedField;
+  contract: Pick<Contract, "id" | "title">;
+  field: Pick<ExtractedField, "id" | "field_name" | "field_value">;
   daysUntil: number;
 }
 
@@ -13,58 +13,68 @@ interface UpcomingActionsProps {
   actions: UpcomingAction[];
 }
 
+function formatFieldDateLabel(iso: string | null | undefined): string {
+  if (!iso) return "Unknown";
+  const d = new Date(iso);
+  return isValid(d) ? format(d, "MMM d, yyyy") : "Invalid date";
+}
+
+function urgencyRing(days: number): string {
+  if (days <= 7) return "bg-rose-500";
+  if (days <= 30) return "bg-amber-400";
+  return "bg-zinc-300";
+}
+
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
   if (actions.length === 0) {
     return (
-      <div className="ui-card p-6 shadow-none">
-        <h2 className="ui-section-title">Upcoming actions</h2>
-        <p className="mt-3 text-sm text-zinc-500">
-          No upcoming deadlines. Contracts with approved notice or renewal dates
-          will appear here.
+      <section className="ui-card flex min-h-[240px] flex-col justify-center px-8 py-10 text-center">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
+          Calendar
         </p>
-      </div>
+        <h2 className="mt-2 ui-section-title text-base">No upcoming deadlines</h2>
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-zinc-500">
+          When notice, renewal, or end dates are approved, they appear here with
+          a clear countdown.
+        </p>
+      </section>
     );
   }
 
   return (
-    <div className="ui-card overflow-hidden shadow-none">
-      <div className="border-b border-zinc-200/90 px-6 py-4">
+    <section className="ui-card overflow-hidden">
+      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-6 py-4">
         <h2 className="ui-section-title">Upcoming actions</h2>
+        <p className="mt-1 text-[12px] text-zinc-500">
+          Approved operational dates in the next 90 days
+        </p>
       </div>
-      <ul className="divide-y divide-zinc-200/70">
+      <ul className="divide-y divide-zinc-100">
         {actions.map((action) => (
           <li key={action.field.id}>
             <Link
               href={`/contracts/${action.contract.id}#field-${action.field.id}`}
-              className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-zinc-50/80"
+              className="ui-transition-surface group flex items-start gap-4 px-6 py-4 hover:bg-zinc-50/70"
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex rounded-lg border p-2 ${
-                    action.daysUntil <= 7
-                      ? "border-rose-200/80 bg-rose-50 text-rose-700"
-                      : action.daysUntil <= 30
-                        ? "border-amber-200/80 bg-amber-50 text-amber-800"
-                        : "border-sky-200/80 bg-sky-50 text-sky-800"
-                  }`}
-                >
-                  <Calendar size={16} strokeWidth={1.75} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-zinc-900">
-                    {action.contract.title}
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    {action.field.field_name.replace(/_/g, " ")} &middot;{" "}
-                    {action.field.field_value
-                      ? format(new Date(action.field.field_value), "MMM d, yyyy")
-                      : "Unknown"}
-                  </p>
-                </div>
+              <span
+                className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${urgencyRing(action.daysUntil)}`}
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] font-semibold leading-snug text-zinc-900 group-hover:text-[var(--accent)]">
+                  {action.contract.title}
+                </p>
+                <p className="mt-0.5 text-[13px] text-zinc-500">
+                  <span className="text-zinc-700">
+                    {action.field.field_name.replace(/_/g, " ")}
+                  </span>
+                  <span className="text-zinc-300"> · </span>
+                  {formatFieldDateLabel(action.field.field_value)}
+                </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span
-                  className={`text-xs font-semibold tabular-nums ${
+                  className={`text-right text-[13px] font-semibold tabular-nums ${
                     action.daysUntil <= 7
                       ? "text-rose-700"
                       : action.daysUntil <= 30
@@ -76,14 +86,19 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                     ? "Today"
                     : action.daysUntil === 1
                       ? "Tomorrow"
-                      : `${action.daysUntil} days`}
+                      : `${action.daysUntil}d`}
                 </span>
-                <ArrowRight size={14} className="text-zinc-400" strokeWidth={1.75} />
+                <ArrowUpRight
+                  size={16}
+                  className="text-zinc-300 transition-colors group-hover:text-[var(--accent)]"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
               </div>
             </Link>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

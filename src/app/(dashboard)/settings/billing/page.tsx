@@ -91,44 +91,54 @@ export default async function BillingPage(props: {
   const StatusIcon = config.icon;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div className="flex items-center gap-2">
-        <Link href="/settings" className="text-sm text-zinc-500 transition-colors hover:text-zinc-800">
-          Settings
+    <div className="mx-auto max-w-3xl space-y-10">
+      <header className="border-b border-zinc-200/60 pb-8">
+        <Link
+          href="/settings"
+          className="text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
+        >
+          ← Settings
         </Link>
-        <span className="text-zinc-300">/</span>
-        <h1 className="ui-page-title">Billing</h1>
-      </div>
+        <p className="ui-eyebrow mt-6">Subscription</p>
+        <h1 className="ui-display-title mt-2">Billing</h1>
+        <p className="ui-muted mt-3">
+          Plan status and Stripe customer portal access.
+        </p>
+      </header>
 
       {searchParams.success && (
-        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm text-emerald-900">
+        <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-5 py-4 text-[14px] font-medium text-emerald-950">
           Subscription activated. Thank you!
         </div>
       )}
       {searchParams.canceled && (
-        <div className="rounded-xl border border-amber-200/70 bg-amber-50/80 p-4 text-sm text-amber-950">
+        <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-5 py-4 text-[14px] font-medium text-amber-950">
           Checkout was canceled. No charges were made.
         </div>
       )}
 
-      <p className="text-xs text-zinc-500">
-        To require an active subscription before anyone can create or edit contracts,
-        set <code className="rounded bg-zinc-100 px-1">REQUIRE_ACTIVE_SUBSCRIPTION=true</code>{" "}
-        on the server (see <code className="rounded bg-zinc-100 px-1">.env.example</code>
-        ).
+      <p className="text-[12px] leading-relaxed text-zinc-500">
+        To require an active subscription before creating or editing contracts, set{" "}
+        <code className="rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px]">
+          REQUIRE_ACTIVE_SUBSCRIPTION=true
+        </code>{" "}
+        on the server.
       </p>
 
-      <section className="ui-card p-6 shadow-none">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="ui-section-title">Your plan</h2>
-          <div
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${config.color}`}
-          >
-            <StatusIcon size={14} />
-            {config.label}
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="ui-section-title text-base">Your plan</h2>
+            <div
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold ${config.color}`}
+            >
+              <StatusIcon size={14} />
+              {config.label}
+            </div>
           </div>
         </div>
 
+        <div className="p-6 md:p-8">
         {isActive ? (
           <div className="space-y-4">
             <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4">
@@ -181,6 +191,7 @@ export default async function BillingPage(props: {
             </div>
           </div>
         )}
+        </div>
       </section>
     </div>
   );
