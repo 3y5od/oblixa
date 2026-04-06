@@ -1,10 +1,17 @@
 import OpenAI from "openai";
+import type { ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
+import { splitTextIntoExtractionChunks } from "@/lib/extraction/chunk-text";
+import { getExtractionChunkConcurrency } from "@/lib/extraction/constants";
+import { isRetryableOpenAIError, withRetry } from "@/lib/extraction/retry";
 import { FIELD_NAMES, type FieldName } from "@/lib/types";
 import { preprocessContractTextForExtraction } from "@/lib/extraction/preprocess-text";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAI(): OpenAI {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
-/** Context sent to the model (larger window for long MSAs). */
+/** Context sent to the model per chunk (larger window for long MSAs). */
 export const MAX_EXTRACTION_INPUT_CHARS = 120_000;
 
 export interface ExtractedFieldResult {
@@ -12,6 +19,18 @@ export interface ExtractedFieldResult {
   field_value: string | null;
   source_snippet: string | null;
   confidence: number;
+}
+
+export interface ExtractionTokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+export interface ExtractFieldsResult {
+  fields: ExtractedFieldResult[];
+  usage: ExtractionTokenUsage;
+  chunkCount: number;
 }
 
 const FIELD_GUIDANCE: Record<FieldName, string> = {
@@ -171,17 +190,77 @@ export function mergeToAllFieldNames(
   });
 }
 
-async function callOpenAI(contractText: string): Promise<string | null> {
-  const model =
-    process.env.OPENAI_EXTRACTION_MODEL?.trim() || "gpt-4o-mini";
+/** Prefer highest-confidence field across overlapping chunk extractions. */
+export function mergeFieldRowsAcrossChunks(
+  chunkRows: ExtractedFieldResult[][]
+): ExtractedFieldResult[] {
+  const best = new Map<string, ExtractedFieldResult>();
+  for (const rows of chunkRows) {
+    for (const r of rows) {
+      if (!FIELD_NAMES.includes(r.field_name as FieldName)) continue;
+      const prev = best.get(r.field_name);
+      const c = r.confidence ?? 0;
+      if (!prev || c > (prev.confidence ?? 0)) {
+        best.set(r.field_name, { ...r });
+      }
+    }
+  }
+  return mergeToAllFieldNames([...best.values()]);
+}
 
+function parseExtractionResponse(content: string): ExtractedFieldResult[] {
+  const stripped = stripJsonFences(content);
+  const parsed: unknown = JSON.parse(stripped);
+  const arr = coerceFieldArray(parsed);
+  const rows = normalizeRows(arr);
+  if (rows.length === 0) {
+    return [];
+  }
+  return mergeToAllFieldNames(rows);
+}
+
+function addUsage(
+  acc: ExtractionTokenUsage,
+  usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }
+) {
+  acc.promptTokens += usage.prompt_tokens ?? 0;
+  acc.completionTokens += usage.completion_tokens ?? 0;
+  acc.totalTokens += usage.total_tokens ?? 0;
+}
+
+function resolveExtractionModel(chunkIndex: number, totalChunks: number): string {
+  const primary = process.env.OPENAI_EXTRACTION_MODEL?.trim() || "gpt-4o-mini";
+  const secondary = process.env.OPENAI_EXTRACTION_MODEL_LONG?.trim();
+  if (secondary && totalChunks > 1 && chunkIndex > 0) {
+    return secondary;
+  }
+  return primary;
+}
+
+async function chatCompletionWithRetry(
+  params: ChatCompletionCreateParamsNonStreaming
+) {
+  return withRetry(() => getOpenAI().chat.completions.create(params), {
+    maxAttempts: 4,
+    baseDelayMs: 500,
+    shouldRetry: isRetryableOpenAIError,
+  });
+}
+
+async function callOpenAI(
+  contractText: string,
+  model: string
+): Promise<{
+  content: string | null;
+  usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+}> {
   const useSchema = process.env.OPENAI_EXTRACTION_JSON_SCHEMA !== "false";
 
   const userContent = buildUserPrompt(contractText);
 
   if (useSchema) {
     try {
-      const response = await openai.chat.completions.create({
+      const response = await chatCompletionWithRetry({
         model,
         temperature: 0,
         response_format: {
@@ -198,7 +277,10 @@ async function callOpenAI(contractText: string): Promise<string | null> {
           { role: "user", content: userContent },
         ],
       });
-      return response.choices[0]?.message?.content ?? null;
+      return {
+        content: response.choices[0]?.message?.content ?? null,
+        usage: response.usage ?? {},
+      };
     } catch (e) {
       console.warn(
         "Structured extraction schema failed, falling back to json_object:",
@@ -207,7 +289,7 @@ async function callOpenAI(contractText: string): Promise<string | null> {
     }
   }
 
-  const response = await openai.chat.completions.create({
+  const response = await chatCompletionWithRetry({
     model,
     temperature: 0,
     response_format: { type: "json_object" },
@@ -221,31 +303,62 @@ Respond with a single JSON object: { "fields": [ ... ] } using the same field ob
       },
     ],
   });
-  return response.choices[0]?.message?.content ?? null;
+  return {
+    content: response.choices[0]?.message?.content ?? null,
+    usage: response.usage ?? {},
+  };
 }
 
-export async function extractFieldsFromText(
-  text: string
-): Promise<ExtractedFieldResult[]> {
+export async function extractFieldsFromText(text: string): Promise<ExtractFieldsResult> {
   const prepared = preprocessContractTextForExtraction(text);
-  const truncated = prepared.slice(0, MAX_EXTRACTION_INPUT_CHARS);
+  const chunks = splitTextIntoExtractionChunks(prepared);
 
-  const content = await callOpenAI(truncated);
-  if (!content) {
-    return [];
-  }
-
-  try {
-    const stripped = stripJsonFences(content);
-    const parsed: unknown = JSON.parse(stripped);
-    const arr = coerceFieldArray(parsed);
-    const rows = normalizeRows(arr);
-    if (rows.length === 0) {
-      return [];
+  const chunkOutcomes = await mapWithConcurrency(
+    chunks,
+    getExtractionChunkConcurrency(),
+    async (chunk, i) => {
+      const slice = chunk.slice(0, MAX_EXTRACTION_INPUT_CHARS);
+      const model = resolveExtractionModel(i, chunks.length);
+      const { content, usage: u } = await callOpenAI(slice, model);
+      let rows: ExtractedFieldResult[] | null = null;
+      if (content) {
+        try {
+          const parsed = parseExtractionResponse(content);
+          if (parsed.length > 0) {
+            rows = parsed;
+          }
+        } catch {
+          console.error(
+            "Failed to parse extraction response:",
+            content.slice(0, 2000)
+          );
+        }
+      }
+      return { usage: u, rows };
     }
-    return mergeToAllFieldNames(rows);
-  } catch {
-    console.error("Failed to parse extraction response:", content.slice(0, 2000));
-    return [];
+  );
+
+  const usage: ExtractionTokenUsage = {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0,
+  };
+  for (const o of chunkOutcomes) {
+    addUsage(usage, o.usage);
   }
+
+  const chunkResults = chunkOutcomes
+    .map((o) => o.rows)
+    .filter((r): r is ExtractedFieldResult[] => r != null);
+
+  if (chunkResults.length === 0) {
+    return { fields: [], usage, chunkCount: chunks.length };
+  }
+
+  const merged =
+    chunkResults.length === 1
+      ? chunkResults[0]
+      : mergeFieldRowsAcrossChunks(chunkResults);
+
+  return { fields: merged, usage, chunkCount: chunks.length };
 }

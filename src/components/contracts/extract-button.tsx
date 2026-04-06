@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Loader2 } from "lucide-react";
 import { runExtraction } from "@/actions/contracts";
-import { isExtractionProcessingStale } from "@/lib/extraction/constants";
+import { isExtractionActivelyBlocking } from "@/lib/extraction/constants";
 import type { ContractExtractionJob } from "@/lib/types";
 
 interface ExtractButtonProps {
@@ -29,7 +29,7 @@ export function ExtractButton({
 
   const extractionInFlight =
     extractionJob?.status === "processing" &&
-    !isExtractionProcessingStale(extractionJob.started_at);
+    isExtractionActivelyBlocking(extractionJob.started_at);
 
   function handleExtract() {
     setResult(null);

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { isSafeExtractionWorkerOrigin } from "@/lib/security/worker-url";
 
 /**
  * Base URL from env only — use for build-time or when no HTTP request exists
@@ -16,6 +17,26 @@ export function getAppBaseUrlFromEnv(): string {
  */
 export function getRequestOrigin(request: Request): string {
   return new URL(request.url).origin.replace(/\/+$/, "");
+}
+
+/**
+ * Origin for server-to-server calls to the extraction worker (`POST /api/extract/run`).
+ * Set `EXTRACTION_WORKER_BASE_URL` to a stable public origin when the incoming request
+ * host is not suitable (e.g. edge cases on some hosts). Otherwise uses the request URL origin.
+ */
+export function resolveExtractionWorkerOrigin(request: Request): string {
+  const explicit = process.env.EXTRACTION_WORKER_BASE_URL?.trim();
+  if (explicit) {
+    const normalized = explicit.replace(/\/+$/, "");
+    if (!isSafeExtractionWorkerOrigin(normalized)) {
+      console.warn(
+        "[app-url] EXTRACTION_WORKER_BASE_URL rejected as unsafe; using request origin"
+      );
+      return getRequestOrigin(request);
+    }
+    return normalized;
+  }
+  return getRequestOrigin(request);
 }
 
 /**

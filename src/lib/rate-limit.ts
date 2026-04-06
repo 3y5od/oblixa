@@ -75,6 +75,8 @@ export async function rateLimitCheck(
 export const RATE_LIMITS = {
   /** AI extraction — costly */
   extract: { max: 20, windowMs: 60_000 },
+  /** Internal POST /api/extract/run (bearer secret); limits abuse if secret leaks */
+  extractWorker: { max: 120, windowMs: 60_000 },
   signIn: { max: 40, windowMs: 15 * 60_000 },
   signUp: { max: 12, windowMs: 60 * 60_000 },
   forgotPassword: { max: 8, windowMs: 60 * 60_000 },

@@ -1,6 +1,10 @@
 import { NextResponse, after } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { resolveExtractionWorkerOrigin } from "@/lib/app-url";
 import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
+import { finishExtractionJob } from "@/lib/extraction-job";
+import { fetchWithRetry } from "@/lib/extraction/retry";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import { startExtractionJob } from "@/lib/extraction-job";
@@ -116,18 +120,80 @@ export async function POST(request: Request) {
 
   const orgId = contract.organization_id;
   const uid = user.id;
+  const workerSecret = process.env.EXTRACTION_WORKER_SECRET?.trim();
+  const workerOrigin = resolveExtractionWorkerOrigin(request);
 
-  after(async () => {
-    try {
-      await runExtractionPipeline({
-        contractId,
-        userId: uid,
-        organizationId: orgId,
-      });
-    } catch (err) {
-      console.error("[api/extract] after() pipeline error:", err);
-    }
-  });
+  if (workerSecret) {
+    after(async () => {
+      try {
+        const res = await fetchWithRetry(
+          `${workerOrigin}/api/extract/run`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${workerSecret}`,
+            },
+            body: JSON.stringify({
+              contractId,
+              userId: uid,
+              organizationId: orgId,
+            }),
+          },
+          { maxAttempts: 4, baseDelayMs: 400 }
+        );
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          console.error(
+            "[api/extract] worker fetch failed:",
+            res.status,
+            t.slice(0, 500)
+          );
+          if (process.env.SENTRY_DSN) {
+            Sentry.captureMessage("extraction worker fetch failed", {
+              level: "error",
+              extra: {
+                contractId,
+                status: res.status,
+                body: t.slice(0, 500),
+              },
+            });
+          }
+          const admin = await createAdminClient();
+          const friendly =
+            res.status >= 500
+              ? "The extraction service is temporarily unavailable. Please try again."
+              : "Could not start extraction. Please try again.";
+          await finishExtractionJob(admin, contractId, false, friendly);
+        }
+      } catch (err) {
+        console.error("[api/extract] worker fetch error:", err);
+        if (process.env.SENTRY_DSN) {
+          Sentry.captureException(err, { extra: { contractId } });
+        }
+        const admin = await createAdminClient();
+        await finishExtractionJob(
+          admin,
+          contractId,
+          false,
+          "Could not start extraction. Please try again."
+        );
+      }
+    });
+  } else {
+    after(async () => {
+      try {
+        await runExtractionPipeline({
+          admin,
+          contractId,
+          userId: uid,
+          organizationId: orgId,
+        });
+      } catch (err) {
+        console.error("[api/extract] after() pipeline error:", err);
+      }
+    });
+  }
 
   return NextResponse.json(
     {

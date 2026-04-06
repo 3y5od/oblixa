@@ -1,38 +1,68 @@
-import { createServerClient } from "@supabase/ssr";
 import { extractTextFromBuffer } from "@/lib/extraction/parse-document";
 import { extractFieldsFromText } from "@/lib/extraction/extract-fields";
 import {
   preprocessContractTextForExtraction,
   substantiveTextCharCount,
 } from "@/lib/extraction/preprocess-text";
-import {
-  finishExtractionJob,
-} from "@/lib/extraction-job";
+import { finishExtractionJob } from "@/lib/extraction-job";
 import {
   mapAiExtractionError,
   mapExtractionFailureMessage,
 } from "@/lib/extraction/user-messages";
+import { applyGroundingToFields } from "@/lib/extraction/grounding";
+import { extractTextFromPdfViaOpenAi } from "@/lib/extraction/openai-pdf-text";
+import { EXTRACTION_SEARCH_DOCUMENT_CAP } from "@/lib/extraction/constants";
+import { withRetry } from "@/lib/extraction/retry";
+import { createAdminClient } from "@/lib/supabase/server";
 import * as Sentry from "@sentry/nextjs";
 
-function createServiceRoleClient() {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } }
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+
+function isRetryableStorageError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/not found|404|does not exist|no such object/i.test(msg)) {
+    return false;
+  }
+  return true;
+}
+
+async function downloadContractFile(admin: Admin, storagePath: string) {
+  return withRetry(
+    async () => {
+      const { data, error } = await admin.storage
+        .from("contracts")
+        .download(storagePath);
+      if (error || !data) {
+        throw new Error(error?.message ?? "storage download failed");
+      }
+      return data;
+    },
+    {
+      maxAttempts: 4,
+      baseDelayMs: 400,
+      shouldRetry: isRetryableStorageError,
+    }
   );
+}
+
+function shouldAllowAiOverwrite(status: string, source: string): boolean {
+  if (source === "human") return false;
+  if (status === "approved" || status === "edited") return false;
+  return true;
 }
 
 /**
  * Runs the full extraction pipeline (storage → text → OpenAI → DB).
- * Called from Route Handler `after()` — uses a fresh service-role client.
+ * Called from Route Handler `after()` or `/api/extract/run` — uses service role.
  */
 export async function runExtractionPipeline(params: {
+  admin?: Admin;
   contractId: string;
   userId: string;
   organizationId: string;
 }): Promise<void> {
   const { contractId, userId, organizationId } = params;
-  const admin = createServiceRoleClient();
+  const admin = params.admin ?? (await createAdminClient());
   const pipelineStartedAt = Date.now();
 
   const fail = async (message: string) => {
@@ -67,28 +97,64 @@ export async function runExtractionPipeline(params: {
     const textChunks = await Promise.all(
       files.map(async (file) => {
         try {
-          const { data: fileData, error } = await admin.storage
-            .from("contracts")
-            .download(file.storage_path);
-
-          if (error || !fileData) {
-            console.error(`Download failed for ${file.file_name}:`, error?.message);
-            return "";
+          let fileData: Blob;
+          try {
+            fileData = await downloadContractFile(admin, file.storage_path);
+          } catch (e) {
+            console.error(`Download failed for ${file.file_name}:`, e);
+            return {
+              marker: file.file_name,
+              text: "",
+              mime: file.file_type,
+              buffer: undefined as Buffer | undefined,
+            };
           }
 
           const buffer = Buffer.from(await fileData.arrayBuffer());
           const text = await extractTextFromBuffer(buffer, file.file_type);
-          return `\n--- ${file.file_name} ---\n${text}\n`;
+          return {
+            marker: file.file_name,
+            text,
+            mime: file.file_type,
+            buffer: file.file_type === "application/pdf" ? buffer : undefined,
+          };
         } catch (err) {
           console.error(`Parse failed for ${file.file_name}:`, err);
-          return "";
+          return {
+            marker: file.file_name,
+            text: "",
+            mime: file.file_type,
+            buffer: undefined as Buffer | undefined,
+          };
         }
       })
     );
 
-    const combinedText = preprocessContractTextForExtraction(
-      textChunks.join("")
+    let combinedText = preprocessContractTextForExtraction(
+      textChunks.map((c) => `\n--- ${c.marker} ---\n${c.text}\n`).join("")
     );
+
+    let textChars = substantiveTextCharCount(combinedText);
+    let pdfOcrUsed = false;
+
+    if (textChars < 200) {
+      for (const part of textChunks) {
+        if (part.mime !== "application/pdf" || !part.buffer) {
+          continue;
+        }
+        const ocr = await extractTextFromPdfViaOpenAi(part.buffer, part.marker);
+        if (ocr?.text) {
+          pdfOcrUsed = true;
+          combinedText = preprocessContractTextForExtraction(
+            `${combinedText}\n\n--- ${part.marker} (ocr) ---\n${ocr.text}\n`
+          );
+          textChars = substantiveTextCharCount(combinedText);
+          if (textChars >= 200) {
+            break;
+          }
+        }
+      }
+    }
 
     if (!combinedText.trim()) {
       await fail("Could not extract text from any files");
@@ -104,10 +170,9 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
-    const textChars = substantiveTextCharCount(combinedText);
     if (textChars < 200) {
       await fail(
-        "Very little text was extracted from the file(s). Scanned PDFs (images only) are not supported—use a text-based PDF or DOCX, or run OCR first."
+        "Very little text was extracted from the file(s). Scanned PDFs may require OCR—try a text-based PDF or DOCX, or ensure OPENAI_API_KEY is set for PDF-assisted text recovery."
       );
       console.info(
         JSON.stringify({
@@ -116,20 +181,22 @@ export async function runExtractionPipeline(params: {
           userId,
           durationMs: Date.now() - pipelineStartedAt,
           reason: "too_little_text",
+          pdfOcrUsed,
         })
       );
       return;
     }
 
-    const searchCap = 120_000;
     await admin
       .from("contracts")
-      .update({ search_document: combinedText.slice(0, searchCap) })
+      .update({
+        search_document: combinedText.slice(0, EXTRACTION_SEARCH_DOCUMENT_CAP),
+      })
       .eq("id", contractId);
 
-    let fields: Awaited<ReturnType<typeof extractFieldsFromText>>;
+    let extraction: Awaited<ReturnType<typeof extractFieldsFromText>>;
     try {
-      fields = await extractFieldsFromText(combinedText);
+      extraction = await extractFieldsFromText(combinedText);
     } catch (err) {
       const raw =
         err instanceof Error ? err.message : "AI extraction request failed";
@@ -151,7 +218,7 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
-    if (fields.length === 0) {
+    if (extraction.fields.length === 0) {
       await fail(
         "Extraction did not return usable fields. Verify OPENAI_API_KEY, model access, and try again (see server logs)."
       );
@@ -167,51 +234,88 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
-    let inserted = 0;
-    const { data: existing } = await admin
+    const { fields: grounded, droppedCount: groundingDropped } =
+      applyGroundingToFields(combinedText, extraction.fields);
+
+    const { data: existingRows } = await admin
       .from("extracted_fields")
-      .select("field_name")
+      .select("id, field_name, source, status")
       .eq("contract_id", contractId);
 
-    const existingNames = new Set((existing ?? []).map((e) => e.field_name));
+    const byFieldName = new Map(
+      (existingRows ?? []).map((r) => [r.field_name, r])
+    );
 
-    const newFields = fields
-      .filter((f) => !existingNames.has(f.field_name))
-      .map((f) => ({
-        contract_id: contractId,
-        field_name: f.field_name,
+    let inserted = 0;
+    let updated = 0;
+    let skippedProtected = 0;
+
+    for (const f of grounded) {
+      const row = {
         field_value: f.field_value,
         source_snippet: f.source_snippet,
         confidence: f.confidence,
         source: "ai" as const,
         status: "pending" as const,
-      }));
+      };
 
-    if (newFields.length > 0) {
-      const { error: insertFieldsError } = await admin
+      const prev = byFieldName.get(f.field_name);
+      if (!prev) {
+        const { error: insertErr } = await admin.from("extracted_fields").insert({
+          contract_id: contractId,
+          field_name: f.field_name,
+          ...row,
+        });
+        if (insertErr) {
+          console.error("extracted_fields insert:", insertErr.message);
+          if (process.env.SENTRY_DSN) {
+            Sentry.captureMessage(insertErr.message, {
+              level: "error",
+              extra: { contractId, code: insertErr.code },
+            });
+          }
+          await fail(insertErr.message);
+          console.info(
+            JSON.stringify({
+              event: "extraction.failed",
+              contractId,
+              userId,
+              durationMs: Date.now() - pipelineStartedAt,
+              reason: "insert_fields",
+            })
+          );
+          return;
+        }
+        inserted += 1;
+        continue;
+      }
+
+      if (!shouldAllowAiOverwrite(prev.status, prev.source)) {
+        skippedProtected += 1;
+        continue;
+      }
+
+      const { error: updErr } = await admin
         .from("extracted_fields")
-        .insert(newFields);
-      if (insertFieldsError) {
-        console.error("extracted_fields insert:", insertFieldsError.message);
+        .update({
+          ...row,
+          reviewed_by: null,
+          reviewed_at: null,
+        })
+        .eq("id", prev.id);
+
+      if (updErr) {
+        console.error("extracted_fields update:", updErr.message);
         if (process.env.SENTRY_DSN) {
-          Sentry.captureMessage(insertFieldsError.message, {
+          Sentry.captureMessage(updErr.message, {
             level: "error",
-            extra: { contractId, code: insertFieldsError.code },
+            extra: { contractId, code: updErr.code },
           });
         }
-        await fail(insertFieldsError.message);
-        console.info(
-          JSON.stringify({
-            event: "extraction.failed",
-            contractId,
-            userId,
-            durationMs: Date.now() - pipelineStartedAt,
-            reason: "insert_fields",
-          })
-        );
+        await fail(updErr.message);
         return;
       }
-      inserted = newFields.length;
+      updated += 1;
     }
 
     await admin.from("audit_events").insert({
@@ -220,9 +324,17 @@ export async function runExtractionPipeline(params: {
       user_id: userId,
       action: "extraction.completed",
       details: {
-        fields_returned: fields.length,
+        fields_returned: extraction.fields.length,
         fields_inserted: inserted,
+        fields_updated: updated,
+        fields_skipped_protected: skippedProtected,
         text_chars: textChars,
+        chunk_count: extraction.chunkCount,
+        prompt_tokens: extraction.usage.promptTokens,
+        completion_tokens: extraction.usage.completionTokens,
+        total_tokens: extraction.usage.totalTokens,
+        grounding_dropped: groundingDropped,
+        pdf_ocr_used: pdfOcrUsed,
       },
     });
 
@@ -234,9 +346,16 @@ export async function runExtractionPipeline(params: {
         contractId,
         userId,
         durationMs: Date.now() - pipelineStartedAt,
-        fieldsReturned: fields.length,
+        fieldsReturned: extraction.fields.length,
         fieldsInserted: inserted,
+        fieldsUpdated: updated,
         textChars,
+        chunkCount: extraction.chunkCount,
+        promptTokens: extraction.usage.promptTokens,
+        completionTokens: extraction.usage.completionTokens,
+        totalTokens: extraction.usage.totalTokens,
+        groundingDropped,
+        pdfOcrUsed,
       })
     );
   } catch (err) {

@@ -1,0 +1,85 @@
+import { NextResponse } from "next/server";
+import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
+import {
+  getClientIpFromRequest,
+  rateLimitCheck,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
+import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { isUuid } from "@/lib/security/validation";
+
+/** Isolated invocation for extraction (separate from POST /api/extract request lifecycle). */
+export const maxDuration = 300;
+
+export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(
+    `extract-worker:${ip}`,
+    RATE_LIMITS.extractWorker
+  );
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
+
+  const secret = process.env.EXTRACTION_WORKER_SECRET?.trim();
+  if (!secret) {
+    return NextResponse.json(
+      { error: "Worker not configured" },
+      { status: 503 }
+    );
+  }
+
+  const token = parseBearerToken(request.headers.get("authorization"));
+  if (!token || !secureCompareUtf8(token, secret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+
+  const contractId = String((body as { contractId?: unknown }).contractId ?? "").trim();
+  const userId = String((body as { userId?: unknown }).userId ?? "").trim();
+  const organizationId = String(
+    (body as { organizationId?: unknown }).organizationId ?? ""
+  ).trim();
+
+  if (!contractId || !userId || !organizationId) {
+    return NextResponse.json(
+      { error: "contractId, userId, and organizationId required" },
+      { status: 400 }
+    );
+  }
+
+  if (!isUuid(contractId) || !isUuid(userId) || !isUuid(organizationId)) {
+    return NextResponse.json({ error: "Invalid ids" }, { status: 400 });
+  }
+
+  try {
+    await runExtractionPipeline({
+      contractId,
+      userId,
+      organizationId,
+    });
+  } catch (err) {
+    console.error("[api/extract/run] pipeline error:", err);
+    return NextResponse.json({ error: "Pipeline failed" }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

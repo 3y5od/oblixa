@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { authorizeCronRequest } from "@/lib/security/cron-auth";
 
 /** Rows older than this are removed (idempotency records are only needed for Stripe retries). */
 const RETENTION_DAYS = 90;
@@ -9,15 +10,7 @@ function authorizeCron(request: Request): boolean {
   if (!cronSecret) {
     return false;
   }
-  const authHeader = request.headers.get("authorization");
-  if (authHeader === `Bearer ${cronSecret}`) {
-    return true;
-  }
-  const headerSecret = request.headers.get("x-cron-secret");
-  if (headerSecret === cronSecret) {
-    return true;
-  }
-  return false;
+  return authorizeCronRequest(request, cronSecret);
 }
 
 /**

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { sendReminderEmail } from "@/lib/email";
 import { getRequestOrigin } from "@/lib/app-url";
+import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import * as Sentry from "@sentry/nextjs";
 
 function pingCronMonitor(payload: Record<string, unknown>) {
@@ -19,15 +20,7 @@ function authorizeCron(request: Request): boolean {
   if (!cronSecret) {
     return false;
   }
-  const authHeader = request.headers.get("authorization");
-  if (authHeader === `Bearer ${cronSecret}`) {
-    return true;
-  }
-  const headerSecret = request.headers.get("x-cron-secret");
-  if (headerSecret === cronSecret) {
-    return true;
-  }
-  return false;
+  return authorizeCronRequest(request, cronSecret);
 }
 
 export async function GET(request: Request) {
