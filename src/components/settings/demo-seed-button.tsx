@@ -29,22 +29,22 @@ export function DemoSeedButton() {
   }
 
   return (
-    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
+    <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4">
       <div className="flex items-start gap-3">
-        <Database className="mt-0.5 h-5 w-5 text-gray-500" />
+        <Database className="mt-0.5 h-5 w-5 text-zinc-500" />
         <div className="flex-1 space-y-2">
-          <h3 className="text-sm font-semibold text-gray-900">Demo workspace</h3>
-          <p className="text-xs text-gray-600">
+          <h3 className="text-sm font-semibold text-zinc-900">Demo workspace</h3>
+          <p className="text-xs text-zinc-600">
             Load sample contracts (titles prefixed with &quot;Demo:&quot;) for
             training or pilots. Requires{" "}
-            <code className="rounded bg-gray-200 px-1">ENABLE_DEMO_SEED=true</code>{" "}
+            <code className="rounded bg-zinc-200 px-1">ENABLE_DEMO_SEED=true</code>{" "}
             on the server.
           </p>
           <button
             type="button"
             onClick={run}
             disabled={isPending}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="ui-btn-secondary px-3 py-1.5 disabled:opacity-50"
           >
             {isPending ? "Loading…" : "Load demo contracts"}
           </button>

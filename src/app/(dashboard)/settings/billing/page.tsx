@@ -55,12 +55,36 @@ export default async function BillingPage(props: {
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
 
   const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; label: string }> = {
-    active: { icon: CheckCircle, color: "text-green-600 bg-green-50", label: "Active" },
-    trialing: { icon: CheckCircle, color: "text-blue-600 bg-blue-50", label: "Trial" },
-    past_due: { icon: AlertCircle, color: "text-amber-600 bg-amber-50", label: "Past Due" },
-    incomplete: { icon: AlertCircle, color: "text-amber-600 bg-amber-50", label: "Incomplete" },
-    canceled: { icon: XCircle, color: "text-red-600 bg-red-50", label: "Canceled" },
-    none: { icon: XCircle, color: "text-gray-600 bg-gray-50", label: "No Plan" },
+    active: {
+      icon: CheckCircle,
+      color: "border border-emerald-200/80 bg-emerald-50 text-emerald-900",
+      label: "Active",
+    },
+    trialing: {
+      icon: CheckCircle,
+      color: "border border-sky-200/80 bg-sky-50 text-sky-900",
+      label: "Trial",
+    },
+    past_due: {
+      icon: AlertCircle,
+      color: "border border-amber-200/80 bg-amber-50 text-amber-900",
+      label: "Past Due",
+    },
+    incomplete: {
+      icon: AlertCircle,
+      color: "border border-amber-200/80 bg-amber-50 text-amber-900",
+      label: "Incomplete",
+    },
+    canceled: {
+      icon: XCircle,
+      color: "border border-red-200/80 bg-red-50 text-red-900",
+      label: "Canceled",
+    },
+    none: {
+      icon: XCircle,
+      color: "border border-zinc-200 bg-zinc-50 text-zinc-700",
+      label: "No Plan",
+    },
   };
 
   const config = statusConfig[subscriptionStatus];
@@ -69,35 +93,37 @@ export default async function BillingPage(props: {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div className="flex items-center gap-2">
-        <Link href="/settings" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/settings" className="text-sm text-zinc-500 transition-colors hover:text-zinc-800">
           Settings
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
+        <span className="text-zinc-300">/</span>
+        <h1 className="ui-page-title">Billing</h1>
       </div>
 
       {searchParams.success && (
-        <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm text-emerald-900">
           Subscription activated. Thank you!
         </div>
       )}
       {searchParams.canceled && (
-        <div className="rounded-md bg-amber-50 p-4 text-sm text-amber-700">
+        <div className="rounded-xl border border-amber-200/70 bg-amber-50/80 p-4 text-sm text-amber-950">
           Checkout was canceled. No charges were made.
         </div>
       )}
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-zinc-500">
         To require an active subscription before anyone can create or edit contracts,
-        set <code className="rounded bg-gray-100 px-1">REQUIRE_ACTIVE_SUBSCRIPTION=true</code>{" "}
-        on the server (see <code className="rounded bg-gray-100 px-1">.env.example</code>
+        set <code className="rounded bg-zinc-100 px-1">REQUIRE_ACTIVE_SUBSCRIPTION=true</code>{" "}
+        on the server (see <code className="rounded bg-zinc-100 px-1">.env.example</code>
         ).
       </p>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Your Plan</h2>
-          <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${config.color}`}>
+      <section className="ui-card p-6 shadow-none">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="ui-section-title">Your plan</h2>
+          <div
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${config.color}`}
+          >
             <StatusIcon size={14} />
             {config.label}
           </div>
@@ -105,13 +131,13 @@ export default async function BillingPage(props: {
 
         {isActive ? (
           <div className="space-y-4">
-            <div className="rounded-md bg-gray-50 p-4">
-              <p className="text-sm font-medium text-gray-900">ContractOps Pro</p>
-              <p className="text-sm text-gray-500">
+            <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4">
+              <p className="text-sm font-medium text-zinc-900">ContractOps Pro</p>
+              <p className="text-sm text-zinc-500">
                 Unlimited contracts, AI extraction, email reminders
               </p>
               {currentPeriodEnd && (
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-2 text-xs text-zinc-400">
                   Current period ends {currentPeriodEnd}
                 </p>
               )}
@@ -120,25 +146,25 @@ export default async function BillingPage(props: {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-md border border-blue-200 bg-blue-50 p-6">
-              <h3 className="text-base font-semibold text-gray-900">
+            <div className="rounded-xl border border-sky-200/70 bg-sky-50/40 p-6">
+              <h3 className="text-base font-bold tracking-tight text-zinc-900">
                 ContractOps Pro
               </h3>
-              <ul className="mt-3 space-y-2 text-sm text-gray-600">
+              <ul className="mt-3 space-y-2 text-sm text-zinc-600">
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-green-500" />
+                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
                   Unlimited contract uploads
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-green-500" />
+                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
                   AI-powered field extraction
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-green-500" />
+                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
                   Email reminders for key dates
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-green-500" />
+                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
                   Team collaboration
                 </li>
               </ul>
@@ -148,7 +174,7 @@ export default async function BillingPage(props: {
                 </div>
               )}
               {membership.role !== "admin" && (
-                <p className="mt-4 text-xs text-gray-500">
+                <p className="mt-4 text-xs text-zinc-500">
                   Contact your organization admin to subscribe.
                 </p>
               )}

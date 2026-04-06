@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getAppBaseUrl } from "@/lib/app-url";
 import type { OrgRole } from "@/lib/types";
 
 export async function updateProfile(formData: FormData) {
@@ -95,7 +96,7 @@ export async function inviteOrgMember(formData: FormData) {
     return { error: "Only admins can invite team members" };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = getAppBaseUrl();
 
   const { error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: {

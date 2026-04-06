@@ -11,7 +11,7 @@ export default async function BulkImportPage() {
   if (!ctx) {
     return (
       <div className="py-20 text-center">
-        <p className="text-sm text-gray-500">No organization found.</p>
+        <p className="text-sm text-zinc-500">No organization found.</p>
       </div>
     );
   }
@@ -35,20 +35,20 @@ export default async function BulkImportPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/contracts"
-          className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
         >
           ← Back
         </Link>
       </div>
       <div>
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">Bulk import</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="mb-2 text-2xl font-bold text-zinc-900">Bulk import</h1>
+        <p className="text-sm text-zinc-500">
           Upload many PDF or DOCX files at once. Each file becomes a separate contract for
           review and extraction.
         </p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6">
         <BulkUploadForm
           organizationId={ctx.orgId}
           disabled={!!disabledReason}
@@ -58,7 +58,7 @@ export default async function BulkImportPage() {
           <p className="mt-4 text-center text-sm">
             <Link
               href="/settings/billing"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="ui-link"
             >
               Go to Billing
             </Link>

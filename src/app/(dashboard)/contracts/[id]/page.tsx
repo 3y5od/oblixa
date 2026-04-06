@@ -104,15 +104,13 @@ export default async function ContractDetailPage(props: {
       <div className="flex items-center gap-4">
         <Link
           href="/contracts"
-          className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
         >
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {contract.title}
-            </h1>
+            <h1 className="ui-page-title">{contract.title}</h1>
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                 STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
@@ -122,7 +120,7 @@ export default async function ContractDetailPage(props: {
             </span>
           </div>
           {contract.counterparty && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-zinc-500">
               {contract.counterparty}
               {contract.contract_type && ` · ${contract.contract_type}`}
             </p>
@@ -134,12 +132,10 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-6 lg:col-span-2">
           <div
             id="extracted-fields"
-            className="scroll-mt-24 rounded-lg border border-gray-200 bg-white p-6"
+            className="scroll-mt-24 ui-card p-6 shadow-none"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Extracted Fields
-              </h2>
+              <h2 className="ui-section-title">Extracted fields</h2>
               <ExtractButton
                 contractId={contract.id}
                 hasFiles={!!contract.contract_files?.length}
@@ -167,14 +163,12 @@ export default async function ContractDetailPage(props: {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Documents
-            </h2>
+          <div className="ui-card p-6 shadow-none">
+            <h2 className="ui-section-title mb-4">Documents</h2>
             {!contract.contract_files?.length ? (
-              <p className="text-sm text-gray-500">No files uploaded.</p>
+              <p className="text-sm text-zinc-500">No files uploaded.</p>
             ) : (
-              <ul className="divide-y divide-gray-100">
+              <ul className="divide-y divide-zinc-100">
                 {contract.contract_files.map(
                   (file: {
                     id: string;
@@ -189,12 +183,12 @@ export default async function ContractDetailPage(props: {
                       className="flex items-center justify-between py-3"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText size={20} className="text-gray-400" />
+                        <FileText size={20} className="text-zinc-400" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-zinc-900">
                             {file.file_name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-zinc-500">
                             {formatFileSize(file.file_size)} ·
                             Uploaded{" "}
                             {format(
@@ -220,8 +214,8 @@ export default async function ContractDetailPage(props: {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
+          <div className="ui-card p-6 shadow-none">
+            <h3 className="mb-3 text-sm font-semibold text-zinc-900">
               Status
             </h3>
             <ContractStatusTransition
@@ -231,18 +225,18 @@ export default async function ContractDetailPage(props: {
             />
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
-              <Bell size={16} className="text-gray-500" />
+          <div className="ui-card p-6 shadow-none">
+            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900">
+              <Bell size={16} className="text-zinc-500" />
               Reminders
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-medium uppercase text-gray-500">
+                <p className="text-xs font-medium uppercase text-zinc-500">
                   Scheduled
                 </p>
                 {upcomingReminders.length === 0 ? (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     None pending. Approve a date field to schedule reminders.
                   </p>
                 ) : (
@@ -255,12 +249,12 @@ export default async function ContractDetailPage(props: {
                       }) => (
                         <li
                           key={r.id}
-                          className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2 text-sm"
+                          className="rounded-lg border border-zinc-200/80 bg-zinc-50/80 px-3 py-2 text-sm"
                         >
-                          <span className="font-medium text-gray-800">
+                          <span className="font-medium text-zinc-800">
                             {r.reminder_type.replace(/_/g, " ")}
                           </span>
-                          <span className="text-gray-500">
+                          <span className="text-zinc-500">
                             {" · "}
                             {format(
                               new Date(r.reminder_date + "T12:00:00"),
@@ -274,11 +268,11 @@ export default async function ContractDetailPage(props: {
                 )}
               </div>
               <div>
-                <p className="text-xs font-medium uppercase text-gray-500">
+                <p className="text-xs font-medium uppercase text-zinc-500">
                   Sent (history)
                 </p>
                 {reminderHistory.length === 0 ? (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     No reminder emails sent yet for this contract.
                   </p>
                 ) : (
@@ -292,9 +286,9 @@ export default async function ContractDetailPage(props: {
                       }) => (
                         <li
                           key={r.id}
-                          className="text-sm text-gray-600"
+                          className="text-sm text-zinc-600"
                         >
-                          <span className="text-gray-800">
+                          <span className="text-zinc-800">
                             {r.reminder_type.replace(/_/g, " ")}
                           </span>
                           {" · scheduled "}
@@ -320,29 +314,29 @@ export default async function ContractDetailPage(props: {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          <div className="ui-card p-6 shadow-none">
+            <h3 className="mb-4 text-sm font-semibold text-zinc-900">
               Details
             </h3>
             <dl className="space-y-3">
               <div className="flex items-center gap-2">
-                <User size={14} className="text-gray-400" />
-                <dt className="text-sm text-gray-500">Owner</dt>
-                <dd className="ml-auto text-sm font-medium text-gray-900">
+                <User size={14} className="text-zinc-400" />
+                <dt className="text-sm text-zinc-500">Owner</dt>
+                <dd className="ml-auto text-sm font-medium text-zinc-900">
                   {contract.owner?.full_name || contract.owner?.email || "—"}
                 </dd>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-gray-400" />
-                <dt className="text-sm text-gray-500">Created</dt>
-                <dd className="ml-auto text-sm text-gray-900">
+                <Calendar size={14} className="text-zinc-400" />
+                <dt className="text-sm text-zinc-500">Created</dt>
+                <dd className="ml-auto text-sm text-zinc-900">
                   {format(new Date(contract.created_at), "MMM d, yyyy")}
                 </dd>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-gray-400" />
-                <dt className="text-sm text-gray-500">Updated</dt>
-                <dd className="ml-auto text-sm text-gray-900">
+                <Calendar size={14} className="text-zinc-400" />
+                <dt className="text-sm text-zinc-500">Updated</dt>
+                <dd className="ml-auto text-sm text-zinc-900">
                   {format(new Date(contract.updated_at), "MMM d, yyyy")}
                 </dd>
               </div>
@@ -361,12 +355,12 @@ export default async function ContractDetailPage(props: {
             />
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          <div className="ui-card p-6 shadow-none">
+            <h3 className="mb-4 text-sm font-semibold text-zinc-900">
               Activity
             </h3>
             {auditEvents.length === 0 ? (
-              <p className="text-sm text-gray-500">No activity recorded.</p>
+              <p className="text-sm text-zinc-500">No activity recorded.</p>
             ) : (
               <ul className="space-y-3">
                 {auditEvents.map(
@@ -376,12 +370,12 @@ export default async function ContractDetailPage(props: {
                     created_at: string;
                   }) => (
                     <li key={event.id} className="flex items-start gap-2">
-                      <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-300" />
+                      <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-300" />
                       <div>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-zinc-700">
                           {event.action.replace(/\./g, " ")}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-zinc-400">
                           {format(
                             new Date(event.created_at),
                             "MMM d, yyyy h:mm a"

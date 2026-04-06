@@ -17,10 +17,14 @@ const transitions: Record<ContractStatus, { label: string; target: ContractStatu
 };
 
 const buttonStyles: Record<string, string> = {
-  active: "bg-green-600 hover:bg-green-700 text-white",
-  pending_review: "bg-amber-600 hover:bg-amber-700 text-white",
-  expired: "bg-gray-600 hover:bg-gray-700 text-white",
-  terminated: "bg-red-600 hover:bg-red-700 text-white",
+  active:
+    "border border-emerald-200/80 bg-emerald-50 text-emerald-900 hover:border-emerald-300 hover:bg-emerald-100/70",
+  pending_review:
+    "border border-amber-200/80 bg-amber-50 text-amber-900 hover:border-amber-300 hover:bg-amber-100/70",
+  expired:
+    "border border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-300 hover:bg-zinc-100/80",
+  terminated:
+    "border border-red-200/80 bg-red-50 text-red-900 hover:border-red-300 hover:bg-red-100/70",
 };
 
 interface ContractStatusTransitionProps {
@@ -42,7 +46,7 @@ export function ContractStatusTransition({
 
   if (!canEdit) {
     return (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-zinc-500">
         Only editors and admins can change contract status.
       </p>
     );
@@ -61,11 +65,13 @@ export function ContractStatusTransition({
     <div className="flex flex-wrap gap-2">
       {available.map(({ label, target }) => (
         <button
+          type="button"
           key={target}
           onClick={() => handleTransition(target)}
           disabled={isPending}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
-            buttonStyles[target] || "bg-gray-600 hover:bg-gray-700 text-white"
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+            buttonStyles[target] ||
+            "border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50"
           }`}
         >
           {isPending ? "Updating..." : label}

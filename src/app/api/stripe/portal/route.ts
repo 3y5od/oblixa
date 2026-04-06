@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 export async function POST() {
   const supabase = await createClient();
@@ -32,7 +33,7 @@ export async function POST() {
     return NextResponse.json({ error: "No billing account" }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = getAppBaseUrl();
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,

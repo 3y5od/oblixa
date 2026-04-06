@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { stripe, PRICE_ID } from "@/lib/stripe";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 export async function POST() {
   const supabase = await createClient();
@@ -58,7 +59,7 @@ export async function POST() {
       .eq("id", org.id);
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = getAppBaseUrl();
 
   const trialDays = parseInt(process.env.STRIPE_TRIAL_PERIOD_DAYS || "", 10);
   const trial =

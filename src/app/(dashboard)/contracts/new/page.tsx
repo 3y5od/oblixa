@@ -12,7 +12,7 @@ export default async function NewContractPage() {
   if (!ctx) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-gray-500">No organization found.</p>
+        <p className="text-sm text-zinc-500">No organization found.</p>
       </div>
     );
   }
@@ -55,10 +55,10 @@ export default async function NewContractPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl font-bold text-zinc-900 mb-2">
           Upload Contract
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-zinc-500">
           Drag in files or browse. After saving, you can run AI extraction from the
           contract page.
         </p>
@@ -75,7 +75,7 @@ export default async function NewContractPage() {
 
       <RecentUploads files={recentFiles} />
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6">
         <UploadForm
           organizationId={ctx.orgId}
           disabled={!!disabledReason}
@@ -85,7 +85,7 @@ export default async function NewContractPage() {
           <p className="mt-4 text-center text-sm">
             <Link
               href="/settings/billing"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="ui-link"
             >
               Go to Billing
             </Link>

@@ -53,7 +53,7 @@ export function BulkUploadForm({
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
+        <label className="mb-2 block text-sm font-medium text-zinc-700">
           PDF or DOCX files (one contract per file, max 20 MB each)
         </label>
         <input
@@ -63,9 +63,9 @@ export function BulkUploadForm({
           required
           accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           disabled={disabled || isPending}
-          className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+          className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border file:border-zinc-200 file:bg-zinc-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-zinc-800 hover:file:border-zinc-300 hover:file:bg-white disabled:opacity-50"
         />
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-zinc-500">
           Each file becomes its own contract titled from the filename. Extraction runs in the
           background when OpenAI is configured.
         </p>
@@ -86,7 +86,7 @@ export function BulkUploadForm({
       <button
         type="submit"
         disabled={disabled || isPending}
-        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="ui-btn-primary disabled:opacity-50"
       >
         {isPending ? "Importing…" : "Import contracts"}
       </button>

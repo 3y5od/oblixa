@@ -33,8 +33,9 @@ export function AddFieldForm({
   if (!open) {
     return (
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700"
+        className="flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-50/50 hover:text-zinc-700"
       >
         <Plus size={14} />
         Add field manually
@@ -59,17 +60,19 @@ export function AddFieldForm({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+    <div className="space-y-3 rounded-xl border border-zinc-200/90 bg-zinc-50/30 p-4">
       {error && (
-        <div className="rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-2 text-sm text-red-800">
+          {error}
+        </div>
       )}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Field</label>
+          <label className="block text-xs font-medium text-zinc-600 mb-1">Field</label>
           <select
             value={fieldName}
             onChange={(e) => setFieldName(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="ui-input py-1.5"
           >
             <option value="">Select field...</option>
             {availableFields.map((f) => (
@@ -80,27 +83,32 @@ export function AddFieldForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Value</label>
+          <label className="block text-xs font-medium text-zinc-600 mb-1">Value</label>
           <input
             type="text"
             value={fieldValue}
             onChange={(e) => setFieldValue(e.target.value)}
             placeholder="Enter value..."
-            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="ui-input py-1.5"
           />
         </div>
       </div>
       <div className="flex justify-end gap-2">
         <button
-          onClick={() => { setOpen(false); setError(null); }}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setError(null);
+          }}
+          className="ui-btn-secondary py-1.5"
         >
           Cancel
         </button>
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={isPending || !fieldName || !fieldValue.trim()}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          className="ui-btn-primary py-1.5 disabled:opacity-50"
         >
           {isPending ? "Adding..." : "Add field"}
         </button>

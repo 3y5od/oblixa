@@ -21,8 +21,8 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   if (!isAdmin) {
     return (
       <div>
-        <label className="block text-sm font-medium text-gray-700">Organization name</label>
-        <p className="mt-1 text-sm text-gray-900">{name}</p>
+        <label className="block text-sm font-medium text-zinc-700">Organization name</label>
+        <p className="mt-1 text-sm text-zinc-900">{name}</p>
       </div>
     );
   }
@@ -30,13 +30,17 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   return (
     <form action={action} className="space-y-4">
       {state?.error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{state.error}</div>
+        <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800">
+          {state.error}
+        </div>
       )}
       {state?.success && (
-        <div className="rounded-md bg-green-50 p-3 text-sm text-green-700">Organization updated.</div>
+        <div className="rounded-lg border border-emerald-200/70 bg-emerald-50/80 p-3 text-sm text-emerald-900">
+          Organization updated.
+        </div>
       )}
       <div>
-        <label htmlFor="orgName" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="orgName" className="block text-sm font-medium text-zinc-700">
           Organization name
         </label>
         <input
@@ -45,14 +49,14 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
           type="text"
           defaultValue={name}
           required
-          className="mt-1 block w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="ui-input mt-1 max-w-sm"
         />
       </div>
       <div className="flex justify-end">
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="ui-btn-primary disabled:opacity-50"
         >
           {pending ? "Saving..." : "Save changes"}
         </button>

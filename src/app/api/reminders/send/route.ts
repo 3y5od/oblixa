@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { sendReminderEmail } from "@/lib/email";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -120,7 +121,7 @@ export async function GET(request: Request) {
       )
     );
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = getAppBaseUrl();
     const hash =
       reminder.field_id != null ? `#field-${reminder.field_id}` : "";
     const result = await sendReminderEmail({

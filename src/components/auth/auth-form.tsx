@@ -63,95 +63,94 @@ export function AuthForm({ mode }: AuthFormProps) {
   const c = config[mode];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">ContractOps</h1>
-          <p className="mt-2 text-sm text-gray-600">{c.title}</p>
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
+      <div className="w-full max-w-[400px]">
+        <div className="mb-10 text-center">
+          <h1 className="text-xl font-bold tracking-tight text-zinc-900">ContractOps</h1>
+          <p className="mt-2 text-sm text-zinc-500">{c.title}</p>
         </div>
 
-        <form action={action} className="space-y-4">
-          {state?.error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-              {state.error}
-            </div>
-          )}
-          {state?.success && (
-            <div className="rounded-md bg-green-50 p-3 text-sm text-green-700">
-              {state.success}
-            </div>
-          )}
+        <div className="ui-card p-8">
+          <form action={action} className="space-y-5">
+            {state?.error && (
+              <div className="rounded-lg border border-red-200/80 bg-red-50/80 px-3 py-2.5 text-sm text-red-800">
+                {state.error}
+              </div>
+            )}
+            {state?.success && (
+              <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/80 px-3 py-2.5 text-sm text-emerald-900">
+                {state.success}
+              </div>
+            )}
 
-          {mode === "signup" && (
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full name
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          )}
+            {mode === "signup" && (
+              <div>
+                <label htmlFor="fullName" className="ui-label">
+                  Full name
+                </label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  className="ui-input"
+                />
+              </div>
+            )}
 
-          {mode !== "reset-password" && (
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          )}
+            {mode !== "reset-password" && (
+              <div>
+                <label htmlFor="email" className="ui-label">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="ui-input"
+                />
+              </div>
+            )}
 
-          {(mode === "login" || mode === "signup" || mode === "reset-password") && (
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                {mode === "reset-password" ? "New password" : "Password"}
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={8}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          )}
+            {(mode === "login" || mode === "signup" || mode === "reset-password") && (
+              <div>
+                <label htmlFor="password" className="ui-label">
+                  {mode === "reset-password" ? "New password" : "Password"}
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={8}
+                  className="ui-input"
+                />
+              </div>
+            )}
 
-          {mode === "login" && (
-            <div className="text-right">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-500"
-              >
-                Forgot password?
-              </Link>
-            </div>
-          )}
+            {mode === "login" && (
+              <div className="text-right">
+                <Link href="/forgot-password" className="ui-link text-sm">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-          >
-            {pending ? "..." : c.submitLabel}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={pending}
+              className="ui-btn-primary w-full py-2.5"
+            >
+              {pending ? "…" : c.submitLabel}
+            </button>
+          </form>
+        </div>
 
         {c.altLink && (
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-zinc-500">
             {c.altText}{" "}
-            <Link href={c.altLink} className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href={c.altLink} className="ui-link">
               {c.altLinkText}
             </Link>
           </p>

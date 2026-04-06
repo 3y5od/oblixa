@@ -1,5 +1,97 @@
 @import "tailwindcss";
 
-body {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+/* ─── Design tokens (premium SaaS: cool zinc, subtle borders, minimal shadow) ─── */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+}
+
+:root {
+  --canvas: oklch(0.978 0.004 260);
+  --surface: oklch(0.999 0.002 260);
+  --surface-raised: oklch(0.997 0.003 260);
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-full bg-canvas font-sans text-[15px] leading-relaxed text-zinc-600 antialiased;
+    font-feature-settings:
+      "cv02",
+      "cv03",
+      "cv04",
+      "cv11",
+      "ss01";
+  }
+
+  ::selection {
+    @apply bg-sky-200/60 text-zinc-900;
+  }
+}
+
+/* ─── Shared UI primitives (cohesive radius, thin borders, tactile controls) ─── */
+@layer components {
+  .ui-card {
+    @apply rounded-xl border border-zinc-200/90 bg-surface shadow-none;
+  }
+
+  .ui-card-raised {
+    @apply rounded-xl border border-zinc-200/80 bg-surface-raised shadow-none;
+  }
+
+  .ui-input {
+    @apply block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 shadow-none transition-[border-color,box-shadow] placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-sky-500/15;
+  }
+
+  .ui-label {
+    @apply mb-1.5 block text-sm font-medium text-zinc-600;
+  }
+
+  .ui-btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-900/90 bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white transition-[background-color,border-color,color,box-shadow] hover:border-zinc-800 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 active:bg-zinc-950 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ui-btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-sm font-medium text-zinc-700 transition-[background-color,border-color,color,box-shadow] hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 active:bg-zinc-100/80 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ui-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-transparent bg-transparent px-3.5 py-2 text-sm font-medium text-zinc-600 transition-[background-color,border-color,color] hover:bg-zinc-100/80 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ui-btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-2 text-sm font-medium text-red-700 transition-[background-color,border-color,color] hover:border-red-300 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/20 focus-visible:ring-offset-2 active:bg-red-100/60 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ui-link {
+    @apply font-medium text-sky-700 underline-offset-2 transition-colors hover:text-sky-800 hover:underline;
+  }
+
+  .ui-table-header {
+    @apply bg-zinc-50/80 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-500;
+  }
+
+  .ui-page-title {
+    @apply text-2xl font-bold tracking-tight text-zinc-900;
+  }
+
+  .ui-section-title {
+    @apply text-lg font-semibold tracking-tight text-zinc-900;
+  }
+
+  .ui-muted {
+    @apply text-sm text-zinc-500;
+  }
 }

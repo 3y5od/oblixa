@@ -17,10 +17,7 @@ export function ExtractButton({
   canEdit = true,
 }: ExtractButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const [result, setResult] = useState<{
-    message: string;
-    type: "success" | "error" | "warning";
-  } | null>(null);
+  const [result, setResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const router = useRouter();
 
@@ -33,26 +30,21 @@ export function ExtractButton({
       if ("error" in res && res.error) {
         setResult({ message: res.error, type: "error" });
       } else if ("success" in res && res.success) {
-        let type: "success" | "warning" = "success";
+        const ins = res.inserted ?? 0;
+        const total = res.extracted ?? 0;
         let message: string;
-
-        if (res.inserted > 0) {
-          message = `Added ${res.inserted} new field${res.inserted === 1 ? "" : "s"}`;
-          if (res.skippedExisting > 0) {
-            message += ` (${res.skippedExisting} already on this contract)`;
-          }
-        } else if (res.extracted > 0) {
-          message = `All ${res.extracted} returned field${res.extracted === 1 ? "" : "s"} already exist on this contract.`;
+        if (ins > 0) {
+          message =
+            ins === total
+              ? `Added ${ins} field${ins === 1 ? "" : "s"} from the document.`
+              : `Added ${ins} new field${ins === 1 ? "" : "s"} (${total} parsed).`;
         } else {
-          message = "No fields were added.";
+          message =
+            total > 0
+              ? "All fields were already present; nothing new to add. Delete a field to re-extract it."
+              : "Extraction finished.";
         }
-
-        if (res.warning) {
-          message = `${message} ${res.warning}`;
-          type = "warning";
-        }
-
-        setResult({ message: message.trim(), type });
+        setResult({ message, type: "success" });
         router.refresh();
       }
     });
@@ -63,7 +55,7 @@ export function ExtractButton({
       <button
         onClick={handleExtract}
         disabled={isPending}
-        className="flex items-center gap-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-violet-400/30 bg-violet-950 px-3 py-2 text-sm font-medium text-white transition-colors hover:border-violet-400/50 hover:bg-violet-900 disabled:opacity-50"
       >
         {isPending ? (
           <>
@@ -80,11 +72,7 @@ export function ExtractButton({
       {result && (
         <p
           className={`text-sm ${
-            result.type === "error"
-              ? "text-red-600"
-              : result.type === "warning"
-                ? "text-amber-800"
-                : "text-green-600"
+            result.type === "error" ? "text-red-700" : "text-emerald-800"
           }`}
         >
           {result.message}

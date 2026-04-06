@@ -47,12 +47,12 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+      <h1 className="ui-page-title">Settings</h1>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
-          <p className="text-xs text-gray-400">
+      <section className="ui-card p-6 shadow-none">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="ui-section-title">Profile</h2>
+          <p className="text-xs text-zinc-400">
             Joined{" "}
             {user.created_at
               ? format(new Date(user.created_at), "MMM d, yyyy")
@@ -66,10 +66,10 @@ export default async function SettingsPage() {
       </section>
 
       {membership && (
-        <section className="rounded-lg border border-gray-200 bg-white p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Organization</h2>
-            <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+        <section className="ui-card p-6 shadow-none">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="ui-section-title">Organization</h2>
+            <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2.5 py-0.5 text-xs font-semibold text-zinc-700">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
@@ -82,35 +82,31 @@ export default async function SettingsPage() {
             />
           </div>
 
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+          <h3 className="mb-3 text-sm font-bold tracking-tight text-zinc-900">
             Team members
           </h3>
-          <div className="overflow-hidden rounded-md border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-hidden rounded-xl border border-zinc-200/90">
+            <table className="min-w-full divide-y divide-zinc-200/80">
+              <thead className="bg-zinc-50/80">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                  <th className="ui-table-header px-4 py-3">
                     Name
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
-                    Email
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
-                    Role
-                  </th>
+                  <th className="ui-table-header px-4 py-3">Email</th>
+                  <th className="ui-table-header px-4 py-3">Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-zinc-200/70">
                 {members.map((m) => (
                   <tr key={m.id}>
-                    <td className="px-4 py-2 text-sm text-gray-900">
+                    <td className="px-4 py-2.5 text-sm font-medium text-zinc-900">
                       {m.profiles?.full_name || "—"}
                     </td>
-                    <td className="px-4 py-2 text-sm text-gray-500">
+                    <td className="px-4 py-2.5 text-sm text-zinc-500">
                       {m.profiles?.email || "—"}
                     </td>
-                    <td className="px-4 py-2">
-                      <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                    <td className="px-4 py-2.5">
+                      <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700">
                         {roleLabels[m.role] || m.role}
                       </span>
                     </td>
@@ -125,7 +121,7 @@ export default async function SettingsPage() {
           )}
 
           {membership.role === "admin" && (
-            <div className="mt-8 border-t border-gray-100 pt-6">
+            <div className="mt-8 border-t border-zinc-100 pt-6">
               <DemoSeedButton />
             </div>
           )}

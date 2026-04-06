@@ -33,14 +33,14 @@ export function OwnerAssignmentForm({
 
   return (
     <div className="mt-3">
-      <label className="block text-xs font-medium text-gray-500 mb-1">
+      <label className="block text-xs font-medium text-zinc-500 mb-1">
         Reassign owner
       </label>
       <select
         defaultValue={currentOwnerId ?? ""}
         disabled={isPending || members.length === 0}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+        className="ui-input disabled:opacity-50"
       >
         <option value="">Select owner…</option>
         {members.map((m) => (
@@ -50,7 +50,7 @@ export function OwnerAssignmentForm({
         ))}
       </select>
       {isPending && (
-        <p className="mt-1 text-xs text-gray-500">Updating…</p>
+        <p className="mt-1 text-xs text-zinc-500">Updating…</p>
       )}
     </div>
   );

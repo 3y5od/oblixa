@@ -31,7 +31,7 @@ export function DownloadButton({ storagePath, fileName }: DownloadButtonProps) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
+      className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50"
       title={`Download ${fileName}`}
     >
       {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}

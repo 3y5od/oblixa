@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { ContractStatus } from "@/lib/types";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
-import { getInternalAppUrl } from "@/lib/internal-app-url";
+import { getAppBaseUrl } from "@/lib/app-url";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 
 const DATE_FIELDS = new Set([
@@ -433,7 +433,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 }
 
 async function triggerExtraction(contractId: string) {
-  const appUrl = await getInternalAppUrl();
+  const appUrl = getAppBaseUrl();
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
@@ -472,7 +472,7 @@ export async function runExtraction(contractId: string) {
   const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
   if (writeErr) return writeErr;
 
-  const appUrl = await getInternalAppUrl();
+  const appUrl = getAppBaseUrl();
 
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
@@ -487,29 +487,18 @@ export async function runExtraction(contractId: string) {
     body: JSON.stringify({ contractId }),
   });
 
-  const raw = await res.text();
-  let data: {
+  const data = (await res.json()) as {
     error?: string;
     extracted?: number;
     inserted?: number;
-    skippedExisting?: number;
-    warning?: string;
+    textChars?: number;
   };
-  try {
-    data = JSON.parse(raw) as typeof data;
-  } catch {
-    return {
-      error:
-        "Extraction service returned invalid data (often HTML). Local dev should call this app’s own host—leave NEXT_PUBLIC_APP_URL as http://localhost:3000 for development or rely on request host detection.",
-    };
-  }
   if (!res.ok) return { error: data.error || "Extraction failed" };
   return {
     success: true,
     extracted: data.extracted ?? 0,
     inserted: data.inserted ?? 0,
-    skippedExisting: data.skippedExisting ?? 0,
-    warning: data.warning,
+    textChars: data.textChars,
   };
 }
 

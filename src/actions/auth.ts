@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient, ensureUserOrg } from "@/lib/supabase/server";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -15,7 +16,7 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${getAppBaseUrl()}/auth/callback`,
     },
   });
 
@@ -63,7 +64,7 @@ export async function forgotPassword(formData: FormData) {
   const email = formData.get("email") as string;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    redirectTo: `${getAppBaseUrl()}/reset-password`,
   });
 
   if (error) {

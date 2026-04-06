@@ -1,6 +1,9 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import { ContractTable } from "@/components/contracts/contract-table";
+import { ContractPagination } from "@/components/contracts/contract-pagination";
 import { attachOwnerProfiles } from "@/lib/contracts";
+import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
+import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
 import {
   getContractIdsForDeadlinePreset,
   getContractIdsMatchingFieldSearch,
@@ -8,7 +11,7 @@ import {
   DEADLINE_PRESET_VALUES,
 } from "@/lib/contract-filters";
 import Link from "next/link";
-import type { Contract } from "@/lib/types";
+import { redirect } from "next/navigation";
 
 function buildFilterUrl(params: Record<string, string | undefined>) {
   const search = new URLSearchParams();
@@ -49,6 +52,7 @@ export default async function ContractsPage(props: {
     search?: string;
     owner?: string;
     deadline?: string;
+    page?: string;
   }>;
 }) {
   const searchParams = await props.searchParams;
@@ -56,6 +60,10 @@ export default async function ContractsPage(props: {
   if (!ctx) return null;
 
   const { orgId, admin } = ctx;
+
+  const parsedPage = parseInt(searchParams.page ?? "1", 10);
+  const page =
+    Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   const deadlineParam = searchParams.deadline;
   const deadline: DeadlinePreset =
@@ -78,42 +86,32 @@ export default async function ContractsPage(props: {
     );
   }
 
-  let contractsData: Contract[] = [];
+  const { contracts: contractsData, total: contractTotal } =
+    await fetchContractsPage(
+      admin,
+      {
+        orgId,
+        status: searchParams.status,
+        owner: searchParams.owner,
+        deadlineIds,
+        sanitizedSearch,
+        fieldSearchIds,
+      },
+      page
+    );
 
-  if (deadlineIds !== null && deadlineIds.length === 0) {
-    contractsData = [];
-  } else {
-    let contractsQuery = admin
-      .from("contracts")
-      .select("*")
-      .eq("organization_id", orgId)
-      .order("created_at", { ascending: false });
-
-    if (searchParams.status) {
-      contractsQuery = contractsQuery.eq("status", searchParams.status);
-    }
-    if (searchParams.owner) {
-      contractsQuery = contractsQuery.eq("owner_id", searchParams.owner);
-    }
-    if (deadlineIds !== null && deadlineIds.length > 0) {
-      contractsQuery = contractsQuery.in("id", deadlineIds);
-    }
-
-    if (sanitizedSearch) {
-      const orParts = [
-        `title.ilike.%${sanitizedSearch}%`,
-        `counterparty.ilike.%${sanitizedSearch}%`,
-        `contract_type.ilike.%${sanitizedSearch}%`,
-        `search_document.ilike.%${sanitizedSearch}%`,
-      ];
-      if (fieldSearchIds.length > 0) {
-        orParts.push(`id.in.(${fieldSearchIds.join(",")})`);
-      }
-      contractsQuery = contractsQuery.or(orParts.join(","));
-    }
-
-    const { data } = await contractsQuery;
-    contractsData = (data ?? []) as Contract[];
+  const listTotalPages =
+    contractTotal > 0
+      ? Math.max(1, Math.ceil(contractTotal / CONTRACTS_PAGE_SIZE))
+      : 1;
+  if (page > listTotalPages && contractTotal > 0) {
+    const next = new URLSearchParams();
+    if (searchParams.search) next.set("search", searchParams.search);
+    if (searchParams.status) next.set("status", searchParams.status);
+    if (searchParams.owner) next.set("owner", searchParams.owner);
+    if (searchParams.deadline) next.set("deadline", searchParams.deadline);
+    next.set("page", String(listTotalPages));
+    redirect(`/contracts?${next.toString()}`);
   }
 
   const [{ data: membersData }] = await Promise.all([
@@ -137,6 +135,11 @@ export default async function ContractsPage(props: {
 
   const contracts = await attachOwnerProfiles(admin, contractsData);
 
+  const reviewStats = await getReviewStatsForContractIds(
+    admin,
+    contracts.map((c) => c.id)
+  );
+
   const statuses = [
     { value: "", label: "All" },
     { value: "pending_review", label: "Pending Review" },
@@ -152,27 +155,32 @@ export default async function ContractsPage(props: {
     deadline: searchParams.deadline,
   };
 
+  const paginationQuery: Record<string, string | undefined> = {
+    ...baseParams,
+    status: searchParams.status,
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Contracts</h1>
+        <div>
+          <h1 className="ui-page-title">Contracts</h1>
+          <p className="ui-muted mt-1.5 max-w-xl">
+            Filter and paginate your workspace. Use the{" "}
+            <Link href="/contracts/review" className="ui-link">
+              review queue
+            </Link>{" "}
+            for contracts that still need field approval.
+          </p>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
-          <a
-            href="/api/export/contracts"
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
-          >
+          <a href="/api/export/contracts" className="ui-btn-secondary px-4 py-2">
             Export CSV
           </a>
-          <Link
-            href="/contracts/bulk"
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
-          >
+          <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2">
             Bulk import
           </Link>
-          <Link
-            href="/contracts/new"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <Link href="/contracts/new" className="ui-btn-primary px-4 py-2">
             Upload contract
           </Link>
         </div>
@@ -181,7 +189,7 @@ export default async function ContractsPage(props: {
       <div className="flex flex-col gap-4">
         <form className="flex flex-wrap items-end gap-4" action="/contracts" method="get">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">
+            <label className="ui-label mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
               Search
             </label>
             <input
@@ -189,17 +197,17 @@ export default async function ContractsPage(props: {
               type="text"
               placeholder="Title, counterparty, type, fees, dates…"
               defaultValue={searchParams.search || ""}
-              className="w-72 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="ui-input w-72"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">
+            <label className="ui-label mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
               Key dates
             </label>
             <select
               name="deadline"
               defaultValue={deadline}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="ui-input w-auto min-w-[11rem] py-2"
             >
               {DEADLINE_OPTIONS.map((o) => (
                 <option key={o.value || "any"} value={o.value}>
@@ -214,17 +222,17 @@ export default async function ContractsPage(props: {
           {searchParams.owner && (
             <input type="hidden" name="owner" value={searchParams.owner} />
           )}
-          <button
-            type="submit"
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200"
-          >
+          <input type="hidden" name="page" value="1" />
+          <button type="submit" className="ui-btn-secondary px-4 py-2">
             Apply
           </button>
         </form>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-gray-500">Status:</span>
-          <div className="flex flex-wrap gap-1">
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Status
+          </span>
+          <div className="flex flex-wrap gap-1.5">
             {statuses.map((s) => (
               <Link
                 key={s.value}
@@ -232,10 +240,10 @@ export default async function ContractsPage(props: {
                   ...baseParams,
                   status: s.value || undefined,
                 })}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   (searchParams.status || "") === s.value
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
+                    : "text-zinc-600 hover:bg-zinc-100/90"
                 }`}
               >
                 {s.label}
@@ -246,18 +254,20 @@ export default async function ContractsPage(props: {
 
         {members.length > 1 && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-gray-500">Owner:</span>
-            <div className="flex flex-wrap gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Owner
+            </span>
+            <div className="flex flex-wrap gap-1.5">
               <Link
                 href={buildFilterUrl({
                   status: searchParams.status,
                   search: searchParams.search,
                   deadline: searchParams.deadline,
                 })}
-                className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
+                className={`rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
                   !searchParams.owner
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
+                    : "text-zinc-600 hover:bg-zinc-100/90"
                 }`}
               >
                 All
@@ -271,10 +281,10 @@ export default async function ContractsPage(props: {
                     deadline: searchParams.deadline,
                     owner: m.id,
                   })}
-                  className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
+                  className={`rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
                     searchParams.owner === m.id
-                      ? "bg-blue-100 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-zinc-900 text-white ring-1 ring-zinc-900/10"
+                      : "text-zinc-600 hover:bg-zinc-100/90"
                   }`}
                 >
                   {m.label}
@@ -285,7 +295,19 @@ export default async function ContractsPage(props: {
         )}
       </div>
 
-      <ContractTable contracts={contracts} />
+      <ContractTable
+        contracts={contracts}
+        reviewStats={reviewStats}
+        footer={
+          <ContractPagination
+            total={contractTotal}
+            page={page}
+            pageSize={CONTRACTS_PAGE_SIZE}
+            basePath="/contracts"
+            queryParams={paginationQuery}
+          />
+        }
+      />
     </div>
   );
 }

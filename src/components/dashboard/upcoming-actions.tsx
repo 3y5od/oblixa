@@ -16,9 +16,9 @@ interface UpcomingActionsProps {
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
   if (actions.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-gray-900">Upcoming Actions</h2>
-        <p className="mt-4 text-sm text-gray-500">
+      <div className="ui-card p-6 shadow-none">
+        <h2 className="ui-section-title">Upcoming actions</h2>
+        <p className="mt-3 text-sm text-zinc-500">
           No upcoming deadlines. Contracts with approved notice or renewal dates
           will appear here.
         </p>
@@ -27,34 +27,34 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-6 py-4">
-        <h2 className="text-lg font-semibold text-gray-900">Upcoming Actions</h2>
+    <div className="ui-card overflow-hidden shadow-none">
+      <div className="border-b border-zinc-200/90 px-6 py-4">
+        <h2 className="ui-section-title">Upcoming actions</h2>
       </div>
-      <ul className="divide-y divide-gray-100">
+      <ul className="divide-y divide-zinc-200/70">
         {actions.map((action) => (
           <li key={action.field.id}>
             <Link
               href={`/contracts/${action.contract.id}#field-${action.field.id}`}
-              className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+              className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-zinc-50/80"
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`rounded-lg p-2 ${
+                  className={`flex rounded-lg border p-2 ${
                     action.daysUntil <= 7
-                      ? "bg-red-100 text-red-600"
+                      ? "border-rose-200/80 bg-rose-50 text-rose-700"
                       : action.daysUntil <= 30
-                        ? "bg-amber-100 text-amber-600"
-                        : "bg-blue-100 text-blue-600"
+                        ? "border-amber-200/80 bg-amber-50 text-amber-800"
+                        : "border-sky-200/80 bg-sky-50 text-sky-800"
                   }`}
                 >
-                  <Calendar size={16} />
+                  <Calendar size={16} strokeWidth={1.75} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-semibold text-zinc-900">
                     {action.contract.title}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-zinc-500">
                     {action.field.field_name.replace(/_/g, " ")} &middot;{" "}
                     {action.field.field_value
                       ? format(new Date(action.field.field_value), "MMM d, yyyy")
@@ -64,12 +64,12 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-xs font-semibold tabular-nums ${
                     action.daysUntil <= 7
-                      ? "text-red-600"
+                      ? "text-rose-700"
                       : action.daysUntil <= 30
-                        ? "text-amber-600"
-                        : "text-gray-500"
+                        ? "text-amber-800"
+                        : "text-zinc-500"
                   }`}
                 >
                   {action.daysUntil === 0
@@ -78,7 +78,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                       ? "Tomorrow"
                       : `${action.daysUntil} days`}
                 </span>
-                <ArrowRight size={14} className="text-gray-400" />
+                <ArrowRight size={14} className="text-zinc-400" strokeWidth={1.75} />
               </div>
             </Link>
           </li>

@@ -14,9 +14,9 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50/80 p-4">
-      <h3 className="text-sm font-semibold text-gray-900">Invite teammate</h3>
-      <p className="mt-1 text-xs text-gray-600">
+    <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
+      <h3 className="text-sm font-semibold text-zinc-900">Invite teammate</h3>
+      <p className="mt-1 text-xs text-zinc-600">
         Sends an email invite from Supabase Auth. They will join this workspace when they
         accept. If the address already has an account, use Supabase dashboard or ask them to
         sign in and contact an admin.
@@ -50,7 +50,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
             required
             autoComplete="email"
             placeholder="colleague@company.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="ui-input"
           />
         </div>
         <div>
@@ -61,7 +61,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
             id="invite-role"
             name="role"
             defaultValue="editor"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-36"
+            className="ui-input sm:w-36"
           >
             <option value="editor">Editor</option>
             <option value="viewer">Viewer</option>
@@ -71,7 +71,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="ui-btn-primary disabled:opacity-50"
         >
           {isPending ? "Sending…" : "Send invite"}
         </button>

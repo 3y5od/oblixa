@@ -2,11 +2,11 @@ import type { ContractStatus, Profile } from "@/lib/types";
 import type { createAdminClient } from "@/lib/supabase/server";
 
 export const STATUS_STYLES: Record<ContractStatus, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  pending_review: "bg-amber-100 text-amber-700",
-  active: "bg-green-100 text-green-700",
-  expired: "bg-red-100 text-red-700",
-  terminated: "bg-gray-100 text-gray-700",
+  draft: "border border-zinc-200/90 bg-zinc-50 text-zinc-700",
+  pending_review: "border border-amber-200/70 bg-amber-50/90 text-amber-900",
+  active: "border border-emerald-200/70 bg-emerald-50/90 text-emerald-900",
+  expired: "border border-red-200/70 bg-red-50/90 text-red-800",
+  terminated: "border border-zinc-200/80 bg-zinc-50 text-zinc-600",
 };
 
 export const STATUS_LABELS: Record<ContractStatus, string> = {

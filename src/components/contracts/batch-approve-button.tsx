@@ -45,13 +45,13 @@ export function BatchApproveButton({
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+        className="ui-btn-secondary inline-flex items-center gap-2 disabled:opacity-50"
       >
         <ListChecks size={16} className="text-green-600" />
         {isPending ? "Approving…" : "Approve all ready fields"}
       </button>
       {message && (
-        <p className="text-sm text-gray-600 sm:max-w-md sm:text-right">{message}</p>
+        <p className="text-sm text-zinc-600 sm:max-w-md sm:text-right">{message}</p>
       )}
     </div>
   );

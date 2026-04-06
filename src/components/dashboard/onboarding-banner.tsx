@@ -13,9 +13,9 @@ export interface OnboardingActivationStats {
 
 function StepIcon({ done }: { done: boolean }) {
   return done ? (
-    <Check size={16} className="mt-0.5 shrink-0 text-green-600" aria-hidden />
+    <Check size={16} className="mt-0.5 shrink-0 text-emerald-600" strokeWidth={2} aria-hidden />
   ) : (
-    <Circle size={16} className="mt-0.5 shrink-0 text-gray-300" aria-hidden />
+    <Circle size={16} className="mt-0.5 shrink-0 text-zinc-300" strokeWidth={1.5} aria-hidden />
   );
 }
 
@@ -43,36 +43,42 @@ export function OnboardingBanner({ stats }: { stats: OnboardingActivationStats }
   }
 
   return (
-    <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-950">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="rounded-xl border border-sky-200/70 bg-sky-50/50 px-5 py-5 text-sm text-zinc-800">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="font-semibold text-blue-900">Get to your first reliable dates</p>
-          <ul className="mt-3 space-y-2">
-            <li className="flex gap-2">
+          <p className="font-semibold tracking-tight text-zinc-900">
+            Get to your first reliable dates
+          </p>
+          <ul className="mt-3 space-y-2.5 text-zinc-600">
+            <li className="flex gap-2.5">
               <StepIcon done={step1} />
               <span>
-                <Link href="/contracts/new" className="font-medium underline hover:text-blue-700">
+                <Link href="/contracts/new" className="ui-link">
                   Upload
                 </Link>{" "}
                 at least one contract (or use{" "}
-                <Link href="/contracts/bulk" className="font-medium underline hover:text-blue-700">
+                <Link href="/contracts/bulk" className="ui-link">
                   bulk import
                 </Link>
                 ).
               </span>
             </li>
-            <li className="flex gap-2">
+            <li className="flex gap-2.5">
               <StepIcon done={step2} />
               <span>
-                Run <strong>Extract fields with AI</strong>, then review each field with a source
-                snippet before approving.
+                Run <strong className="font-semibold text-zinc-800">Extract fields with AI</strong>
+                , then use the{" "}
+                <Link href="/contracts/review" className="ui-link">
+                  review queue
+                </Link>{" "}
+                to approve fields (source snippet required before approve).
               </span>
             </li>
-            <li className="flex gap-2">
+            <li className="flex gap-2.5">
               <StepIcon done={step3} />
               <span>
                 Approve at least one operational date so{" "}
-                <Link href="/dashboard" className="font-medium underline hover:text-blue-700">
+                <Link href="/dashboard" className="ui-link">
                   reminders and the dashboard
                 </Link>{" "}
                 can use it.
@@ -85,7 +91,7 @@ export function OnboardingBanner({ stats }: { stats: OnboardingActivationStats }
           type="button"
           onClick={dismiss}
           disabled={isPending}
-          className="shrink-0 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="ui-btn-primary shrink-0 px-4 py-2"
         >
           {isPending ? "Saving…" : "Got it"}
         </button>

@@ -1,148 +1,211 @@
 import OpenAI from "openai";
 import { FIELD_NAMES, type FieldName } from "@/lib/types";
+import { preprocessContractTextForExtraction } from "@/lib/extraction/preprocess-text";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+/** Context sent to the model (larger window for long MSAs). */
+export const MAX_EXTRACTION_INPUT_CHARS = 120_000;
+
 export interface ExtractedFieldResult {
-  field_name: FieldName;
+  field_name: string;
   field_value: string | null;
   source_snippet: string | null;
   confidence: number;
 }
 
-export interface ExtractFieldsFromTextResult {
-  fields: ExtractedFieldResult[];
-  /** Shown to the user when extraction completes but yields nothing useful. */
-  warning?: string;
-}
+const FIELD_GUIDANCE: Record<FieldName, string> = {
+  counterparty: "Other party / client / vendor name (not your org).",
+  contract_type: "e.g. MSA, SOW, NDA, lease.",
+  effective_date: "When the agreement becomes effective (ISO date if possible).",
+  start_date: "Performance or term start (ISO date if possible).",
+  end_date: "Expiration or natural end (ISO date if possible).",
+  renewal_date: "Next renewal or extension date if stated (ISO if possible).",
+  notice_window: "Notice period for termination/non-renewal (e.g. 60 days before end).",
+  term: "Length or description of the term (e.g. 12 months, perpetual).",
+  fee_reference: "Where fees are described (section, amount, or summary).",
+  payment_cadence: "e.g. monthly, annual, milestone, net 30.",
+  auto_renewal: 'Whether it auto-renews: "yes", "no", or null if unclear.',
+};
 
-const FIELD_SET = new Set<string>(FIELD_NAMES);
-
-const SYSTEM_PROMPT = `You are a contract data extraction assistant. You extract specific operational fields from contract text.
+const SYSTEM_PROMPT = `You are a contract operations extractor. Your job is to pull a fixed set of operational fields from agreement text so humans can review them.
 
 Rules:
-- Output MUST be one JSON object with a top-level key "fields" whose value is an ARRAY of objects.
-- Each object must use "field_name" exactly as given in the schema (snake_case, e.g. end_date, notice_window).
-- For each field, provide field_value and source_snippet (verbatim from the document, max ~150 chars) when field_value is non-null.
-- If field_value is non-null, source_snippet MUST be non-null with real text from the document (never empty or placeholder).
-- If a field is ambiguous or not present, set field_value to null, confidence to 0, and source_snippet to null.
-- Dates should be ISO format (YYYY-MM-DD) when possible.
-- notice_window: human-readable duration (e.g. "30 days", "60 days before renewal").
-- auto_renewal: "yes", "no", or null.
+- Use ONLY the field_name values from the user list. Output one object per field in the "fields" array.
+- When you find a value, set field_value and source_snippet to a SHORT verbatim quote from the document (max ~150 characters) proving it. Never invent quotes.
+- If field_value is non-null, source_snippet MUST be non-null and copied from the document (not a summary).
+- If a field is missing, ambiguous, or not in the document, set field_value and source_snippet to null and confidence to 0.
+- Dates: prefer ISO YYYY-MM-DD when the document supports it.
 - confidence: number from 0 to 1.
-- Include exactly one entry in "fields" for every field_name in the schema list (use null values if unknown).`;
+- Do not omit any field from the list; return all of them in the array.`;
 
-function buildUserPrompt(truncatedText: string): string {
-  return `Schema — include one object per field_name below (all ${FIELD_NAMES.length} names must appear in the "fields" array):
+function buildUserPrompt(contractText: string): string {
+  const lines = FIELD_NAMES.map(
+    (f) => `- ${f}: ${FIELD_GUIDANCE[f]}`
+  ).join("\n");
 
-${FIELD_NAMES.map((f) => `- ${f}`).join("\n")}
+  return `Extract these fields from the contract text below.
 
-Respond with JSON exactly in this form:
-{"fields":[{"field_name":"counterparty","field_value":null,"source_snippet":null,"confidence":0}, ...]}
+Fields (output one "fields" array element per name, same names):
+${lines}
+
+Return JSON with shape: { "fields": [ { "field_name", "field_value", "source_snippet", "confidence" }, ... ] }
+Include every field_name listed above exactly once.
 
 CONTRACT TEXT:
 ---
-${truncatedText}
+${contractText}
 ---`;
 }
 
-function extractArrayFromParsed(parsed: unknown): unknown[] {
+const FIELD_NAME_ENUM = [...FIELD_NAMES];
+
+const EXTRACTION_JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    fields: {
+      type: "array",
+      description:
+        "One extraction record per known field; use nulls when the agreement does not state the value.",
+      items: {
+        type: "object",
+        properties: {
+          field_name: {
+            type: "string",
+            enum: FIELD_NAME_ENUM,
+          },
+          field_value: {
+            type: ["string", "null"],
+          },
+          source_snippet: {
+            type: ["string", "null"],
+          },
+          confidence: { type: "number" },
+        },
+        required: [
+          "field_name",
+          "field_value",
+          "source_snippet",
+          "confidence",
+        ],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["fields"],
+  additionalProperties: false,
+} as const;
+
+function stripJsonFences(content: string): string {
+  let s = content.trim();
+  if (s.startsWith("```")) {
+    s = s.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  }
+  return s;
+}
+
+function coerceFieldArray(parsed: unknown): unknown[] {
   if (Array.isArray(parsed)) return parsed;
   if (parsed && typeof parsed === "object") {
     const o = parsed as Record<string, unknown>;
     const keys = [
       "fields",
       "extracted_fields",
-      "extractedFields",
-      "data",
       "results",
+      "data",
+      "extractions",
       "items",
-      "contract_fields",
-      "schema_fields",
-      "values",
-    ];
+    ] as const;
     for (const k of keys) {
       const v = o[k];
       if (Array.isArray(v)) return v;
-    }
-    if (typeof o.field_name === "string") {
-      return [parsed];
     }
   }
   return [];
 }
 
-function normalizeFieldName(raw: unknown): FieldName | null {
-  if (raw == null || typeof raw !== "string") return null;
-  let n = raw.trim().toLowerCase().replace(/[\s-]+/g, "_");
-  n = n.replace(/__+/g, "_");
-  if (n.startsWith("field_")) n = n.slice(6);
-  if (FIELD_SET.has(n)) return n as FieldName;
-  return null;
-}
-
-function coerceNumber(v: unknown): number {
-  if (typeof v === "number" && !Number.isNaN(v)) return v;
-  if (typeof v === "string") {
-    const x = parseFloat(v);
-    if (!Number.isNaN(x)) return x;
-  }
-  return 0;
-}
-
-function mapRow(row: unknown): ExtractedFieldResult | null {
-  if (!row || typeof row !== "object") return null;
-  const r = row as Record<string, unknown>;
-  const field_name = normalizeFieldName(r.field_name ?? r.name ?? r.key);
-  if (!field_name) return null;
-
-  const field_value =
-    r.field_value === undefined || r.field_value === null
-      ? null
-      : String(r.field_value).trim() === ""
-        ? null
-        : String(r.field_value);
-
-  const source_snippet =
-    r.source_snippet === undefined || r.source_snippet === null
-      ? null
-      : String(r.source_snippet).trim() === ""
-        ? null
-        : String(r.source_snippet);
-
-  return {
-    field_name,
-    field_value,
-    source_snippet,
-    confidence: coerceNumber(r.confidence),
-  };
-}
-
-/** Keep best row per field_name (highest confidence; prefer non-null value). */
-function dedupeByFieldName(rows: ExtractedFieldResult[]): ExtractedFieldResult[] {
-  const best = new Map<FieldName, ExtractedFieldResult>();
-  for (const f of rows) {
-    const cur = best.get(f.field_name);
-    if (!cur) {
-      best.set(f.field_name, f);
+function normalizeRows(raw: unknown[]): ExtractedFieldResult[] {
+  const out: ExtractedFieldResult[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const r = item as Record<string, unknown>;
+    const name = r.field_name;
+    if (typeof name !== "string" || !FIELD_NAMES.includes(name as FieldName)) {
       continue;
     }
-    const curScore =
-      (cur.field_value ? 2 : 0) + (typeof cur.confidence === "number" ? cur.confidence : 0);
-    const fScore =
-      (f.field_value ? 2 : 0) + (typeof f.confidence === "number" ? f.confidence : 0);
-    if (fScore > curScore) best.set(f.field_name, f);
+    const fv = r.field_value;
+    const sn = r.source_snippet;
+    const conf = r.confidence;
+    out.push({
+      field_name: name,
+      field_value: fv == null ? null : String(fv),
+      source_snippet: sn == null ? null : String(sn),
+      confidence: typeof conf === "number" && !Number.isNaN(conf) ? conf : 0,
+    });
   }
-  return Array.from(best.values());
+  return out;
 }
 
-export async function extractFieldsFromText(
-  text: string
-): Promise<ExtractFieldsFromTextResult> {
-  const truncated = text.slice(0, 30000);
+/** One row per schema field; dedupe by field_name keeping highest confidence. */
+export function mergeToAllFieldNames(
+  rows: ExtractedFieldResult[]
+): ExtractedFieldResult[] {
+  const best = new Map<string, ExtractedFieldResult>();
+  for (const r of rows) {
+    if (!FIELD_NAMES.includes(r.field_name as FieldName)) continue;
+    const prev = best.get(r.field_name);
+    const c = r.confidence ?? 0;
+    if (!prev || c > (prev.confidence ?? 0)) {
+      best.set(r.field_name, { ...r });
+    }
+  }
+  return FIELD_NAMES.map((name) => {
+    const existing = best.get(name);
+    if (existing) return existing;
+    return {
+      field_name: name,
+      field_value: null,
+      source_snippet: null,
+      confidence: 0,
+    };
+  });
+}
 
+async function callOpenAI(contractText: string): Promise<string | null> {
   const model =
     process.env.OPENAI_EXTRACTION_MODEL?.trim() || "gpt-4o-mini";
+
+  const useSchema = process.env.OPENAI_EXTRACTION_JSON_SCHEMA !== "false";
+
+  const userContent = buildUserPrompt(contractText);
+
+  if (useSchema) {
+    try {
+      const response = await openai.chat.completions.create({
+        model,
+        temperature: 0,
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "contract_field_extraction",
+            description: "Structured contract field extraction.",
+            schema: EXTRACTION_JSON_SCHEMA as unknown as Record<string, unknown>,
+            strict: false,
+          },
+        },
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userContent },
+        ],
+      });
+      return response.choices[0]?.message?.content ?? null;
+    } catch (e) {
+      console.warn(
+        "Structured extraction schema failed, falling back to json_object:",
+        e instanceof Error ? e.message : e
+      );
+    }
+  }
 
   const response = await openai.chat.completions.create({
     model,
@@ -150,71 +213,39 @@ export async function extractFieldsFromText(
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(truncated) },
+      {
+        role: "user",
+        content: `${userContent}
+
+Respond with a single JSON object: { "fields": [ ... ] } using the same field objects as above.`,
+      },
     ],
   });
+  return response.choices[0]?.message?.content ?? null;
+}
 
-  const content = response.choices[0]?.message?.content;
-  if (!content?.trim()) {
-    return {
-      fields: [],
-      warning:
-        "The model returned an empty response. Try again, or check your OpenAI account and API key.",
-    };
+export async function extractFieldsFromText(
+  text: string
+): Promise<ExtractedFieldResult[]> {
+  const prepared = preprocessContractTextForExtraction(text);
+  const truncated = prepared.slice(0, MAX_EXTRACTION_INPUT_CHARS);
+
+  const content = await callOpenAI(truncated);
+  if (!content) {
+    return [];
   }
 
-  let parsed: unknown;
   try {
-    parsed = JSON.parse(content);
+    const stripped = stripJsonFences(content);
+    const parsed: unknown = JSON.parse(stripped);
+    const arr = coerceFieldArray(parsed);
+    const rows = normalizeRows(arr);
+    if (rows.length === 0) {
+      return [];
+    }
+    return mergeToAllFieldNames(rows);
   } catch {
-    console.error("Failed to parse extraction response:", content.slice(0, 500));
-    return {
-      fields: [],
-      warning:
-        "Could not parse the model response. Try running extraction again.",
-    };
+    console.error("Failed to parse extraction response:", content.slice(0, 2000));
+    return [];
   }
-
-  const rawRows = extractArrayFromParsed(parsed);
-  if (rawRows.length === 0) {
-    console.error(
-      "Extraction JSON had no array of fields. Keys:",
-      parsed && typeof parsed === "object"
-        ? Object.keys(parsed as object).join(", ")
-        : typeof parsed
-    );
-    return {
-      fields: [],
-      warning:
-        "The model did not return a usable \"fields\" array. Try extraction again, or use a different document export (text PDF or DOCX).",
-    };
-  }
-
-  const mapped = rawRows
-    .map(mapRow)
-    .filter((x): x is ExtractedFieldResult => x != null);
-
-  const deduped = dedupeByFieldName(mapped);
-
-  if (deduped.length === 0 && rawRows.length > 0) {
-    return {
-      fields: [],
-      warning:
-        "Field names in the model response did not match the expected schema (snake_case names like end_date, notice_window). Try again.",
-    };
-  }
-
-  const withValues = deduped.filter(
-    (f) => f.field_value != null && String(f.field_value).trim().length > 0
-  );
-
-  if (deduped.length > 0 && withValues.length === 0) {
-    return {
-      fields: [],
-      warning:
-        "No non-empty values were found. The PDF may be scan-only (no text layer), or the agreement may not state these items clearly. Use a text-based PDF or DOCX.",
-    };
-  }
-
-  return { fields: deduped };
 }

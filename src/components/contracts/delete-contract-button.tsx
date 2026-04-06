@@ -63,8 +63,8 @@ export function DeleteContractButton({
   }
 
   return (
-    <div className="mt-6 border-t border-gray-100 pt-4">
-      <p className="mb-2 text-xs font-medium uppercase text-gray-500">Danger zone</p>
+    <div className="mt-6 border-t border-zinc-100 pt-4">
+      <p className="mb-2 text-xs font-medium uppercase text-zinc-500">Danger zone</p>
       <button
         type="button"
         onClick={() => {
@@ -72,7 +72,7 @@ export function DeleteContractButton({
           setConfirmOpen(true);
         }}
         disabled={isPending || confirmOpen}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+        className="ui-btn-danger inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
       >
         {isPending ? (
           <Loader2 size={16} className="animate-spin" aria-hidden />
@@ -84,7 +84,7 @@ export function DeleteContractButton({
 
       {confirmOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 p-4 backdrop-blur-[2px]"
           role="presentation"
           onClick={closeDialog}
         >
@@ -92,22 +92,22 @@ export function DeleteContractButton({
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-contract-dialog-title"
-            className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2
               id="delete-contract-dialog-title"
-              className="text-lg font-semibold text-gray-900"
+              className="text-lg font-semibold text-zinc-900"
             >
               Delete contract?
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              <span className="font-medium text-gray-900">&ldquo;{label}&rdquo;</span>{" "}
+            <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+              <span className="font-medium text-zinc-900">&ldquo;{label}&rdquo;</span>{" "}
               will be removed along with uploaded files, extracted fields, and reminders.
               This cannot be undone.
             </p>
             {error && (
-              <p className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">
+              <p className="mt-3 rounded-lg border border-red-200/70 bg-red-50/80 px-3 py-2 text-sm text-red-800">
                 {error}
               </p>
             )}
@@ -116,7 +116,7 @@ export function DeleteContractButton({
                 type="button"
                 disabled={isPending}
                 onClick={closeDialog}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
               >
                 Cancel
               </button>

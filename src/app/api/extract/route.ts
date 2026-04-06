@@ -3,9 +3,9 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { extractTextFromBuffer } from "@/lib/extraction/parse-document";
 import { extractFieldsFromText } from "@/lib/extraction/extract-fields";
 import {
-  meaningfulTextLength,
-  MIN_MEANINGFUL_CHARS_FOR_EXTRACTION,
-} from "@/lib/extraction/text-metrics";
+  preprocessContractTextForExtraction,
+  substantiveTextCharCount,
+} from "@/lib/extraction/preprocess-text";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import {
@@ -85,12 +85,16 @@ export async function POST(request: Request) {
   };
 
   try {
-    const { data: files } = await admin
+    const { data: filesRaw } = await admin
       .from("contract_files")
       .select("*")
       .eq("contract_id", contractId);
 
-    if (!files?.length) {
+    const files = [...(filesRaw ?? [])].sort((a, b) =>
+      (a.file_name || "").localeCompare(b.file_name || "")
+    );
+
+    if (!files.length) {
       return await fail("No files found", 404);
     }
 
@@ -116,16 +120,18 @@ export async function POST(request: Request) {
       })
     );
 
-    const combinedText = textChunks.join("");
+    const combinedText = preprocessContractTextForExtraction(
+      textChunks.join("")
+    );
 
     if (!combinedText.trim()) {
       return await fail("Could not extract text from any files", 422);
     }
 
-    const textLen = meaningfulTextLength(combinedText);
-    if (textLen < MIN_MEANINGFUL_CHARS_FOR_EXTRACTION) {
+    const textChars = substantiveTextCharCount(combinedText);
+    if (textChars < 200) {
       return await fail(
-        `Very little readable text was found (${textLen} characters). This often means the PDF is image-only (scanned). Export a text-based PDF or use DOCX, or add OCR before upload.`,
+        "Very little text was extracted from the file(s). Scanned PDFs (images only) are not supported—use a text-based PDF or DOCX, or run OCR first.",
         422
       );
     }
@@ -136,9 +142,9 @@ export async function POST(request: Request) {
       .update({ search_document: combinedText.slice(0, searchCap) })
       .eq("id", contractId);
 
-    let extraction: Awaited<ReturnType<typeof extractFieldsFromText>>;
+    let fields: Awaited<ReturnType<typeof extractFieldsFromText>>;
     try {
-      extraction = await extractFieldsFromText(combinedText);
+      fields = await extractFieldsFromText(combinedText);
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "AI extraction request failed";
@@ -146,10 +152,14 @@ export async function POST(request: Request) {
       return await fail(msg, 502);
     }
 
-    const fields = extraction.fields;
-    let inserted = 0;
-    let skippedExisting = 0;
+    if (fields.length === 0) {
+      return await fail(
+        "Extraction did not return usable fields. Verify OPENAI_API_KEY, model access, and try again (see server logs).",
+        422
+      );
+    }
 
+    let inserted = 0;
     if (fields.length > 0) {
       const { data: existing } = await admin
         .from("extracted_fields")
@@ -170,16 +180,8 @@ export async function POST(request: Request) {
           status: "pending" as const,
         }));
 
-      skippedExisting = fields.length - newFields.length;
-
       if (newFields.length > 0) {
-        const { error: insertErr } = await admin
-          .from("extracted_fields")
-          .insert(newFields);
-        if (insertErr) {
-          console.error("extracted_fields insert:", insertErr.message);
-          return await fail(insertErr.message, 500);
-        }
+        await admin.from("extracted_fields").insert(newFields);
         inserted = newFields.length;
       }
     }
@@ -190,9 +192,9 @@ export async function POST(request: Request) {
       user_id: user.id,
       action: "extraction.completed",
       details: {
-        fields_extracted: fields.length,
+        fields_returned: fields.length,
         fields_inserted: inserted,
-        ...(extraction.warning ? { warning: extraction.warning } : {}),
+        text_chars: textChars,
       },
     });
 
@@ -201,8 +203,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       extracted: fields.length,
       inserted,
-      skippedExisting,
-      ...(extraction.warning ? { warning: extraction.warning } : {}),
+      textChars,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Extraction failed";

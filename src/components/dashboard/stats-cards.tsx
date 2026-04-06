@@ -18,38 +18,38 @@ export function StatsCards({
 }: StatsCardsProps) {
   const stats = [
     {
-      name: "Total Contracts",
+      name: "Total contracts",
       value: totalContracts,
       icon: FileText,
-      color: "text-gray-600 bg-gray-100",
+      iconWrap: "border-zinc-200/90 bg-zinc-50 text-zinc-600",
       href: "/contracts" as const,
     },
     {
-      name: "Pending Review",
+      name: "Pending review",
       value: pendingReview,
       icon: AlertCircle,
-      color: "text-amber-600 bg-amber-100",
+      iconWrap: "border-amber-200/70 bg-amber-50/80 text-amber-800",
       href: "/contracts?status=pending_review" as const,
     },
     {
-      name: "Upcoming Deadlines",
+      name: "Upcoming deadlines",
       value: upcomingDeadlines,
       icon: Clock,
-      color: "text-red-600 bg-red-100",
+      iconWrap: "border-rose-200/70 bg-rose-50/80 text-rose-800",
       href: "/contracts" as const,
     },
     {
-      name: "Active Contracts",
+      name: "Active contracts",
       value: activeContracts,
       icon: CheckCircle,
-      color: "text-green-600 bg-green-100",
+      iconWrap: "border-emerald-200/70 bg-emerald-50/80 text-emerald-800",
       href: "/contracts?status=active" as const,
     },
     {
       name: "Missing key dates",
       value: missingCriticalCount,
       icon: AlertTriangle,
-      color: "text-orange-600 bg-orange-50",
+      iconWrap: "border-orange-200/70 bg-orange-50/70 text-orange-900",
       href: "#missing-critical" as const,
     },
   ];
@@ -60,12 +60,14 @@ export function StatsCards({
         const inner = (
           <>
             <div className="flex items-center gap-3">
-              <div className={`rounded-lg p-2 ${stat.color}`}>
-                <stat.icon size={20} />
+              <div
+                className={`flex rounded-lg border p-2.5 ${stat.iconWrap}`}
+              >
+                <stat.icon size={18} strokeWidth={1.75} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">{stat.name}</p>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-xs font-medium text-zinc-500">{stat.name}</p>
+                <p className="mt-0.5 text-2xl font-bold tabular-nums tracking-tight text-zinc-900">
                   {stat.value}
                 </p>
               </div>
@@ -77,7 +79,7 @@ export function StatsCards({
             <a
               key={stat.name}
               href={stat.href}
-              className="rounded-lg border border-gray-200 bg-white p-5 transition hover:border-orange-200 hover:bg-orange-50/30"
+              className="ui-card block p-5 transition-[border-color,background-color] hover:border-orange-200/80 hover:bg-orange-50/20"
             >
               {inner}
             </a>
@@ -87,7 +89,7 @@ export function StatsCards({
           <Link
             key={stat.name}
             href={stat.href}
-            className="rounded-lg border border-gray-200 bg-white p-5 transition hover:border-gray-300"
+            className="ui-card block p-5 transition-[border-color,background-color] hover:border-zinc-300/90 hover:bg-zinc-50/40"
           >
             {inner}
           </Link>

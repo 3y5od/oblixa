@@ -25,14 +25,14 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-canvas">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas">
         <Header
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
         />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
         <LegalFooter />
       </div>
     </div>
