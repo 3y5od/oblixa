@@ -1,4 +1,4 @@
-import { PDFParse } from "pdf-parse";
+import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 
 function htmlToPlainText(html: string): string {
@@ -23,10 +23,10 @@ export async function extractTextFromBuffer(
   mimeType: string
 ): Promise<string> {
   if (mimeType === "application/pdf") {
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const result = await parser.getText();
-    await parser.destroy();
-    return result.text;
+    // pdf-parse 1.x: pure JS text extraction for Node/serverless. v2.x pulls in
+    // pdfjs-dist + @napi-rs/canvas and breaks on Vercel (DOMMatrix / native canvas).
+    const result = await pdfParse(buffer);
+    return result.text ?? "";
   }
 
   if (
