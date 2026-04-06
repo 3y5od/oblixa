@@ -2,6 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import type { ContractStatus } from "@/lib/types";
+import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
+import { getInternalAppUrl } from "@/lib/internal-app-url";
+import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -12,6 +16,51 @@ const DATE_FIELDS = new Set([
 ]);
 
 const REMINDER_OFFSETS_DAYS = [30, 14, 7, 1];
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const ALLOWED_TYPES = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
+  draft: ["pending_review"],
+  pending_review: ["active"],
+  active: ["expired", "terminated"],
+  expired: ["active"],
+  terminated: ["active"],
+};
+
+async function verifyOrgMembership(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  userId: string,
+  orgId: string
+) {
+  const { data } = await admin
+    .from("organization_members")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("organization_id", orgId)
+    .limit(1)
+    .single();
+  return !!data;
+}
+
+async function requireWriteAccess(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  userId: string,
+  orgId: string
+): Promise<{ error: string } | null> {
+  const role = await getOrgMemberRole(admin, userId, orgId);
+  if (!canEditContracts(role)) {
+    return { error: "Viewers cannot make changes." };
+  }
+  if (isPlanEnforcementEnabled() && !(await orgHasActivePlan(admin, orgId))) {
+    return {
+      error: "An active subscription is required. Open Billing to subscribe.",
+    };
+  }
+  return null;
+}
 
 export async function createContract(formData: FormData) {
   const supabase = await createClient();
@@ -22,10 +71,20 @@ export async function createContract(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const title = formData.get("title") as string;
+  const title = (formData.get("title") as string)?.trim();
   const counterparty = formData.get("counterparty") as string | null;
   const contractType = formData.get("contractType") as string | null;
   const organizationId = formData.get("organizationId") as string;
+
+  if (!title) return { error: "Title is required" };
+  if (!organizationId) return { error: "Organization is required" };
+
+  if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, organizationId);
+  if (writeErr) return writeErr;
 
   const { data: contract, error } = await admin
     .from("contracts")
@@ -44,29 +103,42 @@ export async function createContract(formData: FormData) {
   if (error) return { error: error.message };
 
   const files = formData.getAll("files") as File[];
-  for (const file of files) {
-    if (!file.size) continue;
-
-    const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
-
-    const { error: uploadError } = await admin.storage
-      .from("contracts")
-      .upload(storagePath, file);
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError.message);
-      continue;
+  const validFiles = files.filter((f) => {
+    if (!f.size) return false;
+    if (f.size > MAX_FILE_SIZE) {
+      console.error(`File too large: ${f.name} (${f.size} bytes)`);
+      return false;
     }
+    if (!ALLOWED_TYPES.has(f.type)) {
+      console.error(`Unsupported file type: ${f.name} (${f.type})`);
+      return false;
+    }
+    return true;
+  });
 
-    await admin.from("contract_files").insert({
-      contract_id: contract.id,
-      file_name: file.name,
-      file_type: file.type,
-      file_size: file.size,
-      storage_path: storagePath,
-      uploaded_by: user.id,
-    });
-  }
+  await Promise.all(
+    validFiles.map(async (file) => {
+      const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+
+      const { error: uploadError } = await admin.storage
+        .from("contracts")
+        .upload(storagePath, file);
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError.message);
+        return;
+      }
+
+      await admin.from("contract_files").insert({
+        contract_id: contract.id,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        storage_path: storagePath,
+        uploaded_by: user.id,
+      });
+    })
+  );
 
   await admin.from("audit_events").insert({
     organization_id: organizationId,
@@ -76,8 +148,7 @@ export async function createContract(formData: FormData) {
     details: { title },
   });
 
-  const hasFiles = files.some((f) => f.size > 0);
-  if (hasFiles && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
+  if (validFiles.length > 0 && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
     triggerExtraction(contract.id).catch(console.error);
   }
 
@@ -105,6 +176,29 @@ export async function updateContractField(
 
   if (!field) return { error: "Field not found" };
 
+  const contract = field.contracts as { id: string; organization_id: string; owner_id: string | null };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  if (action === "approved") {
+    const hasValue =
+      field.field_value != null && String(field.field_value).trim().length > 0;
+    const hasSnippet =
+      field.source_snippet != null &&
+      String(field.source_snippet).trim().length > 0;
+    if (field.source === "ai" && hasValue && !hasSnippet) {
+      return {
+        error:
+          "AI-extracted values need a source citation before approval. Edit the field to add the clause text, or reject.",
+      };
+    }
+  }
+
   const updateData: Record<string, unknown> = {
     status: action,
     reviewed_by: user.id,
@@ -122,8 +216,6 @@ export async function updateContractField(
     .eq("id", fieldId);
 
   if (error) return { error: error.message };
-
-  const contract = field.contracts as { id: string; organization_id: string; owner_id: string | null };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -216,6 +308,13 @@ export async function addManualField(
 
   if (!contract) return { error: "Contract not found" };
 
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
   const { data: inserted, error } = await admin
     .from("extracted_fields")
     .insert({
@@ -271,35 +370,50 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 
   if (!contract) return { error: "Contract not found" };
 
-  const files = formData.getAll("files") as File[];
-  let uploaded = 0;
-  const errors: string[] = [];
-
-  for (const file of files) {
-    if (!file.size) continue;
-
-    const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
-
-    const { error: uploadError } = await admin.storage
-      .from("contracts")
-      .upload(storagePath, file);
-
-    if (uploadError) {
-      errors.push(`${file.name}: ${uploadError.message}`);
-      continue;
-    }
-
-    await admin.from("contract_files").insert({
-      contract_id: contract.id,
-      file_name: file.name,
-      file_type: file.type,
-      file_size: file.size,
-      storage_path: storagePath,
-      uploaded_by: user.id,
-    });
-
-    uploaded++;
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
   }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const files = formData.getAll("files") as File[];
+  const results = await Promise.allSettled(
+    files
+      .filter((f) => f.size > 0)
+      .map(async (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          throw new Error(`${file.name}: exceeds 20 MB limit`);
+        }
+        if (!ALLOWED_TYPES.has(file.type)) {
+          throw new Error(`${file.name}: unsupported file type`);
+        }
+
+        const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+
+        const { error: uploadError } = await admin.storage
+          .from("contracts")
+          .upload(storagePath, file);
+
+        if (uploadError) {
+          throw new Error(`${file.name}: ${uploadError.message}`);
+        }
+
+        await admin.from("contract_files").insert({
+          contract_id: contract.id,
+          file_name: file.name,
+          file_type: file.type,
+          file_size: file.size,
+          storage_path: storagePath,
+          uploaded_by: user.id,
+        });
+      })
+  );
+
+  const uploaded = results.filter((r) => r.status === "fulfilled").length;
+  const errors = results
+    .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+    .map((r) => r.reason?.message ?? "Unknown error");
 
   if (uploaded > 0) {
     await admin.from("audit_events").insert({
@@ -319,7 +433,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
 }
 
 async function triggerExtraction(contractId: string) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = await getInternalAppUrl();
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
@@ -342,7 +456,23 @@ export async function runExtraction(contractId: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const admin = await createAdminClient();
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("organization_id")
+    .eq("id", contractId)
+    .single();
+
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const appUrl = await getInternalAppUrl();
 
   const cookieStore = await (await import("next/headers")).cookies();
   const allCookies = cookieStore.getAll();
@@ -357,9 +487,232 @@ export async function runExtraction(contractId: string) {
     body: JSON.stringify({ contractId }),
   });
 
-  const data = await res.json();
+  const raw = await res.text();
+  let data: {
+    error?: string;
+    extracted?: number;
+    inserted?: number;
+    skippedExisting?: number;
+    warning?: string;
+  };
+  try {
+    data = JSON.parse(raw) as typeof data;
+  } catch {
+    return {
+      error:
+        "Extraction service returned invalid data (often HTML). Local dev should call this app’s own host—leave NEXT_PUBLIC_APP_URL as http://localhost:3000 for development or rely on request host detection.",
+    };
+  }
   if (!res.ok) return { error: data.error || "Extraction failed" };
-  return { success: true, extracted: data.extracted };
+  return {
+    success: true,
+    extracted: data.extracted ?? 0,
+    inserted: data.inserted ?? 0,
+    skippedExisting: data.skippedExisting ?? 0,
+    warning: data.warning,
+  };
+}
+
+export async function batchApproveReadyFields(contractId: string) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("organization_id")
+    .eq("id", contractId)
+    .single();
+
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { data: pending } = await admin
+    .from("extracted_fields")
+    .select("id")
+    .eq("contract_id", contractId)
+    .eq("status", "pending");
+
+  let approved = 0;
+  for (const row of pending ?? []) {
+    const res = await updateContractField(row.id, "approved");
+    if (res && "error" in res && res.error) continue;
+    approved++;
+  }
+
+  return {
+    success: true,
+    approved,
+    pending_total: pending?.length ?? 0,
+  };
+}
+
+function titleFromFileName(fileName: string): string {
+  const base = fileName.replace(/\.[^/.]+$/, "").trim();
+  return base || fileName;
+}
+
+export async function bulkCreateContractsFromFiles(formData: FormData) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const organizationId = formData.get("organizationId") as string;
+  if (!organizationId) return { error: "Organization is required" };
+
+  if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, organizationId);
+  if (writeErr) return writeErr;
+
+  const files = formData.getAll("files") as File[];
+  const validFiles = files.filter((f) => {
+    if (!f.size) return false;
+    if (f.size > MAX_FILE_SIZE) return false;
+    return ALLOWED_TYPES.has(f.type);
+  });
+
+  if (validFiles.length === 0) {
+    return { error: "Add at least one PDF or DOCX under 20 MB." };
+  }
+
+  const createdIds: string[] = [];
+  const rowErrors: string[] = [];
+
+  for (const file of validFiles) {
+    const title = titleFromFileName(file.name);
+    const { data: contract, error: insertErr } = await admin
+      .from("contracts")
+      .insert({
+        title,
+        counterparty: null,
+        contract_type: null,
+        organization_id: organizationId,
+        owner_id: user.id,
+        created_by: user.id,
+        status: "pending_review",
+      })
+      .select("id")
+      .single();
+
+    if (insertErr || !contract) {
+      rowErrors.push(`${file.name}: ${insertErr?.message ?? "insert failed"}`);
+      continue;
+    }
+
+    const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${file.name}`;
+
+    const { error: uploadError } = await admin.storage
+      .from("contracts")
+      .upload(storagePath, file);
+
+    if (uploadError) {
+      await admin.from("contracts").delete().eq("id", contract.id);
+      rowErrors.push(`${file.name}: ${uploadError.message}`);
+      continue;
+    }
+
+    await admin.from("contract_files").insert({
+      contract_id: contract.id,
+      file_name: file.name,
+      file_type: file.type,
+      file_size: file.size,
+      storage_path: storagePath,
+      uploaded_by: user.id,
+    });
+
+    await admin.from("audit_events").insert({
+      organization_id: organizationId,
+      contract_id: contract.id,
+      user_id: user.id,
+      action: "contract.created",
+      details: { title, bulk: true },
+    });
+
+    createdIds.push(contract.id);
+
+    if (
+      process.env.OPENAI_API_KEY &&
+      !process.env.OPENAI_API_KEY.includes("placeholder")
+    ) {
+      triggerExtraction(contract.id).catch(console.error);
+    }
+  }
+
+  return {
+    success: createdIds.length > 0,
+    created: createdIds.length,
+    contract_ids: createdIds,
+    errors: rowErrors.length ? rowErrors : undefined,
+  };
+}
+
+export async function updateContractOwner(contractId: string, newOwnerId: string) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id")
+    .eq("id", contractId)
+    .single();
+
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  if (!(await verifyOrgMembership(admin, newOwnerId, contract.organization_id))) {
+    return { error: "New owner must be a member of this organization." };
+  }
+
+  const { error } = await admin
+    .from("contracts")
+    .update({ owner_id: newOwnerId })
+    .eq("id", contractId);
+
+  if (error) return { error: error.message };
+
+  await admin
+    .from("reminders")
+    .update({ recipient_id: newOwnerId })
+    .eq("contract_id", contractId)
+    .is("sent_at", null);
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: contractId,
+    user_id: user.id,
+    action: "contract.owner_changed",
+    details: { new_owner_id: newOwnerId },
+  });
+
+  return { success: true };
 }
 
 export async function getFileDownloadUrl(storagePath: string) {
@@ -371,6 +724,21 @@ export async function getFileDownloadUrl(storagePath: string) {
   if (!user) return { error: "Not authenticated" };
 
   const admin = await createAdminClient();
+
+  const { data: file } = await admin
+    .from("contract_files")
+    .select("contract_id, contracts!inner(organization_id)")
+    .eq("storage_path", storagePath)
+    .single();
+
+  if (!file) return { error: "File not found" };
+
+  const orgId = (file.contracts as unknown as { organization_id: string }).organization_id;
+
+  if (!(await verifyOrgMembership(admin, user.id, orgId))) {
+    return { error: "Access denied" };
+  }
+
   const { data, error } = await admin.storage
     .from("contracts")
     .createSignedUrl(storagePath, 60 * 60);
@@ -403,6 +771,19 @@ export async function updateContractStatus(
     .single();
 
   if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const currentStatus = contract.status as ContractStatus;
+  const allowed = VALID_TRANSITIONS[currentStatus];
+  if (!allowed?.includes(newStatus as ContractStatus)) {
+    return { error: `Cannot transition from ${currentStatus} to ${newStatus}` };
+  }
 
   const { error } = await admin
     .from("contracts")
@@ -437,15 +818,19 @@ export async function deleteContract(contractId: string) {
     .eq("id", contractId)
     .single();
 
-  if (contract) {
-    await admin.from("audit_events").insert({
-      organization_id: contract.organization_id,
-      contract_id: contractId,
-      user_id: user.id,
-      action: "contract.deleted",
-      details: { title: contract.title },
-    });
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
   }
+
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { data: files } = await admin
+    .from("contract_files")
+    .select("storage_path")
+    .eq("contract_id", contractId);
 
   const { error } = await admin
     .from("contracts")
@@ -453,6 +838,19 @@ export async function deleteContract(contractId: string) {
     .eq("id", contractId);
 
   if (error) return { error: error.message };
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: contractId,
+    user_id: user.id,
+    action: "contract.deleted",
+    details: { title: contract.title },
+  });
+
+  if (files?.length) {
+    const paths = files.map((f) => f.storage_path);
+    await admin.storage.from("contracts").remove(paths);
+  }
 
   redirect("/contracts");
 }

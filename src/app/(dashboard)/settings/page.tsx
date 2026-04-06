@@ -2,6 +2,8 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
+import { DemoSeedButton } from "@/components/settings/demo-seed-button";
+import { InviteMemberForm } from "@/components/settings/invite-member-form";
 import type { OrganizationMember } from "@/lib/types";
 
 export default async function SettingsPage() {
@@ -10,27 +12,28 @@ export default async function SettingsPage() {
 
   const { user, orgId, admin } = ctx;
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: membership }, { data: membersData }] =
+    await Promise.all([
+      admin
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single(),
+      admin
+        .from("organization_members")
+        .select("*, organizations(name)")
+        .eq("user_id", user.id)
+        .eq("organization_id", orgId)
+        .limit(1)
+        .single(),
+      admin
+        .from("organization_members")
+        .select("*, profiles(full_name, email)")
+        .eq("organization_id", orgId)
+        .order("created_at", { ascending: true }),
+    ]);
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("*, organizations(name)")
-    .eq("user_id", user.id)
-    .eq("organization_id", orgId)
-    .limit(1)
-    .single();
-
-  let members: OrganizationMember[] = [];
-  const { data } = await admin
-    .from("organization_members")
-    .select("*, profiles(full_name, email)")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: true });
-  members = (data as OrganizationMember[]) || [];
+  const members = (membersData as OrganizationMember[]) || [];
 
   const orgName =
     (membership as OrganizationMember & { organizations: { name: string } } | null)
@@ -116,6 +119,16 @@ export default async function SettingsPage() {
               </tbody>
             </table>
           </div>
+
+          {membership.role === "admin" && (
+            <InviteMemberForm organizationId={membership.organization_id} />
+          )}
+
+          {membership.role === "admin" && (
+            <div className="mt-8 border-t border-gray-100 pt-6">
+              <DemoSeedButton />
+            </div>
+          )}
         </section>
       )}
     </div>

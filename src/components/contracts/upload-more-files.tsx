@@ -7,13 +7,16 @@ import { uploadAdditionalFiles } from "@/actions/contracts";
 
 interface UploadMoreFilesProps {
   contractId: string;
+  canEdit?: boolean;
 }
 
-export function UploadMoreFiles({ contractId }: UploadMoreFilesProps) {
+export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  if (!canEdit) return null;
 
   function handleFiles(fileList: FileList | null) {
     if (!fileList?.length) return;
@@ -26,9 +29,9 @@ export function UploadMoreFiles({ contractId }: UploadMoreFilesProps) {
     setResult(null);
     startTransition(async () => {
       const res = await uploadAdditionalFiles(contractId, formData);
-      if (res.error) {
+      if (res && "error" in res && res.error) {
         setResult({ message: res.error, type: "error" });
-      } else {
+      } else if (res && "uploaded" in res) {
         setResult({
           message: `Uploaded ${res.uploaded} file${res.uploaded === 1 ? "" : "s"}.`,
           type: "success",

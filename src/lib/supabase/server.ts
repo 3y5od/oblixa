@@ -107,11 +107,14 @@ export async function ensureUserOrg(userId: string, orgName: string) {
 
   const { error: memberError } = await admin
     .from("organization_members")
-    .insert({
-      organization_id: org.id,
-      user_id: userId,
-      role: "admin",
-    });
+    .upsert(
+      {
+        organization_id: org.id,
+        user_id: userId,
+        role: "admin",
+      },
+      { onConflict: "organization_id,user_id", ignoreDuplicates: true }
+    );
 
   if (memberError) {
     console.error("Failed to create membership:", memberError.message);

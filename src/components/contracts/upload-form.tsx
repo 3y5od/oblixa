@@ -1,14 +1,23 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { Upload, X, FileText } from "lucide-react";
 import { createContract } from "@/actions/contracts";
+import { formatFileSize } from "@/lib/format-file-size";
 
 interface UploadFormProps {
   organizationId: string;
+  /** When true, form cannot be submitted (e.g. subscription required). */
+  disabled?: boolean;
+  disabledReason?: string;
 }
 
-export function UploadForm({ organizationId }: UploadFormProps) {
+export function UploadForm({
+  organizationId,
+  disabled,
+  disabledReason,
+}: UploadFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -31,6 +40,7 @@ export function UploadForm({ organizationId }: UploadFormProps) {
   }
 
   function handleSubmit() {
+    if (disabled) return;
     const form = formRef.current;
     if (!form) return;
 
@@ -50,11 +60,20 @@ export function UploadForm({ organizationId }: UploadFormProps) {
 
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-6">
+      {disabled && disabledReason && (
+        <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+          {disabledReason}
+        </div>
+      )}
       {error && (
         <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
+      <p className="text-xs text-gray-500">
+        Supported: PDF and DOCX, up to 20 MB per file. Files are validated on the server;
+        unsupported types are rejected with an error.
+      </p>
 
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -108,8 +127,12 @@ export function UploadForm({ organizationId }: UploadFormProps) {
           Contract files (PDF or DOCX)
         </label>
         <div
-          className="mt-1 flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 hover:border-blue-400"
-          onClick={() => fileInputRef.current?.click()}
+          className={`mt-1 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 ${
+            disabled
+              ? "cursor-not-allowed opacity-50"
+              : "cursor-pointer hover:border-blue-400"
+          }`}
+          onClick={() => !disabled && fileInputRef.current?.click()}
           onDragOver={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -117,7 +140,7 @@ export function UploadForm({ organizationId }: UploadFormProps) {
           onDrop={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            handleFiles(e.dataTransfer.files);
+            if (!disabled) handleFiles(e.dataTransfer.files);
           }}
         >
           <div className="text-center">
@@ -151,7 +174,7 @@ export function UploadForm({ organizationId }: UploadFormProps) {
                   <FileText size={16} className="text-gray-400" />
                   <span className="text-sm text-gray-700">{file.name}</span>
                   <span className="text-xs text-gray-400">
-                    ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                    ({formatFileSize(file.size)})
                   </span>
                 </div>
                 <button
@@ -168,15 +191,15 @@ export function UploadForm({ organizationId }: UploadFormProps) {
       </div>
 
       <div className="flex justify-end gap-3">
-        <a
+        <Link
           href="/contracts"
           className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           Cancel
-        </a>
+        </Link>
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || disabled}
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
           {isPending ? "Uploading..." : "Create contract"}

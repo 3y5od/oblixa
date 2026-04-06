@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { LegalFooter } from "@/components/layout/legal-footer";
 import { createClient, getUserOrgId, ensureUserOrg } from "@/lib/supabase/server";
 
 export default async function DashboardLayout({
@@ -27,8 +28,12 @@ export default async function DashboardLayout({
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
+        <Header
+          fullName={user?.user_metadata?.full_name}
+          email={user?.email}
+        />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <LegalFooter />
       </div>
     </div>
   );

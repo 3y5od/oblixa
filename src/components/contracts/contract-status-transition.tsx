@@ -26,11 +26,13 @@ const buttonStyles: Record<string, string> = {
 interface ContractStatusTransitionProps {
   contractId: string;
   currentStatus: ContractStatus;
+  canEdit?: boolean;
 }
 
 export function ContractStatusTransition({
   contractId,
   currentStatus,
+  canEdit = true,
 }: ContractStatusTransitionProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -38,10 +40,18 @@ export function ContractStatusTransition({
   const available = transitions[currentStatus] ?? [];
   if (available.length === 0) return null;
 
+  if (!canEdit) {
+    return (
+      <p className="text-sm text-gray-500">
+        Only editors and admins can change contract status.
+      </p>
+    );
+  }
+
   function handleTransition(target: ContractStatus) {
     startTransition(async () => {
       const result = await updateContractStatus(contractId, target);
-      if (!result?.error) {
+      if (result && "success" in result && result.success) {
         router.refresh();
       }
     });

@@ -35,7 +35,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
         {actions.map((action) => (
           <li key={action.field.id}>
             <Link
-              href={`/contracts/${action.contract.id}`}
+              href={`/contracts/${action.contract.id}#field-${action.field.id}`}
               className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
             >
               <div className="flex items-center gap-3">

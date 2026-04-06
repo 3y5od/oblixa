@@ -8,27 +8,51 @@ import { runExtraction } from "@/actions/contracts";
 interface ExtractButtonProps {
   contractId: string;
   hasFiles: boolean;
+  canEdit?: boolean;
 }
 
-export function ExtractButton({ contractId, hasFiles }: ExtractButtonProps) {
+export function ExtractButton({
+  contractId,
+  hasFiles,
+  canEdit = true,
+}: ExtractButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [result, setResult] = useState<{
+    message: string;
+    type: "success" | "error" | "warning";
+  } | null>(null);
 
   const router = useRouter();
 
-  if (!hasFiles) return null;
+  if (!canEdit || !hasFiles) return null;
 
   function handleExtract() {
     setResult(null);
     startTransition(async () => {
       const res = await runExtraction(contractId);
-      if (res.error) {
+      if ("error" in res && res.error) {
         setResult({ message: res.error, type: "error" });
-      } else {
-        setResult({
-          message: `Extracted ${res.extracted} fields.`,
-          type: "success",
-        });
+      } else if ("success" in res && res.success) {
+        let type: "success" | "warning" = "success";
+        let message: string;
+
+        if (res.inserted > 0) {
+          message = `Added ${res.inserted} new field${res.inserted === 1 ? "" : "s"}`;
+          if (res.skippedExisting > 0) {
+            message += ` (${res.skippedExisting} already on this contract)`;
+          }
+        } else if (res.extracted > 0) {
+          message = `All ${res.extracted} returned field${res.extracted === 1 ? "" : "s"} already exist on this contract.`;
+        } else {
+          message = "No fields were added.";
+        }
+
+        if (res.warning) {
+          message = `${message} ${res.warning}`;
+          type = "warning";
+        }
+
+        setResult({ message: message.trim(), type });
         router.refresh();
       }
     });
@@ -56,7 +80,11 @@ export function ExtractButton({ contractId, hasFiles }: ExtractButtonProps) {
       {result && (
         <p
           className={`text-sm ${
-            result.type === "error" ? "text-red-600" : "text-green-600"
+            result.type === "error"
+              ? "text-red-600"
+              : result.type === "warning"
+                ? "text-amber-800"
+                : "text-green-600"
           }`}
         >
           {result.message}

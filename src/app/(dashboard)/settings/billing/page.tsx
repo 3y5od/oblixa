@@ -1,6 +1,5 @@
 import { getAuthContext } from "@/lib/supabase/server";
-import { stripe } from "@/lib/stripe";
-import { resolveSubscriptionStatus } from "@/lib/stripe";
+import { stripe, resolveSubscriptionStatus } from "@/lib/stripe";
 import { SubscribeButton, ManageSubscriptionButton } from "@/components/settings/billing-actions";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -59,6 +58,7 @@ export default async function BillingPage(props: {
     active: { icon: CheckCircle, color: "text-green-600 bg-green-50", label: "Active" },
     trialing: { icon: CheckCircle, color: "text-blue-600 bg-blue-50", label: "Trial" },
     past_due: { icon: AlertCircle, color: "text-amber-600 bg-amber-50", label: "Past Due" },
+    incomplete: { icon: AlertCircle, color: "text-amber-600 bg-amber-50", label: "Incomplete" },
     canceled: { icon: XCircle, color: "text-red-600 bg-red-50", label: "Canceled" },
     none: { icon: XCircle, color: "text-gray-600 bg-gray-50", label: "No Plan" },
   };
@@ -86,6 +86,13 @@ export default async function BillingPage(props: {
           Checkout was canceled. No charges were made.
         </div>
       )}
+
+      <p className="text-xs text-gray-500">
+        To require an active subscription before anyone can create or edit contracts,
+        set <code className="rounded bg-gray-100 px-1">REQUIRE_ACTIVE_SUBSCRIPTION=true</code>{" "}
+        on the server (see <code className="rounded bg-gray-100 px-1">.env.example</code>
+        ).
+      </p>
 
       <section className="rounded-lg border border-gray-200 bg-white p-6">
         <div className="flex items-center justify-between mb-6">

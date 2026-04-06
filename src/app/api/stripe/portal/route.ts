@@ -15,10 +15,14 @@ export async function POST() {
 
   const { data: membership } = await admin
     .from("organization_members")
-    .select("organizations(stripe_customer_id)")
+    .select("role, organizations(stripe_customer_id)")
     .eq("user_id", user.id)
     .limit(1)
     .single();
+
+  if (membership?.role !== "admin") {
+    return NextResponse.json({ error: "Only admins can manage billing" }, { status: 403 });
+  }
 
   const customerId = (
     membership?.organizations as unknown as { stripe_customer_id: string | null } | null

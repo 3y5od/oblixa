@@ -3,6 +3,16 @@ import { differenceInDays } from "date-fns";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { UpcomingActions } from "@/components/dashboard/upcoming-actions";
 import { ContractTable } from "@/components/contracts/contract-table";
+import { MissingFieldsSection } from "@/components/dashboard/missing-fields-section";
+import { UsageSection } from "@/components/dashboard/usage-section";
+import {
+  OnboardingBanner,
+  type OnboardingActivationStats,
+} from "@/components/dashboard/onboarding-banner";
+import { attachOwnerProfiles } from "@/lib/contracts";
+import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
+import { getOrgUsageStats } from "@/lib/usage-stats";
+import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import Link from "next/link";
 import type { Contract, ExtractedField } from "@/lib/types";
 
@@ -21,14 +31,53 @@ export default async function DashboardPage() {
     );
   }
 
-  const { orgId, admin } = ctx;
+  const { orgId, admin, user } = ctx;
 
-  const [{ data: contractsData }, { data: dateFieldsData }] = await Promise.all([
+  const [
+    { data: profileRow },
+    { count: totalContracts },
+    { count: pendingReview },
+    { count: activeContracts },
+    { data: recentContractsData },
+    { data: pendingContractsData },
+    { data: dateFieldsData },
+    { count: extractedFieldsCount },
+    { count: approvedOperationalDatesCount },
+    missingCritical,
+    usageStats,
+  ] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("onboarding_completed_at")
+      .eq("id", user.id)
+      .maybeSingle(),
     admin
       .from("contracts")
-      .select("*, owner:profiles!contracts_owner_id_fkey(full_name, email)")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId),
+    admin
+      .from("contracts")
+      .select("id", { count: "exact", head: true })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: false }),
+      .eq("status", "pending_review"),
+    admin
+      .from("contracts")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "active"),
+    admin
+      .from("contracts")
+      .select("*")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    admin
+      .from("contracts")
+      .select("id, title, counterparty")
+      .eq("organization_id", orgId)
+      .eq("status", "pending_review")
+      .order("created_at", { ascending: false })
+      .limit(5),
     admin
       .from("extracted_fields")
       .select("*, contracts!inner(id, title, organization_id)")
@@ -36,9 +85,28 @@ export default async function DashboardPage() {
       .eq("status", "approved")
       .in("field_name", ["notice_window", "renewal_date", "end_date"])
       .not("field_value", "is", null),
+    admin
+      .from("extracted_fields")
+      .select("id, contracts!inner(organization_id)", { count: "exact", head: true })
+      .eq("contracts.organization_id", orgId),
+    admin
+      .from("extracted_fields")
+      .select("id, contracts!inner(organization_id)", { count: "exact", head: true })
+      .eq("contracts.organization_id", orgId)
+      .eq("status", "approved")
+      .in("field_name", [
+        "end_date",
+        "renewal_date",
+        "notice_window",
+        "effective_date",
+        "start_date",
+      ]),
+    getContractsMissingCriticalFields(orgId),
+    getOrgUsageStats(orgId),
   ]);
 
-  const contracts = contractsData ?? [];
+  const recentContracts = await attachOwnerProfiles(admin, recentContractsData ?? []);
+  const pendingContracts = pendingContractsData ?? [];
   const dateFields = dateFieldsData ?? [];
 
   const today = new Date();
@@ -56,19 +124,36 @@ export default async function DashboardPage() {
     .sort((a, b) => a.daysUntil - b.daysUntil)
     .slice(0, 10);
 
-  const totalContracts = contracts.length;
-  const pendingReview = contracts.filter(
-    (c) => c.status === "pending_review"
-  ).length;
-  const activeContracts = contracts.filter((c) => c.status === "active").length;
   const upcomingDeadlines = upcomingActions.filter(
     (a) => a.daysUntil <= 30
   ).length;
 
-  const recentContracts = contracts.slice(0, 5);
+  const showPlanBanner =
+    isPlanEnforcementEnabled() && !(await orgHasActivePlan(admin, orgId));
+
+  const showOnboarding = !profileRow?.onboarding_completed_at;
+
+  const onboardingStats: OnboardingActivationStats = {
+    contractCount: totalContracts ?? 0,
+    hasExtractions: (extractedFieldsCount ?? 0) > 0,
+    approvedOperationalDates: approvedOperationalDatesCount ?? 0,
+  };
 
   return (
     <div className="space-y-6">
+      {showOnboarding && <OnboardingBanner stats={onboardingStats} />}
+      {showPlanBanner && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <span className="font-medium">Subscription required</span> to create or
+          edit contracts.{" "}
+          <Link
+            href="/settings/billing"
+            className="font-medium text-blue-700 underline hover:text-blue-800"
+          >
+            Open Billing
+          </Link>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <Link
@@ -80,11 +165,21 @@ export default async function DashboardPage() {
       </div>
 
       <StatsCards
-        totalContracts={totalContracts}
-        pendingReview={pendingReview}
+        totalContracts={totalContracts ?? 0}
+        pendingReview={pendingReview ?? 0}
         upcomingDeadlines={upcomingDeadlines}
-        activeContracts={activeContracts}
+        activeContracts={activeContracts ?? 0}
+        missingCriticalCount={missingCritical.length}
       />
+
+      <UsageSection
+        contractsCreated={usageStats.contractsCreated}
+        extractionsRun={usageStats.extractionsRun}
+        fieldsReviewed={usageStats.fieldsReviewed}
+        periodLabel={usageStats.periodLabel}
+      />
+
+      <MissingFieldsSection contracts={missingCritical} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <UpcomingActions actions={upcomingActions} />
@@ -101,17 +196,13 @@ export default async function DashboardPage() {
               View all
             </Link>
           </div>
-          {contracts.filter((c) => c.status === "pending_review").length ===
-          0 ? (
+          {pendingContracts.length === 0 ? (
             <p className="px-6 py-8 text-center text-sm text-gray-500">
               All contracts have been reviewed.
             </p>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {contracts
-                .filter((c) => c.status === "pending_review")
-                .slice(0, 5)
-                .map((c) => (
+              {pendingContracts.map((c) => (
                   <li key={c.id}>
                     <Link
                       href={`/contracts/${c.id}`}

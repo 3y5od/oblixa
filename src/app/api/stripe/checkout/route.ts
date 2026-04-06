@@ -15,13 +15,17 @@ export async function POST() {
 
   const { data: membership } = await admin
     .from("organization_members")
-    .select("organization_id, organizations(id, name, stripe_customer_id, stripe_subscription_id)")
+    .select("organization_id, role, organizations(id, name, stripe_customer_id, stripe_subscription_id)")
     .eq("user_id", user.id)
     .limit(1)
     .single();
 
   if (!membership) {
     return NextResponse.json({ error: "No organization" }, { status: 400 });
+  }
+
+  if (membership.role !== "admin") {
+    return NextResponse.json({ error: "Only admins can manage billing" }, { status: 403 });
   }
 
   const org = membership.organizations as unknown as {
@@ -42,7 +46,7 @@ export async function POST() {
 
   if (!customerId) {
     const customer = await stripe.customers.create({
-      email: user.email!,
+      email: user.email ?? undefined,
       name: org.name,
       metadata: { organization_id: org.id, user_id: user.id },
     });
@@ -56,6 +60,12 @@ export async function POST() {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
+  const trialDays = parseInt(process.env.STRIPE_TRIAL_PERIOD_DAYS || "", 10);
+  const trial =
+    Number.isFinite(trialDays) && trialDays > 0
+      ? { subscription_data: { trial_period_days: trialDays } }
+      : {};
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
@@ -63,6 +73,7 @@ export async function POST() {
     success_url: `${appUrl}/settings/billing?success=true`,
     cancel_url: `${appUrl}/settings/billing?canceled=true`,
     metadata: { organization_id: org.id },
+    ...trial,
   });
 
   return NextResponse.json({ url: session.url });

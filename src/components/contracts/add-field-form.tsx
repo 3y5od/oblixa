@@ -9,9 +9,14 @@ import { FIELD_NAMES } from "@/lib/types";
 interface AddFieldFormProps {
   contractId: string;
   existingFieldNames: string[];
+  canEdit?: boolean;
 }
 
-export function AddFieldForm({ contractId, existingFieldNames }: AddFieldFormProps) {
+export function AddFieldForm({
+  contractId,
+  existingFieldNames,
+  canEdit = true,
+}: AddFieldFormProps) {
   const [open, setOpen] = useState(false);
   const [fieldName, setFieldName] = useState("");
   const [fieldValue, setFieldValue] = useState("");
@@ -22,6 +27,8 @@ export function AddFieldForm({ contractId, existingFieldNames }: AddFieldFormPro
   const availableFields = FIELD_NAMES.filter(
     (f) => !existingFieldNames.includes(f)
   );
+
+  if (!canEdit) return null;
 
   if (!open) {
     return (
@@ -40,7 +47,7 @@ export function AddFieldForm({ contractId, existingFieldNames }: AddFieldFormPro
     setError(null);
     startTransition(async () => {
       const result = await addManualField(contractId, fieldName, fieldValue.trim());
-      if (result?.error) {
+      if (result && "error" in result && result.error) {
         setError(result.error);
       } else {
         setFieldName("");

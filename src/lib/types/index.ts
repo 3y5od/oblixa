@@ -15,6 +15,28 @@ export interface Organization {
   name: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  /** Synced from Stripe webhooks; used with subscription id for entitlement checks */
+  stripe_subscription_status?: string | null;
+  stripe_subscription_current_period_end?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ExtractionJobStatus =
+  | "pending"
+  | "processing"
+  | "succeeded"
+  | "failed";
+
+export interface ContractExtractionJob {
+  id: string;
+  contract_id: string;
+  organization_id: string;
+  status: ExtractionJobStatus;
+  attempt_count: number;
+  last_error: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -24,6 +46,7 @@ export interface Profile {
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
+  onboarding_completed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -43,6 +66,8 @@ export interface Contract {
   title: string;
   counterparty: string | null;
   contract_type: string | null;
+  /** Full extracted plain text from files; used for keyword search */
+  search_document?: string | null;
   status: ContractStatus;
   owner_id: string | null;
   created_by: string | null;

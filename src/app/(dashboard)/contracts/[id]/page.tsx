@@ -6,10 +6,17 @@ import { AddFieldForm } from "@/components/contracts/add-field-form";
 import { ExtractButton } from "@/components/contracts/extract-button";
 import { DownloadButton } from "@/components/contracts/download-button";
 import { UploadMoreFiles } from "@/components/contracts/upload-more-files";
-import { FileText, ArrowLeft, User, Calendar } from "lucide-react";
+import { OwnerAssignmentForm } from "@/components/contracts/owner-assignment-form";
+import { DeleteContractButton } from "@/components/contracts/delete-contract-button";
+import { FileText, ArrowLeft, User, Calendar, Bell } from "lucide-react";
 import Link from "next/link";
 import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
+import { formatFileSize } from "@/lib/format-file-size";
 import { ContractStatusTransition } from "@/components/contracts/contract-status-transition";
+import { ExtractionJobAlert } from "@/components/contracts/extraction-job-alert";
+import { BatchApproveButton } from "@/components/contracts/batch-approve-button";
+import { canEditContracts } from "@/lib/permissions";
+import type { ContractExtractionJob, OrgRole } from "@/lib/types";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -18,27 +25,79 @@ export default async function ContractDetailPage(props: {
   const ctx = await getAuthContext();
   if (!ctx) return null;
 
-  const { orgId, admin } = ctx;
+  const { orgId, admin, role } = ctx;
+  const canEdit = canEditContracts(role as OrgRole);
 
-  const { data: contract } = await admin
-    .from("contracts")
-    .select(
-      "*, owner:profiles!contracts_owner_id_fkey(full_name, email), contract_files(*), extracted_fields(*)"
-    )
-    .eq("id", id)
-    .eq("organization_id", orgId)
-    .single();
+  const [
+    { data: contractData },
+    { data: auditEventsData },
+    { data: remindersData },
+    { data: membersData },
+    { data: extractionJobData },
+  ] = await Promise.all([
+    admin
+      .from("contracts")
+      .select("*, contract_files(*), extracted_fields(*)")
+      .eq("id", id)
+      .eq("organization_id", orgId)
+      .single(),
+    admin
+      .from("audit_events")
+      .select("*")
+      .eq("contract_id", id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    admin
+      .from("reminders")
+      .select("*")
+      .eq("contract_id", id)
+      .order("reminder_date", { ascending: true }),
+    admin
+      .from("organization_members")
+      .select("user_id, profiles(full_name, email)")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: true }),
+    admin
+      .from("contract_extraction_jobs")
+      .select("*")
+      .eq("contract_id", id)
+      .maybeSingle(),
+  ]);
 
-  if (!contract) notFound();
+  if (!contractData) notFound();
 
-  const { data: auditEventsData } = await admin
-    .from("audit_events")
-    .select("*")
-    .eq("contract_id", id)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  let ownerProfile: { full_name: string | null; email: string | null } | null = null;
+  if (contractData.owner_id) {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", contractData.owner_id)
+      .single();
+    ownerProfile = profile;
+  }
 
+  const contract = { ...contractData, owner: ownerProfile };
   const auditEvents = auditEventsData ?? [];
+  const reminders = remindersData ?? [];
+
+  const ownerMembers = (membersData ?? []).map((m) => {
+    const profile = m.profiles as unknown as {
+      full_name: string | null;
+      email: string | null;
+    } | null;
+    return {
+      userId: m.user_id,
+      label: profile?.full_name || profile?.email || "Member",
+    };
+  });
+
+  const upcomingReminders = reminders.filter((r) => !r.sent_at);
+  const reminderHistory = reminders.filter((r) => r.sent_at);
+
+  const extractionJob = (extractionJobData ?? null) as ContractExtractionJob | null;
+  const pendingFieldsCount = (contract.extracted_fields ?? []).filter(
+    (f: { status: string }) => f.status === "pending"
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -72,10 +131,11 @@ export default async function ContractDetailPage(props: {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Main content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Extracted fields */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <div
+            id="extracted-fields"
+            className="scroll-mt-24 rounded-lg border border-gray-200 bg-white p-6"
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 Extracted Fields
@@ -83,20 +143,30 @@ export default async function ContractDetailPage(props: {
               <ExtractButton
                 contractId={contract.id}
                 hasFiles={!!contract.contract_files?.length}
+                canEdit={canEdit}
               />
             </div>
-            <FieldReview fields={contract.extracted_fields || []} />
+            <ExtractionJobAlert job={extractionJob} />
+            <BatchApproveButton
+              contractId={contract.id}
+              pendingCount={pendingFieldsCount}
+              canEdit={canEdit}
+            />
+            <FieldReview
+              fields={contract.extracted_fields || []}
+              canEdit={canEdit}
+            />
             <div className="mt-4">
               <AddFieldForm
                 contractId={contract.id}
                 existingFieldNames={(contract.extracted_fields || []).map(
                   (f: { field_name: string }) => f.field_name
                 )}
+                canEdit={canEdit}
               />
             </div>
           </div>
 
-          {/* Files */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">
               Documents
@@ -125,12 +195,14 @@ export default async function ContractDetailPage(props: {
                             {file.file_name}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {(file.file_size / 1024 / 1024).toFixed(1)} MB ·
+                            {formatFileSize(file.file_size)} ·
                             Uploaded{" "}
                             {format(
                               new Date(file.created_at),
                               "MMM d, yyyy"
                             )}
+                            {" · "}
+                            <span className="text-green-700">Stored</span>
                           </p>
                         </div>
                       </div>
@@ -143,13 +215,11 @@ export default async function ContractDetailPage(props: {
                 )}
               </ul>
             )}
-            <UploadMoreFiles contractId={contract.id} />
+            <UploadMoreFiles contractId={contract.id} canEdit={canEdit} />
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Status transition */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-3 text-sm font-semibold text-gray-900">
               Status
@@ -157,10 +227,99 @@ export default async function ContractDetailPage(props: {
             <ContractStatusTransition
               contractId={contract.id}
               currentStatus={contract.status}
+              canEdit={canEdit}
             />
           </div>
 
-          {/* Metadata */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+              <Bell size={16} className="text-gray-500" />
+              Reminders
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-medium uppercase text-gray-500">
+                  Scheduled
+                </p>
+                {upcomingReminders.length === 0 ? (
+                  <p className="mt-1 text-sm text-gray-500">
+                    None pending. Approve a date field to schedule reminders.
+                  </p>
+                ) : (
+                  <ul className="mt-2 space-y-2">
+                    {upcomingReminders.map(
+                      (r: {
+                        id: string;
+                        reminder_type: string;
+                        reminder_date: string;
+                      }) => (
+                        <li
+                          key={r.id}
+                          className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2 text-sm"
+                        >
+                          <span className="font-medium text-gray-800">
+                            {r.reminder_type.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-gray-500">
+                            {" · "}
+                            {format(
+                              new Date(r.reminder_date + "T12:00:00"),
+                              "MMM d, yyyy"
+                            )}
+                          </span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase text-gray-500">
+                  Sent (history)
+                </p>
+                {reminderHistory.length === 0 ? (
+                  <p className="mt-1 text-sm text-gray-500">
+                    No reminder emails sent yet for this contract.
+                  </p>
+                ) : (
+                  <ul className="mt-2 space-y-2">
+                    {reminderHistory.map(
+                      (r: {
+                        id: string;
+                        reminder_type: string;
+                        reminder_date: string;
+                        sent_at: string;
+                      }) => (
+                        <li
+                          key={r.id}
+                          className="text-sm text-gray-600"
+                        >
+                          <span className="text-gray-800">
+                            {r.reminder_type.replace(/_/g, " ")}
+                          </span>
+                          {" · scheduled "}
+                          {format(
+                            new Date(r.reminder_date + "T12:00:00"),
+                            "MMM d, yyyy"
+                          )}
+                          {r.sent_at && (
+                            <>
+                              {" · sent "}
+                              {format(
+                                new Date(r.sent_at),
+                                "MMM d, yyyy h:mm a"
+                              )}
+                            </>
+                          )}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">
               Details
@@ -188,9 +347,20 @@ export default async function ContractDetailPage(props: {
                 </dd>
               </div>
             </dl>
+            {canEdit && ownerMembers.length > 0 && (
+              <OwnerAssignmentForm
+                contractId={contract.id}
+                currentOwnerId={contract.owner_id}
+                members={ownerMembers}
+              />
+            )}
+            <DeleteContractButton
+              contractId={contract.id}
+              contractTitle={contract.title}
+              canEdit={canEdit}
+            />
           </div>
 
-          {/* Audit trail */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">
               Activity
