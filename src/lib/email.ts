@@ -1,6 +1,17 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResendClient(): Resend | null {
+  if (resend) return resend;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    console.error("[email] RESEND_API_KEY is not configured");
+    return null;
+  }
+  resend = new Resend(apiKey);
+  return resend;
+}
 
 function escapeHtml(str: string): string {
   return str
@@ -31,6 +42,10 @@ export async function sendReminderEmail({
   contractUrl,
   sourceSnippet,
 }: ReminderEmailParams) {
+  const resendClient = getResendClient();
+  if (!resendClient) {
+    return { error: new Error("Email provider is not configured") };
+  }
   const label = fieldName.replace(/_/g, " ");
   const urgency =
     daysUntil <= 1 ? "URGENT" : daysUntil <= 7 ? "Upcoming" : "Reminder";
@@ -44,7 +59,7 @@ export async function sendReminderEmail({
       ? escapeHtml(sourceSnippet.trim())
       : null;
 
-  const { error } = await resend.emails.send({
+  const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: `${urgency}: ${label} for "${contractTitle}" in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`,
@@ -101,6 +116,10 @@ export async function sendSavedViewSummaryEmail({
   workspacePath,
   sampleRows,
 }: SavedViewSummaryEmailParams) {
+  const resendClient = getResendClient();
+  if (!resendClient) {
+    return { error: new Error("Email provider is not configured") };
+  }
   const safeViewName = escapeHtml(viewName);
   const safeAppUrl = escapeHtml(appUrl.replace(/\/+$/, ""));
 
@@ -121,7 +140,7 @@ export async function sendSavedViewSummaryEmail({
             .join("")}
         </ul>`;
 
-  const { error } = await resend.emails.send({
+  const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: `Weekly summary: ${viewName} (${itemCount})`,

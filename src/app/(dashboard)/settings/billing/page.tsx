@@ -1,5 +1,5 @@
 import { getAuthContext } from "@/lib/supabase/server";
-import { stripe, resolveSubscriptionStatus } from "@/lib/stripe";
+import { getStripeClient, resolveSubscriptionStatus } from "@/lib/stripe";
 import { SubscribeButton, ManageSubscriptionButton } from "@/components/settings/billing-actions";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -32,9 +32,11 @@ export default async function BillingPage(props: {
 
   let subscriptionStatus = resolveSubscriptionStatus(null);
   let currentPeriodEnd: string | null = null;
+  const stripeClient = getStripeClient();
 
-  if (org.stripe_subscription_id) {
+  if (org.stripe_subscription_id && stripeClient.ok) {
     try {
+      const stripe = stripeClient.stripe;
       const sub = await stripe.subscriptions.retrieve(org.stripe_subscription_id);
       subscriptionStatus = resolveSubscriptionStatus(sub);
       const firstItem = sub.items?.data?.[0];

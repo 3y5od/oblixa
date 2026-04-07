@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 import { getRequestOrigin } from "@/lib/app-url";
 import * as Sentry from "@sentry/nextjs";
 
@@ -34,6 +34,12 @@ export async function POST(request: Request) {
   if (membership.role !== "admin") {
     return NextResponse.json({ error: "Only admins can manage billing" }, { status: 403 });
   }
+  const stripeClient = getStripeClient();
+  if (!stripeClient.ok) {
+    console.error("[stripe/portal] config:", stripeClient.error);
+    return NextResponse.json({ error: "Billing is not configured" }, { status: 500 });
+  }
+  const stripe = stripeClient.stripe;
 
   const customerId = (
     membership.organizations as unknown as { stripe_customer_id: string | null } | null

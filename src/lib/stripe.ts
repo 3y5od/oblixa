@@ -1,13 +1,35 @@
 import Stripe from "stripe";
 import { getStripeServerEnv } from "@/lib/env/server";
 
-const stripeEnv = getStripeServerEnv();
+let cachedStripe: Stripe | null = null;
+let cachedPriceId: string | null = null;
 
-export const stripe = new Stripe(stripeEnv.secretKey, {
-  typescript: true,
-});
+function readStripeConfig():
+  | { ok: true; secretKey: string; priceId: string }
+  | { ok: false; error: string } {
+  try {
+    const env = getStripeServerEnv();
+    return { ok: true, secretKey: env.secretKey, priceId: env.priceId };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Stripe env is misconfigured",
+    };
+  }
+}
 
-export const PRICE_ID = stripeEnv.priceId;
+export function getStripeClient():
+  | { ok: true; stripe: Stripe; priceId: string }
+  | { ok: false; error: string } {
+  if (cachedStripe && cachedPriceId) {
+    return { ok: true, stripe: cachedStripe, priceId: cachedPriceId };
+  }
+  const cfg = readStripeConfig();
+  if (!cfg.ok) return cfg;
+  cachedStripe = new Stripe(cfg.secretKey, { typescript: true });
+  cachedPriceId = cfg.priceId;
+  return { ok: true, stripe: cachedStripe, priceId: cachedPriceId };
+}
 
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 

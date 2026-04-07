@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 import { createServerClient } from "@supabase/ssr";
 import type Stripe from "stripe";
 import {
@@ -36,6 +36,13 @@ export async function POST(request: Request) {
     captureServerMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
+  const stripeClient = getStripeClient();
+  if (!stripeClient.ok) {
+    console.error("[stripe/webhook] config:", stripeClient.error);
+    captureServerMessage(stripeClient.error, { level: "error" });
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
+  const stripe = stripeClient.stripe;
 
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
