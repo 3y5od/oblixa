@@ -15,30 +15,35 @@ const metricsConfig = [
     sub: "Contracts",
     valueKey: "totalContracts" as const,
     href: "/contracts" as const,
+    context: "All records",
   },
   {
     name: "Review",
     sub: "Pending",
     valueKey: "pendingReview" as const,
     href: "/contracts?status=pending_review" as const,
+    context: "Needs action",
   },
   {
     name: "Horizon",
     sub: "≤30 days",
     valueKey: "upcomingDeadlines" as const,
     href: "/contracts" as const,
+    context: "Upcoming",
   },
   {
     name: "Active",
     sub: "In force",
     valueKey: "activeContracts" as const,
     href: "/contracts?status=active" as const,
+    context: "Live",
   },
   {
     name: "Gaps",
     sub: "Key dates",
     valueKey: "missingCriticalCount" as const,
     href: "#missing-critical" as const,
+    context: "Data quality",
   },
 ] as const;
 
@@ -81,7 +86,7 @@ export function StatsCards({
   };
 
   const cellClass =
-    "ui-transition-surface flex h-full min-h-[7.5rem] flex-col px-5 py-6 hover:bg-zinc-50/80 sm:min-h-0 sm:px-6";
+    "ui-transition-surface flex h-full min-h-[7rem] flex-col px-4 py-4.5 hover:bg-zinc-50/80 sm:min-h-0 sm:px-5 sm:py-5";
 
   return (
     <div className="ui-card ui-card-hover overflow-hidden">
@@ -92,17 +97,16 @@ export function StatsCards({
           const inner = (
             <>
               {/* Fixed-height label band so values align across columns when labels wrap on small screens */}
-              <div className="flex min-h-[2.5rem] items-start">
+              <div className="flex min-h-[2.35rem] items-start sm:min-h-[2.5rem]">
                 <p className="ui-metric-label line-clamp-2 leading-snug">{m.sub}</p>
               </div>
-              <p
-                className={`ui-metric-value mt-3 tabular-nums ${valueClass(tone)}`}
-              >
+              <p className={`ui-metric-value mt-2 tabular-nums ${valueClass(tone)}`}>
                 {value}
               </p>
-              <p className="mt-2 text-[12px] font-medium leading-tight text-zinc-400">
+              <p className="mt-1.5 text-[11px] font-medium leading-tight text-zinc-400 sm:text-[12px]">
                 {m.name}
               </p>
+              <p className="mt-1 text-[11px] font-medium text-zinc-400">{m.context}</p>
             </>
           );
           const label = `${m.name}: ${value}`;
@@ -130,7 +134,7 @@ export function StatsCards({
           );
         })}
       </div>
-      <p className="border-t border-zinc-100/80 bg-zinc-50/30 px-5 py-3.5 text-center text-[11px] leading-relaxed text-zinc-400 sm:px-6">
+      <p className="border-t border-zinc-100/80 bg-zinc-50/30 px-4 py-3 text-center text-[11px] leading-relaxed text-zinc-400 sm:px-6 sm:py-3.5">
         Snapshot of your workspace — click a metric to filter
       </p>
     </div>

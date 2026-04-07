@@ -15,7 +15,7 @@ Centralizes client agreements, extracts key operational fields with source citat
 
 ## Prerequisites
 
-- **Node.js** ≥ 22 LTS (`node --version`)
+- **Node.js** ≥ 20 LTS (`node --version`)
 - **npm** ≥ 10 (`npm --version`)
 - Accounts on **Supabase**, **Stripe**, **Resend**, and **Vercel**
 
@@ -50,6 +50,7 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `SUPABASE_SERVICE_ROLE_KEY` | Same page | **No** |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe → Developers → API keys | Yes |
 | `STRIPE_SECRET_KEY` | Same page | **No** |
+| `STRIPE_PRICE_ID` | Stripe product's recurring price id | **No** |
 | `STRIPE_WEBHOOK_SECRET` | Stripe → Developers → Webhooks | **No** |
 | `RESEND_API_KEY` | Resend → API Keys | **No** |
 | `EMAIL_FROM` | Verified sender in Resend | N/A |
@@ -64,6 +65,35 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `npm run build` | Production build |
 | `npm run start` | Serve the production build locally |
 | `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run TypeScript type checks |
+| `npm run test` | Run Vitest unit tests |
+| `npm run test:e2e` | Run Playwright smoke tests |
+| `npm run check:migrations` | Fail on duplicate migration prefixes |
+| `npm run preflight:release` | Validate required release env vars |
+| `npm run release:checklist` | Run preflight + verify + e2e |
+| `npm run verify` | Run migration check + lint + typecheck + tests + production build |
+
+## CI quality gate
+
+The default CI workflow runs:
+
+1. `npm run check:migrations`
+2. `npm run lint`
+3. `npm run typecheck`
+4. `npm run test`
+5. `npm run build`
+6. `npm run test:e2e` (includes accessibility checks)
+
+## Release operations
+
+Use `docs/RELEASE_RUNBOOK.md` for release, rollback, and key-rotation procedures.
+
+Playwright e2e still expects a stable deployment target (`PLAYWRIGHT_BASE_URL`) when not running against a local preview.
+
+Optional authenticated e2e smoke uses:
+
+- `E2E_TEST_EMAIL`
+- `E2E_TEST_PASSWORD`
 
 ## Project structure
 

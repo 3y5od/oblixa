@@ -83,3 +83,70 @@ export async function sendReminderEmail({
 
   return { error };
 }
+
+interface SavedViewSummaryEmailParams {
+  to: string | string[];
+  viewName: string;
+  appUrl: string;
+  itemCount: number;
+  workspacePath: string;
+  sampleRows: Array<{ label: string; href: string; meta: string }>;
+}
+
+export async function sendSavedViewSummaryEmail({
+  to,
+  viewName,
+  appUrl,
+  itemCount,
+  workspacePath,
+  sampleRows,
+}: SavedViewSummaryEmailParams) {
+  const safeViewName = escapeHtml(viewName);
+  const safeAppUrl = escapeHtml(appUrl.replace(/\/+$/, ""));
+
+  const rowsHtml =
+    sampleRows.length === 0
+      ? `<p style="color:#6b7280;font-size:13px;margin:0;">No contracts currently match this view.</p>`
+      : `<ul style="padding-left:18px;margin:0;">
+          ${sampleRows
+            .map((row) => {
+              const safeTitle = escapeHtml(row.label);
+              const safeMeta = escapeHtml(row.meta);
+              const safeHref = `${safeAppUrl}${row.href}`;
+              return `<li style="margin:0 0 8px;">
+                        <a href="${safeHref}" style="color:#1f2937;text-decoration:none;font-weight:600;">${safeTitle}</a>
+                        <span style="color:#6b7280;font-size:12px;"> · ${safeMeta}</span>
+                      </li>`;
+            })
+            .join("")}
+        </ul>`;
+
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to,
+    subject: `Weekly summary: ${viewName} (${itemCount})`,
+    html: `
+      <div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
+        <h2 style="color:#111827;font-size:18px;margin-bottom:8px;">ContractOps weekly summary</h2>
+        <p style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 14px;">
+          Saved view: <strong>${safeViewName}</strong>
+        </p>
+        <p style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
+          Matching records: <strong>${itemCount}</strong>
+        </p>
+        <div style="padding:12px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px;">
+          ${rowsHtml}
+        </div>
+        <a href="${safeAppUrl}${workspacePath}"
+           style="display:inline-block;padding:10px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:500;">
+          Open workspace
+        </a>
+        <p style="margin-top:24px;color:#9ca3af;font-size:12px;">
+          You received this because weekly digest is enabled on one of your saved views.
+        </p>
+      </div>
+    `,
+  });
+
+  return { error };
+}

@@ -5,6 +5,8 @@ import { UpcomingActions } from "@/components/dashboard/upcoming-actions";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { MissingFieldsSection } from "@/components/dashboard/missing-fields-section";
 import { UsageSection } from "@/components/dashboard/usage-section";
+import { MyTasks } from "@/components/dashboard/my-tasks";
+import { MyObligations } from "@/components/dashboard/my-obligations";
 import {
   OnboardingBanner,
   type OnboardingActivationStats,
@@ -25,7 +27,14 @@ type DashboardDeadlineField = {
   contracts: { id: string; title: string; organization_id: string };
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view: rawView } = await props.searchParams;
+  const view =
+    rawView === "team" || rawView === "portfolio"
+      ? "team"
+      : "personal";
   const ctx = await getAuthContext();
   if (!ctx) {
     return (
@@ -60,6 +69,8 @@ export default async function DashboardPage() {
     missingCritical,
     usageStats,
     hasActivePlan,
+    { data: myTasksData },
+    { data: myObligationsData },
   ] = await Promise.all([
     admin
       .from("profiles")
@@ -121,6 +132,22 @@ export default async function DashboardPage() {
     getContractsMissingCriticalFields(admin, orgId),
     getOrgUsageStats(admin, orgId),
     enforcePlan ? orgHasActivePlan(admin, orgId) : Promise.resolve(true),
+    admin
+      .from("contract_tasks")
+      .select("id, title, status, priority, due_date, contracts!inner(id, title, organization_id)")
+      .eq("organization_id", orgId)
+      .eq("assignee_id", user.id)
+      .in("status", ["open", "in_progress", "blocked"])
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .limit(8),
+    admin
+      .from("contract_obligations")
+      .select("id, title, status, due_date, obligation_type, contracts!inner(id, title, organization_id)")
+      .eq("organization_id", orgId)
+      .eq("owner_id", user.id)
+      .in("status", ["open", "in_progress"])
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .limit(8),
   ]);
 
   const recentContracts = await attachOwnerProfiles(admin, recentContractsData ?? []);
@@ -128,6 +155,7 @@ export default async function DashboardPage() {
   const dateFields = (dateFieldsData ?? []) as unknown as DashboardDeadlineField[];
 
   const today = new Date();
+  const nowTs = today.getTime();
   const upcomingActions = dateFields
     .filter((field) => field.field_value)
     .map((field) => {
@@ -155,10 +183,62 @@ export default async function DashboardPage() {
   const upcomingDeadlines = upcomingActions.filter(
     (a) => a.daysUntil <= 30
   ).length;
+  const soonActions = upcomingActions.filter((a) => a.daysUntil <= 14);
+  const riskContracts = missingCritical.slice(0, 6);
 
   const showPlanBanner = enforcePlan && !hasActivePlan;
 
   const showOnboarding = !profileRow?.onboarding_completed_at;
+  const myTasks = (myTasksData ?? []).flatMap((row) => {
+    const rel = (row as { contracts: unknown }).contracts;
+    const contract = (
+      Array.isArray(rel) ? rel[0] : rel
+    ) as { id?: string; title?: string; organization_id?: string } | null;
+    if (!contract?.id || !contract?.title || !contract?.organization_id) {
+      return [];
+    }
+    return [
+      {
+        id: String((row as { id: unknown }).id),
+        title: String((row as { title: unknown }).title),
+        status: (row as { status: "open" | "in_progress" | "blocked" | "done" }).status,
+        priority: (row as { priority: "low" | "medium" | "high" }).priority,
+        due_date: (row as { due_date: string | null }).due_date,
+        contracts: {
+          id: contract.id,
+          title: contract.title,
+          organization_id: contract.organization_id,
+        },
+      },
+    ];
+  });
+  const myObligations = (myObligationsData ?? []).flatMap((row) => {
+    const rel = (row as { contracts: unknown }).contracts;
+    const contract = (
+      Array.isArray(rel) ? rel[0] : rel
+    ) as { id?: string; title?: string; organization_id?: string } | null;
+    if (!contract?.id || !contract?.title || !contract?.organization_id) {
+      return [];
+    }
+    return [
+      {
+        id: String((row as { id: unknown }).id),
+        title: String((row as { title: unknown }).title),
+        status: (row as { status: "open" | "in_progress" | "done" | "waived" }).status,
+        due_date: (row as { due_date: string | null }).due_date,
+        obligation_type: String((row as { obligation_type: unknown }).obligation_type),
+        contracts: {
+          id: contract.id,
+          title: contract.title,
+          organization_id: contract.organization_id,
+        },
+      },
+    ];
+  });
+  const overduePersonalTasks = myTasks.filter((task) => {
+    if (!task.due_date) return false;
+    return new Date(task.due_date).getTime() < nowTs;
+  });
 
   const onboardingStats: OnboardingActivationStats = {
     contractCount: totalContracts ?? 0,
@@ -167,7 +247,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-7 md:space-y-8">
       {showOnboarding && <OnboardingBanner stats={onboardingStats} />}
       {showPlanBanner && (
         <div className="flex flex-col gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -181,18 +261,42 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <header className="flex flex-col gap-6 border-b border-zinc-200/60 pb-10 lg:flex-row lg:items-end lg:justify-between">
+      <header className="ui-page-header">
         <div>
-          <p className="ui-eyebrow">Overview</p>
+          <p className="ui-eyebrow">Mission control</p>
           <h1 className="ui-display-title mt-2">Dashboard</h1>
-          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-zinc-500">
-            Operational snapshot of your agreements — deadlines, review load, and
-            portfolio health at a glance.
+          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-zinc-500 md:text-[15px]">
+            Prioritized queues for what needs action now, what is coming next, and what is at risk.
           </p>
         </div>
-        <Link href="/contracts/new" className="ui-btn-primary h-11 px-6">
-          Upload contract
-        </Link>
+        <div className="ui-page-actions">
+          <div className="mr-1 hidden sm:flex">
+            <div className="ui-segmented">
+              <Link
+                href="/dashboard?view=personal"
+                className={`ui-segmented-item ${
+                  view === "personal" ? "ui-segmented-item-active" : ""
+                }`}
+              >
+                Personal
+              </Link>
+              <Link
+                href="/dashboard?view=team"
+                className={`ui-segmented-item ${
+                  view === "team" ? "ui-segmented-item-active" : ""
+                }`}
+              >
+                Team
+              </Link>
+            </div>
+          </div>
+          <Link href="/dashboard/persona" className="ui-btn-secondary h-11 px-5">
+            Persona views
+          </Link>
+          <Link href="/contracts/new" className="ui-btn-primary h-11 px-6">
+            Upload contract
+          </Link>
+        </div>
       </header>
 
       <StatsCards
@@ -202,72 +306,119 @@ export default async function DashboardPage() {
         activeContracts={activeContracts ?? 0}
         missingCriticalCount={missingCritical.length}
       />
-
-      <UsageSection
-        contractsCreated={usageStats.contractsCreated}
-        extractionsRun={usageStats.extractionsRun}
-        fieldsReviewed={usageStats.fieldsReviewed}
-        periodLabel={usageStats.periodLabel}
-      />
-
-      <MissingFieldsSection contracts={missingCritical} />
-
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
-        <UpcomingActions actions={upcomingActions} />
-
-        <section className="ui-card flex flex-col overflow-hidden">
-          <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-6 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="ui-section-title">Needs review</h2>
-                <p className="mt-1 text-[12px] text-zinc-500">
-                  Pending field approval
-                </p>
-              </div>
-              <Link href="/contracts/review" className="ui-link text-[13px]">
-                Full queue
-              </Link>
-            </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <section className="ui-card overflow-hidden xl:col-span-1">
+          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+            <h2 className="ui-section-title">Now</h2>
+            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+              Immediate actions requiring attention today
+            </p>
           </div>
-          {pendingContracts.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center px-6 py-14 text-center">
-              <p className="text-[13px] font-medium text-zinc-600">Queue clear</p>
-              <p className="mt-1 text-[13px] text-zinc-400">
-                All contracts have been reviewed.
+          <div className="space-y-4 px-4 py-4 md:space-y-5 md:px-5 md:py-5">
+            {view === "personal" ? (
+              <MyTasks tasks={myTasks.slice(0, 5)} />
+            ) : (
+              <div>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+                  Review queue
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {pendingContracts.slice(0, 5).map((c) => (
+                    <li key={c.id}>
+                      <Link href={`/contracts/${c.id}`} className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-[13px] text-zinc-700 hover:bg-zinc-50 md:text-sm">
+                        <p className="truncate font-semibold text-zinc-900">{c.title}</p>
+                        <p className="text-[12px] text-zinc-500">
+                          {c.counterparty || "No counterparty"}
+                        </p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {overduePersonalTasks.length > 0 && (
+              <p className="rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-900">
+                {overduePersonalTasks.length} overdue personal task
+                {overduePersonalTasks.length === 1 ? "" : "s"}.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="ui-card overflow-hidden xl:col-span-1">
+          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+            <h2 className="ui-section-title">Next</h2>
+            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+              Upcoming deadlines and obligations in the next two weeks
+            </p>
+          </div>
+          <div className="space-y-4 px-4 py-4 md:space-y-5 md:px-5 md:py-5">
+            <UpcomingActions actions={soonActions} />
+            {view === "personal" ? (
+              <MyObligations obligations={myObligations.slice(0, 5)} />
+            ) : (
+              <p className="text-[12px] text-zinc-500">
+                Switch to Personal mode for your assigned obligations.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="ui-card overflow-hidden xl:col-span-1">
+          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+            <h2 className="ui-section-title">Risk</h2>
+            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+              Exceptions, missing critical fields, and renewal risk signals
+            </p>
+          </div>
+          <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
+            <Link href="/contracts/exceptions" className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-sm hover:bg-zinc-50">
+              <span className="font-semibold text-zinc-900">Exceptions</span>
+              <p className="text-[12px] text-zinc-500">Review stale records and workflow gaps.</p>
+            </Link>
+            <Link href="/contracts/approvals" className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-sm hover:bg-zinc-50">
+              <span className="font-semibold text-zinc-900">Pending approvals</span>
+              <p className="text-[12px] text-zinc-500">Resolve queued approvals and blockers.</p>
+            </Link>
+            <div className="rounded-lg border border-zinc-200/80 px-3 py-2 text-sm">
+              <span className="font-semibold text-zinc-900">
+                {riskContracts.length} contracts missing key dates
+              </span>
+              <p className="text-[12px] text-zinc-500">
+                End/renewal/notice fields still need approved values.
               </p>
             </div>
-          ) : (
-            <ul className="divide-y divide-zinc-100">
-              {pendingContracts.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/contracts/${c.id}`}
-                    className="block px-6 py-4 transition-colors hover:bg-zinc-50/70"
-                  >
-                    <p className="text-[15px] font-semibold text-zinc-900">{c.title}</p>
-                    <p className="mt-0.5 text-[13px] text-zinc-500">
-                      {c.counterparty || "No counterparty"}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          </div>
         </section>
       </div>
 
-      <section>
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <section className="space-y-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="ui-section-title text-base">Recent contracts</h2>
-            <p className="mt-1 text-[13px] text-zinc-500">Latest activity in your workspace</p>
+            <p className="mt-1 text-[12px] text-zinc-500 md:text-[13px]">Latest activity in your workspace</p>
           </div>
           <Link href="/contracts" className="ui-link text-[13px]">
-            View all
+            View all contracts
           </Link>
         </div>
         <ContractTable contracts={recentContracts as Contract[]} />
       </section>
+
+      <details className="ui-card overflow-hidden">
+        <summary className="cursor-pointer list-none border-b border-zinc-100 bg-zinc-50/60 px-5 py-3.5 text-[13px] font-semibold text-zinc-700 marker:hidden md:px-6 md:py-4 md:text-sm">
+          Portfolio diagnostics and usage
+        </summary>
+        <div className="space-y-7 px-5 py-4 md:space-y-8 md:px-6 md:py-5">
+          <UsageSection
+            contractsCreated={usageStats.contractsCreated}
+            extractionsRun={usageStats.extractionsRun}
+            fieldsReviewed={usageStats.fieldsReviewed}
+            periodLabel={usageStats.periodLabel}
+          />
+          <MissingFieldsSection contracts={missingCritical} />
+        </div>
+      </details>
     </div>
   );
 }

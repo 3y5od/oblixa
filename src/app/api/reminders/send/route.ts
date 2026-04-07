@@ -3,17 +3,12 @@ import { createServerClient } from "@supabase/ssr";
 import { sendReminderEmail } from "@/lib/email";
 import { getRequestOrigin } from "@/lib/app-url";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
-import * as Sentry from "@sentry/nextjs";
-
-function pingCronMonitor(payload: Record<string, unknown>) {
-  const url = process.env.CRON_HEALTHCHECK_URL?.trim();
-  if (!url) return;
-  void fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, route: "reminders/send" }),
-  }).catch(() => {});
-}
+import {
+  getSupabasePublicEnv,
+  getSupabaseServiceRoleKey,
+} from "@/lib/env/server";
+import { captureServerMessage } from "@/lib/observability/sentry";
+import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -36,11 +31,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } }
-  );
+  let supabaseUrl: string;
+  let serviceRoleKey: string;
+  try {
+    ({ url: supabaseUrl } = getSupabasePublicEnv());
+    serviceRoleKey = getSupabaseServiceRoleKey();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Supabase env misconfigured";
+    console.error("[reminders/cron] configuration error:", message);
+    return NextResponse.json(
+      { error: "Server misconfigured for reminder delivery" },
+      { status: 500 }
+    );
+  }
+  const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
+    cookies: { getAll: () => [], setAll: () => {} },
+  });
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -54,12 +60,10 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("[reminders/cron] query error:", error.message);
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureMessage(error.message, {
-        level: "error",
-        extra: { route: "reminders/send", code: error.code },
-      });
-    }
+    captureServerMessage(error.message, {
+      level: "error",
+      extra: { route: "reminders/send", code: error.code },
+    });
     return NextResponse.json(
       { error: "Could not load reminders. Try again later." },
       { status: 500 }
@@ -70,7 +74,12 @@ export async function GET(request: Request) {
   const candidates = list.length;
 
   if (candidates === 0) {
-    pingCronMonitor({ ok: true, sent: 0, candidates: 0, skipped_no_email: 0 });
+    pingCronHealthcheck("reminders/send", {
+      ok: true,
+      sent: 0,
+      candidates: 0,
+      skipped_no_email: 0,
+    });
     return NextResponse.json({
       sent: 0,
       candidates: 0,
@@ -168,14 +177,28 @@ export async function GET(request: Request) {
         `[reminders/cron] sent email but failed to mark sent_at for ${reminder.id}:`,
         markSentErr.message
       );
-      if (process.env.SENTRY_DSN) {
-        Sentry.captureMessage(markSentErr.message, {
-          level: "error",
-          extra: { route: "reminders/send", reminderId: reminder.id },
-        });
-      }
+      captureServerMessage(markSentErr.message, {
+        level: "error",
+        extra: { route: "reminders/send", reminderId: reminder.id },
+      });
       errors.push(`${reminder.id}: email sent but DB mark failed — ${markSentErr.message}`);
       continue;
+    }
+
+    const contractOrg = (contractRaw as { organization_id?: string } | undefined)?.organization_id;
+    if (contractOrg) {
+      await supabase.from("outbound_events").insert({
+        organization_id: contractOrg,
+        event_type: "reminder.due",
+        entity_type: "reminder",
+        entity_id: reminder.id,
+        payload: {
+          contract_id: contract.id,
+          contract_title: contract.title,
+          field_name: field.field_name,
+          reminder_date: reminder.reminder_date,
+        },
+      });
     }
 
     sent++;
@@ -185,7 +208,7 @@ export async function GET(request: Request) {
     `[reminders/cron] date=${today} candidates=${candidates} sent=${sent} skipped_no_email=${skippedNoEmail} errors=${errors.length}`
   );
 
-  pingCronMonitor({
+  pingCronHealthcheck("reminders/send", {
     ok: errors.length === 0,
     sent,
     candidates,

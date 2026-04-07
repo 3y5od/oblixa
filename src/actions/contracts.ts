@@ -10,6 +10,8 @@ import { readApiJson } from "@/lib/parse-api-response";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isContractStoragePathSafe, isUuid } from "@/lib/security/validation";
 import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
+import { enqueueOutboundEvent } from "@/lib/integrations/events";
+import { recomputeContractSignals } from "@/lib/workflow-signals";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -32,6 +34,11 @@ const MAX_CONTRACT_TITLE = 500;
 const MAX_COUNTERPARTY_LEN = 500;
 const MAX_CONTRACT_TYPE_LEN = 120;
 const MAX_MANUAL_FIELD_VALUE_LEN = 4000;
+const MAX_REQUIRED_NEXT_STEP_LEN = 240;
+const MAX_SOURCE_SYSTEM_LEN = 80;
+const MAX_EXTERNAL_REF_LEN = 160;
+const MAX_REGION_LEN = 40;
+const MAX_ANNUAL_VALUE = 999999999999.99;
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   draft: ["pending_review"],
@@ -85,6 +92,11 @@ export async function createContract(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
   const counterparty = (formData.get("counterparty") as string | null)?.trim() ?? null;
   const contractType = (formData.get("contractType") as string | null)?.trim() ?? null;
+  const sourceSystem = (formData.get("sourceSystem") as string | null)?.trim() ?? null;
+  const region = (formData.get("region") as string | null)?.trim() ?? null;
+  const annualValueRaw = (formData.get("annualValue") as string | null)?.trim() ?? "";
+  const externalReferenceId =
+    (formData.get("externalReferenceId") as string | null)?.trim() ?? null;
   const organizationId = (formData.get("organizationId") as string)?.trim() ?? "";
 
   if (!title) return { error: "Title is required" };
@@ -96,6 +108,22 @@ export async function createContract(formData: FormData) {
   }
   if (contractType && contractType.length > MAX_CONTRACT_TYPE_LEN) {
     return { error: "Contract type is too long" };
+  }
+  if (sourceSystem && sourceSystem.length > MAX_SOURCE_SYSTEM_LEN) {
+    return { error: "Source system is too long" };
+  }
+  if (region && region.length > MAX_REGION_LEN) {
+    return { error: "Region is too long" };
+  }
+  if (externalReferenceId && externalReferenceId.length > MAX_EXTERNAL_REF_LEN) {
+    return { error: "External reference is too long" };
+  }
+  const annualValue = annualValueRaw ? Number(annualValueRaw) : null;
+  if (
+    annualValueRaw &&
+    (!Number.isFinite(annualValue) || annualValue == null || annualValue < 0 || annualValue > MAX_ANNUAL_VALUE)
+  ) {
+    return { error: "Annual value must be a valid positive number." };
   }
 
   if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
@@ -113,8 +141,16 @@ export async function createContract(formData: FormData) {
       contract_type: contractType || null,
       organization_id: organizationId,
       owner_id: user.id,
+      owner_assigned_at: new Date().toISOString(),
       created_by: user.id,
       status: "pending_review",
+      intake_status: "awaiting_review",
+      health_status: "unknown",
+      required_next_step: "Complete extraction review",
+      source_system: sourceSystem || null,
+      region: region || null,
+      annual_value: annualValue,
+      external_reference_id: externalReferenceId || null,
     })
     .select()
     .single();
@@ -167,6 +203,23 @@ export async function createContract(formData: FormData) {
     action: "contract.created",
     details: { title },
   });
+  await admin.from("contract_notes").insert({
+    contract_id: contract.id,
+    organization_id: organizationId,
+    author_id: user.id,
+    note: "[Timeline] Contract created",
+    pinned: false,
+  });
+
+  await enqueueOutboundEvent({
+    organizationId: organizationId,
+    eventType: "contract.created",
+    entityType: "contract",
+    entityId: contract.id,
+    payload: { title, counterparty, contract_type: contractType },
+  });
+  await recomputeContractSignals(admin, contract.id);
+  await applyContractTemplatePack(contract.id);
 
   if (validFiles.length > 0 && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
     triggerExtraction(contract.id).catch(console.error);
@@ -256,6 +309,7 @@ export async function updateContractField(
       ...(action === "edited" ? { old_value: field.field_value, new_value: newValue } : {}),
     },
   });
+  await recomputeContractSignals(admin, contract.id);
 
   const resolvedValue = action === "edited" ? newValue : field.field_value;
   if (
@@ -281,6 +335,163 @@ export async function updateContractField(
   }
 
   return { success: true };
+}
+
+export async function updateContractSecondaryOwner(contractId: string, secondaryOwnerId: string | null) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+  if (secondaryOwnerId && !isUuid(secondaryOwnerId)) return { error: "Invalid secondary owner" };
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id")
+    .eq("id", contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  if (
+    secondaryOwnerId &&
+    !(await verifyOrgMembership(admin, secondaryOwnerId, contract.organization_id))
+  ) {
+    return { error: "Secondary owner must be a member of this organization." };
+  }
+
+  const { error } = await admin
+    .from("contracts")
+    .update({ secondary_owner_id: secondaryOwnerId })
+    .eq("id", contractId);
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: contractId,
+    user_id: user.id,
+    action: "contract.secondary_owner_changed",
+    details: { secondary_owner_id: secondaryOwnerId },
+  });
+  await recomputeContractSignals(admin, contractId);
+
+  return { success: true as const };
+}
+
+export async function upsertContractHandoffChecklist(input: {
+  contractId: string;
+  toOwnerId: string;
+  checklistNote: string;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(input.contractId) || !isUuid(input.toOwnerId)) {
+    return { error: "Invalid request" };
+  }
+  const checklistNote = input.checklistNote.trim();
+  if (!checklistNote) return { error: "Checklist note is required" };
+  if (checklistNote.length > 4000) return { error: "Checklist note is too long" };
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id, owner_id")
+    .eq("id", input.contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { error } = await admin.from("contract_handoff_checklists").insert({
+    contract_id: input.contractId,
+    organization_id: contract.organization_id,
+    from_owner_id: contract.owner_id,
+    to_owner_id: input.toOwnerId,
+    checklist_note: checklistNote,
+    status: "pending",
+    created_by: user.id,
+  });
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("contract_notes").insert({
+    contract_id: input.contractId,
+    organization_id: contract.organization_id,
+    author_id: user.id,
+    note: `[Timeline] Ownership handoff checklist created`,
+    pinned: true,
+  });
+
+  return { success: true as const };
+}
+
+export async function updateContractHandoffChecklistStatus(
+  checklistId: string,
+  status: "pending" | "completed"
+) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || !isUuid(checklistId)) return { error: "Invalid request" };
+
+  const { data: checklist } = await admin
+    .from("contract_handoff_checklists")
+    .select("id, contract_id, organization_id")
+    .eq("id", checklistId)
+    .maybeSingle();
+  if (!checklist) return { error: "Checklist not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, checklist.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, checklist.organization_id);
+  if (writeErr) return writeErr;
+
+  const { error } = await admin
+    .from("contract_handoff_checklists")
+    .update({
+      status,
+      completed_at: status === "completed" ? new Date().toISOString() : null,
+    })
+    .eq("id", checklistId);
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  return { success: true as const };
+}
+
+export async function updateContractHandoffChecklistStatusForm(
+  checklistId: string,
+  status: "pending" | "completed"
+) {
+  const res = await updateContractHandoffChecklistStatus(checklistId, status);
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] updateContractHandoffChecklistStatusForm", res.error);
+  }
+}
+
+export async function upsertContractHandoffChecklistForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const toOwnerId = String(formData.get("toOwnerId") ?? "").trim();
+  const checklistNote = String(formData.get("checklistNote") ?? "");
+  const res = await upsertContractHandoffChecklist({ contractId, toOwnerId, checklistNote });
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] upsertContractHandoffChecklistForm", res.error);
+  }
 }
 
 async function scheduleReminders(
@@ -374,6 +585,7 @@ export async function addManualField(
     action: "field.added",
     details: { field_name: fieldName, field_value: fieldValue },
   });
+  await recomputeContractSignals(admin, contractId);
 
   if (DATE_FIELDS.has(fieldName) && fieldValue) {
     await scheduleReminders(
@@ -468,6 +680,92 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
   }
 
   return { success: true, uploaded };
+}
+
+export async function supersedeContractFile(input: {
+  contractId: string;
+  fileId: string;
+  reason?: string | null;
+  replacementFileId?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(input.contractId) || !isUuid(input.fileId)) return { error: "Invalid request" };
+  if (input.replacementFileId && !isUuid(input.replacementFileId)) {
+    return { error: "Invalid replacement file" };
+  }
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id")
+    .eq("id", input.contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { error } = await admin
+    .from("contract_files")
+    .update({
+      superseded_at: new Date().toISOString(),
+      superseded_by_id: input.replacementFileId ?? null,
+      supersede_reason: input.reason?.trim() || null,
+    })
+    .eq("id", input.fileId)
+    .eq("contract_id", input.contractId);
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: input.contractId,
+    user_id: user.id,
+    action: "contract.file_superseded",
+    details: {
+      file_id: input.fileId,
+      replacement_file_id: input.replacementFileId ?? null,
+      reason: input.reason?.trim() || null,
+    },
+  });
+  await recomputeContractSignals(admin, input.contractId);
+
+  await enqueueOutboundEvent({
+    organizationId: contract.organization_id,
+    eventType: "contract.file_superseded",
+    entityType: "contract_file",
+    entityId: input.fileId,
+    payload: {
+      contract_id: input.contractId,
+      replacement_file_id: input.replacementFileId ?? null,
+    },
+  });
+
+  // Trigger re-extraction after superseding to refresh approved fields.
+  await triggerExtraction(input.contractId);
+  return { success: true as const };
+}
+
+export async function supersedeContractFileForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const fileId = String(formData.get("fileId") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  const replacementFileId = String(formData.get("replacementFileId") ?? "").trim();
+  const res = await supersedeContractFile({
+    contractId,
+    fileId,
+    reason: reason || null,
+    replacementFileId: replacementFileId || null,
+  });
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] supersedeContractFileForm", res.error);
+  }
 }
 
 async function triggerExtraction(contractId: string) {
@@ -585,11 +883,13 @@ export async function runExtraction(contractId: string) {
   }
 
   if (!res.ok) {
+    // Legacy: duplicate requests used to get 409; API now returns 202 — keep fallback for older deploys.
     if (res.status === 409) {
       return {
-        error:
-          data.error ||
-          "An extraction is already running. Wait for it to finish or refresh the page.",
+        success: true,
+        async: true as const,
+        extracted: 0,
+        inserted: 0,
       };
     }
     return { error: data.error || `Extraction failed (${res.status})` };
@@ -685,10 +985,31 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     return { error: "Add at least one PDF or DOCX under 20 MB." };
   }
 
+  const { data: job } = await admin
+    .from("contract_import_jobs")
+    .insert({
+      organization_id: organizationId,
+      created_by: user.id,
+      source: "files",
+      status: "processing",
+      total_rows: validFiles.length,
+    })
+    .select("id")
+    .single();
+
   const createdIds: string[] = [];
   const rowErrors: string[] = [];
+  const rowResults: Array<{
+    row_index: number;
+    title: string;
+    owner_email: string | null;
+    status: "valid" | "inserted" | "error";
+    error_message: string | null;
+    contract_id: string | null;
+  }> = [];
 
-  for (const file of validFiles) {
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
     const safeName = sanitizeUploadedFileName(file.name);
     const title = titleFromFileName(safeName).slice(0, MAX_CONTRACT_TITLE);
     const { data: contract, error: insertErr } = await admin
@@ -707,6 +1028,14 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
 
     if (insertErr || !contract) {
       rowErrors.push(`${safeName}: ${insertErr?.message ?? "insert failed"}`);
+      rowResults.push({
+        row_index: i + 1,
+        title: safeName,
+        owner_email: null,
+        status: "error",
+        error_message: insertErr?.message ?? "insert failed",
+        contract_id: null,
+      });
       continue;
     }
 
@@ -719,6 +1048,14 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     if (uploadError) {
       await admin.from("contracts").delete().eq("id", contract.id);
       rowErrors.push(`${safeName}: ${uploadError.message}`);
+      rowResults.push({
+        row_index: i + 1,
+        title: safeName,
+        owner_email: null,
+        status: "error",
+        error_message: uploadError.message,
+        contract_id: null,
+      });
       continue;
     }
 
@@ -740,6 +1077,14 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     });
 
     createdIds.push(contract.id);
+    rowResults.push({
+      row_index: i + 1,
+      title: safeName,
+      owner_email: null,
+      status: "inserted",
+      error_message: null,
+      contract_id: contract.id,
+    });
 
     if (
       process.env.OPENAI_API_KEY &&
@@ -749,10 +1094,32 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     }
   }
 
+  if (job) {
+    if (rowResults.length > 0) {
+      await admin.from("contract_import_job_rows").insert(
+        rowResults.map((row) => ({
+          job_id: job.id,
+          organization_id: organizationId,
+          ...row,
+        }))
+      );
+    }
+    await admin
+      .from("contract_import_jobs")
+      .update({
+        status: rowErrors.length === validFiles.length ? "failed" : "completed",
+        valid_rows: validFiles.length - rowErrors.length,
+        inserted_rows: createdIds.length,
+        error_rows: rowErrors.length,
+      })
+      .eq("id", job.id);
+  }
+
   return {
     success: createdIds.length > 0,
     created: createdIds.length,
     contract_ids: createdIds,
+    job_id: job?.id ?? null,
     errors: rowErrors.length ? rowErrors : undefined,
   };
 }
@@ -771,7 +1138,7 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
 
   const { data: contract } = await admin
     .from("contracts")
-    .select("id, organization_id")
+    .select("id, organization_id, owner_id")
     .eq("id", contractId)
     .single();
 
@@ -790,7 +1157,7 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
 
   const { error } = await admin
     .from("contracts")
-    .update({ owner_id: newOwnerId })
+    .update({ owner_id: newOwnerId, owner_assigned_at: new Date().toISOString() })
     .eq("id", contractId);
 
   if (error) return { error: mapDataSourceError(error.message) };
@@ -801,12 +1168,77 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
     .eq("contract_id", contractId)
     .is("sent_at", null);
 
+  const { data: reassignedTasks } = await admin
+    .from("contract_tasks")
+    .select("id")
+    .eq("contract_id", contractId)
+    .in("status", ["open", "in_progress", "blocked"]);
+
+  await admin
+    .from("contract_tasks")
+    .update({ assignee_id: newOwnerId })
+    .eq("contract_id", contractId)
+    .in("status", ["open", "in_progress", "blocked"]);
+
+  if ((reassignedTasks?.length ?? 0) > 0) {
+    await admin.from("contract_task_events").insert(
+      reassignedTasks!.map((task) => ({
+        organization_id: contract.organization_id,
+        contract_id: contractId,
+        task_id: task.id,
+        actor_id: user.id,
+        event_type: "reassigned",
+        details: { assignee_id: newOwnerId, reason: "contract_owner_changed" },
+      }))
+    );
+  }
+
+  await admin
+    .from("contract_approvals")
+    .update({ approver_id: newOwnerId })
+    .eq("contract_id", contractId)
+    .eq("status", "pending");
+
+  if (contract.owner_id && contract.owner_id !== newOwnerId) {
+    const { data: oldWatch } = await admin
+      .from("contract_watchlists")
+      .select("team_key, note")
+      .eq("contract_id", contractId)
+      .eq("user_id", contract.owner_id)
+      .maybeSingle();
+    if (oldWatch) {
+      await admin.from("contract_watchlists").upsert(
+        {
+          contract_id: contractId,
+          organization_id: contract.organization_id,
+          user_id: newOwnerId,
+          team_key: oldWatch.team_key ?? "ops",
+          note: oldWatch.note ?? "Auto-transferred due to ownership change",
+        },
+        { onConflict: "contract_id,user_id", ignoreDuplicates: false }
+      );
+      await admin
+        .from("contract_watchlists")
+        .delete()
+        .eq("contract_id", contractId)
+        .eq("user_id", contract.owner_id);
+    }
+  }
+
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
     contract_id: contractId,
     user_id: user.id,
     action: "contract.owner_changed",
     details: { new_owner_id: newOwnerId },
+  });
+
+  await enqueueOutboundEvent({
+    organizationId: contract.organization_id,
+    eventType: "contract.owner_changed",
+    entityType: "contract",
+    entityId: contractId,
+    payload: { new_owner_id: newOwnerId },
   });
 
   return { success: true };
@@ -867,7 +1299,7 @@ export async function updateContractStatus(
 
   const { data: contract } = await admin
     .from("contracts")
-    .select("organization_id, title, status")
+    .select("organization_id, title, status, owner_id")
     .eq("id", contractId)
     .single();
 
@@ -886,9 +1318,42 @@ export async function updateContractStatus(
     return { error: `Cannot transition from ${currentStatus} to ${newStatus}` };
   }
 
+  if (newStatus === "active") {
+    if (!contract.owner_id) {
+      return { error: "Assign an owner before moving a contract to active." };
+    }
+    const { data: requiredFields } = await admin
+      .from("extracted_fields")
+      .select("field_name, status")
+      .eq("contract_id", contractId)
+      .in("field_name", ["end_date", "renewal_date", "notice_window"]);
+    const approvedRequired = new Set(
+      (requiredFields ?? [])
+        .filter((f) => f.status === "approved")
+        .map((f) => f.field_name)
+    );
+    if (approvedRequired.size < 2) {
+      return {
+        error:
+          "Active status requires owner plus approved key dates (at least two of end_date, renewal_date, notice_window).",
+      };
+    }
+  }
+
+  const statusPatch: Record<string, unknown> = { status: newStatus };
+  if (newStatus === "active") {
+    statusPatch.intake_status = "active";
+    statusPatch.operationally_active_at = new Date().toISOString();
+    statusPatch.reviewed_at = new Date().toISOString();
+    statusPatch.required_next_step = null;
+    statusPatch.health_status = "healthy";
+  } else if (newStatus === "terminated") {
+    statusPatch.intake_status = "archived";
+  }
+
   const { error } = await admin
     .from("contracts")
-    .update({ status: newStatus })
+    .update(statusPatch)
     .eq("id", contractId);
 
   if (error) return { error: mapDataSourceError(error.message) };
@@ -901,7 +1366,237 @@ export async function updateContractStatus(
     details: { old_status: contract.status, new_status: newStatus },
   });
 
+  await admin.from("contract_intake_history").insert({
+    contract_id: contractId,
+    organization_id: contract.organization_id,
+    from_status: currentStatus,
+    to_status: newStatus,
+    changed_by: user.id,
+    note: "Workflow status transition",
+  });
+
+  await enqueueOutboundEvent({
+    organizationId: contract.organization_id,
+    eventType: "contract.status_changed",
+    entityType: "contract",
+    entityId: contractId,
+    payload: { old_status: contract.status, new_status: newStatus },
+  });
+
+  if (newStatus === "active") {
+    await applyContractTemplatePack(contractId);
+  }
+
   return { success: true };
+}
+
+export async function updateContractOperationalState(input: {
+  contractId: string;
+  intakeStatus:
+    | "awaiting_review"
+    | "in_clarification"
+    | "active"
+    | "at_risk"
+    | "renewal_prep"
+    | "notice_decision"
+    | "archived";
+  healthStatus: "healthy" | "watch" | "at_risk" | "unknown";
+  requiredNextStep?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+
+  const requiredNextStep = input.requiredNextStep?.trim() || null;
+  if (requiredNextStep && requiredNextStep.length > MAX_REQUIRED_NEXT_STEP_LEN) {
+    return { error: "Required next step is too long" };
+  }
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id, intake_status")
+    .eq("id", input.contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { error } = await admin
+    .from("contracts")
+    .update({
+      intake_status: input.intakeStatus,
+      health_status: input.healthStatus,
+      required_next_step: requiredNextStep,
+      reviewed_at:
+        input.intakeStatus === "active" || input.intakeStatus === "in_clarification"
+          ? new Date().toISOString()
+          : null,
+    })
+    .eq("id", input.contractId);
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("contract_intake_history").insert({
+    contract_id: input.contractId,
+    organization_id: contract.organization_id,
+    from_status: contract.intake_status,
+    to_status: input.intakeStatus,
+    changed_by: user.id,
+    note: requiredNextStep,
+  });
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: input.contractId,
+    user_id: user.id,
+    action: "contract.operational_state_updated",
+    details: {
+      intake_status: input.intakeStatus,
+      health_status: input.healthStatus,
+      required_next_step: requiredNextStep,
+    },
+  });
+
+  await enqueueOutboundEvent({
+    organizationId: contract.organization_id,
+    eventType: "contract.operational_state_updated",
+    entityType: "contract",
+    entityId: input.contractId,
+    payload: {
+      intake_status: input.intakeStatus,
+      health_status: input.healthStatus,
+      required_next_step: requiredNextStep,
+    },
+  });
+
+  return { success: true as const };
+}
+
+export async function updateContractOperationalStateForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const intakeStatus = String(formData.get("intakeStatus") ?? "").trim();
+  const healthStatus = String(formData.get("healthStatus") ?? "").trim();
+  const requiredNextStep = String(formData.get("requiredNextStep") ?? "").trim();
+  const res = await updateContractOperationalState({
+    contractId,
+    intakeStatus: intakeStatus as
+      | "awaiting_review"
+      | "in_clarification"
+      | "active"
+      | "at_risk"
+      | "renewal_prep"
+      | "notice_decision"
+      | "archived",
+    healthStatus: healthStatus as "healthy" | "watch" | "at_risk" | "unknown",
+    requiredNextStep: requiredNextStep || null,
+  });
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] updateContractOperationalStateForm", res.error);
+  }
+}
+
+export async function updateContractExternalLink(input: {
+  contractId: string;
+  sourceSystem?: string | null;
+  region?: string | null;
+  annualValue?: string | number | null;
+  externalReferenceId?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+
+  const sourceSystem = input.sourceSystem?.trim() || null;
+  const region = input.region?.trim() || null;
+  const externalReferenceId = input.externalReferenceId?.trim() || null;
+  const annualValueRaw =
+    typeof input.annualValue === "number"
+      ? String(input.annualValue)
+      : (input.annualValue?.trim() ?? "");
+  const annualValue = annualValueRaw ? Number(annualValueRaw) : null;
+  if (sourceSystem && sourceSystem.length > MAX_SOURCE_SYSTEM_LEN) {
+    return { error: "Source system is too long" };
+  }
+  if (externalReferenceId && externalReferenceId.length > MAX_EXTERNAL_REF_LEN) {
+    return { error: "External reference is too long" };
+  }
+  if (region && region.length > MAX_REGION_LEN) {
+    return { error: "Region is too long" };
+  }
+  if (
+    annualValueRaw &&
+    (!Number.isFinite(annualValue) || annualValue == null || annualValue < 0 || annualValue > MAX_ANNUAL_VALUE)
+  ) {
+    return { error: "Annual value must be a valid positive number." };
+  }
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id")
+    .eq("id", input.contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const { error } = await admin
+    .from("contracts")
+    .update({
+      source_system: sourceSystem,
+      region,
+      annual_value: annualValue,
+      external_reference_id: externalReferenceId,
+    })
+    .eq("id", input.contractId);
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: input.contractId,
+    user_id: user.id,
+    action: "contract.external_link_updated",
+    details: {
+      source_system: sourceSystem,
+      region,
+      annual_value: annualValue,
+      external_reference_id: externalReferenceId,
+    },
+  });
+
+  return { success: true as const };
+}
+
+export async function updateContractExternalLinkForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const sourceSystem = String(formData.get("sourceSystem") ?? "").trim();
+  const region = String(formData.get("region") ?? "").trim();
+  const annualValue = String(formData.get("annualValue") ?? "").trim();
+  const externalReferenceId = String(formData.get("externalReferenceId") ?? "").trim();
+  const res = await updateContractExternalLink({
+    contractId,
+    sourceSystem: sourceSystem || null,
+    region: region || null,
+    annualValue: annualValue || null,
+    externalReferenceId: externalReferenceId || null,
+  });
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] updateContractExternalLinkForm", res.error);
+  }
 }
 
 export async function deleteContract(contractId: string) {
@@ -955,4 +1650,187 @@ export async function deleteContract(contractId: string) {
   }
 
   redirect("/contracts");
+}
+
+export async function applyContractTemplatePack(contractId: string) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+
+  const { data: contract } = await admin
+    .from("contracts")
+    .select("id, organization_id, contract_type, owner_id")
+    .eq("id", contractId)
+    .single();
+  if (!contract) return { error: "Contract not found" };
+  if (!(await verifyOrgMembership(admin, user.id, contract.organization_id))) {
+    return { error: "Access denied" };
+  }
+  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
+  if (writeErr) return writeErr;
+
+  const contractType = contract.contract_type ?? null;
+  const fieldTplQuery = admin
+    .from("field_templates")
+    .select("field_name, default_value")
+    .eq("organization_id", contract.organization_id)
+    .eq("active", true);
+  const reminderTplQuery = admin
+    .from("reminder_templates")
+    .select("field_name, offset_days, reminder_type")
+    .eq("organization_id", contract.organization_id)
+    .eq("active", true);
+  const taskTplQuery = admin
+    .from("task_templates")
+    .select("title, details, due_offset_days, priority, team_key")
+    .eq("organization_id", contract.organization_id)
+    .eq("active", true);
+  const [fieldTplRes, reminderTplRes, taskTplRes] = await Promise.all([
+    (contractType
+      ? fieldTplQuery.or(`contract_type.eq.${contractType},contract_type.is.null`)
+      : fieldTplQuery.is("contract_type", null)),
+    (contractType
+      ? reminderTplQuery.or(`contract_type.eq.${contractType},contract_type.is.null`)
+      : reminderTplQuery.is("contract_type", null)),
+    (contractType
+      ? taskTplQuery.or(`contract_type.eq.${contractType},contract_type.is.null`)
+      : taskTplQuery.is("contract_type", null)),
+  ]);
+
+  const { data: existingFields } = await admin
+    .from("extracted_fields")
+    .select("id, field_name, field_value")
+    .eq("contract_id", contractId);
+  const fieldByName = new Map((existingFields ?? []).map((f) => [f.field_name, f.id]));
+  const fieldValueByName = new Map(
+    (existingFields ?? []).map((f) => [f.field_name, f.field_value as string | null])
+  );
+  let fieldsAdded = 0;
+  let remindersAdded = 0;
+  let tasksAdded = 0;
+
+  for (const tpl of fieldTplRes.data ?? []) {
+    if (fieldByName.has(tpl.field_name)) continue;
+    const { data: inserted } = await admin
+      .from("extracted_fields")
+      .insert({
+        contract_id: contractId,
+        field_name: tpl.field_name,
+        field_value: tpl.default_value,
+        source: "human",
+        status: "approved",
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (inserted?.id) fieldByName.set(tpl.field_name, inserted.id);
+    fieldValueByName.set(tpl.field_name, tpl.default_value ?? null);
+    fieldsAdded += 1;
+  }
+
+  const { data: existingReminders } = await admin
+    .from("reminders")
+    .select("field_id, reminder_type")
+    .eq("contract_id", contractId);
+  const existingReminderKeys = new Set(
+    (existingReminders ?? []).map((r) => `${r.field_id ?? ""}::${r.reminder_type}`)
+  );
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  for (const tpl of reminderTplRes.data ?? []) {
+    const fieldId = fieldByName.get(tpl.field_name);
+    if (!fieldId) continue;
+    const reminderKey = `${fieldId}::${tpl.reminder_type}`;
+    if (existingReminderKeys.has(reminderKey)) continue;
+    const rawDate = fieldValueByName.get(tpl.field_name);
+    if (!rawDate) continue;
+    const targetDate = new Date(`${rawDate}T12:00:00`);
+    if (Number.isNaN(targetDate.getTime())) continue;
+    const reminderDate = new Date(targetDate.getTime() - Math.max(0, tpl.offset_days) * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    if (reminderDate < todayIso) continue;
+    await admin.from("reminders").insert({
+      contract_id: contractId,
+      field_id: fieldId,
+      reminder_type: tpl.reminder_type,
+      reminder_date: reminderDate,
+      recipient_id: contract.owner_id,
+    });
+    existingReminderKeys.add(reminderKey);
+    remindersAdded += 1;
+  }
+
+  const { data: existingTasks } = await admin
+    .from("contract_tasks")
+    .select("title, team_key")
+    .eq("contract_id", contractId)
+    .in("status", ["open", "in_progress", "blocked"]);
+  const existingTaskKeys = new Set(
+    (existingTasks ?? []).map((t) => `${t.title.trim().toLowerCase()}::${(t.team_key ?? "").trim().toLowerCase()}`)
+  );
+
+  for (const tpl of taskTplRes.data ?? []) {
+    const taskKey = `${tpl.title.trim().toLowerCase()}::${(tpl.team_key ?? "ops").trim().toLowerCase()}`;
+    if (existingTaskKeys.has(taskKey)) continue;
+    await admin.from("contract_tasks").insert({
+      contract_id: contractId,
+      organization_id: contract.organization_id,
+      created_by: user.id,
+      assignee_id: contract.owner_id,
+      title: tpl.title,
+      details: tpl.details ?? null,
+      status: "open",
+      priority: tpl.priority,
+      created_via: "rule",
+      team_key: tpl.team_key ?? "ops",
+      due_date: new Date(
+        Date.now() + Math.max(0, tpl.due_offset_days) * 24 * 60 * 60 * 1000
+      )
+        .toISOString()
+        .slice(0, 10),
+    });
+    existingTaskKeys.add(taskKey);
+    tasksAdded += 1;
+  }
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: contractId,
+    user_id: user.id,
+    action: "contract.template_pack_applied",
+    details: {
+      fields_added: fieldsAdded,
+      reminders_added: remindersAdded,
+      tasks_added: tasksAdded,
+    },
+  });
+  await admin.from("template_change_events").insert({
+    organization_id: contract.organization_id,
+    template_type: "task",
+    template_id: contractId,
+    action: "applied",
+    created_by: user.id,
+    details: {
+      contract_id: contractId,
+      fields_added: fieldsAdded,
+      reminders_added: remindersAdded,
+      tasks_added: tasksAdded,
+    },
+  });
+  await recomputeContractSignals(admin, contractId);
+  return { success: true as const };
+}
+
+export async function applyContractTemplatePackForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const res = await applyContractTemplatePack(contractId);
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] applyContractTemplatePackForm", res.error);
+  }
 }

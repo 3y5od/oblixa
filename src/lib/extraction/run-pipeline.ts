@@ -12,11 +12,17 @@ import {
 import { applyGroundingToFields } from "@/lib/extraction/grounding";
 import { extractTextFromPdfViaOpenAi } from "@/lib/extraction/openai-pdf-text";
 import { EXTRACTION_SEARCH_DOCUMENT_CAP } from "@/lib/extraction/constants";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { withRetry } from "@/lib/extraction/retry";
 import { createAdminClient } from "@/lib/supabase/server";
-import * as Sentry from "@sentry/nextjs";
+import {
+  captureServerException,
+  captureServerMessage,
+} from "@/lib/observability/sentry";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+const FILE_PARSE_CONCURRENCY = 4;
+const FIELD_WRITE_BATCH_SIZE = 200;
 
 function isRetryableStorageError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
@@ -94,8 +100,7 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
-    const textChunks = await Promise.all(
-      files.map(async (file) => {
+    const textChunks = await mapWithConcurrency(files, FILE_PARSE_CONCURRENCY, async (file) => {
         try {
           let fileData: Blob;
           try {
@@ -127,8 +132,7 @@ export async function runExtractionPipeline(params: {
             buffer: undefined as Buffer | undefined,
           };
         }
-      })
-    );
+      });
 
     let combinedText = preprocessContractTextForExtraction(
       textChunks.map((c) => `\n--- ${c.marker} ---\n${c.text}\n`).join("")
@@ -201,9 +205,7 @@ export async function runExtractionPipeline(params: {
       const raw =
         err instanceof Error ? err.message : "AI extraction request failed";
       console.error("OpenAI extraction error:", err);
-      if (process.env.SENTRY_DSN) {
-        Sentry.captureException(err, { extra: { contractId, rawMessage: raw } });
-      }
+      captureServerException(err, { extra: { contractId, rawMessage: raw } });
       const friendly = mapAiExtractionError(raw);
       await finishExtractionJob(admin, contractId, false, friendly);
       console.info(
@@ -249,6 +251,25 @@ export async function runExtractionPipeline(params: {
     let inserted = 0;
     let updated = 0;
     let skippedProtected = 0;
+    const pendingInserts: Array<{
+      contract_id: string;
+      field_name: string;
+      field_value: string | null;
+      source_snippet: string | null;
+      confidence: number | null;
+      source: "ai";
+      status: "pending";
+    }> = [];
+    const pendingUpdates: Array<{
+      id: string;
+      field_value: string | null;
+      source_snippet: string | null;
+      confidence: number | null;
+      source: "ai";
+      status: "pending";
+      reviewed_by: null;
+      reviewed_at: null;
+    }> = [];
 
     for (const f of grounded) {
       const row = {
@@ -261,32 +282,11 @@ export async function runExtractionPipeline(params: {
 
       const prev = byFieldName.get(f.field_name);
       if (!prev) {
-        const { error: insertErr } = await admin.from("extracted_fields").insert({
+        pendingInserts.push({
           contract_id: contractId,
           field_name: f.field_name,
           ...row,
         });
-        if (insertErr) {
-          console.error("extracted_fields insert:", insertErr.message);
-          if (process.env.SENTRY_DSN) {
-            Sentry.captureMessage(insertErr.message, {
-              level: "error",
-              extra: { contractId, code: insertErr.code },
-            });
-          }
-          await fail(insertErr.message);
-          console.info(
-            JSON.stringify({
-              event: "extraction.failed",
-              contractId,
-              userId,
-              durationMs: Date.now() - pipelineStartedAt,
-              reason: "insert_fields",
-            })
-          );
-          return;
-        }
-        inserted += 1;
         continue;
       }
 
@@ -295,27 +295,53 @@ export async function runExtractionPipeline(params: {
         continue;
       }
 
+      pendingUpdates.push({
+        id: prev.id,
+        ...row,
+        reviewed_by: null,
+        reviewed_at: null,
+      });
+    }
+
+    for (let i = 0; i < pendingInserts.length; i += FIELD_WRITE_BATCH_SIZE) {
+      const chunk = pendingInserts.slice(i, i + FIELD_WRITE_BATCH_SIZE);
+      const { error: insertErr } = await admin.from("extracted_fields").insert(chunk);
+      if (insertErr) {
+        console.error("extracted_fields insert:", insertErr.message);
+        captureServerMessage(insertErr.message, {
+          level: "error",
+          extra: { contractId, code: insertErr.code },
+        });
+        await fail(insertErr.message);
+        console.info(
+          JSON.stringify({
+            event: "extraction.failed",
+            contractId,
+            userId,
+            durationMs: Date.now() - pipelineStartedAt,
+            reason: "insert_fields",
+          })
+        );
+        return;
+      }
+      inserted += chunk.length;
+    }
+
+    for (let i = 0; i < pendingUpdates.length; i += FIELD_WRITE_BATCH_SIZE) {
+      const chunk = pendingUpdates.slice(i, i + FIELD_WRITE_BATCH_SIZE);
       const { error: updErr } = await admin
         .from("extracted_fields")
-        .update({
-          ...row,
-          reviewed_by: null,
-          reviewed_at: null,
-        })
-        .eq("id", prev.id);
-
+        .upsert(chunk, { onConflict: "id", ignoreDuplicates: false });
       if (updErr) {
         console.error("extracted_fields update:", updErr.message);
-        if (process.env.SENTRY_DSN) {
-          Sentry.captureMessage(updErr.message, {
-            level: "error",
-            extra: { contractId, code: updErr.code },
-          });
-        }
+        captureServerMessage(updErr.message, {
+          level: "error",
+          extra: { contractId, code: updErr.code },
+        });
         await fail(updErr.message);
         return;
       }
-      updated += 1;
+      updated += chunk.length;
     }
 
     await admin.from("audit_events").insert({
@@ -370,9 +396,7 @@ export async function runExtractionPipeline(params: {
         message: raw,
       })
     );
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureException(err, { extra: { contractId } });
-    }
+    captureServerException(err, { extra: { contractId } });
     const safe = mapExtractionFailureMessage(raw);
     await finishExtractionJob(admin, contractId, false, safe);
   }

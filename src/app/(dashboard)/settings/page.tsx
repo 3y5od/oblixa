@@ -1,5 +1,6 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import { format } from "date-fns";
+import Link from "next/link";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
 import { DemoSeedButton } from "@/components/settings/demo-seed-button";
@@ -63,11 +64,16 @@ export default async function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
+    <div className="mx-auto max-w-4xl space-y-10">
       <header className="border-b border-zinc-200/60 pb-8">
         <p className="ui-eyebrow">Workspace</p>
-        <h1 className="ui-display-title mt-2">Settings</h1>
-        <p className="ui-muted mt-3">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="ui-display-title">Settings</h1>
+          <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
+            Workflow configuration
+          </Link>
+        </div>
+        <p className="ui-muted mt-3 max-w-2xl">
           Profile, organization, and team access for your workspace.
         </p>
       </header>

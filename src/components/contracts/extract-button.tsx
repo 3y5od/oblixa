@@ -22,6 +22,8 @@ export function ExtractButton({
 }: ExtractButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  /** Blocks double-clicks before `isPending` flips (same-tick duplicate requests). */
+  const [requestLock, setRequestLock] = useState(false);
 
   const router = useRouter();
 
@@ -32,41 +34,47 @@ export function ExtractButton({
     isExtractionActivelyBlocking(extractionJob.started_at);
 
   function handleExtract() {
+    if (requestLock || extractionInFlight) return;
+    setRequestLock(true);
     setResult(null);
     startTransition(async () => {
-      const res = await runExtraction(contractId);
-      if ("error" in res && res.error) {
-        setResult({ message: res.error, type: "error" });
-      } else if ("success" in res && res.success) {
-        if ("async" in res && res.async) {
-          setResult({
-            message:
-              "Extraction started. This page will refresh while the run completes.",
-            type: "success",
-          });
+      try {
+        const res = await runExtraction(contractId);
+        if ("error" in res && res.error) {
+          setResult({ message: res.error, type: "error" });
+        } else if ("success" in res && res.success) {
+          if ("async" in res && res.async) {
+            setResult({
+              message:
+                "Extraction started. This page will refresh while the run completes.",
+              type: "success",
+            });
+            router.refresh();
+            return;
+          }
+          const ins = res.inserted ?? 0;
+          const total = res.extracted ?? 0;
+          const chars = res.textChars;
+          let message: string;
+          if (ins > 0) {
+            message =
+              ins === total
+                ? `Added ${ins} field${ins === 1 ? "" : "s"} from the document.`
+                : `Added ${ins} new field${ins === 1 ? "" : "s"} (${total} parsed).`;
+          } else {
+            message =
+              total > 0
+                ? "All fields were already present; nothing new to add. Delete a field to re-extract it."
+                : "Extraction finished.";
+          }
+          if (typeof chars === "number" && chars > 0) {
+            message += ` Analyzed ${chars.toLocaleString()} characters of text.`;
+          }
+          setResult({ message, type: "success" });
           router.refresh();
-          return;
         }
-        const ins = res.inserted ?? 0;
-        const total = res.extracted ?? 0;
-        const chars = res.textChars;
-        let message: string;
-        if (ins > 0) {
-          message =
-            ins === total
-              ? `Added ${ins} field${ins === 1 ? "" : "s"} from the document.`
-              : `Added ${ins} new field${ins === 1 ? "" : "s"} (${total} parsed).`;
-        } else {
-          message =
-            total > 0
-              ? "All fields were already present; nothing new to add. Delete a field to re-extract it."
-              : "Extraction finished.";
-        }
-        if (typeof chars === "number" && chars > 0) {
-          message += ` Analyzed ${chars.toLocaleString()} characters of text.`;
-        }
-        setResult({ message, type: "success" });
-        router.refresh();
+      } finally {
+        setRequestLock(false);
       }
     });
   }
@@ -76,7 +84,7 @@ export function ExtractButton({
       <button
         type="button"
         onClick={handleExtract}
-        disabled={isPending || extractionInFlight}
+        disabled={isPending || extractionInFlight || requestLock}
         title={
           extractionInFlight
             ? "An extraction is already running. Wait or refresh the page."

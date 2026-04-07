@@ -1,13 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import {
+  getSupabasePublicEnv,
+  getSupabaseServiceRoleKey,
+} from "@/lib/env/server";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const { url, anonKey } = getSupabasePublicEnv();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {
@@ -30,9 +35,11 @@ export async function createClient() {
 
 /** One service-role client per request (safe to reuse; avoids duplicate handshakes). */
 export const createAdminClient = cache(async () => {
+  const { url } = getSupabasePublicEnv();
+  const serviceRoleKey = getSupabaseServiceRoleKey();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    url,
+    serviceRoleKey,
     {
       cookies: {
         getAll: () => [],

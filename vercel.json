@@ -3,6 +3,34 @@
     {
       "path": "/api/reminders/send",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/reports/send-summaries",
+      "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/webhooks/dispatch",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/tasks/run-rules",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/contracts/recompute-signals",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/integrations/calendar/sync",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/integrations/crm/sync",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/integrations/refresh-tokens",
+      "schedule": "*/20 * * * *"
     }
   ]
 }

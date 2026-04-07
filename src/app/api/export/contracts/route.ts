@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { FIELD_NAMES } from "@/lib/types";
+import { isUuid } from "@/lib/security/validation";
 
 function csvEscape(value: string | null | undefined): string {
   if (value == null || value === "") return "";
@@ -16,7 +17,7 @@ function csvEscape(value: string | null | undefined): string {
   return t;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -27,23 +28,52 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { data: membership } = await admin
+  const orgIdParam = new URL(request.url).searchParams.get("orgId")?.trim() ?? "";
+  if (orgIdParam && !isUuid(orgIdParam)) {
+    return NextResponse.json({ error: "Invalid orgId" }, { status: 400 });
+  }
+
+  const { data: memberships, error: membershipError } = await admin
     .from("organization_members")
     .select("organization_id")
     .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: true });
 
-  if (!membership?.organization_id) {
+  if (membershipError) {
+    return NextResponse.json(
+      { error: mapDataSourceError(membershipError.message) },
+      { status: 500 }
+    );
+  }
+
+  const orgIds = [...new Set((memberships ?? []).map((m) => m.organization_id).filter(Boolean))];
+
+  if (orgIds.length === 0) {
     return NextResponse.json({ error: "No organization" }, { status: 400 });
   }
 
-  const orgId = membership.organization_id;
+  let orgId: string;
+  if (orgIdParam) {
+    if (!orgIds.includes(orgIdParam)) {
+      return NextResponse.json({ error: "Access denied for orgId" }, { status: 403 });
+    }
+    orgId = orgIdParam;
+  } else if (orgIds.length === 1) {
+    orgId = orgIds[0];
+  } else {
+    return NextResponse.json(
+      {
+        error:
+          "Multiple organizations found. Include ?orgId=<organization-id> to export a specific organization.",
+      },
+      { status: 400 }
+    );
+  }
 
   const { data: contracts, error } = await admin
     .from("contracts")
     .select(
-      "id, title, counterparty, contract_type, status, created_at, owner_id, extracted_fields(field_name, field_value, status)"
+      "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
     )
     .eq("organization_id", orgId)
     .order("created_at", { ascending: false });
@@ -80,6 +110,7 @@ export async function GET() {
     "counterparty",
     "contract_type",
     "status",
+    "region",
     "owner_email",
     "created_at",
     ...FIELD_NAMES.map((f) => `field_${f}`),
@@ -106,6 +137,7 @@ export async function GET() {
       row.counterparty ?? "",
       row.contract_type ?? "",
       row.status,
+      row.region ?? "",
       ownerEmail,
       row.created_at,
     ].map(csvEscape);

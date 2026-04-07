@@ -1,10 +1,13 @@
 import { NextResponse, after } from "next/server";
-import * as Sentry from "@sentry/nextjs";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { resolveExtractionWorkerOrigin } from "@/lib/app-url";
 import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
 import { finishExtractionJob } from "@/lib/extraction-job";
 import { fetchWithRetry } from "@/lib/extraction/retry";
+import {
+  captureServerException,
+  captureServerMessage,
+} from "@/lib/observability/sentry";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import { startExtractionJob } from "@/lib/extraction-job";
@@ -112,6 +115,18 @@ export async function POST(request: Request) {
     contract.organization_id
   );
   if (!jobStart.ok) {
+    // Idempotent: duplicate POSTs (double-click, slow network) race here; the first
+    // request already set processing + scheduled work — treat as accepted, not an error.
+    if (jobStart.status === 409) {
+      return NextResponse.json(
+        {
+          accepted: true,
+          async: true,
+          message: "Extraction already in progress",
+        },
+        { status: 202 }
+      );
+    }
     return NextResponse.json(
       { error: jobStart.error },
       { status: jobStart.status }
@@ -149,16 +164,14 @@ export async function POST(request: Request) {
             res.status,
             t.slice(0, 500)
           );
-          if (process.env.SENTRY_DSN) {
-            Sentry.captureMessage("extraction worker fetch failed", {
-              level: "error",
-              extra: {
-                contractId,
-                status: res.status,
-                body: t.slice(0, 500),
-              },
-            });
-          }
+          captureServerMessage("extraction worker fetch failed", {
+            level: "error",
+            extra: {
+              contractId,
+              status: res.status,
+              body: t.slice(0, 500),
+            },
+          });
           const admin = await createAdminClient();
           const friendly =
             res.status >= 500
@@ -168,9 +181,7 @@ export async function POST(request: Request) {
         }
       } catch (err) {
         console.error("[api/extract] worker fetch error:", err);
-        if (process.env.SENTRY_DSN) {
-          Sentry.captureException(err, { extra: { contractId } });
-        }
+        captureServerException(err, { extra: { contractId } });
         const admin = await createAdminClient();
         await finishExtractionJob(
           admin,
@@ -191,6 +202,23 @@ export async function POST(request: Request) {
         });
       } catch (err) {
         console.error("[api/extract] after() pipeline error:", err);
+        captureServerException(err, {
+          extra: { route: "api/extract", mode: "inline-after", contractId },
+        });
+        try {
+          const freshAdmin = await createAdminClient();
+          await finishExtractionJob(
+            freshAdmin,
+            contractId,
+            false,
+            "Extraction failed unexpectedly. Please try again."
+          );
+        } catch (finishErr) {
+          console.error("[api/extract] failed to finalize job after error:", finishErr);
+          captureServerException(finishErr, {
+            extra: { route: "api/extract", phase: "finalize-inline-failure", contractId },
+          });
+        }
       }
     });
   }

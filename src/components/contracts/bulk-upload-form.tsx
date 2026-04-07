@@ -19,6 +19,7 @@ export function BulkUploadForm({
   const [result, setResult] = useState<{
     type: "success" | "error";
     text: string;
+    jobId?: string | null;
   } | null>(null);
   const router = useRouter();
 
@@ -41,6 +42,7 @@ export function BulkUploadForm({
         setResult({
           type: "success",
           text: `Created ${res.created} contract(s).${errPart}`,
+          jobId: res.job_id ?? null,
         });
         form.reset();
         router.refresh();
@@ -76,11 +78,14 @@ export function BulkUploadForm({
       )}
 
       {result && (
-        <p
-          className={`text-sm ${result.type === "error" ? "text-red-600" : "text-green-700"}`}
-        >
-          {result.text}
-        </p>
+        <div className={`text-sm ${result.type === "error" ? "text-red-600" : "text-green-700"}`}>
+          <p>{result.text}</p>
+          {result.jobId && (
+            <a className="ui-link text-xs" href={`/api/import/contracts/${result.jobId}`}>
+              Open import job details
+            </a>
+          )}
+        </div>
       )}
 
       <button

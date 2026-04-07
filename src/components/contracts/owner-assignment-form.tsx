@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateContractOwner } from "@/actions/contracts";
+import { updateContractOwner, updateContractSecondaryOwner } from "@/actions/contracts";
 
 interface MemberOption {
   userId: string;
@@ -12,12 +12,14 @@ interface MemberOption {
 interface OwnerAssignmentFormProps {
   contractId: string;
   currentOwnerId: string | null;
+  currentSecondaryOwnerId: string | null;
   members: MemberOption[];
 }
 
 export function OwnerAssignmentForm({
   contractId,
   currentOwnerId,
+  currentSecondaryOwnerId,
   members,
 }: OwnerAssignmentFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -31,11 +33,18 @@ export function OwnerAssignmentForm({
     });
   }
 
+  function onSecondaryChange(userId: string) {
+    const normalized = userId || null;
+    if (normalized === currentSecondaryOwnerId) return;
+    startTransition(async () => {
+      const res = await updateContractSecondaryOwner(contractId, normalized);
+      if (res && "success" in res && res.success) router.refresh();
+    });
+  }
+
   return (
     <div className="mt-3">
-      <label className="block text-xs font-medium text-zinc-500 mb-1">
-        Reassign owner
-      </label>
+      <label className="block text-xs font-medium text-zinc-500 mb-1">Reassign owner</label>
       <select
         defaultValue={currentOwnerId ?? ""}
         disabled={isPending || members.length === 0}
@@ -43,6 +52,22 @@ export function OwnerAssignmentForm({
         className="ui-input disabled:opacity-50"
       >
         <option value="">Select owner…</option>
+        {members.map((m) => (
+          <option key={m.userId} value={m.userId}>
+            {m.label}
+          </option>
+        ))}
+      </select>
+      <label className="mt-3 block text-xs font-medium text-zinc-500 mb-1">
+        Secondary stakeholder
+      </label>
+      <select
+        defaultValue={currentSecondaryOwnerId ?? ""}
+        disabled={isPending || members.length === 0}
+        onChange={(e) => onSecondaryChange(e.target.value)}
+        className="ui-input disabled:opacity-50"
+      >
+        <option value="">None</option>
         {members.map((m) => (
           <option key={m.userId} value={m.userId}>
             {m.label}

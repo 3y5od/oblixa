@@ -8,3 +8,4 @@ alter table public.contracts
 
 comment on column public.contracts.search_document is
   'Concatenated extracted plain text from contract files; used for keyword search.';
+

@@ -28,12 +28,12 @@ function urgencyRing(days: number): string {
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
   if (actions.length === 0) {
     return (
-      <section className="ui-card flex min-h-[240px] flex-col justify-center px-8 py-10 text-center">
+      <section className="ui-card flex min-h-[220px] flex-col justify-center px-6 py-8 text-center md:min-h-[240px] md:px-8 md:py-10">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
           Calendar
         </p>
         <h2 className="mt-2 ui-section-title text-base">No upcoming deadlines</h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-zinc-500">
+        <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-zinc-500 md:text-sm">
           When notice, renewal, or end dates are approved, they appear here with
           a clear countdown.
         </p>
@@ -43,9 +43,9 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-6 py-4">
+      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
         <h2 className="ui-section-title">Upcoming actions</h2>
-        <p className="mt-1 text-[12px] text-zinc-500">
+        <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
           Approved operational dates in the next 90 days
         </p>
       </div>
@@ -54,14 +54,14 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
           <li key={action.field.id}>
             <Link
               href={`/contracts/${action.contract.id}#field-${action.field.id}`}
-              className="ui-transition-surface group flex items-start gap-4 px-6 py-4 hover:bg-zinc-50/70"
+              className="ui-transition-surface group flex items-start gap-3.5 px-4 py-3.5 hover:bg-zinc-50/70 md:gap-4 md:px-6 md:py-4"
             >
               <span
                 className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${urgencyRing(action.daysUntil)}`}
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-semibold leading-snug text-zinc-900 group-hover:text-[var(--accent)]">
+                <p className="text-[14px] font-semibold leading-snug text-zinc-900 group-hover:text-[var(--accent)] md:text-[15px]">
                   {action.contract.title}
                 </p>
                 <p className="mt-0.5 text-[13px] text-zinc-500">

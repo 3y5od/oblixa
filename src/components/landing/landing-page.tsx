@@ -3,9 +3,12 @@ import {
   Bell,
   CheckCircle2,
   FileText,
+  Gauge,
   Layers,
+  ShieldCheck,
   Sparkles,
   Users,
+  Workflow,
 } from "lucide-react";
 
 const features = [
@@ -22,10 +25,10 @@ const features = [
       "Pull renewal, notice, and term fields from the document—then approve with source snippets before anything drives reminders.",
   },
   {
-    icon: CheckCircle2,
-    title: "Operational dates you trust",
+    icon: ShieldCheck,
+    title: "Operational data you can defend",
     description:
-      "A fixed schema built for renewals and obligations—not generic legal AI. Human review keeps reminders aligned with reality.",
+      "Evidence-backed field review, approval checkpoints, and audit events help teams trust every reminder and decision.",
   },
   {
     icon: Bell,
@@ -37,7 +40,7 @@ const features = [
     icon: Users,
     title: "Built for small teams",
     description:
-      "Roles, invites, and a clear queue so finance and ops can share the workload without enterprise CLM overhead.",
+      "Roles, clear queues, and focused workflows let finance, ops, and legal share responsibility without CLM complexity.",
   },
   {
     icon: Layers,
@@ -48,9 +51,42 @@ const features = [
 ] as const;
 
 const steps = [
-  { n: "1", title: "Upload", body: "Add contracts individually or in bulk." },
-  { n: "2", title: "Extract & review", body: "Run AI extraction, then approve fields with evidence." },
-  { n: "3", title: "Track & remind", body: "Use the dashboard and email reminders on approved dates." },
+  {
+    n: "1",
+    title: "Ingest",
+    body: "Upload a single agreement or bulk import a backlog with owner and region context.",
+  },
+  {
+    n: "2",
+    title: "Validate",
+    body: "Extract key dates, review source snippets, and approve only what your team is willing to operate on.",
+  },
+  {
+    n: "3",
+    title: "Execute",
+    body: "Drive tasks, obligations, approvals, and reminders from verified data with clear ownership.",
+  },
+] as const;
+
+const valuePoints = [
+  {
+    icon: Gauge,
+    title: "Operational clarity in days",
+    description:
+      "Focus your first rollout on renewals, notice windows, and obligations instead of months of CLM setup.",
+  },
+  {
+    icon: Workflow,
+    title: "Workflow-first contract operations",
+    description:
+      "Approvals, exceptions, maintenance, and review cadence are built for recurring operational work.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Built-in controls for scale",
+    description:
+      "Role-based access, API key scopes, signed webhooks, and secured integrations support growth responsibly.",
+  },
 ] as const;
 
 export function LandingPage() {
@@ -77,19 +113,19 @@ export function LandingPage() {
 
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
         <section className="border-b border-zinc-200/80 bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.09),transparent)] px-4 py-16 sm:px-6 sm:py-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-              Contract operations, not CLM
-            </p>
-            <h1 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl md:text-[2.75rem] md:leading-[1.12]">
-              Never miss the dates that run your business
-            </h1>
-            <p className="mx-auto mt-5 max-w-xl text-pretty text-base text-zinc-600 sm:text-lg">
-              ContractOps helps service teams centralize agreements, approve key
-              operational fields with source-backed review, and stay ahead of
-              renewals and notice windows—without buying enterprise contract
-              software.
-            </p>
+          <div className="mx-auto max-w-5xl">
+            <div className="text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                Contract operations, not CLM
+              </p>
+              <h1 className="mx-auto mt-5 max-w-4xl text-balance text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl md:text-[2.9rem] md:leading-[1.1]">
+                Run renewals, approvals, and obligations from one trusted system
+              </h1>
+              <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-zinc-600 sm:text-lg">
+                ContractOps gives operations teams a practical control plane: centralize agreements,
+                verify extracted fields with evidence, and execute date-driven workflows with clear ownership.
+              </p>
+            </div>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link href="/signup" className="ui-btn-primary min-w-[10rem] px-6 py-2.5 text-sm">
                 Create free account
@@ -101,8 +137,19 @@ export function LandingPage() {
                 Sign in
               </Link>
             </div>
-            <p className="mt-6 text-xs text-zinc-500">
-              Upload → extract → human approve → reminders on approved data.
+            <div className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
+              {valuePoints.map(({ icon: Icon, title, description }) => (
+                <div key={title} className="ui-card-quiet px-4 py-4 text-left">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200/90 bg-white text-zinc-700">
+                    <Icon size={16} aria-hidden />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-zinc-900">{title}</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-600">{description}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-6 text-center text-xs text-zinc-500">
+              Upload -&gt; extract -&gt; review -&gt; approve -&gt; automate with confidence.
             </p>
           </div>
         </section>
@@ -110,11 +157,10 @@ export function LandingPage() {
         <section className="px-4 py-16 sm:px-6 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">
-              Everything you need to operationalize contracts
+              Purpose-built capabilities for contract operations
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600 sm:text-base">
-              Narrow scope, high clarity: dates, obligations, and follow-through—
-              not negotiation or clause intelligence.
+              Focused scope, high accountability: the critical workflows teams run weekly.
             </p>
             <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {features.map(({ icon: Icon, title, description }) => (
@@ -155,20 +201,50 @@ export function LandingPage() {
         </section>
 
         <section className="px-4 py-16 sm:px-6 sm:py-20">
-          <div className="mx-auto max-w-3xl rounded-2xl border border-zinc-200/90 bg-surface px-6 py-12 text-center sm:px-10">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
-              Ready to replace the risky spreadsheet?
+          <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <div className="rounded-2xl border border-zinc-200/90 bg-surface px-6 py-10 sm:px-8">
+              <h2 className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+                Move your next renewal cycle into a controlled workflow
+              </h2>
+              <p className="mt-3 text-sm text-zinc-600 sm:text-base">
+                Start with a narrow rollout: ingest active agreements, validate key fields, and
+                assign ownership for upcoming milestones.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span className="ui-chip">Approvals</span>
+                <span className="ui-chip">Exceptions</span>
+                <span className="ui-chip">Obligations</span>
+                <span className="ui-chip">Tasks</span>
+                <span className="ui-chip">Calendar exports</span>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-zinc-200/90 bg-surface px-6 py-10 text-center sm:px-8 lg:text-left">
+              <h3 className="text-lg font-semibold tracking-tight text-zinc-950">
+                Ready to get started?
+              </h3>
+              <p className="mt-2 text-sm text-zinc-600">
+                Create your workspace and upload the first contract in minutes.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <Link href="/signup" className="ui-btn-primary px-6 py-2.5 text-sm">
+                  Create free account
+                </Link>
+                <Link href="/login" className="ui-btn-secondary px-6 py-2.5 text-sm">
+                  Sign in
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-zinc-200/80 bg-zinc-50/40 px-4 py-10 sm:px-6">
+          <div className="mx-auto max-w-5xl rounded-2xl border border-zinc-200/80 bg-white px-6 py-6 sm:px-8">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Trust and controls
             </h2>
             <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-              Start with your next renewal cycle—upload a contract, run extraction,
-              and approve the fields that matter.
+              Role-aware access, API key controls, signed outbound webhooks, and configurable workflows help teams scale operations safely.
             </p>
-            <Link
-              href="/signup"
-              className="ui-btn-primary mt-8 inline-flex px-8 py-2.5 text-sm"
-            >
-              Get started
-            </Link>
           </div>
         </section>
       </main>

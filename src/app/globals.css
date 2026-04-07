@@ -19,19 +19,34 @@
 }
 
 :root {
-  /* Warm stone canvas — less cold than pure zinc */
-  --canvas: oklch(0.972 0.004 75);
-  --surface: oklch(0.998 0.002 75);
-  --surface-raised: oklch(0.995 0.003 75);
-  /* Deep slate-blue accent — trustworthy, not loud */
-  --accent: oklch(0.42 0.09 250);
-  --accent-fg: oklch(0.985 0.01 250);
-  --sidebar: oklch(0.17 0.02 260);
-  --sidebar-border: oklch(0.24 0.02 260);
+  /* Quiet Ledger palette: warm neutrals + restrained slate accent */
+  --canvas: oklch(0.978 0.003 80);
+  --surface: oklch(0.996 0.002 80);
+  --surface-raised: oklch(0.992 0.003 80);
+  --accent: oklch(0.4 0.075 252);
+  --accent-fg: oklch(0.987 0.004 250);
+  --sidebar: oklch(0.19 0.015 258);
+  --sidebar-border: oklch(0.275 0.016 258);
+  --text-primary: oklch(0.27 0.01 255);
+  --text-secondary: oklch(0.47 0.008 255);
+  --text-tertiary: oklch(0.62 0.008 255);
+  --border-subtle: oklch(0.905 0.003 80);
+  --border-strong: oklch(0.84 0.005 80);
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-2: 0 10px 24px rgba(15, 23, 42, 0.07);
+  --shadow-3: 0 20px 44px rgba(15, 23, 42, 0.13);
+  --success-soft: oklch(0.955 0.032 153);
+  --success-ink: oklch(0.43 0.08 153);
+  --warning-soft: oklch(0.962 0.04 86);
+  --warning-ink: oklch(0.51 0.09 82);
+  --danger-soft: oklch(0.952 0.04 20);
+  --danger-ink: oklch(0.47 0.11 24);
+  --info-soft: oklch(0.956 0.03 255);
+  --info-ink: oklch(0.43 0.09 252);
   /* Motion — short, ease-out; respect reduced-motion below */
-  --ui-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ui-duration: 160ms;
-  --ui-duration-slow: 220ms;
+  --ui-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ui-duration: 140ms;
+  --ui-duration-slow: 200ms;
   color-scheme: light;
 }
 
@@ -54,7 +69,7 @@
   }
 
   body {
-    @apply min-h-full bg-canvas font-sans text-[15px] leading-relaxed text-zinc-600 antialiased;
+    @apply min-h-full bg-canvas font-sans text-[14px] leading-relaxed text-zinc-600 antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "liga" 1;
   }
 
@@ -66,39 +81,42 @@
 @layer components {
   /* Surfaces — subtle shadow lift on hover (cards that are links get this via parent or .ui-card-hover) */
   .ui-card {
-    @apply rounded-2xl border border-zinc-200/70 bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-[box-shadow,border-color] ease-out;
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)] transition-[box-shadow,border-color,background-color] ease-out;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-card-hover {
-    @apply hover:border-zinc-200 hover:shadow-[0_4px_20px_rgba(15,23,42,0.06)];
+    @apply hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)];
   }
 
   .ui-card-quiet {
-    @apply rounded-2xl border border-zinc-200/50 bg-zinc-50/40 transition-colors ease-out;
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-zinc-50/55 transition-colors ease-out;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-card-raised {
-    @apply rounded-2xl border border-zinc-200/60 bg-surface-raised shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[box-shadow,border-color] ease-out;
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-surface-raised shadow-[var(--shadow-1)] transition-[box-shadow,border-color] ease-out;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-card-hero {
-    @apply rounded-2xl border border-zinc-200/70 bg-surface shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-[box-shadow,border-color] ease-out;
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)] transition-[box-shadow,border-color] ease-out;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   /* Form controls */
   .ui-input {
-    @apply block w-full rounded-xl border border-zinc-200/90 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-none placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/15;
+    @apply block min-h-10 w-full rounded-xl border border-zinc-200/85 bg-white px-3.5 py-2.5 text-sm leading-tight text-zinc-900 shadow-none placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/18;
     transition-property: border-color, box-shadow;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
+  }
+  .ui-input-compact {
+    @apply block min-h-8 w-full rounded-lg border border-zinc-200/85 bg-white px-3 py-2 text-[13px] leading-tight text-zinc-900 shadow-none placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/18;
   }
 
   .ui-label {
@@ -111,35 +129,35 @@
 
   /* Buttons */
   .ui-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-fg)] shadow-sm hover:brightness-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/30 focus-visible:ring-offset-2 motion-safe:active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-transparent bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold leading-none text-[var(--accent-fg)] shadow-sm hover:brightness-[1.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/28 focus-visible:ring-offset-2 motion-safe:active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45;
     transition-property: background-color, transform, box-shadow, filter;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm hover:border-zinc-300 hover:bg-zinc-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 active:bg-zinc-100/80 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200/80 bg-white px-4 py-2.5 text-sm font-semibold leading-none text-zinc-800 shadow-sm hover:border-zinc-300/90 hover:bg-zinc-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/45 focus-visible:ring-offset-2 active:bg-zinc-100/80 disabled:pointer-events-none disabled:opacity-45;
     transition-property: background-color, border-color, box-shadow;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-transparent px-3.5 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-transparent bg-transparent px-3.5 py-2 text-sm font-medium leading-none text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
     transition-property: background-color, color;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-red-200/90 bg-white px-4 py-2.5 text-sm font-semibold text-red-800 hover:border-red-300 hover:bg-red-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-red-200/80 bg-white px-4 py-2.5 text-sm font-semibold leading-none text-red-800 hover:border-red-300/90 hover:bg-red-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
     transition-property: background-color, border-color;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-link {
-    @apply font-semibold text-[var(--accent)] underline decoration-zinc-300/80 underline-offset-[3px] hover:decoration-[var(--accent)] hover:text-zinc-900;
+    @apply font-semibold text-[var(--accent)] underline decoration-zinc-300/70 underline-offset-[3px] hover:decoration-[var(--accent)] hover:text-zinc-900;
     transition-property: color, text-decoration-color;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
@@ -147,11 +165,11 @@
 
   /* Tables */
   .ui-table-header {
-    @apply bg-zinc-50/90 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500;
+    @apply bg-zinc-50/80 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500;
   }
 
   .ui-table-row {
-    @apply border-b border-zinc-100 hover:bg-zinc-50/60;
+    @apply border-b border-zinc-100/90 hover:bg-zinc-50/55;
     transition-property: background-color;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
@@ -159,15 +177,23 @@
 
   /* Typography */
   .ui-page-title {
-    @apply text-2xl font-semibold tracking-tight text-zinc-900 sm:text-[1.75rem] sm:leading-tight;
+    @apply text-2xl font-semibold tracking-tight text-zinc-900 sm:text-[1.72rem] sm:leading-tight;
   }
 
   .ui-display-title {
-    @apply text-3xl font-semibold tracking-tight text-zinc-950 sm:text-[2rem] sm:leading-[1.15];
+    @apply text-3xl font-semibold tracking-tight text-zinc-950 sm:text-[2rem] sm:leading-[1.16];
   }
 
   .ui-section-title {
     @apply text-[15px] font-semibold tracking-tight text-zinc-900;
+  }
+
+  .ui-page-header {
+    @apply flex flex-col gap-5 border-b border-zinc-200/60 pb-7 lg:flex-row lg:items-end lg:justify-between;
+  }
+
+  .ui-page-actions {
+    @apply flex flex-wrap items-center gap-2;
   }
 
   .ui-eyebrow {
@@ -175,7 +201,7 @@
   }
 
   .ui-muted {
-    @apply text-sm leading-relaxed text-zinc-500;
+    @apply text-sm leading-[1.6] text-zinc-500;
   }
 
   .ui-prose-label {
@@ -184,7 +210,11 @@
 
   /* Status chips — refined, not toy-like */
   .ui-badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-semibold tracking-tight;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-tight;
+  }
+
+  .ui-chip {
+    @apply inline-flex items-center rounded-full border border-zinc-200/85 bg-zinc-50/85 px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900;
   }
 
   /* Metric strip (dashboard) */
@@ -198,18 +228,27 @@
 
   /* Sidebar chrome — ~4.5:1 idle text on dark bg; stronger hover */
   .ui-sidebar-link {
-    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium;
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900;
     transition-property: background-color, color;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-sidebar-link-active {
-    @apply bg-white/[0.1] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)];
+    @apply bg-white/[0.14] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)];
+  }
+
+  .ui-sidebar-link-active-rail {
+    @apply relative;
+  }
+
+  .ui-sidebar-link-active-rail::before {
+    content: "";
+    @apply absolute left-1.5 top-2.5 h-4 w-0.5 rounded-full bg-white;
   }
 
   .ui-sidebar-link-idle {
-    @apply text-zinc-300 hover:bg-white/[0.06] hover:text-white;
+    @apply text-zinc-200 hover:bg-white/[0.1] hover:text-white;
   }
 
   /* Field review — source block */
@@ -220,6 +259,34 @@
   /* Keyboard hints */
   .ui-kbd {
     @apply inline-flex min-w-[1.25rem] items-center justify-center rounded border border-zinc-200 bg-white px-1 py-0.5 font-mono text-[10px] font-medium text-zinc-600 shadow-[0_1px_0_rgba(15,23,42,0.06)];
+  }
+
+  .ui-empty-state {
+    @apply rounded-2xl border border-dashed border-zinc-300/75 bg-surface px-8 py-14 text-center shadow-[var(--shadow-1)];
+  }
+
+  .ui-empty-state-title {
+    @apply mt-5 text-[15px] font-semibold text-zinc-900;
+  }
+
+  .ui-empty-state-copy {
+    @apply mt-2 max-w-sm text-[14px] leading-relaxed text-zinc-500;
+  }
+
+  .ui-skeleton {
+    @apply animate-pulse rounded bg-zinc-200/80;
+  }
+
+  .ui-segmented {
+    @apply inline-flex rounded-xl border border-zinc-200/85 bg-white p-1;
+  }
+
+  .ui-segmented-item {
+    @apply inline-flex min-h-7 items-center rounded-lg px-3 py-1.5 text-xs font-semibold leading-none text-zinc-600 transition-colors hover:bg-zinc-100/90;
+  }
+
+  .ui-segmented-item-active {
+    @apply bg-zinc-900 text-white hover:bg-zinc-900;
   }
 
   /** List / row hovers — respects --ui-duration for reduced motion */

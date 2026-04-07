@@ -5,17 +5,27 @@ export const DEADLINE_PRESET_VALUES = [
   "",
   "renewal_30",
   "renewal_90",
+  "renewal_180",
+  "renewal_365",
   "end_30",
   "end_90",
+  "end_180",
+  "end_365",
   "notice_deadline_30",
   "notice_deadline_90",
+  "notice_deadline_180",
+  "notice_deadline_365",
 ] as const;
 
 export type DeadlinePreset = (typeof DEADLINE_PRESET_VALUES)[number];
 
 type CalendarDeadlinePreset = Exclude<
   DeadlinePreset,
-  "" | "notice_deadline_30" | "notice_deadline_90"
+  ""
+    | "notice_deadline_30"
+    | "notice_deadline_90"
+    | "notice_deadline_180"
+    | "notice_deadline_365"
 >;
 
 const PRESET_MAP: Record<
@@ -24,8 +34,12 @@ const PRESET_MAP: Record<
 > = {
   renewal_30: { field: "renewal_date", days: 30 },
   renewal_90: { field: "renewal_date", days: 90 },
+  renewal_180: { field: "renewal_date", days: 180 },
+  renewal_365: { field: "renewal_date", days: 365 },
   end_30: { field: "end_date", days: 30 },
   end_90: { field: "end_date", days: 90 },
+  end_180: { field: "end_date", days: 180 },
+  end_365: { field: "end_date", days: 365 },
 };
 
 function parseEventDate(raw: string | null): Date | null {
@@ -128,6 +142,12 @@ export async function getContractIdsForDeadlinePreset(
   }
   if (preset === "notice_deadline_90") {
     return await getContractIdsForNoticeDeadlineWindow(admin, orgId, 90);
+  }
+  if (preset === "notice_deadline_180") {
+    return await getContractIdsForNoticeDeadlineWindow(admin, orgId, 180);
+  }
+  if (preset === "notice_deadline_365") {
+    return await getContractIdsForNoticeDeadlineWindow(admin, orgId, 365);
   }
 
   const cfg = PRESET_MAP[preset as CalendarDeadlinePreset];

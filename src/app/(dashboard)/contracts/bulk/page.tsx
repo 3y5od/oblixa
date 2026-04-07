@@ -17,6 +17,13 @@ export default async function BulkImportPage() {
   }
 
   const canEdit = canEditContracts(ctx.role as OrgRole);
+  const { data: recentJobs } = await ctx.admin
+    .from("contract_import_jobs")
+    .select("id, status, total_rows, inserted_rows, error_rows, created_at")
+    .eq("organization_id", ctx.orgId)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   const hasPlan =
     !isPlanEnforcementEnabled() ||
     (await orgHasActivePlan(ctx.admin, ctx.orgId));
@@ -63,6 +70,23 @@ export default async function BulkImportPage() {
               Go to Billing
             </Link>
           </p>
+        )}
+        {(recentJobs?.length ?? 0) > 0 && (
+          <div className="mt-6 border-t border-zinc-100 pt-4">
+            <p className="ui-label-caps">Recent import jobs (CSV and files)</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
+              {recentJobs?.map((job) => (
+                <li key={job.id}>
+                  {job.status} · rows {job.inserted_rows}/{job.total_rows}
+                  {job.error_rows ? ` · errors ${job.error_rows}` : ""}
+                  {" · "}
+                  <a className="ui-link" href={`/api/import/contracts/${job.id}`}>
+                    details
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

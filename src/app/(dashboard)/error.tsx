@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
+import { captureClientException } from "@/lib/observability/sentry";
 
 export default function DashboardError({
   error,
@@ -13,6 +14,9 @@ export default function DashboardError({
 }) {
   useEffect(() => {
     console.error(error);
+    captureClientException(error, {
+      extra: { route: "dashboard/error", digest: error.digest },
+    });
   }, [error]);
 
   return (

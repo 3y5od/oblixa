@@ -5,7 +5,7 @@ export const CONTRACTS_PAGE_SIZE = 25;
 
 /** List/table rows: omits `search_document` (up to ~120k chars) for bandwidth and memory. */
 export const CONTRACT_LIST_ROW_COLUMNS =
-  "id, organization_id, title, counterparty, contract_type, status, owner_id, created_by, created_at, updated_at";
+  "id, organization_id, title, counterparty, contract_type, status, region, owner_id, created_by, created_at, updated_at";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -13,6 +13,7 @@ export interface ContractListFilterInput {
   orgId: string;
   status?: string;
   owner?: string;
+  region?: string;
   /** When non-null and empty, no rows match (deadline preset had no hits). */
   deadlineIds: string[] | null;
   sanitizedSearch: string;
@@ -48,6 +49,9 @@ export async function fetchContractsPage(
   if (filters.owner) {
     q = q.eq("owner_id", filters.owner);
   }
+  if (filters.region) {
+    q = q.eq("region", filters.region);
+  }
   if (filters.deadlineIds !== null && filters.deadlineIds.length > 0) {
     q = q.in("id", filters.deadlineIds);
   }
@@ -57,8 +61,11 @@ export async function fetchContractsPage(
       `title.ilike.%${filters.sanitizedSearch}%`,
       `counterparty.ilike.%${filters.sanitizedSearch}%`,
       `contract_type.ilike.%${filters.sanitizedSearch}%`,
-      `search_document.ilike.%${filters.sanitizedSearch}%`,
     ];
+    // Very short probes over large documents are high-cost and low-signal.
+    if (filters.sanitizedSearch.length >= 2) {
+      orParts.push(`search_document.ilike.%${filters.sanitizedSearch}%`);
+    }
     if (filters.fieldSearchIds.length > 0) {
       orParts.push(`id.in.(${filters.fieldSearchIds.join(",")})`);
     }

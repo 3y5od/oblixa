@@ -1,0 +1,137 @@
+import { NextResponse } from "next/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createHash, randomBytes } from "crypto";
+import { getRequestOrigin } from "@/lib/app-url";
+import { readOAuthProviderConfigFromEnv, readOAuthProviderConfigFromConnection } from "@/lib/integrations/oauth-config";
+import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+
+const ALLOWED_PROVIDERS = new Set([
+  "google_calendar",
+  "outlook_calendar",
+  "slack",
+  "email",
+  "crm",
+]);
+type OAuthProvider =
+  | "google_calendar"
+  | "outlook_calendar"
+  | "slack"
+  | "email"
+  | "crm";
+
+export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`oauth-start:${ip}`, { max: 30, windowMs: 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
+  const body = (await request.json().catch(() => ({}))) as {
+    provider?: string;
+    redirectUri?: string;
+  };
+  const provider = String(body.provider ?? "").trim();
+  if (!ALLOWED_PROVIDERS.has(provider)) {
+    return NextResponse.json({ error: "Unsupported provider" }, { status: 400 });
+  }
+  const providerId = provider as OAuthProvider;
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  const { data: membership } = await admin
+    .from("organization_members")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  if (!membership || membership.role !== "admin") {
+    return NextResponse.json({ error: "Only admins can start integration auth" }, { status: 403 });
+  }
+  const providerConfigFromEnv = readOAuthProviderConfigFromEnv(providerId);
+  const { data: existingConnection } = await admin
+    .from("integration_connections")
+    .select("config_json")
+    .eq("organization_id", membership.organization_id)
+    .eq("provider", providerId)
+    .maybeSingle();
+  const providerConfig =
+    providerConfigFromEnv ??
+    (existingConnection
+      ? readOAuthProviderConfigFromConnection({
+          config_json: (existingConnection.config_json ?? {}) as Record<
+            string,
+            unknown
+          >,
+        })
+      : null);
+  if (!providerConfig) {
+    return NextResponse.json(
+      { error: "OAuth provider is not configured" },
+      { status: 503 }
+    );
+  }
+  const authorize = validateOutboundHttpUrl(providerConfig.authorizeUrl);
+  if (!authorize) {
+    return NextResponse.json(
+      { error: "OAuth authorize URL is invalid or unsafe" },
+      { status: 400 }
+    );
+  }
+  const requestOrigin = getRequestOrigin(request);
+  const redirectCandidate =
+    String(body.redirectUri ?? "").trim() ||
+    `${requestOrigin}/api/integrations/oauth/callback`;
+  let redirect: URL;
+  try {
+    redirect = new URL(redirectCandidate);
+  } catch {
+    return NextResponse.json({ error: "Invalid redirectUri" }, { status: 400 });
+  }
+  if (redirect.origin !== requestOrigin) {
+    return NextResponse.json(
+      { error: "redirectUri must match request origin" },
+      { status: 400 }
+    );
+  }
+  const verifier = randomBytes(32).toString("base64url");
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+
+  const state = randomBytes(16).toString("hex");
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+  const { error: insertError } = await admin.from("integration_oauth_states").insert({
+    organization_id: membership.organization_id,
+    provider,
+    state,
+    requested_by: user.id,
+    expires_at: expiresAt,
+    redirect_uri: redirect.toString(),
+    code_verifier: verifier,
+    code_challenge_method: "S256",
+  });
+  if (insertError) {
+    return NextResponse.json({ error: "Failed to create oauth state" }, { status: 500 });
+  }
+  const url = new URL(authorize.toString());
+  url.searchParams.set("state", state);
+  url.searchParams.set("redirect_uri", redirect.toString());
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("client_id", providerConfig.clientId);
+  if (providerConfig.scope) url.searchParams.set("scope", providerConfig.scope);
+  url.searchParams.set("code_challenge", challenge);
+  url.searchParams.set("code_challenge_method", "S256");
+
+  return NextResponse.json({ ok: true, provider, state, authorizeUrl: url.toString(), expiresAt });
+}

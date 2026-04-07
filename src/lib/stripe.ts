@@ -1,10 +1,13 @@
 import Stripe from "stripe";
+import { getStripeServerEnv } from "@/lib/env/server";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeEnv = getStripeServerEnv();
+
+export const stripe = new Stripe(stripeEnv.secretKey, {
   typescript: true,
 });
 
-export const PRICE_ID = process.env.STRIPE_PRICE_ID!;
+export const PRICE_ID = stripeEnv.priceId;
 
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 

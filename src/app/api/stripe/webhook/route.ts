@@ -2,12 +2,21 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createServerClient } from "@supabase/ssr";
 import type Stripe from "stripe";
-import * as Sentry from "@sentry/nextjs";
+import {
+  getSupabasePublicEnv,
+  getSupabaseServiceRoleKey,
+} from "@/lib/env/server";
+import {
+  captureServerException,
+  captureServerMessage,
+} from "@/lib/observability/sentry";
 
 function getAdminSupabase() {
+  const { url } = getSupabasePublicEnv();
+  const serviceRoleKey = getSupabaseServiceRoleKey();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    url,
+    serviceRoleKey,
     { cookies: { getAll: () => [], setAll: () => {} } }
   );
 }
@@ -24,9 +33,7 @@ export async function POST(request: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     console.error("[stripe/webhook] STRIPE_WEBHOOK_SECRET is not set");
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
-    }
+    captureServerMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
@@ -42,13 +49,19 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error("[stripe/webhook] signature verification failed:", err);
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureException(err, { extra: { phase: "constructEvent" } });
-    }
+    captureServerException(err, { extra: { phase: "constructEvent" } });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const supabase = getAdminSupabase();
+  let supabase: ReturnType<typeof getAdminSupabase>;
+  try {
+    supabase = getAdminSupabase();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Supabase env misconfigured";
+    console.error("[stripe/webhook] configuration error:", message);
+    captureServerMessage(message, { level: "error" });
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
 
   const { data: alreadyDone } = await supabase
     .from("stripe_webhook_events")
@@ -100,12 +113,10 @@ export async function POST(request: Request) {
                 "[stripe/webhook] checkout.session.completed DB update:",
                 upErr.message
               );
-              if (process.env.SENTRY_DSN) {
-                Sentry.captureMessage(upErr.message, {
-                  level: "error",
-                  extra: { event: event.type, orgId },
-                });
-              }
+              captureServerMessage(upErr.message, {
+                level: "error",
+                extra: { event: event.type, orgId },
+              });
             } else {
               await supabase.from("audit_events").insert({
                 organization_id: orgId,
@@ -120,21 +131,17 @@ export async function POST(request: Request) {
             }
           } catch (err) {
             console.error("[stripe/webhook] subscription retrieve failed:", err);
-            if (process.env.SENTRY_DSN) {
-              Sentry.captureException(err, { extra: { event: event.type, orgId } });
-            }
+            captureServerException(err, { extra: { event: event.type, orgId } });
           }
         } else if (orgId && session.subscription && !customerId) {
           console.error(
             "[stripe/webhook] checkout.session.completed missing customer id",
             session.id
           );
-          if (process.env.SENTRY_DSN) {
-            Sentry.captureMessage("checkout missing customer id", {
-              level: "error",
-              extra: { sessionId: session.id },
-            });
-          }
+          captureServerMessage("checkout missing customer id", {
+            level: "error",
+            extra: { sessionId: session.id },
+          });
         }
         break;
       }
@@ -158,12 +165,10 @@ export async function POST(request: Request) {
             .eq("stripe_subscription_id", sub.id);
           if (clearErr) {
             console.error("[stripe/webhook] subscription.updated clear:", clearErr.message);
-            if (process.env.SENTRY_DSN) {
-              Sentry.captureMessage(clearErr.message, {
-                level: "error",
-                extra: { event: event.type, subId: sub.id },
-              });
-            }
+            captureServerMessage(clearErr.message, {
+              level: "error",
+              extra: { event: event.type, subId: sub.id },
+            });
           }
         } else {
           const { error: upErr } = await supabase
@@ -177,12 +182,10 @@ export async function POST(request: Request) {
             .eq("stripe_subscription_id", sub.id);
           if (upErr) {
             console.error("[stripe/webhook] subscription.updated DB update:", upErr.message);
-            if (process.env.SENTRY_DSN) {
-              Sentry.captureMessage(upErr.message, {
-                level: "error",
-                extra: { event: event.type, subId: sub.id },
-              });
-            }
+            captureServerMessage(upErr.message, {
+              level: "error",
+              extra: { event: event.type, subId: sub.id },
+            });
           }
         }
         break;
@@ -200,12 +203,10 @@ export async function POST(request: Request) {
           .eq("stripe_subscription_id", sub.id);
         if (delErr) {
           console.error("[stripe/webhook] subscription.deleted DB update:", delErr.message);
-          if (process.env.SENTRY_DSN) {
-            Sentry.captureMessage(delErr.message, {
-              level: "error",
-              extra: { event: event.type, subId: sub.id },
-            });
-          }
+          captureServerMessage(delErr.message, {
+            level: "error",
+            extra: { event: event.type, subId: sub.id },
+          });
         }
         break;
       }
@@ -213,15 +214,13 @@ export async function POST(request: Request) {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         console.error(`Payment failed for customer ${invoice.customer}`);
-        if (process.env.SENTRY_DSN) {
-          Sentry.captureMessage("invoice.payment_failed", {
-            level: "warning",
-            extra: {
-              customer: invoice.customer,
-              invoiceId: invoice.id,
-            },
-          });
-        }
+        captureServerMessage("invoice.payment_failed", {
+          level: "warning",
+          extra: {
+            customer: invoice.customer,
+            invoiceId: invoice.id,
+          },
+        });
         break;
       }
     }
@@ -232,19 +231,17 @@ export async function POST(request: Request) {
 
     if (recordErr && recordErr.code !== "23505") {
       console.error("[stripe/webhook] could not record processed event:", recordErr.message);
-      if (process.env.SENTRY_DSN) {
-        Sentry.captureMessage(recordErr.message, {
-          level: "error",
-          extra: { eventId: event.id },
-        });
-      }
+      captureServerMessage(recordErr.message, {
+        level: "error",
+        extra: { eventId: event.id },
+      });
       return NextResponse.json({ error: "Could not finalize event" }, { status: 500 });
     }
   } catch (err) {
     console.error("[stripe/webhook] handler error:", err);
-    if (process.env.SENTRY_DSN) {
-      Sentry.captureException(err, { extra: { eventType: event.type, eventId: event.id } });
-    }
+    captureServerException(err, {
+      extra: { eventType: event.type, eventId: event.id },
+    });
     return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
   }
 
