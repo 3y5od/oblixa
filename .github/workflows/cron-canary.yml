@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 15
     if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
