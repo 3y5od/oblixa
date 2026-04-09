@@ -9,6 +9,9 @@ import {
 } from "@/lib/env/server";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+import { isNotificationAllowed } from "@/lib/notification-policy";
+import { createAdminClient } from "@/lib/supabase/server";
+import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -47,6 +50,7 @@ export async function GET(request: Request) {
   const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: { getAll: () => [], setAll: () => {} },
   });
+  const admin = await createAdminClient();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -152,18 +156,76 @@ export async function GET(request: Request) {
     const appUrl = getRequestOrigin(request);
     const hash =
       reminder.field_id != null ? `#field-${reminder.field_id}` : "";
-    const result = await sendReminderEmail({
-      to: recipientEmail,
-      contractTitle: contract.title,
-      fieldName: field.field_name,
-      fieldValue: field.field_value,
-      daysUntil,
-      contractUrl: `${appUrl}/contracts/${contract.id}${hash}`,
-      sourceSnippet: field.source_snippet,
-    });
-
-    if (result.error) {
-      errors.push(`${reminder.id}: ${result.error.message}`);
+    const contractOrg = (contractRaw as { organization_id?: string } | undefined)?.organization_id;
+    if (contractOrg) {
+      const { data: priorDelivery } = await admin
+        .from("notification_deliveries")
+        .select("id")
+        .eq("organization_id", contractOrg)
+        .eq("notification_type", "reminder_due")
+        .eq("status", "delivered")
+        .contains("metadata", { reminder_id: reminder.id })
+        .limit(1)
+        .maybeSingle();
+      if (priorDelivery) {
+        await supabase
+          .from("reminders")
+          .update({ sent_at: new Date().toISOString() })
+          .eq("id", reminder.id);
+        continue;
+      }
+    }
+    if (contractOrg) {
+      const allowed = await isNotificationAllowed(admin, {
+        organizationId: contractOrg,
+        channel: "email",
+        notificationType: "reminder_due",
+      });
+      if (!allowed) {
+        await markNotificationSuppressed(admin, {
+          organizationId: contractOrg,
+          channel: "email",
+          notificationType: "reminder_due",
+          recipient: recipientEmail,
+          subject: `Reminder: ${field.field_name}`,
+          metadata: { reminder_id: reminder.id, contract_id: contract.id },
+        });
+        continue;
+      }
+    }
+    const result = contractOrg
+      ? await deliverWithRetries(admin, {
+          organizationId: contractOrg,
+          channel: "email",
+          notificationType: "reminder_due",
+          recipient: recipientEmail,
+          subject: `Reminder: ${field.field_name}`,
+          metadata: { reminder_id: reminder.id, contract_id: contract.id, field_name: field.field_name },
+          maxAttempts: 3,
+          retryPayload: {
+            kind: "reminder_due",
+            to: recipientEmail,
+            contractTitle: contract.title,
+            fieldName: field.field_name,
+            fieldValue: field.field_value,
+            daysUntil,
+            contractUrl: `${appUrl}/contracts/${contract.id}${hash}`,
+            sourceSnippet: null,
+          },
+          send: () =>
+            sendReminderEmail({
+              to: recipientEmail,
+              contractTitle: contract.title,
+              fieldName: field.field_name,
+              fieldValue: field.field_value,
+              daysUntil,
+              contractUrl: `${appUrl}/contracts/${contract.id}${hash}`,
+              sourceSnippet: field.source_snippet,
+            }),
+        })
+      : { delivered: false, error: "missing organization id" };
+    if (!result.delivered) {
+      errors.push(`${reminder.id}: ${result.error ?? "delivery failed"}`);
       continue;
     }
 
@@ -185,7 +247,6 @@ export async function GET(request: Request) {
       continue;
     }
 
-    const contractOrg = (contractRaw as { organization_id?: string } | undefined)?.organization_id;
     if (contractOrg) {
       await supabase.from("outbound_events").insert({
         organization_id: contractOrg,

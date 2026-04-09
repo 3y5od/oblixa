@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { NAV_ITEMS, canAccessItem, type WorkspaceRole } from "@/lib/navigation";
 import { EmptyState } from "@/components/ui/empty-state";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 
 type Group = "operations" | "personal" | "workspace";
 
@@ -16,7 +17,7 @@ export default async function MoreToolsPage(props: {
   searchParams: Promise<{ q?: string; section?: string }>;
 }) {
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
   const role = (ctx.role as WorkspaceRole | undefined) ?? "viewer";
   const params = await props.searchParams;
   const query = String(params.q ?? "").trim().toLowerCase();
@@ -26,8 +27,7 @@ export default async function MoreToolsPage(props: {
     const items = NAV_ITEMS.filter(
       (item) =>
         item.section === group &&
-        canAccessItem(item, role) &&
-        !["/contracts/renewals", "/contracts/intake", "/contracts/approvals"].includes(item.href)
+        canAccessItem(item, role)
     ).filter((item) => {
       if (selectedSection && group !== selectedSection) return false;
       if (!query) return true;

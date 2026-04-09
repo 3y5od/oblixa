@@ -55,6 +55,7 @@ yarn-error.log*
 Thumbs.db
 
 # Editors & temp files
+.cursor/
 .idea/
 *.swp
 *.swo

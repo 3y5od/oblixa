@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 
 type SlackTaskPayload = {
   organizationId: string;
@@ -16,6 +16,9 @@ type SlackTaskPayload = {
   teamKey?: string;
 };
 
+const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
+const TEAM_KEY_RE = /^[a-z0-9_-]{1,50}$/;
+
 function isAuthorized(request: Request): boolean {
   const token = process.env.INBOUND_AUTOMATION_TOKEN?.trim();
   if (!token) return false;
@@ -25,7 +28,7 @@ function isAuthorized(request: Request): boolean {
 
 export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(`tasks-slack:${ip}`, { max: 60, windowMs: 60_000 });
+  const rl = await rateLimitCheck(`tasks-slack:${ip}`, RATE_LIMITS.tasksFromSlackInbound);
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -53,6 +56,30 @@ export async function POST(request: Request) {
       { error: "organizationId and contractId must be valid UUIDs" },
       { status: 400 }
     );
+  }
+  if (body.assigneeId && !isUuid(body.assigneeId)) {
+    return NextResponse.json({ error: "assigneeId must be a valid UUID" }, { status: 400 });
+  }
+  if (body.dueDate && !isIsoDateOnly(body.dueDate)) {
+    return NextResponse.json({ error: "dueDate must be ISO date (YYYY-MM-DD)" }, { status: 400 });
+  }
+  if (body.title.trim().length > 240) {
+    return NextResponse.json({ error: "title must be 240 characters or fewer" }, { status: 400 });
+  }
+  if (body.details && body.details.length > 10_000) {
+    return NextResponse.json({ error: "details must be 10000 characters or fewer" }, { status: 400 });
+  }
+  if (body.externalMessageId && !EXTERNAL_MESSAGE_ID_RE.test(body.externalMessageId.trim())) {
+    return NextResponse.json(
+      { error: "externalMessageId contains invalid characters or is too long" },
+      { status: 400 }
+    );
+  }
+  if (body.teamKey && !TEAM_KEY_RE.test(body.teamKey.trim())) {
+    return NextResponse.json({ error: "teamKey contains invalid characters or is too long" }, { status: 400 });
+  }
+  if (body.priority && !["low", "medium", "high"].includes(body.priority)) {
+    return NextResponse.json({ error: "priority must be one of low, medium, high" }, { status: 400 });
   }
 
   const admin = await createAdminClient();
@@ -90,11 +117,11 @@ export async function POST(request: Request) {
           .filter(Boolean)
           .join("\n") || null,
       assignee_id: body.assigneeId || null,
-      due_date: body.dueDate || null,
+      due_date: body.dueDate?.trim() || null,
       priority: body.priority ?? "medium",
       status: "open",
       created_via: "integration",
-      team_key: body.teamKey ?? "slack",
+      team_key: body.teamKey?.trim() || "slack",
     })
     .select("id")
     .single();

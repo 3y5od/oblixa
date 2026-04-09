@@ -35,3 +35,15 @@ export function isReasonableEmail(email: string): boolean {
   const t = email.trim();
   return t.length <= 254 && EMAIL_RE.test(t);
 }
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function isIsoDateOnly(value: string | null | undefined): boolean {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!ISO_DATE_RE.test(trimmed)) return false;
+  const ms = Date.parse(`${trimmed}T00:00:00.000Z`);
+  if (!Number.isFinite(ms)) return false;
+  const normalized = new Date(ms).toISOString().slice(0, 10);
+  return normalized === trimmed;
+}

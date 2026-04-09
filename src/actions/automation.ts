@@ -1,17 +1,31 @@
 "use server";
 
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { isUuid } from "@/lib/security/validation";
+import { enqueueOutboundEvent } from "@/lib/integrations/events";
+import { sendSlackWorkflowNotification } from "@/lib/integrations/slack";
 
-type TriggerType = "field_missing" | "date_window" | "ownership_change" | "renewal_window";
+type TriggerType =
+  | "field_missing"
+  | "field_changed"
+  | "date_window"
+  | "ownership_change"
+  | "renewal_window"
+  | "approval_stall"
+  | "risk_threshold"
+  | "data_quality_gap";
 
 const TRIGGERS: TriggerType[] = [
   "field_missing",
+  "field_changed",
   "date_window",
   "ownership_change",
   "renewal_window",
+  "approval_stall",
+  "risk_threshold",
+  "data_quality_gap",
 ];
 
 export async function createTaskAutomationRule(input: {
@@ -28,12 +42,7 @@ export async function createTaskAutomationRule(input: {
   if (!TRIGGERS.includes(input.triggerType)) return { error: "Invalid trigger type" };
   if (!input.name.trim()) return { error: "Name is required" };
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
     return { error: "Access denied" };
   }
@@ -59,8 +68,13 @@ export async function createTaskAutomationRuleForm(formData: FormData) {
   const lookbackDays = Number(String(formData.get("lookbackDays") ?? "").trim() || "2");
   const teamKey = String(formData.get("teamKey") ?? "").trim();
   const dueInDays = Number(String(formData.get("dueInDays") ?? "").trim() || "0");
+  const stallHours = Number(String(formData.get("stallHours") ?? "").trim() || "24");
+  const minCompleteness = Number(String(formData.get("minCompleteness") ?? "").trim() || "80");
   const taskTitle = String(formData.get("taskTitle") ?? "").trim();
   const taskDetails = String(formData.get("taskDetails") ?? "").trim();
+  const webhookEventType = String(formData.get("webhookEventType") ?? "").trim();
+  const actionType = String(formData.get("actionType") ?? "create_task").trim();
+  const reportMode = String(formData.get("reportMode") ?? "exceptions").trim();
   const res = await createTaskAutomationRule({
     name,
     triggerType: triggerType as TriggerType,
@@ -71,8 +85,17 @@ export async function createTaskAutomationRuleForm(formData: FormData) {
       lookbackDays: Number.isFinite(lookbackDays) ? lookbackDays : 2,
       teamKey: teamKey || null,
       dueInDays: Number.isFinite(dueInDays) ? dueInDays : 0,
+      stallHours: Number.isFinite(stallHours) ? stallHours : 24,
+      minCompleteness: Number.isFinite(minCompleteness) ? minCompleteness : 80,
       taskTitle: taskTitle || "Follow-up required",
       taskDetails: taskDetails || "",
+      webhookEventType: webhookEventType || null,
+      actionType:
+        actionType === "trigger_report" || actionType === "notify_only"
+          ? actionType
+          : "create_task",
+      reportMode:
+        reportMode === "saved_view" || reportMode === "management" ? reportMode : "exceptions",
     },
   });
   if (res && "error" in res && res.error) {
@@ -123,6 +146,43 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
     config: Record<string, unknown>,
     reason: string
   ): Promise<boolean> {
+    const actionType = String(config.actionType ?? "create_task").trim();
+    if (actionType === "trigger_report") {
+      const reportMode = String(config.reportMode ?? "exceptions").trim();
+      await admin.from("report_runs").insert({
+        organization_id: orgId,
+        subscription_id: null,
+        report_mode:
+          reportMode === "saved_view" || reportMode === "management" ? reportMode : "exceptions",
+        status: "queued",
+        triggered_by: null,
+        metrics_json: { reason, trigger: rule.name, source: "automation_rule" },
+      });
+      await enqueueOutboundEvent({
+        organizationId: orgId,
+        eventType: "report.queued_by_rule",
+        entityType: "task_automation_rule",
+        entityId: rule.id,
+        payload: { contract_id: contractId, reason, trigger: rule.name },
+      });
+      return true;
+    }
+    if (actionType === "notify_only") {
+      await enqueueOutboundEvent({
+        organizationId: orgId,
+        eventType: "automation.notification",
+        entityType: "task_automation_rule",
+        entityId: rule.id,
+        payload: { contract_id: contractId, reason, trigger: rule.name },
+      });
+      await sendSlackWorkflowNotification(admin, {
+        organizationId: orgId,
+        title: `Rule alert: ${rule.name}`,
+        body: `Contract ${contractId.slice(0, 8)} matched condition: ${reason}`,
+        metadata: { contract_id: contractId, rule_id: rule.id },
+      });
+      return true;
+    }
     const title = String(config.taskTitle ?? "Follow-up required");
     const existing = await admin
       .from("contract_tasks")
@@ -175,6 +235,38 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
       event_type: "created",
       details: { created_via: "rule", rule_id: rule.id, reason },
     });
+    await enqueueOutboundEvent({
+      organizationId: orgId,
+      eventType: "task.created_by_rule",
+      entityType: "contract_task",
+      entityId: inserted.id,
+      payload: { contract_id: contractId, rule_id: rule.id, reason, trigger: rule.name },
+    });
+    const webhookEventType = String(config.webhookEventType ?? "").trim();
+    if (webhookEventType) {
+      await enqueueOutboundEvent({
+        organizationId: orgId,
+        eventType: webhookEventType,
+        entityType: "task_automation_rule",
+        entityId: rule.id,
+        payload: {
+          contract_id: contractId,
+          task_id: inserted.id,
+          reason,
+          trigger: rule.name,
+        },
+      });
+    }
+    await sendSlackWorkflowNotification(admin, {
+      organizationId: orgId,
+      title: `Rule triggered: ${rule.name}`,
+      body: `Created task "${title}" for contract ${contractId.slice(0, 8)} (${reason}).`,
+      metadata: {
+        contract_id: contractId,
+        task_id: inserted.id,
+        rule_id: rule.id,
+      },
+    });
     return true;
   }
 
@@ -183,10 +275,12 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
     .select("id, name, trigger_type, config_json")
     .eq("organization_id", orgId)
     .eq("active", true);
-  if (!rules || rules.length === 0) return { generated: 0 };
+  if (!rules || rules.length === 0) return { generated: 0, evaluatedRules: 0 };
 
   let generated = 0;
+  let evaluatedRules = 0;
   for (const rule of rules) {
+    evaluatedRules++;
     const config = (rule.config_json ?? {}) as Record<string, unknown>;
     if (rule.trigger_type === "field_missing") {
       const requiredField = String(config.requiredField ?? "").trim();
@@ -212,6 +306,30 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
           rule,
           config,
           `missing approved field '${requiredField}'`
+        );
+        if (created) generated++;
+      }
+    } else if (rule.trigger_type === "field_changed") {
+      const fieldName = String(config.fieldName ?? "").trim();
+      const lookbackDays = Math.max(1, Number(config.lookbackDays ?? 3));
+      if (!fieldName) continue;
+      const sinceIso = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000).toISOString();
+      const { data: events } = await admin
+        .from("audit_events")
+        .select("contract_id")
+        .eq("organization_id", orgId)
+        .eq("action", "field.edited")
+        .gte("created_at", sinceIso)
+        .contains("details", { field_name: fieldName })
+        .not("contract_id", "is", null)
+        .limit(500);
+      const contractIds = [...new Set((events ?? []).map((evt) => evt.contract_id).filter(Boolean))];
+      for (const contractId of contractIds) {
+        const created = await createTaskFromRule(
+          contractId as string,
+          rule,
+          config,
+          `field '${fieldName}' changed in last ${lookbackDays} day(s)`
         );
         if (created) generated++;
       }
@@ -274,7 +392,72 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
         );
         if (created) generated++;
       }
+    } else if (rule.trigger_type === "approval_stall") {
+      const stallHours = Math.max(1, Number(config.stallHours ?? 24));
+      const cutoffIso = new Date(Date.now() - stallHours * 60 * 60 * 1000).toISOString();
+      const { data: approvals } = await admin
+        .from("contract_approvals")
+        .select("contract_id, due_at, created_at")
+        .eq("organization_id", orgId)
+        .eq("status", "pending")
+        .limit(500);
+      const stalledContractIds = [
+        ...new Set(
+          (approvals ?? [])
+            .filter((approval) => {
+              const dueAt = approval.due_at ? new Date(approval.due_at).toISOString() : null;
+              const createdAt = approval.created_at ? new Date(approval.created_at).toISOString() : null;
+              return Boolean((dueAt && dueAt <= new Date().toISOString()) || (createdAt && createdAt <= cutoffIso));
+            })
+            .map((approval) => approval.contract_id)
+            .filter(Boolean)
+        ),
+      ];
+      for (const contractId of stalledContractIds) {
+        const created = await createTaskFromRule(
+          contractId as string,
+          rule,
+          config,
+          `approval stalled beyond ${stallHours}h`
+        );
+        if (created) generated++;
+      }
+    } else if (rule.trigger_type === "risk_threshold") {
+      const { data: contracts } = await admin
+        .from("contracts")
+        .select("id, health_status")
+        .eq("organization_id", orgId)
+        .eq("health_status", "at_risk")
+        .limit(500);
+      for (const contract of contracts ?? []) {
+        const created = await createTaskFromRule(
+          contract.id,
+          rule,
+          config,
+          "contract health status is at_risk"
+        );
+        if (created) generated++;
+      }
+    } else if (rule.trigger_type === "data_quality_gap") {
+      const threshold = Math.max(0, Math.min(100, Number(config.minCompleteness ?? 80)));
+      const { data: snapshots } = await admin
+        .from("contract_data_quality_snapshots")
+        .select("contract_id, completeness_score")
+        .eq("organization_id", orgId)
+        .lt("completeness_score", threshold)
+        .order("generated_at", { ascending: false })
+        .limit(1000);
+      const lowQualityContractIds = [...new Set((snapshots ?? []).map((s) => s.contract_id).filter(Boolean))];
+      for (const contractId of lowQualityContractIds) {
+        const created = await createTaskFromRule(
+          contractId as string,
+          rule,
+          config,
+          `data quality score below ${threshold}`
+        );
+        if (created) generated++;
+      }
     }
   }
-  return { generated };
+  return { generated, evaluatedRules };
 }

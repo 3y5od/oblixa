@@ -20,6 +20,7 @@ import {
   updateIntegrationApiKeyPolicyForm,
   upsertWorkflowSettingsForm,
   upsertIntegrationConnectionForm,
+  applyPolicyPackForm,
 } from "@/actions/workflow-config";
 import { createObligationTemplateForm } from "@/actions/obligations";
 import { cookies } from "next/headers";
@@ -89,7 +90,7 @@ export default async function OperationsSettingsPage() {
       admin
         .from("organization_workflow_settings")
         .select(
-          "weekly_intake_lookback_days, renewal_horizon_days, stale_contract_days, stale_ownership_days"
+          "weekly_intake_lookback_days, renewal_horizon_days, stale_contract_days, stale_ownership_days, notification_policy_json, role_policy_json, dashboard_tracking_enabled"
         )
         .eq("organization_id", orgId)
         .maybeSingle(),
@@ -133,9 +134,13 @@ export default async function OperationsSettingsPage() {
             <input name="name" required placeholder="Missing notice window follow-up" className="ui-input" />
             <select name="triggerType" defaultValue="field_missing" className="ui-input">
               <option value="field_missing">field_missing</option>
+              <option value="field_changed">field_changed</option>
               <option value="date_window">date_window</option>
               <option value="ownership_change">ownership_change</option>
               <option value="renewal_window">renewal_window</option>
+              <option value="approval_stall">approval_stall</option>
+              <option value="risk_threshold">risk_threshold</option>
+              <option value="data_quality_gap">data_quality_gap</option>
             </select>
             <input name="requiredField" placeholder="notice_window" className="ui-input" />
             <input name="fieldName" placeholder="renewal_date / end_date" className="ui-input" />
@@ -143,7 +148,39 @@ export default async function OperationsSettingsPage() {
             <input name="lookbackDays" type="number" min={1} defaultValue={2} className="ui-input" />
             <input name="teamKey" placeholder="ops" className="ui-input" />
             <input name="dueInDays" type="number" min={0} defaultValue={3} className="ui-input" />
+            <input
+              name="stallHours"
+              type="number"
+              min={1}
+              defaultValue={24}
+              placeholder="approval stall hours"
+              className="ui-input"
+            />
+            <input
+              name="minCompleteness"
+              type="number"
+              min={0}
+              max={100}
+              defaultValue={80}
+              placeholder="min completeness score"
+              className="ui-input"
+            />
             <input name="taskTitle" placeholder="Fill missing notice window" className="ui-input" />
+            <input
+              name="webhookEventType"
+              placeholder="optional webhook event type"
+              className="ui-input"
+            />
+            <select name="actionType" defaultValue="create_task" className="ui-input">
+              <option value="create_task">create_task</option>
+              <option value="notify_only">notify_only</option>
+              <option value="trigger_report">trigger_report</option>
+            </select>
+            <select name="reportMode" defaultValue="exceptions" className="ui-input">
+              <option value="exceptions">exceptions</option>
+              <option value="management">management</option>
+              <option value="saved_view">saved_view</option>
+            </select>
             <textarea
               name="taskDetails"
               placeholder="Prompt owner to confirm clause and update field."
@@ -167,6 +204,27 @@ export default async function OperationsSettingsPage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <h2 className="ui-section-title text-base">Policy packs</h2>
+        </div>
+        <div className="space-y-4 p-6">
+          <p className="text-sm text-zinc-500">
+            Apply a preset package of workflow thresholds and required field coverage.
+          </p>
+          <form action={applyPolicyPackForm} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select name="policyPack" defaultValue="balanced" className="ui-input max-w-xs">
+              <option value="balanced">Balanced operations</option>
+              <option value="compliance">Compliance-heavy</option>
+              <option value="revenue">Revenue-first</option>
+            </select>
+            <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
+              Apply policy pack
+            </button>
+          </form>
         </div>
       </section>
 
@@ -207,6 +265,117 @@ export default async function OperationsSettingsPage() {
               max={365}
               defaultValue={workflowSettings?.stale_ownership_days ?? 90}
               className="ui-input"
+            />
+            <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
+              <input
+                type="checkbox"
+                name="emailEnabled"
+                value="1"
+                defaultChecked={
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)?.enabled !==
+                  false
+                }
+              />
+              Email notifications enabled
+            </label>
+            <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
+              <input
+                type="checkbox"
+                name="slackEnabled"
+                value="1"
+                defaultChecked={
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)?.enabled !==
+                  false
+                }
+              />
+              Slack notifications enabled
+            </label>
+            <input
+              name="emailQuietStartUtc"
+              type="number"
+              min={0}
+              max={23}
+              defaultValue={
+                Number(
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)
+                    ?.quiet_hours_start_utc ?? 0
+                )
+              }
+              className="ui-input"
+            />
+            <input
+              name="emailQuietEndUtc"
+              type="number"
+              min={0}
+              max={23}
+              defaultValue={
+                Number(
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)
+                    ?.quiet_hours_end_utc ?? 0
+                )
+              }
+              className="ui-input"
+            />
+            <input
+              name="slackQuietStartUtc"
+              type="number"
+              min={0}
+              max={23}
+              defaultValue={
+                Number(
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)
+                    ?.quiet_hours_start_utc ?? 0
+                )
+              }
+              className="ui-input"
+            />
+            <input
+              name="slackQuietEndUtc"
+              type="number"
+              min={0}
+              max={23}
+              defaultValue={
+                Number(
+                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)
+                    ?.quiet_hours_end_utc ?? 0
+                )
+              }
+              className="ui-input"
+            />
+            <input
+              name="emailBlockedTypes"
+              placeholder="email blocked types (comma-separated)"
+              defaultValue={(
+                (((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as
+                  | Record<string, unknown>
+                  | undefined)?.blocked_types as string[] | undefined) ?? []
+              ).join(", ")}
+              className="ui-input md:col-span-2"
+            />
+            <input
+              name="slackBlockedTypes"
+              placeholder="slack blocked types (comma-separated)"
+              defaultValue={(
+                (((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as
+                  | Record<string, unknown>
+                  | undefined)?.blocked_types as string[] | undefined) ?? []
+              ).join(", ")}
+              className="ui-input md:col-span-2"
+            />
+            <label className="inline-flex items-center gap-2 text-sm text-zinc-600 md:col-span-2">
+              <input
+                type="checkbox"
+                name="dashboardTrackingEnabled"
+                value="1"
+                defaultChecked={workflowSettings?.dashboard_tracking_enabled !== false}
+              />
+              Enable dashboard usage tracking
+            </label>
+            <textarea
+              name="rolePolicyJson"
+              placeholder='{"ops_manager":{"approvals_manage":false},"legal_reviewer":{"approvals_manage":true}}'
+              defaultValue={JSON.stringify((workflowSettings?.role_policy_json as Record<string, unknown> | null) ?? {}, null, 2)}
+              className="ui-input min-h-[90px] md:col-span-2"
             />
             <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
               Save workflow settings

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 
 type EmailTaskPayload = {
   organizationId: string;
@@ -14,6 +14,8 @@ type EmailTaskPayload = {
   dueDate?: string;
 };
 
+const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
+
 function isAuthorized(request: Request): boolean {
   const token = process.env.INBOUND_AUTOMATION_TOKEN?.trim();
   if (!token) return false;
@@ -23,7 +25,7 @@ function isAuthorized(request: Request): boolean {
 
 export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(`tasks-email:${ip}`, { max: 60, windowMs: 60_000 });
+  const rl = await rateLimitCheck(`tasks-email:${ip}`, RATE_LIMITS.tasksFromEmailInbound);
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -54,6 +56,24 @@ export async function POST(request: Request) {
   if (!isUuid(payload.organizationId) || !isUuid(payload.contractId)) {
     return NextResponse.json(
       { error: "organizationId and contractId must be valid UUIDs" },
+      { status: 400 }
+    );
+  }
+  if (payload.subject.trim().length > 240) {
+    return NextResponse.json({ error: "subject must be 240 characters or fewer" }, { status: 400 });
+  }
+  if (payload.body && payload.body.length > 10_000) {
+    return NextResponse.json({ error: "body must be 10000 characters or fewer" }, { status: 400 });
+  }
+  if (payload.from && payload.from.length > 320) {
+    return NextResponse.json({ error: "from must be 320 characters or fewer" }, { status: 400 });
+  }
+  if (payload.dueDate && !isIsoDateOnly(payload.dueDate)) {
+    return NextResponse.json({ error: "dueDate must be ISO date (YYYY-MM-DD)" }, { status: 400 });
+  }
+  if (payload.externalMessageId && !EXTERNAL_MESSAGE_ID_RE.test(payload.externalMessageId.trim())) {
+    return NextResponse.json(
+      { error: "externalMessageId contains invalid characters or is too long" },
       { status: 400 }
     );
   }
@@ -98,7 +118,7 @@ export async function POST(request: Request) {
       contract_id: payload.contractId,
       title,
       details: details || null,
-      due_date: payload.dueDate || null,
+      due_date: payload.dueDate?.trim() || null,
       priority: "medium",
       status: "open",
       created_via: "integration",

@@ -5,6 +5,7 @@ import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
 } from "@/lib/env/server";
+import type { OrgRole } from "@/lib/types";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -49,15 +50,28 @@ export const createAdminClient = cache(async () => {
   );
 });
 
+export async function getDeterministicMembership(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  userId: string
+): Promise<{ organization_id: string; role: OrgRole } | null> {
+  const { data: memberships } = await admin
+    .from("organization_members")
+    .select("organization_id, role, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true })
+    .limit(1);
+  const membership = memberships?.[0];
+  if (!membership?.organization_id || !membership?.role) return null;
+  return {
+    organization_id: membership.organization_id as string,
+    role: membership.role as OrgRole,
+  };
+}
+
 export async function getUserOrgId(userId: string): Promise<string | null> {
   const admin = await createAdminClient();
-  const { data } = await admin
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", userId)
-    .limit(1)
-    .single();
-  return data?.organization_id ?? null;
+  const membership = await getDeterministicMembership(admin, userId);
+  return membership?.organization_id ?? null;
 }
 
 /**
@@ -77,12 +91,7 @@ export const getAuthContext = cache(async () => {
   if (!user) return null;
 
   const admin = await createAdminClient();
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const membership = await getDeterministicMembership(admin, user.id);
 
   if (!membership) return null;
 

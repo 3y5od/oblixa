@@ -54,6 +54,7 @@ if (process.env.VERCEL) {
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pdf-parse"],
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   experimental: {
     optimizePackageImports: ["lucide-react", "date-fns"],
   },

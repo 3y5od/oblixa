@@ -17,5 +17,5 @@ export async function getOrgMemberRole(
 }
 
 export function canEditContracts(role: OrgRole | null): boolean {
-  return role === "admin" || role === "editor";
+  return role === "admin" || role === "editor" || role === "ops_manager" || role === "manager";
 }

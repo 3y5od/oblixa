@@ -1,0 +1,39 @@
+name: SLO Monitor
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' && secrets.HC_SLO_MONITOR_PING != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Healthchecks start
+        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}/start"
+
+      - name: Run SLO monitor
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/slo-monitor.mjs
+
+      - name: Healthchecks success
+        if: ${{ success() }}
+        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}"
+
+      - name: Healthchecks fail
+        if: ${{ failure() }}
+        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}/fail"

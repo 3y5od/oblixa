@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { FIELD_NAMES, type ContractStatus } from "@/lib/types";
+import { FIELD_NAMES, type ContractStatus, type OrgRole } from "@/lib/types";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
@@ -12,6 +12,7 @@ import { isContractStoragePathSafe, isUuid } from "@/lib/security/validation";
 import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
+import { autoTransitionTasksForField } from "@/actions/tasks";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -145,6 +146,10 @@ export async function createContract(formData: FormData) {
       created_by: user.id,
       status: "pending_review",
       intake_status: "awaiting_review",
+      intake_owner_id: user.id,
+      intake_source: sourceSystem || "manual",
+      intake_completeness_score: 35,
+      intake_last_scored_at: new Date().toISOString(),
       health_status: "unknown",
       required_next_step: "Complete extraction review",
       source_system: sourceSystem || null,
@@ -309,9 +314,18 @@ export async function updateContractField(
       ...(action === "edited" ? { old_value: field.field_value, new_value: newValue } : {}),
     },
   });
-  await recomputeContractSignals(admin, contract.id);
 
   const resolvedValue = action === "edited" ? newValue : field.field_value;
+  await autoTransitionTasksForField({
+    admin,
+    organizationId: contract.organization_id,
+    contractId: contract.id,
+    actorId: user.id,
+    fieldId,
+    fieldStatus: action,
+    fieldDateValue: resolvedValue,
+  });
+  await recomputeContractSignals(admin, contract.id);
   if (
     (action === "approved" || action === "edited") &&
     DATE_FIELDS.has(field.field_name) &&
@@ -1402,6 +1416,9 @@ export async function updateContractOperationalState(input: {
     | "archived";
   healthStatus: "healthy" | "watch" | "at_risk" | "unknown";
   requiredNextStep?: string | null;
+  intakeOwnerId?: string | null;
+  intakeSource?: string | null;
+  intakeCompletenessScore?: number | null;
 }) {
   const supabase = await createClient();
   const admin = await createAdminClient();
@@ -1412,9 +1429,19 @@ export async function updateContractOperationalState(input: {
   if (!isUuid(input.contractId)) return { error: "Invalid contract" };
 
   const requiredNextStep = input.requiredNextStep?.trim() || null;
+  const intakeOwnerId = input.intakeOwnerId?.trim() || null;
+  const intakeSource = input.intakeSource?.trim() || null;
+  const intakeCompletenessScore =
+    typeof input.intakeCompletenessScore === "number" && Number.isFinite(input.intakeCompletenessScore)
+      ? Math.max(0, Math.min(100, Number(input.intakeCompletenessScore)))
+      : null;
   if (requiredNextStep && requiredNextStep.length > MAX_REQUIRED_NEXT_STEP_LEN) {
     return { error: "Required next step is too long" };
   }
+  if (intakeSource && intakeSource.length > MAX_SOURCE_SYSTEM_LEN) {
+    return { error: "Intake source is too long" };
+  }
+  if (intakeOwnerId && !isUuid(intakeOwnerId)) return { error: "Invalid intake owner" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -1428,6 +1455,12 @@ export async function updateContractOperationalState(input: {
   }
   const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
   if (writeErr) return writeErr;
+  if (
+    intakeOwnerId &&
+    !(await verifyOrgMembership(admin, intakeOwnerId, contract.organization_id))
+  ) {
+    return { error: "Intake owner must be a member of this organization." };
+  }
 
   const { error } = await admin
     .from("contracts")
@@ -1435,6 +1468,10 @@ export async function updateContractOperationalState(input: {
       intake_status: input.intakeStatus,
       health_status: input.healthStatus,
       required_next_step: requiredNextStep,
+      intake_owner_id: intakeOwnerId,
+      intake_source: intakeSource,
+      intake_completeness_score: intakeCompletenessScore,
+      intake_last_scored_at: new Date().toISOString(),
       reviewed_at:
         input.intakeStatus === "active" || input.intakeStatus === "in_clarification"
           ? new Date().toISOString()
@@ -1461,6 +1498,9 @@ export async function updateContractOperationalState(input: {
       intake_status: input.intakeStatus,
       health_status: input.healthStatus,
       required_next_step: requiredNextStep,
+      intake_owner_id: intakeOwnerId,
+      intake_source: intakeSource,
+      intake_completeness_score: intakeCompletenessScore,
     },
   });
 
@@ -1473,6 +1513,9 @@ export async function updateContractOperationalState(input: {
       intake_status: input.intakeStatus,
       health_status: input.healthStatus,
       required_next_step: requiredNextStep,
+      intake_owner_id: intakeOwnerId,
+      intake_source: intakeSource,
+      intake_completeness_score: intakeCompletenessScore,
     },
   });
 
@@ -1496,9 +1539,167 @@ export async function updateContractOperationalStateForm(formData: FormData) {
       | "archived",
     healthStatus: healthStatus as "healthy" | "watch" | "at_risk" | "unknown",
     requiredNextStep: requiredNextStep || null,
+    intakeOwnerId: String(formData.get("intakeOwnerId") ?? "").trim() || null,
+    intakeSource: String(formData.get("intakeSource") ?? "").trim() || null,
+    intakeCompletenessScore: (() => {
+      const raw = String(formData.get("intakeCompletenessScore") ?? "").trim();
+      if (!raw) return null;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : null;
+    })(),
   });
   if (res && "error" in res && res.error) {
     console.error("[contracts] updateContractOperationalStateForm", res.error);
+  }
+}
+
+export async function upsertContractIntakeRequest(input: {
+  contractId?: string | null;
+  source?: string | null;
+  sourceLabel?: string | null;
+  status?: "new" | "triage" | "review" | "ready" | "rejected";
+  assignedTo?: string | null;
+  completenessScore?: number | null;
+  payload?: Record<string, unknown>;
+  rejectionReason?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  const source = input.source?.trim() || "manual";
+  const sourceLabel = input.sourceLabel?.trim() || null;
+  const requestedStatus = input.status ?? "new";
+  if (!["new", "triage", "review", "ready", "rejected"].includes(requestedStatus)) {
+    return { error: "Invalid intake status" };
+  }
+  const assignedTo = input.assignedTo?.trim() || null;
+  if (assignedTo && !isUuid(assignedTo)) return { error: "Invalid assignee" };
+  const contractId = input.contractId?.trim() || null;
+  if (contractId && !isUuid(contractId)) return { error: "Invalid contract" };
+  const completenessScore =
+    typeof input.completenessScore === "number" && Number.isFinite(input.completenessScore)
+      ? Math.max(0, Math.min(100, Number(input.completenessScore)))
+      : null;
+  const hasAssignee = Boolean(assignedTo);
+  const hasPayload = Boolean(input.payload && Object.keys(input.payload).length > 0);
+  const status =
+    requestedStatus === "rejected"
+      ? "rejected"
+      : completenessScore == null
+        ? hasPayload
+          ? "triage"
+          : "new"
+        : completenessScore >= 85 && hasAssignee
+          ? "ready"
+          : completenessScore >= 60
+            ? "review"
+            : "triage";
+
+  const { data: membership } = await admin
+    .from("organization_members")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  if (!membership || !canEditContracts(membership.role as OrgRole)) {
+    return { error: "Access denied" };
+  }
+  if (
+    assignedTo &&
+    !(await verifyOrgMembership(admin, assignedTo, membership.organization_id))
+  ) {
+    return { error: "Assigned intake owner must be in the organization." };
+  }
+
+  const { data: row, error } = await admin
+    .from("contract_intake_requests")
+    .insert({
+      organization_id: membership.organization_id,
+      contract_id: contractId,
+      submitted_by: user.id,
+      assigned_to: assignedTo,
+      source,
+      source_label: sourceLabel,
+      status,
+      payload_json: input.payload ?? {},
+      completeness_score: completenessScore,
+      rejection_reason: input.rejectionReason?.trim() || null,
+    })
+    .select("id")
+    .single();
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  if (contractId) {
+    await admin
+      .from("contracts")
+      .update({
+        intake_owner_id: assignedTo,
+        intake_source: source,
+        intake_completeness_score: completenessScore,
+        intake_last_scored_at: new Date().toISOString(),
+        intake_status:
+          status === "ready"
+            ? "active"
+            : status === "review"
+              ? "in_clarification"
+              : status === "rejected"
+                ? "at_risk"
+                : "awaiting_review",
+      })
+      .eq("id", contractId)
+      .eq("organization_id", membership.organization_id);
+  }
+
+  await admin.from("audit_events").insert({
+    organization_id: membership.organization_id,
+    contract_id: contractId,
+    user_id: user.id,
+    action: "intake.request_upserted",
+    details: { intake_request_id: row.id, status, source, completeness_score: completenessScore },
+  });
+  await enqueueOutboundEvent({
+    organizationId: membership.organization_id,
+    eventType: "intake.request_upserted",
+    entityType: "contract_intake_request",
+    entityId: row.id,
+    payload: {
+      contract_id: contractId,
+      status,
+      source,
+      completeness_score: completenessScore,
+    },
+    schemaVersion: "v1",
+  });
+
+  return { success: true as const, intakeRequestId: row.id };
+}
+
+export async function upsertContractIntakeRequestForm(formData: FormData) {
+  const res = await upsertContractIntakeRequest({
+    contractId: String(formData.get("contractId") ?? "").trim() || null,
+    source: String(formData.get("source") ?? "").trim() || null,
+    sourceLabel: String(formData.get("sourceLabel") ?? "").trim() || null,
+    status:
+      (String(formData.get("status") ?? "").trim() as
+        | "new"
+        | "triage"
+        | "review"
+        | "ready"
+        | "rejected") || "new",
+    assignedTo: String(formData.get("assignedTo") ?? "").trim() || null,
+    completenessScore: (() => {
+      const raw = String(formData.get("completenessScore") ?? "").trim();
+      if (!raw) return null;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : null;
+    })(),
+    rejectionReason: String(formData.get("rejectionReason") ?? "").trim() || null,
+  });
+  if (res && "error" in res && res.error) {
+    console.error("[contracts] upsertContractIntakeRequestForm", res.error);
   }
 }
 

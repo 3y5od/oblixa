@@ -3,6 +3,10 @@ import { getAuthContext } from "@/lib/supabase/server";
 import {
   archiveContractAsDuplicateForm,
   deleteOrphanFileRecordForm,
+  logContractChangeEventForm,
+  processContractChangeEventsForm,
+  runCorrectionCampaignForm,
+  runDateBackfillCampaignForm,
   reassignOwnerForm,
 } from "@/actions/maintenance";
 
@@ -23,7 +27,7 @@ export default async function MaintenancePage() {
   const staleOwnerCutoff = new Date(
     now.getTime() - staleOwnershipDays * 24 * 60 * 60 * 1000
   ).toISOString();
-  const [staleContracts, missingOwner, duplicateCandidates, orphanFiles, staleOwnership, membersData] =
+  const [staleContracts, missingOwner, duplicateCandidates, orphanFiles, staleOwnership, membersData, changeEvents] =
     await Promise.all([
     admin
       .from("contracts")
@@ -64,6 +68,14 @@ export default async function MaintenancePage() {
         .from("organization_members")
         .select("user_id, profiles(full_name, email)")
         .eq("organization_id", orgId)
+        .then((r) => r.data ?? []),
+      admin
+        .from("contract_change_events")
+        .select("id, contract_id, event_type, summary, impact_level, processed_at, created_at, contracts!inner(id, title, organization_id)")
+        .eq("organization_id", orgId)
+        .is("processed_at", null)
+        .order("created_at", { ascending: false })
+        .limit(50)
         .then((r) => r.data ?? []),
     ]);
 
@@ -228,6 +240,101 @@ export default async function MaintenancePage() {
                 </form>
               </li>
             ))
+          )}
+        </ul>
+      </section>
+
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <h2 className="ui-section-title text-base">Correction campaigns</h2>
+        </div>
+        <div className="grid gap-4 p-6 md:grid-cols-2">
+          <form action={runCorrectionCampaignForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Normalization campaign</p>
+            <select name="campaignType" className="ui-input w-full">
+              <option value="normalize_counterparty">Normalize counterparty spacing</option>
+              <option value="clear_stale_next_steps">Clear stale next steps on healthy contracts</option>
+            </select>
+            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+              Run correction
+            </button>
+          </form>
+          <form action={runDateBackfillCampaignForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Date backfill campaign</p>
+            <input name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
+            <select name="fieldName" className="ui-input w-full">
+              <option value="renewal_date">renewal_date</option>
+              <option value="end_date">end_date</option>
+              <option value="notice_window">notice_window</option>
+              <option value="effective_date">effective_date</option>
+              <option value="start_date">start_date</option>
+            </select>
+            <input name="fallbackDate" type="date" className="ui-input w-full" />
+            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+              Run backfill
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <h2 className="ui-section-title text-base">Guided change-event maintenance</h2>
+        </div>
+        <div className="grid gap-4 p-6 md:grid-cols-2">
+          <form action={logContractChangeEventForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Log change event</p>
+            <input name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
+            <select name="eventType" defaultValue="amendment" className="ui-input w-full">
+              <option value="amendment">amendment</option>
+              <option value="pricing_update">pricing_update</option>
+              <option value="ownership_change">ownership_change</option>
+              <option value="other">other</option>
+            </select>
+            <select name="impactLevel" defaultValue="medium" className="ui-input w-full">
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+            </select>
+            <textarea name="summary" required placeholder="What changed and why follow-up is needed" className="ui-input min-h-[70px] w-full" />
+            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+              Log change event
+            </button>
+          </form>
+          <form action={processContractChangeEventsForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Create maintenance tasks from queue</p>
+            <input name="maxRows" type="number" min={1} max={100} defaultValue={25} className="ui-input w-full" />
+            <input name="teamKey" defaultValue="ops" className="ui-input w-full" />
+            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+              Process change queue
+            </button>
+            <p className="text-xs text-zinc-500">Creates follow-up tasks and marks queued events processed.</p>
+          </form>
+        </div>
+        <ul className="divide-y divide-zinc-100 border-t border-zinc-100">
+          {changeEvents.length === 0 ? (
+            <li className="px-6 py-4 text-sm text-zinc-500">No pending change events.</li>
+          ) : (
+            changeEvents.map((evt) => {
+              const rel = evt.contracts as unknown;
+              const contract = (Array.isArray(rel) ? rel[0] : rel) as { id?: string; title?: string } | null;
+              return (
+                <li key={evt.id} className="px-6 py-3 text-sm">
+                  <p className="font-medium text-zinc-900">
+                    {evt.event_type} · {evt.impact_level}
+                    {contract?.id ? (
+                      <>
+                        {" · "}
+                        <Link href={`/contracts/${contract.id}`} className="ui-link">
+                          {contract.title ?? "Contract"}
+                        </Link>
+                      </>
+                    ) : null}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">{evt.summary}</p>
+                </li>
+              );
+            })
           )}
         </ul>
       </section>

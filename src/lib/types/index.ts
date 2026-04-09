@@ -1,4 +1,11 @@
-export type OrgRole = "admin" | "editor" | "viewer";
+export type OrgRole =
+  | "admin"
+  | "editor"
+  | "viewer"
+  | "ops_manager"
+  | "legal_reviewer"
+  | "finance_reviewer"
+  | "manager";
 
 export type ContractStatus =
   | "draft"
@@ -60,6 +67,16 @@ export interface ContractTask {
   linked_obligation_id?: string | null;
   linked_checkpoint_id?: string | null;
   team_key?: string | null;
+  parent_task_id?: string | null;
+  blocked_by_task_id?: string | null;
+  blocked_reason?: string | null;
+  recurrence_rule?: string | null;
+  recurrence_interval_days?: number | null;
+  recurrence_anchor_date?: string | null;
+  next_run_date?: string | null;
+  sla_due_at?: string | null;
+  escalation_at?: string | null;
+  last_auto_transition_at?: string | null;
   due_date: string | null;
   completed_at: string | null;
   created_at: string;
@@ -105,9 +122,16 @@ export interface ContractObligation {
   details: string | null;
   obligation_type: string;
   cadence: string | null;
+  recurrence_type?: "none" | "daily" | "weekly" | "monthly" | "quarterly" | "yearly" | "custom_days";
+  recurrence_interval_days?: number | null;
+  next_due_date?: string | null;
+  escalation_due_at?: string | null;
+  escalation_status?: "none" | "pending" | "sent" | "acked";
   due_date: string | null;
   status: ContractObligationStatus;
   evidence_notes: string | null;
+  evidence_file_path?: string | null;
+  evidence_url?: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -310,6 +334,10 @@ export interface ApprovalPolicy {
   min_annual_value: number | null;
   contract_type: string | null;
   required_approver_id: string | null;
+  sla_hours?: number;
+  escalation_user_id?: string | null;
+  delegation_allowed?: boolean;
+  policy_category?: "standard" | "policy_exception" | "financial" | "operational";
   required: boolean;
   active: boolean;
   created_by: string | null;
@@ -412,6 +440,8 @@ export type RenewalScenario =
   | "renew"
   | "renegotiate"
   | "terminate"
+  | "replace"
+  | "discontinue"
   | "temporary_extension"
   | "awaiting_decision";
 
@@ -422,6 +452,14 @@ export interface ContractRenewalScenario {
   scenario: RenewalScenario;
   decision_notes: string | null;
   blocker: string | null;
+  workspace_status?: "not_started" | "in_progress" | "blocked" | "decision_pending" | "closed";
+  owner_id?: string | null;
+  target_decision_date?: string | null;
+  decision_date?: string | null;
+  escalation_date?: string | null;
+  commercial_context?: string | null;
+  scenario_confidence?: number | null;
+  last_reviewed_at?: string | null;
   decided_by: string | null;
   decided_at: string | null;
   created_at: string;
@@ -443,6 +481,13 @@ export interface ContractApproval {
   status: ApprovalStatus;
   requested_by: string | null;
   approver_id: string | null;
+  delegated_from_id?: string | null;
+  delegated_to_id?: string | null;
+  due_at?: string | null;
+  escalated_at?: string | null;
+  category?: "standard" | "policy_exception" | "financial" | "operational";
+  exception_flag?: boolean;
+  exception_reason?: string | null;
   notes: string | null;
   resolved_at: string | null;
   created_at: string;

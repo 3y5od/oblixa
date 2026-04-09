@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { NAV_ITEMS, CONTRACTS_SUBROUTES, isContractsRoot } from "@/lib/navigation";
 
 interface HeaderProps {
   fullName?: string | null;
@@ -14,17 +15,16 @@ export function Header({ fullName, email }: HeaderProps) {
   const displayName = fullName || email || "User";
   const initial = (fullName?.[0] || email?.[0] || "?").toUpperCase();
   const context = useMemo(() => {
-    if (pathname.startsWith("/contracts/review")) return "Review queue";
-    if (pathname.startsWith("/contracts/tasks")) return "Task operations";
-    if (pathname.startsWith("/contracts/renewals")) return "Renewals";
-    if (pathname.startsWith("/contracts/intake")) return "Intake";
-    if (pathname.startsWith("/contracts/approvals")) return "Approvals";
-    if (pathname.startsWith("/contracts/obligations")) return "Obligations";
-    if (pathname.startsWith("/contracts/collaboration")) return "Collaboration";
-    if (pathname.startsWith("/contracts/exceptions")) return "Exceptions";
-    if (pathname.startsWith("/contracts/analytics")) return "Analytics";
-    if (pathname.startsWith("/contracts/maintenance")) return "Maintenance";
+    const dynamicMatch = NAV_ITEMS
+      .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+      .sort((a, b) => b.href.length - a.href.length)[0];
+    if (dynamicMatch) return dynamicMatch.name;
+
+    if (isContractsRoot(pathname)) return "Contracts";
     if (pathname.startsWith("/settings")) return "Workspace settings";
+    if (pathname.startsWith("/contracts/new")) return "New contract";
+    if (pathname.startsWith("/contracts/bulk")) return "Bulk import";
+    if (CONTRACTS_SUBROUTES.some((prefix) => pathname.startsWith(prefix))) return "Contracts";
     if (pathname.startsWith("/more")) return "More tools";
     return "Dashboard";
   }, [pathname]);
@@ -36,8 +36,8 @@ export function Header({ fullName, email }: HeaderProps) {
           {context}
         </p>
         <span className="h-1 w-1 rounded-full bg-zinc-300" />
-        <p className="text-xs text-zinc-400">Cmd/Ctrl + K</p>
-        <Link href="/more" className="text-xs font-medium text-zinc-500 underline-offset-2 hover:text-zinc-800 hover:underline">
+        <p className="text-xs text-zinc-600">Cmd/Ctrl + K</p>
+        <Link href="/more" className="text-xs font-medium text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline">
           Quick open
         </Link>
       </div>

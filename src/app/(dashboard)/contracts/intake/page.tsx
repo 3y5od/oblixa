@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
+import { upsertContractIntakeRequestForm } from "@/actions/contracts";
 
 const STATUS_ORDER = [
   "awaiting_review",
@@ -25,11 +26,11 @@ export default async function IntakeQueuePage() {
     1,
     Number(workflowSettings?.weekly_intake_lookback_days ?? 30)
   );
-  const [{ data: contracts }, { data: throughput }] = await Promise.all([
+  const [{ data: contracts }, { data: throughput }, { data: membersData }] = await Promise.all([
     admin
       .from("contracts")
       .select(
-        "id, title, counterparty, intake_status, health_status, required_next_step, owner_id, received_at, reviewed_at, operationally_active_at, contract_files(id), contract_extraction_jobs(status, created_at)"
+        "id, title, counterparty, intake_status, health_status, required_next_step, owner_id, intake_owner_id, intake_source, intake_completeness_score, owner_assigned_at, received_at, reviewed_at, operationally_active_at, contract_files(id), contract_extraction_jobs(status, created_at)"
       )
       .eq("organization_id", orgId)
       .order("received_at", { ascending: false })
@@ -42,7 +43,17 @@ export default async function IntakeQueuePage() {
         "created_at",
         new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000).toISOString()
       ),
+    admin
+      .from("organization_members")
+      .select("user_id, profiles(full_name, email)")
+      .eq("organization_id", orgId),
   ]);
+
+  const memberById = new Map<string, string>();
+  for (const row of membersData ?? []) {
+    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
+    memberById.set(row.user_id, profile?.full_name || profile?.email || "Member");
+  }
 
   const grouped = new Map<string, Array<Record<string, unknown>>>();
   for (const key of STATUS_ORDER) grouped.set(key, []);
@@ -100,10 +111,10 @@ export default async function IntakeQueuePage() {
               ) : (
                 <ul className="divide-y divide-zinc-100">
                   {rows.slice(0, 15).map((row) => (
-                    <li key={String(row.id)}>
+                    <li key={String(row.id)} className="px-5 py-3">
                       <Link
                         href={`/contracts/${row.id}`}
-                        className="block px-5 py-3 transition-colors hover:bg-zinc-50/70"
+                        className="block transition-colors hover:bg-zinc-50/70"
                       >
                         <p className="text-sm font-semibold text-zinc-900">{String(row.title)}</p>
                         <p className="text-xs text-zinc-500">
@@ -112,6 +123,16 @@ export default async function IntakeQueuePage() {
                         </p>
                         <p className="mt-1 text-xs text-zinc-500">
                           Next step: {(row.required_next_step as string | null) || "None"}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          Intake owner:{" "}
+                          {(row.intake_owner_id as string | null)
+                            ? memberById.get(row.intake_owner_id as string) ?? "Member"
+                            : "Unassigned"}{" "}
+                          · source {(row.intake_source as string | null) || "manual"} · completeness{" "}
+                          {typeof row.intake_completeness_score === "number"
+                            ? `${Math.round(row.intake_completeness_score as number)}%`
+                            : "n/a"}
                         </p>
                         <p className="mt-1 text-xs text-zinc-500">
                           Ingestion: {(((row.contract_files as unknown[]) ?? []).length > 0 ? "files_attached" : "metadata_only")} ·
@@ -125,6 +146,34 @@ export default async function IntakeQueuePage() {
                           })()}
                         </p>
                       </Link>
+                      <form
+                        action={upsertContractIntakeRequestForm}
+                        className="mt-2 flex flex-wrap items-center gap-2"
+                      >
+                        <input type="hidden" name="contractId" value={String(row.id)} />
+                        <input
+                          type="hidden"
+                          name="source"
+                          value={String((row.intake_source as string | null) || "manual")}
+                        />
+                        <select name="status" className="ui-input h-7 text-[11px]">
+                          <option value="triage">triage</option>
+                          <option value="review">review</option>
+                          <option value="ready">ready</option>
+                          <option value="rejected">rejected</option>
+                        </select>
+                        <input
+                          name="completenessScore"
+                          type="number"
+                          min={0}
+                          max={100}
+                          placeholder="score"
+                          className="ui-input h-7 w-20 text-[11px]"
+                        />
+                        <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
+                          Log intake update
+                        </button>
+                      </form>
                     </li>
                   ))}
                 </ul>

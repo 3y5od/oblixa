@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
-import { createSavedView, deleteSavedView, setSavedViewWeeklySummary } from "@/actions/saved-views";
+import {
+  createSavedView,
+  deleteSavedView,
+  setSavedViewPinned,
+  setSavedViewWeeklySummary,
+} from "@/actions/saved-views";
 import { createObligationClarificationTaskForm } from "@/actions/tasks";
 
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
@@ -35,7 +40,7 @@ export default async function ContractObligationsPage(props: {
   const query = admin
     .from("contract_obligations")
     .select(
-      "id, title, obligation_type, cadence, due_date, status, owner_id, updated_at, contracts!inner(id, title, organization_id)"
+      "id, title, obligation_type, cadence, recurrence_type, recurrence_interval_days, next_due_date, escalation_due_at, escalation_status, due_date, status, owner_id, updated_at, contracts!inner(id, title, organization_id)"
     )
     .eq("organization_id", orgId)
     .order("due_date", { ascending: true, nullsFirst: false })
@@ -88,6 +93,11 @@ export default async function ContractObligationsPage(props: {
         title: row.title,
         obligationType: row.obligation_type,
         cadence: row.cadence as string | null,
+        recurrenceType: row.recurrence_type as string | null,
+        recurrenceIntervalDays: row.recurrence_interval_days as number | null,
+        nextDueDate: row.next_due_date as string | null,
+        escalationDueAt: row.escalation_due_at as string | null,
+        escalationStatus: row.escalation_status as string | null,
         dueDate: row.due_date as string | null,
         status: row.status as string,
         ownerId: row.owner_id as string | null,
@@ -98,18 +108,19 @@ export default async function ContractObligationsPage(props: {
     ];
   });
   const savedViews = (savedViewsData ?? []).map((v) => {
-    const q = (v.query_json ?? {}) as Record<string, string | undefined>;
+    const q = (v.query_json ?? {}) as Record<string, unknown>;
     const params = new URLSearchParams();
-    if (q.status) params.set("status", q.status);
-    if (q.mine) params.set("mine", q.mine);
+    if (typeof q.status === "string" && q.status) params.set("status", q.status);
+    if (typeof q.mine === "string" && q.mine) params.set("mine", q.mine);
     const qs = params.toString();
     return {
       id: v.id,
       name: v.name,
       href: qs ? `/contracts/obligations?${qs}` : "/contracts/obligations",
       weeklyActive: weeklyByViewId.get(v.id) ?? false,
+      pinned: q.pinned === true || q.pinned === "1" || q.pinned === "true",
     };
-  });
+  }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
     <div className="space-y-8">
@@ -183,6 +194,16 @@ export default async function ContractObligationsPage(props: {
                       ×
                     </button>
                   </form>
+                  <form action={setSavedViewPinned.bind(null, view.id, !view.pinned)}>
+                    <button
+                      type="submit"
+                      className={`rounded-full px-2 py-0.5 text-[11px] ${
+                        view.pinned ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                      }`}
+                    >
+                      {view.pinned ? "Pinned" : "Pin"}
+                    </button>
+                  </form>
                   <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive)}>
                     <button
                       type="submit"
@@ -219,6 +240,8 @@ export default async function ContractObligationsPage(props: {
                 <th className="px-5 py-3">Owner</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Due</th>
+                <th className="px-5 py-3">Next due</th>
+                <th className="px-5 py-3">Escalation</th>
                 <th className="px-5 py-3">Updated</th>
                 <th className="px-5 py-3">Actions</th>
               </tr>
@@ -234,6 +257,15 @@ export default async function ContractObligationsPage(props: {
                         <>
                           <span className="text-zinc-300"> · </span>
                           {ob.cadence}
+                        </>
+                      )}
+                      {ob.recurrenceType && ob.recurrenceType !== "none" && (
+                        <>
+                          <span className="text-zinc-300"> · </span>
+                          {ob.recurrenceType}
+                          {ob.recurrenceType === "custom_days" && ob.recurrenceIntervalDays
+                            ? ` (${ob.recurrenceIntervalDays}d)`
+                            : ""}
                         </>
                       )}
                     </p>
@@ -252,6 +284,16 @@ export default async function ContractObligationsPage(props: {
                   <td className="px-5 py-4 text-zinc-600">
                     {ob.dueDate
                       ? format(new Date(`${ob.dueDate}T12:00:00`), "MMM d, yyyy")
+                      : "—"}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-600">
+                    {ob.nextDueDate
+                      ? format(new Date(`${ob.nextDueDate}T12:00:00`), "MMM d, yyyy")
+                      : "—"}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-600">
+                    {ob.escalationDueAt
+                      ? `${format(new Date(ob.escalationDueAt), "MMM d, yyyy")} (${ob.escalationStatus ?? "pending"})`
                       : "—"}
                   </td>
                   <td className="px-5 py-4 text-zinc-500">

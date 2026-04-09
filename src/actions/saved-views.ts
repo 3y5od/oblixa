@@ -36,6 +36,7 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
   const mine = trimOrNull(formData.get("mine"));
   const team = trimOrNull(formData.get("team"));
   const viewTypeRaw = trimOrNull(formData.get("viewType"));
+  const pinned = trimOrNull(formData.get("pinned")) === "1";
   const viewType =
     (viewTypeRaw && VIEW_TYPES.includes(viewTypeRaw as SavedViewType)
       ? (viewTypeRaw as SavedViewType)
@@ -68,6 +69,7 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
         deadline,
         mine,
         team,
+        pinned,
       },
     },
     {
@@ -84,6 +86,43 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
   if (viewType === "tasks") revalidatePath("/contracts/tasks");
   if (viewType === "obligations") revalidatePath("/contracts/obligations");
   if (viewType === "renewals") revalidatePath("/contracts/renewals");
+}
+
+export async function setSavedViewPinned(savedViewId: string, pinned: boolean) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  if (!isUuid(savedViewId)) return;
+
+  const { data: row } = await admin
+    .from("saved_views")
+    .select("id, user_id, view_type, query_json")
+    .eq("id", savedViewId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!row) return;
+  const queryJson = (row.query_json ?? {}) as Record<string, unknown>;
+  const { error } = await admin
+    .from("saved_views")
+    .update({
+      query_json: {
+        ...queryJson,
+        pinned,
+      },
+    })
+    .eq("id", row.id)
+    .eq("user_id", user.id);
+  if (error) {
+    console.error("[saved-views] set pinned", mapDataSourceError(error.message));
+    return;
+  }
+  revalidatePath("/contracts");
+  if (row.view_type === "tasks") revalidatePath("/contracts/tasks");
+  if (row.view_type === "obligations") revalidatePath("/contracts/obligations");
+  if (row.view_type === "renewals") revalidatePath("/contracts/renewals");
 }
 
 export async function deleteSavedView(savedViewId: string) {

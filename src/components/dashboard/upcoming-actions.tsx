@@ -25,6 +25,13 @@ function urgencyRing(days: number): string {
   return "bg-zinc-300";
 }
 
+function rationaleForField(fieldName: string): string {
+  if (fieldName === "notice_window") return "Why: notice deadlines drive non-renewal decision timing.";
+  if (fieldName === "renewal_date") return "Why: renewal window needs scenario + owner alignment.";
+  if (fieldName === "end_date") return "Why: term ending requires continuity or offboarding decision.";
+  return "Why: approved contract date is entering execution horizon.";
+}
+
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
   if (actions.length === 0) {
     return (
@@ -70,6 +77,9 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                   </span>
                   <span className="text-zinc-300"> · </span>
                   {formatFieldDateLabel(action.field.field_value)}
+                </p>
+                <p className="mt-1 text-[11px] text-zinc-400">
+                  {rationaleForField(action.field.field_name)}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">

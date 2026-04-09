@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { persistContractDataQualitySnapshot } from "@/lib/data-quality";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -127,6 +128,7 @@ export async function recomputeContractSignals(
       required_next_step: requiredNextStep,
     })
     .eq("id", contractId);
+  await persistContractDataQualitySnapshot(admin, contractId);
 
   return {
     ok: true,

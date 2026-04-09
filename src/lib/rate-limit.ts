@@ -81,6 +81,15 @@ export const RATE_LIMITS = {
   signUp: { max: 12, windowMs: 60 * 60_000 },
   forgotPassword: { max: 8, windowMs: 60 * 60_000 },
   inviteMember: { max: 40, windowMs: 60 * 60_000 },
+  eventsRead: { max: 80, windowMs: 60_000 },
+  tasksFromEmailInbound: { max: 60, windowMs: 60_000 },
+  tasksFromSlackInbound: { max: 60, windowMs: 60_000 },
+  /** Cron/internal safety valves */
+  reportsSummariesCron: { max: 30, windowMs: 60_000 },
+  tasksRunRulesCron: { max: 60, windowMs: 60_000 },
+  webhooksDispatchCron: { max: 60, windowMs: 60_000 },
+  notificationsRetryCron: { max: 60, windowMs: 60_000 },
+  maintenancePruneCron: { max: 12, windowMs: 60_000 },
 } as const;
 
 export function getClientIpFromRequest(request: Request): string {

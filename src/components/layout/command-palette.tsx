@@ -128,13 +128,13 @@ export function CommandPalette(props: { role?: WorkspaceRole }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-4 z-40 hidden items-center gap-2 rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs font-medium text-zinc-600 shadow-sm backdrop-blur transition-opacity duration-200 hover:bg-zinc-50 md:inline-flex ${
+        className={`fixed bottom-5 right-4 z-40 hidden items-center gap-2 rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-zinc-50 md:inline-flex ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
         aria-label="Open command palette"
       >
         <Command size={14} aria-hidden />
-        <span>Quick open</span>
+        <span className="text-zinc-900">Quick open</span>
         <span className="ui-kbd">K</span>
       </button>
 

@@ -106,6 +106,7 @@ interface SavedViewSummaryEmailParams {
   itemCount: number;
   workspacePath: string;
   sampleRows: Array<{ label: string; href: string; meta: string }>;
+  openPixelUrl?: string | null;
 }
 
 export async function sendSavedViewSummaryEmail({
@@ -115,6 +116,7 @@ export async function sendSavedViewSummaryEmail({
   itemCount,
   workspacePath,
   sampleRows,
+  openPixelUrl,
 }: SavedViewSummaryEmailParams) {
   const resendClient = getResendClient();
   if (!resendClient) {
@@ -122,6 +124,7 @@ export async function sendSavedViewSummaryEmail({
   }
   const safeViewName = escapeHtml(viewName);
   const safeAppUrl = escapeHtml(appUrl.replace(/\/+$/, ""));
+  const safeOpenPixelUrl = openPixelUrl ? escapeHtml(openPixelUrl) : null;
 
   const rowsHtml =
     sampleRows.length === 0
@@ -163,6 +166,11 @@ export async function sendSavedViewSummaryEmail({
         <p style="margin-top:24px;color:#9ca3af;font-size:12px;">
           You received this because weekly digest is enabled on one of your saved views.
         </p>
+        ${
+          safeOpenPixelUrl
+            ? `<img src="${safeOpenPixelUrl}" alt="" width="1" height="1" style="display:block;opacity:0;" />`
+            : ""
+        }
       </div>
     `,
   });

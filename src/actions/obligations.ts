@@ -19,6 +19,27 @@ const MAX_DETAILS_LEN = 4000;
 const MAX_EVIDENCE_LEN = 4000;
 const MAX_TYPE_LEN = 80;
 const MAX_CADENCE_LEN = 120;
+const MAX_URL_LEN = 1000;
+const MAX_FILE_PATH_LEN = 1000;
+
+type ObligationRecurrenceType =
+  | "none"
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly"
+  | "custom_days";
+
+const RECURRENCE_TYPES: ObligationRecurrenceType[] = [
+  "none",
+  "daily",
+  "weekly",
+  "monthly",
+  "quarterly",
+  "yearly",
+  "custom_days",
+];
 
 function isObligationStatus(v: string): v is ContractObligationStatus {
   return OBLIGATION_STATUSES.includes(v as ContractObligationStatus);
@@ -39,12 +60,61 @@ async function ensureOwnerMember(
   return !!data;
 }
 
+function isRecurrenceType(v: string): v is ObligationRecurrenceType {
+  return RECURRENCE_TYPES.includes(v as ObligationRecurrenceType);
+}
+
+function computeNextDueDate(
+  recurrenceType: ObligationRecurrenceType,
+  recurrenceIntervalDays: number | null,
+  baseDate: Date
+): string | null {
+  const next = new Date(baseDate);
+  if (recurrenceType === "none") return null;
+  if (recurrenceType === "daily") next.setDate(next.getDate() + 1);
+  else if (recurrenceType === "weekly") next.setDate(next.getDate() + 7);
+  else if (recurrenceType === "monthly") next.setMonth(next.getMonth() + 1);
+  else if (recurrenceType === "quarterly") next.setMonth(next.getMonth() + 3);
+  else if (recurrenceType === "yearly") next.setFullYear(next.getFullYear() + 1);
+  else if (recurrenceType === "custom_days") {
+    if (!recurrenceIntervalDays || recurrenceIntervalDays < 1) return null;
+    next.setDate(next.getDate() + recurrenceIntervalDays);
+  }
+  return Number.isNaN(next.getTime()) ? null : next.toISOString().slice(0, 10);
+}
+
+async function appendObligationEvent(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    organizationId: string;
+    contractId: string;
+    obligationId: string;
+    actorId: string | null;
+    eventType: "created" | "updated" | "status_changed" | "evidence_added" | "escalated" | "recurrence_generated";
+    details?: Record<string, unknown>;
+  }
+) {
+  await admin.from("contract_obligation_events").insert({
+    organization_id: input.organizationId,
+    contract_id: input.contractId,
+    obligation_id: input.obligationId,
+    actor_id: input.actorId,
+    event_type: input.eventType,
+    details: input.details ?? {},
+  });
+}
+
 export async function createContractObligation(input: {
   contractId: string;
   title: string;
   details?: string | null;
   obligationType?: string | null;
   cadence?: string | null;
+  recurrenceType?: ObligationRecurrenceType;
+  recurrenceIntervalDays?: number | null;
+  escalationDueAt?: string | null;
+  evidenceFilePath?: string | null;
+  evidenceUrl?: string | null;
   dueDate?: string | null;
   ownerId?: string | null;
 }) {
@@ -60,6 +130,16 @@ export async function createContractObligation(input: {
   const details = input.details?.trim() ?? "";
   const obligationType = input.obligationType?.trim() || "general";
   const cadence = input.cadence?.trim() || null;
+  const recurrenceType = input.recurrenceType ?? "none";
+  const recurrenceIntervalDays =
+    typeof input.recurrenceIntervalDays === "number" &&
+    Number.isFinite(input.recurrenceIntervalDays) &&
+    input.recurrenceIntervalDays > 0
+      ? Math.min(Math.trunc(input.recurrenceIntervalDays), 3650)
+      : null;
+  const escalationDueAt = input.escalationDueAt?.trim() || null;
+  const evidenceFilePath = input.evidenceFilePath?.trim() || null;
+  const evidenceUrl = input.evidenceUrl?.trim() || null;
   const dueDate = input.dueDate?.trim() || null;
   const ownerId = input.ownerId?.trim() || null;
 
@@ -68,6 +148,19 @@ export async function createContractObligation(input: {
   if (details.length > MAX_DETAILS_LEN) return { error: "Details are too long" };
   if (obligationType.length > MAX_TYPE_LEN) return { error: "Type is too long" };
   if (cadence && cadence.length > MAX_CADENCE_LEN) return { error: "Cadence is too long" };
+  if (!isRecurrenceType(recurrenceType)) return { error: "Invalid recurrence type" };
+  if (recurrenceType === "custom_days" && !recurrenceIntervalDays) {
+    return { error: "Custom recurrence requires interval days" };
+  }
+  if (evidenceFilePath && evidenceFilePath.length > MAX_FILE_PATH_LEN) {
+    return { error: "Evidence file path is too long" };
+  }
+  if (evidenceUrl && evidenceUrl.length > MAX_URL_LEN) {
+    return { error: "Evidence URL is too long" };
+  }
+  if (escalationDueAt && Number.isNaN(new Date(escalationDueAt).getTime())) {
+    return { error: "Invalid escalation due date" };
+  }
   if (ownerId && !isUuid(ownerId)) return { error: "Invalid owner" };
   if (dueDate && Number.isNaN(new Date(`${dueDate}T12:00:00`).getTime())) {
     return { error: "Invalid due date" };
@@ -99,6 +192,16 @@ export async function createContractObligation(input: {
       details: details || null,
       obligation_type: obligationType,
       cadence,
+      recurrence_type: recurrenceType,
+      recurrence_interval_days: recurrenceIntervalDays,
+      next_due_date:
+        recurrenceType !== "none" && dueDate
+          ? computeNextDueDate(recurrenceType, recurrenceIntervalDays, new Date(`${dueDate}T12:00:00`))
+          : null,
+      escalation_due_at: escalationDueAt,
+      escalation_status: escalationDueAt ? "pending" : "none",
+      evidence_file_path: evidenceFilePath,
+      evidence_url: evidenceUrl,
       due_date: dueDate,
       status: "open",
     })
@@ -116,6 +219,20 @@ export async function createContractObligation(input: {
       title,
       obligation_type: obligationType,
       due_date: dueDate,
+      recurrence_type: recurrenceType,
+      recurrence_interval_days: recurrenceIntervalDays,
+    },
+  });
+  await appendObligationEvent(admin, {
+    organizationId: contract.organization_id,
+    contractId: contract.id,
+    obligationId: created.id,
+    actorId: user.id,
+    eventType: "created",
+    details: {
+      due_date: dueDate,
+      recurrence_type: recurrenceType,
+      escalation_due_at: escalationDueAt,
     },
   });
   await recomputeContractSignals(admin, contract.id);
@@ -129,6 +246,12 @@ export async function updateContractObligation(input: {
   ownerId?: string | null;
   dueDate?: string | null;
   evidenceNotes?: string | null;
+  recurrenceType?: ObligationRecurrenceType;
+  recurrenceIntervalDays?: number | null;
+  escalationDueAt?: string | null;
+  escalationStatus?: "none" | "pending" | "sent" | "acked";
+  evidenceFilePath?: string | null;
+  evidenceUrl?: string | null;
 }) {
   const supabase = await createClient();
   const admin = await createAdminClient();
@@ -140,7 +263,7 @@ export async function updateContractObligation(input: {
 
   const { data: obligation } = await admin
     .from("contract_obligations")
-    .select("id, contract_id, organization_id")
+    .select("id, contract_id, organization_id, title, details, owner_id, recurrence_type, recurrence_interval_days, due_date, obligation_type, cadence")
     .eq("id", input.obligationId)
     .maybeSingle();
   if (!obligation) return { error: "Obligation not found" };
@@ -182,6 +305,42 @@ export async function updateContractObligation(input: {
     }
     patch.evidence_notes = evidence;
   }
+  if (input.recurrenceType !== undefined) {
+    if (!isRecurrenceType(input.recurrenceType)) return { error: "Invalid recurrence type" };
+    patch.recurrence_type = input.recurrenceType;
+  }
+  if (input.recurrenceIntervalDays !== undefined) {
+    const interval =
+      typeof input.recurrenceIntervalDays === "number" &&
+      Number.isFinite(input.recurrenceIntervalDays) &&
+      input.recurrenceIntervalDays > 0
+        ? Math.min(Math.trunc(input.recurrenceIntervalDays), 3650)
+        : null;
+    patch.recurrence_interval_days = interval;
+  }
+  if (input.escalationDueAt !== undefined) {
+    const escalationDueAt = input.escalationDueAt?.trim() || null;
+    if (escalationDueAt && Number.isNaN(new Date(escalationDueAt).getTime())) {
+      return { error: "Invalid escalation due date" };
+    }
+    patch.escalation_due_at = escalationDueAt;
+  }
+  if (input.escalationStatus !== undefined) {
+    if (!["none", "pending", "sent", "acked"].includes(input.escalationStatus)) {
+      return { error: "Invalid escalation status" };
+    }
+    patch.escalation_status = input.escalationStatus;
+  }
+  if (input.evidenceFilePath !== undefined) {
+    const path = input.evidenceFilePath?.trim() || null;
+    if (path && path.length > MAX_FILE_PATH_LEN) return { error: "Evidence file path is too long" };
+    patch.evidence_file_path = path;
+  }
+  if (input.evidenceUrl !== undefined) {
+    const url = input.evidenceUrl?.trim() || null;
+    if (url && url.length > MAX_URL_LEN) return { error: "Evidence URL is too long" };
+    patch.evidence_url = url;
+  }
 
   if (Object.keys(patch).length === 0) return { success: true as const };
 
@@ -198,6 +357,69 @@ export async function updateContractObligation(input: {
     action: "obligation.updated",
     details: { obligation_id: input.obligationId, ...patch },
   });
+  await appendObligationEvent(admin, {
+    organizationId: obligation.organization_id,
+    contractId: obligation.contract_id,
+    obligationId: input.obligationId,
+    actorId: user.id,
+    eventType:
+      input.status !== undefined
+        ? "status_changed"
+        : input.evidenceNotes !== undefined || input.evidenceFilePath !== undefined || input.evidenceUrl !== undefined
+          ? "evidence_added"
+          : "updated",
+    details: patch,
+  });
+  if (input.status === "done") {
+    const recurrenceType =
+      (patch.recurrence_type as ObligationRecurrenceType | undefined) ??
+      (obligation.recurrence_type as ObligationRecurrenceType | undefined) ??
+      "none";
+    const recurrenceIntervalDays =
+      (patch.recurrence_interval_days as number | null | undefined) ??
+      (obligation.recurrence_interval_days as number | null | undefined) ??
+      null;
+    const baseDue =
+      (patch.due_date as string | null | undefined) ??
+      (obligation.due_date as string | null | undefined) ??
+      new Date().toISOString().slice(0, 10);
+    const nextDueDate = computeNextDueDate(
+      recurrenceType,
+      recurrenceIntervalDays,
+      new Date(`${baseDue}T12:00:00`)
+    );
+    if (recurrenceType !== "none" && nextDueDate) {
+      const { data: generated, error: generationError } = await admin
+        .from("contract_obligations")
+        .insert({
+          contract_id: obligation.contract_id,
+          organization_id: obligation.organization_id,
+          created_by: user.id,
+          owner_id: obligation.owner_id,
+          title: obligation.title,
+          details: obligation.details,
+          obligation_type: obligation.obligation_type,
+          cadence: obligation.cadence,
+          due_date: nextDueDate,
+          next_due_date: nextDueDate,
+          recurrence_type: recurrenceType,
+          recurrence_interval_days: recurrenceIntervalDays,
+          status: "open",
+        })
+        .select("id")
+        .single();
+      if (!generationError && generated?.id) {
+        await appendObligationEvent(admin, {
+          organizationId: obligation.organization_id,
+          contractId: obligation.contract_id,
+          obligationId: generated.id,
+          actorId: user.id,
+          eventType: "recurrence_generated",
+          details: { from_obligation_id: input.obligationId, due_date: nextDueDate },
+        });
+      }
+    }
+  }
   await recomputeContractSignals(admin, obligation.contract_id);
 
   return { success: true as const };
@@ -234,6 +456,14 @@ export async function deleteContractObligation(obligationId: string) {
     user_id: user.id,
     action: "obligation.deleted",
     details: { obligation_id: obligationId },
+  });
+  await appendObligationEvent(admin, {
+    organizationId: obligation.organization_id,
+    contractId: obligation.contract_id,
+    obligationId,
+    actorId: user.id,
+    eventType: "updated",
+    details: { deleted: true },
   });
   await recomputeContractSignals(admin, obligation.contract_id);
 

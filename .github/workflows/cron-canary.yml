@@ -1,0 +1,40 @@
+name: Cron Canary
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Healthchecks start
+        if: ${{ secrets.HC_CRON_CANARY_PING != '' }}
+        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/start"
+
+      - name: Run cron canary checks
+        env:
+          COMPREHENSIVE_PASS_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: npm run check:cron-canary
+
+      - name: Healthchecks success
+        if: ${{ success() && secrets.HC_CRON_CANARY_PING != '' }}
+        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}"
+
+      - name: Healthchecks fail
+        if: ${{ failure() && secrets.HC_CRON_CANARY_PING != '' }}
+        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/fail"

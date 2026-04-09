@@ -4,6 +4,7 @@ import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 
 const MAX_FAILURES_REPORTED = 200;
 
@@ -62,6 +63,13 @@ export async function GET(request: Request) {
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const cronRate = await rateLimitCheck("cron:webhooks:dispatch", RATE_LIMITS.webhooksDispatchCron);
+  if (!cronRate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests", retryAfterMs: cronRate.retryAfterMs },
+      { status: 429 }
+    );
+  }
 
   const admin = await createAdminClient();
   const { data: events } = await admin
@@ -75,6 +83,7 @@ export async function GET(request: Request) {
   let attempts = 0;
   let totalFailures = 0;
   const failures: string[] = [];
+  const attemptStatusCounts: Record<string, number> = {};
   const nowIso = new Date().toISOString();
   const orgIds = Array.from(new Set((events ?? []).map((event) => event.organization_id)));
   const { data: subscriptions } =
@@ -135,6 +144,7 @@ export async function GET(request: Request) {
       entity_type: event.entity_type,
       entity_id: event.entity_id,
       occurred_at: event.created_at,
+      schema_version: (event.payload as Record<string, unknown> | null)?.schema_version ?? "v1",
       data: event.payload ?? {},
     });
     type DeliveryPatch = {
@@ -196,16 +206,21 @@ export async function GET(request: Request) {
           });
           return;
         }
+        const attemptStartedAt = Date.now();
         const res = await fetch(url.toString(), {
           method: "POST",
           headers: {
             "content-type": "application/json",
             "x-contractops-signature": signature,
             "x-contractops-event": event.event_type,
+            "x-contractops-schema-version": String(
+              (event.payload as Record<string, unknown> | null)?.schema_version ?? "v1"
+            ),
           },
           body: payload,
         });
         if (res.ok) {
+          attemptStatusCounts[String(res.status)] = (attemptStatusCounts[String(res.status)] ?? 0) + 1;
           patches.push({
             id: delivery.id,
             delivered: true,
@@ -215,6 +230,8 @@ export async function GET(request: Request) {
             attempt_count: delivery.attempt_count + 1,
           });
         } else {
+          const attemptDurationMs = Date.now() - attemptStartedAt;
+          attemptStatusCounts[String(res.status)] = (attemptStatusCounts[String(res.status)] ?? 0) + 1;
           totalFailures++;
           if (failures.length < MAX_FAILURES_REPORTED) {
             failures.push(`${event.id}:${sub.id}:${res.status}`);
@@ -222,12 +239,13 @@ export async function GET(request: Request) {
           patches.push({
             id: delivery.id,
             last_attempt_at: attemptIso,
-            last_error: `HTTP ${res.status}`,
+            last_error: `HTTP ${res.status}:${attemptDurationMs}ms`,
             attempt_count: delivery.attempt_count + 1,
             next_attempt_at: nextAttemptAt,
           });
         }
       } catch {
+        attemptStatusCounts.network = (attemptStatusCounts.network ?? 0) + 1;
         totalFailures++;
         if (failures.length < MAX_FAILURES_REPORTED) {
           failures.push(`${event.id}:${sub.id}:network`);
@@ -270,6 +288,7 @@ export async function GET(request: Request) {
     failures,
     failuresTruncated: totalFailures > failures.length,
     totalFailures,
+    attemptStatusCounts,
     durationMs: Date.now() - startedAt,
   };
   pingCronHealthcheck("webhooks/dispatch", {

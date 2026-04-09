@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const createAdminClient = vi.fn();
 
@@ -10,6 +10,9 @@ describe("GET /api/integrations/oauth/callback", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    // Force in-memory rate-limit path in tests to avoid Upstash client calls.
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
     process.env.OAUTH_SLACK_AUTHORIZE_URL = "https://slack.com/oauth/v2/authorize";
     process.env.OAUTH_SLACK_TOKEN_URL = "https://slack.com/api/oauth.v2.access";
     process.env.OAUTH_SLACK_CLIENT_ID = "cid";
@@ -17,6 +20,10 @@ describe("GET /api/integrations/oauth/callback", () => {
     process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY = Buffer.from(
       "12345678901234567890123456789012"
     ).toString("base64");
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("returns 500 when loading oauth state fails", async () => {

@@ -19,6 +19,7 @@ import {
 } from "@/lib/contract-filters";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 
 function buildFilterUrl(params: Record<string, string | undefined>) {
   const search = new URLSearchParams();
@@ -77,7 +78,7 @@ export default async function ContractsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
 
   const { orgId, admin } = ctx;
 

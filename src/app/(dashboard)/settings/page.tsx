@@ -10,14 +10,21 @@ import {
   type PendingInviteRow,
 } from "@/components/settings/pending-invites";
 import type { OrganizationMember } from "@/lib/types";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { hasRoleCapability } from "@/lib/access-control";
 
 export default async function SettingsPage() {
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
 
   const { user, orgId, admin } = ctx;
 
-  const [{ data: profile }, { data: membership }, { data: membersData }] =
+  const [
+    { data: profile },
+    { data: membership },
+    { data: membersData },
+    { data: workflowSettings },
+  ] =
     await Promise.all([
       admin
         .from("profiles")
@@ -36,7 +43,18 @@ export default async function SettingsPage() {
         .select("id, organization_id, user_id, role, created_at, profiles(full_name, email)")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: true }),
+      admin
+        .from("organization_workflow_settings")
+        .select("role_policy_json")
+        .eq("organization_id", orgId)
+        .maybeSingle(),
     ]);
+  const canOpenHealth = hasRoleCapability({
+    role: (membership?.role as OrganizationMember["role"] | null) ?? null,
+    capability: "settings_manage",
+    rolePolicyJson: (workflowSettings?.role_policy_json as Record<string, unknown> | null) ?? null,
+  });
+
 
   const members = (membersData ?? []) as unknown as OrganizationMember[];
 
@@ -61,6 +79,10 @@ export default async function SettingsPage() {
     admin: "Admin",
     editor: "Editor",
     viewer: "Viewer",
+    ops_manager: "Ops manager",
+    legal_reviewer: "Legal reviewer",
+    finance_reviewer: "Finance reviewer",
+    manager: "Manager",
   };
 
   return (
@@ -69,9 +91,16 @@ export default async function SettingsPage() {
         <p className="ui-eyebrow">Workspace</p>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <h1 className="ui-display-title">Settings</h1>
-          <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
-            Workflow configuration
-          </Link>
+          <div className="flex items-center gap-2">
+            {canOpenHealth && (
+              <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                System health
+              </Link>
+            )}
+            <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
+              Workflow configuration
+            </Link>
+          </div>
         </div>
         <p className="ui-muted mt-3 max-w-2xl">
           Profile, organization, and team access for your workspace.

@@ -6,6 +6,7 @@ export async function enqueueOutboundEvent(input: {
   entityType: string;
   entityId?: string | null;
   payload?: Record<string, unknown>;
+  schemaVersion?: string;
 }) {
   try {
     const admin = await createAdminClient();
@@ -14,7 +15,11 @@ export async function enqueueOutboundEvent(input: {
       event_type: input.eventType,
       entity_type: input.entityType,
       entity_id: input.entityId ?? null,
-      payload: input.payload ?? {},
+      payload: {
+        schema_version: input.schemaVersion ?? "v1",
+        emitted_at: new Date().toISOString(),
+        ...((input.payload ?? {}) as Record<string, unknown>),
+      },
     });
   } catch (err) {
     console.error("[outbound-events] enqueue failed", err);

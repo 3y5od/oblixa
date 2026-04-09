@@ -3,7 +3,12 @@ import { format, differenceInDays } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
 import { seedRenewalPlaybook } from "@/actions/renewal-playbook";
 import { createCheckpointClarificationTaskForm } from "@/actions/tasks";
-import { createSavedView, deleteSavedView, setSavedViewWeeklySummary } from "@/actions/saved-views";
+import {
+  createSavedView,
+  deleteSavedView,
+  setSavedViewPinned,
+  setSavedViewWeeklySummary,
+} from "@/actions/saved-views";
 import {
   getContractIdsForDeadlinePreset,
   type DeadlinePreset,
@@ -92,6 +97,18 @@ export default async function RenewalsWorkspacePage(props: {
           .from("contract_renewal_checkpoints")
           .select("id, contract_id, status, due_date")
           .in("contract_id", candidateIds);
+  const { data: scenariosData } =
+    candidateIds.length === 0
+      ? { data: [] as Array<Record<string, unknown>> }
+      : await admin
+          .from("contract_renewal_scenarios")
+          .select(
+            "id, contract_id, workspace_status, target_decision_date, escalation_date, scenario_confidence, blocker"
+          )
+          .in("contract_id", candidateIds);
+  const scenarioByContract = new Map(
+    (scenariosData ?? []).map((row) => [row.contract_id as string, row] as const)
+  );
 
   const checkpointStats = new Map<
     string,
@@ -127,6 +144,15 @@ export default async function RenewalsWorkspacePage(props: {
         pendingCheckpointId: null,
         nextDue: null,
       };
+      const scenario = scenarioByContract.get(row.id as string) as
+        | {
+            workspace_status?: string;
+            target_decision_date?: string | null;
+            escalation_date?: string | null;
+            scenario_confidence?: number | null;
+            blocker?: string | null;
+          }
+        | undefined;
       return {
         id: row.id as string,
         title: row.title as string,
@@ -138,6 +164,11 @@ export default async function RenewalsWorkspacePage(props: {
         checkpointTotal: stats.total,
         checkpointCompleted: stats.completed,
         pendingCheckpointId: stats.pendingCheckpointId,
+        workspaceStatus: scenario?.workspace_status ?? "not_started",
+        targetDecisionDate: scenario?.target_decision_date ?? null,
+        escalationDate: scenario?.escalation_date ?? null,
+        scenarioConfidence: scenario?.scenario_confidence ?? null,
+        blocker: scenario?.blocker ?? null,
         playbookRecommendation:
           stats.total === 0
             ? "Seed a baseline playbook"
@@ -157,17 +188,18 @@ export default async function RenewalsWorkspacePage(props: {
     });
   const totalExposure = rows.reduce((sum, row) => sum + (row.annualValue ?? 0), 0);
   const savedViews = (savedViewsData ?? []).map((v) => {
-    const q = (v.query_json ?? {}) as Record<string, string | undefined>;
+    const q = (v.query_json ?? {}) as Record<string, unknown>;
     const params = new URLSearchParams();
-    if (q.deadline) params.set("horizon", q.deadline);
+    if (typeof q.deadline === "string" && q.deadline) params.set("horizon", q.deadline);
     const qs = params.toString();
     return {
       id: v.id,
       name: v.name,
       href: qs ? `/contracts/renewals?${qs}` : "/contracts/renewals",
       weeklyActive: weeklyByViewId.get(v.id) ?? false,
+      pinned: q.pinned === true || q.pinned === "1" || q.pinned === "true",
     };
-  });
+  }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
     <div className="space-y-8">
@@ -241,6 +273,16 @@ export default async function RenewalsWorkspacePage(props: {
                       ×
                     </button>
                   </form>
+                  <form action={setSavedViewPinned.bind(null, view.id, !view.pinned)}>
+                    <button
+                      type="submit"
+                      className={`rounded-full px-2 py-0.5 text-[11px] ${
+                        view.pinned ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                      }`}
+                    >
+                      {view.pinned ? "Pinned" : "Pin"}
+                    </button>
+                  </form>
                   <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive)}>
                     <button
                       type="submit"
@@ -279,6 +321,7 @@ export default async function RenewalsWorkspacePage(props: {
                 <th className="px-5 py-3">Countdown</th>
                 <th className="px-5 py-3">Annual value</th>
                 <th className="px-5 py-3">Playbook</th>
+                <th className="px-5 py-3">Workspace</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
@@ -341,6 +384,25 @@ export default async function RenewalsWorkspacePage(props: {
                         </button>
                       </form>
                     )}
+                  </td>
+                  <td className="px-5 py-4 text-xs text-zinc-600">
+                    <p>Status: {row.workspaceStatus}</p>
+                    {row.targetDecisionDate && (
+                      <p>
+                        Target:{" "}
+                        {format(new Date(`${row.targetDecisionDate}T12:00:00`), "MMM d, yyyy")}
+                      </p>
+                    )}
+                    {row.escalationDate && (
+                      <p className="text-amber-700">
+                        Escalate:{" "}
+                        {format(new Date(`${row.escalationDate}T12:00:00`), "MMM d, yyyy")}
+                      </p>
+                    )}
+                    {row.scenarioConfidence && (
+                      <p>Confidence: {row.scenarioConfidence}%</p>
+                    )}
+                    {row.blocker && <p className="text-amber-700">Blocker: {row.blocker}</p>}
                   </td>
                 </tr>
               ))}

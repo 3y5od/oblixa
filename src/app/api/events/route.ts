@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { createHash } from "crypto";
 import {
+  RATE_LIMITS,
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
@@ -17,7 +18,7 @@ function parseIsoDate(input: string): string | null {
 
 export async function GET(request: Request) {
   const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(`events:${ip}`, { max: 80, windowMs: 60_000 });
+  const rl = await rateLimitCheck(`events:${ip}`, RATE_LIMITS.eventsRead);
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests" },

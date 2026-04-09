@@ -15,8 +15,10 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check:migrations": "node scripts/check-migrations.mjs",
+    "check:cron-canary": "node scripts/cron-canary.mjs",
+    "check:comprehensive-pass": "node scripts/comprehensive-pass.mjs",
     "preflight:release": "node scripts/release-preflight.mjs",
-    "release:checklist": "npm run preflight:release && npm run verify && npm run test:e2e",
+    "release:checklist": "npm run preflight:release && npm run verify && npm run test:e2e && npm run check:comprehensive-pass",
     "verify": "npm run check:migrations && npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {

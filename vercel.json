@@ -31,6 +31,14 @@
     {
       "path": "/api/integrations/refresh-tokens",
       "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/notifications/retry-deliveries",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/maintenance/prune-operational-data",
+      "schedule": "0 3 * * *"
     }
   ]
 }

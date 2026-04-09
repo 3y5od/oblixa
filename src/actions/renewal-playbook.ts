@@ -87,6 +87,11 @@ export async function seedRenewalPlaybook(contractId: string) {
     label: t.label,
   }));
   if (templateRows.length === 0) return;
+  const { data: scenarioRow } = await admin
+    .from("contract_renewal_scenarios")
+    .select("id")
+    .eq("contract_id", contract.id)
+    .maybeSingle();
 
   const rows = templateRows.map((step) => ({
     contract_id: contract.id,
@@ -95,6 +100,8 @@ export async function seedRenewalPlaybook(contractId: string) {
     label: step.label,
     offset_days: step.offsetDays,
     due_date: subDays(renewalDate, step.offsetDays).toISOString().slice(0, 10),
+    scenario_id: scenarioRow?.id ?? null,
+    required: true,
     status: "pending" as const,
   }));
 
@@ -149,7 +156,12 @@ export async function updateRenewalCheckpointStatus(input: {
       : null;
   const { error } = await admin
     .from("contract_renewal_checkpoints")
-    .update({ status: input.status, completed_at: completedAt })
+    .update({
+      status: input.status,
+      completed_at: completedAt,
+      completed_by:
+        input.status === "completed" || input.status === "skipped" ? user.id : null,
+    })
     .eq("id", input.checkpointId);
   if (error) return { error: mapDataSourceError(error.message) };
 
@@ -164,4 +176,62 @@ export async function updateRenewalCheckpointStatus(input: {
   revalidatePath(`/contracts/${checkpoint.contract_id}`);
   revalidatePath("/contracts/renewals");
   return { success: true as const };
+}
+
+export async function addRenewalWorkspaceNote(input: {
+  contractId: string;
+  body: string;
+  pinned?: boolean;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+  const body = input.body.trim();
+  if (!body) return { error: "Note is required" };
+  if (body.length > 4000) return { error: "Note is too long" };
+
+  const contract = await getContractAndRole(admin, user.id, input.contractId);
+  if (!contract) return { error: "Access denied" };
+  const { data: scenario } = await admin
+    .from("contract_renewal_scenarios")
+    .select("id")
+    .eq("contract_id", contract.id)
+    .maybeSingle();
+
+  const { error } = await admin.from("contract_renewal_workspace_notes").insert({
+    organization_id: contract.organization_id,
+    contract_id: contract.id,
+    scenario_id: scenario?.id ?? null,
+    author_id: user.id,
+    body,
+    pinned: Boolean(input.pinned),
+  });
+  if (error) return { error: mapDataSourceError(error.message) };
+
+  await admin.from("audit_events").insert({
+    organization_id: contract.organization_id,
+    contract_id: contract.id,
+    user_id: user.id,
+    action: "renewal.workspace_note_added",
+    details: { pinned: Boolean(input.pinned) },
+  });
+
+  revalidatePath(`/contracts/${contract.id}`);
+  revalidatePath("/contracts/renewals");
+  return { success: true as const };
+}
+
+export async function addRenewalWorkspaceNoteForm(formData: FormData) {
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const body = String(formData.get("body") ?? "");
+  const pinned = String(formData.get("pinned") ?? "") === "1";
+  const res = await addRenewalWorkspaceNote({ contractId, body, pinned });
+  if (res && "error" in res && res.error) {
+    console.error("[renewal-playbook] addRenewalWorkspaceNoteForm", res.error);
+  }
 }

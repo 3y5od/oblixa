@@ -88,6 +88,15 @@ export default async function BulkImportPage() {
             </ul>
           </div>
         )}
+        <div className="mt-6 border-t border-zinc-100 pt-4">
+          <p className="ui-label-caps">Bulk correction and backfill</p>
+          <p className="mt-1 text-xs text-zinc-600">
+            Run normalization campaigns and date backfills from the maintenance workspace.
+          </p>
+          <Link href="/contracts/maintenance" className="ui-link mt-2 inline-block text-xs">
+            Open maintenance campaigns
+          </Link>
+        </div>
       </div>
     </div>
   );

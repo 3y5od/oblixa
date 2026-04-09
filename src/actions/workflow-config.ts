@@ -1,22 +1,57 @@
 "use server";
 
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { isUuid } from "@/lib/security/validation";
 import { createHash, randomBytes } from "crypto";
+import type { OrgRole } from "@/lib/types";
+import type { RoleCapability } from "@/lib/access-control";
 
 async function getMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   userId: string
 ) {
-  return await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", userId)
-    .limit(1)
-    .maybeSingle();
+  const data = await getDeterministicMembership(admin, userId);
+  return { data };
+}
+
+const ROLE_KEYS: readonly OrgRole[] = [
+  "admin",
+  "editor",
+  "viewer",
+  "ops_manager",
+  "legal_reviewer",
+  "finance_reviewer",
+  "manager",
+];
+
+const CAPABILITY_KEYS: readonly RoleCapability[] = [
+  "contracts_edit",
+  "approvals_manage",
+  "renewals_manage",
+  "maintenance_manage",
+  "settings_manage",
+];
+
+function sanitizeRolePolicyJson(input: Record<string, unknown>): Record<string, Record<string, boolean>> {
+  const sanitized: Record<string, Record<string, boolean>> = {};
+  for (const role of ROLE_KEYS) {
+    const roleConfig = input[role];
+    if (!roleConfig || typeof roleConfig !== "object" || Array.isArray(roleConfig)) continue;
+    const source = roleConfig as Record<string, unknown>;
+    const capabilityConfig: Record<string, boolean> = {};
+    for (const capability of CAPABILITY_KEYS) {
+      if (typeof source[capability] === "boolean") {
+        capabilityConfig[capability] = source[capability] as boolean;
+      }
+    }
+    if (Object.keys(capabilityConfig).length > 0) {
+      sanitized[role] = capabilityConfig;
+    }
+  }
+  return sanitized;
 }
 
 async function logTemplateChange(
@@ -395,6 +430,22 @@ export async function upsertWorkflowSettingsForm(formData: FormData) {
   const renewalHorizonDays = Number(String(formData.get("renewalHorizonDays") ?? "90"));
   const staleContractDays = Number(String(formData.get("staleContractDays") ?? "120"));
   const staleOwnershipDays = Number(String(formData.get("staleOwnershipDays") ?? "90"));
+  const emailEnabled = formData.has("emailEnabled");
+  const slackEnabled = formData.has("slackEnabled");
+  const emailQuietStart = Number(String(formData.get("emailQuietStartUtc") ?? "").trim() || "0");
+  const emailQuietEnd = Number(String(formData.get("emailQuietEndUtc") ?? "").trim() || "0");
+  const slackQuietStart = Number(String(formData.get("slackQuietStartUtc") ?? "").trim() || "0");
+  const slackQuietEnd = Number(String(formData.get("slackQuietEndUtc") ?? "").trim() || "0");
+  const emailBlockedTypes = String(formData.get("emailBlockedTypes") ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  const slackBlockedTypes = String(formData.get("slackBlockedTypes") ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  const dashboardTrackingEnabled = formData.has("dashboardTrackingEnabled");
+  const rolePolicyJsonRaw = String(formData.get("rolePolicyJson") ?? "").trim();
   if (
     !Number.isFinite(weeklyIntakeLookbackDays) ||
     !Number.isFinite(renewalHorizonDays) ||
@@ -405,6 +456,15 @@ export async function upsertWorkflowSettingsForm(formData: FormData) {
   }
   const { data: membership } = await getMembership(admin, user.id);
   if (!membership || membership.role !== "admin") return;
+  let rolePolicyJson: Record<string, unknown> = {};
+  if (rolePolicyJsonRaw) {
+    try {
+      rolePolicyJson = sanitizeRolePolicyJson(JSON.parse(rolePolicyJsonRaw) as Record<string, unknown>);
+    } catch {
+      console.error("[workflow-config] upsertWorkflowSettingsForm", "Invalid rolePolicyJson payload");
+      return;
+    }
+  }
   await admin.from("organization_workflow_settings").upsert(
     {
       organization_id: membership.organization_id,
@@ -412,10 +472,86 @@ export async function upsertWorkflowSettingsForm(formData: FormData) {
       renewal_horizon_days: Math.min(Math.max(Math.trunc(renewalHorizonDays), 30), 365),
       stale_contract_days: Math.min(Math.max(Math.trunc(staleContractDays), 30), 365),
       stale_ownership_days: Math.min(Math.max(Math.trunc(staleOwnershipDays), 14), 365),
+      notification_policy_json: {
+        email: {
+          enabled: emailEnabled,
+          quiet_hours_start_utc: Math.min(Math.max(Math.trunc(emailQuietStart), 0), 23),
+          quiet_hours_end_utc: Math.min(Math.max(Math.trunc(emailQuietEnd), 0), 23),
+          blocked_types: emailBlockedTypes,
+        },
+        slack: {
+          enabled: slackEnabled,
+          quiet_hours_start_utc: Math.min(Math.max(Math.trunc(slackQuietStart), 0), 23),
+          quiet_hours_end_utc: Math.min(Math.max(Math.trunc(slackQuietEnd), 0), 23),
+          blocked_types: slackBlockedTypes,
+        },
+      },
+      role_policy_json: rolePolicyJson,
+      dashboard_tracking_enabled: dashboardTrackingEnabled,
       created_by: user.id,
     },
     { onConflict: "organization_id", ignoreDuplicates: false }
   );
+}
+
+export async function applyPolicyPackForm(formData: FormData) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  const policyPack = String(formData.get("policyPack") ?? "").trim();
+  if (!["balanced", "compliance", "revenue"].includes(policyPack)) return;
+  const { data: membership } = await getMembership(admin, user.id);
+  if (!membership || membership.role !== "admin") return;
+
+  const workflowByPack: Record<
+    string,
+    { renewal_horizon_days: number; stale_contract_days: number; stale_ownership_days: number }
+  > = {
+    balanced: { renewal_horizon_days: 90, stale_contract_days: 120, stale_ownership_days: 90 },
+    compliance: { renewal_horizon_days: 120, stale_contract_days: 90, stale_ownership_days: 60 },
+    revenue: { renewal_horizon_days: 180, stale_contract_days: 150, stale_ownership_days: 120 },
+  };
+  const requiredFieldsByPack: Record<string, string[]> = {
+    balanced: ["end_date", "renewal_date", "notice_window"],
+    compliance: ["end_date", "renewal_date", "notice_window", "governing_law", "liability_cap"],
+    revenue: ["end_date", "renewal_date", "annual_value", "payment_terms"],
+  };
+  const preset = workflowByPack[policyPack];
+  await admin.from("organization_workflow_settings").upsert(
+    {
+      organization_id: membership.organization_id,
+      weekly_intake_lookback_days: 7,
+      renewal_horizon_days: preset.renewal_horizon_days,
+      stale_contract_days: preset.stale_contract_days,
+      stale_ownership_days: preset.stale_ownership_days,
+      created_by: user.id,
+    },
+    { onConflict: "organization_id", ignoreDuplicates: false }
+  );
+  for (const fieldName of requiredFieldsByPack[policyPack]) {
+    await admin.from("field_templates").upsert(
+      {
+        organization_id: membership.organization_id,
+        contract_type: null,
+        field_name: fieldName,
+        default_value: null,
+        required: true,
+        active: true,
+        created_by: user.id,
+      },
+      { onConflict: "organization_id,contract_type,field_name", ignoreDuplicates: false }
+    );
+  }
+  await admin.from("audit_events").insert({
+    organization_id: membership.organization_id,
+    contract_id: null,
+    user_id: user.id,
+    action: "settings.policy_pack_applied",
+    details: { policy_pack: policyPack },
+  });
 }
 
 export async function createApprovalPolicyForm(formData: FormData) {

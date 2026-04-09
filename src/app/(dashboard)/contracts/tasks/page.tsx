@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
-import { createSavedView, deleteSavedView, setSavedViewWeeklySummary } from "@/actions/saved-views";
+import {
+  createSavedView,
+  deleteSavedView,
+  setSavedViewPinned,
+  setSavedViewWeeklySummary,
+} from "@/actions/saved-views";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 
 type TaskStatusFilter = "" | "open" | "in_progress" | "blocked" | "done";
 const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
@@ -27,13 +33,13 @@ export default async function ContractTasksPage(props: {
   const onlyMine = mine === "1";
 
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
 
   const { admin, orgId, user } = ctx;
   const query = admin
     .from("contract_tasks")
     .select(
-      "id, title, details, status, priority, created_via, team_key, due_date, assignee_id, updated_at, contracts!inner(id, title, organization_id)"
+      "id, title, details, status, priority, created_via, team_key, blocked_reason, recurrence_interval_days, sla_due_at, due_date, assignee_id, updated_at, contracts!inner(id, title, organization_id)"
     )
     .eq("organization_id", orgId)
     .order("due_date", { ascending: true, nullsFirst: false })
@@ -90,6 +96,9 @@ export default async function ContractTasksPage(props: {
         status: row.status,
         priority: row.priority,
         dueDate: row.due_date as string | null,
+        blockedReason: row.blocked_reason as string | null,
+        recurrenceIntervalDays: row.recurrence_interval_days as number | null,
+        slaDueAt: row.sla_due_at as string | null,
         assigneeId: row.assignee_id as string | null,
         updatedAt: row.updated_at,
         createdVia: row.created_via as string | null,
@@ -100,18 +109,19 @@ export default async function ContractTasksPage(props: {
     ];
   });
   const savedViews = (savedViewsData ?? []).map((v) => {
-    const q = (v.query_json ?? {}) as Record<string, string | undefined>;
+    const q = (v.query_json ?? {}) as Record<string, unknown>;
     const params = new URLSearchParams();
-    if (q.status) params.set("status", q.status);
-    if (q.mine) params.set("mine", q.mine);
+    if (typeof q.status === "string" && q.status) params.set("status", q.status);
+    if (typeof q.mine === "string" && q.mine) params.set("mine", q.mine);
     const qs = params.toString();
     return {
       id: v.id,
       name: v.name,
       href: qs ? `/contracts/tasks?${qs}` : "/contracts/tasks",
       weeklyActive: weeklyByViewId.get(v.id) ?? false,
+      pinned: q.pinned === "1" || q.pinned === true || q.pinned === "true",
     };
-  });
+  }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
     <div className="space-y-8">
@@ -196,6 +206,16 @@ export default async function ContractTasksPage(props: {
                       ×
                     </button>
                   </form>
+                  <form action={setSavedViewPinned.bind(null, view.id, !view.pinned)}>
+                    <button
+                      type="submit"
+                      className={`rounded-full px-2 py-0.5 text-[11px] ${
+                        view.pinned ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                      }`}
+                    >
+                      {view.pinned ? "Pinned" : "Pin"}
+                    </button>
+                  </form>
                   <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive)}>
                     <button
                       type="submit"
@@ -233,6 +253,7 @@ export default async function ContractTasksPage(props: {
                 <th className="px-5 py-3">Source</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Due</th>
+                <th className="px-5 py-3">SLA</th>
                 <th className="px-5 py-3">Updated</th>
               </tr>
             </thead>
@@ -247,6 +268,15 @@ export default async function ContractTasksPage(props: {
                     <p className="mt-1 text-xs text-zinc-500">
                       Priority: <span className="font-medium">{task.priority}</span>
                     </p>
+                    {task.blockedReason && task.status === "blocked" && (
+                      <p className="mt-1 text-xs text-rose-700">Blocked: {task.blockedReason}</p>
+                    )}
+                    {task.recurrenceIntervalDays && task.recurrenceIntervalDays > 0 && (
+                      <p className="mt-1 text-xs text-zinc-500">
+                        Recurs every {task.recurrenceIntervalDays} day
+                        {task.recurrenceIntervalDays === 1 ? "" : "s"}
+                      </p>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     <Link href={`/contracts/${task.contractId}`} className="ui-link">
@@ -267,6 +297,9 @@ export default async function ContractTasksPage(props: {
                     {task.dueDate
                       ? format(new Date(`${task.dueDate}T12:00:00`), "MMM d, yyyy")
                       : "—"}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-600">
+                    {task.slaDueAt ? format(new Date(task.slaDueAt), "MMM d, yyyy") : "—"}
                   </td>
                   <td className="px-5 py-4 text-zinc-500">
                     {format(new Date(task.updatedAt), "MMM d")}

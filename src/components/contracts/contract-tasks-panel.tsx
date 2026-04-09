@@ -4,8 +4,19 @@ import { useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import {
+  addContractTaskChecklistItem,
+  addContractTaskArtifact,
+  addContractTaskComment,
+  addContractTaskDependency,
   createContractTask,
+  deleteContractTaskArtifact,
+  deleteContractTaskChecklistItem,
+  deleteContractTaskComment,
   deleteContractTask,
+  reorderContractTaskChecklistItem,
+  toggleContractTaskChecklistItem,
+  updateContractTaskChecklistItem,
+  updateContractTaskComment,
   updateContractTaskStatus,
 } from "@/actions/tasks";
 import type { ContractTask, ContractTaskPriority, ContractTaskStatus } from "@/lib/types";
@@ -27,6 +38,9 @@ type ContractTaskListItem = Pick<
   | "completed_at"
   | "created_via"
   | "team_key"
+  | "blocked_reason"
+  | "recurrence_interval_days"
+  | "sla_due_at"
 >;
 
 const STATUS_OPTIONS: { value: ContractTaskStatus; label: string }[] = [
@@ -61,6 +75,10 @@ export function ContractTasksPanel({
   members,
   canEdit,
   taskEvents,
+  taskChecklistItems,
+  taskComments,
+  taskDependencies,
+  taskArtifacts,
 }: {
   contractId: string;
   tasks: ContractTaskListItem[];
@@ -73,6 +91,34 @@ export function ContractTasksPanel({
     details: Record<string, unknown> | null;
     created_at: string;
   }>;
+  taskChecklistItems: Array<{
+    id: string;
+    task_id: string;
+    label: string;
+    is_done: boolean;
+    sort_order: number;
+  }>;
+  taskComments: Array<{
+    id: string;
+    task_id: string;
+    body: string;
+    parent_comment_id: string | null;
+    edited_at: string | null;
+    deleted_at: string | null;
+    created_at: string;
+  }>;
+  taskDependencies: Array<{
+    id: string;
+    task_id: string;
+    depends_on_task_id: string;
+  }>;
+  taskArtifacts: Array<{
+    id: string;
+    task_id: string;
+    label: string;
+    url: string;
+    created_at: string;
+  }>;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +127,19 @@ export function ContractTasksPanel({
     () => new Map(members.map((m) => [m.userId, m.label])),
     [members]
   );
+  const taskTitleById = useMemo(
+    () => new Map(tasks.map((task) => [task.id, task.title])),
+    [tasks]
+  );
+  const commentsByTaskId = useMemo(() => {
+    const map = new Map<string, typeof taskComments>();
+    for (const comment of taskComments) {
+      const list = map.get(comment.task_id) ?? [];
+      list.push(comment);
+      map.set(comment.task_id, list);
+    }
+    return map;
+  }, [taskComments]);
 
   function onCreate(formData: FormData) {
     if (!canEdit || isPending) return;
@@ -91,6 +150,12 @@ export function ContractTasksPanel({
       const priority = String(formData.get("priority") ?? "medium") as ContractTaskPriority;
       const assigneeId = String(formData.get("assigneeId") ?? "").trim() || null;
       const dueDate = String(formData.get("dueDate") ?? "").trim() || null;
+      const teamKey = String(formData.get("teamKey") ?? "").trim() || null;
+      const blockedReason = String(formData.get("blockedReason") ?? "").trim() || null;
+      const recurrenceIntervalDays = Number(
+        String(formData.get("recurrenceIntervalDays") ?? "").trim() || "0"
+      );
+      const slaDueAt = String(formData.get("slaDueAt") ?? "").trim() || null;
 
       const res = await createContractTask({
         contractId,
@@ -99,6 +164,13 @@ export function ContractTasksPanel({
         priority,
         assigneeId,
         dueDate,
+        teamKey,
+        blockedReason,
+        recurrenceIntervalDays:
+          Number.isFinite(recurrenceIntervalDays) && recurrenceIntervalDays > 0
+            ? recurrenceIntervalDays
+            : null,
+        slaDueAt,
       });
       if ("error" in res && res.error) {
         setError(res.error);
@@ -126,6 +198,163 @@ export function ContractTasksPanel({
     setError(null);
     startTransition(async () => {
       const res = await deleteContractTask(taskId);
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onAddChecklistItem(taskId: string, formData: FormData) {
+    if (!canEdit || isPending) return;
+    const label = String(formData.get("label") ?? "").trim();
+    if (!label) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await addContractTaskChecklistItem({ taskId, label });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onToggleChecklistItem(checklistItemId: string, done: boolean) {
+    if (!canEdit || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await toggleContractTaskChecklistItem({ checklistItemId, done });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onAddComment(taskId: string, formData: FormData) {
+    if (isPending) return;
+    const body = String(formData.get("body") ?? "").trim();
+    if (!body) return;
+    setError(null);
+    startTransition(async () => {
+      const parentCommentId = String(formData.get("parentCommentId") ?? "").trim() || null;
+      const res = await addContractTaskComment({ taskId, body, parentCommentId });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onUpdateComment(commentId: string, formData: FormData) {
+    if (isPending) return;
+    const body = String(formData.get("body") ?? "").trim();
+    if (!body) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await updateContractTaskComment({ commentId, body });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onDeleteComment(commentId: string) {
+    if (isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteContractTaskComment({ commentId });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onAddDependency(taskId: string, formData: FormData) {
+    if (!canEdit || isPending) return;
+    const dependsOnTaskId = String(formData.get("dependsOnTaskId") ?? "").trim();
+    if (!dependsOnTaskId) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await addContractTaskDependency({ taskId, dependsOnTaskId });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onUpdateChecklistItem(checklistItemId: string, formData: FormData) {
+    if (!canEdit || isPending) return;
+    const label = String(formData.get("label") ?? "").trim();
+    if (!label) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await updateContractTaskChecklistItem({ checklistItemId, label });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onDeleteChecklistItem(checklistItemId: string) {
+    if (!canEdit || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteContractTaskChecklistItem({ checklistItemId });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onMoveChecklistItem(checklistItemId: string, direction: "up" | "down") {
+    if (!canEdit || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await reorderContractTaskChecklistItem({ checklistItemId, direction });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onAddArtifact(taskId: string, formData: FormData) {
+    if (!canEdit || isPending) return;
+    const label = String(formData.get("label") ?? "").trim();
+    const url = String(formData.get("url") ?? "").trim();
+    if (!label || !url) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await addContractTaskArtifact({ taskId, label, url });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function onDeleteArtifact(artifactId: string) {
+    if (!canEdit || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteContractTaskArtifact({ artifactId });
       if ("error" in res && res.error) {
         setError(res.error);
         return;
@@ -185,6 +414,41 @@ export function ContractTasksPanel({
               <input name="dueDate" type="date" className="ui-input w-full" />
             </div>
           </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label className="ui-label-caps">Team queue</label>
+              <input
+                name="teamKey"
+                maxLength={80}
+                placeholder="ops / legal / finance"
+                className="ui-input w-full"
+              />
+            </div>
+            <div>
+              <label className="ui-label-caps">Recurrence (days)</label>
+              <input
+                name="recurrenceIntervalDays"
+                type="number"
+                min={1}
+                max={3650}
+                placeholder="e.g. 30"
+                className="ui-input w-full"
+              />
+            </div>
+            <div>
+              <label className="ui-label-caps">SLA due at</label>
+              <input name="slaDueAt" type="datetime-local" className="ui-input w-full" />
+            </div>
+          </div>
+          <div>
+            <label className="ui-label-caps">Blocked reason (optional)</label>
+            <input
+              name="blockedReason"
+              maxLength={400}
+              placeholder="Waiting on dependency / external response"
+              className="ui-input w-full"
+            />
+          </div>
           <div className="flex items-center justify-between">
             <p className="text-xs text-zinc-500">Tasks attach execution work to this contract.</p>
             <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
@@ -238,6 +502,20 @@ export function ContractTasksPanel({
                         {task.team_key ? ` · queue ${task.team_key}` : ""}
                       </span>
                     )}
+                    {task.blocked_reason && task.status === "blocked" && (
+                      <span className="text-rose-700">Blocked: {task.blocked_reason}</span>
+                    )}
+                    {task.recurrence_interval_days && task.recurrence_interval_days > 0 && (
+                      <span className="text-zinc-500">
+                        Recurs every {task.recurrence_interval_days} day
+                        {task.recurrence_interval_days === 1 ? "" : "s"}
+                      </span>
+                    )}
+                    {task.sla_due_at && (
+                      <span className="text-zinc-500">
+                        SLA {format(new Date(task.sla_due_at), "MMM d, yyyy")}
+                      </span>
+                    )}
                   </div>
                 {taskEvents.filter((e) => e.task_id === task.id).length > 0 && (
                   <ul className="mt-2 space-y-1">
@@ -255,8 +533,215 @@ export function ContractTasksPanel({
                       ))}
                   </ul>
                 )}
+                {taskDependencies.some((dep) => dep.task_id === task.id) && (
+                  <div className="mt-2 text-[11px] text-zinc-500">
+                    Depends on:{" "}
+                    {taskDependencies
+                      .filter((dep) => dep.task_id === task.id)
+                      .map((dep) => taskTitleById.get(dep.depends_on_task_id) ?? dep.depends_on_task_id.slice(0, 8))
+                      .join(", ")}
+                  </div>
+                )}
+                <div className="mt-3 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                    Checklist
+                  </p>
+                  <ul className="space-y-1">
+                    {taskChecklistItems
+                      .filter((item) => item.task_id === task.id)
+                      .sort((a, b) => a.sort_order - b.sort_order)
+                      .map((item) => (
+                        <li key={item.id} className="flex items-center gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={item.is_done}
+                            disabled={isPending || !canEdit}
+                            onChange={(e) => onToggleChecklistItem(item.id, e.target.checked)}
+                            className="h-3.5 w-3.5 rounded border-zinc-300"
+                          />
+                          <span className={item.is_done ? "text-zinc-400 line-through" : "text-zinc-700"}>
+                            {item.label}
+                          </span>
+                          {canEdit && (
+                            <>
+                              <form action={onUpdateChecklistItem.bind(null, item.id)} className="ml-auto flex items-center gap-1">
+                                <input
+                                  name="label"
+                                  defaultValue={item.label}
+                                  className="ui-input h-6 w-40 text-[11px]"
+                                />
+                                <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[10px]">
+                                  Save
+                                </button>
+                              </form>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => onMoveChecklistItem(item.id, "up")}
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => onMoveChecklistItem(item.id, "down")}
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                              >
+                                ↓
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => onDeleteChecklistItem(item.id)}
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                              >
+                                Remove
+                              </button>
+                            </>
+                          )}
+                        </li>
+                      ))}
+                  </ul>
+                  {canEdit && (
+                    <form action={onAddChecklistItem.bind(null, task.id)} className="flex items-center gap-2">
+                      <input
+                        name="label"
+                        placeholder="Add checklist item"
+                        className="ui-input h-7 flex-1 text-[11px]"
+                      />
+                      <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
+                        Add
+                      </button>
+                    </form>
+                  )}
+                </div>
+                <div className="mt-2 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                    Comments
+                  </p>
+                  <ul className="space-y-1">
+                    {(commentsByTaskId.get(task.id) ?? [])
+                      .slice()
+                      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                      .slice(0, 8)
+                      .map((comment) => (
+                        <li
+                          key={comment.id}
+                          className={`text-xs text-zinc-600 ${
+                            comment.parent_comment_id ? "ml-4 border-l border-zinc-200 pl-2" : ""
+                          }`}
+                        >
+                          <p>{comment.body}</p>
+                          {comment.edited_at && <p className="text-[10px] text-zinc-400">edited</p>}
+                          <div className="mt-1 flex items-center gap-1">
+                            <form action={onUpdateComment.bind(null, comment.id)} className="flex items-center gap-1">
+                              <input
+                                name="body"
+                                defaultValue={comment.deleted_at ? "" : comment.body}
+                                placeholder="Edit comment"
+                                className="ui-input h-6 w-44 text-[10px]"
+                              />
+                              <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[10px]">
+                                Save
+                              </button>
+                            </form>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => onDeleteComment(comment.id)}
+                              className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                  <form action={onAddComment.bind(null, task.id)} className="flex items-center gap-2">
+                    <input
+                      name="body"
+                      placeholder="Add comment"
+                      className="ui-input h-7 flex-1 text-[11px]"
+                    />
+                    <select name="parentCommentId" defaultValue="" className="ui-input h-7 w-40 text-[11px]">
+                      <option value="">Top-level</option>
+                      {(commentsByTaskId.get(task.id) ?? [])
+                        .filter((comment) => !comment.parent_comment_id)
+                        .map((comment) => (
+                          <option key={comment.id} value={comment.id}>
+                            Reply to {comment.body.slice(0, 20)}
+                          </option>
+                        ))}
+                    </select>
+                    <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
+                      Add
+                    </button>
+                  </form>
+                </div>
+                <div className="mt-2 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                    Artifacts
+                  </p>
+                  <ul className="space-y-1">
+                    {taskArtifacts
+                      .filter((artifact) => artifact.task_id === task.id)
+                      .map((artifact) => (
+                        <li key={artifact.id} className="flex items-center justify-between gap-2 text-xs">
+                          <a
+                            href={artifact.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="truncate text-blue-700 hover:underline"
+                          >
+                            {artifact.label}
+                          </a>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => onDeleteArtifact(artifact.id)}
+                              className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                  </ul>
+                  {canEdit && (
+                    <form action={onAddArtifact.bind(null, task.id)} className="grid gap-1 sm:grid-cols-3">
+                      <input name="label" placeholder="Artifact label" className="ui-input h-7 text-[11px]" />
+                      <input name="url" placeholder="https://..." className="ui-input h-7 text-[11px] sm:col-span-2" />
+                      <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px] sm:col-span-3">
+                        Add artifact
+                      </button>
+                    </form>
+                  )}
+                </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {canEdit && (
+                    <form action={onAddDependency.bind(null, task.id)} className="flex items-center gap-1">
+                      <select
+                        name="dependsOnTaskId"
+                        defaultValue=""
+                        className="ui-input min-w-[8rem] py-1.5 text-xs"
+                      >
+                        <option value="">Add dependency...</option>
+                        {tasks
+                          .filter((candidate) => candidate.id !== task.id)
+                          .map((candidate) => (
+                            <option key={candidate.id} value={candidate.id}>
+                              {candidate.title}
+                            </option>
+                          ))}
+                      </select>
+                      <button type="submit" className="ui-btn-secondary px-2 py-1.5 text-xs">
+                        Link
+                      </button>
+                    </form>
+                  )}
                   <select
                     value={task.status}
                     disabled={isPending}

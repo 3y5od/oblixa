@@ -19,10 +19,16 @@ type ObligationRow = Pick<
   | "details"
   | "obligation_type"
   | "cadence"
+  | "recurrence_type"
+  | "recurrence_interval_days"
+  | "next_due_date"
+  | "escalation_due_at"
+  | "escalation_status"
   | "due_date"
   | "status"
   | "owner_id"
   | "evidence_notes"
+  | "evidence_url"
   | "completed_at"
 >;
 
@@ -45,11 +51,19 @@ export function ContractObligationsPanel({
   obligations,
   members,
   canEdit,
+  obligationEvents,
 }: {
   contractId: string;
   obligations: ObligationRow[];
   members: MemberOption[];
   canEdit: boolean;
+  obligationEvents: Array<{
+    id: string;
+    obligation_id: string;
+    event_type: string;
+    details: Record<string, unknown> | null;
+    created_at: string;
+  }>;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +83,20 @@ export function ContractObligationsPanel({
         details: String(formData.get("details") ?? ""),
         obligationType: String(formData.get("obligationType") ?? ""),
         cadence: String(formData.get("cadence") ?? ""),
+        recurrenceType:
+          (String(formData.get("recurrenceType") ?? "none") as
+            | "none"
+            | "daily"
+            | "weekly"
+            | "monthly"
+            | "quarterly"
+            | "yearly"
+            | "custom_days"),
+        recurrenceIntervalDays: Number(
+          String(formData.get("recurrenceIntervalDays") ?? "").trim() || "0"
+        ),
+        escalationDueAt: String(formData.get("escalationDueAt") ?? ""),
+        evidenceUrl: String(formData.get("evidenceUrl") ?? ""),
         dueDate: String(formData.get("dueDate") ?? ""),
         ownerId: String(formData.get("ownerId") ?? ""),
       });
@@ -122,6 +150,50 @@ export function ContractObligationsPanel({
     });
   }
 
+  function onOperationalUpdate(id: string, formData: FormData) {
+    if (!canEdit || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      const recurrenceType = String(formData.get("recurrenceType") ?? "").trim();
+      const recurrenceIntervalDaysRaw = String(
+        formData.get("recurrenceIntervalDays") ?? ""
+      ).trim();
+      const escalationDueAt = String(formData.get("escalationDueAt") ?? "").trim();
+      const escalationStatus = String(formData.get("escalationStatus") ?? "").trim();
+      const evidenceUrl = String(formData.get("evidenceUrl") ?? "").trim();
+      const evidenceNotes = String(formData.get("evidenceNotes") ?? "").trim();
+      const recurrenceIntervalDays = recurrenceIntervalDaysRaw
+        ? Number(recurrenceIntervalDaysRaw)
+        : null;
+      const res = await updateContractObligation({
+        obligationId: id,
+        recurrenceType:
+          (recurrenceType as
+            | "none"
+            | "daily"
+            | "weekly"
+            | "monthly"
+            | "quarterly"
+            | "yearly"
+            | "custom_days") || undefined,
+        recurrenceIntervalDays:
+          recurrenceIntervalDays != null && Number.isFinite(recurrenceIntervalDays)
+            ? recurrenceIntervalDays
+            : null,
+        escalationDueAt: escalationDueAt || null,
+        escalationStatus:
+          (escalationStatus as "none" | "pending" | "sent" | "acked") || undefined,
+        evidenceUrl: evidenceUrl || null,
+        evidenceNotes: evidenceNotes || null,
+      });
+      if ("error" in res && res.error) {
+        setError(res.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
   return (
     <div className="space-y-4">
       {canEdit && (
@@ -156,6 +228,29 @@ export function ContractObligationsPanel({
               />
             </div>
             <div>
+              <label className="ui-label-caps">Recurrence</label>
+              <select name="recurrenceType" defaultValue="none" className="ui-input w-full">
+                <option value="none">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+                <option value="custom_days">Custom (days)</option>
+              </select>
+            </div>
+            <div>
+              <label className="ui-label-caps">Recurrence interval days</label>
+              <input
+                name="recurrenceIntervalDays"
+                type="number"
+                min={1}
+                max={3650}
+                placeholder="e.g. 30"
+                className="ui-input w-full"
+              />
+            </div>
+            <div>
               <label className="ui-label-caps">Owner</label>
               <select name="ownerId" defaultValue="" className="ui-input w-full">
                 <option value="">Unassigned</option>
@@ -170,6 +265,10 @@ export function ContractObligationsPanel({
               <label className="ui-label-caps">Due date</label>
               <input name="dueDate" type="date" className="ui-input w-full" />
             </div>
+            <div>
+              <label className="ui-label-caps">Escalation due at</label>
+              <input name="escalationDueAt" type="datetime-local" className="ui-input w-full" />
+            </div>
             <div className="sm:col-span-2">
               <label className="ui-label-caps">Details (optional)</label>
               <textarea
@@ -178,6 +277,15 @@ export function ContractObligationsPanel({
                 maxLength={4000}
                 placeholder="Capture criteria, source clause, and evidence expectations."
                 className="ui-input w-full resize-y"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="ui-label-caps">Evidence URL (optional)</label>
+              <input
+                name="evidenceUrl"
+                type="url"
+                placeholder="https://..."
+                className="ui-input w-full"
               />
             </div>
           </div>
@@ -219,6 +327,14 @@ export function ContractObligationsPanel({
                       {ob.obligation_type}
                     </span>
                     {ob.cadence && <span className="text-zinc-500">Cadence: {ob.cadence}</span>}
+                    {ob.recurrence_type && ob.recurrence_type !== "none" && (
+                      <span className="text-zinc-500">
+                        Recurs: {ob.recurrence_type}
+                        {ob.recurrence_type === "custom_days" && ob.recurrence_interval_days
+                          ? ` (${ob.recurrence_interval_days}d)`
+                          : ""}
+                      </span>
+                    )}
                     {ob.owner_id && (
                       <span className="text-zinc-500">
                         Owner: {labelByUserId.get(ob.owner_id) ?? "Member"}
@@ -234,9 +350,45 @@ export function ContractObligationsPanel({
                         Completed {format(new Date(ob.completed_at), "MMM d, yyyy")}
                       </span>
                     )}
+                    {ob.next_due_date && (
+                      <span className="text-zinc-500">
+                        Next due {format(new Date(`${ob.next_due_date}T12:00:00`), "MMM d, yyyy")}
+                      </span>
+                    )}
+                    {ob.escalation_due_at && (
+                      <span className="text-rose-700">
+                        Escalates {format(new Date(ob.escalation_due_at), "MMM d, yyyy")}
+                      </span>
+                    )}
                   </div>
                   {ob.evidence_notes && (
                     <p className="mt-2 text-xs text-zinc-500">Evidence: {ob.evidence_notes}</p>
+                  )}
+                  {ob.evidence_url && (
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Evidence link:{" "}
+                      <a
+                        href={ob.evidence_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ui-link"
+                      >
+                        open
+                      </a>
+                    </p>
+                  )}
+                  {obligationEvents.filter((event) => event.obligation_id === ob.id).length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {obligationEvents
+                        .filter((event) => event.obligation_id === ob.id)
+                        .slice(0, 4)
+                        .map((event) => (
+                          <li key={event.id} className="text-[11px] text-zinc-500">
+                            {event.event_type.replace(/_/g, " ")} ·{" "}
+                            {format(new Date(event.created_at), "MMM d, h:mm a")}
+                          </li>
+                        ))}
+                    </ul>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -281,6 +433,68 @@ export function ContractObligationsPanel({
                   )}
                 </div>
               </div>
+              {canEdit && (
+                <form action={onOperationalUpdate.bind(null, ob.id)} className="mt-3 grid gap-2 sm:grid-cols-5">
+                  <select
+                    name="recurrenceType"
+                    defaultValue={ob.recurrence_type ?? "none"}
+                    className="ui-input py-1.5 text-xs"
+                  >
+                    <option value="none">none</option>
+                    <option value="daily">daily</option>
+                    <option value="weekly">weekly</option>
+                    <option value="monthly">monthly</option>
+                    <option value="quarterly">quarterly</option>
+                    <option value="yearly">yearly</option>
+                    <option value="custom_days">custom_days</option>
+                  </select>
+                  <input
+                    name="recurrenceIntervalDays"
+                    type="number"
+                    min={1}
+                    max={3650}
+                    defaultValue={ob.recurrence_interval_days ?? ""}
+                    placeholder="interval"
+                    className="ui-input py-1.5 text-xs"
+                  />
+                  <select
+                    name="escalationStatus"
+                    defaultValue={ob.escalation_status ?? "none"}
+                    className="ui-input py-1.5 text-xs"
+                  >
+                    <option value="none">esc:none</option>
+                    <option value="pending">esc:pending</option>
+                    <option value="sent">esc:sent</option>
+                    <option value="acked">esc:acked</option>
+                  </select>
+                  <input
+                    name="escalationDueAt"
+                    type="datetime-local"
+                    defaultValue={
+                      ob.escalation_due_at
+                        ? new Date(ob.escalation_due_at).toISOString().slice(0, 16)
+                        : ""
+                    }
+                    className="ui-input py-1.5 text-xs"
+                  />
+                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                    Save ops fields
+                  </button>
+                  <input
+                    name="evidenceUrl"
+                    type="url"
+                    defaultValue={ob.evidence_url ?? ""}
+                    placeholder="Evidence URL"
+                    className="ui-input py-1.5 text-xs sm:col-span-2"
+                  />
+                  <input
+                    name="evidenceNotes"
+                    defaultValue={ob.evidence_notes ?? ""}
+                    placeholder="Evidence notes"
+                    className="ui-input py-1.5 text-xs sm:col-span-3"
+                  />
+                </form>
+              )}
             </li>
           ))}
         </ul>

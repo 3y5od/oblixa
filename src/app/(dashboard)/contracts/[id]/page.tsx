@@ -19,7 +19,7 @@ import { ContractTasksPanel } from "@/components/contracts/contract-tasks-panel"
 import { ContractNotesPanel } from "@/components/contracts/contract-notes-panel";
 import { ContractObligationsPanel } from "@/components/contracts/contract-obligations-panel";
 import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoints-panel";
-import { seedRenewalPlaybook } from "@/actions/renewal-playbook";
+import { addRenewalWorkspaceNoteForm, seedRenewalPlaybook } from "@/actions/renewal-playbook";
 import { canEditContracts } from "@/lib/permissions";
 import { addFieldCommentForm } from "@/actions/field-comments";
 import { createClarificationTaskForm } from "@/actions/tasks";
@@ -43,6 +43,7 @@ import type {
   ContractTask,
   OrgRole,
 } from "@/lib/types";
+import { buildUnifiedWorkflowTimeline } from "@/lib/workflow-activity";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -78,7 +79,10 @@ export default async function ContractDetailPage(props: {
     { data: fieldCommentsData },
     { data: handoffChecklistData },
     { data: taskEventsData },
+    { data: obligationEventsData },
+    { data: approvalEventsData },
     { data: watchlistData },
+    { data: renewalWorkspaceNotesData },
   ] = await Promise.all([
     admin
       .from("contracts")
@@ -114,7 +118,7 @@ export default async function ContractDetailPage(props: {
     admin
       .from("contract_tasks")
       .select(
-        "id, contract_id, organization_id, created_by, assignee_id, title, details, status, priority, created_via, team_key, due_date, completed_at, created_at, updated_at"
+        "id, contract_id, organization_id, created_by, assignee_id, title, details, status, priority, created_via, team_key, blocked_reason, recurrence_interval_days, sla_due_at, due_date, completed_at, created_at, updated_at"
       )
       .eq("contract_id", id)
       .order("created_at", { ascending: false }),
@@ -129,7 +133,7 @@ export default async function ContractDetailPage(props: {
     admin
       .from("contract_obligations")
       .select(
-        "id, contract_id, organization_id, created_by, owner_id, title, details, obligation_type, cadence, due_date, status, evidence_notes, completed_at, created_at, updated_at"
+        "id, contract_id, organization_id, created_by, owner_id, title, details, obligation_type, cadence, recurrence_type, recurrence_interval_days, next_due_date, escalation_due_at, escalation_status, due_date, status, evidence_notes, evidence_url, completed_at, created_at, updated_at"
       )
       .eq("contract_id", id)
       .order("due_date", { ascending: true, nullsFirst: false })
@@ -144,14 +148,14 @@ export default async function ContractDetailPage(props: {
     admin
       .from("contract_renewal_scenarios")
       .select(
-        "id, contract_id, organization_id, scenario, decision_notes, blocker, decided_by, decided_at, created_at, updated_at"
+        "id, contract_id, organization_id, scenario, decision_notes, blocker, workspace_status, owner_id, target_decision_date, decision_date, escalation_date, commercial_context, scenario_confidence, last_reviewed_at, decided_by, decided_at, created_at, updated_at"
       )
       .eq("contract_id", id)
       .maybeSingle(),
     admin
       .from("contract_approvals")
       .select(
-        "id, contract_id, organization_id, approval_type, status, requested_by, approver_id, notes, resolved_at, created_at, updated_at"
+        "id, contract_id, organization_id, approval_type, status, requested_by, approver_id, delegated_from_id, delegated_to_id, due_at, escalated_at, category, exception_flag, exception_reason, notes, resolved_at, created_at, updated_at"
       )
       .eq("contract_id", id)
       .order("created_at", { ascending: false }),
@@ -174,11 +178,30 @@ export default async function ContractDetailPage(props: {
       .order("created_at", { ascending: false })
       .limit(100),
     admin
+      .from("contract_obligation_events")
+      .select("id, obligation_id, event_type, details, created_at")
+      .eq("contract_id", id)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("contract_approval_events")
+      .select("id, approval_id, event_type, details, created_at")
+      .eq("contract_id", id)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
       .from("contract_watchlists")
       .select("id")
       .eq("contract_id", id)
       .eq("user_id", ctx.user.id)
       .maybeSingle(),
+    admin
+      .from("contract_renewal_workspace_notes")
+      .select("id, body, pinned, created_at")
+      .eq("contract_id", id)
+      .order("pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
 
   if (!contractData) notFound();
@@ -215,18 +238,81 @@ export default async function ContractDetailPage(props: {
   const tasks = (tasksData ?? []) as ContractTask[];
   const notes = (notesData ?? []) as ContractNote[];
   const obligations = (obligationsData ?? []) as ContractObligation[];
+  const [
+    { data: taskChecklistItemsData },
+    { data: taskCommentsData },
+    { data: taskDependenciesData },
+    { data: taskArtifactsData },
+  ] =
+    await Promise.all([
+      admin
+        .from("contract_task_checklist_items")
+        .select("id, task_id, label, is_done, sort_order")
+        .eq("contract_id", id)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true }),
+      admin
+        .from("contract_task_comments")
+        .select("id, task_id, body, parent_comment_id, edited_at, deleted_at, created_at")
+        .eq("contract_id", id)
+        .order("created_at", { ascending: false })
+        .limit(200),
+      admin
+        .from("contract_task_dependencies")
+        .select("id, task_id, depends_on_task_id")
+        .eq("contract_id", id),
+      admin
+        .from("contract_task_artifacts")
+        .select("id, task_id, label, url, created_at")
+        .eq("contract_id", id)
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ]);
   const checkpoints = (checkpointsData ?? []) as ContractRenewalCheckpoint[];
   const renewalScenario = (renewalScenarioData ?? null) as ContractRenewalScenario | null;
   const approvals = (approvalsData ?? []) as ContractApproval[];
+  const taskChecklistItems =
+    (taskChecklistItemsData as
+      | Array<{ id: string; task_id: string; label: string; is_done: boolean; sort_order: number }>
+      | null) ?? [];
+  const taskComments =
+    (taskCommentsData as
+      | Array<{
+          id: string;
+          task_id: string;
+          body: string;
+          parent_comment_id: string | null;
+          edited_at: string | null;
+          deleted_at: string | null;
+          created_at: string;
+        }>
+      | null) ?? [];
+  const taskDependencies =
+    (taskDependenciesData as Array<{ id: string; task_id: string; depends_on_task_id: string }> | null) ?? [];
+  const taskArtifacts =
+    (taskArtifactsData as
+      | Array<{ id: string; task_id: string; label: string; url: string; created_at: string }>
+      | null) ?? [];
+  const renewalWorkspaceNotes =
+    (renewalWorkspaceNotesData as Array<{ id: string; body: string; pinned: boolean; created_at: string }> | null) ??
+    [];
   const fieldComments = fieldCommentsData ?? [];
   const handoffChecklists = handoffChecklistData ?? [];
   const taskEvents = taskEventsData ?? [];
+  const obligationEvents = obligationEventsData ?? [];
+  const approvalEvents = approvalEventsData ?? [];
   const isWatchlisted = Boolean(watchlistData?.id);
   const pendingFieldsCount = (contract.extracted_fields ?? []).filter(
     (f: { status: string }) => f.status === "pending"
   ).length;
   const filesCount = contract.contract_files?.length ?? 0;
   const fieldsCount = contract.extracted_fields?.length ?? 0;
+  const workflowTimeline = buildUnifiedWorkflowTimeline({
+    taskEvents: taskEvents as Array<{ id: string; event_type: string; created_at: string }>,
+    obligationEvents: obligationEvents as Array<{ id: string; event_type: string; created_at: string }>,
+    approvalEvents: approvalEvents as Array<{ id: string; event_type: string; created_at: string }>,
+    renewalNotes: renewalWorkspaceNotes,
+  });
 
   return (
     <div className="space-y-7 md:space-y-8">
@@ -511,6 +597,10 @@ export default async function ContractDetailPage(props: {
                 canEdit={canEdit}
                 members={ownerMembers}
                 taskEvents={taskEvents}
+                taskChecklistItems={taskChecklistItems}
+                taskComments={taskComments}
+                taskDependencies={taskDependencies}
+                taskArtifacts={taskArtifacts}
               />
             </div>
           </div>
@@ -530,6 +620,7 @@ export default async function ContractDetailPage(props: {
                 obligations={obligations}
                 members={ownerMembers}
                 canEdit={canEdit}
+                obligationEvents={obligationEvents}
               />
             </div>
           </div>
@@ -684,6 +775,8 @@ export default async function ContractDetailPage(props: {
                     <option value="renew">renew</option>
                     <option value="renegotiate">renegotiate</option>
                     <option value="terminate">terminate</option>
+                    <option value="replace">replace</option>
+                    <option value="discontinue">discontinue</option>
                     <option value="temporary_extension">temporary extension</option>
                   </select>
                   <input
@@ -698,11 +791,107 @@ export default async function ContractDetailPage(props: {
                     placeholder="Decision notes"
                     className="ui-input min-h-[70px] text-xs"
                   />
+                  <select
+                    name="workspaceStatus"
+                    defaultValue={renewalScenario?.workspace_status ?? "in_progress"}
+                    className="ui-input text-xs"
+                  >
+                    <option value="not_started">not started</option>
+                    <option value="in_progress">in progress</option>
+                    <option value="blocked">blocked</option>
+                    <option value="decision_pending">decision pending</option>
+                    <option value="closed">closed</option>
+                  </select>
+                  <select name="ownerId" defaultValue={renewalScenario?.owner_id ?? ""} className="ui-input text-xs">
+                    <option value="">Workspace owner (optional)</option>
+                    {ownerMembers.map((member) => (
+                      <option key={member.userId} value={member.userId}>
+                        {member.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <input
+                      name="targetDecisionDate"
+                      type="date"
+                      defaultValue={renewalScenario?.target_decision_date ?? ""}
+                      className="ui-input text-xs"
+                    />
+                    <input
+                      name="escalationDate"
+                      type="date"
+                      defaultValue={renewalScenario?.escalation_date ?? ""}
+                      className="ui-input text-xs"
+                    />
+                    <input
+                      name="scenarioConfidence"
+                      type="number"
+                      min={1}
+                      max={100}
+                      defaultValue={renewalScenario?.scenario_confidence ?? ""}
+                      placeholder="Confidence %"
+                      className="ui-input text-xs"
+                    />
+                  </div>
+                  <textarea
+                    name="commercialContext"
+                    defaultValue={renewalScenario?.commercial_context ?? ""}
+                    placeholder="Commercial context (optional)"
+                    className="ui-input min-h-[54px] text-xs"
+                  />
                   <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
                     Save scenario
                   </button>
                 </form>
               )}
+              <div className="border-t border-zinc-100 pt-4">
+                <p className="ui-label-caps">Workspace notes ({renewalWorkspaceNotes.length})</p>
+                {canEdit && (
+                  <form action={addRenewalWorkspaceNoteForm} className="mt-2 space-y-2">
+                    <input type="hidden" name="contractId" value={contract.id} />
+                    <textarea name="body" placeholder="Add renewal workspace note" className="ui-input min-h-[60px] text-xs" />
+                    <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
+                      <input type="checkbox" name="pinned" value="1" className="h-3.5 w-3.5 rounded border-zinc-300" />
+                      Pin note
+                    </label>
+                    <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
+                      Add note
+                    </button>
+                  </form>
+                )}
+                {renewalWorkspaceNotes.length > 0 && (
+                  <ul className="mt-3 space-y-2">
+                    {renewalWorkspaceNotes.slice(0, 4).map((note) => (
+                      <li key={note.id} className="rounded border border-zinc-200/80 px-3 py-2 text-xs text-zinc-600">
+                        {note.pinned ? "Pinned · " : ""}
+                        {note.body}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="border-t border-zinc-100 pt-4">
+                <p className="ui-label-caps">Renewal command context</p>
+                <ul className="mt-2 space-y-1 text-xs text-zinc-600">
+                  <li>
+                    Watchlist:{" "}
+                    <span className="font-semibold text-zinc-900">{isWatchlisted ? "yes" : "no"}</span>
+                  </li>
+                  <li>
+                    Pending approvals:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {approvals.filter((a) => a.status === "pending").length}
+                    </span>
+                  </li>
+                  <li>
+                    Contract risk:{" "}
+                    <span className="font-semibold text-zinc-900">{contract.health_status ?? "unknown"}</span>
+                  </li>
+                  <li>
+                    Why surfaced: target decision path, blockers, approvals, and risk are coordinated here.
+                  </li>
+                </ul>
+              </div>
               <div className="border-t border-zinc-100 pt-4">
                 <p className="ui-label-caps">Approvals ({approvals.length})</p>
                 {canEdit && (
@@ -715,6 +904,29 @@ export default async function ContractDetailPage(props: {
                       <option value="ownership_handoff">ownership handoff</option>
                     </select>
                     <textarea name="notes" placeholder="Request notes" className="ui-input min-h-[60px] text-xs" />
+                    <select name="approverId" defaultValue="" className="ui-input text-xs">
+                      <option value="">Policy/default approver</option>
+                      {ownerMembers.map((member) => (
+                        <option key={member.userId} value={member.userId}>
+                          {member.label}
+                        </option>
+                      ))}
+                    </select>
+                    <select name="category" defaultValue="standard" className="ui-input text-xs">
+                      <option value="standard">standard</option>
+                      <option value="policy_exception">policy exception</option>
+                      <option value="financial">financial</option>
+                      <option value="operational">operational</option>
+                    </select>
+                    <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
+                      <input type="checkbox" name="exceptionFlag" value="1" className="h-3.5 w-3.5 rounded border-zinc-300" />
+                      Mark as exception
+                    </label>
+                    <input
+                      name="exceptionReason"
+                      placeholder="Exception reason (optional)"
+                      className="ui-input text-xs"
+                    />
                     <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
                       Request approval
                     </button>
@@ -918,6 +1130,32 @@ export default async function ContractDetailPage(props: {
               contractTitle={contract.title}
               canEdit={canEdit}
             />
+            </div>
+          </div>
+          )}
+
+          {(activeTab === "overview" || activeTab === "audit") && (
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="ui-section-title text-base">Unified workflow timeline</h3>
+            </div>
+            <div className="p-6">
+              {workflowTimeline.length === 0 ? (
+                <p className="text-sm text-zinc-500">No workflow timeline entries yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {workflowTimeline.map((entry) => (
+                    <li key={entry.id} className="flex items-start justify-between gap-3 text-xs">
+                      <span className="text-zinc-700">
+                        <span className="font-semibold">{entry.domain}</span> · {entry.label}
+                      </span>
+                      <span className="shrink-0 text-zinc-400">
+                        {format(new Date(entry.createdAt), "MMM d, h:mm a")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
           )}

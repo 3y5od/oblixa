@@ -6,6 +6,7 @@ import {
   createAdminClient,
   createClient,
   ensureUserOrg,
+  getDeterministicMembership,
 } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 
@@ -89,12 +90,7 @@ export default async function DashboardLayout({
   let orgId: string | null = null;
 
   if (user) {
-    const { data: membership } = await admin
-      .from("organization_members")
-      .select("organization_id, role")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle();
+    const membership = await getDeterministicMembership(admin, user.id);
     orgId = membership?.organization_id ?? null;
     role = (membership?.role as WorkspaceRole | null) ?? "viewer";
     if (!orgId) {
@@ -103,12 +99,7 @@ export default async function DashboardLayout({
         user.id,
         fullName ? `${fullName}'s Organization` : "My Organization"
       );
-      const { data: ensuredMembership } = await admin
-        .from("organization_members")
-        .select("organization_id, role")
-        .eq("user_id", user.id)
-        .limit(1)
-        .maybeSingle();
+      const ensuredMembership = await getDeterministicMembership(admin, user.id);
       orgId = ensuredMembership?.organization_id ?? null;
       role = (ensuredMembership?.role as WorkspaceRole | null) ?? role;
     }

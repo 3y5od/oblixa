@@ -25,24 +25,48 @@ function buildEvent(uid: string, date: string, summary: string, description: str
 
 export async function buildOrganizationCalendarIcs(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
-  orgId: string
+  orgId: string,
+  options?: {
+    includeReminders?: boolean;
+    includeObligations?: boolean;
+    includeRenewalCheckpoints?: boolean;
+    includeRenewalDecisions?: boolean;
+  }
 ) {
-  const [remindersRes, obligationsRes, renewalsRes] = await Promise.all([
-    admin
-      .from("reminders")
-      .select("id, reminder_date, reminder_type, contracts!inner(id, title, organization_id)")
-      .eq("contracts.organization_id", orgId),
-    admin
-      .from("contract_obligations")
-      .select("id, title, due_date, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .in("status", ["open", "in_progress"])
-      .not("due_date", "is", null),
-    admin
-      .from("contract_renewal_checkpoints")
-      .select("id, label, due_date, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .eq("status", "pending"),
+  const includeReminders = options?.includeReminders ?? true;
+  const includeObligations = options?.includeObligations ?? true;
+  const includeRenewalCheckpoints = options?.includeRenewalCheckpoints ?? true;
+  const includeRenewalDecisions = options?.includeRenewalDecisions ?? true;
+
+  const [remindersRes, obligationsRes, renewalsRes, decisionsRes] = await Promise.all([
+    includeReminders
+      ? admin
+          .from("reminders")
+          .select("id, reminder_date, reminder_type, contracts!inner(id, title, organization_id)")
+          .eq("contracts.organization_id", orgId)
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+    includeObligations
+      ? admin
+          .from("contract_obligations")
+          .select("id, title, due_date, contracts!inner(id, title, organization_id)")
+          .eq("organization_id", orgId)
+          .in("status", ["open", "in_progress"])
+          .not("due_date", "is", null)
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+    includeRenewalCheckpoints
+      ? admin
+          .from("contract_renewal_checkpoints")
+          .select("id, label, due_date, contracts!inner(id, title, organization_id)")
+          .eq("organization_id", orgId)
+          .eq("status", "pending")
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+    includeRenewalDecisions
+      ? admin
+          .from("contract_renewal_scenarios")
+          .select("id, decision_date, target_decision_date, workspace_status, contracts!inner(id, title, organization_id)")
+          .eq("organization_id", orgId)
+          .in("workspace_status", ["draft", "in_review", "recommended", "approved"])
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
   ]);
 
   const events: string[] = [];
@@ -86,6 +110,22 @@ export async function buildOrganizationCalendarIcs(
         row.due_date,
         `Renewal checkpoint — ${row.label}`,
         `Contract: ${contract.title}`
+      )
+    );
+  }
+  for (const row of decisionsRes.data ?? []) {
+    const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
+      | { id: string; title: string }
+      | undefined;
+    if (!contract) continue;
+    const decisionDate = String(row.decision_date ?? row.target_decision_date ?? "").slice(0, 10);
+    if (!decisionDate) continue;
+    events.push(
+      buildEvent(
+        `renewal-decision-${row.id}@contractops`,
+        decisionDate,
+        `Renewal decision date — ${contract.title}`,
+        `Contract: ${contract.title} · status ${String(row.workspace_status ?? "unknown")}`
       )
     );
   }

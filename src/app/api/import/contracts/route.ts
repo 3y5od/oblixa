@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 
@@ -103,12 +103,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Expected CSV body." }, { status: 400 });
   }
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
   if (!canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });

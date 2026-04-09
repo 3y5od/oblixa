@@ -1,4 +1,11 @@
-export type WorkspaceRole = "admin" | "editor" | "viewer";
+export type WorkspaceRole =
+  | "admin"
+  | "editor"
+  | "viewer"
+  | "ops_manager"
+  | "legal_reviewer"
+  | "finance_reviewer"
+  | "manager";
 
 export type NavItem = {
   name: string;
@@ -105,6 +112,18 @@ export const NAV_ITEMS: NavItem[] = [
     section: "operations",
   },
   {
+    name: "Reports",
+    href: "/contracts/reports",
+    description: "Digest run history and recipient engagement.",
+    section: "operations",
+  },
+  {
+    name: "Data quality",
+    href: "/contracts/data-quality",
+    description: "Completeness, lineage confidence, and remediation targets.",
+    section: "operations",
+  },
+  {
     name: "Maintenance",
     href: "/contracts/maintenance",
     description: "Data hygiene and cleanup operations.",
@@ -138,6 +157,13 @@ export const NAV_ITEMS: NavItem[] = [
     section: "workspace",
     icon: "settings",
   },
+  {
+    name: "System health",
+    href: "/settings/health",
+    description: "Delivery retries, cron posture, and operational health.",
+    section: "workspace",
+    minRole: "admin",
+  },
 ];
 
 export const CONTRACTS_SUBROUTES = NAV_ITEMS.filter(
@@ -161,6 +187,13 @@ export function isActivePath(pathname: string, href: string): boolean {
 export function canAccessItem(item: NavItem, role: WorkspaceRole): boolean {
   if (!item.minRole) return true;
   if (item.minRole === "admin") return role === "admin";
-  if (item.minRole === "editor") return role === "admin" || role === "editor";
+  if (item.minRole === "editor") {
+    return (
+      role === "admin" ||
+      role === "editor" ||
+      role === "ops_manager" ||
+      role === "manager"
+    );
+  }
   return true;
 }

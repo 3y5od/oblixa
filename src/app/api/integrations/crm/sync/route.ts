@@ -3,6 +3,7 @@ import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+import { enqueueOutboundEvent } from "@/lib/integrations/events";
 
 function isAuthorized(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET?.trim();
@@ -66,6 +67,13 @@ export async function GET(request: Request) {
         .from("contracts")
         .update({ crm_sync_status: "error", crm_last_synced_at: nowIso })
         .eq("id", contract.id as string);
+      await enqueueOutboundEvent({
+        organizationId: contract.organization_id as string,
+        eventType: "crm.sync_failed",
+        entityType: "contract",
+        entityId: contract.id as string,
+        payload: { reason: "missing_endpoint_url" },
+      });
       continue;
     }
     const endpointUrl = validateOutboundHttpUrl(cfg.endpointUrl);
@@ -79,6 +87,13 @@ export async function GET(request: Request) {
         .from("contracts")
         .update({ crm_sync_status: "error", crm_last_synced_at: nowIso })
         .eq("id", contract.id as string);
+      await enqueueOutboundEvent({
+        organizationId: contract.organization_id as string,
+        eventType: "crm.sync_failed",
+        entityType: "contract",
+        entityId: contract.id as string,
+        payload: { reason: "invalid_endpoint_url" },
+      });
       continue;
     }
     attempted++;
@@ -96,6 +111,7 @@ export async function GET(request: Request) {
           source: "contractops",
           event: "contract.sync",
           synced_at: nowIso,
+          schema_version: "v1",
           contract,
         }),
         signal: controller.signal,
@@ -111,6 +127,13 @@ export async function GET(request: Request) {
           .from("integration_connections")
           .update({ status: "error", last_error: `CRM sync failed: ${res.status}` })
           .eq("id", connection.id);
+        await enqueueOutboundEvent({
+          organizationId: contract.organization_id as string,
+          eventType: "crm.sync_failed",
+          entityType: "contract",
+          entityId: contract.id as string,
+          payload: { reason: "http_error", status: res.status },
+        });
         continue;
       }
       const { error } = await admin
@@ -130,6 +153,18 @@ export async function GET(request: Request) {
           action: "crm.sync_ok",
           details: { synced_at: nowIso },
         });
+        await enqueueOutboundEvent({
+          organizationId: contract.organization_id as string,
+          eventType: "crm.sync_ok",
+          entityType: "contract",
+          entityId: contract.id as string,
+          payload: {
+            synced_at: nowIso,
+            source_system: contract.source_system,
+            external_reference_id: contract.external_reference_id,
+          },
+          schemaVersion: "v1",
+        });
       }
     } catch (err) {
       failed++;
@@ -144,6 +179,15 @@ export async function GET(request: Request) {
           last_error: err instanceof Error ? err.message.slice(0, 500) : "crm_sync_error",
         })
         .eq("id", connection.id);
+      await enqueueOutboundEvent({
+        organizationId: contract.organization_id as string,
+        eventType: "crm.sync_failed",
+        entityType: "contract",
+        entityId: contract.id as string,
+        payload: {
+          reason: err instanceof Error ? err.message.slice(0, 200) : "crm_sync_error",
+        },
+      });
     }
   }
 

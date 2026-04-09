@@ -2,6 +2,9 @@
 
 Centralizes client agreements, extracts key operational fields with source citations, and surfaces upcoming actions through dashboards and email reminders. Built for small B2B service firms with 20–200 active contracts.
 
+V3 baseline includes execution-depth upgrades: task dependencies/checklists/threaded comments/artifacts, obligation recurrence + escalation + evidence, approval SLA/delegation/exception tracking, intake request lifecycle metadata, report run history with recipient engagement tracking, and behavior-metrics snapshots.
+Use `docs/V3_GAP_MATRIX.md` as the live phase tracker, and `ENABLE_V3_*` toggles in `.env.example` for phased rollout.
+
 ## Tech stack
 
 | Layer | Tool |
