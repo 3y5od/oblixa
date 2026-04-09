@@ -17,10 +17,13 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { signOut } from "@/actions/auth";
+import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
   canAccessItem,
   isActivePath,
+  isV5NavChildVisible,
+  isV5NavItemVisible,
   type NavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
@@ -39,12 +42,17 @@ const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
 
 export function Sidebar(props: {
   role?: WorkspaceRole;
+  v5Flags?: Record<FeatureFlagKey, boolean>;
   navBadges?: Partial<
     Record<"reviewQueue" | "approvals" | "obligations" | "watchlists", number>
   >;
 }) {
   const pathname = usePathname();
   const role = props.role ?? "viewer";
+  const v5Flags = useMemo(
+    () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
+    [props.v5Flags]
+  );
   const navBadges = props.navBadges ?? {};
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -67,14 +75,16 @@ export function Sidebar(props: {
   }, [collapsed]);
 
   const navBySection = useMemo(() => {
-    const visible = NAV_ITEMS.filter((item) => canAccessItem(item, role));
+    const visible = NAV_ITEMS.filter(
+      (item) => canAccessItem(item, role) && isV5NavItemVisible(item, v5Flags)
+    );
     return {
       primary: visible.filter((item) => item.section === "primary"),
       operations: visible.filter((item) => item.section === "operations"),
       personal: visible.filter((item) => item.section === "personal"),
       workspace: visible.filter((item) => item.section === "workspace"),
     };
-  }, [role]);
+  }, [role, v5Flags]);
 
   const renderNavSection = ({
     title,
@@ -107,67 +117,97 @@ export function Sidebar(props: {
           const Icon = iconKey ? iconByKey[iconKey] : null;
           if (compact || Icon) {
             return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`ui-sidebar-link ${
-                  isActive
-                    ? "ui-sidebar-link-active ui-sidebar-link-active-rail"
-                    : "ui-sidebar-link-idle"
-                }`}
-                aria-current={isActive ? "page" : undefined}
-                title={collapsed ? item.name : undefined}
-              >
-                {Icon ? (
-                  <Icon
-                    size={18}
-                    strokeWidth={1.65}
-                    className="shrink-0 opacity-90"
-                    aria-hidden
-                  />
-                ) : (
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-zinc-500"}`}
-                  />
-                )}
-                {!collapsed && (
-                  <>
-                    <span>{item.name}</span>
-                    {badgeValue > 0 && (
-                      <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
-                        {badgeValue > 99 ? "99+" : badgeValue}
-                      </span>
-                    )}
-                  </>
-                )}
-              </Link>
+              <div key={item.name} className="space-y-0.5">
+                <Link
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`ui-sidebar-link ${
+                    isActive
+                      ? "ui-sidebar-link-active ui-sidebar-link-active-rail"
+                      : "ui-sidebar-link-idle"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                  title={collapsed ? item.name : undefined}
+                >
+                  {Icon ? (
+                    <Icon
+                      size={18}
+                      strokeWidth={1.65}
+                      className="shrink-0 opacity-90"
+                      aria-hidden
+                    />
+                  ) : (
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-zinc-500"}`}
+                    />
+                  )}
+                  {!collapsed && (
+                    <>
+                      <span>{item.name}</span>
+                      {badgeValue > 0 && (
+                        <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
+                          {badgeValue > 99 ? "99+" : badgeValue}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </Link>
+                {!collapsed && item.navChildren?.length
+                  ? item.navChildren
+                      .filter((c) => isV5NavChildVisible(c, v5Flags))
+                      .map((c) => (
+                        <Link
+                          key={`${c.name}-${c.href}`}
+                          href={c.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="ui-sidebar-link ui-sidebar-link-idle pl-9 text-[12px] opacity-90"
+                        >
+                          {c.name}
+                        </Link>
+                      ))
+                  : null}
+              </div>
             );
           }
 
           return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                isActive
-                  ? "bg-white/[0.1] text-zinc-100"
-                  : "text-zinc-300 hover:bg-white/[0.05] hover:text-zinc-100"
-              }`}
-              aria-current={isActive ? "page" : undefined}
-              title={item.description}
-            >
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-zinc-100" : "bg-zinc-500"}`}
-              />
-              <span>{item.name}</span>
-              {badgeValue > 0 && (
-                <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
-                  {badgeValue > 99 ? "99+" : badgeValue}
-                </span>
-              )}
-            </Link>
+            <div key={item.name} className="space-y-0.5">
+              <Link
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] transition-colors ${
+                  isActive
+                    ? "bg-white/[0.1] text-zinc-100"
+                    : "text-zinc-300 hover:bg-white/[0.05] hover:text-zinc-100"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+                title={item.description}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-zinc-100" : "bg-zinc-500"}`}
+                />
+                <span>{item.name}</span>
+                {badgeValue > 0 && (
+                  <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
+                    {badgeValue > 99 ? "99+" : badgeValue}
+                  </span>
+                )}
+              </Link>
+              {!collapsed && item.navChildren?.length
+                ? item.navChildren
+                    .filter((c) => isV5NavChildVisible(c, v5Flags))
+                    .map((c) => (
+                      <Link
+                        key={`${c.name}-${c.href}`}
+                        href={c.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-2 rounded-lg py-1.5 pr-3 pl-8 text-[12px] text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-zinc-100"
+                      >
+                        {c.name}
+                      </Link>
+                    ))
+                : null}
+            </div>
           );
         })}
       </nav>

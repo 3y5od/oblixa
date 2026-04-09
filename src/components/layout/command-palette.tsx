@@ -3,17 +3,40 @@
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 import { Search, Command } from "lucide-react";
+import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
   canAccessItem,
+  isV5NavItemVisible,
   type NavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
 
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 
-export function CommandPalette(props: { role?: WorkspaceRole }) {
+const DEEP_LINK_COMMANDS: NavItem[] = [
+  {
+    name: "Compare campaigns & simulations",
+    href: "/campaigns/compare",
+    description: "Side-by-side campaign progress and simulation inputs.",
+    section: "primary",
+    v5FlagsAnyOf: ["v5PortfolioCampaigns"],
+  },
+];
+
+function navItemVisible(item: NavItem, v5Flags: Record<FeatureFlagKey, boolean>) {
+  return isV5NavItemVisible(item, v5Flags);
+}
+
+export function CommandPalette(props: {
+  role?: WorkspaceRole;
+  v5Flags?: Record<FeatureFlagKey, boolean>;
+}) {
   const role = props.role ?? "viewer";
+  const v5Flags = useMemo(
+    () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
+    [props.v5Flags]
+  );
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -68,13 +91,16 @@ export function CommandPalette(props: { role?: WorkspaceRole }) {
   }, []);
 
   const items = useMemo(() => {
-    const filtered = NAV_ITEMS.filter((item) => canAccessItem(item, role));
+    const base = [...NAV_ITEMS, ...DEEP_LINK_COMMANDS];
+    const filtered = base.filter(
+      (item) => canAccessItem(item, role) && navItemVisible(item, v5Flags)
+    );
     if (!query.trim()) return filtered;
     const q = query.trim().toLowerCase();
     return filtered.filter((item) =>
       `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
     );
-  }, [query, role]);
+  }, [query, role, v5Flags]);
   const grouped = useMemo(() => {
     const groups = {
       primary: items.filter((item) => item.section === "primary"),

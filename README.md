@@ -2,9 +2,9 @@
 
 **Oblixa** is a contract execution platform for post-signature operations: turning signed agreements into tracked work, deadlines, approvals, obligations, evidence, and audit-ready reporting. Built for small B2B teams with tens to a few hundred active contracts.
 
-**V4** unifies execution depth (tasks, obligations, approvals, renewals, exceptions, programs, report packs) with scheduled automation, operational casefiles, and policy-aware workflows. Product direction and feature detail live in [docs/V4.md](docs/V4.md). Production cutover steps (DNS, Supabase, Stripe, Slack, email) are in [docs/V4_CUTOVER_CHECKLIST.md](docs/V4_CUTOVER_CHECKLIST.md).
+**V4** is the execution layer in the codebase: tasks, obligations, approvals, renewals, exceptions, programs, report packs, and `/api/cron/v4/*` automation. Module toggles use `ENABLE_V3_*` in [`.env.example`](.env.example) (legacy names); when unset or empty, modules default to **on**.
 
-Module toggles still use env names `ENABLE_V3_*` in [`.env.example`](.env.example) for backward compatibility; when unset or empty, modules default to **on**.
+**V5** adds the control plane: decision workspaces, portfolio campaigns, simulation/intelligence, relationship summaries, external action links, and control-room nav. It uses `ENABLE_V5_*` in [`.env.example`](.env.example) (default **on** when unset). Operator steps: [docs/V5_RELEASE_RUNBOOK.md](docs/V5_RELEASE_RUNBOOK.md) and [docs/v5_phase_gated_delivery.md](docs/v5_phase_gated_delivery.md). Product intent: [docs/oblixa_v5_strategy_spec.md](docs/oblixa_v5_strategy_spec.md).
 
 ## Tech stack
 
@@ -76,29 +76,38 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `npm run check:cron-canary` | Probe cron routes on `COMPREHENSIVE_PASS_BASE_URL` (needs `CRON_SECRET`) |
 | `npm run check:comprehensive-pass` | Staging-style cron + migration + RLS checks (see `.env.example`) |
 | `npm run preflight:release` | Validate required release env vars |
-| `npm run release:checklist` | Run preflight + verify + e2e + comprehensive pass |
-| `npm run verify` | Run migration check + lint + typecheck + tests + production build |
+| `npm run release:checklist` | Preflight + verify, then `next start` on port 3000 → comprehensive pass (localhost, validates V5 crons) → Playwright reusing that server |
+| `npm run verify` | Migration + API route test inventory + cron alignment + lint + typecheck + tests + coverage + build |
+| `npm run check:api-route-tests` | Fail if an API route has no colocated test and is not allowlisted |
+| `npm run test:coverage` | Vitest with coverage thresholds on `src/lib/v5`, `src/lib/security`, `src/lib/observability`, and `src/lib/stripe.ts` |
+| `npm run audit:moderate` | Full `npm audit` (includes moderate/low; CI only fails high+) — use for periodic review |
+| `npm run sbom` | Write CycloneDX `cyclonedx-sbom.json` from the lockfile (gitignored). May print `npm ls` peer warnings; the generator uses `--ignore-npm-errors` so a typical tree still produces a file. |
 
 ## CI quality gate
 
 The default CI workflow runs:
 
-1. `npm run check:migrations`
-2. `npm run lint`
-3. `npm run typecheck`
-4. `npm run test`
-5. `npm run build`
-6. `npm run test:e2e` (includes accessibility checks)
+1. `npm run check:migrations` and `npm run check:api-route-tests`
+2. `npm run check:vercel-cron`
+3. `npm audit` (high or worse fails the job)
+4. ESLint and TypeScript
+5. `npm run test` and `npm run test:coverage`
+6. Semgrep, OSV scanner, and Gitleaks (same gate as unit tests)
+7. `npm run build` and `npm run test:e2e` (includes accessibility checks)
 
 An optional job runs `npm run check:comprehensive-pass` against staging when the relevant GitHub secrets are set.
 
+**GitHub green is not the same as production-ready:** `preflight:release` and a staging comprehensive pass use real secrets and are still manual steps before a sensitive cutover. Dependency updates are proposed weekly via Dependabot (`.github/dependabot.yml`).
+
+**Branch protection:** require the workflow’s **`quality`** job (or equivalent) on the default branch so CI matches what you merge. **Fork PRs** often cannot use E2E secrets—see [docs/V5_RELEASE_RUNBOOK.md](docs/V5_RELEASE_RUNBOOK.md) (CI gates vs production readiness).
+
 ## Release operations
 
-Use [docs/RELEASE_RUNBOOK.md](docs/RELEASE_RUNBOOK.md) for release order, rollback notes, key rotation, and links to the V4 cutover checklist.
+See [CHANGELOG.md](CHANGELOG.md) for user-facing release notes. Use [docs/V5_RELEASE_RUNBOOK.md](docs/V5_RELEASE_RUNBOOK.md) for V5 migrations, feature flags, cron auth, and rollback. Production cutover checklist prose (DNS, Supabase, Stripe, redirects) may live in your internal wiki; recover retired repo copies from git history if needed.
 
 Playwright e2e expects a stable deployment target (`PLAYWRIGHT_BASE_URL`) when not running against a local preview.
 
-Optional authenticated e2e smoke uses:
+Optional authenticated e2e smoke uses repository secrets (not available to workflows from forked PRs in the default GitHub security model):
 
 - `E2E_TEST_EMAIL`
 - `E2E_TEST_PASSWORD`
@@ -109,7 +118,7 @@ Optional authenticated e2e smoke uses:
 src/
 └── app/          # Next.js App Router pages, layouts, and route handlers
 public/           # Static assets
-docs/             # V4 spec, cutover checklist, release runbook
+docs/             # V5 spec, runbooks, API/traceability docs
 ```
 
 ## Deployment (Vercel)
@@ -118,4 +127,4 @@ docs/             # V4 spec, cutover checklist, release runbook
 2. Import the repo in Vercel.
 3. Add all env vars from `.env.example` in Vercel → Settings → Environment Variables.
 4. Deploy.
-5. Add the production URL to Supabase Auth redirect URLs and Stripe webhook endpoints (see [docs/V4_CUTOVER_CHECKLIST.md](docs/V4_CUTOVER_CHECKLIST.md)).
+5. Add the production URL to Supabase Auth redirect URLs and Stripe webhook endpoints (match dashboard settings to your deployment URL).

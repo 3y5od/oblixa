@@ -1,0 +1,27 @@
+# Paths under src/app/api/ that intentionally omit colocated route.test.ts.
+# Prefer colocated tests; use this for routes covered by bundled *.test.ts files.
+# One path per line (use forward slashes).
+
+# campaigns/[id]/lifecycle-routes.test.ts
+campaigns/[id]/close/route.ts
+campaigns/[id]/pause/route.ts
+campaigns/[id]/preview/route.ts
+campaigns/[id]/resume/route.ts
+campaigns/[id]/start/route.ts
+
+# security-org-scope-queries.test.ts
+campaigns/[id]/route.ts
+
+# cron/v5/v5-crons-feature-skip.test.ts
+cron/v5/capacity-forecast-refresh/route.ts
+cron/v5/external-followup/route.ts
+cron/v5/portfolio-risk-recompute/route.ts
+cron/v5/recommendation-refresh/route.ts
+cron/v5/simulation-snapshots/route.ts
+
+# intelligence/v5-intelligence-routes.test.ts
+intelligence/decision-queue/route.ts
+intelligence/portfolio-by-counterparty/route.ts
+intelligence/portfolio-by-program/route.ts
+intelligence/portfolio-signals/route.ts
+intelligence/recommendations/route.ts

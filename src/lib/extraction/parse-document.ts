@@ -1,6 +1,3 @@
-import pdfParse from "pdf-parse";
-import mammoth from "mammoth";
-
 function htmlToPlainText(html: string): string {
   return html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
@@ -25,6 +22,8 @@ export async function extractTextFromBuffer(
   if (mimeType === "application/pdf") {
     // pdf-parse 1.x: pure JS text extraction for Node/serverless. v2.x pulls in
     // pdfjs-dist + @napi-rs/canvas and breaks on Vercel (DOMMatrix / native canvas).
+    // Dynamic import keeps mammoth off the module graph for PDF-only work (and vice versa).
+    const pdfParse = (await import("pdf-parse")).default;
     const result = await pdfParse(buffer);
     return result.text ?? "";
   }
@@ -33,6 +32,7 @@ export async function extractTextFromBuffer(
     mimeType ===
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
+    const mammoth = (await import("mammoth")).default;
     const raw = await mammoth.extractRawText({ buffer });
     let text = raw.value;
     if (raw.messages?.length) {

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { fetchWithRetry, withRetry } from "@/lib/extraction/retry";
+import {
+  fetchWithRetry,
+  isRetryableOpenAIError,
+  withRetry,
+} from "@/lib/extraction/retry";
 
 describe("withRetry", () => {
   it("returns on first success", async () => {
@@ -41,6 +45,26 @@ describe("withRetry", () => {
       )
     ).rejects.toThrow("no");
     expect(n).toBe(1);
+  });
+});
+
+describe("isRetryableOpenAIError", () => {
+  it("treats APIConnectionError by name as retryable", () => {
+    const err = new Error("reset");
+    err.name = "APIConnectionError";
+    expect(isRetryableOpenAIError(err)).toBe(true);
+  });
+
+  it("treats APIError with 429 as retryable", () => {
+    const err = new Error("rate");
+    err.name = "APIError";
+    expect(isRetryableOpenAIError(Object.assign(err, { status: 429 }))).toBe(
+      true
+    );
+  });
+
+  it("does not retry generic errors", () => {
+    expect(isRetryableOpenAIError(new Error("nope"))).toBe(false);
   });
 });
 

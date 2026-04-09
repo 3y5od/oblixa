@@ -4,8 +4,9 @@
  */
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
-import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 
 type SlackTaskPayload = {
@@ -24,10 +25,7 @@ const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
 const TEAM_KEY_RE = /^[a-z0-9_-]{1,50}$/;
 
 function isAuthorized(request: Request): boolean {
-  const token = process.env.INBOUND_AUTOMATION_TOKEN?.trim();
-  if (!token) return false;
-  const auth = parseBearerToken(request.headers.get("authorization"));
-  return !!auth && secureCompareUtf8(auth, token);
+  return isInboundAutomationAuthorized(request, "slack");
 }
 
 export async function POST(request: Request) {
@@ -61,6 +59,8 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const orgBlocked = inboundOrgNotAllowedResponse(body.organizationId);
+  if (orgBlocked) return orgBlocked;
   if (body.assigneeId && !isUuid(body.assigneeId)) {
     return NextResponse.json({ error: "assigneeId must be a valid UUID" }, { status: 400 });
   }

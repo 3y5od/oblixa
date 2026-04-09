@@ -10,6 +10,7 @@ import {
 } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
+import { getFeatureFlags } from "@/lib/feature-flags";
 
 type NavBadges = {
   reviewQueue: number;
@@ -70,16 +71,17 @@ export default async function DashboardLayout({
   }
 
   const navBadges = user && orgId ? await loadNavBadges(orgId, user.id) : {};
+  const v5Flags = getFeatureFlags();
 
   return (
     <div className="flex h-screen bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(248,248,246,0.9))]">
-      <Sidebar role={role} navBadges={navBadges} />
+      <Sidebar role={role} navBadges={navBadges} v5Flags={v5Flags} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas">
         <Header
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
         />
-        <CommandPaletteLoader role={role} />
+        <CommandPaletteLoader role={role} v5Flags={v5Flags} />
         <main
           id="main-content"
           tabIndex={-1}

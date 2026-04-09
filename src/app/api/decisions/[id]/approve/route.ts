@@ -1,0 +1,57 @@
+import { NextResponse } from "next/server";
+import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
+import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const disabled = requireV5ApiFeature("v5DecisionFoundation");
+  if (disabled) return disabled;
+  const { id } = await params;
+  const ctx = await getApiAuthContext();
+  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!(await canManageCapability(ctx, "approvals_manage"))) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  const raw = await request.json().catch(() => ({}));
+  const body = readJsonBody<{ note?: string }>(raw, {});
+  const note = toSafeString(body.note);
+
+  const { data: current } = await ctx.admin
+    .from("decision_workspaces")
+    .select("status")
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .maybeSingle();
+  if (!current) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (!["open", "in_review"].includes(current.status)) {
+    return NextResponse.json(
+      { error: "Only open or in_review decisions can be approved" },
+      { status: 409 }
+    );
+  }
+
+  const { data, error } = await ctx.admin
+    .from("decision_workspaces")
+    .update({ status: "approved" })
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .select("id, status, updated_at")
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (!data) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+
+  await ctx.admin.from("decision_workspace_events").insert({
+    organization_id: ctx.orgId,
+    decision_workspace_id: id,
+    event_type: "decision.approved",
+    payload_json: {
+      prior_status: current.status,
+      note: note || undefined,
+    },
+    actor_user_id: ctx.userId,
+  });
+
+  return NextResponse.json({ decision: data });
+}
+

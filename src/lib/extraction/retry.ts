@@ -1,5 +1,3 @@
-import { APIConnectionError, APIError } from "openai";
-
 export interface WithRetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;
@@ -39,11 +37,17 @@ export async function withRetry<T>(
   throw lastErr;
 }
 
+/**
+ * Mirrors OpenAI SDK `APIConnectionError` / `APIError` checks without importing `openai`,
+ * so modules that only need retry helpers do not pull the SDK into the graph.
+ */
 export function isRetryableOpenAIError(err: unknown): boolean {
-  if (err instanceof APIConnectionError) return true;
-  if (err instanceof APIError && err.status != null) {
-    const s = err.status;
-    return s === 429 || s >= 500;
+  if (!err || typeof err !== "object") return false;
+  const name = (err as Error).name;
+  if (name === "APIConnectionError") return true;
+  if (name === "APIError") {
+    const s = (err as { status?: number }).status;
+    if (typeof s === "number") return s === 429 || s >= 500;
   }
   return false;
 }

@@ -47,6 +47,7 @@ import type {
   OrgRole,
 } from "@/lib/types";
 import { buildUnifiedWorkflowTimeline } from "@/lib/workflow-activity";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -91,7 +92,7 @@ export default async function ContractDetailPage(props: {
     admin
       .from("contracts")
       .select(
-        "id, organization_id, title, counterparty, contract_type, status, intake_status, health_status, required_next_step, source_system, region, annual_value, external_reference_id, owner_id, secondary_owner_id, created_by, created_at, updated_at, contract_files(*), extracted_fields(*)"
+        "id, organization_id, title, counterparty, contract_type, status, intake_status, health_status, required_next_step, source_system, region, annual_value, external_reference_id, owner_id, secondary_owner_id, created_by, created_at, updated_at, account_key, counterparty_key, contract_files(*), extracted_fields(*)"
       )
       .eq("id", id)
       .eq("organization_id", orgId)
@@ -625,6 +626,36 @@ export default async function ContractDetailPage(props: {
             </div>
           </div>
           )}
+
+          {activeTab === "overview" &&
+            isFeatureEnabled("v5RelationshipLayer") &&
+            (Boolean((contract as { account_key?: string | null }).account_key) ||
+              Boolean((contract as { counterparty_key?: string | null }).counterparty_key)) && (
+              <div className="ui-card border-emerald-200/50 bg-emerald-50/30 p-5 md:p-6">
+                <h2 className="ui-section-title text-base">Relationship context</h2>
+                <p className="mt-1 text-[12px] text-zinc-600">
+                  Open portfolio summaries for keys on this contract.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(contract as { account_key?: string | null }).account_key ? (
+                    <Link
+                      href={`/accounts/${encodeURIComponent(String((contract as { account_key?: string | null }).account_key))}`}
+                      className="ui-btn-secondary px-3 py-2 text-xs"
+                    >
+                      Account workspace
+                    </Link>
+                  ) : null}
+                  {(contract as { counterparty_key?: string | null }).counterparty_key ? (
+                    <Link
+                      href={`/counterparties/${encodeURIComponent(String((contract as { counterparty_key?: string | null }).counterparty_key))}`}
+                      className="ui-btn-secondary px-3 py-2 text-xs"
+                    >
+                      Counterparty workspace
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            )}
 
           {(activeTab === "overview" || activeTab === "dates") && (
           <div className="ui-card overflow-hidden">

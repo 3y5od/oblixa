@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
-import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 
 type EmailTaskPayload = {
@@ -19,10 +20,7 @@ type EmailTaskPayload = {
 const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
 
 function isAuthorized(request: Request): boolean {
-  const token = process.env.INBOUND_AUTOMATION_TOKEN?.trim();
-  if (!token) return false;
-  const auth = parseBearerToken(request.headers.get("authorization"));
-  return !!auth && secureCompareUtf8(auth, token);
+  return isInboundAutomationAuthorized(request, "email");
 }
 
 export async function POST(request: Request) {
@@ -61,6 +59,8 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const orgBlocked = inboundOrgNotAllowedResponse(payload.organizationId);
+  if (orgBlocked) return orgBlocked;
   if (payload.subject.trim().length > 240) {
     return NextResponse.json({ error: "subject must be 240 characters or fewer" }, { status: 400 });
   }

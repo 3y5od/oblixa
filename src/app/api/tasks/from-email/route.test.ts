@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 describe("POST /api/tasks/from-email", () => {
   beforeEach(() => {
     delete process.env.INBOUND_AUTOMATION_TOKEN;
+    delete process.env.INBOUND_EMAIL_AUTOMATION_TOKEN;
   });
 
   it("returns 401 when inbound token is not configured", async () => {

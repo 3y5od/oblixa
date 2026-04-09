@@ -3,7 +3,12 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardUpper } from "@/components/dashboard/dashboard-upper";
 import { DashboardLower } from "@/components/dashboard/dashboard-lower";
+import { V5ControlRoomStrip } from "@/components/dashboard/v5-control-room-strip";
 import type { WorkspaceRole } from "@/lib/navigation";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { fetchControlRoomDashboardData } from "@/lib/v5/control-room-dashboard";
+import { V5TelemetryCompact } from "@/components/dashboard/v5-telemetry-compact";
+import { parseV5SignalQualityForDisplay } from "@/lib/v5/v5-signal-quality-labels";
 
 function DashboardUpperFallback() {
   return (
@@ -47,11 +52,44 @@ export default async function DashboardPage(props: {
     return <WorkspaceRequiredState />;
   }
 
-  const { orgId, user, role } = ctx;
+  const { orgId, user, role, admin } = ctx;
   const workspaceRole = role as WorkspaceRole;
+  const showControlRoomStrip = isFeatureEnabled("v5ControlRoomUx");
+  const intelligenceOn = isFeatureEnabled("v5SimulationAndIntelligence");
+  const liveControlRoom = showControlRoomStrip
+    ? await fetchControlRoomDashboardData(admin, orgId)
+    : null;
+
+  const canViewV5Telemetry =
+    workspaceRole === "admin" ||
+    workspaceRole === "manager" ||
+    workspaceRole === "ops_manager";
+  let telemetryCompact: { metricsDate: string; rows: ReturnType<typeof parseV5SignalQualityForDisplay> } | null =
+    null;
+  if ((intelligenceOn || showControlRoomStrip) && canViewV5Telemetry) {
+    const { data } = await admin
+      .from("org_behavior_metrics")
+      .select("metrics_date, v5_signal_quality_json")
+      .eq("organization_id", orgId)
+      .order("metrics_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data?.metrics_date) {
+      telemetryCompact = {
+        metricsDate: data.metrics_date,
+        rows: parseV5SignalQualityForDisplay(data.v5_signal_quality_json),
+      };
+    }
+  }
 
   return (
     <div className="space-y-7 md:space-y-8">
+      {showControlRoomStrip ? (
+        <V5ControlRoomStrip liveCards={liveControlRoom?.cards} />
+      ) : null}
+      {telemetryCompact ? (
+        <V5TelemetryCompact metricsDate={telemetryCompact.metricsDate} rows={telemetryCompact.rows} />
+      ) : null}
       <Suspense fallback={<DashboardUpperFallback />}>
         <DashboardUpper
           orgId={orgId}

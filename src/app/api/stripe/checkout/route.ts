@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   if (membership.role !== "admin") {
     return NextResponse.json({ error: "Only admins can manage billing" }, { status: 403 });
   }
-  const stripeClient = getStripeClient();
+  const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/checkout] config:", stripeClient.error);
     return NextResponse.json({ error: "Billing is not configured" }, { status: 500 });

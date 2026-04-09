@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
+import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
-  const expected = process.env.INBOUND_AUTOMATION_TOKEN?.trim();
-  if (!expected) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const ip = getClientIpFromRequest(request);
   const rate = await rateLimitCheck(
     `inbound:integrations-actions:${ip}`,
@@ -19,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
   }
 
-  if (!token || !secureCompareUtf8(token, expected)) {
+  if (!isInboundAutomationAuthorized(request, "integrations_callback")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -42,6 +37,9 @@ export async function POST(request: Request) {
   };
   const organizationId = String(body.organizationId ?? "").trim();
   if (!organizationId) return NextResponse.json({ error: "organizationId is required" }, { status: 400 });
+
+  const blocked = inboundOrgNotAllowedResponse(organizationId);
+  if (blocked) return blocked;
 
   const admin = await createAdminClient();
   if (body.action === "create_task") {

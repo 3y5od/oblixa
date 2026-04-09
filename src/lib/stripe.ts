@@ -1,15 +1,31 @@
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { getStripeServerEnv } from "@/lib/env/server";
 
-let cachedStripe: Stripe | null = null;
-let cachedPriceId: string | null = null;
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "incomplete"
+  | "none";
 
-function readStripeConfig():
-  | { ok: true; secretKey: string; priceId: string }
-  | { ok: false; error: string } {
+type Ok = { ok: true; stripe: Stripe; priceId: string };
+type Err = { ok: false; error: string };
+
+let cached: Ok | null = null;
+
+/**
+ * Returns a Stripe SDK client. Loads the `stripe` package on first use so routes
+ * that never touch billing do not pay the import cost at cold start.
+ */
+export async function getStripeClient(): Promise<Ok | Err> {
+  if (cached) return cached;
   try {
     const env = getStripeServerEnv();
-    return { ok: true, secretKey: env.secretKey, priceId: env.priceId };
+    const { default: StripeCtor } = await import("stripe");
+    const stripe = new StripeCtor(env.secretKey, { typescript: true });
+    cached = { ok: true, stripe, priceId: env.priceId };
+    return cached;
   } catch (err) {
     return {
       ok: false,
@@ -18,21 +34,6 @@ function readStripeConfig():
   }
 }
 
-export function getStripeClient():
-  | { ok: true; stripe: Stripe; priceId: string }
-  | { ok: false; error: string } {
-  if (cachedStripe && cachedPriceId) {
-    return { ok: true, stripe: cachedStripe, priceId: cachedPriceId };
-  }
-  const cfg = readStripeConfig();
-  if (!cfg.ok) return cfg;
-  cachedStripe = new Stripe(cfg.secretKey, { typescript: true });
-  cachedPriceId = cfg.priceId;
-  return { ok: true, stripe: cachedStripe, priceId: cachedPriceId };
-}
-
-export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
-
 export function resolveSubscriptionStatus(
   sub: Stripe.Subscription | null | undefined
 ): SubscriptionStatus {
@@ -40,6 +41,7 @@ export function resolveSubscriptionStatus(
   if (sub.status === "active") return "active";
   if (sub.status === "trialing") return "trialing";
   if (sub.status === "past_due") return "past_due";
-  if (sub.status === "incomplete" || sub.status === "incomplete_expired") return "incomplete";
+  if (sub.status === "incomplete" || sub.status === "incomplete_expired")
+    return "incomplete";
   return "canceled";
 }

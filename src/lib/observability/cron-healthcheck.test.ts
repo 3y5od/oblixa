@@ -1,0 +1,44 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+
+describe("pingCronHealthcheck", () => {
+  const origFetch = globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+    delete process.env.CRON_HEALTHCHECK_URL;
+    vi.restoreAllMocks();
+  });
+
+  it("no-ops when CRON_HEALTHCHECK_URL is unset", () => {
+    const fetchSpy = vi.fn();
+    globalThis.fetch = fetchSpy;
+    pingCronHealthcheck("/api/cron/v5/foo", { ok: true });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("POSTs JSON to a validated HTTPS URL when set", async () => {
+    process.env.CRON_HEALTHCHECK_URL = "https://example.com/ping";
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchSpy;
+    pingCronHealthcheck("/api/cron/v5/foo", { ok: true });
+    await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalled());
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://example.com/ping",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+    const body = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
+    expect(body).toMatchObject({ route: "/api/cron/v5/foo", ok: true });
+  });
+
+  it("ignores invalid URLs", () => {
+    process.env.CRON_HEALTHCHECK_URL = "http://127.0.0.1/nope";
+    const fetchSpy = vi.fn();
+    globalThis.fetch = fetchSpy;
+    pingCronHealthcheck("/r", {});
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});

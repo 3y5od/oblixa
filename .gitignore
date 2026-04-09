@@ -20,6 +20,7 @@ dist/
 
 # Testing & coverage
 coverage/
+cyclonedx-sbom.json
 test-results/
 playwright-report/
 blob-report/

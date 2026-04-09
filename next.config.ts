@@ -8,6 +8,11 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const isProd = process.env.NODE_ENV === "production";
 
+const sentryRelease =
+  process.env.SENTRY_RELEASE?.trim() ||
+  process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
+  process.env.GITHUB_SHA?.trim();
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
@@ -58,7 +63,10 @@ if (process.env.VERCEL) {
 }
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdf-parse"],
+  ...(sentryRelease
+    ? { env: { NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease } }
+    : {}),
+  serverExternalPackages: ["pdf-parse", "mammoth"],
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   experimental: {
     optimizePackageImports: ["lucide-react", "date-fns"],

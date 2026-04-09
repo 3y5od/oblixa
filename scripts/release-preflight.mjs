@@ -1,5 +1,10 @@
 // Used by `npm run preflight:release` / `release:checklist` before production-style runs.
 // Stricter than minimal local dev: crons and absolute URLs need these in deployed environments.
+import nextEnv from "@next/env";
+
+const { loadEnvConfig } = nextEnv;
+loadEnvConfig(process.cwd());
+
 const required = [
   "CRON_SECRET",
   "INTEGRATION_TOKEN_ENCRYPTION_KEY",

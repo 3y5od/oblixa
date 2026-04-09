@@ -2,7 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true,
+  // Local: serialized for stability. CI: parallelize against a production `next start` server.
+  fullyParallel: !!process.env.CI,
+  workers: process.env.CI ? undefined : 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   use: {
@@ -13,7 +15,9 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: process.env.CI ? "npm run start" : "npm run dev -- --webpack",
+        // Use production runtime instead of dev compilation to avoid flaky
+        // navigation aborts while routes compile in parallel.
+        command: "npm run start",
         url: "http://127.0.0.1:3000",
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

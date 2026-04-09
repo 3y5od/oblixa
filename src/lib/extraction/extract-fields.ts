@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import type { ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { splitTextIntoExtractionChunks } from "@/lib/extraction/chunk-text";
@@ -7,8 +6,17 @@ import { isRetryableOpenAIError, withRetry } from "@/lib/extraction/retry";
 import { FIELD_NAMES, type FieldName } from "@/lib/types";
 import { preprocessContractTextForExtraction } from "@/lib/extraction/preprocess-text";
 
-function getOpenAI(): OpenAI {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+type OpenAIClient = InstanceType<Awaited<typeof import("openai")>["default"]>;
+
+let openaiClientPromise: Promise<OpenAIClient> | null = null;
+
+async function getOpenAIClient(): Promise<OpenAIClient> {
+  if (!openaiClientPromise) {
+    openaiClientPromise = import("openai").then(
+      ({ default: OpenAI }) => new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    );
+  }
+  return openaiClientPromise;
 }
 
 /** Context sent to the model per chunk (larger window for long MSAs). */
@@ -240,7 +248,10 @@ function resolveExtractionModel(chunkIndex: number, totalChunks: number): string
 async function chatCompletionWithRetry(
   params: ChatCompletionCreateParamsNonStreaming
 ) {
-  return withRetry(() => getOpenAI().chat.completions.create(params), {
+  return withRetry(async () => {
+    const client = await getOpenAIClient();
+    return client.chat.completions.create(params);
+  }, {
     maxAttempts: 4,
     baseDelayMs: 500,
     shouldRetry: isRetryableOpenAIError,

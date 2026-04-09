@@ -9,8 +9,87 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  quality:
+  # Split so static analysis + unit tests overlap with build + E2E (wall-clock win on CI).
+  quality_static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit (high+)
+        run: npm audit --audit-level=high
+
+      - name: Migration prefix guard
+        run: npm run check:migrations
+
+      - name: API route test coverage (colocated or allowlist)
+        run: npm run check:api-route-tests
+
+      - name: Vercel cron vs codebase alignment
+        run: npm run check:vercel-cron
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npm run typecheck
+
+  quality_unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Vitest (with v5/security coverage thresholds)
+        run: npm run test:coverage
+
+  quality_security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Install Semgrep
+        run: pip install "semgrep>=1.90.0"
+
+      - name: Semgrep (OSS rules)
+        run: semgrep scan --config p/ci --config p/typescript --error .
+
+      - name: OSV dependency scan
+        uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
+        with:
+          scan-args: |-
+            --lockfile=package-lock.json
+
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  quality_build_e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -18,9 +97,9 @@ jobs:
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -29,27 +108,12 @@ jobs:
         run: npm ci
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
-
-      - name: npm audit (high+)
-        run: npm audit --audit-level=high
-
-      - name: Migration prefix guard
-        run: npm run check:migrations
-
-      - name: ESLint
-        run: npm run lint
-
-      - name: TypeScript
-        run: npm run typecheck
-
-      - name: Vitest
-        run: npm run test
 
       - name: Production build
         run: npm run build
@@ -65,15 +129,23 @@ jobs:
       - name: Playwright smoke + accessibility
         run: npm run test:e2e
 
+  # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
+  quality:
+    runs-on: ubuntu-latest
+    needs: [quality_static, quality_unit, quality_security, quality_build_e2e]
+    steps:
+      - name: All checks passed
+        run: echo "ok"
+
   runtime_comprehensive_pass:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: quality
     if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' && secrets.COMPREHENSIVE_PASS_EMAIL != '' && secrets.COMPREHENSIVE_PASS_PASSWORD != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: ".nvmrc"
           cache: npm

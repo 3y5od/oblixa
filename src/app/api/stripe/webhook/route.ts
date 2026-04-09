@@ -1,25 +1,11 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/stripe";
-import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/supabase/server";
 import type Stripe from "stripe";
-import {
-  getSupabasePublicEnv,
-  getSupabaseServiceRoleKey,
-} from "@/lib/env/server";
 import {
   captureServerException,
   captureServerMessage,
 } from "@/lib/observability/sentry";
-
-function getAdminSupabase() {
-  const { url } = getSupabasePublicEnv();
-  const serviceRoleKey = getSupabaseServiceRoleKey();
-  return createServerClient(
-    url,
-    serviceRoleKey,
-    { cookies: { getAll: () => [], setAll: () => {} } }
-  );
-}
 
 function subscriptionPeriodEndIso(sub: Stripe.Subscription): string | null {
   const first = sub.items?.data?.[0];
@@ -36,7 +22,7 @@ export async function POST(request: Request) {
     captureServerMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
-  const stripeClient = getStripeClient();
+  const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/webhook] config:", stripeClient.error);
     captureServerMessage(stripeClient.error, { level: "error" });
@@ -60,9 +46,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  let supabase: ReturnType<typeof getAdminSupabase>;
+  let supabase: Awaited<ReturnType<typeof createAdminClient>>;
   try {
-    supabase = getAdminSupabase();
+    supabase = await createAdminClient();
   } catch (err) {
     const message = err instanceof Error ? err.message : "Supabase env misconfigured";
     console.error("[stripe/webhook] configuration error:", message);

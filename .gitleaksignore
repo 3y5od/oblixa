@@ -1,0 +1,2 @@
+# Allowlists live in `.gitleaks.toml` (paths for tests/e2e). This file is kept for tooling
+# that only reads `.gitleaksignore`; leave empty so rules are not duplicated.

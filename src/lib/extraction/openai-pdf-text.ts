@@ -1,8 +1,20 @@
-import OpenAI, { toFile } from "openai";
 import { isRetryableOpenAIError, withRetry } from "@/lib/extraction/retry";
 
-function getOpenAI(): OpenAI {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+type OpenAIClient = InstanceType<Awaited<typeof import("openai")>["default"]>;
+
+let openAiModulePromise: Promise<{
+  client: OpenAIClient;
+  toFile: (typeof import("openai"))["toFile"];
+}> | null = null;
+
+async function getOpenAiForPdf() {
+  if (!openAiModulePromise) {
+    openAiModulePromise = import("openai").then((m) => ({
+      client: new m.default({ apiKey: process.env.OPENAI_API_KEY }),
+      toFile: m.toFile,
+    }));
+  }
+  return openAiModulePromise;
 }
 
 /**
@@ -24,14 +36,15 @@ export async function extractTextFromPdfViaOpenAi(
   const run = async (model: string): Promise<string> => {
     return withRetry(
       async () => {
-        const upload = await getOpenAI().files.create({
+        const { client, toFile } = await getOpenAiForPdf();
+        const upload = await client.files.create({
           file: await toFile(buffer, fileName || "document.pdf", {
             type: "application/pdf",
           }),
           purpose: "user_data",
         });
         try {
-          const response = await getOpenAI().chat.completions.create({
+          const response = await client.chat.completions.create({
             model,
             temperature: 0,
             messages: [
@@ -54,7 +67,7 @@ export async function extractTextFromPdfViaOpenAi(
           });
           return response.choices[0]?.message?.content?.trim() ?? "";
         } finally {
-          await getOpenAI().files.delete(upload.id).catch(() => {});
+          await client.files.delete(upload.id).catch(() => {});
         }
       },
       { maxAttempts: 3, baseDelayMs: 600, shouldRetry: isRetryableOpenAIError }

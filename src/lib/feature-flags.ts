@@ -1,4 +1,4 @@
-type FeatureFlagKey =
+export type FeatureFlagKey =
   | "v3TasksEngine"
   | "v3ObligationsExecution"
   | "v3ApprovalsSla"
@@ -6,7 +6,13 @@ type FeatureFlagKey =
   | "v3IntakePipeline"
   | "v3PersonaDashboards"
   | "v3ReportingHistory"
-  | "v3AutomationExpansion";
+  | "v3AutomationExpansion"
+  | "v5DecisionFoundation"
+  | "v5PortfolioCampaigns"
+  | "v5SimulationAndIntelligence"
+  | "v5RelationshipLayer"
+  | "v5ExternalCollaboration"
+  | "v5ControlRoomUx";
 
 const envMap: Record<FeatureFlagKey, string> = {
   v3TasksEngine: "ENABLE_V3_TASKS_ENGINE",
@@ -17,6 +23,12 @@ const envMap: Record<FeatureFlagKey, string> = {
   v3PersonaDashboards: "ENABLE_V3_PERSONA_DASHBOARDS",
   v3ReportingHistory: "ENABLE_V3_REPORTING_HISTORY",
   v3AutomationExpansion: "ENABLE_V3_AUTOMATION_EXPANSION",
+  v5DecisionFoundation: "ENABLE_V5_DECISION_FOUNDATION",
+  v5PortfolioCampaigns: "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
+  v5SimulationAndIntelligence: "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
+  v5RelationshipLayer: "ENABLE_V5_RELATIONSHIP_LAYER",
+  v5ExternalCollaboration: "ENABLE_V5_EXTERNAL_COLLABORATION",
+  v5ControlRoomUx: "ENABLE_V5_CONTROL_ROOM_UX",
 };
 
 /** V4 default: modules are on unless explicitly disabled (unset / empty = enabled). */
@@ -48,5 +60,11 @@ export function getFeatureFlags(): Record<FeatureFlagKey, boolean> {
     v3PersonaDashboards: isFeatureEnabled("v3PersonaDashboards"),
     v3ReportingHistory: isFeatureEnabled("v3ReportingHistory"),
     v3AutomationExpansion: isFeatureEnabled("v3AutomationExpansion"),
+    v5DecisionFoundation: isFeatureEnabled("v5DecisionFoundation"),
+    v5PortfolioCampaigns: isFeatureEnabled("v5PortfolioCampaigns"),
+    v5SimulationAndIntelligence: isFeatureEnabled("v5SimulationAndIntelligence"),
+    v5RelationshipLayer: isFeatureEnabled("v5RelationshipLayer"),
+    v5ExternalCollaboration: isFeatureEnabled("v5ExternalCollaboration"),
+    v5ControlRoomUx: isFeatureEnabled("v5ControlRoomUx"),
   };
 }

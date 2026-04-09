@@ -32,7 +32,7 @@ export default async function BillingPage(props: {
 
   let subscriptionStatus = resolveSubscriptionStatus(null);
   let currentPeriodEnd: string | null = null;
-  const stripeClient = getStripeClient();
+  const stripeClient = await getStripeClient();
 
   if (org.stripe_subscription_id && stripeClient.ok) {
     try {

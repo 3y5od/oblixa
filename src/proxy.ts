@@ -38,8 +38,17 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute = publicRoutes.some((route) => pathname === route);
   const isAuthCallback = pathname.startsWith("/auth/callback");
   const isApiRoute = pathname.startsWith("/api/");
+  const isExternalParticipantPage =
+    pathname.startsWith("/external/") && pathname !== "/external";
 
-  if (!user && !isPublicRoute && !isAuthCallback && !isApiRoute && pathname !== "/") {
+  if (
+    !user &&
+    !isPublicRoute &&
+    !isAuthCallback &&
+    !isApiRoute &&
+    pathname !== "/" &&
+    !isExternalParticipantPage
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -62,6 +71,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Skip auth handshake for static assets and common root files (fonts, manifests, maps).
+    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|avif|woff2?|ttf|eot|json|txt|xml|map|webmanifest)$).*)",
   ],
 };

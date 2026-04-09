@@ -45,6 +45,10 @@
       "schedule": "0 3 * * *"
     },
     {
+      "path": "/api/cron/stripe-webhook-events",
+      "schedule": "30 3 * * *"
+    },
+    {
       "path": "/api/cron/v4/exceptions-detect",
       "schedule": "*/30 * * * *"
     },
@@ -75,6 +79,38 @@
     {
       "path": "/api/cron/v4/renewals-recompute-signals",
       "schedule": "25 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/campaign-progress",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/simulation-snapshots",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/capacity-forecast-refresh",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/portfolio-risk-recompute",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/external-followup",
+      "schedule": "50 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/decision-sla-monitor",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/recommendation-refresh",
+      "schedule": "40 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/relationship-rollups",
+      "schedule": "15 * * * *"
     }
   ]
 }

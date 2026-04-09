@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { FeatureFlagKey } from "@/lib/feature-flags";
 import type { WorkspaceRole } from "@/lib/navigation";
 
 const CommandPalette = dynamic(
@@ -11,6 +12,9 @@ const CommandPalette = dynamic(
   { ssr: false }
 );
 
-export function CommandPaletteLoader(props: { role?: WorkspaceRole }) {
-  return <CommandPalette role={props.role} />;
+export function CommandPaletteLoader(props: {
+  role?: WorkspaceRole;
+  v5Flags?: Record<FeatureFlagKey, boolean>;
+}) {
+  return <CommandPalette role={props.role} v5Flags={props.v5Flags} />;
 }

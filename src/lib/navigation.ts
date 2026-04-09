@@ -1,3 +1,5 @@
+import type { FeatureFlagKey } from "@/lib/feature-flags";
+
 export type WorkspaceRole =
   | "admin"
   | "editor"
@@ -22,6 +24,13 @@ export type NavItem = {
     | "more";
   minRole?: WorkspaceRole;
   badgeKey?: "reviewQueue" | "approvals" | "obligations" | "watchlists";
+  /**
+   * Primary nav: visible when any listed V5 flag is enabled.
+   * Omit for items that are always visible (subject to role).
+   */
+  v5FlagsAnyOf?: FeatureFlagKey[];
+  /** §11 IA: compact sub-links under a primary item (sidebar only). */
+  navChildren?: { name: string; href: string; v5FlagsAnyOf?: FeatureFlagKey[] }[];
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -35,17 +44,20 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Contracts",
     href: "/contracts",
-    description: "Search and manage contract records and ownership.",
+    description: "Portfolio contract records, watchlists, and relationship context.",
     section: "primary",
     icon: "contracts",
-  },
-  {
-    name: "Review",
-    href: "/contracts/review",
-    description: "Extraction and field validation queue.",
-    section: "primary",
-    icon: "review",
-    badgeKey: "reviewQueue",
+    navChildren: [
+      { name: "All contracts", href: "/contracts" },
+      { name: "Review", href: "/contracts/review" },
+      { name: "Intake", href: "/contracts/intake" },
+      { name: "Watchlists", href: "/contracts/watchlists" },
+      {
+        name: "Relationship views",
+        href: "/relationship-workspaces",
+        v5FlagsAnyOf: ["v5RelationshipLayer"],
+      },
+    ],
   },
   {
     name: "Work",
@@ -53,38 +65,73 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Unified tasks, blockers, and generated operational actions.",
     section: "primary",
     icon: "tasks",
+    navChildren: [
+      { name: "Tasks", href: "/contracts/tasks" },
+      { name: "Obligations", href: "/contracts/obligations" },
+      { name: "Approvals", href: "/contracts/approvals" },
+      { name: "Renewals", href: "/contracts/renewals" },
+      { name: "Exceptions", href: "/contracts/exceptions" },
+      { name: "Evidence", href: "/contracts/evidence-studio" },
+    ],
   },
   {
-    name: "Renewals",
-    href: "/contracts/renewals",
-    description: "Structured renewal workspaces and at-risk signals.",
+    name: "Decisions",
+    href: "/decisions",
+    description: "Structured decision workspaces and decision queue.",
     section: "primary",
+    v5FlagsAnyOf: ["v5DecisionFoundation"],
+    navChildren: [
+      { name: "Decision queue", href: "/decisions?queue=active" },
+      {
+        name: "Manager review",
+        href: "/decisions/review",
+        v5FlagsAnyOf: ["v5ControlRoomUx"],
+      },
+      {
+        name: "Compare",
+        href: "/decisions/compare",
+        v5FlagsAnyOf: ["v5ControlRoomUx"],
+      },
+      { name: "Renewals", href: "/decisions?type=renewal" },
+      { name: "Amendments", href: "/decisions?type=amendment_request" },
+      { name: "Waivers", href: "/decisions?type=waiver_exception" },
+      { name: "Policy", href: "/decisions?type=policy_exception" },
+    ],
   },
   {
-    name: "Approvals",
-    href: "/contracts/approvals",
-    description: "SLA-governed approvals and escalation bottlenecks.",
+    name: "Campaigns",
+    href: "/campaigns",
+    description: "Portfolio change campaigns with preview and progress.",
     section: "primary",
-    badgeKey: "approvals",
+    v5FlagsAnyOf: ["v5PortfolioCampaigns"],
+    navChildren: [
+      { name: "Active", href: "/campaigns?status=active" },
+      { name: "History", href: "/campaigns?status=closed" },
+      { name: "Remediation", href: "/campaigns?type=remediation_push" },
+      { name: "Compare", href: "/campaigns/compare" },
+      { name: "Simulations", href: "/campaigns#simulations" },
+    ],
   },
   {
-    name: "Obligations",
-    href: "/contracts/obligations",
-    description: "Due obligations, ownership, and evidence status.",
+    name: "Relationships",
+    href: "/relationship-workspaces",
+    description: "Account and counterparty summaries by stable keys.",
     section: "primary",
-    badgeKey: "obligations",
-  },
-  {
-    name: "Exceptions",
-    href: "/contracts/exceptions",
-    description: "Exception ledger for overdue and policy-risk items.",
-    section: "primary",
+    v5FlagsAnyOf: ["v5RelationshipLayer"],
   },
   {
     name: "Reports",
-    href: "/contracts/reports",
-    description: "Operational report packs and trend insights.",
+    href: "/reports",
+    description: "Portfolio analytics, capacity signals, and trends.",
     section: "primary",
+    v5FlagsAnyOf: ["v5ControlRoomUx", "v5SimulationAndIntelligence"],
+    navChildren: [
+      { name: "Report packs", href: "/contracts/reports" },
+      { name: "Signals", href: "/reports#portfolio-signals" },
+      { name: "Analytics", href: "/reports#portfolio-analytics" },
+      { name: "Trends", href: "/reports#campaign-drift" },
+      { name: "Capacity", href: "/reports#capacity-forecasts" },
+    ],
   },
   {
     name: "More",
@@ -94,9 +141,49 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "more",
   },
   {
+    name: "Review",
+    href: "/contracts/review",
+    description: "Extraction and field validation queue.",
+    section: "operations",
+    icon: "review",
+    badgeKey: "reviewQueue",
+  },
+  {
     name: "Intake",
     href: "/contracts/intake",
     description: "Monitor intake queues and throughput.",
+    section: "operations",
+  },
+  {
+    name: "Renewals",
+    href: "/contracts/renewals",
+    description: "Structured renewal workspaces and at-risk signals.",
+    section: "operations",
+  },
+  {
+    name: "Approvals",
+    href: "/contracts/approvals",
+    description: "SLA-governed approvals and escalation bottlenecks.",
+    section: "operations",
+    badgeKey: "approvals",
+  },
+  {
+    name: "Obligations",
+    href: "/contracts/obligations",
+    description: "Due obligations, ownership, and evidence status.",
+    section: "operations",
+    badgeKey: "obligations",
+  },
+  {
+    name: "Exceptions",
+    href: "/contracts/exceptions",
+    description: "Exception ledger for overdue and policy-risk items.",
+    section: "operations",
+  },
+  {
+    name: "Report packs",
+    href: "/contracts/reports",
+    description: "Operational report packs and trend insights.",
     section: "operations",
   },
   {
@@ -221,4 +308,20 @@ export function canAccessItem(item: NavItem, role: WorkspaceRole): boolean {
     );
   }
   return true;
+}
+
+export function isV5NavItemVisible(
+  item: NavItem,
+  v5Flags: Record<FeatureFlagKey, boolean>
+): boolean {
+  if (!item.v5FlagsAnyOf?.length) return true;
+  return item.v5FlagsAnyOf.some((k) => v5Flags[k]);
+}
+
+export function isV5NavChildVisible(
+  child: { v5FlagsAnyOf?: FeatureFlagKey[] },
+  v5Flags: Record<FeatureFlagKey, boolean>
+): boolean {
+  if (!child.v5FlagsAnyOf?.length) return true;
+  return child.v5FlagsAnyOf.some((k) => v5Flags[k]);
 }

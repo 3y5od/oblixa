@@ -1,0 +1,6 @@
+# Optional: uncomment and set real @org/team or @username handles so GitHub requests reviews
+# on sensitive paths. Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# /src/app/api/ @your-org/backend
+# /supabase/migrations/ @your-org/backend
+# /.github/workflows/ @your-org/platform

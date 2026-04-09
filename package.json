@@ -13,16 +13,22 @@
     "lint": "eslint src e2e playwright.config.ts vitest.config.ts next.config.ts --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "audit:moderate": "npm audit",
+    "sbom": "npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file cyclonedx-sbom.json --package-lock-only --ignore-npm-errors",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check:migrations": "node scripts/check-migrations.mjs",
+    "check:api-route-tests": "node scripts/check-api-route-tests.mjs",
+    "check:vercel-cron": "node scripts/check-vercel-cron-alignment.mjs",
     "check:cron-canary": "node scripts/cron-canary.mjs",
     "check:comprehensive-pass": "node scripts/comprehensive-pass.mjs",
     "preflight:release": "node scripts/release-preflight.mjs",
-    "release:checklist": "npm run preflight:release && npm run verify && npm run test:e2e && npm run check:comprehensive-pass",
-    "verify": "npm run check:migrations && npm run lint && npm run typecheck && npm run test && npm run build"
+    "release:checklist": "node scripts/release-checklist.mjs",
+    "verify": "npm run check:migrations && npm run check:api-route-tests && npm run check:vercel-cron && npm run lint && npm run typecheck && npm run test:coverage && npm run build"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.4.0",
     "@sentry/nextjs": "^10.47.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
@@ -43,7 +49,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
-    "@next/bundle-analyzer": "^16.2.3",
+    "@next/bundle-analyzer": "16.2.2",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -53,6 +59,7 @@
     "eslint-config-next": "16.2.2",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "@vitest/coverage-v8": "4.1.2",
     "vitest": "^4.1.2"
   }
 }

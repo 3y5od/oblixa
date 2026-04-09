@@ -11,9 +11,10 @@ jobs:
     timeout-minutes: 15
     if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' }}
     steps:
-      - uses: actions/checkout@v4
+      # Pinned SHAs (tags: checkout@v4, setup-node@v4)
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: ".nvmrc"
           cache: npm

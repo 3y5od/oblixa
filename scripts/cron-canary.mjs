@@ -1,4 +1,10 @@
 import process from "node:process";
+import nextEnv from "@next/env";
+import { CRON_ROUTE_EXPECTED_KEYS } from "./cron-route-expected-keys.mjs";
+
+const cwd = process.cwd();
+const { loadEnvConfig } = nextEnv;
+loadEnvConfig(cwd);
 
 function env(name) {
   return (process.env[name] ?? "").trim();
@@ -60,40 +66,18 @@ async function resolveReachableBaseUrl() {
   }
 }
 
-// Keep in sync with scripts/comprehensive-pass.mjs CRON_ROUTE_EXPECTED_KEYS.
-const CRON_ROUTE_EXPECTED_KEYS = new Map([
-  ["/api/reminders/send", ["sent", "candidates", "skipped_no_email"]],
-  ["/api/reports/send-summaries", ["durationMs"]],
-  ["/api/reports/capture-metrics", ["durationMs", "updated"]],
-  ["/api/webhooks/dispatch", ["durationMs"]],
-  ["/api/tasks/run-rules", ["durationMs"]],
-  ["/api/contracts/recompute-signals", ["durationMs"]],
-  ["/api/integrations/calendar/sync", ["durationMs"]],
-  ["/api/integrations/crm/sync", ["durationMs"]],
-  ["/api/integrations/refresh-tokens", ["durationMs"]],
-  ["/api/notifications/retry-deliveries", ["durationMs", "scanned"]],
-  ["/api/maintenance/prune-operational-data", ["durationMs"]],
-  ["/api/cron/stripe-webhook-events", ["durationMs"]],
-  ["/api/cron/v4/approvals-sla", ["durationMs", "evaluated", "breaches"]],
-  ["/api/cron/v4/attestations-issue", ["durationMs", "issued"]],
-  ["/api/cron/v4/escalations-dispatch", ["durationMs", "dispatched"]],
-  ["/api/cron/v4/evidence-followup", ["durationMs", "reviewed", "exceptionsCreated"]],
-  ["/api/cron/v4/exceptions-detect", ["durationMs", "detected"]],
-  ["/api/cron/v4/programs-reconcile", ["durationMs", "reconciledPrograms"]],
-  ["/api/cron/v4/renewals-recompute-signals", ["durationMs", "updatedSignals"]],
-  ["/api/cron/v4/report-packs-generate", ["durationMs", "generated"]],
-]);
-
 async function run() {
   const baseUrl = await resolveReachableBaseUrl();
   const cronSecret = requireEnv("CRON_SECRET");
 
   for (const [route, expectedKeys] of CRON_ROUTE_EXPECTED_KEYS.entries()) {
-    const isV4Route = route.startsWith("/api/cron/v4/");
+    const skipIf404 =
+      route.startsWith("/api/cron/v4/") || route.startsWith("/api/cron/v5/");
+    const isV5Cron = route.startsWith("/api/cron/v5/");
 
     const unsigned = await safeFetch(`${baseUrl}${route}`);
-    if (isV4Route && unsigned.status === 404) {
-      warn(`${route}: route unavailable on target base URL; skipping V4 route check`);
+    if (skipIf404 && unsigned.status === 404) {
+      warn(`${route}: route unavailable on target base URL; skipping cron route check`);
       continue;
     }
     if (unsigned.status !== 401) {
@@ -104,8 +88,8 @@ async function run() {
     const signed = await safeFetch(`${baseUrl}${route}`, {
       headers: { "x-cron-secret": cronSecret },
     });
-    if (isV4Route && signed.status === 404) {
-      warn(`${route}: route unavailable on target base URL; skipping V4 route check`);
+    if (skipIf404 && signed.status === 404) {
+      warn(`${route}: route unavailable on target base URL; skipping cron route check`);
       continue;
     }
     if (signed.status >= 400) {
@@ -113,13 +97,28 @@ async function run() {
       throw new Error(`${route}: signed request failed ${signed.status} ${bodyText.slice(0, 300)}`);
     }
     const body = await signed.json();
-    for (const key of expectedKeys) {
-      if (!(key in body)) {
-        throw new Error(`${route}: missing expected key "${key}"`);
+    if (isV5Cron) {
+      if (body.ok !== true) {
+        throw new Error(`${route}: expected ok: true in JSON body`);
       }
-    }
-    if ("ok" in body && body.ok !== true) {
-      warn(`${route}: ok=false (degraded business outcome)`);
+      if (body.skipped === true) {
+        warn(`${route}: skipped (feature flag off); shape check relaxed`);
+      } else {
+        for (const key of expectedKeys) {
+          if (!(key in body)) {
+            throw new Error(`${route}: missing expected key "${key}"`);
+          }
+        }
+      }
+    } else {
+      for (const key of expectedKeys) {
+        if (!(key in body)) {
+          throw new Error(`${route}: missing expected key "${key}"`);
+        }
+      }
+      if ("ok" in body && body.ok !== true) {
+        warn(`${route}: ok=false (degraded business outcome)`);
+      }
     }
     ok(`${route} signed check`);
   }

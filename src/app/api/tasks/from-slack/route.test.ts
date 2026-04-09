@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 describe("POST /api/tasks/from-slack", () => {
   beforeEach(() => {
     delete process.env.INBOUND_AUTOMATION_TOKEN;
+    delete process.env.INBOUND_SLACK_AUTOMATION_TOKEN;
   });
 
   it("returns 401 when inbound token is not configured", async () => {
