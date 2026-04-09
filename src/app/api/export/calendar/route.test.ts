@@ -21,7 +21,8 @@ describe("GET /api/export/calendar", () => {
     createAdminClient.mockResolvedValue({ from: vi.fn() });
 
     const { GET } = await import("@/app/api/export/calendar/route");
-    const res = await GET();
+    const req = new Request("http://localhost:3000/api/export/calendar");
+    const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
     expect(body).toEqual({ error: "Not authenticated" });

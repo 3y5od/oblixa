@@ -1,7 +1,7 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { LegalFooter } from "@/components/layout/legal-footer";
-import { CommandPalette } from "@/components/layout/command-palette";
+import { CommandPaletteLoader } from "@/components/layout/command-palette-loader";
 import {
   createAdminClient,
   createClient,
@@ -9,6 +9,7 @@ import {
   getDeterministicMembership,
 } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
+import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
 
 type NavBadges = {
   reviewQueue: number;
@@ -23,11 +24,7 @@ const navBadgesCache = new Map<
   { expiresAt: number; value: NavBadges }
 >();
 
-async function loadNavBadges(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  orgId: string,
-  userId: string
-): Promise<NavBadges> {
+async function loadNavBadges(orgId: string, userId: string): Promise<NavBadges> {
   const cacheKey = `${orgId}:${userId}`;
   const cached = navBadgesCache.get(cacheKey);
   const now = Date.now();
@@ -35,40 +32,7 @@ async function loadNavBadges(
     return cached.value;
   }
 
-  const [
-    { count: reviewQueue },
-    { count: approvals },
-    { count: obligations },
-    { count: watchlists },
-  ] = await Promise.all([
-    admin
-      .from("contracts")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId)
-      .eq("status", "pending_review"),
-    admin
-      .from("contract_approvals")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId)
-      .eq("status", "pending"),
-    admin
-      .from("contract_obligations")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId)
-      .in("status", ["open", "in_progress"]),
-    admin
-      .from("contract_watchlists")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId)
-      .eq("user_id", userId),
-  ]);
-
-  const value = {
-    reviewQueue: reviewQueue ?? 0,
-    approvals: approvals ?? 0,
-    obligations: obligations ?? 0,
-    watchlists: watchlists ?? 0,
-  };
+  const value = await fetchNavBadgeCounts(orgId, userId);
   navBadgesCache.set(cacheKey, {
     expiresAt: now + NAV_BADGES_TTL_MS,
     value,
@@ -105,7 +69,7 @@ export default async function DashboardLayout({
     }
   }
 
-  const navBadges = user && orgId ? await loadNavBadges(admin, orgId, user.id) : {};
+  const navBadges = user && orgId ? await loadNavBadges(orgId, user.id) : {};
 
   return (
     <div className="flex h-screen bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(248,248,246,0.9))]">
@@ -115,7 +79,7 @@ export default async function DashboardLayout({
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
         />
-        <CommandPalette role={role} />
+        <CommandPaletteLoader role={role} />
         <main
           id="main-content"
           tabIndex={-1}

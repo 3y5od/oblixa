@@ -152,6 +152,8 @@ export interface ContractRenewalCheckpoint {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  renewal_state?: string | null;
+  workspace_json?: Record<string, unknown> | null;
 }
 
 export interface Profile {

@@ -10,6 +10,7 @@ import {
   updateContractObligation,
 } from "@/actions/obligations";
 import type { ContractObligation, ContractObligationStatus } from "@/lib/types";
+import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
 type MemberOption = { userId: string; label: string };
 type ObligationRow = Pick<
@@ -52,11 +53,13 @@ export function ContractObligationsPanel({
   members,
   canEdit,
   obligationEvents,
+  executionGraphEdges,
 }: {
   contractId: string;
   obligations: ObligationRow[];
   members: MemberOption[];
   canEdit: boolean;
+  executionGraphEdges?: ExecutionGraphEdgeRow[];
   obligationEvents: Array<{
     id: string;
     obligation_id: string;
@@ -377,6 +380,34 @@ export function ContractObligationsPanel({
                       </a>
                     </p>
                   )}
+                  {(() => {
+                    const { blockedBy, unblocks } = graphLinksForEntity(
+                      executionGraphEdges,
+                      "obligation",
+                      ob.id
+                    );
+                    if (blockedBy.length === 0 && unblocks.length === 0) return null;
+                    return (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {blockedBy.map((label) => (
+                          <span
+                            key={`b-${ob.id}-${label}`}
+                            className="rounded border border-amber-200 bg-amber-50/80 px-2 py-0.5 text-[10px] text-amber-900"
+                          >
+                            Blocked by {label}
+                          </span>
+                        ))}
+                        {unblocks.map((label) => (
+                          <span
+                            key={`u-${ob.id}-${label}`}
+                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[10px] text-sky-900"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                   {obligationEvents.filter((event) => event.obligation_id === ob.id).length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {obligationEvents

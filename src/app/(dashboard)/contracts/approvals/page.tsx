@@ -47,6 +47,14 @@ export default async function ApprovalsPage(props: {
   return (
     <div className="space-y-8">
       <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8">
+        <div className="flex flex-wrap gap-3 text-xs">
+          <Link href="/contracts/approvals/workload" className="ui-btn-secondary px-3 py-1.5">
+            Workload view
+          </Link>
+          <Link href="/contracts/approvals/sla-simulator" className="ui-btn-secondary px-3 py-1.5">
+            SLA simulator
+          </Link>
+        </div>
         <p className="ui-eyebrow">Decision controls</p>
         <h1 className="ui-display-title">Approvals & scenarios</h1>
         <p className="max-w-2xl text-[15px] text-zinc-500">

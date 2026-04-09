@@ -41,7 +41,7 @@ describe("buildOrganizationCalendarIcs", () => {
     });
     const ics = await buildOrganizationCalendarIcs(admin as never, "org-1");
     expect(ics).toContain("SUMMARY:Renewal decision date");
-    expect(ics).toContain("UID:renewal-decision-scenario-1@contractops");
+    expect(ics).toContain("UID:renewal-decision-scenario-1@oblixa.io");
     expect(ics).toContain("DTSTART;VALUE=DATE:20260820");
   });
 
@@ -63,6 +63,6 @@ describe("buildOrganizationCalendarIcs", () => {
       },
     });
     const ics = await buildOrganizationCalendarIcs(admin as never, "org-1");
-    expect(ics).not.toContain("renewal-decision-scenario-2@contractops");
+    expect(ics).not.toContain("renewal-decision-scenario-2@oblixa.io");
   });
 });

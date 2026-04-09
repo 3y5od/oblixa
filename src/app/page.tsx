@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing/landing-page";
 
 export const metadata: Metadata = {
-  title: "ContractOps — Contract operations for service teams",
+  title: "Oblixa — Contract execution for post-signature teams",
   description:
-    "Centralize agreements, approve AI-extracted renewal and notice fields with source snippets, and get reminders your team can trust.",
+    "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
   openGraph: {
-    title: "ContractOps — Contract operations for service teams",
+    title: "Oblixa — Contract execution for post-signature teams",
     description:
-      "Operational contract dates without enterprise CLM. Upload, extract, human review, reminders.",
+      "Contract execution platform for post-signature operations. Upload, review, execute, and prove outcomes.",
   },
 };
 

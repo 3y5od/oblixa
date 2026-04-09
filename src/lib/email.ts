@@ -90,7 +90,7 @@ export async function sendReminderEmail({
           View contract
         </a>
         <p style="margin-top: 24px; color: #9ca3af; font-size: 12px;">
-          You received this because you are the owner of this contract on ContractOps.
+          You received this because you are the owner of this contract on Oblixa.
         </p>
       </div>
     `,
@@ -149,7 +149,7 @@ export async function sendSavedViewSummaryEmail({
     subject: `Weekly summary: ${viewName} (${itemCount})`,
     html: `
       <div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
-        <h2 style="color:#111827;font-size:18px;margin-bottom:8px;">ContractOps weekly summary</h2>
+        <h2 style="color:#111827;font-size:18px;margin-bottom:8px;">Oblixa weekly summary</h2>
         <p style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 14px;">
           Saved view: <strong>${safeViewName}</strong>
         </p>
@@ -175,5 +175,70 @@ export async function sendSavedViewSummaryEmail({
     `,
   });
 
+  return { error };
+}
+
+interface ReportPackDigestEmailParams {
+  to: string | string[];
+  packName: string;
+  reportType: string;
+  appUrl: string;
+  metricsSummary: Array<{ label: string; value: string }>;
+  reportsPath?: string;
+}
+
+export async function sendReportPackDigestEmail({
+  to,
+  packName,
+  reportType,
+  appUrl,
+  metricsSummary,
+  reportsPath = "/contracts/reports",
+}: ReportPackDigestEmailParams) {
+  const resendClient = getResendClient();
+  if (!resendClient) {
+    return { error: new Error("Email provider is not configured") };
+  }
+  const safeName = escapeHtml(packName);
+  const safeType = escapeHtml(reportType);
+  const base = appUrl.replace(/\/+$/, "");
+  const safeBase = escapeHtml(base);
+  const rows =
+    metricsSummary.length === 0
+      ? "<p style=\"color:#6b7280;font-size:13px;\">No KPI rows.</p>"
+      : `<table style="border-collapse:collapse;width:100%;max-width:480px;font-size:13px;">
+          ${metricsSummary
+            .map(
+              (r) =>
+                `<tr><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;color:#52525b;">${escapeHtml(
+                  r.label
+                )}</td><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#18181b;">${escapeHtml(
+                  r.value
+                )}</td></tr>`
+            )
+            .join("")}
+        </table>`;
+
+  const { error } = await resendClient.emails.send({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to,
+    subject: `Report pack: ${packName}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
+        <h2 style="color:#111827;font-size:18px;">${safeName}</h2>
+        <p style="color:#6b7280;font-size:13px;margin:0 0 16px;">Type: ${safeType}</p>
+        ${rows}
+        <p style="margin-top:20px;">
+          <a href="${safeBase}${escapeHtml(reportsPath)}"
+             style="display:inline-block;padding:10px 18px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;">
+            Open reports workspace
+          </a>
+        </p>
+        <p style="margin-top:20px;color:#9ca3af;font-size:12px;">
+          You are subscribed to this report pack in Oblixa.
+        </p>
+      </div>
+    `,
+  });
   return { error };
 }

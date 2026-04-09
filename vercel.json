@@ -9,6 +9,10 @@
       "schedule": "30 9 * * *"
     },
     {
+      "path": "/api/reports/capture-metrics",
+      "schedule": "20 * * * *"
+    },
+    {
       "path": "/api/webhooks/dispatch",
       "schedule": "*/30 * * * *"
     },
@@ -39,6 +43,38 @@
     {
       "path": "/api/maintenance/prune-operational-data",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/v4/exceptions-detect",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/attestations-issue",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/approvals-sla",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/escalations-dispatch",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/report-packs-generate",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/evidence-followup",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/programs-reconcile",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/renewals-recompute-signals",
+      "schedule": "25 * * * *"
     }
   ]
 }

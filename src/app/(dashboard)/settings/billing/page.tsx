@@ -144,7 +144,7 @@ export default async function BillingPage(props: {
         {isActive ? (
           <div className="space-y-4">
             <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4">
-              <p className="text-sm font-medium text-zinc-900">ContractOps Pro</p>
+              <p className="text-sm font-medium text-zinc-900">Oblixa Pro</p>
               <p className="text-sm text-zinc-500">
                 Unlimited contracts, AI extraction, email reminders
               </p>
@@ -160,7 +160,7 @@ export default async function BillingPage(props: {
           <div className="space-y-4">
             <div className="rounded-xl border border-sky-200/70 bg-sky-50/40 p-6">
               <h3 className="text-base font-bold tracking-tight text-zinc-900">
-                ContractOps Pro
+                Oblixa Pro
               </h3>
               <ul className="mt-3 space-y-2 text-sm text-zinc-600">
                 <li className="flex items-center gap-2">

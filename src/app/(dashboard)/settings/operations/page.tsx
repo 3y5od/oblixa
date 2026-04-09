@@ -30,7 +30,7 @@ export default async function OperationsSettingsPage() {
   if (!ctx) return null;
   const { admin, orgId } = ctx;
   const cookieStore = await cookies();
-  const newlyIssuedApiKey = cookieStore.get("contractops_new_api_key_token")?.value ?? null;
+  const newlyIssuedApiKey = cookieStore.get("oblixa_new_api_key_token")?.value ?? null;
 
   const [
     { data: rules },
@@ -552,6 +552,32 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Integration connections</h2>
         </div>
         <div className="space-y-4 p-6">
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-4 text-sm text-zinc-700">
+            <p className="font-semibold text-zinc-900">Inbound automation (Slack and email)</p>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+              Your hosting provider sets a secret token in the server environment as{" "}
+              <code className="rounded bg-zinc-100 px-1 text-[10px]">INBOUND_AUTOMATION_TOKEN</code>. HTTP clients send{" "}
+              <code className="rounded bg-zinc-100 px-1 text-[10px]">Authorization: Bearer &lt;token&gt;</code> to:
+            </p>
+            <ul className="mt-2 list-inside list-disc text-xs text-zinc-600">
+              <li>
+                <code className="text-[10px]">POST /api/tasks/from-slack</code> — JSON body with{" "}
+                <code className="text-[10px]">organizationId</code>, <code className="text-[10px]">contractId</code>,{" "}
+                <code className="text-[10px]">title</code>, optional <code className="text-[10px]">details</code>,{" "}
+                <code className="text-[10px]">assigneeId</code>, <code className="text-[10px]">dueDate</code> (from a Slack
+                workflow or slash command).
+              </li>
+              <li>
+                <code className="text-[10px]">POST /api/tasks/from-email</code> — same shape for trusted email intake
+                bridges.
+              </li>
+            </ul>
+            <p className="mt-2 text-xs text-zinc-500">
+              Outbound Slack alerts from automation include an <strong>Open in Oblixa</strong> link when a{" "}
+              <code className="text-[10px]">contract_id</code> is present in the event metadata. Set{" "}
+              <code className="text-[10px]">NEXT_PUBLIC_APP_URL</code> in production so links resolve to your real domain.
+            </p>
+          </div>
           <form action={upsertIntegrationConnectionForm} className="grid gap-3 md:grid-cols-2">
             <select name="provider" defaultValue="google_calendar" className="ui-input">
               <option value="google_calendar">google_calendar</option>
@@ -567,7 +593,7 @@ export default async function OperationsSettingsPage() {
             </select>
             <input
               name="configJson"
-              placeholder='{"channel":"#contract-ops"}'
+              placeholder='{"channel":"#oblixa-alerts"}'
               className="ui-input md:col-span-2"
             />
             <input name="lastError" placeholder="Error details (optional)" className="ui-input md:col-span-2" />
@@ -628,7 +654,7 @@ export default async function OperationsSettingsPage() {
                 if (res && "error" in res && res.error) {
                   console.error("[workflow-config] createIntegrationApiKey", res.error);
                 } else if (res && "success" in res && res.success) {
-                  cookieStore.set("contractops_new_api_key_token", res.token, {
+                  cookieStore.set("oblixa_new_api_key_token", res.token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "lax",

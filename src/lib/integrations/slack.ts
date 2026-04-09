@@ -1,9 +1,56 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+
+function escapeSlackMrkdwn(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** Plain URL + optional Block Kit section with a single actionable link. */
+function buildSlackWebhookBody(input: {
+  title: string;
+  body: string;
+  metadata?: Record<string, unknown>;
+  channel?: string;
+  username: string;
+}): Record<string, unknown> {
+  const meta = input.metadata ?? {};
+  const contractId = typeof meta.contract_id === "string" ? meta.contract_id : null;
+  const deepPath =
+    typeof meta.deep_link_path === "string" && meta.deep_link_path.startsWith("/")
+      ? meta.deep_link_path
+      : null;
+  const base = getAppBaseUrlFromEnv();
+  const openUrl = deepPath ? `${base}${deepPath}` : contractId ? `${base}/contracts/${contractId}` : null;
+
+  const textFallback = openUrl
+    ? `${input.title}\n${input.body}\nOpen in Oblixa: ${openUrl}`
+    : `${input.title}\n${input.body}`;
+
+  const payload: Record<string, unknown> = {
+    text: textFallback,
+    channel: input.channel ?? undefined,
+    username: input.username,
+  };
+
+  if (openUrl) {
+    payload.blocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${escapeSlackMrkdwn(input.title)}*\n${escapeSlackMrkdwn(input.body)}\n<${openUrl}|Open in Oblixa>`,
+        },
+      },
+    ];
+  }
+
+  return payload;
+}
 
 export async function sendSlackWorkflowNotification(
   admin: AdminClient,
@@ -59,7 +106,7 @@ export async function sendSlackWorkflowNotification(
       title: input.title,
       body: input.body,
       channel: cfg.channel ?? null,
-      username: cfg.username ?? "ContractOps",
+      username: cfg.username ?? "Oblixa",
       metadata: input.metadata ?? {},
     },
     send: async () => {
@@ -67,12 +114,15 @@ export async function sendSlackWorkflowNotification(
         const response = await fetch(webhookUrl.toString(), {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            text: `${input.title}\n${input.body}`,
-            channel: cfg.channel ?? undefined,
-            username: cfg.username ?? "ContractOps",
-            metadata: input.metadata ?? {},
-          }),
+          body: JSON.stringify(
+            buildSlackWebhookBody({
+              title: input.title,
+              body: input.body,
+              metadata: input.metadata,
+              channel: cfg.channel ?? undefined,
+              username: cfg.username ?? "Oblixa",
+            })
+          ),
         });
         if (!response.ok) return { error: new Error(`http_${response.status}`) };
         return { error: null };
@@ -83,4 +133,25 @@ export async function sendSlackWorkflowNotification(
   });
   if (!delivery.delivered) return { ok: false, reason: delivery.error ?? "slack_send_failed" };
   return { ok: true };
+}
+
+/** Posts a renewal outcome summary to the connected Slack webhook (same path as workflow notifications). */
+export async function sendSlackRenewalDecisionSummary(
+  admin: AdminClient,
+  input: {
+    organizationId: string;
+    contractTitle: string;
+    contractId: string;
+    outcome: string;
+    details?: string;
+  }
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const body = [`Contract: ${input.contractTitle}`, `Outcome: ${input.outcome}`];
+  if (input.details) body.push(input.details);
+  return sendSlackWorkflowNotification(admin, {
+    organizationId: input.organizationId,
+    title: "Renewal decision summary",
+    body: body.join("\n"),
+    metadata: { contract_id: input.contractId, kind: "renewal_decision_summary" },
+  });
 }

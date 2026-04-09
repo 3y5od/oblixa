@@ -10,7 +10,7 @@ export async function enqueueOutboundEvent(input: {
 }) {
   try {
     const admin = await createAdminClient();
-    await admin.from("outbound_events").insert({
+    const { error } = await admin.from("outbound_events").insert({
       organization_id: input.organizationId,
       event_type: input.eventType,
       entity_type: input.entityType,
@@ -21,7 +21,12 @@ export async function enqueueOutboundEvent(input: {
         ...((input.payload ?? {}) as Record<string, unknown>),
       },
     });
+    if (error) {
+      throw error;
+    }
+    return true;
   } catch (err) {
     console.error("[outbound-events] enqueue failed", err);
+    return false;
   }
 }

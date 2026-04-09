@@ -1,3 +1,7 @@
+/**
+ * Inbound automation: call from a Slack slash command or workflow step (HTTP) with Bearer
+ * INBOUND_AUTOMATION_TOKEN. Body: organizationId, contractId, title, optional details, assigneeId, dueDate.
+ */
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";

@@ -90,7 +90,7 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
         </nav>
         <div className="mb-10 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
-            ContractOps
+            Oblixa
           </p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
             {c.title}

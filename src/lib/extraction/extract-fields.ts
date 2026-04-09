@@ -47,7 +47,7 @@ const FIELD_GUIDANCE: Record<FieldName, string> = {
   auto_renewal: 'Whether it auto-renews: "yes", "no", or null if unclear.',
 };
 
-const SYSTEM_PROMPT = `You are a contract operations extractor. Your job is to pull a fixed set of operational fields from agreement text so humans can review them.
+const SYSTEM_PROMPT = `You are an Oblixa field extractor. Your job is to pull a fixed set of execution-relevant fields from agreement text so humans can review them.
 
 Rules:
 - Use ONLY the field_name values from the user list. Output one object per field in the "fields" array.

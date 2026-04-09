@@ -100,6 +100,27 @@ export default async function SettingsPage() {
             <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
               Workflow configuration
             </Link>
+            {membership?.role === "admin" ? (
+              <Link href="/settings/policy" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                Policy registry
+              </Link>
+            ) : null}
+            <a
+              href="/api/export/calendar?role=legal"
+              className="ui-btn-secondary px-4 py-2 text-[13px]"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Legal calendar (.ics)
+            </a>
+            <a
+              href="/api/export/calendar?role=finance"
+              className="ui-btn-secondary px-4 py-2 text-[13px]"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Finance calendar (.ics)
+            </a>
           </div>
         </div>
         <p className="ui-muted mt-3 max-w-2xl">

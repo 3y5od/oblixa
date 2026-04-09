@@ -35,12 +35,39 @@ export async function GET(request: Request) {
       : await admin
     .from("contracts")
     .select(
-      "id, organization_id, title, counterparty, contract_type, status, annual_value, external_reference_id, source_system, region, updated_at"
+      "id, organization_id, title, counterparty, contract_type, status, health_status, required_next_step, annual_value, external_reference_id, source_system, region, updated_at"
     )
     .not("source_system", "is", null)
     .not("external_reference_id", "is", null)
     .in("organization_id", orgIds)
     .limit(500);
+  const contractIds = (contracts ?? []).map((row) => row.id as string);
+  const [{ data: renewalScenarios }, { data: openExceptions }] = await Promise.all([
+    contractIds.length === 0
+      ? Promise.resolve({ data: [] as Array<{ contract_id: string; scenario: string | null; workspace_status: string | null }> })
+      : admin
+          .from("contract_renewal_scenarios")
+          .select("contract_id, scenario, workspace_status")
+          .in("contract_id", contractIds),
+    contractIds.length === 0
+      ? Promise.resolve({ data: [] as Array<{ contract_id: string; severity: string }> })
+      : admin
+          .from("exceptions")
+          .select("contract_id, severity")
+          .in("contract_id", contractIds)
+          .in("status", ["open", "in_progress"]),
+  ]);
+  const renewalByContract = new Map(
+    (renewalScenarios ?? []).map((row) => [row.contract_id, { scenario: row.scenario, workspace_status: row.workspace_status }])
+  );
+  const riskByContract = new Map<string, { openExceptions: number; criticalExceptions: number }>();
+  for (const row of openExceptions ?? []) {
+    if (!row.contract_id) continue;
+    const current = riskByContract.get(row.contract_id) ?? { openExceptions: 0, criticalExceptions: 0 };
+    current.openExceptions += 1;
+    if (row.severity === "critical") current.criticalExceptions += 1;
+    riskByContract.set(row.contract_id, current);
+  }
 
   const nowIso = new Date().toISOString();
   let synced = 0;
@@ -108,11 +135,19 @@ export async function GET(request: Request) {
           ...(cfg.authHeader ? { Authorization: cfg.authHeader } : {}),
         },
         body: JSON.stringify({
-          source: "contractops",
+          source: "oblixa",
           event: "contract.sync",
           synced_at: nowIso,
           schema_version: "v1",
           contract,
+          renewal: renewalByContract.get(contract.id as string) ?? null,
+          risk_signals: riskByContract.get(contract.id as string) ?? { openExceptions: 0, criticalExceptions: 0 },
+          execution_summary: {
+            health_status: contract.health_status,
+            required_next_step: contract.required_next_step,
+            status: contract.status,
+            risk: riskByContract.get(contract.id as string) ?? { openExceptions: 0, criticalExceptions: 0 },
+          },
         }),
         signal: controller.signal,
       });

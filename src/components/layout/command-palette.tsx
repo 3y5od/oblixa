@@ -10,7 +10,7 @@ import {
   type WorkspaceRole,
 } from "@/lib/navigation";
 
-const RECENT_COMMANDS_KEY = "contractops.command-palette.recent";
+const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 
 export function CommandPalette(props: { role?: WorkspaceRole }) {
   const role = props.role ?? "viewer";

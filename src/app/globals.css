@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ContractOps — premium B2B: calm neutrals, single accent, editorial spacing */
+/* Oblixa — premium B2B: calm neutrals, single accent, editorial spacing */
 @theme inline {
   --font-sans: var(--font-sans-display), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;

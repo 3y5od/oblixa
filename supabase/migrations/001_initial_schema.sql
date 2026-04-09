@@ -1,4 +1,4 @@
--- Contract Operations Tracker — Initial Schema
+-- Oblixa — Initial Schema
 -- Run this in Supabase Dashboard → SQL Editor
 
 -- 1. Organizations

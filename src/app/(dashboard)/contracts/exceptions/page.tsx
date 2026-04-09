@@ -1,232 +1,249 @@
 import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
+import { canEditContracts } from "@/lib/permissions";
+import type { OrgRole } from "@/lib/types";
+import { revalidatePath } from "next/cache";
 
-type Filter =
-  | ""
-  | "missing_dates"
-  | "ownerless"
-  | "stale_ownership"
-  | "overdue_tasks"
-  | "overdue_obligations";
-
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: "", label: "All exceptions" },
-  { value: "missing_dates", label: "Missing critical dates" },
-  { value: "ownerless", label: "No owner assigned" },
-  { value: "stale_ownership", label: "Stale ownership" },
-  { value: "overdue_tasks", label: "Overdue tasks" },
-  { value: "overdue_obligations", label: "Overdue obligations" },
-];
+type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";
+type SeverityFilter = "" | "low" | "medium" | "high" | "critical";
 
 export default async function ExceptionsPage(props: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ status?: string; severity?: string }>;
 }) {
-  const { filter: rawFilter } = await props.searchParams;
-  const filter = (FILTERS.find((f) => f.value === rawFilter)?.value ?? "") as Filter;
+  const { status: rawStatus, severity: rawSeverity } = await props.searchParams;
+  const status = (["", "open", "in_progress", "resolved", "closed"].includes(rawStatus ?? "")
+    ? rawStatus
+    : "") as StatusFilter;
+  const severity = (["", "low", "medium", "high", "critical"].includes(rawSeverity ?? "")
+    ? rawSeverity
+    : "") as SeverityFilter;
 
   const ctx = await getAuthContext();
   if (!ctx) return null;
-  const { admin, orgId } = ctx;
+  const canEdit = canEditContracts(ctx.role as OrgRole);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const { data: workflowSettings } = await admin
-    .from("organization_workflow_settings")
-    .select("stale_ownership_days")
-    .eq("organization_id", orgId)
-    .maybeSingle();
-  const now = new Date();
-  const staleOwnershipDays = Math.max(14, Number(workflowSettings?.stale_ownership_days ?? 90));
-  const staleOwnerCutoff = new Date(
-    now.getTime() - staleOwnershipDays * 24 * 60 * 60 * 1000
-  ).toISOString();
+  let query = ctx.admin
+    .from("exceptions")
+    .select("id, contract_id, title, exception_type, severity, status, owner_id, due_date, updated_at")
+    .eq("organization_id", ctx.orgId)
+    .order("updated_at", { ascending: false })
+    .limit(300);
+  if (status) query = query.eq("status", status);
+  if (severity) query = query.eq("severity", severity);
 
-  const [missingCritical, ownerless, staleOwnership, overdueTasks, overdueObligations] =
-    await Promise.all([
-    getContractsMissingCriticalFields(admin, orgId),
-    admin
-      .from("contracts")
-      .select("id, title, counterparty")
-      .eq("organization_id", orgId)
-      .in("status", ["active", "pending_review"])
-      .is("owner_id", null)
-      .order("updated_at", { ascending: false })
-      .limit(100)
-      .then((r) => r.data ?? []),
-    admin
-      .from("contracts")
-      .select("id, title, counterparty")
-      .eq("organization_id", orgId)
-      .not("owner_id", "is", null)
-      .lt("owner_assigned_at", staleOwnerCutoff)
-      .order("owner_assigned_at", { ascending: true })
-      .limit(100)
-      .then((r) => r.data ?? []),
-    admin
-      .from("contract_tasks")
-      .select("id, title, due_date, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .in("status", ["open", "in_progress", "blocked"])
-      .not("due_date", "is", null)
-      .lt("due_date", today)
-      .order("due_date", { ascending: true })
-      .limit(100)
-      .then((r) => r.data ?? []),
-    admin
-      .from("contract_obligations")
-      .select("id, title, due_date, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .in("status", ["open", "in_progress"])
-      .not("due_date", "is", null)
-      .lt("due_date", today)
-      .order("due_date", { ascending: true })
-      .limit(100)
-      .then((r) => r.data ?? []),
-    ]);
+  const [{ data: exceptions }, { data: contracts }, { data: events }, { data: members }] = await Promise.all([
+    query,
+    ctx.admin.from("contracts").select("id, title").eq("organization_id", ctx.orgId).limit(500),
+    ctx.admin
+      .from("exception_events")
+      .select("id, exception_id, event_type, created_at")
+      .eq("organization_id", ctx.orgId)
+      .order("created_at", { ascending: false })
+      .limit(800),
+    ctx.admin
+      .from("organization_members")
+      .select("user_id, profiles(full_name, email)")
+      .eq("organization_id", ctx.orgId)
+      .limit(200),
+  ]);
 
-  const sections = [
-    {
-      key: "missing_dates" as const,
-      title: "Missing critical dates",
-      description: "Active or review-stage contracts without approved end/renewal/notice fields.",
-      count: missingCritical.length,
-      rows: missingCritical.map((c) => ({
-        id: c.id,
-        title: c.title,
-        subtitle: c.counterparty || "No counterparty",
-      })),
-    },
-    {
-      key: "ownerless" as const,
-      title: "Ownerless contracts",
-      description: "Contracts in active review workflows that do not have an owner.",
-      count: ownerless.length,
-      rows: ownerless.map((c) => ({
-        id: c.id,
-        title: c.title as string,
-        subtitle: (c.counterparty as string | null) || "No counterparty",
-      })),
-    },
-    {
-      key: "stale_ownership" as const,
-      title: "Stale ownership",
-      description: `Contracts with unchanged owner assignment older than ${staleOwnershipDays} days.`,
-      count: staleOwnership.length,
-      rows: staleOwnership.map((c) => ({
-        id: c.id,
-        title: c.title as string,
-        subtitle: (c.counterparty as string | null) || "No counterparty",
-      })),
-    },
-    {
-      key: "overdue_tasks" as const,
-      title: "Overdue tasks",
-      description: "Task follow-up that has passed due date without completion.",
-      count: overdueTasks.length,
-      rows: overdueTasks.flatMap((row) => {
-        const rel = row.contracts as unknown;
-        const contract = (Array.isArray(rel) ? rel[0] : rel) as { id?: string; title?: string } | null;
-        if (!contract?.id || !contract?.title) return [];
-        return [
-          {
-            id: contract.id,
-            title: row.title as string,
-            subtitle: `${contract.title} · due ${(row.due_date as string) ?? "unknown"}`,
-          },
-        ];
-      }),
-    },
-    {
-      key: "overdue_obligations" as const,
-      title: "Overdue obligations",
-      description: "Operational commitments that are overdue and still open.",
-      count: overdueObligations.length,
-      rows: overdueObligations.flatMap((row) => {
-        const rel = row.contracts as unknown;
-        const contract = (Array.isArray(rel) ? rel[0] : rel) as { id?: string; title?: string } | null;
-        if (!contract?.id || !contract?.title) return [];
-        return [
-          {
-            id: contract.id,
-            title: row.title as string,
-            subtitle: `${contract.title} · due ${(row.due_date as string) ?? "unknown"}`,
-          },
-        ];
-      }),
-    },
-  ] as const;
+  const contractById = new Map((contracts ?? []).map((row) => [row.id, row.title]));
+  const eventsByException = new Map<string, Array<{ event_type: string; created_at: string }>>();
+  for (const row of events ?? []) {
+    const group = eventsByException.get(row.exception_id) ?? [];
+    group.push({ event_type: row.event_type, created_at: row.created_at });
+    eventsByException.set(row.exception_id, group);
+  }
+  const ownerOptions = (members ?? []).map((row) => {
+    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
+    return {
+      id: row.user_id,
+      label: profile?.full_name || profile?.email || "Member",
+    };
+  });
 
-  const visibleSections = filter ? sections.filter((s) => s.key === filter) : sections;
+  async function assignAction(formData: FormData) {
+    "use server";
+    const auth = await getAuthContext();
+    if (!auth) return;
+    const exceptionId = String(formData.get("exceptionId") ?? "").trim();
+    const ownerId = String(formData.get("ownerId") ?? "").trim();
+    const dueDate = String(formData.get("dueDate") ?? "").trim() || null;
+    if (!exceptionId || !ownerId) return;
+    await auth.admin
+      .from("exceptions")
+      .update({ owner_id: ownerId, due_date: dueDate, status: "in_progress" })
+      .eq("organization_id", auth.orgId)
+      .eq("id", exceptionId);
+    await auth.admin.from("exception_events").insert({
+      organization_id: auth.orgId,
+      exception_id: exceptionId,
+      event_type: "assigned",
+      actor_user_id: auth.user.id,
+      details: { owner_id: ownerId, due_date: dueDate },
+    });
+    revalidatePath("/contracts/exceptions");
+  }
+
+  async function resolveAction(formData: FormData) {
+    "use server";
+    const auth = await getAuthContext();
+    if (!auth) return;
+    const exceptionId = String(formData.get("exceptionId") ?? "").trim();
+    const resolutionNote = String(formData.get("resolutionNote") ?? "").trim() || null;
+    if (!exceptionId) return;
+    await auth.admin
+      .from("exceptions")
+      .update({ status: "resolved", resolution_note: resolutionNote, resolved_at: new Date().toISOString() })
+      .eq("organization_id", auth.orgId)
+      .eq("id", exceptionId);
+    await auth.admin.from("exception_events").insert({
+      organization_id: auth.orgId,
+      exception_id: exceptionId,
+      event_type: "resolved",
+      actor_user_id: auth.user.id,
+      details: { resolution_note: resolutionNote },
+    });
+    revalidatePath("/contracts/exceptions");
+  }
+
+  async function reopenAction(formData: FormData) {
+    "use server";
+    const auth = await getAuthContext();
+    if (!auth) return;
+    const exceptionId = String(formData.get("exceptionId") ?? "").trim();
+    if (!exceptionId) return;
+    await auth.admin
+      .from("exceptions")
+      .update({ status: "open", resolved_at: null, resolved_by: null })
+      .eq("organization_id", auth.orgId)
+      .eq("id", exceptionId);
+    await auth.admin.from("exception_events").insert({
+      organization_id: auth.orgId,
+      exception_id: exceptionId,
+      event_type: "reopened",
+      actor_user_id: auth.user.id,
+      details: {},
+    });
+    revalidatePath("/contracts/exceptions");
+  }
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+      <header className="ui-page-header">
         <div>
-          <p className="ui-eyebrow">Operational risk</p>
-          <h1 className="ui-display-title mt-2">Exceptions workspace</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Prioritized exception queues for missing data, ownership, and overdue execution work.
-          </p>
+          <p className="ui-eyebrow">Exceptions</p>
+          <h1 className="ui-display-title mt-2">Exception ledger</h1>
+          <p className="ui-muted mt-3">Live exception system of record with assignment, SLA tracking, and history.</p>
         </div>
-        <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-          Back to contracts
-        </Link>
       </header>
 
-      <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
-        <form className="flex flex-wrap items-end gap-4" action="/contracts/exceptions" method="get">
+      <section className="ui-card p-5">
+        <form action="/contracts/exceptions" method="get" className="flex flex-wrap items-end gap-3">
           <div>
-            <label htmlFor="exception-filter" className="ui-label-caps">
-              View
-            </label>
-            <select
-              id="exception-filter"
-              name="filter"
-              defaultValue={filter}
-              className="ui-input min-w-[16rem]"
-            >
-              {FILTERS.map((f) => (
-                <option key={f.value || "all"} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
+            <p className="ui-label-caps">Status</p>
+            <select name="status" defaultValue={status} className="ui-input">
+              <option value="">All</option>
+              <option value="open">open</option>
+              <option value="in_progress">in progress</option>
+              <option value="resolved">resolved</option>
+              <option value="closed">closed</option>
             </select>
           </div>
-          <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
-            Apply
+          <div>
+            <p className="ui-label-caps">Severity</p>
+            <select name="severity" defaultValue={severity} className="ui-input">
+              <option value="">All</option>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="critical">critical</option>
+            </select>
+          </div>
+          <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px]">
+            Apply filters
           </button>
         </form>
-      </div>
+      </section>
 
-      <div className="space-y-6">
-        {visibleSections.map((section) => (
-          <section key={section.key} className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
-              <h2 className="ui-section-title text-base">
-                {section.title} <span className="text-zinc-400">({section.count})</span>
-              </h2>
-              <p className="mt-1 text-[12px] text-zinc-500">{section.description}</p>
-            </div>
-            {section.rows.length === 0 ? (
-              <div className="px-6 py-6 text-sm text-zinc-500">No exceptions in this category.</div>
-            ) : (
-              <ul className="divide-y divide-zinc-100">
-                {section.rows.map((row, idx) => (
-                  <li key={`${section.key}-${idx}`}>
-                    <Link
-                      href={`/contracts/${row.id}`}
-                      className="block px-6 py-4 transition-colors hover:bg-zinc-50/70"
-                    >
-                      <p className="text-[15px] font-semibold text-zinc-900">{row.title}</p>
-                      <p className="mt-0.5 text-[13px] text-zinc-500">{row.subtitle}</p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ))}
-      </div>
+      <section className="ui-card p-5">
+        <p className="ui-label-caps">Ledger entries</p>
+        <ul className="mt-3 space-y-3">
+          {(exceptions ?? []).length === 0 ? (
+            <li className="text-sm text-zinc-500">No exceptions matched this filter.</li>
+          ) : (
+            (exceptions ?? []).map((item) => {
+              const history = eventsByException.get(item.id) ?? [];
+              return (
+                <li key={item.id} className="rounded border border-zinc-200 px-3 py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium text-zinc-900">{item.title}</p>
+                    <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-[11px]">{item.status}</span>
+                    <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-[11px]">{item.severity}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {item.exception_type.replace(/_/g, " ")} ·{" "}
+                    {item.contract_id ? (
+                      <Link href={`/contracts/${item.contract_id}`} className="ui-link">
+                        {contractById.get(item.contract_id) ?? item.contract_id}
+                      </Link>
+                    ) : (
+                      "No linked contract"
+                    )}
+                    {item.due_date ? ` · due ${item.due_date}` : ""}
+                  </p>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Recent events:{" "}
+                    {history.slice(0, 4).map((evt) => `${evt.event_type} (${new Date(evt.created_at).toLocaleDateString()})`).join(" · ") ||
+                      "none"}
+                  </p>
+                  {canEdit ? (
+                    <div className="mt-3 grid gap-2 md:grid-cols-3">
+                      <form action={assignAction} className="space-y-2 rounded border border-zinc-200 p-2">
+                        <input type="hidden" name="exceptionId" value={item.id} />
+                        <p className="ui-label-caps">Assign</p>
+                        <select name="ownerId" className="ui-input text-xs" required defaultValue="">
+                          <option value="" disabled>
+                            Select owner
+                          </option>
+                          {ownerOptions.map((owner) => (
+                            <option key={owner.id} value={owner.id}>
+                              {owner.label}
+                            </option>
+                          ))}
+                        </select>
+                        <input type="date" name="dueDate" className="ui-input text-xs" />
+                        <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                          Save
+                        </button>
+                      </form>
+                      <form action={resolveAction} className="space-y-2 rounded border border-zinc-200 p-2">
+                        <input type="hidden" name="exceptionId" value={item.id} />
+                        <p className="ui-label-caps">Resolve</p>
+                        <textarea
+                          name="resolutionNote"
+                          className="ui-input min-h-[52px] text-xs"
+                          placeholder="Resolution note"
+                        />
+                        <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                          Mark resolved
+                        </button>
+                      </form>
+                      <form action={reopenAction} className="space-y-2 rounded border border-zinc-200 p-2">
+                        <input type="hidden" name="exceptionId" value={item.id} />
+                        <p className="ui-label-caps">Reopen</p>
+                        <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                          Reopen exception
+                        </button>
+                      </form>
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })
+          )}
+        </ul>
+      </section>
     </div>
   );
 }

@@ -1,5 +1,10 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -7,7 +12,7 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vercel.live",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
@@ -20,7 +25,7 @@ const strictCspReportOnly = [
   "default-src 'self'",
   `script-src 'self'${isProd ? "" : " 'unsafe-eval'"}`,
   "style-src 'self'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vercel.live",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
@@ -68,13 +73,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
   org: "na-5f1",
 
-  project: "contract-operations-tracker",
+  project: "oblixa",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -82,8 +87,8 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
+  // Widen uploads in CI only — full uploads noticeably slow local iteration.
+  widenClientFileUpload: Boolean(process.env.CI),
 
   // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.

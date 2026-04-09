@@ -2,6 +2,11 @@ import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import {
+  createReportPackAction,
+  createReportPackSubscriptionAction,
+  saveReportPackAnnotationsAction,
+} from "@/actions/v4";
 
 export default async function ReportsHistoryPage(props: {
   searchParams: Promise<{ runId?: string }>;
@@ -12,7 +17,9 @@ export default async function ReportsHistoryPage(props: {
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Reports history is disabled</h1>
         <p className="mt-3 max-w-xl text-sm text-zinc-500">
-          Enable `ENABLE_V3_REPORTING_HISTORY` to review digest runs and recipient engagement.
+          This surface is off because the server has disabled it (set{" "}
+          <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> to false, 0, no, or off). Remove or unset that
+          variable to turn reporting history back on.
         </p>
       </div>
     );
@@ -27,6 +34,25 @@ export default async function ReportsHistoryPage(props: {
     .eq("organization_id", orgId)
     .order("started_at", { ascending: false })
     .limit(100);
+  const { data: reportPacks } = await admin
+    .from("report_packs")
+    .select("id, name, report_type, schedule, active, updated_at, annotations_json")
+    .eq("organization_id", orgId)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+  const subsResult = await admin
+    .from("report_pack_subscriptions")
+    .select("id, report_pack_id, audience_label, schedule_cron, recipient_emails, active, last_sent_at")
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const reportPackSubscriptions = subsResult.error ? [] : subsResult.data ?? [];
+  const { data: reportPackRuns } = await admin
+    .from("report_pack_runs")
+    .select("id, report_pack_id, status, started_at, completed_at, metrics_json, output_refs_json, error, created_at")
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: false })
+    .limit(100);
   const selectedRunId = runId || runs?.[0]?.id || null;
   const { data: recipients } = selectedRunId
     ? await admin
@@ -36,6 +62,21 @@ export default async function ReportsHistoryPage(props: {
         .order("created_at", { ascending: false })
         .limit(200)
     : { data: [] as Array<Record<string, unknown>> };
+
+  async function createReportPackFormAction(formData: FormData) {
+    "use server";
+    await createReportPackAction(formData);
+  }
+
+  async function saveAnnotationsFormAction(formData: FormData) {
+    "use server";
+    await saveReportPackAnnotationsAction(formData);
+  }
+
+  async function createSubscriptionFormAction(formData: FormData) {
+    "use server";
+    await createReportPackSubscriptionAction(formData);
+  }
 
   return (
     <div className="space-y-8">
@@ -47,6 +88,165 @@ export default async function ReportsHistoryPage(props: {
         </p>
       </header>
       <div className="grid gap-6 lg:grid-cols-2">
+        <section className="ui-card overflow-hidden lg:col-span-2">
+          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+            <h2 className="text-sm font-semibold text-zinc-800">Create V4 report pack</h2>
+          </div>
+          <form action={createReportPackFormAction} className="grid gap-2 border-b border-zinc-100 px-5 py-4 md:grid-cols-2">
+            <input name="name" required placeholder="Weekly execution health" className="ui-input" />
+            <input name="reportType" defaultValue="weekly_execution_health" className="ui-input" />
+            <input name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
+            <label className="flex items-center gap-2 text-xs text-zinc-600 md:col-span-2">
+              <input type="checkbox" name="emitWebhooks" className="rounded border-zinc-300" />
+              Emit <code className="text-[10px]">report_pack.generated</code> webhook when a run is recorded
+            </label>
+            <button type="submit" className="ui-btn-secondary px-4 py-2 text-xs">
+              Create report pack
+            </button>
+          </form>
+          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+            <h2 className="text-sm font-semibold text-zinc-800">V4 report packs</h2>
+          </div>
+          {(reportPacks ?? []).length === 0 ? (
+            <p className="px-5 py-4 text-sm text-zinc-500">
+              No report packs yet. Create one using `POST /api/report-packs`.
+            </p>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {(reportPacks ?? []).map((pack) => (
+                <li key={pack.id} className="space-y-2 px-5 py-3 text-sm text-zinc-700">
+                  <p className="font-semibold text-zinc-900">{pack.name}</p>
+                  <p className="text-xs text-zinc-500">
+                    {pack.report_type} · {pack.active ? "active" : "inactive"}
+                    {pack.schedule ? ` · schedule ${pack.schedule}` : ""}
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <Link href={`/api/report-packs/${pack.id}/runs`} className="ui-link">
+                      JSON runs
+                    </Link>
+                    <a
+                      href={`/api/report-packs/${pack.id}/runs?format=csv`}
+                      className="ui-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Latest CSV
+                    </a>
+                    <a
+                      href={`/api/report-packs/${pack.id}/runs?format=html`}
+                      className="ui-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Print / PDF-ready HTML
+                    </a>
+                    <a
+                      href={`/api/report-packs/${pack.id}/runs?format=pdf`}
+                      className="ui-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      PDF-ready (same HTML)
+                    </a>
+                  </div>
+                  <form action={saveAnnotationsFormAction} className="space-y-1 border-t border-zinc-100 pt-2">
+                    <input type="hidden" name="reportPackId" value={pack.id} />
+                    <label className="text-[11px] font-medium text-zinc-600">Annotations (JSON array)</label>
+                    <textarea
+                      name="annotationsJson"
+                      rows={3}
+                      defaultValue={JSON.stringify(
+                        (pack as { annotations_json?: unknown }).annotations_json ?? [],
+                        null,
+                        2
+                      )}
+                      className="ui-input font-mono text-[11px]"
+                    />
+                    <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
+                      Save annotations
+                    </button>
+                  </form>
+                  <form action={createSubscriptionFormAction} className="space-y-1 border-t border-zinc-100 pt-2">
+                    <input type="hidden" name="reportPackId" value={pack.id} />
+                    <p className="text-[11px] font-medium text-zinc-600">New subscription</p>
+                    <input name="audienceLabel" placeholder="Audience label" className="ui-input text-[11px]" />
+                    <input name="scheduleCron" placeholder="Cron e.g. 0 9 * * MON" className="ui-input text-[11px]" />
+                    <input
+                      name="recipientEmails"
+                      placeholder="emails comma-separated"
+                      className="ui-input text-[11px]"
+                    />
+                    <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
+                      Add subscription
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className="ui-card overflow-hidden lg:col-span-2">
+          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+            <h2 className="text-sm font-semibold text-zinc-800">Report pack subscriptions</h2>
+          </div>
+          <ul className="divide-y divide-zinc-100">
+            {reportPackSubscriptions.length === 0 ? (
+              <li className="px-5 py-4 text-sm text-zinc-500">No subscriptions yet.</li>
+            ) : (
+              reportPackSubscriptions.map((sub) => (
+                <li key={sub.id} className="px-5 py-3 text-xs text-zinc-700">
+                  <span className="font-medium text-zinc-900">{sub.audience_label}</span> · pack{" "}
+                  {sub.report_pack_id}
+                  <span className="text-zinc-500">
+                    {" "}
+                    · {(sub.recipient_emails as string[] | null)?.join(", ") || "no emails"}
+                    {sub.schedule_cron ? ` · ${sub.schedule_cron}` : ""}
+                  </span>
+                </li>
+              ))
+            )}
+          </ul>
+        </section>
+        <section className="ui-card overflow-hidden lg:col-span-2">
+          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+            <h2 className="text-sm font-semibold text-zinc-800">V4 report pack run history</h2>
+          </div>
+          {(reportPackRuns ?? []).length === 0 ? (
+            <p className="px-5 py-4 text-sm text-zinc-500">No V4 report pack runs yet.</p>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {(reportPackRuns ?? []).map((run) => (
+                <li key={run.id} className="px-5 py-3 text-sm">
+                  <p className="font-semibold text-zinc-900">
+                    {run.report_pack_id} · {run.status}
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    {new Date(run.created_at).toLocaleString()}
+                    {run.completed_at ? ` · completed ${new Date(run.completed_at).toLocaleString()}` : ""}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-2 text-[11px]">
+                    <a
+                      className="ui-link"
+                      href={`/api/report-packs/${run.report_pack_id}/runs?format=csv&runId=${run.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      CSV
+                    </a>
+                    <a
+                      className="ui-link"
+                      href={`/api/report-packs/${run.report_pack_id}/runs?format=html&runId=${run.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      HTML
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
             <h2 className="text-sm font-semibold text-zinc-800">Runs</h2>

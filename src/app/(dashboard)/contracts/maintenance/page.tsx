@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
+import { CampaignRollbackButton } from "@/components/v4/campaign-maintenance-actions";
 import {
   archiveContractAsDuplicateForm,
   deleteOrphanFileRecordForm,
@@ -9,6 +10,7 @@ import {
   runDateBackfillCampaignForm,
   reassignOwnerForm,
 } from "@/actions/maintenance";
+import { revalidatePath } from "next/cache";
 
 export default async function MaintenancePage() {
   const ctx = await getAuthContext();
@@ -27,7 +29,7 @@ export default async function MaintenancePage() {
   const staleOwnerCutoff = new Date(
     now.getTime() - staleOwnershipDays * 24 * 60 * 60 * 1000
   ).toISOString();
-  const [staleContracts, missingOwner, duplicateCandidates, orphanFiles, staleOwnership, membersData, changeEvents] =
+  const [staleContracts, missingOwner, duplicateCandidates, orphanFiles, staleOwnership, membersData, changeEvents, campaigns] =
     await Promise.all([
     admin
       .from("contracts")
@@ -77,7 +79,84 @@ export default async function MaintenancePage() {
         .order("created_at", { ascending: false })
         .limit(50)
         .then((r) => r.data ?? []),
+      admin
+        .from("maintenance_campaigns")
+        .select(
+          "id, name, campaign_type, status, summary_json, preview_summary_json, last_preview_at, rolled_back_at, created_at, completed_at"
+        )
+        .eq("organization_id", orgId)
+        .order("created_at", { ascending: false })
+        .limit(30)
+        .then((r) => r.data ?? []),
     ]);
+
+  async function createCampaignAction(formData: FormData) {
+    "use server";
+    const ctx = await getAuthContext();
+    if (!ctx) return;
+    const name = String(formData.get("name") ?? "").trim();
+    const campaignType = String(formData.get("campaignType") ?? "").trim() || "data_remediation";
+    const contractIds = String(formData.get("seedContractIds") ?? "")
+      .split(/[\n,\s]+/)
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (!name) return;
+    await ctx.admin.from("maintenance_campaigns").insert({
+      organization_id: ctx.orgId,
+      name,
+      campaign_type: campaignType,
+      status: "draft",
+      filter_json: {},
+      created_by: ctx.user.id,
+    }).select("id").single().then(async ({ data }) => {
+      if (!data || contractIds.length === 0) return;
+      await ctx.admin.from("maintenance_campaign_rows").insert(
+        contractIds.map((contractId) => ({
+          organization_id: ctx.orgId,
+          campaign_id: data.id,
+          contract_id: contractId,
+          status: "pending",
+        }))
+      );
+    });
+    revalidatePath("/contracts/maintenance");
+  }
+
+  async function runCampaignAction(formData: FormData) {
+    "use server";
+    const ctx = await getAuthContext();
+    if (!ctx) return;
+    const campaignId = String(formData.get("campaignId") ?? "").trim();
+    if (!campaignId) return;
+    await ctx.admin
+      .from("maintenance_campaigns")
+      .update({ status: "running", started_at: new Date().toISOString() })
+      .eq("organization_id", ctx.orgId)
+      .eq("id", campaignId);
+    const { data: rows } = await ctx.admin
+      .from("maintenance_campaign_rows")
+      .select("id")
+      .eq("organization_id", ctx.orgId)
+      .eq("campaign_id", campaignId)
+      .eq("status", "pending")
+      .limit(1000);
+    await ctx.admin
+      .from("maintenance_campaign_rows")
+      .update({ status: "processed", processed_at: new Date().toISOString() })
+      .eq("organization_id", ctx.orgId)
+      .eq("campaign_id", campaignId)
+      .eq("status", "pending");
+    await ctx.admin
+      .from("maintenance_campaigns")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        summary_json: { processed: rows?.length ?? 0 },
+      })
+      .eq("organization_id", ctx.orgId)
+      .eq("id", campaignId);
+    revalidatePath("/contracts/maintenance");
+  }
 
   const normalized = new Map<string, Array<{ id: string; title: string }>>();
   for (const row of duplicateCandidates) {
@@ -138,6 +217,73 @@ export default async function MaintenancePage() {
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <h2 className="ui-section-title text-base">Maintenance campaigns (V4)</h2>
+        </div>
+        <div className="grid gap-4 p-6 md:grid-cols-2">
+          <form action={createCampaignAction} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Create campaign</p>
+            <input name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
+            <select name="campaignType" className="ui-input w-full" defaultValue="data_remediation">
+              <option value="data_remediation">data remediation</option>
+              <option value="owner_reassignment">owner reassignment</option>
+              <option value="policy_backfill">policy backfill</option>
+            </select>
+            <textarea
+              name="seedContractIds"
+              className="ui-input min-h-[72px] w-full"
+              placeholder="Optional contract IDs (comma/newline separated)"
+            />
+            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+              Create draft campaign
+            </button>
+          </form>
+          <div className="rounded-lg border border-zinc-200 p-4">
+            <p className="ui-label-caps">Campaign history</p>
+            <ul className="mt-2 space-y-2">
+              {campaigns.length === 0 ? (
+                <li className="text-sm text-zinc-500">No campaigns created yet.</li>
+              ) : (
+                campaigns.map((campaign) => (
+                  <li key={campaign.id} className="rounded border border-zinc-200 px-3 py-2 text-sm">
+                    <p className="font-medium text-zinc-900">{campaign.name}</p>
+                    <p className="text-xs text-zinc-500">
+                      {campaign.campaign_type} · {campaign.status}
+                      {campaign.rolled_back_at ? " · rolled back" : ""}
+                    </p>
+                    {campaign.last_preview_at ? (
+                      <p className="mt-1 text-[11px] text-zinc-500">
+                        Last preview: {new Date(campaign.last_preview_at).toLocaleString()}
+                      </p>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <a
+                        href={`/api/maintenance/campaigns/${campaign.id}/preview`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ui-btn-secondary inline-block px-3 py-1.5 text-xs"
+                      >
+                        Preview row counts
+                      </a>
+                      <CampaignRollbackButton campaignId={campaign.id} />
+                    </div>
+                    {campaign.status !== "completed" ? (
+                      <form action={runCampaignAction} className="mt-2">
+                        <input type="hidden" name="campaignId" value={campaign.id} />
+                        <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                          Run campaign
+                        </button>
+                      </form>
+                    ) : null}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Stale active/review records</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
@@ -190,7 +336,7 @@ export default async function MaintenancePage() {
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-          <h2 className="ui-section-title text-base">Duplicate candidates (archive)</h2>
+          <h2 className="ui-section-title text-base">Duplicate review queue (archive)</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
           {duplicates.length === 0 ? (

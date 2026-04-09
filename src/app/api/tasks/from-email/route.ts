@@ -7,6 +7,8 @@ import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 type EmailTaskPayload = {
   organizationId: string;
   contractId: string;
+  intakeType?: "task" | "exception" | "evidence_submission";
+  evidenceRequirementId?: string;
   externalMessageId?: string;
   subject: string;
   body?: string;
@@ -78,7 +80,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const title = `Email follow-up: ${payload.subject.trim()}`;
+  const headerIntake = request.headers.get("x-oblixa-intake")?.trim().toLowerCase();
+  let intakeType: EmailTaskPayload["intakeType"] = payload.intakeType ?? "task";
+  if (headerIntake === "exception") intakeType = "exception";
+  if (headerIntake === "evidence" || headerIntake === "evidence_submission") {
+    intakeType = "evidence_submission";
+  }
+  if (headerIntake === "task") intakeType = "task";
+  const title =
+    intakeType === "exception"
+      ? `Email exception: ${payload.subject.trim()}`
+      : `Email follow-up: ${payload.subject.trim()}`;
   const details = [
     payload.body?.trim(),
     payload.from ? `From: ${payload.from}` : null,
@@ -111,6 +123,55 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, deduped: true, taskId: existing.data.id });
     }
   }
+  if (intakeType === "exception") {
+    const { data: exception, error } = await admin
+      .from("exceptions")
+      .insert({
+        organization_id: payload.organizationId,
+        contract_id: payload.contractId,
+        title,
+        details: details || null,
+        exception_type: "inbound_email",
+        severity: "medium",
+        status: "open",
+      })
+      .select("id")
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ success: true, exceptionId: exception.id });
+  }
+
+  if (intakeType === "evidence_submission") {
+    const requirementId = String(payload.evidenceRequirementId ?? "").trim();
+    if (!requirementId) {
+      return NextResponse.json({ error: "evidenceRequirementId is required for evidence_submission" }, { status: 400 });
+    }
+    const { data: submission, error } = await admin
+      .from("evidence_submissions")
+      .insert({
+        organization_id: payload.organizationId,
+        requirement_id: requirementId,
+        submitted_by: null,
+        status: "submitted",
+        payload_json: {
+          source: "email",
+          subject: payload.subject.trim(),
+          body: payload.body?.trim() || null,
+          from: payload.from?.trim() || null,
+          external_message_id: payload.externalMessageId?.trim() || null,
+        },
+      })
+      .select("id")
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    await admin
+      .from("evidence_requirements")
+      .update({ status: "submitted" })
+      .eq("organization_id", payload.organizationId)
+      .eq("id", requirementId);
+    return NextResponse.json({ success: true, submissionId: submission.id });
+  }
+
   const { data: task, error } = await admin
     .from("contract_tasks")
     .insert({

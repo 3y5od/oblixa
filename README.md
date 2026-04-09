@@ -1,9 +1,10 @@
-# Contract Operations Tracker
+# Oblixa
 
-Centralizes client agreements, extracts key operational fields with source citations, and surfaces upcoming actions through dashboards and email reminders. Built for small B2B service firms with 20–200 active contracts.
+**Oblixa** is a contract execution platform for post-signature operations: turning signed agreements into tracked work, deadlines, approvals, obligations, evidence, and audit-ready reporting. Built for small B2B teams with tens to a few hundred active contracts.
 
-V3 baseline includes execution-depth upgrades: task dependencies/checklists/threaded comments/artifacts, obligation recurrence + escalation + evidence, approval SLA/delegation/exception tracking, intake request lifecycle metadata, report run history with recipient engagement tracking, and behavior-metrics snapshots.
-Use `docs/V3_GAP_MATRIX.md` as the live phase tracker, and `ENABLE_V3_*` toggles in `.env.example` for phased rollout.
+**V4** unifies execution depth (tasks, obligations, approvals, renewals, exceptions, programs, report packs) with scheduled automation, operational casefiles, and policy-aware workflows. Product direction and feature detail live in [docs/V4.md](docs/V4.md). Production cutover steps (DNS, Supabase, Stripe, Slack, email) are in [docs/V4_CUTOVER_CHECKLIST.md](docs/V4_CUTOVER_CHECKLIST.md).
+
+Module toggles still use env names `ENABLE_V3_*` in [`.env.example`](.env.example) for backward compatibility; when unset or empty, modules default to **on**.
 
 ## Tech stack
 
@@ -26,8 +27,8 @@ Use `docs/V3_GAP_MATRIX.md` as the live phase tracker, and `ENABLE_V3_*` toggles
 
 ```bash
 # 1. Clone and enter the repo
-git clone https://github.com/3y5od/contract-operations-tracker.git
-cd contract-operations-tracker
+git clone https://github.com/3y5od/oblixa.git
+cd oblixa
 
 # 2. Install dependencies
 npm install
@@ -63,7 +64,7 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 ## Available scripts
 
 | Command | What it does |
-|---------|-------------|
+|---------|--------------|
 | `npm run dev` | Start dev server with hot reload |
 | `npm run build` | Production build |
 | `npm run start` | Serve the production build locally |
@@ -72,8 +73,10 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `npm run test` | Run Vitest unit tests |
 | `npm run test:e2e` | Run Playwright smoke tests |
 | `npm run check:migrations` | Fail on duplicate migration prefixes |
+| `npm run check:cron-canary` | Probe cron routes on `COMPREHENSIVE_PASS_BASE_URL` (needs `CRON_SECRET`) |
+| `npm run check:comprehensive-pass` | Staging-style cron + migration + RLS checks (see `.env.example`) |
 | `npm run preflight:release` | Validate required release env vars |
-| `npm run release:checklist` | Run preflight + verify + e2e |
+| `npm run release:checklist` | Run preflight + verify + e2e + comprehensive pass |
 | `npm run verify` | Run migration check + lint + typecheck + tests + production build |
 
 ## CI quality gate
@@ -87,11 +90,13 @@ The default CI workflow runs:
 5. `npm run build`
 6. `npm run test:e2e` (includes accessibility checks)
 
+An optional job runs `npm run check:comprehensive-pass` against staging when the relevant GitHub secrets are set.
+
 ## Release operations
 
-Use `docs/RELEASE_RUNBOOK.md` for release, rollback, and key-rotation procedures.
+Use [docs/RELEASE_RUNBOOK.md](docs/RELEASE_RUNBOOK.md) for release order, rollback notes, key rotation, and links to the V4 cutover checklist.
 
-Playwright e2e still expects a stable deployment target (`PLAYWRIGHT_BASE_URL`) when not running against a local preview.
+Playwright e2e expects a stable deployment target (`PLAYWRIGHT_BASE_URL`) when not running against a local preview.
 
 Optional authenticated e2e smoke uses:
 
@@ -104,6 +109,7 @@ Optional authenticated e2e smoke uses:
 src/
 └── app/          # Next.js App Router pages, layouts, and route handlers
 public/           # Static assets
+docs/             # V4 spec, cutover checklist, release runbook
 ```
 
 ## Deployment (Vercel)
@@ -112,4 +118,4 @@ public/           # Static assets
 2. Import the repo in Vercel.
 3. Add all env vars from `.env.example` in Vercel → Settings → Environment Variables.
 4. Deploy.
-5. Add the production URL to Supabase Auth redirect URLs and Stripe webhook endpoints.
+5. Add the production URL to Supabase Auth redirect URLs and Stripe webhook endpoints (see [docs/V4_CUTOVER_CHECKLIST.md](docs/V4_CUTOVER_CHECKLIST.md)).

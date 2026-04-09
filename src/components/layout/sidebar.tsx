@@ -35,7 +35,7 @@ const iconByKey = {
   more: Grid2x2,
 } as const;
 
-const COLLAPSED_PREF_KEY = "contractops.sidebar.collapsed";
+const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
 
 export function Sidebar(props: {
   role?: WorkspaceRole;
@@ -49,7 +49,9 @@ export function Sidebar(props: {
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
-      return window.localStorage.getItem(COLLAPSED_PREF_KEY) === "1";
+      const current = window.localStorage.getItem(COLLAPSED_PREF_KEY);
+      if (current != null) return current === "1";
+      return false;
     } catch {
       return false;
     }
@@ -180,7 +182,7 @@ export function Sidebar(props: {
             href="/dashboard"
             className="pl-1 text-[14px] font-semibold tracking-tight text-white"
           >
-            ContractOps
+            Oblixa
           </Link>
         )}
         {mobile ? (

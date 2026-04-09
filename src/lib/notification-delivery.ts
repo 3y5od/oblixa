@@ -157,7 +157,7 @@ async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | 
       body: JSON.stringify({
         text: `${payload.title}\n${payload.body}`,
         channel: payload.channel ?? undefined,
-        username: payload.username ?? "ContractOps",
+        username: payload.username ?? "Oblixa",
         metadata: payload.metadata ?? {},
       }),
     });

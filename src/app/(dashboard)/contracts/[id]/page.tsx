@@ -19,6 +19,7 @@ import { ContractTasksPanel } from "@/components/contracts/contract-tasks-panel"
 import { ContractNotesPanel } from "@/components/contracts/contract-notes-panel";
 import { ContractObligationsPanel } from "@/components/contracts/contract-obligations-panel";
 import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoints-panel";
+import { ContractEvidenceRequirementsPanel } from "@/components/contracts/contract-evidence-requirements-panel";
 import { addRenewalWorkspaceNoteForm, seedRenewalPlaybook } from "@/actions/renewal-playbook";
 import { canEditContracts } from "@/lib/permissions";
 import { addFieldCommentForm } from "@/actions/field-comments";
@@ -33,6 +34,8 @@ import {
   updateContractOperationalStateForm,
   applyContractTemplatePackForm,
 } from "@/actions/contracts";
+import { updateProgramAssignmentOverrideFormAction } from "@/actions/v4";
+import { ExecutionGraphViz } from "@/components/v4/execution-graph-viz";
 import type {
   ContractApproval,
   ContractExtractionJob,
@@ -83,6 +86,7 @@ export default async function ContractDetailPage(props: {
     { data: approvalEventsData },
     { data: watchlistData },
     { data: renewalWorkspaceNotesData },
+    { data: casefileEventsData },
   ] = await Promise.all([
     admin
       .from("contracts")
@@ -141,7 +145,7 @@ export default async function ContractDetailPage(props: {
     admin
       .from("contract_renewal_checkpoints")
       .select(
-        "id, contract_id, organization_id, task_key, label, offset_days, due_date, status, notes, completed_at, created_at, updated_at"
+        "id, contract_id, organization_id, task_key, label, offset_days, due_date, status, notes, completed_at, created_at, updated_at, renewal_state, workspace_json"
       )
       .eq("contract_id", id)
       .order("offset_days", { ascending: false }),
@@ -202,9 +206,60 @@ export default async function ContractDetailPage(props: {
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(20),
+    admin
+      .from("operational_casefile_events")
+      .select("id, event_type, entity_type, source, occurred_at, details_json")
+      .eq("organization_id", orgId)
+      .eq("contract_id", id)
+      .order("occurred_at", { ascending: false })
+      .limit(80),
   ]);
 
   if (!contractData) notFound();
+
+  const { data: evidenceRequirementsData } = await admin
+    .from("evidence_requirements")
+    .select("id, title, requirement_type, status, due_at, review_due_at, work_item_type, work_item_id")
+    .eq("contract_id", id)
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: false })
+    .limit(40);
+
+  const [
+    { data: graphEdgesData },
+    { data: exceptionsCasefileData },
+    { data: changeEventsCasefileData },
+    { data: programAssignmentsData },
+  ] = await Promise.all([
+    admin
+      .from("execution_graph_edges")
+      .select(
+        "id, from_entity_type, from_entity_id, to_entity_type, to_entity_id, relation_type, status"
+      )
+      .eq("organization_id", orgId)
+      .eq("contract_id", id)
+      .limit(200),
+    admin
+      .from("exceptions")
+      .select("id, title, exception_type, status, updated_at")
+      .eq("organization_id", orgId)
+      .eq("contract_id", id)
+      .order("updated_at", { ascending: false })
+      .limit(40),
+    admin
+      .from("contract_change_events")
+      .select("id, event_type, summary, created_at")
+      .eq("organization_id", orgId)
+      .eq("contract_id", id)
+      .order("created_at", { ascending: false })
+      .limit(40),
+    admin
+      .from("contract_program_assignments")
+      .select("id, override_json, program_id, contract_programs(name)")
+      .eq("organization_id", orgId)
+      .eq("contract_id", id)
+      .eq("status", "active"),
+  ]);
 
   let ownerProfile: { full_name: string | null; email: string | null } | null = null;
   if (contractData.owner_id) {
@@ -302,6 +357,79 @@ export default async function ContractDetailPage(props: {
   const obligationEvents = obligationEventsData ?? [];
   const approvalEvents = approvalEventsData ?? [];
   const isWatchlisted = Boolean(watchlistData?.id);
+  const casefileEventsRaw =
+    (casefileEventsData as
+      | Array<{
+          id: string;
+          event_type: string;
+          entity_type: string | null;
+          source: string;
+          occurred_at: string;
+          details_json?: Record<string, unknown> | null;
+        }>
+      | null) ?? [];
+
+  type MergedCasefileEntry = {
+    id: string;
+    kind: "casefile" | "exception" | "change";
+    headline: string;
+    detail: string;
+    occurred_at: string;
+  };
+
+  const mergedCasefile: MergedCasefileEntry[] = [
+    ...casefileEventsRaw.map((e) => ({
+      id: `cf-${e.id}`,
+      kind: "casefile" as const,
+      headline: e.event_type.replace(/\./g, " "),
+      detail: [e.entity_type, e.source].filter(Boolean).join(" · "),
+      occurred_at: e.occurred_at,
+    })),
+    ...(exceptionsCasefileData ?? []).map(
+      (e: { id: string; title: string; exception_type: string; status: string; updated_at: string }) => ({
+        id: `ex-${e.id}`,
+        kind: "exception" as const,
+        headline: `Exception · ${e.exception_type}`,
+        detail: `${e.title} · ${e.status}`,
+        occurred_at: e.updated_at,
+      })
+    ),
+    ...(changeEventsCasefileData ?? []).map(
+      (e: { id: string; event_type: string; summary: string | null; created_at: string }) => ({
+        id: `ch-${e.id}`,
+        kind: "change" as const,
+        headline: `Change · ${e.event_type}`,
+        detail: e.summary ?? "",
+        occurred_at: e.created_at,
+      })
+    ),
+  ]
+    .sort((a, b) => +new Date(b.occurred_at) - +new Date(a.occurred_at))
+    .slice(0, 120);
+
+  const executionGraphEdges =
+    (graphEdgesData as
+      | Array<{
+          id: string;
+          from_entity_type: string;
+          from_entity_id: string;
+          to_entity_type: string;
+          to_entity_id: string;
+          relation_type: string;
+          status: string;
+        }>
+      | null) ?? [];
+  const evidenceRequirements =
+    (evidenceRequirementsData ?? []) as Array<{
+      id: string;
+      title: string;
+      requirement_type: string;
+      status: string;
+      due_at: string | null;
+      review_due_at: string | null;
+      work_item_type: string;
+      work_item_id: string;
+    }>;
   const pendingFieldsCount = (contract.extracted_fields ?? []).filter(
     (f: { status: string }) => f.status === "pending"
   ).length;
@@ -601,6 +729,7 @@ export default async function ContractDetailPage(props: {
                 taskComments={taskComments}
                 taskDependencies={taskDependencies}
                 taskArtifacts={taskArtifacts}
+                executionGraphEdges={executionGraphEdges}
               />
             </div>
           </div>
@@ -621,6 +750,7 @@ export default async function ContractDetailPage(props: {
                 members={ownerMembers}
                 canEdit={canEdit}
                 obligationEvents={obligationEvents}
+                executionGraphEdges={executionGraphEdges}
               />
             </div>
           </div>
@@ -706,6 +836,97 @@ export default async function ContractDetailPage(props: {
                   </form>
                 )}
               </div>
+              <div className="mt-6 border-t border-zinc-100 pt-5">
+                <p className="ui-label-caps">Execution graph</p>
+                <p className="mt-1 text-xs text-zinc-500">Cross-work dependencies for this contract.</p>
+                <Link
+                  href={`/contracts/execution-graph?contractId=${contract.id}`}
+                  className="ui-link mt-2 inline-block text-xs"
+                >
+                  Open portfolio graph view
+                </Link>
+                {executionGraphEdges.length > 0 ? (
+                  <div className="mt-3 max-h-[320px] overflow-auto">
+                    <ExecutionGraphViz edges={executionGraphEdges} />
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-zinc-500">Apply a program to generate dependency edges.</p>
+                )}
+              </div>
+              <div className="mt-6 border-t border-zinc-100 pt-5">
+                <p className="ui-label-caps">Operational evidence pack</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Export submissions and requirements for audits.
+                </p>
+                <a
+                  href={`/api/evidence/export/${contract.id}`}
+                  className="ui-link mt-2 inline-block text-xs"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download evidence pack (JSON)
+                </a>
+                <div className="mt-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                    Active requirements
+                  </p>
+                  <div className="mt-2">
+                    <ContractEvidenceRequirementsPanel
+                      requirements={evidenceRequirements}
+                      canEdit={canEdit}
+                      contractId={contract.id}
+                    />
+                  </div>
+                </div>
+              </div>
+              {(programAssignmentsData ?? []).length > 0 ? (
+                <div className="mt-6 border-t border-zinc-100 pt-5">
+                  <p className="ui-label-caps">Program assignment overrides</p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Per-contract routing JSON merged when programs apply (assignee_id, assignee_by_team).
+                  </p>
+                  <ul className="mt-3 space-y-3">
+                    {(programAssignmentsData ?? []).map(
+                      (row: {
+                        id: string;
+                        program_id: string;
+                        override_json: Record<string, unknown>;
+                        contract_programs: { name: string } | { name: string }[] | null;
+                      }) => {
+                        const prog = row.contract_programs;
+                        const programName = Array.isArray(prog)
+                          ? prog[0]?.name
+                          : prog?.name;
+                        return (
+                          <li key={row.id} className="rounded-lg border border-zinc-200 p-3 text-xs">
+                            <p className="font-medium text-zinc-900">
+                              {programName ?? row.program_id}
+                            </p>
+                            {canEdit ? (
+                              <form action={updateProgramAssignmentOverrideFormAction} className="mt-2 space-y-2">
+                                <input type="hidden" name="assignmentId" value={row.id} />
+                                <textarea
+                                  name="overrideJson"
+                                  defaultValue={JSON.stringify(row.override_json ?? {}, null, 2)}
+                                  rows={5}
+                                  className="ui-input w-full font-mono text-[11px]"
+                                />
+                                <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
+                                  Save override
+                                </button>
+                              </form>
+                            ) : (
+                              <pre className="mt-2 overflow-x-auto rounded bg-zinc-50 p-2 text-[11px]">
+                                {JSON.stringify(row.override_json ?? {}, null, 2)}
+                              </pre>
+                            )}
+                          </li>
+                        );
+                      }
+                    )}
+                  </ul>
+                </div>
+              ) : null}
               <div className="mt-6 border-t border-zinc-100 pt-5">
                 <p className="ui-label-caps">CRM / external link</p>
                 <p className="mt-1 text-xs text-zinc-500">
@@ -1037,6 +1258,34 @@ export default async function ContractDetailPage(props: {
                 )}
               </div>
             </div>
+            </div>
+          </div>
+          )}
+
+          {(activeTab === "overview" || activeTab === "audit") && (
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+              <h3 className="ui-section-title text-base">Operational casefile</h3>
+            </div>
+            <div className="p-6">
+              {mergedCasefile.length === 0 ? (
+                <p className="text-sm text-zinc-500">No casefile events recorded yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {mergedCasefile.map((entry) => (
+                    <li key={entry.id} className="flex items-start justify-between gap-3 text-xs">
+                      <span className="text-zinc-700">
+                        <span className="font-semibold">{entry.headline}</span>
+                        {entry.detail ? ` · ${entry.detail}` : ""}
+                        <span className="text-zinc-400"> · {entry.kind}</span>
+                      </span>
+                      <span className="shrink-0 text-zinc-400">
+                        {format(new Date(entry.occurred_at), "MMM d, h:mm a")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
           )}

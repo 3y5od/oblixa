@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { format, differenceInDays } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
+import { SlackRenewalSummaryForm } from "@/components/v4/slack-renewal-summary-form";
 import { seedRenewalPlaybook } from "@/actions/renewal-playbook";
 import { createCheckpointClarificationTaskForm } from "@/actions/tasks";
 import {
@@ -201,6 +202,19 @@ export default async function RenewalsWorkspacePage(props: {
     };
   }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
+  const { data: signalRows } = await admin
+    .from("contract_renewal_checkpoints")
+    .select("status, due_date, renewal_state")
+    .eq("organization_id", orgId)
+    .limit(2000);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const renewalSignals = {
+    total: signalRows?.length ?? 0,
+    overdue: (signalRows ?? []).filter((r) => r.status !== "completed" && r.due_date && r.due_date < todayStr)
+      .length,
+    decisionPending: (signalRows ?? []).filter((r) => r.renewal_state === "decision_pending").length,
+  };
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
@@ -215,6 +229,24 @@ export default async function RenewalsWorkspacePage(props: {
           Open task queue
         </Link>
       </header>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="ui-card p-5">
+          <p className="ui-label-caps">Renewal workspace 2.0</p>
+          <p className="mt-2 text-sm text-zinc-600">
+            Open any contract to edit checkpoint JSON (stakeholder checklist, scenario comparison, commercial notes,
+            meeting agenda). Renewal states and decision packets continue to layer on the contract record.
+          </p>
+          <p className="mt-3 text-xs text-zinc-500">
+            Portfolio signals: {renewalSignals.total} checkpoints · {renewalSignals.overdue} overdue ·{" "}
+            {renewalSignals.decisionPending} decision pending
+          </p>
+          <Link href="/api/renewals/portfolio-signals" className="ui-link mt-2 inline-block text-xs" target="_blank">
+            Open portfolio signals JSON
+          </Link>
+        </div>
+        <SlackRenewalSummaryForm />
+      </section>
 
       <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
         <p className="mb-4 text-xs text-zinc-500">

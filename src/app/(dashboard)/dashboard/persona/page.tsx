@@ -60,7 +60,8 @@ export default async function PersonaDashboardPage(props: {
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Persona dashboard is disabled</h1>
         <p className="mt-3 max-w-xl text-sm text-zinc-500">
-          Enable `ENABLE_V3_PERSONA_DASHBOARDS` to access this workspace surface.
+          This surface is off when <code className="text-xs">ENABLE_V3_PERSONA_DASHBOARDS</code> is set to false, 0, no,
+          or off on the server. Unset it to restore the default (on).
         </p>
         <div className="mt-5">
           <Link href="/dashboard" className="ui-btn-secondary px-4 py-2 text-[13px]">

@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ContractOps — Contract Operations Tracker",
+  title: "Oblixa — Contract Execution Platform",
   description:
-    "Centralize agreements, extract key dates, and track upcoming actions for your service firm.",
+    "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
 };
 
 export default function RootLayout({

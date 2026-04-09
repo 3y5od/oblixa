@@ -23,8 +23,8 @@ export function LegalFooter() {
             expanded ? "mt-3 block" : "hidden md:block"
           }`}
         >
-          Contract Operations Tracker helps you organize agreements and operational
-          dates. It does not provide legal advice, legal analysis, or a substitute
+          Oblixa helps you run post-signature contract execution workflows and
+          operational dates. It does not provide legal advice, legal analysis, or a substitute
           for qualified counsel. Always verify critical terms against the original
           documents and your own policies.
         </p>

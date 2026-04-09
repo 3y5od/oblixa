@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("public pages", () => {
   test("home page loads", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("ContractOps").first()).toBeVisible();
+    await expect(page.getByText("Oblixa").first()).toBeVisible();
   });
 
   test("login page loads", async ({ page }) => {

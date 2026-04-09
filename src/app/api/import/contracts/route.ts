@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 
 type CsvRow = {
   title: string;
@@ -190,6 +191,7 @@ export async function POST(request: Request) {
       created_by: user.id,
       status: "pending_review" as const,
       intake_status: "awaiting_review" as const,
+      intake_source: row.source_system?.trim() || "csv_import",
       source_system: row.source_system?.trim() || "csv_import",
       external_reference_id: row.external_reference_id?.trim() || null,
       required_next_step: "Review imported metadata",
@@ -222,6 +224,23 @@ export async function POST(request: Request) {
         chunk[i].contractId = inserted?.[i]?.id ?? null;
         chunk[i].status = inserted?.[i]?.id ? "inserted" : "error";
         if (!inserted?.[i]?.id) chunk[i].errorMessage = "Insert failed";
+        else {
+          const cid = inserted[i].id as string;
+          const p = chunk[i].payload as Record<string, unknown>;
+          await autoAttachProgramsForContract({
+            admin,
+            contract: {
+              id: cid,
+              organization_id: String(p.organization_id),
+              contract_type: (p.contract_type as string | null) ?? null,
+              source_system: (p.source_system as string | null) ?? null,
+              counterparty: (p.counterparty as string | null) ?? null,
+              region: (p.region as string | null) ?? null,
+              intake_source: (p.intake_source as string | null) ?? null,
+            },
+            actorUserId: user.id,
+          }).catch(() => {});
+        }
       }
     }
   }

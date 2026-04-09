@@ -50,6 +50,11 @@ export const createAdminClient = cache(async () => {
   );
 });
 
+/**
+ * Picks one org per user for server-side resolution (dashboard, API routes, server actions).
+ * Uses the earliest membership by `created_at`. There is no org switcher yet; users in multiple
+ * orgs always resolve to this same row everywhere `getDeterministicMembership` is used.
+ */
 export async function getDeterministicMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   userId: string

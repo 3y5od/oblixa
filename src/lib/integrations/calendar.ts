@@ -8,7 +8,12 @@ function formatIcsDate(dateLike: string): string {
   return `${year}${month}${day}`;
 }
 
-function buildEvent(uid: string, date: string, summary: string, description: string): string {
+function buildEvent(
+  uid: string,
+  date: string,
+  summary: string,
+  description: string
+): string {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   const safeSummary = summary.replace(/\n/g, " ").replace(/,/g, "\\,");
   const safeDescription = description.replace(/\n/g, "\\n").replace(/,/g, "\\,");
@@ -78,7 +83,7 @@ export async function buildOrganizationCalendarIcs(
     if (!contract) continue;
     events.push(
       buildEvent(
-        `reminder-${row.id}@contractops`,
+        `reminder-${row.id}@oblixa.io`,
         row.reminder_date,
         `${row.reminder_type.replace(/_/g, " ")} — ${contract.title}`,
         `Reminder for contract ${contract.title}`
@@ -92,7 +97,7 @@ export async function buildOrganizationCalendarIcs(
     if (!contract || !row.due_date) continue;
     events.push(
       buildEvent(
-        `obligation-${row.id}@contractops`,
+        `obligation-${row.id}@oblixa.io`,
         row.due_date,
         `Obligation due — ${row.title}`,
         `Contract: ${contract.title}`
@@ -106,7 +111,7 @@ export async function buildOrganizationCalendarIcs(
     if (!contract) continue;
     events.push(
       buildEvent(
-        `renewal-${row.id}@contractops`,
+        `renewal-${row.id}@oblixa.io`,
         row.due_date,
         `Renewal checkpoint — ${row.label}`,
         `Contract: ${contract.title}`
@@ -122,7 +127,7 @@ export async function buildOrganizationCalendarIcs(
     if (!decisionDate) continue;
     events.push(
       buildEvent(
-        `renewal-decision-${row.id}@contractops`,
+        `renewal-decision-${row.id}@oblixa.io`,
         decisionDate,
         `Renewal decision date — ${contract.title}`,
         `Contract: ${contract.title} · status ${String(row.workspace_status ?? "unknown")}`
@@ -133,7 +138,7 @@ export async function buildOrganizationCalendarIcs(
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ContractOps//Contract Calendar//EN",
+    "PRODID:-//Oblixa//Contract Calendar//EN",
     "CALSCALE:GREGORIAN",
     ...events,
     "END:VCALENDAR",

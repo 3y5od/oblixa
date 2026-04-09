@@ -11,16 +11,11 @@ function isWithinQuietHours(now: Date, start: number, end: number): boolean {
   return hour >= start || hour < end;
 }
 
-export async function isNotificationAllowed(
-  admin: AdminClient,
-  input: { organizationId: string; channel: Channel; notificationType: string }
-): Promise<boolean> {
-  const { data: settings } = await admin
-    .from("organization_workflow_settings")
-    .select("notification_policy_json")
-    .eq("organization_id", input.organizationId)
-    .maybeSingle();
-  const policy = (settings?.notification_policy_json ?? {}) as Record<string, unknown>;
+export function evaluateNotificationPolicy(
+  notificationPolicyJson: unknown,
+  input: { channel: Channel; notificationType: string }
+): boolean {
+  const policy = (notificationPolicyJson ?? {}) as Record<string, unknown>;
   const channelPolicy = (policy[input.channel] ?? {}) as Record<string, unknown>;
   if (channelPolicy.enabled === false) return false;
 
@@ -43,4 +38,37 @@ export async function isNotificationAllowed(
     return false;
   }
   return true;
+}
+
+export async function loadNotificationPoliciesForOrganizations(
+  admin: AdminClient,
+  organizationIds: string[]
+): Promise<Map<string, unknown>> {
+  const unique = [...new Set(organizationIds)].filter(Boolean);
+  if (unique.length === 0) return new Map();
+  const { data } = await admin
+    .from("organization_workflow_settings")
+    .select("organization_id, notification_policy_json")
+    .in("organization_id", unique);
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    const id = row.organization_id as string;
+    if (id) map.set(id, row.notification_policy_json);
+  }
+  return map;
+}
+
+export async function isNotificationAllowed(
+  admin: AdminClient,
+  input: { organizationId: string; channel: Channel; notificationType: string }
+): Promise<boolean> {
+  const { data: settings } = await admin
+    .from("organization_workflow_settings")
+    .select("notification_policy_json")
+    .eq("organization_id", input.organizationId)
+    .maybeSingle();
+  return evaluateNotificationPolicy(settings?.notification_policy_json, {
+    channel: input.channel,
+    notificationType: input.notificationType,
+  });
 }

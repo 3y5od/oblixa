@@ -11,12 +11,28 @@ function getSafeTarget(request: Request): string {
   const targetRaw = reqUrl.searchParams.get("target") ?? "";
   if (!targetRaw) return safeFallback(request);
   try {
+    // Only allow same-origin redirects. Relative paths are always resolved
+    // against the current request origin and kept on-site.
+    if (targetRaw.startsWith("/")) {
+      if (targetRaw.startsWith("//")) return safeFallback(request);
+      return new URL(targetRaw, reqUrl.origin).toString();
+    }
+
     const target = new URL(targetRaw);
+    if (!["http:", "https:"].includes(target.protocol)) {
+      return safeFallback(request);
+    }
+
+    let allowedOrigin = reqUrl.origin;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     if (appUrl) {
-      const appOrigin = new URL(appUrl).origin;
-      if (target.origin !== appOrigin) return safeFallback(request);
+      try {
+        allowedOrigin = new URL(appUrl).origin;
+      } catch {
+        allowedOrigin = reqUrl.origin;
+      }
     }
+    if (target.origin !== allowedOrigin) return safeFallback(request);
     return target.toString();
   } catch {
     return safeFallback(request);

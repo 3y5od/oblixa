@@ -13,6 +13,7 @@ import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { autoTransitionTasksForField } from "@/actions/tasks";
+import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -179,7 +180,7 @@ export async function createContract(formData: FormData) {
   await Promise.all(
     validFiles.map(async (file) => {
       const safeName = sanitizeUploadedFileName(file.name);
-      const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+      const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
       const { error: uploadError } = await admin.storage
         .from("contracts")
@@ -225,6 +226,20 @@ export async function createContract(formData: FormData) {
   });
   await recomputeContractSignals(admin, contract.id);
   await applyContractTemplatePack(contract.id);
+
+  await autoAttachProgramsForContract({
+    admin,
+    contract: {
+      id: contract.id,
+      organization_id: organizationId,
+      contract_type: contract.contract_type ?? null,
+      source_system: contract.source_system ?? null,
+      counterparty: contract.counterparty ?? null,
+      region: contract.region ?? null,
+      intake_source: contract.intake_source ?? null,
+    },
+    actorUserId: user.id,
+  }).catch((err) => console.error("[v4] autoAttachProgramsForContract", err));
 
   if (validFiles.length > 0 && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
     triggerExtraction(contract.id).catch(console.error);
@@ -653,7 +668,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
         }
 
         const safeName = sanitizeUploadedFileName(file.name);
-        const storagePath = `${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+        const storagePath = `org/${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
         const { error: uploadError } = await admin.storage
           .from("contracts")
@@ -1053,7 +1068,7 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
       continue;
     }
 
-    const storagePath = `${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+    const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
     const { error: uploadError } = await admin.storage
       .from("contracts")

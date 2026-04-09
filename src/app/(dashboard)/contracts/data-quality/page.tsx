@@ -10,7 +10,8 @@ export default async function ContractDataQualityPage() {
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Data quality is disabled</h1>
         <p className="mt-3 max-w-xl text-sm text-zinc-500">
-          Enable `ENABLE_V3_REPORTING_HISTORY` to access data quality scoring and lineage surfaces.
+          Data quality is tied to the same toggle as reporting history. It is off when{" "}
+          <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> is explicitly false, 0, no, or off.
         </p>
       </div>
     );

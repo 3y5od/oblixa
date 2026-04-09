@@ -95,7 +95,7 @@ export function LandingPage() {
       <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex h-[3.75rem] max-w-5xl items-center justify-between px-4 sm:px-6">
           <span className="text-[15px] font-semibold tracking-tight text-zinc-950">
-            ContractOps
+            Oblixa
           </span>
           <nav className="flex items-center gap-2 sm:gap-3" aria-label="Site">
             <Link
@@ -122,7 +122,7 @@ export function LandingPage() {
                 Run renewals, approvals, and obligations from one trusted system
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-zinc-600 sm:text-lg">
-                ContractOps gives operations teams a practical control plane: centralize agreements,
+                Oblixa gives operations teams a practical execution layer: centralize agreements,
                 verify extracted fields with evidence, and execute date-driven workflows with clear ownership.
               </p>
             </div>
@@ -252,7 +252,7 @@ export function LandingPage() {
       <footer className="border-t border-zinc-200/90 bg-surface px-4 py-8 sm:px-6">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-center text-xs text-zinc-500 sm:text-left">
-            © {new Date().getFullYear()} ContractOps. Contract Operations Tracker
+            © {new Date().getFullYear()} Oblixa. Contract execution platform.
             does not provide legal advice—verify terms against your originals.
           </p>
           <div className="flex gap-4 text-xs font-medium">

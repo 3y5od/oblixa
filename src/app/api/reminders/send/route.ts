@@ -9,7 +9,10 @@ import {
 } from "@/lib/env/server";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
-import { isNotificationAllowed } from "@/lib/notification-policy";
+import {
+  evaluateNotificationPolicy,
+  loadNotificationPoliciesForOrganizations,
+} from "@/lib/notification-policy";
 import { createAdminClient } from "@/lib/supabase/server";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
@@ -113,11 +116,52 @@ export async function GET(request: Request) {
     }
   }
 
+  const candidateReminderIds = new Set(list.map((r) => r.id));
+  const orgIdsForBatch = [
+    ...new Set(
+      list
+        .map((r) => {
+          const cRaw = r.contracts as unknown;
+          const c = (Array.isArray(cRaw) ? cRaw[0] : cRaw) as {
+            organization_id?: string;
+          } | null;
+          return c?.organization_id;
+        })
+        .filter((id): id is string => !!id)
+    ),
+  ];
+  const policyByOrg = await loadNotificationPoliciesForOrganizations(
+    admin,
+    orgIdsForBatch
+  );
+
+  const DEDUP_SCAN_LIMIT = 8000;
+  const { data: priorDeliveryRows } =
+    orgIdsForBatch.length === 0
+      ? { data: [] as { metadata: unknown }[] }
+      : await admin
+          .from("notification_deliveries")
+          .select("metadata")
+          .in("organization_id", orgIdsForBatch)
+          .eq("notification_type", "reminder_due")
+          .eq("status", "delivered")
+          .order("created_at", { ascending: false })
+          .limit(DEDUP_SCAN_LIMIT);
+
+  const deliveredReminderIds = new Set<string>();
+  for (const row of priorDeliveryRows ?? []) {
+    const m = row.metadata as Record<string, unknown> | null;
+    const rid = m?.reminder_id;
+    if (typeof rid === "string" && candidateReminderIds.has(rid)) {
+      deliveredReminderIds.add(rid);
+    }
+  }
+
   for (const reminder of list) {
     const contractRaw = reminder.contracts as unknown;
     const contract = (
       Array.isArray(contractRaw) ? contractRaw[0] : contractRaw
-    ) as { id: string; title: string };
+    ) as { id: string; title: string; organization_id?: string };
     const fieldRaw = reminder.extracted_fields as unknown;
     const field = (
       Array.isArray(fieldRaw) ? fieldRaw[0] : fieldRaw
@@ -156,28 +200,16 @@ export async function GET(request: Request) {
     const appUrl = getRequestOrigin(request);
     const hash =
       reminder.field_id != null ? `#field-${reminder.field_id}` : "";
-    const contractOrg = (contractRaw as { organization_id?: string } | undefined)?.organization_id;
-    if (contractOrg) {
-      const { data: priorDelivery } = await admin
-        .from("notification_deliveries")
-        .select("id")
-        .eq("organization_id", contractOrg)
-        .eq("notification_type", "reminder_due")
-        .eq("status", "delivered")
-        .contains("metadata", { reminder_id: reminder.id })
-        .limit(1)
-        .maybeSingle();
-      if (priorDelivery) {
-        await supabase
-          .from("reminders")
-          .update({ sent_at: new Date().toISOString() })
-          .eq("id", reminder.id);
-        continue;
-      }
+    const contractOrg = contract?.organization_id ?? null;
+    if (contractOrg && deliveredReminderIds.has(reminder.id)) {
+      await supabase
+        .from("reminders")
+        .update({ sent_at: new Date().toISOString() })
+        .eq("id", reminder.id);
+      continue;
     }
     if (contractOrg) {
-      const allowed = await isNotificationAllowed(admin, {
-        organizationId: contractOrg,
+      const allowed = evaluateNotificationPolicy(policyByOrg.get(contractOrg), {
         channel: "email",
         notificationType: "reminder_due",
       });

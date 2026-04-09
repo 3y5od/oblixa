@@ -19,10 +19,19 @@ const envMap: Record<FeatureFlagKey, string> = {
   v3AutomationExpansion: "ENABLE_V3_AUTOMATION_EXPANSION",
 };
 
+/** V4 default: modules are on unless explicitly disabled (unset / empty = enabled). */
 function parseFlag(value: string | undefined): boolean {
   const normalized = value?.trim().toLowerCase();
-  if (!normalized) return false;
-  return normalized === "1" || normalized === "true" || normalized === "yes";
+  if (!normalized) return true;
+  if (
+    normalized === "false" ||
+    normalized === "0" ||
+    normalized === "no" ||
+    normalized === "off"
+  ) {
+    return false;
+  }
+  return true;
 }
 
 export function isFeatureEnabled(key: FeatureFlagKey): boolean {

@@ -2,8 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
+import nextEnv from "@next/env";
 
 const cwd = process.cwd();
+const { loadEnvConfig } = nextEnv;
+loadEnvConfig(cwd);
 
 function env(name) {
   return (process.env[name] ?? "").trim();
@@ -69,6 +72,7 @@ async function resolveReachableBaseUrl() {
   }
 }
 
+// Keep in sync with scripts/cron-canary.mjs CRON_ROUTE_EXPECTED_KEYS.
 const CRON_ROUTE_EXPECTED_KEYS = new Map([
   ["/api/reminders/send", ["sent", "candidates", "skipped_no_email"]],
   ["/api/reports/send-summaries", ["durationMs"]],
@@ -82,6 +86,14 @@ const CRON_ROUTE_EXPECTED_KEYS = new Map([
   ["/api/notifications/retry-deliveries", ["durationMs", "scanned"]],
   ["/api/maintenance/prune-operational-data", ["durationMs"]],
   ["/api/cron/stripe-webhook-events", ["durationMs"]],
+  ["/api/cron/v4/approvals-sla", ["durationMs", "evaluated", "breaches"]],
+  ["/api/cron/v4/attestations-issue", ["durationMs", "issued"]],
+  ["/api/cron/v4/escalations-dispatch", ["durationMs", "dispatched"]],
+  ["/api/cron/v4/evidence-followup", ["durationMs", "reviewed", "exceptionsCreated"]],
+  ["/api/cron/v4/exceptions-detect", ["durationMs", "detected"]],
+  ["/api/cron/v4/programs-reconcile", ["durationMs", "reconciledPrograms"]],
+  ["/api/cron/v4/renewals-recompute-signals", ["durationMs", "updatedSignals"]],
+  ["/api/cron/v4/report-packs-generate", ["durationMs", "generated"]],
 ]);
 
 async function getLocalLatestMigration() {
@@ -133,7 +145,12 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
   const cronRoutes = [...CRON_ROUTE_EXPECTED_KEYS.keys()];
 
   for (const route of cronRoutes) {
+    const isV4Route = route.startsWith("/api/cron/v4/");
     const unsigned = await safeFetch(`${baseUrl}${route}`);
+    if (isV4Route && unsigned.status === 404) {
+      warn(`${route}: route unavailable on target base URL; skipping V4 route check`);
+      continue;
+    }
     if (unsigned.status !== 401) {
       throw new Error(`${route}: expected unsigned 401, got ${unsigned.status}`);
     }
@@ -142,6 +159,10 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
     const signed = await safeFetch(`${baseUrl}${route}`, {
       headers: { "x-cron-secret": cronSecret },
     });
+    if (isV4Route && signed.status === 404) {
+      warn(`${route}: route unavailable on target base URL; skipping V4 route check`);
+      continue;
+    }
     if (signed.status >= 400) {
       const bodyText = await signed.text();
       throw new Error(`${route}: signed request failed ${signed.status} ${bodyText.slice(0, 300)}`);

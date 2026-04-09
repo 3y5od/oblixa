@@ -5,6 +5,7 @@ import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { appendCasefileEvent } from "@/lib/v4/casefile";
 
 const MAX_FAILURES_REPORTED = 200;
 
@@ -72,6 +73,23 @@ export async function GET(request: Request) {
   }
 
   const admin = await createAdminClient();
+  const url = new URL(request.url);
+  const diagnosticsEventId = url.searchParams.get("eventId")?.trim();
+  if (diagnosticsEventId) {
+    const [{ data: event }, { data: deliveries }] = await Promise.all([
+      admin
+        .from("outbound_events")
+        .select("id, organization_id, event_type, entity_type, entity_id, created_at, delivered, delivered_at")
+        .eq("id", diagnosticsEventId)
+        .maybeSingle(),
+      admin
+        .from("outbound_event_deliveries")
+        .select("id, subscription_id, delivered, delivered_at, attempt_count, last_error, next_attempt_at")
+        .eq("outbound_event_id", diagnosticsEventId)
+        .order("attempt_count", { ascending: false }),
+    ]);
+    return NextResponse.json({ diagnostics: { event, deliveries: deliveries ?? [] }, ok: true });
+  }
   const { data: events } = await admin
     .from("outbound_events")
     .select("id, organization_id, event_type, entity_type, entity_id, payload, created_at")
@@ -211,9 +229,9 @@ export async function GET(request: Request) {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            "x-contractops-signature": signature,
-            "x-contractops-event": event.event_type,
-            "x-contractops-schema-version": String(
+            "x-oblixa-signature": signature,
+            "x-oblixa-event": event.event_type,
+            "x-oblixa-schema-version": String(
               (event.payload as Record<string, unknown> | null)?.schema_version ?? "v1"
             ),
           },
@@ -278,6 +296,21 @@ export async function GET(request: Request) {
         .from("outbound_events")
         .update({ delivered: true, delivered_at: new Date().toISOString() })
         .eq("id", event.id);
+      const p = event.payload as Record<string, unknown> | null;
+      const contractId =
+        (typeof p?.contract_id === "string" ? p.contract_id : null) ||
+        (event.entity_type === "contract" && event.entity_id ? String(event.entity_id) : null);
+      if (contractId) {
+        await appendCasefileEvent({
+          admin,
+          organizationId: event.organization_id,
+          contractId,
+          eventType: "webhook.delivered",
+          entityType: "outbound_event",
+          entityId: event.id,
+          details: { event_type: event.event_type },
+        });
+      }
     }
   }
 
@@ -296,4 +329,31 @@ export async function GET(request: Request) {
     ...responsePayload,
   });
   return NextResponse.json(responsePayload);
+}
+
+export async function POST(request: Request) {
+  const cronSecret = process.env.CRON_SECRET?.trim();
+  if (!cronSecret || !authorizeCronRequest(request, cronSecret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const admin = await createAdminClient();
+  const body = (await request.json().catch(() => ({}))) as {
+    action?: "replay_event";
+    eventId?: string;
+  };
+  if (body.action !== "replay_event") {
+    return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+  }
+  const eventId = String(body.eventId ?? "").trim();
+  if (!eventId) return NextResponse.json({ error: "eventId is required" }, { status: 400 });
+
+  await admin
+    .from("outbound_events")
+    .update({ delivered: false, delivered_at: null })
+    .eq("id", eventId);
+  await admin
+    .from("outbound_event_deliveries")
+    .update({ delivered: false, delivered_at: null, next_attempt_at: new Date().toISOString() })
+    .eq("outbound_event_id", eventId);
+  return NextResponse.json({ ok: true, replayQueued: true, eventId });
 }

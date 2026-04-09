@@ -20,6 +20,7 @@ import {
   updateContractTaskStatus,
 } from "@/actions/tasks";
 import type { ContractTask, ContractTaskPriority, ContractTaskStatus } from "@/lib/types";
+import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
 type MemberOption = {
   userId: string;
@@ -79,11 +80,13 @@ export function ContractTasksPanel({
   taskComments,
   taskDependencies,
   taskArtifacts,
+  executionGraphEdges,
 }: {
   contractId: string;
   tasks: ContractTaskListItem[];
   members: MemberOption[];
   canEdit: boolean;
+  executionGraphEdges?: ExecutionGraphEdgeRow[];
   taskEvents: Array<{
     id: string;
     task_id: string;
@@ -517,6 +520,34 @@ export function ContractTasksPanel({
                       </span>
                     )}
                   </div>
+                  {(() => {
+                    const { blockedBy, unblocks } = graphLinksForEntity(
+                      executionGraphEdges,
+                      "task",
+                      task.id
+                    );
+                    if (blockedBy.length === 0 && unblocks.length === 0) return null;
+                    return (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {blockedBy.map((label) => (
+                          <span
+                            key={`b-${task.id}-${label}`}
+                            className="rounded border border-amber-200 bg-amber-50/80 px-2 py-0.5 text-[10px] text-amber-900"
+                          >
+                            Blocked by {label}
+                          </span>
+                        ))}
+                        {unblocks.map((label) => (
+                          <span
+                            key={`u-${task.id}-${label}`}
+                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[10px] text-sky-900"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 {taskEvents.filter((e) => e.task_id === task.id).length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {taskEvents
