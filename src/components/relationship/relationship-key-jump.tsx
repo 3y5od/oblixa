@@ -24,9 +24,13 @@ export function RelationshipKeyJump() {
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <form onSubmit={goAccount} className="rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-5">
-        <p className="ui-label-caps">Account workspace</p>
-        <p className="mt-1 text-xs text-zinc-500">
+      <form
+        onSubmit={goAccount}
+        className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-5 shadow-[var(--shadow-1)]"
+      >
+        <p className="ui-eyebrow">Account</p>
+        <h2 className="ui-section-title mt-1 text-base">Account workspace</h2>
+        <p className="ui-muted-tight mt-1">
           Use the same <code className="rounded bg-zinc-200/60 px-1">account_key</code> stored on contracts.
         </p>
         <label className="mt-3 block text-xs font-medium text-zinc-600">
@@ -43,9 +47,13 @@ export function RelationshipKeyJump() {
           Open account summary
         </button>
       </form>
-      <form onSubmit={goCounterparty} className="rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-5">
-        <p className="ui-label-caps">Counterparty workspace</p>
-        <p className="mt-1 text-xs text-zinc-500">
+      <form
+        onSubmit={goCounterparty}
+        className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-5 shadow-[var(--shadow-1)]"
+      >
+        <p className="ui-eyebrow">Counterparty</p>
+        <h2 className="ui-section-title mt-1 text-base">Counterparty workspace</h2>
+        <p className="ui-muted-tight mt-1">
           Use <code className="rounded bg-zinc-200/60 px-1">counterparty_key</code> from contract records.
         </p>
         <label className="mt-3 block text-xs font-medium text-zinc-600">

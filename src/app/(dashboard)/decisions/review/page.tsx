@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { AlertTriangle, CircleDot, Layers, Timer } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
@@ -68,34 +71,60 @@ export default async function DecisionsManagerReviewPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Manager review</p>
-        <h1 className="ui-display-title mt-2">Open decision queue</h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-          Prioritize by due date and SLA, open a workspace, or export a manager review packet in one step.
-        </p>
+        <div>
+          <p className="ui-eyebrow">Manager review</p>
+          <h1 className="ui-display-title mt-2">Open decision queue</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Prioritize by due date and SLA, open a workspace, or export a manager review packet in one step.
+          </p>
+        </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">Urgent SLA</p>
-          <p className="mt-2 text-3xl font-semibold text-rose-700">{urgent}</p>
-          <p className="mt-1 text-xs text-zinc-500">Decisions already overdue or due today.</p>
-        </article>
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">Near due</p>
-          <p className="mt-2 text-3xl font-semibold text-amber-700">{nearDue}</p>
-          <p className="mt-1 text-xs text-zinc-500">Decisions likely to breach in the next window.</p>
-        </article>
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">In review</p>
-          <p className="mt-2 text-3xl font-semibold text-zinc-900">{inReview}</p>
-          <p className="mt-1 text-xs text-zinc-500">Workspaces currently waiting on reviewer action.</p>
-        </article>
+      <section className="space-y-4">
+        <div>
+          <p className="ui-eyebrow">Queue health</p>
+          <h2 className="ui-section-title mt-1 text-base">Review posture</h2>
+          <p className="ui-muted-tight mt-2 max-w-2xl text-[13px]">
+            SLA counts for open and in-review workspaces in this view.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Risk"
+            headline="Urgent SLA"
+            tone={urgent > 0 ? "risk" : "healthy"}
+            icon={AlertTriangle}
+            primaryValue={urgent}
+            primaryUnit="overdue or due today"
+            action={{ href: "/decisions/review", label: "Refresh queue" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Horizon"
+            headline="Near due"
+            tone={nearDue > 0 ? "attention" : "healthy"}
+            icon={Timer}
+            primaryValue={nearDue}
+            primaryUnit="breach risk window"
+            action={{ href: "/decisions/review", label: "Triage soon" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Flow"
+            headline="In review"
+            tone={inReview > 0 ? "neutral" : "healthy"}
+            icon={CircleDot}
+            primaryValue={inReview}
+            primaryUnit="awaiting reviewer"
+            action={{ href: "/decisions?queue=active", label: "View decisions" }}
+            variant="compact"
+          />
+        </div>
       </section>
 
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200/60">
+      <div className="ui-table-shell">
         <table className="min-w-full text-left text-sm text-zinc-800">
           <thead className="border-b border-zinc-200 bg-zinc-50/80 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
             <tr>
@@ -110,13 +139,26 @@ export default async function DecisionsManagerReviewPage() {
           <tbody className="divide-y divide-zinc-100">
             {enriched.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
-                  No open or in-review decisions.
+                <td colSpan={6} className="px-4 py-6">
+                  <EmptyState
+                    title="Queue is clear"
+                    copy="No open or in-review decision workspaces right now."
+                    icon={
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-200/80 bg-zinc-50/80">
+                        <Layers className="h-7 w-7 text-zinc-400" strokeWidth={1.25} aria-hidden />
+                      </div>
+                    }
+                    action={
+                      <Link href="/decisions" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
+                        View all decisions
+                      </Link>
+                    }
+                  />
                 </td>
               </tr>
             ) : (
               enriched.map((r) => (
-                <tr key={r.id} className="bg-white">
+                <tr key={r.id} className="bg-surface">
                   <td className="px-4 py-3 font-medium">
                     <Link href={`/decisions/${r.id}`} className="ui-link">
                       {r.title}
@@ -128,7 +170,7 @@ export default async function DecisionsManagerReviewPage() {
                     {r.due_at ? new Date(r.due_at).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700">
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs tabular-nums text-zinc-700">
                       {r.sla_status}
                       {r.days_until_due !== null ? ` · ${r.days_until_due}d` : ""}
                     </span>
@@ -169,15 +211,20 @@ export default async function DecisionsManagerReviewPage() {
         </table>
       </div>
 
-      <p className="text-center text-sm text-zinc-500">
+      <nav
+        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-zinc-500"
+        aria-label="Decision shortcuts"
+      >
         <Link href="/decisions" className="ui-link">
           Back to decisions
         </Link>
-        {" · "}
+        <span className="text-zinc-300" aria-hidden>
+          ·
+        </span>
         <Link href="/decisions/compare" className="ui-link">
           Compare two decisions
         </Link>
-      </p>
+      </nav>
     </div>
   );
 }

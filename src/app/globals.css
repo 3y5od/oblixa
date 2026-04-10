@@ -69,7 +69,7 @@
   }
 
   body {
-    @apply min-h-full bg-canvas font-sans text-[14px] leading-relaxed text-zinc-600 antialiased;
+    @apply min-h-full bg-canvas font-sans text-[14px] leading-relaxed text-[var(--text-secondary)] antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "liga" 1;
   }
 
@@ -79,11 +79,19 @@
 }
 
 @layer components {
+  /*
+   * Surfaces (Wave 2): use bg-canvas on full-page / layout backdrops; bg-surface (or .ui-card / .ui-panel)
+   * for elevated panels and table shells. Prefer border-[var(--border-subtle)] over raw border-zinc-* on chrome.
+   */
   /* Surfaces — subtle shadow lift on hover (cards that are links get this via parent or .ui-card-hover) */
   .ui-card {
     @apply rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)] transition-[box-shadow,border-color,background-color] ease-out;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
+  }
+
+  .ui-panel {
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-surface p-5 shadow-[var(--shadow-1)];
   }
 
   .ui-card-hover {
@@ -157,7 +165,7 @@
   }
 
   .ui-link {
-    @apply font-semibold text-[var(--accent)] underline decoration-zinc-300/70 underline-offset-[3px] hover:decoration-[var(--accent)] hover:text-zinc-900;
+    @apply font-semibold text-[var(--accent)] underline decoration-zinc-300/70 underline-offset-[3px] hover:decoration-[var(--accent)] hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] rounded-sm;
     transition-property: color, text-decoration-color;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
@@ -192,6 +200,11 @@
     @apply flex flex-col gap-5 border-b border-zinc-200/60 pb-7 lg:flex-row lg:items-end lg:justify-between;
   }
 
+  /* Main column in (dashboard)/layout uses this for default vertical rhythm between top-level route sections. */
+  .ui-page-stack {
+    @apply space-y-6 md:space-y-7;
+  }
+
   .ui-page-actions {
     @apply flex flex-wrap items-center gap-2;
   }
@@ -204,6 +217,19 @@
     @apply text-sm leading-[1.6] text-zinc-500;
   }
 
+  .ui-muted-tight {
+    @apply text-[13px] leading-[1.45] text-zinc-500;
+  }
+
+  /** Whole-card / dense-row links (OperationalQueueRow, OperationalSurfaceLinkCard, summary footers) */
+  .ui-operational-focusable {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)];
+  }
+
+  .ui-kicker {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500;
+  }
+
   .ui-prose-label {
     @apply text-xs font-medium text-zinc-500;
   }
@@ -213,8 +239,55 @@
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-tight;
   }
 
+  .ui-status-badge {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-tight;
+  }
+
+  .ui-status-badge-healthy {
+    @apply border-emerald-200/80 bg-emerald-50/80 text-emerald-900;
+  }
+
+  .ui-status-badge-info {
+    @apply border-sky-200/80 bg-sky-50/80 text-sky-900;
+  }
+
+  .ui-status-badge-in-review {
+    @apply border-violet-200/80 bg-violet-50/80 text-violet-900;
+  }
+
+  .ui-status-badge-warning {
+    @apply border-amber-200/80 bg-amber-50/85 text-amber-900;
+  }
+
+  .ui-status-badge-blocked {
+    @apply border-orange-200/85 bg-orange-50/85 text-orange-900;
+  }
+
+  .ui-status-badge-overdue {
+    @apply border-rose-200/85 bg-rose-50/85 text-rose-900;
+  }
+
+  .ui-status-badge-critical {
+    @apply border-red-200/85 bg-red-50/90 text-red-900;
+  }
+
+  .ui-status-badge-empty {
+    @apply border-zinc-200/80 bg-zinc-50/90 text-zinc-600;
+  }
+
+  .ui-status-badge-disabled {
+    @apply border-zinc-200/70 bg-zinc-100/70 text-zinc-500;
+  }
+
   .ui-chip {
     @apply inline-flex items-center rounded-full border border-zinc-200/85 bg-zinc-50/85 px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900;
+  }
+
+  /* Operational summary breakdown chips (dashboard / control room) */
+  .ui-metric-chip {
+    @apply motion-safe:transition-[border-color,background-color];
+    transition-duration: var(--ui-duration);
+    transition-timing-function: var(--ui-ease-out);
   }
 
   /* Metric strip (dashboard) */
@@ -271,6 +344,88 @@
 
   .ui-empty-state-copy {
     @apply mt-2 max-w-sm text-[14px] leading-relaxed text-zinc-500;
+  }
+
+  .ui-density-note {
+    @apply text-[11px] leading-tight text-zinc-500;
+  }
+
+  .ui-summary-grid {
+    @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .ui-summary-card {
+    @apply rounded-2xl border border-[var(--border-subtle)] bg-surface p-4 shadow-[var(--shadow-1)];
+  }
+
+  .ui-question-card {
+    @apply rounded-2xl border border-zinc-200/70 bg-gradient-to-b from-white to-zinc-50/50 p-4 shadow-[var(--shadow-1)] transition-[box-shadow,border-color] hover:border-zinc-300/80 hover:shadow-[var(--shadow-2)];
+  }
+
+  .ui-summary-title {
+    @apply text-sm font-semibold tracking-tight text-zinc-900;
+  }
+
+  .ui-summary-copy {
+    @apply mt-1 text-[12px] leading-[1.45] text-zinc-500;
+  }
+
+  .ui-summary-metric {
+    @apply mt-2 text-xl font-semibold tabular-nums tracking-tight text-zinc-900;
+  }
+
+  .ui-summary-row {
+    @apply mt-2 flex items-center justify-between gap-3 border-t border-zinc-100 pt-2;
+  }
+
+  .ui-row-meta {
+    @apply text-[11px] leading-tight text-zinc-500;
+  }
+
+  .ui-summary-link {
+    @apply text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900;
+    text-underline-offset: 3px;
+  }
+
+  .ui-compact-list {
+    @apply space-y-1.5 text-[12px] leading-[1.4] text-zinc-600;
+  }
+
+  .ui-compact-list-item {
+    @apply rounded-lg border border-zinc-100 bg-zinc-50/70 px-2.5 py-1.5;
+  }
+
+  .ui-alert-error {
+    @apply rounded-lg border border-red-200 bg-red-50/80 px-3 py-2 text-[12px] font-medium text-red-800;
+  }
+
+  .ui-alert-success {
+    @apply rounded-lg border border-emerald-200 bg-emerald-50/85 px-3 py-2 text-[12px] font-medium text-emerald-800;
+  }
+
+  .ui-alert-warning {
+    @apply rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-[12px] font-medium text-amber-900;
+  }
+
+  .ui-soft-details {
+    @apply rounded-xl border border-zinc-200/80 bg-zinc-50/55 p-3;
+  }
+
+  .ui-table-shell {
+    @apply overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)];
+  }
+
+  .ui-table-caption {
+    @apply text-[11px] font-medium text-zinc-500;
+  }
+
+  /** Filters / chips row above a table or list (same chrome as toolbar, semantic name for pages). */
+  .ui-filter-row {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .ui-toolbar {
+    @apply flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-surface px-3 py-2 text-[12px] text-zinc-600 shadow-[var(--shadow-1)];
   }
 
   .ui-skeleton {

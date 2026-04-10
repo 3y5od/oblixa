@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { differenceInDays, isValid } from "date-fns";
+import { Bookmark, ClipboardList, Scale, ShieldAlert, UserCircle, Wallet } from "lucide-react";
 import { StatsCards } from "@/components/dashboard/stats-cards";
+import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
 import {
   OnboardingBanner,
   type OnboardingActivationStats,
@@ -18,6 +20,21 @@ import {
 } from "@/lib/dashboard-data";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
+
+const COMMAND_LANE_ICONS = [ClipboardList, Scale, ShieldAlert] as const;
+
+function shortcutActionLabel(href: string): string {
+  if (href.includes("/approvals")) return "View approvals";
+  if (href.includes("/exceptions")) return "View exceptions";
+  if (href.includes("/renewals")) return "View renewals";
+  if (href.includes("/reports")) return "Open reports";
+  if (href.includes("/review")) return "Open review queue";
+  if (href.includes("/maintenance")) return "Open maintenance";
+  if (href.startsWith("/work")) return "View work queue";
+  if (href.includes("/health")) return "Open health";
+  if (href.includes("/persona")) return "Open persona";
+  return "Open destination";
+}
 
 type DashboardDeadlineField = {
   id: string;
@@ -283,10 +300,7 @@ export async function DashboardUpper(props: {
         <div>
           <p className="ui-eyebrow">Mission control</p>
           <h1 className="ui-display-title mt-2">Dashboard</h1>
-          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-zinc-500 md:text-[15px]">
-            Prioritized queues for what needs action now, what is coming next, and
-            what is at risk.
-          </p>
+          <p className="ui-muted-tight mt-2 max-w-xl">Critical queues, risk signals, and next actions.</p>
         </div>
         <div className="ui-page-actions">
           <div className="mr-1 hidden sm:flex">
@@ -328,74 +342,81 @@ export async function DashboardUpper(props: {
         </div>
       </header>
 
-      <section className="ui-card p-5">
+      <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="ui-label-caps">Role command center</p>
-            <p className="mt-1 text-xs text-zinc-500">
-              Prioritized lanes for the{" "}
-              <span className="font-semibold text-zinc-700">
-                {role.replace("_", " ")}
-              </span>{" "}
-              role.
-            </p>
+            <p className="ui-eyebrow">Shortcuts</p>
+            <h2 className="ui-section-title mt-2 text-xl">Action lanes</h2>
+            <p className="ui-muted-tight mt-1 text-[12px]">Role defaults for {role.replace("_", " ")}.</p>
           </div>
           <Link href="/dashboard/persona" className="ui-link text-xs">
-            Open persona dashboard
+            Persona views
           </Link>
         </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {commandCenterForRole.map((card) => (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              <p className="font-medium text-zinc-900">{card.title}</p>
-              <p className="mt-0.5 text-[11px] text-zinc-500">{card.why}</p>
-            </Link>
-          ))}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {commandCenterForRole.map((card, i) => {
+            const Icon = COMMAND_LANE_ICONS[i % COMMAND_LANE_ICONS.length]!;
+            return (
+              <OperationalSurfaceLinkCard
+                key={card.title}
+                href={card.href}
+                eyebrow="Lane"
+                title={card.title}
+                hint={card.why}
+                icon={Icon}
+                tone="neutral"
+                actionLabel={shortcutActionLabel(card.href)}
+              />
+            );
+          })}
         </div>
       </section>
 
       {showPersonaPresets && (
-        <section className="ui-card p-5">
+        <section className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="ui-label-caps">Persona presets</p>
-              <p className="mt-1 text-xs text-zinc-500">
-                Launch role-specific command views in one click.
-              </p>
+              <p className="ui-eyebrow">Personas</p>
+              <h2 className="ui-section-title mt-2 text-xl">Preset views</h2>
+              <p className="ui-muted-tight mt-1 text-[12px]">One-click command layouts.</p>
             </div>
             <Link href="/dashboard/persona" className="ui-link text-xs">
-              Open full persona dashboard
+              Full persona dashboard
             </Link>
           </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <OperationalSurfaceLinkCard
               href="/dashboard/persona?persona=ops"
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              Ops daily
-            </Link>
-            <Link
+              eyebrow="Ops"
+              title="Ops daily"
+              icon={ClipboardList}
+              tone="neutral"
+              actionLabel="Open ops view"
+            />
+            <OperationalSurfaceLinkCard
               href="/dashboard/persona?persona=legal"
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              Legal approvals
-            </Link>
-            <Link
+              eyebrow="Legal"
+              title="Legal approvals"
+              icon={Scale}
+              tone="neutral"
+              actionLabel="Open legal view"
+            />
+            <OperationalSurfaceLinkCard
               href="/dashboard/persona?persona=finance"
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              Finance renewals
-            </Link>
-            <Link
+              eyebrow="Finance"
+              title="Finance renewals"
+              icon={Wallet}
+              tone="neutral"
+              actionLabel="Open finance view"
+            />
+            <OperationalSurfaceLinkCard
               href="/dashboard/persona?persona=manager"
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              Manager weekly
-            </Link>
+              eyebrow="Manager"
+              title="Manager weekly"
+              icon={UserCircle}
+              tone="neutral"
+              actionLabel="Open manager view"
+            />
           </div>
         </section>
       )}
@@ -408,83 +429,78 @@ export async function DashboardUpper(props: {
         missingCriticalCount={missingCritical.length}
       />
       <section className="ui-card p-5">
-        <p className="ui-label-caps">Why these queues are surfaced</p>
-        <ul className="mt-2 space-y-1 text-xs text-zinc-600">
-          <li>Now: urgent assigned work, overdue actions, and review bottlenecks.</li>
-          <li>Next: date-driven actions due soon from approved contract fields.</li>
-          <li>Risk: at-risk contracts, pending approvals, and missing critical fields.</li>
-        </ul>
-      </section>
-      <section className="ui-card p-5">
-        <p className="ui-label-caps">Quick filters</p>
-        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+        <p className="ui-eyebrow">Shortcuts</p>
+        <h2 className="ui-section-title mt-1 text-base">Quick filters</h2>
+        <div className="ui-filter-row mt-3 text-xs">
           <Link
             href={`/dashboard?view=${view}`}
-            className={`rounded-md border px-2 py-1 ${
+            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
               quickFilter === "all"
                 ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             All
           </Link>
           <Link
             href={`/dashboard?view=${view}&qf=approvals`}
-            className={`rounded-md border px-2 py-1 ${
+            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
               quickFilter === "approvals"
                 ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             Approvals
           </Link>
           <Link
             href={`/dashboard?view=${view}&qf=deadlines`}
-            className={`rounded-md border px-2 py-1 ${
+            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
               quickFilter === "deadlines"
                 ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             Deadlines
           </Link>
           <Link
             href={`/dashboard?view=${view}&qf=data_gaps`}
-            className={`rounded-md border px-2 py-1 ${
+            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
               quickFilter === "data_gaps"
                 ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             Data gaps
           </Link>
         </div>
       </section>
-      <section className="ui-card p-5">
+      <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <p className="ui-label-caps">Pinned command views</p>
+          <div>
+            <p className="ui-eyebrow">Saved</p>
+            <h2 className="ui-section-title mt-2 text-xl">Pinned command views</h2>
+          </div>
           <Link href="/contracts/tasks" className="ui-link text-xs">
             Manage saved views
           </Link>
         </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {commandViewLinks.length === 0 ? (
             <p className="text-xs text-zinc-500">
               No pinned saved views yet. Pin from tasks/obligations/renewals.
             </p>
           ) : (
             commandViewLinks.map((row) => (
-              <Link
+              <OperationalSurfaceLinkCard
                 key={row.id}
                 href={row.href}
-                className="rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
-              >
-                <p className="font-medium text-zinc-900">{row.name}</p>
-                <p className="mt-0.5 text-[11px] text-zinc-500">
-                  {row.viewType} view · Why: recurring decision lane pinned for command
-                  center.
-                </p>
-              </Link>
+                eyebrow="Saved view"
+                title={row.name}
+                icon={Bookmark}
+                tone="neutral"
+                chips={[{ label: "Type", value: row.viewType }]}
+                actionLabel="Open saved view"
+              />
             ))
           )}
         </div>

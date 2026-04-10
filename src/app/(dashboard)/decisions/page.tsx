@@ -1,8 +1,20 @@
 import Link from "next/link";
+import { CircleDot, Layers, Split } from "lucide-react";
 import { CreateDecisionForm } from "@/components/decisions/create-decision-form";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+
+function decisionStatusTone(status: string): SemanticStatus {
+  if (status === "open") return "info";
+  if (status === "in_review") return "in_review";
+  if (status === "closed") return "healthy";
+  if (status === "blocked") return "blocked";
+  return "empty";
+}
 
 export default async function DecisionsPage({
   searchParams,
@@ -33,17 +45,20 @@ export default async function DecisionsPage({
   if (queueActiveOnly) {
     rows = rows.filter((r) => r.status === "open" || r.status === "in_review");
   }
+  const openCount = rows.filter((r) => r.status === "open").length;
+  const reviewCount = rows.filter((r) => r.status === "in_review").length;
+  const blockedCount = rows.filter((r) => r.status === "blocked").length;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <div>
-          <p className="ui-eyebrow">Decision orchestration</p>
-          <h1 className="ui-display-title mt-2">Decision workspaces</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Coordinate high-stakes renewals, amendments, and policy exceptions with one shared workspace.
+          <p className="ui-eyebrow">Records</p>
+          <h1 className="ui-display-title mt-2">Decision Queue</h1>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Decision records by type, status, due date, and next action.
             {typeFilter || queueActiveOnly ? (
-              <span className="mt-2 block text-sm text-zinc-600">
+              <span className="mt-2 block text-xs text-zinc-600">
                 {queueActiveOnly ? <>Showing open and in-review decisions only. </> : null}
                 {typeFilter ? (
                   <>
@@ -58,56 +73,103 @@ export default async function DecisionsPage({
           </p>
         </div>
         <Link href="/api/decisions" className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
-          Open decisions API
+          View JSON
         </Link>
       </header>
 
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Queue</p>
+          <h2 className="ui-section-title mt-2 text-xl">Decision metrics</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Filtered"
+            headline="Workspaces"
+            tone="neutral"
+            icon={Layers}
+            primaryValue={rows.length}
+            primaryUnit="rows shown"
+            action={{ href: "/decisions", label: "View queue" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Status"
+            headline="Open"
+            tone={openCount > 0 ? "attention" : "healthy"}
+            icon={CircleDot}
+            primaryValue={openCount}
+            primaryUnit="awaiting owner"
+            action={{ href: "/decisions?queue=active", label: "View active" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Flow"
+            headline="Review / blocked"
+            tone={blockedCount > 0 ? "risk" : reviewCount > 0 ? "attention" : "healthy"}
+            icon={Split}
+            primaryValue={reviewCount + blockedCount}
+            primaryUnit="needs attention"
+            breakdown={[
+              { label: "In review", value: String(reviewCount) },
+              { label: "Blocked", value: String(blockedCount) },
+            ]}
+            action={{ href: "/decisions?queue=active", label: "View decisions" }}
+            variant="compact"
+          />
+        </div>
+      </section>
+
       <section className="ui-card p-5">
-        <p className="ui-label-caps">Decision queue</p>
-        <p className="mt-2 text-sm text-zinc-600">
-          Focus on decisions with the nearest due date and unresolved stakeholder dependencies.
-        </p>
+        <p className="ui-kicker">New decision</p>
+        <p className="ui-muted-tight mt-1">Create a workspace with required decision type and linked scope.</p>
         <div className="mt-4 border-t border-zinc-100 pt-4">
-          <p className="ui-label-caps">New workspace</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Choose a decision type and optional required-input fields (JSON). You can edit them later on the
-            workspace page.
-          </p>
           <CreateDecisionForm />
         </div>
       </section>
 
-      <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+      <div className="ui-card overflow-hidden">
         <table className="min-w-full divide-y divide-zinc-100 text-sm">
-          <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <thead className="ui-table-header">
             <tr>
               <th className="px-5 py-3">Title</th>
+              <th className="px-5 py-3">Object</th>
               <th className="px-5 py-3">Type</th>
               <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3">Owner</th>
               <th className="px-5 py-3">Due</th>
-              <th className="px-5 py-3">Linked contracts</th>
+              <th className="px-5 py-3">Next action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-zinc-500">
-                  No decision workspaces yet.
+                <td colSpan={7} className="px-5 py-8">
+                  <EmptyState title="No decision workspaces" copy="No decision records match the current queue filters." />
                 </td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.id}>
+                <tr key={row.id} className="ui-table-row">
                   <td className="px-5 py-4 font-semibold text-zinc-900">
                     <Link href={`/decisions/${row.id}`} className="ui-link">
                       {row.title}
                     </Link>
                   </td>
+                  <td className="px-5 py-4 text-zinc-600">Decision</td>
                   <td className="px-5 py-4 text-zinc-600">{row.decision_type}</td>
-                  <td className="px-5 py-4 text-zinc-600">{row.status}</td>
+                  <td className="px-5 py-4">
+                    <StatusBadge status={decisionStatusTone(row.status)}>{row.status.replace(/_/g, " ")}</StatusBadge>
+                  </td>
+                  <td className="px-5 py-4 text-zinc-600">Unassigned</td>
                   <td className="px-5 py-4 text-zinc-600">{row.due_at ? new Date(row.due_at).toLocaleDateString() : "—"}</td>
                   <td className="px-5 py-4 text-zinc-600">
-                    {Array.isArray(row.linked_contract_ids) ? row.linked_contract_ids.length : 0}
+                    <Link href={`/decisions/${row.id}`} className="ui-link">
+                      Review decision
+                    </Link>
+                    <span className="ml-2 text-xs text-zinc-500">
+                      ({Array.isArray(row.linked_contract_ids) ? row.linked_contract_ids.length : 0} linked)
+                    </span>
                   </td>
                 </tr>
               ))

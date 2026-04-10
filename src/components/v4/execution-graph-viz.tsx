@@ -38,7 +38,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
   const height = Math.max(200, (Math.ceil(nodeList.length / cols) || 1) * rowGap + 80);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-surface">
       <svg width={width} height={height} className="text-zinc-800" aria-label="Execution dependency graph">
         <defs>
           <marker

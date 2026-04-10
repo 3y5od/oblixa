@@ -3,6 +3,10 @@ import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { parseCampaignAssignmentJson, resolveCampaignTaskRouting } from "@/lib/v5/campaign-assignment";
 import { CAMPAIGN_TASK_MARKER } from "@/lib/v5/campaign-eligibility";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
@@ -16,7 +20,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const { data: campaignMeta } = await ctx.admin
     .from("portfolio_campaigns")
-    .select("name, assignment_json")
+    .select("name, assignment_json, v6_effectiveness_json")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
@@ -26,9 +30,23 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
   const assignment = assignParsed.value;
 
+  const prevEff = (campaignMeta?.v6_effectiveness_json as Record<string, unknown> | null) ?? {};
+  const metricsAtStart =
+    isFeatureEnabled("v6AssuranceCore") || isFeatureEnabled("v6OutcomeIntelligence")
+      ? await gatherPortfolioMetrics(ctx.admin, ctx.orgId)
+      : undefined;
   const { data, error } = await ctx.admin
     .from("portfolio_campaigns")
-    .update({ status: "active" })
+    .update({
+      status: "active",
+      v6_effectiveness_json: {
+        ...prevEff,
+        ...(metricsAtStart != null ? { metrics_at_start: metricsAtStart } : {}),
+        campaign_started_at: new Date().toISOString(),
+        started_by_user_id: ctx.userId,
+        assurance_hook: "v6_incremental_check",
+      },
+    })
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .select("id, status, updated_at")
@@ -88,6 +106,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     payload_json: { tasks_seeded: tasksSeeded },
     actor_user_id: ctx.userId,
   });
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
+
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_start_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data, tasksSeeded });
 }

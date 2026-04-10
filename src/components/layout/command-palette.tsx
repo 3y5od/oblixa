@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Search, Command } from "lucide-react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
+  WORKFLOW_AREA_LABELS,
   canAccessItem,
+  getWorkflowAreaForNavItem,
   isV5NavItemVisible,
   type NavItem,
   type WorkspaceRole,
@@ -38,6 +40,8 @@ export function CommandPalette(props: {
     [props.v5Flags]
   );
   const [open, setOpen] = useState(false);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const prevOpen = useRef(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [footerVisible, setFooterVisible] = useState(false);
@@ -54,12 +58,22 @@ export function CommandPalette(props: {
   });
 
   useEffect(() => {
+    if (open) {
+      prevOpen.current = true;
+    } else if (prevOpen.current) {
+      openButtonRef.current?.focus();
+      prevOpen.current = false;
+    }
+  }, [open]);
+
+  useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((v) => !v);
       }
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
         setOpen(false);
       }
       if (!open) return;
@@ -103,19 +117,21 @@ export function CommandPalette(props: {
   }, [query, role, v5Flags]);
   const grouped = useMemo(() => {
     const groups = {
-      primary: items.filter((item) => item.section === "primary"),
-      operations: items.filter((item) => item.section === "operations"),
-      personal: items.filter((item) => item.section === "personal"),
-      workspace: items.filter((item) => item.section === "workspace"),
+      monitor: items.filter((item) => getWorkflowAreaForNavItem(item) === "monitor"),
+      workflows: items.filter((item) => getWorkflowAreaForNavItem(item) === "workflows"),
+      assurance: items.filter((item) => getWorkflowAreaForNavItem(item) === "assurance"),
+      insights: items.filter((item) => getWorkflowAreaForNavItem(item) === "insights"),
+      workspace: items.filter((item) => getWorkflowAreaForNavItem(item) === "workspace"),
     };
     return groups;
   }, [items]);
 
   const flatItems = useMemo(
     () => [
-      ...grouped.primary,
-      ...grouped.operations,
-      ...grouped.personal,
+      ...grouped.monitor,
+      ...grouped.workflows,
+      ...grouped.assurance,
+      ...grouped.insights,
       ...grouped.workspace,
     ],
     [grouped]
@@ -152,15 +168,16 @@ export function CommandPalette(props: {
   return (
     <>
       <button
+        ref={openButtonRef}
         type="button"
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-4 z-40 hidden items-center gap-2 rounded-xl border border-zinc-200 bg-white/95 px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-zinc-50 md:inline-flex ${
+        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-10 min-w-10 items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-surface/95 px-2.5 py-2 text-[11px] font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-zinc-50/90 sm:px-3 sm:text-xs ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
         aria-label="Open command palette"
       >
         <Command size={14} aria-hidden />
-        <span className="text-zinc-900">Quick open</span>
+        <span className="text-zinc-900">Open</span>
         <span className="ui-kbd">K</span>
       </button>
 
@@ -177,7 +194,7 @@ export function CommandPalette(props: {
             onClick={() => setOpen(false)}
             aria-label="Close command palette overlay"
           />
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-2xl">
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-2xl">
             <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3">
               <Search size={16} className="text-zinc-400" aria-hidden />
               <input
@@ -188,7 +205,7 @@ export function CommandPalette(props: {
                   setActiveIndex(0);
                 }}
                 className="w-full bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                placeholder="Jump to page..."
+                placeholder="Jump to queue, page, or report..."
               />
             </div>
             {!query && recentHrefs.length > 0 && (
@@ -222,10 +239,11 @@ export function CommandPalette(props: {
                 <li className="px-4 py-5 text-sm text-zinc-500">No matches found.</li>
               ) : (
                 ([
-                  ["Primary", grouped.primary],
-                  ["Operations", grouped.operations],
-                  ["Personal", grouped.personal],
-                  ["Workspace", grouped.workspace],
+                  [WORKFLOW_AREA_LABELS.monitor, grouped.monitor],
+                  [WORKFLOW_AREA_LABELS.workflows, grouped.workflows],
+                  [WORKFLOW_AREA_LABELS.assurance, grouped.assurance],
+                  [WORKFLOW_AREA_LABELS.insights, grouped.insights],
+                  [WORKFLOW_AREA_LABELS.workspace, grouped.workspace],
                 ] as const).map(([label, groupItems]) => {
                   if (groupItems.length === 0) return null;
                   return (

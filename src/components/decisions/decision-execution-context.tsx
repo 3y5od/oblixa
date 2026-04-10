@@ -11,8 +11,9 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">Linked execution context</p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="ui-eyebrow">Context</p>
+      <h2 className="ui-section-title mt-1 text-base">Linked execution context</h2>
+      <p className="ui-muted-tight mt-1">
         Open work across linked contracts (up to {linkedContractIdsUsed.length} shown
         {truncated ? "; list truncated to cap" : ""}).
       </p>

@@ -6,6 +6,8 @@ type Props = {
   token: string;
 };
 
+type WorkflowStep = { type?: string; at?: string; payload?: Record<string, unknown> };
+
 type ExternalStatus = {
   action_type: string;
   status: string;
@@ -13,6 +15,10 @@ type ExternalStatus = {
   requires_passcode: boolean;
   submitTicket?: string;
   reauth_instructions?: string;
+  workflow_chain?: WorkflowStep[];
+  workflow_deadline_iso?: string | null;
+  workflow_ack_required?: boolean;
+  correction_message?: string | null;
 };
 
 function buildSubmitBody(
@@ -180,7 +186,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/50 p-8 text-center">
+      <div className="ui-alert-success p-8 text-center">
         <p className="text-lg font-semibold text-emerald-900">Thank you</p>
         <p className="mt-2 text-sm text-emerald-800/90">Your response was recorded. You can close this page.</p>
       </div>
@@ -189,7 +195,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600 shadow-sm">
+      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
         Loading request…
       </div>
     );
@@ -197,16 +203,16 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (loadError || !status) {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-rose-200 bg-rose-50/50 p-8 text-center">
+      <div className="ui-card mx-auto max-w-md p-8 text-center">
         <h1 className="text-xl font-semibold text-zinc-900">External response</h1>
-        <p className="mt-3 text-sm text-rose-900">{loadError || "Unable to load this link."}</p>
+        <p className="ui-alert-error mt-3">{loadError || "Unable to load this link."}</p>
       </div>
     );
   }
 
   if (status.expired || status.status === "expired") {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600 shadow-sm">
+      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
         This link has expired. Contact your Oblixa administrator for a new request.
       </div>
     );
@@ -214,7 +220,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (status.status !== "open") {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600 shadow-sm">
+      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
         This request is no longer open (status: {status.status}).
       </div>
     );
@@ -225,22 +231,50 @@ export function ExternalSubmitForm({ token }: Props) {
   return (
     <form
       onSubmit={onSubmit}
-      className="mx-auto max-w-md space-y-4 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm"
+      className="ui-card mx-auto max-w-md space-y-4 p-8"
     >
       <div>
+        <p className="ui-kicker">External workflow</p>
         <h1 className="text-xl font-semibold text-zinc-900">External response</h1>
         <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Action: {actionLabel}</p>
-        <p className="mt-2 text-sm text-zinc-600">
-          Complete the request from your Oblixa contact. If you were given a passcode, enter it below.
-        </p>
+        <p className="mt-2 text-sm text-zinc-600">Complete the request, then submit once.</p>
         {status.reauth_instructions ? (
-          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <p className="ui-alert-warning mt-2">
             {status.reauth_instructions}
           </p>
         ) : null}
+        {status.correction_message ? (
+          <p className="ui-alert-error mt-2">
+            <span className="font-semibold">Please correct: </span>
+            {status.correction_message}
+          </p>
+        ) : null}
+        {(status.workflow_chain?.length ?? 0) > 0 ||
+        status.workflow_deadline_iso ||
+        status.workflow_ack_required ? (
+          <div className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 text-xs text-zinc-700">
+            <p className="font-semibold text-zinc-800">Workflow progress</p>
+            {status.workflow_deadline_iso ? (
+              <p className="mt-1 text-zinc-600">
+                Acknowledge by: {new Date(status.workflow_deadline_iso).toLocaleString()}
+              </p>
+            ) : null}
+            {status.workflow_ack_required ? (
+              <p className="mt-1 text-amber-800">Acknowledgement is required for this chain.</p>
+            ) : null}
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-zinc-600">
+              {(status.workflow_chain ?? []).map((step, i) => (
+                <li key={`${step.at ?? i}-${i}`}>
+                  <span className="font-medium text-zinc-800">{String(step.type ?? "step")}</span>
+                  {step.at ? <span className="text-zinc-500"> · {step.at}</span> : null}
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
       </div>
       {error ? (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
+        <p className="ui-alert-error" role="alert">
           {error}
         </p>
       ) : null}

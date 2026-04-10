@@ -111,6 +111,54 @@
     {
       "path": "/api/cron/v5/relationship-rollups",
       "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/assurance-checks",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/finding-refresh",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/autopilot-dry-run",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/autopilot-execution",
+      "schedule": "40 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/scorecard-recompute",
+      "schedule": "25 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/health-graph-rollups",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/control-policy-reevaluation",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/outcome-effectiveness",
+      "schedule": "50 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/review-board-packet-generation",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/segment-recompute",
+      "schedule": "55 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/playbook-follow-up-assurance",
+      "schedule": "8 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/external-workflow-deadlines",
+      "schedule": "*/25 * * * *"
     }
   ]
 }

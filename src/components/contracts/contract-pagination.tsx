@@ -45,7 +45,7 @@ export function ContractPagination({
   const showFirstLast = totalPages > 2;
 
   const linkClass =
-    "rounded-xl border border-zinc-200/90 bg-white px-3 py-2 text-[13px] font-semibold text-zinc-700 shadow-sm transition-[background-color,border-color] hover:border-zinc-300 hover:bg-zinc-50/90";
+    "rounded-xl border border-zinc-200/90 bg-surface px-3 py-2 text-[13px] font-semibold text-zinc-700 shadow-sm transition-[background-color,border-color] hover:border-zinc-300 hover:bg-zinc-50/90";
   const disabledClass =
     "rounded-xl border border-transparent px-3 py-2 text-[13px] text-zinc-300";
 

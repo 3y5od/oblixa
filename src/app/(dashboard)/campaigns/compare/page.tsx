@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { GitCompare, ListOrdered, Sparkles } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 
@@ -119,28 +121,46 @@ export default async function CampaignComparePage(props: {
         </form>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        <article className="ui-card p-5">
-          <p className="ui-label-caps">Processed delta</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {campaignOne.data && campaignTwo.data ? aProcessed - bProcessed : "—"}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">Campaign A processed minus Campaign B processed.</p>
-        </article>
-        <article className="ui-card p-5">
-          <p className="ui-label-caps">Pending delta</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {campaignOne.data && campaignTwo.data ? aPending - bPending : "—"}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">Campaign A pending minus Campaign B pending.</p>
-        </article>
-        <article className="ui-card p-5">
-          <p className="ui-label-caps">Simulation eligible contracts</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {simulation.data ? simEligibility : "—"}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">From simulation input scope.</p>
-        </article>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Diff</p>
+          <h2 className="ui-section-title mt-2 text-xl">Compare signals</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Throughput"
+            headline="Processed delta"
+            tone="neutral"
+            icon={GitCompare}
+            primaryValue={campaignOne.data && campaignTwo.data ? aProcessed - bProcessed : null}
+            primaryFallback="—"
+            primaryUnit="A minus B processed"
+            action={{ href: "/campaigns/compare", label: "Adjust selection" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Backlog"
+            headline="Pending delta"
+            tone="neutral"
+            icon={ListOrdered}
+            primaryValue={campaignOne.data && campaignTwo.data ? aPending - bPending : null}
+            primaryFallback="—"
+            primaryUnit="A minus B pending"
+            action={{ href: "/campaigns/compare", label: "Adjust selection" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Simulation"
+            headline="Eligible contracts"
+            tone={simulation.data && simEligibility > 0 ? "neutral" : "healthy"}
+            icon={Sparkles}
+            primaryValue={simulation.data ? simEligibility : null}
+            primaryFallback="—"
+            primaryUnit="from simulation input"
+            action={{ href: "/campaigns", label: "Back to campaigns" }}
+            variant="compact"
+          />
+        </div>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">

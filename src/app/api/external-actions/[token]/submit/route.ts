@@ -12,6 +12,9 @@ import {
   appendAccountTimelineEvent,
   appendCounterpartyTimelineEvent,
 } from "@/lib/v5/relationship-timeline";
+import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -77,6 +80,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
   const validated = validateExternalActionPayload(at as ExternalActionType, bodyForValidation);
   if (!validated.ok) {
+    if (isFeatureEnabled("v6AssuranceCore")) {
+      const prevScope = (link.scope_json as Record<string, unknown> | null) ?? {};
+      await admin
+        .from("external_action_links")
+        .update({
+          scope_json: {
+            ...prevScope,
+            correction_message: validated.error,
+            correction_at: nowIso(),
+            workflow_version: 2,
+          },
+        })
+        .eq("id", link.id)
+        .eq("organization_id", link.organization_id);
+    }
     return NextResponse.json({ error: validated.error }, { status: 400 });
   }
   const storePayload = validated.normalized;
@@ -99,8 +117,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     organization_id: link.organization_id,
     external_action_link_id: link.id,
     event_type: "external.submitted",
-    payload_json: { submitted_keys: Object.keys(storePayload) },
+    payload_json: {
+      submitted_keys: Object.keys(storePayload),
+      workflow_chain_length: Array.isArray((link.scope_json as Record<string, unknown> | null)?.workflow_chain)
+        ? ((link.scope_json as Record<string, unknown>).workflow_chain as unknown[]).length
+        : 0,
+    },
   });
+
+  await appendExternalWorkflowStep(
+    admin,
+    link.organization_id,
+    String(link.id),
+    "submission_received",
+    {
+      submitted_at: submittedAt,
+      submitted_keys: Object.keys(storePayload),
+    }
+  );
 
   const scope = link.scope_json as Record<string, unknown> | null;
   const reqRaw = scope?.evidenceRequirementId;
@@ -158,6 +192,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         );
       }
     }
+  }
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await incrementV6QualityCounter(
+      admin,
+      String(link.organization_id),
+      "external_collaboration_submissions_total",
+      1
+    ).catch(() => undefined);
+    await runIncrementalAssuranceChecks(admin, String(link.organization_id), null).catch(() => undefined);
   }
 
   return NextResponse.json({ submission: data });

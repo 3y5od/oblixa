@@ -1,20 +1,68 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { OperationalTone } from "@/lib/ui/operational-surface";
 import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
-import { buildPortfolioSignalSummary } from "@/lib/v5/portfolio-signal-summary";
+import {
+  buildPortfolioSignalSummary,
+  type PortfolioSignalRow,
+  type PortfolioSignalSeverity,
+} from "@/lib/v5/portfolio-signal-summary";
 
-export type ControlRoomLiveCard = {
-  title: string;
-  description: string;
-  href: string;
-  /** Short grounded headline, e.g. counts or delta */
-  metricLabel: string;
+export type ControlRoomCardId =
+  | "action_required"
+  | "decisions"
+  | "propagation"
+  | "approval_risk"
+  | "capacity"
+  | "change_review";
+
+/** Visual / semantic state for the strip card chrome */
+export type ControlRoomCardTone = OperationalTone;
+
+export type ControlRoomBreakdownItem = {
+  label: string;
+  /** Short display value (already formatted if needed) */
+  value: string;
 };
 
-function signalValue(
-  rows: { key: string; value: number }[],
+export type ControlRoomLiveCard = {
+  id: ControlRoomCardId;
+  /** Small muted label (uppercased in UI) */
+  eyebrow: string;
+  /** Short noun-phrase title */
+  headline: string;
+  /** Dominant numeric metric (null → show fallbackText) */
+  primaryValue: number | null;
+  /** Shown when primaryValue is null, e.g. "—" or "No data" */
+  primaryFallback?: string;
+  /** Unit or noun after the number, e.g. "tasks" */
+  primaryUnit?: string;
+  secondaryLine?: string;
+  breakdown: ControlRoomBreakdownItem[];
+  href: string;
+  actionLabel: string;
+  tone: ControlRoomCardTone;
+};
+
+function signalRow(
+  rows: PortfolioSignalRow[],
   key: string
-): number {
-  return rows.find((r) => r.key === key)?.value ?? 0;
+): PortfolioSignalRow | undefined {
+  return rows.find((r) => r.key === key);
+}
+
+function toneFromSignal(
+  value: number,
+  severity: PortfolioSignalSeverity | undefined
+): ControlRoomCardTone {
+  if (value === 0) return "healthy";
+  if (severity === "high") return "risk";
+  if (severity === "medium") return "attention";
+  return "neutral";
+}
+
+function formatDelta(n: number): string {
+  if (n > 0) return `+${n}`;
+  return String(n);
 }
 
 /**
@@ -27,16 +75,27 @@ export async function fetchControlRoomDashboardData(
   cards: ControlRoomLiveCard[];
 }> {
   const { signalSummary } = await buildPortfolioSignalSummary(admin, orgId);
-  const rows = signalSummary.map((s) => ({ key: s.key, value: s.value }));
 
-  const openTasks = signalValue(rows, "workload_execution_spike");
-  const openDecisions = signalValue(rows, "stalled_decision_risk");
-  const activeCampaigns = signalValue(rows, "policy_divergence_risk");
-  const campaignBacklog = signalValue(rows, "campaign_execution_backlog");
-  const pendingApprovals = signalValue(rows, "approval_queue_pressure");
-  const openExceptions = signalValue(rows, "overdue_operational_risk");
-  const renewalCheckpoints = signalValue(rows, "renewal_readiness_gap");
-  const staleExceptions = signalValue(rows, "stale_exception_backlog");
+  const workload = signalRow(signalSummary, "workload_execution_spike");
+  const openTasks = workload?.value ?? 0;
+
+  const decisionsRow = signalRow(signalSummary, "stalled_decision_risk");
+  const openDecisions = decisionsRow?.value ?? 0;
+
+  const campaignsRow = signalRow(signalSummary, "policy_divergence_risk");
+  const activeCampaigns = campaignsRow?.value ?? 0;
+  const backlogRow = signalRow(signalSummary, "campaign_execution_backlog");
+  const campaignBacklog = backlogRow?.value ?? 0;
+
+  const approvalsRow = signalRow(signalSummary, "approval_queue_pressure");
+  const pendingApprovals = approvalsRow?.value ?? 0;
+  const exceptionsRow = signalRow(signalSummary, "overdue_operational_risk");
+  const openExceptions = exceptionsRow?.value ?? 0;
+
+  const renewalRow = signalRow(signalSummary, "renewal_readiness_gap");
+  const renewalCheckpoints = renewalRow?.value ?? 0;
+  const staleRow = signalRow(signalSummary, "stale_exception_backlog");
+  const staleExceptions = staleRow?.value ?? 0;
 
   const { data: forecasts } = await admin
     .from("capacity_forecasts")
@@ -60,54 +119,200 @@ export async function fetchControlRoomDashboardData(
       ? (latestFj[openTasksKey] as number)
       : null;
 
-  let capacityMetric: string;
-  if (deltaTasks !== null) {
-    const sign = deltaTasks > 0 ? "+" : "";
-    capacityMetric = `Open tasks Δ vs prior forecast: ${sign}${deltaTasks}`;
+  let capacityCard: ControlRoomLiveCard;
+  if (deltaTasks !== null && latestOpenTasksForecast !== null) {
+    const capTone: ControlRoomCardTone =
+      deltaTasks > 0 ? "risk" : deltaTasks < 0 ? "healthy" : "neutral";
+    capacityCard = {
+      id: "capacity",
+      eyebrow: "Forecast",
+      headline: "Capacity",
+      primaryValue: latestOpenTasksForecast,
+      primaryUnit: "open tasks",
+      breakdown: [{ label: "Δ vs prior run", value: formatDelta(deltaTasks) }],
+      href: "/reports#capacity-forecasts",
+      actionLabel: "View capacity",
+      tone: capTone,
+    };
   } else if (latestOpenTasksForecast !== null) {
-    capacityMetric = `Forecast open tasks: ${latestOpenTasksForecast}`;
+    capacityCard = {
+      id: "capacity",
+      eyebrow: "Forecast",
+      headline: "Capacity",
+      primaryValue: latestOpenTasksForecast,
+      primaryUnit: "open tasks",
+      breakdown: [],
+      href: "/reports#capacity-forecasts",
+      actionLabel: "View capacity",
+      tone: "neutral",
+    };
   } else {
-    capacityMetric = "Run capacity refresh to see forecast";
+    capacityCard = {
+      id: "capacity",
+      eyebrow: "Forecast",
+      headline: "Capacity",
+      primaryValue: null,
+      primaryFallback: "—",
+      secondaryLine: "Run capacity refresh",
+      breakdown: [],
+      href: "/reports#capacity-forecasts",
+      actionLabel: "View capacity",
+      tone: "neutral",
+    };
   }
+
+  const propagationTone: ControlRoomCardTone =
+    campaignBacklog > 0
+      ? toneFromSignal(campaignBacklog, backlogRow?.severity)
+      : activeCampaigns > 0
+        ? "neutral"
+        : "healthy";
+
+  const approvalTone: ControlRoomCardTone = (() => {
+    const worst =
+      pendingApprovals >= openExceptions
+        ? approvalsRow?.severity
+        : exceptionsRow?.severity;
+    const maxVal = Math.max(pendingApprovals, openExceptions);
+    return toneFromSignal(maxVal, worst);
+  })();
+
+  const changeTone: ControlRoomCardTone = (() => {
+    const total = renewalCheckpoints + staleExceptions;
+    const worst =
+      staleExceptions >= renewalCheckpoints ? staleRow?.severity : renewalRow?.severity;
+    return toneFromSignal(total, worst);
+  })();
 
   const cards: ControlRoomLiveCard[] = [
     {
-      title: "What needs action now?",
-      description: "Open execution tasks across the portfolio.",
+      id: "action_required",
+      eyebrow: "Execution",
+      headline: "Action required",
+      primaryValue: openTasks,
+      primaryUnit: "open tasks",
+      breakdown: [],
       href: "/work",
-      metricLabel: `${openTasks} open tasks`,
+      actionLabel: "View tasks",
+      tone: toneFromSignal(openTasks, workload?.severity),
     },
     {
-      title: "What needs a decision now?",
-      description: "Decision workspaces in open or in review.",
+      id: "decisions",
+      eyebrow: "Governance",
+      headline: "Decisions",
+      primaryValue: openDecisions,
+      primaryUnit: "open / in review",
+      breakdown: [],
       href: "/decisions",
-      metricLabel: `${openDecisions} open decisions`,
+      actionLabel: "View decisions",
+      tone: toneFromSignal(openDecisions, decisionsRow?.severity),
     },
     {
-      title: "What is spreading?",
-      description: "Active campaigns and rollout backlog.",
+      id: "propagation",
+      eyebrow: "Campaigns",
+      headline: "Propagation",
+      primaryValue: activeCampaigns,
+      primaryUnit: "active",
+      breakdown: [{ label: "Contract rows in flight", value: String(campaignBacklog) }],
       href: "/campaigns",
-      metricLabel: `${activeCampaigns} campaigns · ${campaignBacklog} contract rows in flight`,
+      actionLabel: "View campaigns",
+      tone: propagationTone,
     },
     {
-      title: "What may break soon?",
-      description: "Approval queue and open exceptions (SLA pressure).",
+      id: "approval_risk",
+      eyebrow: "SLA pressure",
+      headline: "Approval risk",
+      primaryValue: pendingApprovals,
+      primaryUnit: "pending approvals",
+      breakdown: [{ label: "Open exceptions", value: String(openExceptions) }],
       href: "/reports#portfolio-signals",
-      metricLabel: `${pendingApprovals} pending approvals · ${openExceptions} open exceptions`,
+      actionLabel: "View signals",
+      tone: approvalTone,
     },
+    capacityCard,
     {
-      title: "Where is capacity thin?",
-      description: "Latest capacity forecast snapshot.",
-      href: "/reports#capacity-forecasts",
-      metricLabel: capacityMetric,
-    },
-    {
-      title: "What changed since last review?",
-      description: "Renewal checkpoints, stale exceptions, and campaign execution drift.",
+      id: "change_review",
+      eyebrow: "Drift",
+      headline: "Change since review",
+      primaryValue: renewalCheckpoints,
+      primaryUnit: "pending checkpoints",
+      breakdown: [{ label: "Stale exceptions (90d+)", value: String(staleExceptions) }],
       href: "/campaigns",
-      metricLabel: `${renewalCheckpoints} renewal checkpoints · ${staleExceptions} stale open exceptions`,
+      actionLabel: "View campaigns",
+      tone: changeTone,
     },
   ];
 
   return { cards };
 }
+
+/** Static strip when live portfolio signals are unavailable (same shape as `fetchControlRoomDashboardData`). */
+export const CONTROL_ROOM_STRIP_FALLBACK: ControlRoomLiveCard[] = [
+  {
+    id: "action_required",
+    eyebrow: "Execution",
+    headline: "Action required",
+    primaryValue: 0,
+    primaryUnit: "open tasks",
+    breakdown: [],
+    href: "/work",
+    actionLabel: "View tasks",
+    tone: "healthy",
+  },
+  {
+    id: "decisions",
+    eyebrow: "Governance",
+    headline: "Decisions",
+    primaryValue: 0,
+    primaryUnit: "open / in review",
+    breakdown: [],
+    href: "/decisions",
+    actionLabel: "View decisions",
+    tone: "healthy",
+  },
+  {
+    id: "propagation",
+    eyebrow: "Campaigns",
+    headline: "Propagation",
+    primaryValue: 0,
+    primaryUnit: "active",
+    breakdown: [{ label: "Contract rows in flight", value: "0" }],
+    href: "/campaigns",
+    actionLabel: "View campaigns",
+    tone: "healthy",
+  },
+  {
+    id: "approval_risk",
+    eyebrow: "SLA pressure",
+    headline: "Approval risk",
+    primaryValue: 0,
+    primaryUnit: "pending approvals",
+    breakdown: [{ label: "Open exceptions", value: "0" }],
+    href: "/reports#portfolio-signals",
+    actionLabel: "View signals",
+    tone: "healthy",
+  },
+  {
+    id: "capacity",
+    eyebrow: "Forecast",
+    headline: "Capacity",
+    primaryValue: null,
+    primaryFallback: "—",
+    secondaryLine: "Enable forecasts",
+    breakdown: [],
+    href: "/reports#capacity-forecasts",
+    actionLabel: "View capacity",
+    tone: "neutral",
+  },
+  {
+    id: "change_review",
+    eyebrow: "Drift",
+    headline: "Change since review",
+    primaryValue: 0,
+    primaryUnit: "pending checkpoints",
+    breakdown: [{ label: "Stale exceptions (90d+)", value: "0" }],
+    href: "/campaigns",
+    actionLabel: "View campaigns",
+    tone: "healthy",
+  },
+];

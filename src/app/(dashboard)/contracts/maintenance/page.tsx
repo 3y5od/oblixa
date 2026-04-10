@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Copy, FileQuestion, Timer, UserRoundX, Users } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { CampaignRollbackButton } from "@/components/v4/campaign-maintenance-actions";
 import {
   archiveContractAsDuplicateForm,
@@ -192,28 +194,64 @@ export default async function MaintenancePage() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Stale records</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{staleContracts.length}</p>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Signals</p>
+          <h2 className="ui-section-title mt-2 text-xl">Hygiene backlog</h2>
         </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Ownerless</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{missingOwner.length}</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <OperationalSummaryCard
+            eyebrow="Freshness"
+            headline="Stale records"
+            tone={staleContracts.length > 0 ? "attention" : "healthy"}
+            icon={Timer}
+            primaryValue={staleContracts.length}
+            primaryUnit={`>${staleContractDays}d idle`}
+            action={{ href: "/contracts/maintenance", label: "Review list" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Ownership"
+            headline="Ownerless"
+            tone={missingOwner.length > 0 ? "risk" : "healthy"}
+            icon={UserRoundX}
+            primaryValue={missingOwner.length}
+            primaryUnit="no owner_id"
+            action={{ href: "/contracts/maintenance", label: "Assign owners" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Ownership"
+            headline="Stale assignment"
+            tone={staleOwnership.length > 0 ? "attention" : "healthy"}
+            icon={Users}
+            primaryValue={staleOwnership.length}
+            primaryUnit={`>${staleOwnershipDays}d on owner`}
+            action={{ href: "/contracts/maintenance", label: "Refresh owners" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Deduping"
+            headline="Duplicate groups"
+            tone={duplicates.length > 0 ? "attention" : "healthy"}
+            icon={Copy}
+            primaryValue={duplicates.length}
+            primaryUnit="title + counterparty"
+            action={{ href: "/contracts/maintenance", label: "Resolve duplicates" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Files"
+            headline="Orphaned files"
+            tone={orphaned.length > 0 ? "attention" : "healthy"}
+            icon={FileQuestion}
+            primaryValue={orphaned.length}
+            primaryUnit="missing valid link"
+            action={{ href: "/contracts/maintenance", label: "Clean files" }}
+            variant="compact"
+          />
         </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Stale ownership</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{staleOwnership.length}</p>
-        </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Duplicate candidates</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{duplicates.length}</p>
-        </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Orphaned files</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{orphaned.length}</p>
-        </div>
-      </div>
+      </section>
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">

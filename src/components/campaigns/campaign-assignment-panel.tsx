@@ -60,8 +60,9 @@ export function CampaignAssignmentPanel({
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">Assignment rules (V5)</p>
-      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+      <p className="ui-eyebrow">Routing</p>
+      <h2 className="ui-section-title mt-1 text-base">Assignment rules (V5)</h2>
+      <p className="ui-muted-tight mt-2">
         <code className="rounded bg-zinc-100 px-1">defaultTeamKey</code> and optional{" "}
         <code className="rounded bg-zinc-100 px-1">bySegment</code> set task routing when the campaign starts.
         Per-row overrides below win over these defaults.
@@ -106,8 +107,9 @@ export function CampaignAssignmentPanel({
       )}
 
       <div className="mt-6 border-t border-zinc-100 pt-4">
-        <p className="ui-label-caps">Per-contract row routing</p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="ui-eyebrow">Overrides</p>
+        <h3 className="ui-section-title mt-1 text-base">Per-contract row routing</h3>
+        <p className="ui-muted-tight mt-1">
           Edit segment and team labels for each linked contract. Run preview again to refresh segment backfill from
           eligibility when needed.
         </p>
@@ -179,23 +181,29 @@ function CampaignContractRowForm({
         · {row.status}
       </p>
       {canEdit ? (
-        <div className="mt-2 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col text-[11px] text-zinc-600">
-            Segment key
+        <div className="mt-2 flex flex-wrap items-end gap-3">
+          <div>
+            <label htmlFor={`campaign-segment-${row.id}`} className="ui-label-caps">
+              Segment key
+            </label>
             <input
-              className="ui-input mt-0.5 w-40 text-xs"
+              id={`campaign-segment-${row.id}`}
+              className="ui-input w-40 text-xs"
               value={segment}
               onChange={(e) => setSegment(e.target.value)}
             />
-          </label>
-          <label className="flex flex-col text-[11px] text-zinc-600">
-            Assigned team
+          </div>
+          <div>
+            <label htmlFor={`campaign-team-${row.id}`} className="ui-label-caps">
+              Assigned team
+            </label>
             <input
-              className="ui-input mt-0.5 w-40 text-xs"
+              id={`campaign-team-${row.id}`}
+              className="ui-input w-40 text-xs"
               value={team}
               onChange={(e) => setTeam(e.target.value)}
             />
-          </label>
+          </div>
           <button
             type="button"
             className="ui-btn-secondary px-2 py-1.5 text-[11px]"

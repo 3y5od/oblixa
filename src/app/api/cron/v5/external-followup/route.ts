@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
+import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collaboration";
 
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
@@ -15,7 +17,7 @@ export async function GET(request: Request) {
   for (const orgId of orgIds) {
     const { data: links } = await admin
       .from("external_action_links")
-      .select("id")
+      .select("id, action_type")
       .eq("organization_id", orgId)
       .eq("status", "open")
       .lt("expires_at", new Date().toISOString())
@@ -33,6 +35,14 @@ export async function GET(request: Request) {
         event_type: "external.link_expired",
         payload_json: {},
       });
+      if (isFeatureEnabled("v6AssuranceCore")) {
+        await recordMissedExternalDeadlineFinding(
+          admin,
+          orgId,
+          String(link.id),
+          String((link as { action_type?: string }).action_type ?? "external")
+        ).catch(() => undefined);
+      }
       expired += 1;
     }
   }

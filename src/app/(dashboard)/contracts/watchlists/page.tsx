@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Eye } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 export default async function ContractWatchlistsPage() {
   const ctx = await getAuthContext();
@@ -33,14 +35,29 @@ export default async function ContractWatchlistsPage() {
   });
 
   return (
-    <div className="space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Priority monitoring</p>
-        <h1 className="ui-display-title mt-2">My watchlist</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Contracts you flagged for heightened operational attention.
-        </p>
+    <div className="ui-page-stack">
+      <header className="ui-page-header border-b border-zinc-200/60 pb-8">
+        <div>
+          <p className="ui-eyebrow">Priority monitoring</p>
+          <h1 className="ui-display-title mt-2">My watchlist</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl text-[15px]">
+            Contracts you flagged for heightened operational attention.
+          </p>
+        </div>
       </header>
+
+      <OperationalSummaryCard
+        eyebrow="Coverage"
+        headline="Watchlisted contracts"
+        tone={rows.length > 0 ? "attention" : "healthy"}
+        icon={Eye}
+        primaryValue={rows.length}
+        primaryUnit="in your queue"
+        action={{ href: "/contracts", label: "Browse contracts" }}
+        variant="compact"
+        className="max-w-md"
+      />
+
       {rows.length === 0 ? (
         <div className="ui-card px-8 py-14 text-center">
           <h2 className="ui-section-title text-base">No watchlisted contracts</h2>
@@ -49,7 +66,7 @@ export default async function ContractWatchlistsPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
           <table className="min-w-full divide-y divide-zinc-100 text-sm">
             <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
               <tr>

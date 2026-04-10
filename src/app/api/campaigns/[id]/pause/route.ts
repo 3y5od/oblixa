@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
@@ -29,6 +32,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     payload_json: {},
     actor_user_id: ctx.userId,
   });
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
+
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_pause_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data });
 }

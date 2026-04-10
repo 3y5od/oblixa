@@ -27,10 +27,12 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
     );
   }
 
+  const errId = "org-form-error";
+
   return (
     <form action={action} className="space-y-4">
       {state?.error && (
-        <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800">
+        <div id={errId} role="alert" className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800">
           {state.error}
         </div>
       )}
@@ -50,6 +52,8 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
           defaultValue={name}
           required
           className="ui-input mt-1 max-w-sm"
+          aria-invalid={state?.error ? true : undefined}
+          aria-describedby={state?.error ? errId : undefined}
         />
       </div>
       <div className="flex justify-end">
@@ -57,6 +61,7 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
           type="submit"
           disabled={pending}
           className="ui-btn-primary disabled:opacity-50"
+          aria-busy={pending}
         >
           {pending ? "Saving..." : "Save changes"}
         </button>

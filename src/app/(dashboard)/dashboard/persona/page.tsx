@@ -1,7 +1,23 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import {
+  AlertTriangle,
+  ClipboardList,
+  DollarSign,
+  ListChecks,
+  Stamp,
+  Target,
+  UserCircle,
+} from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import {
+  OperationalQueueRow,
+  OperationalSectionHeader,
+  OperationalSummaryCard,
+} from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import type { OperationalTone } from "@/lib/ui/operational-surface";
 
 const PERSONAS = [
   { id: "ops", label: "Ops lead" },
@@ -170,62 +186,216 @@ export default async function PersonaDashboardPage(props: {
           ? [...renewalRisks, ...pendingApprovalRows].slice(0, 8)
           : highPriorityTasks;
 
-  const cards =
-    persona === "finance"
-      ? [
-          { label: "Portfolio annual value", value: `$${exposure.toLocaleString()}` },
-          { label: "Contracts at risk", value: String(atRisk) },
-          { label: "Pending approvals", value: String(pendingApprovals) },
-        ]
-      : persona === "legal"
-        ? [
-            { label: "Pending approvals", value: String(pendingApprovals) },
-            { label: "Open obligations", value: String(obligations.length) },
-            { label: "At-risk contracts", value: String(atRisk) },
-          ]
-        : persona === "account_owner"
-          ? [
-              {
-                label: "My open tasks",
-                value: String(tasks.filter((t) => t.assignee_id === user.id).length),
-              },
-              {
-                label: "My blocked tasks",
-                value: String(
-                  tasks.filter((t) => t.assignee_id === user.id && t.status === "blocked")
-                    .length
-                ),
-              },
-              {
-                label: "My open obligations",
-                value: String(obligations.filter((o) => o.owner_id === user.id).length),
-              },
-            ]
-          : persona === "reviewer"
-            ? [
-                {
-                  label: "High-priority open tasks",
-                  value: String(
-                    tasks.filter((t) => t.priority === "high" && t.status !== "done").length
-                  ),
-                },
-                { label: "Pending approvals", value: String(pendingApprovals) },
-                { label: "At-risk contracts", value: String(atRisk) },
-              ]
-            : persona === "manager"
-              ? [
-                  { label: "Portfolio annual value", value: `$${exposure.toLocaleString()}` },
-                  { label: "At-risk contracts", value: String(atRisk) },
-                  { label: "Open obligations", value: String(obligations.length) },
-                ]
-        : [
-            { label: "Open tasks", value: String(tasks.length) },
-            {
-              label: "My open tasks",
-              value: String(tasks.filter((t) => t.assignee_id === user.id).length),
-            },
-            { label: "My open obligations", value: String(obligations.filter((o) => o.owner_id === user.id).length) },
-          ];
+  const myOpenTasksCount = tasks.filter((t) => t.assignee_id === user.id).length;
+  const myBlockedTasksCount = tasks.filter((t) => t.assignee_id === user.id && t.status === "blocked").length;
+  const myOpenObligationsCount = obligations.filter((o) => o.owner_id === user.id).length;
+  const highPriorityOpenTasksCount = tasks.filter((t) => t.priority === "high" && t.status !== "done").length;
+
+  type PersonaMetric = {
+    key: string;
+    eyebrow: string;
+    headline: string;
+    tone: OperationalTone;
+    icon: LucideIcon;
+    primaryValue: string | number;
+    primaryUnit?: string;
+    breakdown?: { label: string; value: string }[];
+    action: { href: string; label: string };
+  };
+
+  let personaMetrics: PersonaMetric[] = [];
+  if (persona === "finance") {
+    personaMetrics = [
+      {
+        key: "exposure",
+        eyebrow: "Portfolio",
+        headline: "Annual contract value",
+        tone: "neutral",
+        icon: DollarSign,
+        primaryValue: `$${exposure.toLocaleString()}`,
+        primaryUnit: "rolled up from contracts",
+        action: { href: "/contracts", label: "View contracts" },
+      },
+      {
+        key: "at-risk",
+        eyebrow: "Health",
+        headline: "Contracts at risk",
+        tone: atRisk > 0 ? "attention" : "healthy",
+        icon: AlertTriangle,
+        primaryValue: atRisk,
+        action: { href: "/contracts", label: "Review at-risk" },
+      },
+      {
+        key: "approvals",
+        eyebrow: "Sign-off",
+        headline: "Pending approvals",
+        tone: pendingApprovals > 0 ? "attention" : "healthy",
+        icon: Stamp,
+        primaryValue: pendingApprovals,
+        action: { href: "/contracts/approvals", label: "View approvals" },
+      },
+    ];
+  } else if (persona === "legal") {
+    personaMetrics = [
+      {
+        key: "approvals",
+        eyebrow: "Sign-off",
+        headline: "Pending approvals",
+        tone: pendingApprovals > 0 ? "attention" : "healthy",
+        icon: Stamp,
+        primaryValue: pendingApprovals,
+        action: { href: "/contracts/approvals", label: "View approvals" },
+      },
+      {
+        key: "obligations",
+        eyebrow: "Commitments",
+        headline: "Open obligations",
+        tone: obligations.length > 0 ? "neutral" : "healthy",
+        icon: ListChecks,
+        primaryValue: obligations.length,
+        action: { href: "/contracts/obligations", label: "View obligations" },
+      },
+      {
+        key: "at-risk",
+        eyebrow: "Health",
+        headline: "At-risk contracts",
+        tone: atRisk > 0 ? "attention" : "healthy",
+        icon: AlertTriangle,
+        primaryValue: atRisk,
+        action: { href: "/contracts", label: "View contracts" },
+      },
+    ];
+  } else if (persona === "account_owner") {
+    personaMetrics = [
+      {
+        key: "my-tasks",
+        eyebrow: "You",
+        headline: "Open tasks",
+        tone: myOpenTasksCount > 0 ? "attention" : "healthy",
+        icon: ClipboardList,
+        primaryValue: myOpenTasksCount,
+        action: { href: "/contracts/tasks", label: "View tasks" },
+      },
+      {
+        key: "blocked",
+        eyebrow: "You",
+        headline: "Blocked tasks",
+        tone: myBlockedTasksCount > 0 ? "risk" : "healthy",
+        icon: Target,
+        primaryValue: myBlockedTasksCount,
+        action: { href: "/contracts/tasks", label: "Unblock work" },
+      },
+      {
+        key: "my-obligations",
+        eyebrow: "You",
+        headline: "Open obligations",
+        tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
+        icon: ListChecks,
+        primaryValue: myOpenObligationsCount,
+        action: { href: "/contracts/obligations", label: "View obligations" },
+      },
+    ];
+  } else if (persona === "reviewer") {
+    personaMetrics = [
+      {
+        key: "hi-pri",
+        eyebrow: "Triage",
+        headline: "High-priority tasks",
+        tone: highPriorityOpenTasksCount > 0 ? "attention" : "healthy",
+        icon: ClipboardList,
+        primaryValue: highPriorityOpenTasksCount,
+        action: { href: "/contracts/tasks", label: "View tasks" },
+      },
+      {
+        key: "approvals",
+        eyebrow: "Sign-off",
+        headline: "Pending approvals",
+        tone: pendingApprovals > 0 ? "attention" : "healthy",
+        icon: Stamp,
+        primaryValue: pendingApprovals,
+        action: { href: "/contracts/approvals", label: "View approvals" },
+      },
+      {
+        key: "at-risk",
+        eyebrow: "Health",
+        headline: "At-risk contracts",
+        tone: atRisk > 0 ? "attention" : "healthy",
+        icon: AlertTriangle,
+        primaryValue: atRisk,
+        action: { href: "/contracts", label: "View contracts" },
+      },
+    ];
+  } else if (persona === "manager") {
+    personaMetrics = [
+      {
+        key: "exposure",
+        eyebrow: "Portfolio",
+        headline: "Annual contract value",
+        tone: "neutral",
+        icon: DollarSign,
+        primaryValue: `$${exposure.toLocaleString()}`,
+        primaryUnit: "rolled up from contracts",
+        action: { href: "/contracts", label: "View contracts" },
+      },
+      {
+        key: "at-risk",
+        eyebrow: "Health",
+        headline: "At-risk contracts",
+        tone: atRisk > 0 ? "attention" : "healthy",
+        icon: AlertTriangle,
+        primaryValue: atRisk,
+        action: { href: "/contracts", label: "Review at-risk" },
+      },
+      {
+        key: "obligations",
+        eyebrow: "Commitments",
+        headline: "Open obligations",
+        tone: obligations.length > 0 ? "neutral" : "healthy",
+        icon: ListChecks,
+        primaryValue: obligations.length,
+        action: { href: "/contracts/obligations", label: "View obligations" },
+      },
+    ];
+  } else {
+    personaMetrics = [
+      {
+        key: "open-tasks",
+        eyebrow: "Team",
+        headline: "Open tasks",
+        tone: tasks.length > 0 ? "neutral" : "healthy",
+        icon: ClipboardList,
+        primaryValue: tasks.length,
+        action: { href: "/contracts/tasks", label: "View tasks" },
+      },
+      {
+        key: "my-open",
+        eyebrow: "You",
+        headline: "My open tasks",
+        tone: myOpenTasksCount > 0 ? "attention" : "healthy",
+        icon: UserCircle,
+        primaryValue: myOpenTasksCount,
+        action: { href: "/work", label: "Open work queue" },
+      },
+      {
+        key: "my-obligations",
+        eyebrow: "You",
+        headline: "My open obligations",
+        tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
+        icon: ListChecks,
+        primaryValue: myOpenObligationsCount,
+        action: { href: "/contracts/obligations", label: "View obligations" },
+      },
+    ];
+  }
+
+  const queueDescription =
+    persona === "legal"
+      ? "Surface pending sign-offs before downstream work stalls."
+      : persona === "finance"
+        ? "Prioritize blocked renewals and approaching decision dates."
+        : persona === "manager"
+          ? "Track portfolio risk and unresolved approvals in one lane."
+          : "Focus on high-priority and blocked execution items.";
 
   return (
     <div className="space-y-8">
@@ -254,8 +424,9 @@ export default async function PersonaDashboardPage(props: {
         </button>
       </form>
       <section className="ui-card p-5">
-        <h2 className="ui-section-title text-base">Preset command views</h2>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="ui-eyebrow">Shortcuts</p>
+        <h2 className="ui-section-title mt-1 text-base">Preset command views</h2>
+        <p className="ui-muted-tight mt-1 text-[13px]">
           Quick role presets for recurring operating cadences.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -266,7 +437,7 @@ export default async function PersonaDashboardPage(props: {
               className={`rounded-xl border px-4 py-3 text-sm transition-colors ${
                 preset.persona === persona
                   ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                  : "border-zinc-200 bg-surface text-zinc-700 hover:bg-zinc-50/90"
               }`}
             >
               <p className="font-semibold">{preset.label}</p>
@@ -277,37 +448,46 @@ export default async function PersonaDashboardPage(props: {
           ))}
         </div>
       </section>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {cards.map((card) => (
-          <section key={card.label} className="ui-card px-5 py-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{card.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-zinc-900">{card.value}</p>
-          </section>
-        ))}
-      </div>
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Persona action queue</h2>
-          <p className="mt-1 text-xs text-zinc-500">
-            {persona === "legal"
-              ? "Why: approvals are the highest leverage legal bottleneck."
-              : persona === "finance"
-                ? "Why: blocked renewals and decision windows drive revenue risk."
-                : persona === "manager"
-                  ? "Why: aggregate risk and unresolved approvals determine weekly posture."
-                  : "Why: high-priority and blocked execution items are most likely to slip."}
-          </p>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Signals</p>
+          <h2 className="ui-section-title mt-2 text-xl">Persona metrics</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {personaMetrics.map((m) => (
+            <OperationalSummaryCard
+              key={m.key}
+              eyebrow={m.eyebrow}
+              headline={m.headline}
+              tone={m.tone}
+              icon={m.icon}
+              primaryValue={m.primaryValue}
+              primaryUnit={m.primaryUnit}
+              breakdown={m.breakdown ?? []}
+              action={m.action}
+              variant="compact"
+            />
+          ))}
+        </div>
+      </section>
+      <section className="ui-card overflow-hidden">
+        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-4">
+          <OperationalSectionHeader eyebrow="Queue" title="Persona action queue" description={queueDescription} />
+        </div>
+        <ul className="divide-y divide-zinc-100 p-3">
           {personaQueue.length === 0 ? (
-            <li className="px-5 py-4 text-sm text-zinc-500">No queue items in this persona view.</li>
+            <li className="px-2 py-4 text-sm text-zinc-500">No queue items in this persona view.</li>
           ) : (
             personaQueue.map((row) => (
-              <li key={row.id} className="px-5 py-3">
-                <Link href={row.href} className="text-sm font-medium text-zinc-800 hover:text-zinc-900">
-                  {row.label}
-                </Link>
-                <p className="mt-0.5 text-xs text-zinc-500">{row.meta}</p>
+              <li key={row.id} className="py-2">
+                <OperationalQueueRow
+                  href={row.href}
+                  eyebrow="Next"
+                  title={row.label}
+                  hint={row.meta}
+                  actionLabel="Open item"
+                  tone="neutral"
+                />
               </li>
             ))
           )}

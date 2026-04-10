@@ -29,6 +29,11 @@ function mockLinkSelect(data: Record<string, unknown> | null) {
               maybeSingle: vi.fn(async () => ({ data, error: null })),
             })),
           })),
+          update: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: vi.fn(() => Promise.resolve({ error: null })),
+            })),
+          })),
         };
       }
       return {

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Bell, MessageSquareText } from "lucide-react";
 import { markNotificationReadVoid } from "@/actions/field-comments";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 export default async function CollaborationPage() {
   const ctx = await getAuthContext();
@@ -23,20 +25,49 @@ export default async function CollaborationPage() {
       .limit(100),
   ]);
 
+  const commentCount = comments?.length ?? 0;
+  const unreadNotifications = (notifications ?? []).filter((n) => !n.read_at).length;
+
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Cross-team coordination</p>
-        <h1 className="ui-display-title">Collaboration workspace</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
-          Field-level comments, mentions, and in-app notifications for handoffs and clarifications.
-        </p>
+    <div className="ui-page-stack">
+      <header className="border-b border-zinc-200/60 pb-8">
+        <div>
+          <p className="ui-eyebrow">Cross-team coordination</p>
+          <h1 className="ui-display-title mt-2">Collaboration workspace</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Field-level comments, mentions, and in-app notifications for handoffs and clarifications.
+          </p>
+        </div>
       </header>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <OperationalSummaryCard
+          eyebrow="Threading"
+          headline="Field comments (sample)"
+          tone={commentCount > 0 ? "neutral" : "healthy"}
+          icon={MessageSquareText}
+          primaryValue={commentCount}
+          primaryUnit="recent rows"
+          action={{ href: "/contracts/collaboration", label: "Refresh" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Inbox"
+          headline="Unread notifications"
+          tone={unreadNotifications > 0 ? "attention" : "healthy"}
+          icon={Bell}
+          primaryValue={unreadNotifications}
+          primaryUnit="for you"
+          action={{ href: "/contracts/collaboration", label: "Review below" }}
+          variant="compact"
+        />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-            <h2 className="ui-section-title text-base">Recent field comments</h2>
+            <p className="ui-eyebrow">Comments</p>
+            <h2 className="ui-section-title mt-1 text-base">Recent field comments</h2>
           </div>
           {comments?.length ? (
             <ul className="divide-y divide-zinc-100">
@@ -63,7 +94,8 @@ export default async function CollaborationPage() {
 
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-            <h2 className="ui-section-title text-base">My notifications</h2>
+            <p className="ui-eyebrow">Alerts</p>
+            <h2 className="ui-section-title mt-1 text-base">My notifications</h2>
           </div>
           {notifications?.length ? (
             <ul className="divide-y divide-zinc-100">

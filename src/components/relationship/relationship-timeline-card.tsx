@@ -99,8 +99,9 @@ export function RelationshipTimelineCard({
 
   return (
     <article className="ui-card p-5">
-      <p className="ui-label-caps">Relationship timeline</p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="ui-eyebrow">Activity</p>
+      <h2 className="ui-section-title mt-1 text-base">Relationship timeline</h2>
+      <p className="ui-muted-tight mt-1">
         Recent events from account and counterparty workspaces (same data as summary APIs).
       </p>
       {error ? (

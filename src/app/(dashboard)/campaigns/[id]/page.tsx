@@ -64,12 +64,12 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
       : null;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="ui-eyebrow">Campaign detail</p>
           <h1 className="ui-display-title mt-2">{campaign.name}</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-zinc-500">
+          <p className="ui-muted-tight mt-2">
             Type: {campaign.campaign_type} · Status: {campaign.status}
           </p>
         </div>
@@ -118,11 +118,6 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         />
         <article className="ui-card p-5">
           <p className="ui-label-caps">Eligibility</p>
-          <p className="mt-2 text-xs text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1">status</code>,{" "}
-            <code className="rounded bg-zinc-100 px-1">accountKey</code>, or{" "}
-            <code className="rounded bg-zinc-100 px-1">counterpartyKey</code> to match contracts.
-          </p>
           <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
             {JSON.stringify(campaign.eligibility_json ?? {}, null, 2)}
           </pre>
@@ -139,9 +134,6 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
           {segmentBreakdown && Object.keys(segmentBreakdown).length > 0 ? (
             <div className="mt-4 border-t border-zinc-100 pt-4">
               <p className="ui-label-caps">Segment / cohort breakdown</p>
-              <p className="mt-1 text-xs text-zinc-500">
-                Rolled up from contract rows (refreshed by the campaign-progress cron).
-              </p>
               <div className="mt-2 overflow-x-auto rounded-xl border border-zinc-100">
                 <table className="min-w-full text-left text-xs text-zinc-700">
                   <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
@@ -173,9 +165,6 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
           {teamBreakdown && Object.keys(teamBreakdown).length > 0 ? (
             <div className="mt-4 border-t border-zinc-100 pt-4">
               <p className="ui-label-caps">Assigned team cohort breakdown</p>
-              <p className="mt-1 text-xs text-zinc-500">
-                Counts by <code className="rounded bg-zinc-100 px-1">assigned_team</code> on campaign contract rows.
-              </p>
               <div className="mt-2 overflow-x-auto rounded-xl border border-zinc-100">
                 <table className="min-w-full text-left text-xs text-zinc-700">
                   <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">

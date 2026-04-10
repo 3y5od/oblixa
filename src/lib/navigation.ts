@@ -29,22 +29,51 @@ export type NavItem = {
    * Omit for items that are always visible (subject to role).
    */
   v5FlagsAnyOf?: FeatureFlagKey[];
-  /** §11 IA: compact sub-links under a primary item (sidebar only). */
+  /** Information architecture: compact sub-links under a primary item (sidebar only). */
   navChildren?: { name: string; href: string; v5FlagsAnyOf?: FeatureFlagKey[] }[];
 };
+
+export type WorkflowArea =
+  | "monitor"
+  | "workflows"
+  | "assurance"
+  | "insights"
+  | "workspace";
+
+export const WORKFLOW_AREA_LABELS: Record<WorkflowArea, string> = {
+  monitor: "Monitor",
+  workflows: "Workflows",
+  assurance: "Assurance",
+  insights: "Insights",
+  workspace: "Workspace",
+};
+
+export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
+  label: string;
+  hrefs: readonly string[];
+}> = [
+  { label: "Monitor", hrefs: ["/dashboard", "/work"] },
+  {
+    label: "Records",
+    hrefs: ["/contracts", "/decisions", "/campaigns", "/relationship-workspaces"],
+  },
+  { label: "Assurance", hrefs: ["/assurance"] },
+  { label: "Insights", hrefs: ["/reports"] },
+  { label: "Index", hrefs: ["/more"] },
+];
 
 export const NAV_ITEMS: NavItem[] = [
   {
     name: "Home",
     href: "/dashboard",
-    description: "Role-aware command center for current execution risk.",
+    description: "Command center for current execution risk.",
     section: "primary",
     icon: "dashboard",
   },
   {
     name: "Contracts",
     href: "/contracts",
-    description: "Portfolio contract records, watchlists, and relationship context.",
+    description: "Contract records, watchlists, and relationship context.",
     section: "primary",
     icon: "contracts",
     navChildren: [
@@ -62,7 +91,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Work",
     href: "/work",
-    description: "Unified tasks, blockers, and generated operational actions.",
+    description: "Tasks, blockers, and generated operational actions.",
     section: "primary",
     icon: "tasks",
     navChildren: [
@@ -77,7 +106,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Decisions",
     href: "/decisions",
-    description: "Structured decision workspaces and decision queue.",
+    description: "Decision workspaces and queue.",
     section: "primary",
     v5FlagsAnyOf: ["v5DecisionFoundation"],
     navChildren: [
@@ -101,7 +130,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Campaigns",
     href: "/campaigns",
-    description: "Portfolio change campaigns with preview and progress.",
+    description: "Change campaigns with preview and progress.",
     section: "primary",
     v5FlagsAnyOf: ["v5PortfolioCampaigns"],
     navChildren: [
@@ -110,6 +139,35 @@ export const NAV_ITEMS: NavItem[] = [
       { name: "Remediation", href: "/campaigns?type=remediation_push" },
       { name: "Compare", href: "/campaigns/compare" },
       { name: "Simulations", href: "/campaigns#simulations" },
+    ],
+  },
+  {
+    name: "Assurance",
+    href: "/assurance",
+    description: "Findings, controls, scorecards, and playbooks.",
+    section: "primary",
+    v5FlagsAnyOf: [
+      "v6AssuranceCore",
+      "v6ControlPolicies",
+      "v6AdaptivePlaybooks",
+      "v6ReviewBoards",
+      "v6Autopilot",
+      "v6Segments",
+    ],
+    navChildren: [
+      { name: "Findings", href: "/assurance/findings", v5FlagsAnyOf: ["v6AssuranceCore"] },
+      { name: "Control policies", href: "/assurance/control-policies", v5FlagsAnyOf: ["v6ControlPolicies"] },
+      { name: "Scorecards", href: "/assurance/scorecards", v5FlagsAnyOf: ["v6AssuranceCore"] },
+      { name: "Health graph", href: "/assurance/health-graph", v5FlagsAnyOf: ["v6AssuranceCore"] },
+      { name: "Review boards", href: "/assurance/review-boards", v5FlagsAnyOf: ["v6ReviewBoards"] },
+      { name: "Playbooks", href: "/assurance/playbooks", v5FlagsAnyOf: ["v6AdaptivePlaybooks"] },
+      { name: "Autopilot", href: "/assurance/autopilot", v5FlagsAnyOf: ["v6Autopilot"] },
+      { name: "Segments", href: "/assurance/segments", v5FlagsAnyOf: ["v6Segments"] },
+      {
+        name: "Evolution",
+        href: "/assurance/program-evolution",
+        v5FlagsAnyOf: ["v6AssuranceCore"],
+      },
     ],
   },
   {
@@ -126,17 +184,27 @@ export const NAV_ITEMS: NavItem[] = [
     section: "primary",
     v5FlagsAnyOf: ["v5ControlRoomUx", "v5SimulationAndIntelligence"],
     navChildren: [
-      { name: "Report packs", href: "/contracts/reports" },
-      { name: "Signals", href: "/reports#portfolio-signals" },
-      { name: "Analytics", href: "/reports#portfolio-analytics" },
-      { name: "Trends", href: "/reports#campaign-drift" },
-      { name: "Capacity", href: "/reports#capacity-forecasts" },
+      { name: "Contract report packs", href: "/contracts/reports" },
+      { name: "Portfolio signals", href: "/reports#portfolio-signals" },
+      { name: "Portfolio analytics", href: "/reports#portfolio-analytics" },
+      {
+        name: "Assurance analytics",
+        href: "/reports#assurance-analytics",
+        v5FlagsAnyOf: ["v6AssuranceCore"],
+      },
+      { name: "Campaign drift", href: "/reports#campaign-drift" },
+      { name: "Capacity forecasts", href: "/reports#capacity-forecasts" },
+      {
+        name: "Outcome intelligence",
+        href: "/reports#outcome-intelligence",
+        v5FlagsAnyOf: ["v6OutcomeIntelligence"],
+      },
     ],
   },
   {
-    name: "More",
+    name: "Index",
     href: "/more",
-    description: "Additional tools, maintenance, integrations, and settings.",
+    description: "All tools, queues, reports, and workspace destinations.",
     section: "primary",
     icon: "more",
   },
@@ -324,4 +392,35 @@ export function isV5NavChildVisible(
 ): boolean {
   if (!child.v5FlagsAnyOf?.length) return true;
   return child.v5FlagsAnyOf.some((k) => v5Flags[k]);
+}
+
+export function getWorkflowAreaForNavItem(item: NavItem): WorkflowArea {
+  if (
+    item.href === "/dashboard" ||
+    item.href === "/dashboard/persona" ||
+    item.href === "/work"
+  ) {
+    return "monitor";
+  }
+  if (
+    item.href.startsWith("/assurance") ||
+    item.href.startsWith("/api/assurance")
+  ) {
+    return "assurance";
+  }
+  if (
+    item.href === "/reports" ||
+    item.href === "/contracts/reports" ||
+    item.href.startsWith("/reports#")
+  ) {
+    return "insights";
+  }
+  if (
+    item.href.startsWith("/settings") ||
+    item.section === "workspace" ||
+    item.href === "/more"
+  ) {
+    return "workspace";
+  }
+  return "workflows";
 }

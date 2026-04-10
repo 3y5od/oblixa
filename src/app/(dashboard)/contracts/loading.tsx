@@ -1,25 +1,25 @@
 export default function ContractsLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="ui-page-stack" aria-hidden>
       <div className="flex items-center justify-between">
-        <div className="h-8 w-32 rounded bg-zinc-200" />
-        <div className="h-9 w-36 rounded bg-zinc-200" />
+        <div className="ui-skeleton h-8 w-32 rounded" />
+        <div className="ui-skeleton h-9 w-36 rounded" />
       </div>
       <div className="flex gap-4">
-        <div className="h-9 w-64 rounded bg-zinc-200" />
+        <div className="ui-skeleton h-9 w-64 rounded" />
         <div className="flex gap-1">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-8 w-20 rounded bg-zinc-200" />
+            <div key={i} className="ui-skeleton h-8 w-20 rounded" />
           ))}
         </div>
       </div>
-      <div className="rounded-lg border border-zinc-200 bg-white">
-        <div className="border-b border-zinc-200 bg-zinc-50 px-6 py-3">
-          <div className="h-4 w-full rounded bg-zinc-200" />
+      <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
+        <div className="border-b border-zinc-200/80 bg-zinc-50/60 px-6 py-3">
+          <div className="ui-skeleton h-4 w-full rounded" />
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="border-b border-zinc-100 px-6 py-4">
-            <div className="h-4 w-full rounded bg-zinc-200" />
+            <div className="ui-skeleton h-4 w-full rounded" />
           </div>
         ))}
       </div>

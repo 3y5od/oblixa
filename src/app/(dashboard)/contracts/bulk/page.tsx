@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { History, Upload } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { BulkUploadForm } from "@/components/contracts/bulk-upload-form";
+import {
+  OperationalSurfaceLinkCard,
+  OperationalSummaryCard,
+} from "@/components/ui/operational-summary-card";
 import { canEditContracts } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
@@ -37,8 +42,11 @@ export default async function BulkImportPage() {
       "An active subscription is required. Open Billing to subscribe.";
   }
 
+  const recentCount = recentJobs?.length ?? 0;
+  const lastStatus = recentJobs?.[0]?.status ?? null;
+
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="ui-page-stack mx-auto max-w-2xl">
       <div className="flex items-center gap-4">
         <Link
           href="/contracts"
@@ -47,15 +55,40 @@ export default async function BulkImportPage() {
           ← Back
         </Link>
       </div>
-      <div>
-        <h1 className="mb-2 text-2xl font-bold text-zinc-900">Bulk import</h1>
-        <p className="text-sm text-zinc-500">
-          Upload many PDF or DOCX files at once. Each file becomes a separate contract for
-          review and extraction.
-        </p>
+      <header className="border-b border-zinc-200/60 pb-8">
+        <div>
+          <p className="ui-eyebrow">Scale ingest</p>
+          <h1 className="ui-display-title mt-2">Bulk import</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Upload many PDF or DOCX files at once. Each file becomes a separate contract for review and extraction.
+          </p>
+        </div>
+      </header>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <OperationalSummaryCard
+          eyebrow="History"
+          headline="Recent jobs (sample)"
+          tone={recentCount > 0 ? "neutral" : "healthy"}
+          icon={History}
+          primaryValue={recentCount}
+          primaryUnit="last 5 in workspace"
+          breakdown={lastStatus ? [{ label: "Latest status", value: String(lastStatus) }] : []}
+          action={{ href: "/contracts/bulk", label: "Refresh" }}
+          variant="compact"
+        />
+        <OperationalSurfaceLinkCard
+          href="/contracts/maintenance"
+          eyebrow="Hygiene"
+          title="Backfill & correction"
+          hint="Normalization campaigns and date backfills from the maintenance workspace."
+          actionLabel="Open maintenance"
+          icon={Upload}
+          tone="neutral"
+        />
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-6 shadow-[var(--shadow-1)]">
         <BulkUploadForm
           organizationId={ctx.orgId}
           disabled={!!disabledReason}
@@ -73,7 +106,8 @@ export default async function BulkImportPage() {
         )}
         {(recentJobs?.length ?? 0) > 0 && (
           <div className="mt-6 border-t border-zinc-100 pt-4">
-            <p className="ui-label-caps">Recent import jobs (CSV and files)</p>
+            <p className="ui-eyebrow">Imports</p>
+            <p className="ui-section-title mt-1 text-base">Recent import jobs</p>
             <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
               {recentJobs?.map((job) => (
                 <li key={job.id}>
@@ -89,8 +123,9 @@ export default async function BulkImportPage() {
           </div>
         )}
         <div className="mt-6 border-t border-zinc-100 pt-4">
-          <p className="ui-label-caps">Bulk correction and backfill</p>
-          <p className="mt-1 text-xs text-zinc-600">
+          <p className="ui-eyebrow">Remediation</p>
+          <p className="ui-section-title mt-1 text-base">Bulk correction and backfill</p>
+          <p className="ui-muted-tight mt-1 text-[13px]">
             Run normalization campaigns and date backfills from the maintenance workspace.
           </p>
           <Link href="/contracts/maintenance" className="ui-link mt-2 inline-block text-xs">

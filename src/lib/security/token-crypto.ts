@@ -20,7 +20,9 @@ export function encryptIntegrationToken(
   if (!plaintext) return null;
   const key = decodeKey();
   const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const cipher = createCipheriv("aes-256-gcm", key, iv, {
+    authTagLength: 16,
+  });
   const enc = Buffer.concat([
     cipher.update(Buffer.from(plaintext, "utf8")),
     cipher.final(),
@@ -48,7 +50,8 @@ export function decryptIntegrationToken(
   const decipher = createDecipheriv(
     "aes-256-gcm",
     key,
-    Buffer.from(ivB64, "base64")
+    Buffer.from(ivB64, "base64"),
+    { authTagLength: 16 }
   );
   decipher.setAuthTag(Buffer.from(tagB64, "base64"));
   const dec = Buffer.concat([

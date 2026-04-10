@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { gatherPortfolioMetrics, type V6PortfolioMetrics } from "@/lib/v6/portfolio-metrics";
+import { recordCampaignInterventionOutcome } from "@/lib/v6/outcome-writers";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
@@ -49,6 +54,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     closed_at: new Date().toISOString(),
   };
 
+  const { data: priorCamp } = await ctx.admin
+    .from("portfolio_campaigns")
+    .select("v6_effectiveness_json")
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .maybeSingle();
+
   const { data, error } = await ctx.admin
     .from("portfolio_campaigns")
     .update({ status: "closed", progress_summary_json: progress })
@@ -72,6 +84,28 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     organizationId: ctx.orgId,
     increments: { v5_campaigns_closed: 1 },
   });
+
+  if (isFeatureEnabled("v6OutcomeIntelligence")) {
+    const eff = priorCamp?.v6_effectiveness_json as Record<string, unknown> | undefined;
+    const before = eff?.metrics_at_start as V6PortfolioMetrics | undefined;
+    if (before && typeof before === "object") {
+      const { data: existingOutcome } = await ctx.admin
+        .from("outcome_intervention_analyses")
+        .select("id")
+        .eq("organization_id", ctx.orgId)
+        .eq("source_campaign_id", id)
+        .maybeSingle();
+      if (!existingOutcome) {
+        const after = await gatherPortfolioMetrics(ctx.admin, ctx.orgId);
+        await recordCampaignInterventionOutcome(ctx.admin, ctx.orgId, id, before, after).catch(() => undefined);
+      }
+    }
+  }
+
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_close_total", 1).catch(() => undefined);
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
 
   return NextResponse.json({ campaign: data });
 }

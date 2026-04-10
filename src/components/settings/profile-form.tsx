@@ -16,10 +16,16 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
     undefined
   );
 
+  const errId = "profile-form-error";
+
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="space-y-4" noValidate>
       {state?.error && (
-        <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800">
+        <div
+          id={errId}
+          role="alert"
+          className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800"
+        >
           {state.error}
         </div>
       )}
@@ -39,6 +45,8 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             type="text"
             defaultValue={fullName || ""}
             className="ui-input mt-1"
+            aria-invalid={state?.error ? true : undefined}
+            aria-describedby={state?.error ? errId : undefined}
           />
         </div>
         <div>

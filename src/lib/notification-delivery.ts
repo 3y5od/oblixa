@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendReminderEmail, sendSavedViewSummaryEmail } from "@/lib/email";
+import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
@@ -31,6 +31,12 @@ type RetryPayload =
       workspacePath: string;
       sampleRows: Array<{ label: string; href: string; meta: string }>;
       openPixelUrl?: string | null;
+    }
+  | {
+      kind: "review_board_packet";
+      to: string;
+      subject: string;
+      htmlBody: string;
     }
   | {
       kind: "slack_workflow";
@@ -70,6 +76,14 @@ function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPa
         meta: limitString(row.meta, 280),
       })),
       openPixelUrl: payload.openPixelUrl ? limitString(payload.openPixelUrl, 1024) : null,
+    };
+  }
+  if (payload.kind === "review_board_packet") {
+    return {
+      kind: "review_board_packet",
+      to: limitString(payload.to, 320),
+      subject: limitString(payload.subject, 240),
+      htmlBody: limitString(payload.htmlBody, 14_000),
     };
   }
   return {
@@ -145,6 +159,14 @@ async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | 
       workspacePath: payload.workspacePath,
       sampleRows: payload.sampleRows,
       openPixelUrl: payload.openPixelUrl ?? null,
+    });
+    return { error: result.error ?? null };
+  }
+  if (payload.kind === "review_board_packet") {
+    const result = await sendReviewBoardPacketEmail({
+      to: payload.to,
+      subject: payload.subject,
+      htmlBody: payload.htmlBody,
     });
     return { error: result.error ?? null };
   }

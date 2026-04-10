@@ -470,7 +470,7 @@ export function ContractTasksPanel({
       ) : (
         <ul className="space-y-3">
           {tasks.map((task) => (
-            <li key={task.id} className="rounded-xl border border-zinc-200/80 bg-white p-4">
+            <li key={task.id} className="rounded-xl border border-zinc-200/80 bg-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-zinc-900">{task.title}</p>

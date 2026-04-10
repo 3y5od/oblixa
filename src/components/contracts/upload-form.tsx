@@ -86,7 +86,7 @@ export function UploadForm({
           {fileNotice}
         </div>
       )}
-      <p className="text-[13px] leading-relaxed text-zinc-500">
+      <p className="ui-muted-tight text-[13px]">
         PDF and DOCX up to 20 MB per file. Files are validated server-side; unsupported
         types are rejected.
       </p>
@@ -101,12 +101,12 @@ export function UploadForm({
           type="text"
           required
           placeholder="e.g., Acme Corp MSA 2025"
-          className="ui-input mt-1"
+          className="ui-input mt-1 w-full"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="min-w-0">
           <label htmlFor="counterparty" className="ui-label">
             Counterparty
           </label>
@@ -115,17 +115,17 @@ export function UploadForm({
             name="counterparty"
             type="text"
             placeholder="e.g., Acme Corp"
-            className="ui-input mt-1"
+            className="ui-input mt-1 w-full min-w-0"
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <label htmlFor="contractType" className="ui-label">
             Contract type
           </label>
           <select
             id="contractType"
             name="contractType"
-            className="ui-input mt-1"
+            className="ui-input mt-1 w-full min-w-0"
           >
             <option value="">Select type</option>
             <option value="MSA">Master Service Agreement</option>
@@ -154,7 +154,7 @@ export function UploadForm({
               fileInputRef.current?.click();
             }
           }}
-          className={`group mt-1 flex items-center justify-center rounded-2xl border border-dashed px-6 py-12 transition-all duration-200 ${
+          className={`group mt-1 flex min-h-[200px] items-center justify-center rounded-2xl border border-dashed px-5 py-8 transition-all duration-200 sm:min-h-[220px] sm:px-6 sm:py-10 ${
             disabled
               ? "cursor-not-allowed border-zinc-200 bg-zinc-50/30 opacity-50"
               : isDragOver
@@ -186,7 +186,7 @@ export function UploadForm({
           }}
         >
           <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200/80 bg-white shadow-sm transition-transform duration-200 group-hover:scale-[1.02]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200/80 bg-surface shadow-sm transition-transform duration-200 group-hover:scale-[1.02]">
               <Upload className="h-6 w-6 text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
             </div>
             <p className="mt-4 text-[15px] font-semibold text-zinc-900">
@@ -212,7 +212,7 @@ export function UploadForm({
             {files.map((file, i) => (
               <li
                 key={`${file.name}-${i}`}
-                className="flex items-center justify-between rounded-xl border border-zinc-200/80 bg-white px-4 py-3 shadow-sm"
+                className="flex items-center justify-between rounded-xl border border-zinc-200/80 bg-surface px-4 py-3 shadow-sm"
               >
                 <div className="flex items-center gap-2">
                   <FileText size={16} className="text-zinc-400" />
@@ -235,14 +235,14 @@ export function UploadForm({
         )}
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Link href="/contracts" className="ui-btn-secondary px-4 py-2">
+      <div className="flex flex-wrap justify-end gap-3 border-t border-zinc-100 pt-6">
+        <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending || disabled}
-          className="ui-btn-primary px-4 py-2 disabled:opacity-50"
+          className="ui-btn-primary px-5 py-2.5 text-[13px] disabled:opacity-50"
         >
           {isPending ? "Uploading..." : "Create contract"}
         </button>

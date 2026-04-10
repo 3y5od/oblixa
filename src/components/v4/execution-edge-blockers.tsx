@@ -1,3 +1,5 @@
+import { StatusBadge } from "@/components/ui/status-badge";
+
 /** Count active edges where this entity is the `from` side of depends_on (waits on `to`). */
 export function blockerCountForEntity(
   edges: Array<{
@@ -23,8 +25,8 @@ export function blockerCountForEntity(
 export function BlockerChip({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="ml-2 inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900">
+    <StatusBadge status="blocked" className="ml-2 text-[10px] font-medium">
       blocked by {count} upstream
-    </span>
+    </StatusBadge>
   );
 }

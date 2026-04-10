@@ -95,8 +95,8 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
           onClick={() => router.refresh()}
           className={
             stale
-              ? "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-300/80 bg-white px-3 py-1.5 text-xs font-medium text-amber-950 transition-colors hover:bg-amber-100/60"
-              : "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-violet-300/80 bg-white px-3 py-1.5 text-xs font-medium text-violet-900 transition-colors hover:bg-violet-100/60"
+              ? "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-amber-950 transition-colors hover:bg-amber-100/60"
+              : "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-violet-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-violet-900 transition-colors hover:bg-violet-100/60"
           }
         >
           <RefreshCw size={14} aria-hidden />
@@ -121,7 +121,7 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
         <button
           type="button"
           onClick={() => router.refresh()}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-300/80 bg-white px-3 py-1.5 text-xs font-medium text-red-900 transition-colors hover:bg-red-100/50"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-red-900 transition-colors hover:bg-red-100/50"
         >
           <RefreshCw size={14} aria-hidden />
           Refresh status

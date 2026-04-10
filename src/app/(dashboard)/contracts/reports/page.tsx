@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Activity, Layers, Mail, Package } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
   createReportPackAction,
@@ -28,32 +30,43 @@ export default async function ReportsHistoryPage(props: {
   if (!ctx) return <WorkspaceRequiredState />;
   const { runId } = await props.searchParams;
   const { admin, orgId } = ctx;
-  const { data: runs } = await admin
-    .from("report_runs")
-    .select("id, report_mode, status, started_at, finished_at, error_summary, metrics_json")
-    .eq("organization_id", orgId)
-    .order("started_at", { ascending: false })
-    .limit(100);
-  const { data: reportPacks } = await admin
-    .from("report_packs")
-    .select("id, name, report_type, schedule, active, updated_at, annotations_json")
-    .eq("organization_id", orgId)
-    .order("updated_at", { ascending: false })
-    .limit(50);
-  const subsResult = await admin
-    .from("report_pack_subscriptions")
-    .select("id, report_pack_id, audience_label, schedule_cron, recipient_emails, active, last_sent_at")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const [
+    { data: runs },
+    { data: reportPacks },
+    subsResult,
+    { data: reportPackRuns },
+  ] = await Promise.all([
+    admin
+      .from("report_runs")
+      .select("id, report_mode, status, started_at, finished_at, error_summary, metrics_json")
+      .eq("organization_id", orgId)
+      .order("started_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("report_packs")
+      .select("id, name, report_type, schedule, active, updated_at, annotations_json")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("report_pack_subscriptions")
+      .select("id, report_pack_id, audience_label, schedule_cron, recipient_emails, active, last_sent_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("report_pack_runs")
+      .select("id, report_pack_id, status, started_at, completed_at, metrics_json, output_refs_json, error, created_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
   const reportPackSubscriptions = subsResult.error ? [] : subsResult.data ?? [];
-  const { data: reportPackRuns } = await admin
-    .from("report_pack_runs")
-    .select("id, report_pack_id, status, started_at, completed_at, metrics_json, output_refs_json, error, created_at")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false })
-    .limit(100);
   const selectedRunId = runId || runs?.[0]?.id || null;
+  const runRows = runs ?? [];
+  const failedDigestRuns = runRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
+  const packRunRows = reportPackRuns ?? [];
+  const failedPackRuns = packRunRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
   const { data: recipients } = selectedRunId
     ? await admin
         .from("report_run_recipients")
@@ -87,10 +100,61 @@ export default async function ReportsHistoryPage(props: {
           Review report runs and recipient delivery/open/click engagement.
         </p>
       </header>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <OperationalSummaryCard
+          eyebrow="Digest"
+          headline="Email digest runs"
+          tone={failedDigestRuns > 0 ? "attention" : "healthy"}
+          icon={Activity}
+          primaryValue={runRows.length}
+          breakdown={[
+            { label: "Failed", value: String(failedDigestRuns) },
+            { label: "Selected", value: selectedRunId ? "Yes" : "—" },
+          ]}
+          action={{ href: "#digest-runs", label: "Open run list" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Catalog"
+          headline="V4 report packs"
+          tone={(reportPacks ?? []).length > 0 ? "neutral" : "attention"}
+          icon={Package}
+          primaryValue={(reportPacks ?? []).length}
+          breakdown={[{ label: "Active", value: String((reportPacks ?? []).filter((p) => p.active).length) }]}
+          action={{ href: "#report-packs", label: "Manage packs" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Delivery"
+          headline="Subscriptions"
+          tone={reportPackSubscriptions.length > 0 ? "healthy" : "neutral"}
+          icon={Mail}
+          primaryValue={reportPackSubscriptions.length}
+          breakdown={[
+            {
+              label: "Active",
+              value: String(reportPackSubscriptions.filter((s) => s.active).length),
+            },
+          ]}
+          action={{ href: "#subscriptions", label: "Review subscriptions" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Automation"
+          headline="Pack run history"
+          tone={failedPackRuns > 0 ? "attention" : "healthy"}
+          icon={Layers}
+          primaryValue={packRunRows.length}
+          breakdown={[{ label: "Failed", value: String(failedPackRuns) }]}
+          action={{ href: "#pack-runs", label: "Open pack runs" }}
+          variant="compact"
+        />
+      </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="ui-card overflow-hidden lg:col-span-2">
+        <section id="report-packs" className="ui-card overflow-hidden lg:col-span-2">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Create V4 report pack</h2>
+            <p className="ui-eyebrow">Configure</p>
+            <h2 className="ui-section-title mt-1 text-base">Create V4 report pack</h2>
           </div>
           <form action={createReportPackFormAction} className="grid gap-2 border-b border-zinc-100 px-5 py-4 md:grid-cols-2">
             <input name="name" required placeholder="Weekly execution health" className="ui-input" />
@@ -105,7 +169,8 @@ export default async function ReportsHistoryPage(props: {
             </button>
           </form>
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">V4 report packs</h2>
+            <p className="ui-eyebrow">Library</p>
+            <h2 className="ui-section-title mt-1 text-base">V4 report packs</h2>
           </div>
           {(reportPacks ?? []).length === 0 ? (
             <p className="px-5 py-4 text-sm text-zinc-500">
@@ -185,9 +250,10 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section className="ui-card overflow-hidden lg:col-span-2">
+        <section id="subscriptions" className="ui-card overflow-hidden lg:col-span-2">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Report pack subscriptions</h2>
+            <p className="ui-eyebrow">Routing</p>
+            <h2 className="ui-section-title mt-1 text-base">Report pack subscriptions</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {reportPackSubscriptions.length === 0 ? (
@@ -207,9 +273,10 @@ export default async function ReportsHistoryPage(props: {
             )}
           </ul>
         </section>
-        <section className="ui-card overflow-hidden lg:col-span-2">
+        <section id="pack-runs" className="ui-card overflow-hidden lg:col-span-2">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">V4 report pack run history</h2>
+            <p className="ui-eyebrow">Executions</p>
+            <h2 className="ui-section-title mt-1 text-base">V4 report pack run history</h2>
           </div>
           {(reportPackRuns ?? []).length === 0 ? (
             <p className="px-5 py-4 text-sm text-zinc-500">No V4 report pack runs yet.</p>
@@ -247,9 +314,10 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section className="ui-card overflow-hidden">
+        <section id="digest-runs" className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Runs</h2>
+            <p className="ui-eyebrow">Timeline</p>
+            <h2 className="ui-section-title mt-1 text-base">Digest runs</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {(runs ?? []).map((run) => (
@@ -275,7 +343,8 @@ export default async function ReportsHistoryPage(props: {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Recipients</h2>
+            <p className="ui-eyebrow">Engagement</p>
+            <h2 className="ui-section-title mt-1 text-base">Recipients</h2>
           </div>
           {selectedRunId ? (
             <ul className="divide-y divide-zinc-100">

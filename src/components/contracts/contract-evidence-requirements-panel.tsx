@@ -49,13 +49,19 @@ export function ContractEvidenceRequirementsPanel({
           {canEdit && (r.status === "required" || r.status === "rejected") ? (
             <form action={submitNote} className="mt-2 flex flex-wrap items-end gap-2">
               <input type="hidden" name="requirementId" value={r.id} />
-              <textarea
-                name="note"
-                rows={2}
-                placeholder="Evidence notes, URL, or completion summary"
-                className="ui-input min-w-[12rem] flex-1 text-xs"
-                required
-              />
+              <div className="min-w-0 flex-1">
+                <label htmlFor={`evidence-note-${r.id}`} className="ui-label-caps">
+                  Submission
+                </label>
+                <textarea
+                  id={`evidence-note-${r.id}`}
+                  name="note"
+                  rows={2}
+                  placeholder="Evidence notes, URL, or completion summary"
+                  className="ui-input min-w-[12rem] w-full text-xs"
+                  required
+                />
+              </div>
               <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                 Submit
               </button>

@@ -18,8 +18,10 @@ import {
   DEADLINE_PRESET_VALUES,
 } from "@/lib/contract-filters";
 import Link from "next/link";
+import { CheckCircle2, Eye, Files } from "lucide-react";
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 function buildFilterUrl(params: Record<string, string | undefined>) {
   const search = new URLSearchParams();
@@ -235,19 +237,20 @@ export default async function ContractsPage(props: {
     region: searchParams.region,
   };
 
+  const pagePendingReview = contracts.filter((c) => c.status === "pending_review").length;
+  const pageActive = contracts.filter((c) => c.status === "active").length;
+
   return (
-    <div className="space-y-5 md:space-y-6">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <div>
-          <p className="ui-eyebrow">Workspace</p>
+          <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Contracts</h1>
-          <p className="ui-muted mt-3 max-w-xl">
-            Two-pane operating view for filtering portfolio risk and moving through contract work queues.
-          </p>
+          <p className="ui-muted-tight mt-2 max-w-xl">Contract records, queue states, and ownership filters.</p>
         </div>
         <div className="ui-page-actions">
           <Link href="/contracts/new" className="ui-btn-primary px-5 py-2.5">
-            Upload
+            Upload contract
           </Link>
           <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Bulk import
@@ -262,7 +265,7 @@ export default async function ContractsPage(props: {
             <summary className="ui-btn-secondary cursor-pointer list-none px-4 py-2.5 text-[13px] [&::-webkit-details-marker]:hidden">
               More actions
             </summary>
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 w-64 overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-[var(--shadow-2)]">
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 w-64 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)]">
               <ul className="divide-y divide-zinc-100 text-sm">
                 <li>
                   <Link href="/api/export/calendar/feed" className="block px-4 py-2.5 hover:bg-zinc-50">
@@ -319,6 +322,45 @@ export default async function ContractsPage(props: {
           </details>
         </div>
       </header>
+
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Table</p>
+          <h2 className="ui-section-title mt-2 text-xl">Page snapshot</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Filtered"
+            headline="In scope"
+            tone="neutral"
+            icon={Files}
+            primaryValue={contractTotal}
+            primaryUnit="rows this page"
+            action={{ href: "/contracts", label: "Refresh filters" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Inbox"
+            headline="Pending review"
+            tone={pagePendingReview > 0 ? "attention" : "healthy"}
+            icon={Eye}
+            primaryValue={pagePendingReview}
+            primaryUnit="on this page"
+            action={{ href: "/contracts?status=pending_review", label: "View pending" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Live"
+            headline="Active"
+            tone="neutral"
+            icon={CheckCircle2}
+            primaryValue={pageActive}
+            primaryUnit="on this page"
+            action={{ href: "/contracts?status=active", label: "View active" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <aside className="space-y-6 xl:sticky xl:top-6 xl:h-fit">

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { AlertTriangle, CalendarDays, Inbox, Stamp } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 
 export default async function ReviewCadencePage() {
@@ -90,28 +92,59 @@ export default async function ReviewCadencePage() {
         </Link>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <div className="ui-card p-4">
-          <p className="ui-label-caps">Monthly intake</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{monthly.intake}</p>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Cadence</p>
+          <h2 className="ui-section-title mt-2 text-xl">Review posture</h2>
         </div>
-        <div className="ui-card p-4">
-          <p className="ui-label-caps">Open exceptions</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{monthly.exceptions}</p>
-        </div>
-        <div className="ui-card p-4">
-          <p className="ui-label-caps">Pending approvals</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{monthly.pendingApprovals}</p>
-        </div>
-        <div className="ui-card p-4">
-          <p className="ui-label-caps">Renewals ({renewalHorizonDays}d)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{monthly.renewals90d}</p>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <OperationalSummaryCard
+            eyebrow="Intake"
+            headline="New this month"
+            tone="neutral"
+            icon={Inbox}
+            primaryValue={monthly.intake}
+            primaryUnit="from weekly window"
+            action={{ href: "/contracts/intake", label: "Open intake" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Exceptions"
+            headline="Critical gaps"
+            tone={monthly.exceptions > 0 ? "attention" : "healthy"}
+            icon={AlertTriangle}
+            primaryValue={monthly.exceptions}
+            primaryUnit="contracts"
+            action={{ href: "/contracts/exceptions", label: "View exceptions" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Decisions"
+            headline="Pending approvals"
+            tone={monthly.pendingApprovals > 0 ? "attention" : "healthy"}
+            icon={Stamp}
+            primaryValue={monthly.pendingApprovals}
+            primaryUnit="in queue"
+            action={{ href: "/contracts/approvals", label: "View approvals" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Renewals"
+            headline="Upcoming checkpoints"
+            tone={monthly.renewals90d > 0 ? "neutral" : "healthy"}
+            icon={CalendarDays}
+            primaryValue={monthly.renewals90d}
+            primaryUnit={`within ${renewalHorizonDays}d`}
+            action={{ href: "/contracts/renewals", label: "View renewals" }}
+            variant="compact"
+          />
         </div>
       </section>
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Weekly intake and decisions</h2>
+          <p className="ui-eyebrow">Agenda</p>
+          <h2 className="ui-section-title mt-1 text-base">Weekly intake and decisions</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
           {(newIntake ?? []).slice(0, 10).map((row) => (

@@ -1,6 +1,6 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ExecutionGraphViz } from "@/components/v4/execution-graph-viz";
+import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
 import type { ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
 export default async function ExecutionGraphPage(props: {
@@ -130,7 +130,7 @@ export default async function ExecutionGraphPage(props: {
             {titleByContract.get(selectedContractId) ?? selectedContractId}
           </p>
           <div className="mt-4">
-            <ExecutionGraphViz
+            <ExecutionGraphVizDynamic
               edges={(edges ?? []).filter((row) => row.contract_id === selectedContractId) as ExecutionGraphEdgeRow[]}
             />
           </div>

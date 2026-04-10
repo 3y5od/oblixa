@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { deleteContract } from "@/actions/contracts";
 import { Trash2, Loader2 } from "lucide-react";
 
@@ -18,6 +18,18 @@ export function DeleteContractButton({
   const [isPending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const prevConfirmOpen = useRef(false);
+
+  useEffect(() => {
+    if (confirmOpen) {
+      requestAnimationFrame(() => cancelButtonRef.current?.focus());
+    } else if (prevConfirmOpen.current) {
+      triggerRef.current?.focus();
+    }
+    prevConfirmOpen.current = confirmOpen;
+  }, [confirmOpen]);
 
   useEffect(() => {
     if (!confirmOpen) return;
@@ -66,6 +78,7 @@ export function DeleteContractButton({
     <div className="mt-6 border-t border-zinc-100 pt-4">
       <p className="mb-2 text-xs font-medium uppercase text-zinc-500">Danger zone</p>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => {
           setError(null);
@@ -92,7 +105,7 @@ export function DeleteContractButton({
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-contract-dialog-title"
-            className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-xl border border-[var(--border-subtle)] bg-surface p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2
@@ -113,10 +126,11 @@ export function DeleteContractButton({
             )}
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
+                ref={cancelButtonRef}
                 type="button"
                 disabled={isPending}
                 onClick={closeDialog}
-                className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+                className="rounded-lg border border-zinc-300 bg-surface px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
               >
                 Cancel
               </button>

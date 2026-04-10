@@ -4,6 +4,8 @@ import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
 import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { buildV6AssuranceProjectionForCapacity } from "@/lib/v6/capacity-assurance-bridge";
 
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
@@ -89,9 +91,13 @@ export async function GET(request: Request) {
     }
 
     const generatedAt = new Date().toISOString();
+    const v6AssuranceProjection = isFeatureEnabled("v6AssuranceCore")
+      ? await buildV6AssuranceProjectionForCapacity(admin, orgId)
+      : {};
     await admin.from("capacity_forecasts").insert({
       organization_id: orgId,
       forecast_horizon_days: 30,
+      v6_assurance_projection_json: v6AssuranceProjection,
       forecast_json: {
         [CAPACITY_FORECAST_JSON_KEYS.open_tasks]: openTasks ?? 0,
         [CAPACITY_FORECAST_JSON_KEYS.pending_approvals]: pendingApprovals ?? 0,

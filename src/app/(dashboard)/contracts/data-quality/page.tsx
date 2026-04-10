@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Database, ListFilter, Table2 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 
 export default async function ContractDataQualityPage() {
@@ -52,21 +54,63 @@ export default async function ContractDataQualityPage() {
     .filter((field) => !field.source_snippet || Number(field.confidence ?? 0) < 0.75)
     .slice(0, 20);
 
+  const trackedContracts = latestByContract.size;
+
   return (
-    <div className="space-y-7">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Quality</p>
           <h1 className="ui-display-title mt-2">Data quality and lineage</h1>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-500">
+          <p className="ui-muted-tight mt-2 max-w-2xl text-[15px]">
             Track completeness gaps and inspect field-level source confidence to target cleanup work.
           </p>
         </div>
       </header>
 
-      <section className="ui-card overflow-hidden">
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Signals</p>
+          <h2 className="ui-section-title mt-2 text-xl">Quality overview</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Snapshots"
+            headline="Contracts tracked"
+            tone="neutral"
+            icon={Table2}
+            primaryValue={trackedContracts}
+            primaryUnit="latest per contract"
+            action={{ href: "/contracts/data-quality", label: "Refresh view" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Gaps"
+            headline="Largest gap sample"
+            tone={topGaps.length > 0 ? "attention" : "healthy"}
+            icon={ListFilter}
+            primaryValue={topGaps.length}
+            primaryUnit="in top list"
+            action={{ href: "#gap-leaders", label: "Jump to list" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Lineage"
+            headline="Weak field signals"
+            tone={weakLineage.length > 0 ? "attention" : "healthy"}
+            icon={Database}
+            primaryValue={weakLineage.length}
+            primaryUnit="low confidence / no snippet"
+            action={{ href: "#weak-lineage", label: "Jump to list" }}
+            variant="compact"
+          />
+        </div>
+      </section>
+
+      <section id="gap-leaders" className="ui-card scroll-mt-8 overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Contracts with largest data gaps</h2>
+          <p className="ui-eyebrow">Portfolio</p>
+          <h2 className="ui-section-title mt-1 text-base">Contracts with largest data gaps</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
           {topGaps.length === 0 ? (
@@ -93,9 +137,10 @@ export default async function ContractDataQualityPage() {
         </ul>
       </section>
 
-      <section className="ui-card overflow-hidden">
+      <section id="weak-lineage" className="ui-card scroll-mt-8 overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Weak lineage / low-confidence fields</h2>
+          <p className="ui-eyebrow">Fields</p>
+          <h2 className="ui-section-title mt-1 text-base">Weak lineage / low-confidence fields</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
           {weakLineage.length === 0 ? (

@@ -99,6 +99,28 @@ export async function sendReminderEmail({
   return { error };
 }
 
+export async function sendReviewBoardPacketEmail({
+  to,
+  subject,
+  htmlBody,
+}: {
+  to: string;
+  subject: string;
+  htmlBody: string;
+}) {
+  const resendClient = getResendClient();
+  if (!resendClient) {
+    return { error: new Error("Email provider is not configured") };
+  }
+  const { error } = await resendClient.emails.send({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to,
+    subject,
+    html: htmlBody,
+  });
+  return { error };
+}
+
 interface SavedViewSummaryEmailParams {
   to: string | string[];
   viewName: string;

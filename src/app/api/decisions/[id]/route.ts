@@ -7,6 +7,8 @@ import {
   mergeRequiredInputs,
 } from "@/lib/v5/decision-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
@@ -169,6 +171,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     payload_json: { fields: Object.keys(patch) },
     actor_user_id: ctx.userId,
   });
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
 
   return NextResponse.json({ decision: data });
 }

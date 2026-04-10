@@ -7,7 +7,10 @@ export function SkipLink() {
       onClick={(e) => {
         e.preventDefault();
         const el = document.getElementById("main-content");
-        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const reduceMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        el?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
         window.setTimeout(() => {
           el?.focus({ preventScroll: true });
         }, 0);

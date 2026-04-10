@@ -86,12 +86,17 @@ export default async function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10">
+    <div className="ui-page-stack mx-auto max-w-4xl">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Workspace</p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="ui-display-title">Settings</h1>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="ui-eyebrow">Workspace</p>
+            <h1 className="ui-display-title mt-2">Settings</h1>
+            <p className="ui-muted-tight mt-3 max-w-2xl">
+              Profile, organization, and team access for your workspace.
+            </p>
+          </div>
+          <div className="ui-page-actions shrink-0 lg:pt-1">
             {canOpenHealth && (
               <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
                 System health
@@ -123,15 +128,15 @@ export default async function SettingsPage() {
             </a>
           </div>
         </div>
-        <p className="ui-muted mt-3 max-w-2xl">
-          Profile, organization, and team access for your workspace.
-        </p>
       </header>
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="ui-section-title text-base">Profile</h2>
+            <div>
+              <p className="ui-eyebrow">You</p>
+              <h2 className="ui-section-title mt-1 text-base">Profile</h2>
+            </div>
             <p className="text-[12px] text-zinc-400">
               Joined{" "}
               {user.created_at
@@ -151,8 +156,11 @@ export default async function SettingsPage() {
       {membership && (
         <section className="ui-card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
-            <h2 className="ui-section-title text-base">Organization</h2>
-            <span className="inline-flex rounded-full border border-zinc-200/80 bg-white px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
+            <div>
+              <p className="ui-eyebrow">Workspace</p>
+              <h2 className="ui-section-title mt-1 text-base">Organization</h2>
+            </div>
+            <span className="inline-flex rounded-full border border-zinc-200/80 bg-surface px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
@@ -166,9 +174,10 @@ export default async function SettingsPage() {
             />
           </div>
 
-          <h3 className="mb-3 text-sm font-bold tracking-tight text-zinc-900">
-            Team members
-          </h3>
+          <div className="mb-3">
+            <p className="ui-eyebrow">Access</p>
+            <h3 className="ui-section-title mt-1 text-base">Team members</h3>
+          </div>
           <div className="overflow-hidden rounded-xl border border-zinc-200/90">
             <table className="min-w-full divide-y divide-zinc-200/80">
               <thead className="bg-zinc-50/80">

@@ -1,0 +1,38 @@
+import { NextResponse } from "next/server";
+import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
+import { requireV6Context } from "@/lib/v6/api-auth";
+import { dismissFinding, resolveFinding } from "@/lib/v6/assurance";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const disabled = requireV6ApiFeature("v6AssuranceCore");
+  if (disabled) return disabled;
+
+  const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
+  if (!ctx) return errorResponse!;
+
+  const body = readJsonBody<{ note?: string; action?: string; signalFeedback?: string }>(
+    await request.json().catch(() => ({})),
+    {}
+  );
+  const findingId = toSafeString((await params).id);
+  if (!findingId) return NextResponse.json({ error: "id is required" }, { status: 400 });
+
+  const note = toSafeString(body.note);
+  const feedbackRaw = toSafeString(body.signalFeedback).trim().toLowerCase();
+  const allowed = new Set(["false_positive", "not_actionable", "confirmed_true"]);
+  const signalFeedback = feedbackRaw && allowed.has(feedbackRaw) ? feedbackRaw : null;
+
+  const result =
+    body.action === "dismiss"
+      ? await dismissFinding(ctx.admin, ctx.orgId, ctx.userId, findingId, note || undefined, signalFeedback)
+      : await resolveFinding(ctx.admin, ctx.orgId, ctx.userId, findingId, note || undefined, signalFeedback);
+  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (signalFeedback === "false_positive") {
+    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "findings_labeled_false_positive_total", 1).catch(
+      () => undefined
+    );
+  }
+  return NextResponse.json({ finding: result.data });
+}

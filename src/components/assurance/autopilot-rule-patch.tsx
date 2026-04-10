@@ -1,0 +1,88 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export function AutopilotRulePatchForm({
+  ruleId,
+  initialAllowlist,
+}: {
+  ruleId: string;
+  initialAllowlist: string[];
+}) {
+  const router = useRouter();
+  const [text, setText] = useState(initialAllowlist.join("\n"));
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function onSave() {
+    setPending(true);
+    setErr(null);
+    const allowlist = text
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    try {
+      const res = await fetch(`/api/autopilot/rules/${encodeURIComponent(ruleId)}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ allowlist }),
+      });
+      const j = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setErr(j.error ?? "Update failed");
+        return;
+      }
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="mt-2 space-y-2 border-t border-zinc-100 pt-2 text-xs">
+      <p className="font-medium text-zinc-700">Allowlist (IDs, one per line)</p>
+      <textarea
+        className="w-full rounded border border-zinc-200 px-2 py-1 font-mono text-[11px]"
+        rows={3}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button
+        type="button"
+        disabled={pending}
+        className="rounded bg-zinc-900 px-2 py-1 text-[11px] font-medium text-white disabled:opacity-50"
+        onClick={() => void onSave()}
+      >
+        {pending ? "Saving…" : "Save allowlist"}
+      </button>
+      {err ? <p className="text-red-600">{err}</p> : null}
+    </div>
+  );
+}
+
+export function AutopilotDisableButton({ ruleId }: { ruleId: string }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  async function onDisable() {
+    setPending(true);
+    try {
+      await fetch(`/api/autopilot/rules/${encodeURIComponent(ruleId)}`, { method: "DELETE" });
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      className="mt-2 text-[11px] text-zinc-600 underline disabled:opacity-50"
+      onClick={() => void onDisable()}
+    >
+      {pending ? "…" : "Disable (override)"}
+    </button>
+  );
+}

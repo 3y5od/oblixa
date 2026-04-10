@@ -26,7 +26,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
   if (invites.length === 0) return null;
 
   return (
-    <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4">
+    <div className="mt-6 rounded-lg border border-zinc-200 bg-surface p-4">
       <h4 className="text-sm font-semibold text-zinc-900">Pending invites</h4>
       <p className="mt-1 text-xs text-zinc-600">
         Invites that have not been accepted yet. Resend to refresh the email; revoke to cancel.

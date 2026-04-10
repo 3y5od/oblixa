@@ -82,11 +82,76 @@ test.describe("authenticated smoke", () => {
   test("dashboard has no serious accessibility violations", async ({ page }) => {
     await loginAsTestUser(page);
 
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+
     const results = await new AxeBuilder({ page }).analyze();
     const blocking = results.violations.filter((v) =>
       ["serious", "critical"].includes(v.impact ?? "")
     );
     expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
+  });
+
+  const axeAuthenticatedPaths = [
+    "/dashboard",
+    "/contracts",
+    "/contracts/approvals",
+    "/decisions",
+    "/assurance/findings",
+    "/reports",
+    "/settings",
+  ] as const;
+
+  test("authenticated Axe matrix: core routes have no serious violations", async ({ page }) => {
+    await loginAsTestUser(page);
+
+    for (const path of axeAuthenticatedPaths) {
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      const results = await new AxeBuilder({ page }).analyze();
+      const blocking = results.violations.filter((v) =>
+        ["serious", "critical"].includes(v.impact ?? "")
+      );
+      expect(blocking, `${path}: ${JSON.stringify(blocking, null, 2)}`).toEqual([]);
+    }
+  });
+
+  test("skip link moves focus to main landmark", async ({ page }) => {
+    await loginAsTestUser(page);
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+
+    await page.getByRole("link", { name: /skip to main content/i }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#main-content")).toBeFocused();
+  });
+});
+
+test.describe("authenticated narrow viewport", () => {
+  test.skip(
+    !E2E_EMAIL || !E2E_PASSWORD,
+    "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke."
+  );
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("dashboard and contracts do not widen the document", async ({ page }) => {
+    await loginAsTestUser(page);
+
+    for (const path of [
+      "/dashboard",
+      "/contracts",
+      "/contracts/approvals",
+      "/decisions",
+      "/assurance/findings",
+      "/settings",
+      "/reports",
+    ] as const) {
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      const delta = await page.evaluate(() => {
+        const el = document.documentElement;
+        return el.scrollWidth - el.clientWidth;
+      });
+      expect(delta, `${path}: horizontal document overflow`).toBeLessThanOrEqual(8);
+    }
   });
 });
 

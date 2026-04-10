@@ -116,13 +116,15 @@ export default async function OperationsSettingsPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Operations</p>
-        <h1 className="ui-display-title mt-2">Workflow configuration</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Configure task rules, renewal playbooks, obligation templates, and outbound webhooks.
-        </p>
+        <div>
+          <p className="ui-eyebrow">Operations</p>
+          <h1 className="ui-display-title mt-2">Workflow configuration</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Configure task rules, renewal playbooks, obligation templates, and outbound webhooks.
+          </p>
+        </div>
       </header>
 
       <section className="ui-card overflow-hidden">

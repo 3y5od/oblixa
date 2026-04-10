@@ -1,0 +1,53 @@
+import { NextResponse } from "next/server";
+import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
+import { requireV6Context } from "@/lib/v6/api-auth";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { createAutopilotRule, listAutopilotRules } from "@/lib/v6/autopilot";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+
+export async function GET() {
+  const disabled = requireV6ApiFeature("v6Autopilot");
+  if (disabled) return disabled;
+
+  const { ctx, errorResponse } = await requireV6Context();
+  if (!ctx) return errorResponse!;
+
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_autopilot_rules_list_total", 1).catch(
+    () => undefined
+  );
+
+  const { data, error } = await listAutopilotRules(ctx.admin, ctx.orgId);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ rules: data ?? [] });
+}
+
+export async function POST(request: Request) {
+  const disabled = requireV6ApiFeature("v6Autopilot");
+  if (disabled) return disabled;
+
+  const { ctx, errorResponse } = await requireV6Context("settings_manage");
+  if (!ctx) return errorResponse!;
+
+  const body = readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(
+    await request.json().catch(() => ({})),
+    {}
+  );
+
+  const name = toSafeString(body.name);
+  const actionType = toSafeString(body.actionType) || "request_evidence_refresh";
+  if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+
+  const result = await createAutopilotRule(ctx.admin, ctx.orgId, ctx.userId, {
+    name,
+    actionType,
+    requiresApproval: body.requiresApproval,
+  });
+  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_autopilot_rule_create_total", 1).catch(() => undefined);
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
+  return NextResponse.json({ rule: result.data }, { status: 201 });
+}

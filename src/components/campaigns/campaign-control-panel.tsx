@@ -47,13 +47,14 @@ export function CampaignControlPanel({ campaignId, status, rolledBackAt }: Props
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">Campaign controls</p>
+      <p className="ui-eyebrow">Campaign</p>
+      <h2 className="ui-section-title mt-1 text-base">Campaign controls</h2>
       {error && (
         <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
           {error}
         </p>
       )}
-      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+      <p className="ui-muted-tight mt-2">
         Preview refreshes contract rows from eligibility filters. Starting the campaign creates one open task per
         pending contract and moves those rows to in progress. Progress summaries count contract rows only.
       </p>

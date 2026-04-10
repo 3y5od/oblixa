@@ -73,7 +73,10 @@ describe("fetchControlRoomDashboardData", () => {
 
     const { cards } = await fetchControlRoomDashboardData({ from: adminFrom } as never, "org-1");
     expect(cards).toHaveLength(6);
-    expect(cards[0].metricLabel).toMatch(/open tasks/);
-    expect(cards[4].metricLabel).toContain("Δ");
+    expect(cards[0].headline).toBe("Action required");
+    expect(cards[0].primaryUnit).toMatch(/tasks/i);
+    expect(cards[4].id).toBe("capacity");
+    expect(cards[4].breakdown[0]?.label).toMatch(/prior/i);
+    expect(cards[4].breakdown[0]?.value).toBe("+10");
   });
 });

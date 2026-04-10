@@ -65,7 +65,7 @@ export function BulkUploadForm({
           required
           accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           disabled={disabled || isPending}
-          className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border file:border-zinc-200 file:bg-zinc-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-zinc-800 hover:file:border-zinc-300 hover:file:bg-white disabled:opacity-50"
+          className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border file:border-zinc-200 file:bg-zinc-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-zinc-800 hover:file:border-zinc-300 hover:file:bg-surface disabled:opacity-50"
         />
         <p className="mt-2 text-xs text-zinc-500">
           Each file becomes its own contract titled from the filename. Extraction runs in the

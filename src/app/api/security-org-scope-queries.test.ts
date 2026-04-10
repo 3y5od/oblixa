@@ -16,6 +16,22 @@ vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
+vi.mock("@/lib/v6/feature-guards", () => ({
+  requireV6ApiFeature: vi.fn(() => null),
+}));
+
+vi.mock("@/lib/feature-flags", () => ({
+  isFeatureEnabled: vi.fn(() => false),
+}));
+
+vi.mock("@/lib/v6/assurance-checks", () => ({
+  runIncrementalAssuranceChecks: vi.fn(async () => ({})),
+}));
+
+vi.mock("@/lib/v6/telemetry", () => ({
+  incrementV6QualityCounter: vi.fn(async () => {}),
+}));
+
 vi.mock("@/lib/v5/persist-signal-quality", () => ({
   incrementOrgV5SignalQuality: vi.fn(async () => {}),
 }));
@@ -161,6 +177,70 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     expect(pc[1]?.val).toBe("camp-1");
   });
 
+  it("PATCH /api/campaigns/[id] scopes portfolio_campaigns update by organization_id", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => {
+          if (table === "portfolio_campaigns") {
+            return {
+              update: () => ({
+                eq: (col: string, val: string) => {
+                  eqLog.push({ table, col, val });
+                  return {
+                    eq: (col2: string, val2: string) => {
+                      eqLog.push({ table, col: col2, val: val2 });
+                      return {
+                        select: () => ({
+                          maybeSingle: vi.fn(async () => ({
+                            data: {
+                              id: "camp-1",
+                              name: "Updated",
+                              campaign_type: "renewal",
+                              status: "draft",
+                              eligibility_json: {},
+                              assignment_json: {},
+                              updated_at: "2026-01-01T00:00:00Z",
+                            },
+                            error: null,
+                          })),
+                        }),
+                      };
+                    },
+                  };
+                },
+              }),
+            };
+          }
+          if (table === "portfolio_campaign_events") {
+            return {
+              insert: vi.fn(async () => ({})),
+            };
+          }
+          return {};
+        },
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    canManageCapability.mockResolvedValue(true);
+    const { PATCH } = await import("@/app/api/campaigns/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/campaigns/camp-1", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: "Updated" }),
+      }),
+      { params: Promise.resolve({ id: "camp-1" }) }
+    );
+    expect(res.status).toBe(200);
+    const pc = eqLog.filter((e) => e.table === "portfolio_campaigns");
+    expect(pc.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(pc[0]?.val).toBe(ORG);
+    expect(pc[1]?.val).toBe("camp-1");
+  });
+
   it("PATCH /api/intelligence/recommendations/[id] scopes operational_recommendations update by organization_id", async () => {
     const eqLog: EqLog[] = [];
     getApiAuthContext.mockResolvedValue({
@@ -280,5 +360,342 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     expect(runs.map((e) => e.col)).toEqual(["organization_id", "simulation_id"]);
     expect(runs[0]?.val).toBe(ORG);
     expect(runs[1]?.val).toBe("sim-1");
+  });
+
+  it("GET /api/workspace/v6-settings scopes organizations row by session org id", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          select: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                maybeSingle: vi.fn(async () => ({
+                  data: { v6_org_settings_json: {} },
+                  error: null,
+                })),
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/workspace/v6-settings/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const orgRows = eqLog.filter((e) => e.table === "organizations");
+    expect(orgRows.map((e) => e.col)).toEqual(["id"]);
+    expect(orgRows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/control-policies applies organization_id filter", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          select: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                order: () => ({
+                  limit: vi.fn(async () => ({ data: [], error: null })),
+                }),
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/control-policies/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "control_policies");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/program-evolution/experiments applies organization_id filter", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          select: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                order: () => ({
+                  limit: vi.fn(async () => ({ data: [], error: null })),
+                }),
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/program-evolution/experiments/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "program_evolution_experiments");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("PATCH /api/review-boards/runs/[id] scopes update by organization_id and run id", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          update: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                eq: (col2: string, val2: string) => {
+                  eqLog.push({ table, col: col2, val: val2 });
+                  return {
+                    select: () => ({
+                      maybeSingle: vi.fn(async () => ({
+                        data: {
+                          id: "run-1",
+                          status: "reviewed",
+                          reviewed_at: "2026-01-01T00:00:00Z",
+                          action_capture_json: [],
+                          decision_log_json: [],
+                        },
+                        error: null,
+                      })),
+                    }),
+                  };
+                },
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { PATCH } = await import("@/app/api/review-boards/runs/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ status: "reviewed" }),
+      }),
+      { params: Promise.resolve({ id: "run-1" }) }
+    );
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "review_board_runs");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(rows[0]?.val).toBe(ORG);
+    expect(rows[1]?.val).toBe("run-1");
+  });
+
+  it("POST /api/autopilot/run-logs/[id]/revert scopes selects and deletes by organization_id", async () => {
+    const eqLog: EqLog[] = [];
+    const linkId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => {
+          if (table === "autopilot_run_logs") {
+            return {
+              select: () => ({
+                eq: (col: string, val: string) => {
+                  eqLog.push({ table, col, val });
+                  return {
+                    eq: (col2: string, val2: string) => {
+                      void col2;
+                      void val2;
+                      return {
+                        maybeSingle: vi.fn(async () => ({
+                          data: {
+                            id: "log-1",
+                            status: "executed",
+                            autopilot_rule_id: "rule-1",
+                            output_json: {
+                              revert_hint: {
+                                table: "external_action_links",
+                                id: linkId,
+                                action: "delete_or_close",
+                              },
+                            },
+                          },
+                          error: null,
+                        })),
+                      };
+                    },
+                  };
+                },
+              }),
+              update: () => ({
+                eq: (col: string, val: string) => {
+                  eqLog.push({ table, col, val });
+                  return {
+                    eq: (col2: string, val2: string) => {
+                      eqLog.push({ table, col: col2, val: val2 });
+                      return Promise.resolve({ error: null });
+                    },
+                  };
+                },
+              }),
+            };
+          }
+          if (table === "external_action_links") {
+            return {
+              delete: () => ({
+                eq: (col: string, val: string) => {
+                  eqLog.push({ table, col, val });
+                  return {
+                    eq: (col2: string, val2: string) => {
+                      eqLog.push({ table, col: col2, val: val2 });
+                      return {
+                        eq: (col3: string, val3: string) => {
+                          eqLog.push({ table, col: col3, val: val3 });
+                          return Promise.resolve({ error: null });
+                        },
+                      };
+                    },
+                  };
+                },
+              }),
+            };
+          }
+          return {};
+        },
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { POST } = await import("@/app/api/autopilot/run-logs/[id]/revert/route");
+    const res = await POST(new Request("http://localhost", { method: "POST" }), {
+      params: Promise.resolve({ id: "log-1" }),
+    });
+    expect(res.status).toBe(200);
+    const logSelect = eqLog.filter(
+      (e) => e.table === "autopilot_run_logs" && e.col === "organization_id"
+    );
+    expect(logSelect[0]?.val).toBe(ORG);
+    const del = eqLog.filter((e) => e.table === "external_action_links");
+    expect(del.map((e) => e.col)).toEqual(["organization_id", "id", "status"]);
+    expect(del[0]?.val).toBe(ORG);
+    expect(del[1]?.val).toBe(linkId);
+  });
+
+  it("PATCH /api/autopilot/rules/[id] scopes update by organization_id and rule id", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          update: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                eq: (col2: string, val2: string) => {
+                  eqLog.push({ table, col: col2, val: val2 });
+                  return {
+                    select: () => ({
+                      maybeSingle: vi.fn(async () => ({ data: { id: "rule-1" }, error: null })),
+                    }),
+                  };
+                },
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { PATCH } = await import("@/app/api/autopilot/rules/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ allowlist: ["f1"] }),
+      }),
+      { params: Promise.resolve({ id: "rule-1" }) }
+    );
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "autopilot_rules");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(rows[0]?.val).toBe(ORG);
+    expect(rows[1]?.val).toBe("rule-1");
+  });
+
+  function adminListRowsMock(eqLog: EqLog[]) {
+    return {
+      from: (table: string) => ({
+        select: () => ({
+          eq: (col: string, val: string) => {
+            eqLog.push({ table, col, val });
+            return {
+              order: () => ({
+                limit: vi.fn(async () => ({ data: [], error: null })),
+              }),
+            };
+          },
+        }),
+      }),
+    };
+  }
+
+  it("GET /api/assurance/findings applies organization_id to assurance_findings", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: adminListRowsMock(eqLog),
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/assurance/findings/route");
+    const res = await GET(new Request("http://localhost/api/assurance/findings"));
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "assurance_findings");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/assurance/scorecards applies organization_id to assurance_scorecards", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: adminListRowsMock(eqLog),
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/assurance/scorecards/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "assurance_scorecards");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/segments applies organization_id to segment_definitions", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: adminListRowsMock(eqLog),
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/segments/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "segment_definitions");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
   });
 });

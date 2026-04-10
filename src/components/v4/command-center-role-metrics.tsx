@@ -1,6 +1,14 @@
-import Link from "next/link";
+import {
+  AlertOctagon,
+  AlertTriangle,
+  ClipboardList,
+  ListChecks,
+  Stamp,
+} from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
+import { OperationalSectionHeader, OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import type { OperationalTone } from "@/lib/ui/operational-surface";
 
 export async function CommandCenterRoleMetrics(props: { orgId: string; role: WorkspaceRole }) {
   const admin = await createAdminClient();
@@ -42,31 +50,96 @@ export async function CommandCenterRoleMetrics(props: { orgId: string; role: Wor
       .in("status", ["open", "in_progress"]),
   ]);
 
-  const cards = [
-    { label: "Open exceptions", value: exceptionOpen ?? 0, href: "/contracts/exceptions" },
-    { label: "Pending approvals", value: approvalsPending ?? 0, href: "/contracts/approvals" },
-    { label: "Approvals past due", value: approvalsBreached ?? 0, href: "/contracts/approvals/workload" },
-    { label: "Active tasks", value: tasksActive ?? 0, href: "/work" },
-    { label: "Active obligations", value: obligationsActive ?? 0, href: "/contracts/obligations" },
+  const ex = exceptionOpen ?? 0;
+  const ap = approvalsPending ?? 0;
+  const br = approvalsBreached ?? 0;
+  const ta = tasksActive ?? 0;
+  const ob = obligationsActive ?? 0;
+
+  const cards: Array<{
+    eyebrow: string;
+    headline: string;
+    tone: OperationalTone;
+    icon: typeof AlertOctagon;
+    value: number;
+    unit: string;
+    href: string;
+    action: string;
+    breakdown?: { label: string; value: string }[];
+  }> = [
+    {
+      eyebrow: "Exceptions",
+      headline: "Open exceptions",
+      tone: ex > 10 ? "risk" : ex > 0 ? "attention" : "healthy",
+      icon: AlertOctagon,
+      value: ex,
+      unit: "open / in progress",
+      href: "/contracts/exceptions",
+      action: "View exceptions",
+    },
+    {
+      eyebrow: "Approvals",
+      headline: "Pending",
+      tone: ap > 0 ? "attention" : "healthy",
+      icon: Stamp,
+      value: ap,
+      unit: "awaiting sign-off",
+      href: "/contracts/approvals",
+      action: "View approvals",
+    },
+    {
+      eyebrow: "SLA",
+      headline: "Past due",
+      tone: br > 0 ? "risk" : "healthy",
+      icon: AlertTriangle,
+      value: br,
+      unit: "approvals overdue",
+      href: "/contracts/approvals/workload",
+      action: "View workload",
+    },
+    {
+      eyebrow: "Execution",
+      headline: "Active tasks",
+      tone: ta > 0 ? "neutral" : "healthy",
+      icon: ClipboardList,
+      value: ta,
+      unit: "open / blocked",
+      href: "/work",
+      action: "View work queue",
+    },
+    {
+      eyebrow: "Commitments",
+      headline: "Active obligations",
+      tone: ob > 0 ? "neutral" : "healthy",
+      icon: ListChecks,
+      value: ob,
+      unit: "open",
+      href: "/contracts/obligations",
+      action: "View obligations",
+    },
   ];
 
   return (
-    <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-        <h2 className="text-sm font-semibold text-zinc-800">
-          Live execution metrics · {props.role.replace(/_/g, " ")} lens
-        </h2>
-      </div>
-      <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5">
+    <section className="space-y-3">
+      <OperationalSectionHeader
+        eyebrow="Execution"
+        title="Live portfolio metrics"
+        description={`Org-wide counts · ${props.role.replace(/_/g, " ")} lens`}
+      />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {cards.map((c) => (
-          <Link
-            key={c.label}
-            href={c.href}
-            className="rounded-lg border border-zinc-200 p-3 transition-colors hover:border-zinc-400"
-          >
-            <p className="text-xs text-zinc-500">{c.label}</p>
-            <p className="mt-1 text-xl font-semibold text-zinc-900">{c.value}</p>
-          </Link>
+          <OperationalSummaryCard
+            key={c.headline}
+            eyebrow={c.eyebrow}
+            headline={c.headline}
+            tone={c.tone}
+            icon={c.icon}
+            primaryValue={c.value}
+            primaryUnit={c.unit}
+            breakdown={c.breakdown}
+            action={{ href: c.href, label: c.action }}
+            variant="compact"
+          />
         ))}
       </div>
     </section>

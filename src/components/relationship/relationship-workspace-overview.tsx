@@ -36,8 +36,9 @@ export function RelationshipWorkspaceOverview({ healthSignalJson, summaryJson, l
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">Portfolio signals (this relationship)</p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="ui-eyebrow">Relationship</p>
+      <h2 className="ui-section-title mt-1 text-base">Portfolio signals (this relationship)</h2>
+      <p className="ui-muted-tight mt-1">
         Live counts from linked contracts on this page load. Cron rollups also persist overlapping fields into
         workspace JSON.
       </p>
@@ -52,7 +53,7 @@ export function RelationshipWorkspaceOverview({ healthSignalJson, summaryJson, l
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {tiles.map((t) => (
           <div key={t.label} className="rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2">
-            <p className="text-lg font-semibold text-zinc-900">{t.value}</p>
+            <p className="text-lg font-semibold tabular-nums text-zinc-900">{t.value}</p>
             <p className="text-[11px] leading-snug text-zinc-500">{t.label}</p>
           </div>
         ))}

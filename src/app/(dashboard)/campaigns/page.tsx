@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { ListOrdered, Megaphone, PauseCircle } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
@@ -8,8 +11,17 @@ import {
   type CampaignType,
 } from "@/lib/v5/campaign-types";
 import { CampaignSimulationPromote } from "@/components/campaigns/campaign-simulation-promote";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { SIMULATION_TYPE_FOCUS, type SimulationType } from "@/lib/v5/simulation-types";
+
+function campaignStatusTone(status: string): SemanticStatus {
+  if (status === "active") return "healthy";
+  if (status === "paused") return "warning";
+  if (status === "previewed") return "in_review";
+  if (status === "closed") return "disabled";
+  return "info";
+}
 
 export default async function CampaignsPage({
   searchParams,
@@ -71,18 +83,18 @@ export default async function CampaignsPage({
   }, 0);
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <div>
-          <p className="ui-eyebrow">Portfolio change management</p>
-          <h1 className="ui-display-title mt-2">Campaign center</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Track change rollouts across many contracts with preview, owner accountability, and progress visibility.
+          <p className="ui-eyebrow">Records</p>
+          <h1 className="ui-display-title mt-2">Campaign Queue</h1>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Campaign state, processed volume, and next action.
             {statusFilter || typeFilter ? (
-              <span className="mt-2 block text-sm text-zinc-600">
+              <span className="mt-2 block text-xs text-zinc-600">
                 {statusFilter && statusOk ? (
                   <>
-                    Filtered by status <code className="rounded bg-zinc-100 px-1">{statusFilter}</code>
+                    Status <code className="rounded bg-zinc-100 px-1">{statusFilter}</code>
                     {!typeFilter ? ". " : " · "}
                   </>
                 ) : null}
@@ -106,37 +118,59 @@ export default async function CampaignsPage({
         </div>
         <div className="flex gap-2">
           <Link href="/api/campaigns" className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
-            Open campaigns API
+            View campaigns JSON
           </Link>
           <Link href="/api/intelligence/portfolio-signals" className="ui-btn-ghost px-4 py-2.5 text-[13px]" target="_blank">
-            Portfolio signals
+            Signals JSON
           </Link>
         </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">Active campaigns</p>
-          <p className="mt-2 text-3xl font-semibold text-zinc-900">{activeCount}</p>
-        </article>
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">Paused campaigns</p>
-          <p className="mt-2 text-3xl font-semibold text-zinc-900">{pausedCount}</p>
-        </article>
-        <article className="ui-card p-4">
-          <p className="ui-label-caps">Contracts processed</p>
-          <p className="mt-2 text-3xl font-semibold text-zinc-900">{totalProcessed}</p>
-          <p className="mt-1 text-xs text-zinc-500">Across filtered campaign set.</p>
-        </article>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Rollout</p>
+          <h2 className="ui-section-title mt-2 text-xl">Campaign metrics</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Live"
+            headline="Active"
+            tone={activeCount > 0 ? "neutral" : "healthy"}
+            icon={Megaphone}
+            primaryValue={activeCount}
+            primaryUnit="campaigns running"
+            action={{ href: "/campaigns?status=active", label: "View active" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Paused"
+            headline="On hold"
+            tone={pausedCount > 0 ? "attention" : "healthy"}
+            icon={PauseCircle}
+            primaryValue={pausedCount}
+            primaryUnit="paused campaigns"
+            action={{ href: "/campaigns?status=paused", label: "View paused" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Throughput"
+            headline="Contracts processed"
+            tone="neutral"
+            icon={ListOrdered}
+            primaryValue={totalProcessed}
+            primaryUnit="under current filters"
+            action={{ href: "/campaigns", label: "View campaigns" }}
+            variant="compact"
+          />
+        </div>
       </section>
 
       {simOn ? (
         <section id="simulations" className="scroll-mt-8 space-y-6">
           <div>
-            <h2 className="ui-section-title text-lg">Change simulation studio</h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Recent simulations and runs (§9.6), including promotion readiness and scenario context.
-            </p>
+            <p className="ui-eyebrow">Simulation</p>
+            <h2 className="ui-section-title mt-1 text-xl">Simulation Studio</h2>
+            <p className="ui-muted-tight mt-1 text-[13px]">Recent simulation runs and promotion readiness.</p>
           </div>
           <details className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 text-sm text-zinc-600">
             <summary className="cursor-pointer font-medium text-zinc-800">Simulation types</summary>
@@ -165,7 +199,7 @@ export default async function CampaignsPage({
                         target="_blank"
                         rel="noreferrer"
                       >
-                        API
+                        View JSON
                       </Link>
                     </li>
                   ))
@@ -198,7 +232,7 @@ export default async function CampaignsPage({
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Open simulation JSON
+                          Simulation JSON
                         </Link>
                       </div>
                     </li>
@@ -208,10 +242,9 @@ export default async function CampaignsPage({
             </article>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-800">Promote to campaign</h3>
-            <p className="mt-1 text-sm text-zinc-500">
-              Create a draft portfolio campaign from a completed simulation context.
-            </p>
+            <p className="ui-eyebrow">Rollout</p>
+            <h3 className="ui-section-title mt-1 text-base">Promote to campaign</h3>
+            <p className="ui-muted-tight mt-1 text-[13px]">Create a draft campaign from a completed simulation.</p>
             <div className="mt-4">
               <CampaignSimulationPromote />
             </div>
@@ -227,24 +260,28 @@ export default async function CampaignsPage({
         </section>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+      <div className="ui-card overflow-hidden">
         <table className="min-w-full divide-y divide-zinc-100 text-sm">
-          <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <thead className="ui-table-header">
             <tr>
               <th className="px-5 py-3">Campaign</th>
+              <th className="px-5 py-3">Object</th>
               <th className="px-5 py-3">Type</th>
               <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3">Owner</th>
               <th className="px-5 py-3">Previewed</th>
               <th className="px-5 py-3">Processed</th>
+              <th className="px-5 py-3">Next action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {filteredCampaigns.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-zinc-500">
-                  {(campaigns ?? []).length === 0
-                    ? "No campaigns yet."
-                    : "No campaigns match the current filters."}
+                <td colSpan={8} className="px-5 py-8">
+                  <EmptyState
+                    title="No campaigns in queue"
+                    copy={(campaigns ?? []).length === 0 ? "No campaign records yet." : "No campaign records match the current filters."}
+                  />
                 </td>
               </tr>
             ) : (
@@ -252,19 +289,28 @@ export default async function CampaignsPage({
                 const preview = (campaign.preview_summary_json ?? {}) as Record<string, unknown>;
                 const progress = (campaign.progress_summary_json ?? {}) as Record<string, unknown>;
                 return (
-                  <tr key={campaign.id}>
+                <tr key={campaign.id} className="ui-table-row">
                     <td className="px-5 py-4 font-semibold text-zinc-900">
                       <Link href={`/campaigns/${campaign.id}`} className="ui-link">
                         {campaign.name}
                       </Link>
                     </td>
+                    <td className="px-5 py-4 text-zinc-600">Campaign</td>
                     <td className="px-5 py-4 text-zinc-600">
                       {CAMPAIGN_TYPE_LABELS[campaign.campaign_type as CampaignType] ??
                         campaign.campaign_type}
                     </td>
-                    <td className="px-5 py-4 text-zinc-600">{campaign.status}</td>
+                    <td className="px-5 py-4">
+                      <StatusBadge status={campaignStatusTone(campaign.status)}>{campaign.status}</StatusBadge>
+                    </td>
+                    <td className="px-5 py-4 text-zinc-600">Unassigned</td>
                     <td className="px-5 py-4 text-zinc-600">{Number(preview["pending"] ?? 0) + Number(preview["processed"] ?? 0)}</td>
                     <td className="px-5 py-4 text-zinc-600">{Number(progress["processed"] ?? 0)}</td>
+                    <td className="px-5 py-4">
+                      <Link href={`/campaigns/${campaign.id}`} className="ui-link">
+                        Open campaign
+                      </Link>
+                    </td>
                   </tr>
                 );
               })

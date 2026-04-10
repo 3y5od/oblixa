@@ -14,6 +14,8 @@ import {
   getContractIdsForDeadlinePreset,
   type DeadlinePreset,
 } from "@/lib/contract-filters";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const HORIZON_OPTIONS: { value: DeadlinePreset; label: string }[] = [
   { value: "renewal_30", label: "Renewal <= 30d" },
@@ -44,7 +46,7 @@ export default async function RenewalsWorkspacePage(props: {
     "renewal_90") as DeadlinePreset;
 
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId } = ctx;
 
   const candidateIds = (await getContractIdsForDeadlinePreset(admin, orgId, horizon)) ?? [];
@@ -216,14 +218,12 @@ export default async function RenewalsWorkspacePage(props: {
   };
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Renewal preparation</p>
           <h1 className="ui-display-title mt-2">Renewals workspace</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Plan renewals and notice decisions from a focused horizon-based queue.
-          </p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">Horizon-based renewal queue with checkpoints and playbooks.</p>
         </div>
         <Link href="/contracts/tasks" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           Open task queue
@@ -248,7 +248,7 @@ export default async function RenewalsWorkspacePage(props: {
         <SlackRenewalSummaryForm />
       </section>
 
-      <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
+      <div className="ui-panel md:p-6">
         <p className="mb-4 text-xs text-zinc-500">
           Queue exposure in horizon:{" "}
           <span className="font-semibold text-zinc-800">${totalExposure.toLocaleString()}</span>
@@ -335,16 +335,14 @@ export default async function RenewalsWorkspacePage(props: {
       </div>
 
       {rows.length === 0 ? (
-        <div className="ui-card px-8 py-14 text-center">
-          <h2 className="ui-section-title text-base">No contracts in this horizon</h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            Widen the horizon or approve more date fields to populate this workspace.
-          </p>
-        </div>
+        <EmptyState
+          title="No contracts in this horizon"
+          copy="Widen horizon filters or approve more date fields."
+        />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+        <div className="ui-table-shell">
           <table className="min-w-full divide-y divide-zinc-100 text-sm">
-            <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Contract</th>
                 <th className="px-5 py-3">Counterparty</th>
@@ -358,7 +356,7 @@ export default async function RenewalsWorkspacePage(props: {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {rows.map((row) => (
-                <tr key={row.id}>
+                <tr key={row.id} className="ui-table-row">
                   <td className="px-5 py-4 font-semibold text-zinc-900">
                     <Link href={`/contracts/${row.id}`} className="ui-link">
                       {row.title}

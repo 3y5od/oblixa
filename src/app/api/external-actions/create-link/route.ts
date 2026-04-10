@@ -7,6 +7,8 @@ import {
   isValidExternalActionType,
 } from "@/lib/v5/external-action-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 function createToken() {
   return randomBytes(24).toString("hex");
@@ -28,6 +30,9 @@ export async function POST(request: Request) {
     scope?: Record<string, unknown>;
     requiresReauth?: boolean;
     passcode?: string;
+    workflowConfig?: Record<string, unknown>;
+    /** ISO timestamp for external multi-step acknowledgement deadline (stored on link scope). */
+    workflowDeadlineIso?: string;
   }>(raw, {});
   const rawAction = toSafeString(body.actionType) || "submit_evidence";
   if (!isValidExternalActionType(rawAction)) {
@@ -38,7 +43,27 @@ export async function POST(request: Request) {
   const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString();
 
   const token = createToken();
-  const scope = body.scope ?? {};
+  const scope: Record<string, unknown> = {
+    ...(body.scope ?? {}),
+    workflow_config: body.workflowConfig ?? {},
+    collaboration_version: "v6",
+  };
+  const workflowDeadlineRaw = toSafeString(body.workflowDeadlineIso);
+  if (workflowDeadlineRaw) {
+    const deadlineMs = Date.parse(workflowDeadlineRaw);
+    if (!Number.isFinite(deadlineMs) || deadlineMs <= Date.now()) {
+      return NextResponse.json({ error: "workflowDeadlineIso must be a future ISO timestamp" }, { status: 400 });
+    }
+    const expMs = Date.parse(expiresAt);
+    if (Number.isFinite(expMs) && deadlineMs > expMs) {
+      return NextResponse.json(
+        { error: "workflowDeadlineIso must be on or before the link expires_at" },
+        { status: 400 }
+      );
+    }
+    scope.workflow_deadline_iso = workflowDeadlineRaw;
+    scope.workflow_ack_required = true;
+  }
   const rawDw = scope["decisionWorkspaceId"];
   const decisionWorkspaceId =
     typeof rawDw === "string" && /^[0-9a-f-]{36}$/i.test(rawDw) ? rawDw : null;
@@ -70,6 +95,15 @@ export async function POST(request: Request) {
     payload_json: { action_type: data.action_type, expires_at: data.expires_at },
     actor_user_id: ctx.userId,
   });
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_action_links_created_total", 1).catch(
+      () => undefined
+    );
+  }
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_external_create_link_total", 1).catch(
+    () => undefined
+  );
 
   return NextResponse.json({ externalAction: data }, { status: 201 });
 }

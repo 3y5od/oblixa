@@ -6,6 +6,8 @@
 
 **V5** adds the control plane: decision workspaces, portfolio campaigns, simulation/intelligence, relationship summaries, external action links, and control-room nav. It uses `ENABLE_V5_*` in [`.env.example`](.env.example) (default **on** when unset). Operator steps: [docs/V5_RELEASE_RUNBOOK.md](docs/V5_RELEASE_RUNBOOK.md) and [docs/v5_phase_gated_delivery.md](docs/v5_phase_gated_delivery.md). Product intent: [docs/oblixa_v5_strategy_spec.md](docs/oblixa_v5_strategy_spec.md).
 
+**V6** adds continuous assurance and adaptive operations: control policies, assurance findings, scorecards, health graph, adaptive playbooks, safe autopilot, review boards, segment rollups, and outcome intelligence. It uses `ENABLE_V6_*` in [`.env.example`](.env.example) (default **on** when unset). Operator steps: [docs/V6_RELEASE_RUNBOOK.md](docs/V6_RELEASE_RUNBOOK.md). Product intent: [docs/v6.md](docs/v6.md).
+
 ## Tech stack
 
 | Layer | Tool |
@@ -61,6 +63,13 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `OPENAI_API_KEY` | OpenAI → API keys | **No** |
 | `NEXT_PUBLIC_APP_URL` | Your app's base URL | Yes |
 
+## Security
+
+- **Full checklist (A–U):** [docs/SECURITY_PASS_CHECKLIST.md](docs/SECURITY_PASS_CHECKLIST.md) — threat model, auth, IDOR, crons, webhooks, CSP, dependencies, IR, and continuous testing.
+- **API route coverage table:** [docs/SECURITY_API_ROUTE_COVERAGE.md](docs/SECURITY_API_ROUTE_COVERAGE.md) — regenerate with `npm run report:security-api-coverage` before major releases.
+- **Static checks:** `npm run check:security-static` (and `:strict`) — `npm audit` plus repository greps for risky patterns. API route test presence is enforced by `npm run check:api-route-tests` (part of `verify`).
+- **API security rules for contributors:** [AGENTS.md](AGENTS.md) (auth on every route, org scope with service role, tests).
+
 ## Available scripts
 
 | Command | What it does |
@@ -73,6 +82,9 @@ Copy `.env.example` → `.env.local` and fill in values from each service dashbo
 | `npm run test` | Run Vitest unit tests |
 | `npm run test:e2e` | Run Playwright smoke tests |
 | `npm run check:migrations` | Fail on duplicate migration prefixes |
+| `npm run check:security-static` | `npm audit` + risky-pattern greps under `src/` |
+| `npm run check:security-static:strict` | Stricter audit level + failing greps |
+| `npm run report:security-api-coverage` | Regenerate `docs/SECURITY_API_ROUTE_COVERAGE.md` |
 | `npm run check:cron-canary` | Probe cron routes on `COMPREHENSIVE_PASS_BASE_URL` (needs `CRON_SECRET`) |
 | `npm run check:comprehensive-pass` | Staging-style cron + migration + RLS checks (see `.env.example`) |
 | `npm run preflight:release` | Validate required release env vars |
@@ -118,7 +130,7 @@ Optional authenticated e2e smoke uses repository secrets (not available to workf
 src/
 └── app/          # Next.js App Router pages, layouts, and route handlers
 public/           # Static assets
-docs/             # V5 spec, runbooks, API/traceability docs
+docs/             # V5/V6 specs, runbooks, API/traceability docs
 ```
 
 ## Deployment (Vercel)

@@ -30,7 +30,7 @@ export function ProgramImpactPreviewButton({ programId }: { programId: string })
         {loading ? "Preview…" : "Impact preview"}
       </button>
       {preview ? (
-        <pre className="max-h-48 overflow-auto rounded border border-zinc-200 bg-white p-2 text-[10px] text-zinc-800">
+        <pre className="max-h-48 overflow-auto rounded border border-zinc-200 bg-surface p-2 text-[10px] text-zinc-800">
           {preview}
         </pre>
       ) : null}

@@ -8,6 +8,7 @@ import {
   setSavedViewWeeklySummary,
 } from "@/actions/saved-views";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 type TaskStatusFilter = "" | "open" | "in_progress" | "blocked" | "done";
 const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
@@ -124,21 +125,19 @@ export default async function ContractTasksPage(props: {
   }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Execution</p>
           <h1 className="ui-display-title mt-2">Task queue</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Team-wide contract follow-up in one view. Track ownership, urgency, and status.
-          </p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">Team follow-up with ownership, urgency, and status.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-          Back to contracts
+          Contract index
         </Link>
       </header>
 
-      <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
+      <div className="ui-panel md:p-6">
         <form className="flex flex-wrap items-end gap-4" action="/contracts/tasks" method="get">
           <div>
             <label htmlFor="task-status" className="ui-label-caps">Status</label>
@@ -150,16 +149,21 @@ export default async function ContractTasksPage(props: {
               ))}
             </select>
           </div>
-          <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
-            <input
-              type="checkbox"
-              name="mine"
-              value="1"
-              defaultChecked={onlyMine}
-              className="h-4 w-4 rounded border-zinc-300"
-            />
-            Assigned to me
-          </label>
+          <div>
+            <span className="ui-label-caps">Assignee</span>
+            <div className="flex min-h-10 items-center">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-zinc-700">
+                <input
+                  type="checkbox"
+                  name="mine"
+                  value="1"
+                  defaultChecked={onlyMine}
+                  className="h-4 w-4 rounded border-zinc-300"
+                />
+                Assigned to me
+              </label>
+            </div>
+          </div>
           <div>
             <label htmlFor="task-team" className="ui-label-caps">Team queue</label>
             <input
@@ -236,16 +240,14 @@ export default async function ContractTasksPage(props: {
       </div>
 
       {tasks.length === 0 ? (
-        <div className="ui-card px-8 py-14 text-center">
-          <h2 className="ui-section-title text-base">No tasks match this view</h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            Try changing status filters or creating tasks from a contract detail page.
-          </p>
-        </div>
+        <EmptyState
+          title="No tasks in this queue"
+          copy="Change filters or create tasks from a contract record."
+        />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+        <div className="ui-table-shell">
           <table className="min-w-full divide-y divide-zinc-100 text-sm">
-            <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Task</th>
                 <th className="px-5 py-3">Contract</th>
@@ -259,7 +261,7 @@ export default async function ContractTasksPage(props: {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {tasks.map((task) => (
-                <tr key={task.id} className="align-top">
+                <tr key={task.id} className="ui-table-row align-top">
                   <td className="px-5 py-4">
                     <p className="font-semibold text-zinc-900">{task.title}</p>
                     {task.details && (

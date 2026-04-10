@@ -6,8 +6,9 @@ import { format } from "date-fns";
 import { FileText, ChevronRight } from "lucide-react";
 import type { Contract } from "@/lib/types";
 import type { ContractReviewStats } from "@/lib/contract-review-stats";
-import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
+import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 interface ContractTableProps {
   contracts: Contract[];
@@ -38,10 +39,10 @@ export function ContractTable({ contracts, reviewStats, footer }: ContractTableP
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-zinc-200/75 bg-white shadow-[var(--shadow-1)]">
+    <div className="ui-table-shell">
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-[14px]">
-          <thead className="sticky top-0 z-[1] bg-white">
+          <thead className="sticky top-0 z-[1] bg-surface">
             <tr className="border-b border-zinc-200/80">
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5 first:pl-6 lg:pl-8">
                 Contract
@@ -64,7 +65,7 @@ export function ContractTable({ contracts, reviewStats, footer }: ContractTableP
               return (
                 <tr
                   key={contract.id}
-                  className="ui-table-row border-b border-zinc-100/90 odd:bg-white even:bg-zinc-50/15 last:border-0"
+                  className="ui-table-row border-b border-zinc-100/90 odd:bg-surface even:bg-zinc-50/20 last:border-0"
                 >
                   <td className="whitespace-nowrap px-5 py-3.5 first:pl-6 lg:pl-8">
                     <Link
@@ -84,13 +85,9 @@ export function ContractTable({ contracts, reviewStats, footer }: ContractTableP
                     {contract.counterparty || "—"}
                   </td>
                   <td className="whitespace-nowrap px-5 py-3.5">
-                    <span
-                      className={`ui-badge ${
-                        STATUS_STYLES[contract.status] || STATUS_STYLES.draft
-                      }`}
-                    >
+                    <StatusBadge status={STATUS_SEMANTICS[contract.status] ?? STATUS_SEMANTICS.draft}>
                       {STATUS_LABELS[contract.status] || contract.status}
-                    </span>
+                    </StatusBadge>
                   </td>
                   {reviewStats && (
                     <td className="whitespace-nowrap px-5 py-3.5 text-[13px]">

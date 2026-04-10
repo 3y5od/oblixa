@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FileText, History } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { RelationshipWorkspaceOverview } from "@/components/relationship/relationship-workspace-overview";
@@ -67,19 +69,23 @@ export default async function CounterpartyWorkspacePage({ params }: { params: Pr
     (contracts ?? []).map((c) => String(c.id))
   );
 
+  const contractCount = (contracts ?? []).length;
+
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Counterparty workspace</p>
-        <h1 className="ui-display-title mt-2">{workspace.display_name}</h1>
-        <p className="mt-2 text-sm text-zinc-500">Key: {workspace.counterparty_key}</p>
-        <Link
-          href={`/api/counterparties/${encodeURIComponent(key)}/summary`}
-          className="ui-link mt-3 inline-block text-xs"
-          target="_blank"
-        >
-          Open summary JSON
-        </Link>
+        <div>
+          <p className="ui-eyebrow">Counterparty workspace</p>
+          <h1 className="ui-display-title mt-2">{workspace.display_name}</h1>
+          <p className="ui-muted-tight mt-2 text-[13px]">Key: {workspace.counterparty_key}</p>
+          <Link
+            href={`/api/counterparties/${encodeURIComponent(key)}/summary`}
+            className="ui-link mt-3 inline-block text-xs"
+            target="_blank"
+          >
+            Open summary JSON
+          </Link>
+        </div>
       </header>
 
       <RelationshipWorkspaceOverview
@@ -88,9 +94,33 @@ export default async function CounterpartyWorkspacePage({ params }: { params: Pr
         liveMetrics={liveMetrics}
       />
 
+      <div className="grid gap-3 sm:grid-cols-2">
+        <OperationalSummaryCard
+          eyebrow="Portfolio"
+          headline="Contracts on key"
+          tone={contractCount > 0 ? "neutral" : "attention"}
+          icon={FileText}
+          primaryValue={contractCount}
+          primaryUnit="loaded sample"
+          action={{ href: `/counterparties/${encodeURIComponent(key)}`, label: "Refresh" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Activity"
+          headline="Timeline events"
+          tone={timelineEvents.length > 0 ? "neutral" : "healthy"}
+          icon={History}
+          primaryValue={timelineEvents.length}
+          primaryUnit="recent sample"
+          action={{ href: `/counterparties/${encodeURIComponent(key)}`, label: "View below" }}
+          variant="compact"
+        />
+      </div>
+
       <section className="grid gap-4 lg:grid-cols-2">
         <article className="ui-card p-5">
-          <p className="ui-label-caps">Contracts</p>
+          <p className="ui-eyebrow">Records</p>
+          <p className="ui-section-title mt-1 text-base">Contracts</p>
           <ul className="mt-3 divide-y divide-zinc-100 text-sm">
             {(contracts ?? []).length === 0 ? (
               <li className="py-2 text-zinc-500">No contracts with this counterparty key.</li>
@@ -107,7 +137,8 @@ export default async function CounterpartyWorkspacePage({ params }: { params: Pr
           </ul>
         </article>
         <article className="ui-card p-5">
-          <p className="ui-label-caps">Relationship timeline</p>
+          <p className="ui-eyebrow">Events</p>
+          <p className="ui-section-title mt-1 text-base">Relationship timeline</p>
           <ul className="mt-3 space-y-2 text-sm">
             {timelineEvents.length === 0 ? (
               <li className="text-zinc-500">No timeline events yet.</li>

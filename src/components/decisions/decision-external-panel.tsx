@@ -14,6 +14,10 @@ type LinkRow = {
   status: string;
   expires_at: string;
   submitted_at: string | null;
+  workflowStepCount?: number;
+  workflowDeadlineIso?: string | null;
+  lastWorkflowStepType?: string | null;
+  correctionMessage?: string | null;
 };
 
 type Props = {
@@ -65,8 +69,9 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">External collaboration</p>
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="ui-eyebrow">Collaboration</p>
+      <h2 className="ui-section-title mt-1 text-base">External collaboration</h2>
+      <p className="ui-muted-tight mt-2">
         Time-bound links for counterparties. Submissions are scope-limited to this decision.
       </p>
       {error && (
@@ -132,6 +137,18 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
                     ? `${appOrigin.replace(/\/$/, "")}/external/${l.token}`
                     : `/external/${l.token}`}
                 </div>
+                {(l.workflowStepCount ?? 0) > 0 || l.workflowDeadlineIso ? (
+                  <p className="mt-1 text-[11px] text-zinc-600">
+                    Workflow: {l.workflowStepCount ?? 0} step(s)
+                    {l.lastWorkflowStepType ? ` · last: ${l.lastWorkflowStepType}` : ""}
+                    {l.workflowDeadlineIso
+                      ? ` · acknowledge by ${new Date(l.workflowDeadlineIso).toLocaleString()}`
+                      : ""}
+                  </p>
+                ) : null}
+                {l.correctionMessage ? (
+                  <p className="mt-1 text-[11px] text-rose-700">Correction: {l.correctionMessage}</p>
+                ) : null}
               </li>
             ))
           )}

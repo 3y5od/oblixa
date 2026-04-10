@@ -3,7 +3,14 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { NAV_ITEMS, CONTRACTS_SUBROUTES, isContractsRoot } from "@/lib/navigation";
+import { Command } from "lucide-react";
+import {
+  NAV_ITEMS,
+  CONTRACTS_SUBROUTES,
+  WORKFLOW_AREA_LABELS,
+  getWorkflowAreaForNavItem,
+  isContractsRoot,
+} from "@/lib/navigation";
 
 interface HeaderProps {
   fullName?: string | null;
@@ -18,28 +25,43 @@ export function Header({ fullName, email }: HeaderProps) {
     const dynamicMatch = NAV_ITEMS
       .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
       .sort((a, b) => b.href.length - a.href.length)[0];
-    if (dynamicMatch) return dynamicMatch.name;
+    if (dynamicMatch) {
+      return `${WORKFLOW_AREA_LABELS[getWorkflowAreaForNavItem(dynamicMatch)]} · ${dynamicMatch.name}`;
+    }
 
-    if (isContractsRoot(pathname)) return "Contracts";
-    if (pathname.startsWith("/settings")) return "Workspace settings";
+    if (isContractsRoot(pathname)) return "Workflows · Contracts";
+    if (pathname.startsWith("/settings")) return "Workspace · Settings";
     if (pathname.startsWith("/contracts/new")) return "New contract";
     if (pathname.startsWith("/contracts/bulk")) return "Bulk import";
-    if (CONTRACTS_SUBROUTES.some((prefix) => pathname.startsWith(prefix))) return "Contracts";
-    if (pathname.startsWith("/more")) return "More tools";
-    return "Dashboard";
+    if (CONTRACTS_SUBROUTES.some((prefix) => pathname.startsWith(prefix))) return "Workflows · Contracts";
+    if (pathname.startsWith("/more")) return "Workspace · Index";
+    return "Monitor · Dashboard";
   }, [pathname]);
 
   return (
-    <header className="flex h-[3.5rem] shrink-0 items-center justify-between border-b border-zinc-200/70 bg-white/88 px-4 backdrop-blur-md md:px-6">
-      <div className="hidden min-w-0 items-center gap-3 sm:flex">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+    <header className="flex h-[3.5rem] shrink-0 items-center justify-between border-b border-[var(--border-subtle)] bg-surface/95 px-4 backdrop-blur md:px-6">
+      <div className="min-w-0">
+        <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
           {context}
         </p>
-        <span className="h-1 w-1 rounded-full bg-zinc-300" />
-        <p className="text-xs text-zinc-600">Cmd/Ctrl + K</p>
-        <Link href="/more" className="text-xs font-medium text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline">
-          Quick open
-        </Link>
+        <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500 sm:mt-0">
+          <span>Cmd/Ctrl + K</span>
+          <span className="h-1 w-1 rounded-full bg-zinc-300" />
+          <Link
+            href="/more"
+            className="font-semibold text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline"
+          >
+            Open index
+          </Link>
+          <Link
+            href="/more"
+            className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-zinc-200 px-2 py-1.5 text-[10px] font-semibold text-zinc-700 sm:hidden"
+            aria-label="Open workflow index"
+          >
+            <Command size={11} aria-hidden />
+            Open
+          </Link>
+        </div>
       </div>
       <div
         className="flex items-center gap-3.5"
@@ -54,7 +76,7 @@ export function Header({ fullName, email }: HeaderProps) {
           )}
         </div>
         <div
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/80 bg-gradient-to-br from-zinc-50 to-zinc-100/80 text-sm font-semibold text-zinc-700 shadow-sm transition-[box-shadow,border-color] duration-200 ease-out"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/85 bg-zinc-50 text-sm font-semibold text-zinc-700 shadow-[var(--shadow-1)] transition-[box-shadow,border-color] duration-200 ease-out"
           aria-hidden
         >
           {initial}

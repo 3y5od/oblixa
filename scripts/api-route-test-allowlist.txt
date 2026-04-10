@@ -25,3 +25,57 @@ intelligence/portfolio-by-counterparty/route.ts
 intelligence/portfolio-by-program/route.ts
 intelligence/portfolio-signals/route.ts
 intelligence/recommendations/route.ts
+
+# v6-api-feature-gate.test.ts + security-org-scope-queries.test.ts (findings GET also needs Request URL in callers)
+assurance/findings/route.ts
+assurance/findings/[id]/resolve/route.ts
+assurance/checks/run/route.ts
+assurance/scorecards/route.ts
+assurance/analytics/summary/route.ts
+assurance/check-runs/[id]/route.ts
+assurance/check-runs/route.ts
+assurance/scorecards/[id]/snapshots/route.ts
+control-policies/route.ts
+control-policies/[id]/publish/route.ts
+control-policies/[id]/simulate/route.ts
+control-policies/[id]/assign/route.ts
+playbooks/route.ts
+playbooks/[id]/preview/route.ts
+playbooks/[id]/run/route.ts
+playbooks/runs/[id]/route.ts
+autopilot/rules/route.ts
+autopilot/rules/[id]/dry-run/route.ts
+autopilot/rules/[id]/enable/route.ts
+autopilot/rules/[id]/route.ts
+autopilot/runs/route.ts
+autopilot/run-logs/[id]/revert/route.ts
+review-boards/route.ts
+review-boards/[id]/generate-run/route.ts
+review-boards/[id]/runs/route.ts
+review-boards/runs/[id]/route.ts
+assurance/external-links/[id]/response-pack/route.ts
+program-evolution/experiments/[id]/advance-rollout/route.ts
+segments/route.ts
+segments/[id]/recompute/route.ts
+external-actions/[token]/workflow-step/route.ts
+
+# workspace v6 org settings
+
+# program evolution (v6AssuranceCore)
+program-evolution/experiments/route.ts
+program-evolution/experiments/[id]/simulate/route.ts
+program-evolution/experiments/[id]/results/route.ts
+
+# cron/v6/v6-crons-feature-skip.test.ts
+cron/v6/assurance-checks/route.ts
+cron/v6/finding-refresh/route.ts
+cron/v6/autopilot-dry-run/route.ts
+cron/v6/autopilot-execution/route.ts
+cron/v6/scorecard-recompute/route.ts
+cron/v6/health-graph-rollups/route.ts
+cron/v6/control-policy-reevaluation/route.ts
+cron/v6/outcome-effectiveness/route.ts
+cron/v6/review-board-packet-generation/route.ts
+cron/v6/segment-recompute/route.ts
+cron/v6/external-workflow-deadlines/route.ts
+cron/v6/playbook-follow-up-assurance/route.ts

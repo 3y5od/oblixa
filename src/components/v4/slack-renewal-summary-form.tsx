@@ -10,9 +10,10 @@ export function SlackRenewalSummaryForm(props: { defaultContractId?: string }) {
   const [pending, setPending] = useState(false);
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 text-sm">
-      <p className="ui-label-caps">Slack · renewal summary</p>
-      <p className="mt-1 text-xs text-zinc-500">
+    <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-4 text-sm shadow-[var(--shadow-1)]">
+      <p className="ui-eyebrow">Slack</p>
+      <h3 className="ui-section-title mt-1 text-base">Renewal summary</h3>
+      <p className="ui-muted-tight mt-1">
         Posts to your connected Slack webhook (same integration as workflow notifications).
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">

@@ -35,7 +35,7 @@ import {
   applyContractTemplatePackForm,
 } from "@/actions/contracts";
 import { updateProgramAssignmentOverrideFormAction } from "@/actions/v4";
-import { ExecutionGraphViz } from "@/components/v4/execution-graph-viz";
+import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
 import type {
   ContractApproval,
   ContractExtractionJob,
@@ -48,6 +48,8 @@ import type {
 } from "@/lib/types";
 import { buildUnifiedWorkflowTimeline } from "@/lib/workflow-activity";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { ContractExternalCollaborationSummary } from "@/components/contracts/contract-external-collaboration-summary";
+import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metrics";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -513,40 +515,13 @@ export default async function ContractDetailPage(props: {
               )}
             </div>
           </div>
-          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-zinc-200/60 pt-6 sm:mt-8 sm:pt-8 sm:grid-cols-4">
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                Pending review
-              </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
-                {pendingFieldsCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                Fields tracked
-              </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
-                {fieldsCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                Documents
-              </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
-                {filesCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                Reminders
-              </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums text-zinc-950">
-                {upcomingReminders.length}
-              </dd>
-            </div>
-          </dl>
+          <ContractHeroMetrics
+            contractId={contract.id}
+            pendingFieldsCount={pendingFieldsCount}
+            fieldsCount={fieldsCount}
+            filesCount={filesCount}
+            upcomingRemindersCount={upcomingReminders.length}
+          />
         </div>
       </div>
 
@@ -584,9 +559,7 @@ export default async function ContractDetailPage(props: {
             <div className="flex flex-col gap-4 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div>
                 <h2 className="ui-section-title text-base">Extracted fields</h2>
-                <p className="mt-1 text-[12px] text-zinc-500">
-                  Review AI output before it drives reminders
-                </p>
+                <p className="mt-1 text-[12px] text-zinc-500">Review before reminders run.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <ExtractButton
@@ -661,9 +634,7 @@ export default async function ContractDetailPage(props: {
           <div className="ui-card overflow-hidden">
             <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-8 md:py-4">
               <h2 className="ui-section-title text-base">Source documents</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">
-                Signed files stored for this agreement
-              </p>
+              <p className="mt-1 text-[12px] text-zinc-500">Signed files on this agreement.</p>
             </div>
             <div className="px-4 py-4.5 md:px-8 md:py-5">
               {!contract.contract_files?.length ? (
@@ -745,9 +716,7 @@ export default async function ContractDetailPage(props: {
           <div className="ui-card overflow-hidden">
             <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Tasks & follow-up</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">
-                Track ownership and execution work tied to this contract
-              </p>
+              <p className="mt-1 text-[12px] text-zinc-500">Ownership and execution work.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractTasksPanel
@@ -770,9 +739,7 @@ export default async function ContractDetailPage(props: {
           <div className="ui-card overflow-hidden">
             <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Obligations</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">
-                Track ongoing commitments beyond reminders and date fields
-              </p>
+              <p className="mt-1 text-[12px] text-zinc-500">Ongoing commitments and evidence.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractObligationsPanel
@@ -793,9 +760,7 @@ export default async function ContractDetailPage(props: {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="ui-section-title text-base">Renewal playbook</h2>
-                  <p className="mt-1 text-[12px] text-zinc-500">
-                    120/90/60/30 checkpoints for predictable renewal execution
-                  </p>
+                  <p className="mt-1 text-[12px] text-zinc-500">120/90/60/30 renewal checkpoints.</p>
                 </div>
                 {canEdit && checkpoints.length === 0 && (
                   <form action={seedRenewalPlaybook.bind(null, contract.id)}>
@@ -878,7 +843,7 @@ export default async function ContractDetailPage(props: {
                 </Link>
                 {executionGraphEdges.length > 0 ? (
                   <div className="mt-3 max-h-[320px] overflow-auto">
-                    <ExecutionGraphViz edges={executionGraphEdges} />
+                    <ExecutionGraphVizDynamic edges={executionGraphEdges} />
                   </div>
                 ) : (
                   <p className="mt-2 text-xs text-zinc-500">Apply a program to generate dependency edges.</p>
@@ -910,6 +875,7 @@ export default async function ContractDetailPage(props: {
                   </div>
                 </div>
               </div>
+              <ContractExternalCollaborationSummary admin={admin} orgId={orgId} contractId={contract.id} />
               {(programAssignmentsData ?? []).length > 0 ? (
                 <div className="mt-6 border-t border-zinc-100 pt-5">
                   <p className="ui-label-caps">Program assignment overrides</p>

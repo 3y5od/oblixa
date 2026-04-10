@@ -7,7 +7,7 @@ export function LegalFooter() {
   return (
     <footer
       id="legal-footer"
-      className="shrink-0 border-t border-zinc-200/70 bg-white/84 px-5 py-3.5 backdrop-blur-sm md:px-10 md:py-4"
+      className="shrink-0 border-t border-[var(--border-subtle)] bg-surface/90 px-5 py-3.5 backdrop-blur-sm md:px-10 md:py-4"
     >
       <div className="mx-auto max-w-[1600px]">
         <button

@@ -8,6 +8,8 @@ import {
   setSavedViewWeeklySummary,
 } from "@/actions/saved-views";
 import { createObligationClarificationTaskForm } from "@/actions/tasks";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
 const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
@@ -34,7 +36,7 @@ export default async function ContractObligationsPage(props: {
   const onlyMine = mine === "1";
 
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId, user } = ctx;
 
   const query = admin
@@ -123,21 +125,19 @@ export default async function ContractObligationsPage(props: {
   }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Portfolio commitments</p>
           <h1 className="ui-display-title mt-2">Obligations queue</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-            Operational commitments that are not just reminder dates.
-          </p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">Operational commitments and due-state execution.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-          Back to contracts
+          Contract index
         </Link>
       </header>
 
-      <div className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] md:p-6">
+      <div className="ui-panel md:p-6">
         <form className="flex flex-wrap items-end gap-4" action="/contracts/obligations" method="get">
           <div>
             <label htmlFor="obligation-status" className="ui-label-caps">Status</label>
@@ -149,16 +149,21 @@ export default async function ContractObligationsPage(props: {
               ))}
             </select>
           </div>
-          <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
-            <input
-              type="checkbox"
-              name="mine"
-              value="1"
-              defaultChecked={onlyMine}
-              className="h-4 w-4 rounded border-zinc-300"
-            />
-            Owned by me
-          </label>
+          <div>
+            <span className="ui-label-caps">Owner</span>
+            <div className="flex min-h-10 items-center">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-zinc-700">
+                <input
+                  type="checkbox"
+                  name="mine"
+                  value="1"
+                  defaultChecked={onlyMine}
+                  className="h-4 w-4 rounded border-zinc-300"
+                />
+                Owned by me
+              </label>
+            </div>
+          </div>
           <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
             Apply
           </button>
@@ -224,16 +229,14 @@ export default async function ContractObligationsPage(props: {
       </div>
 
       {obligations.length === 0 ? (
-        <div className="ui-card px-8 py-14 text-center">
-          <h2 className="ui-section-title text-base">No obligations match this view</h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            Create obligations from contract detail pages and use filters to track execution.
-          </p>
-        </div>
+        <EmptyState
+          title="No obligations in this queue"
+          copy="Create obligations from contract records, then apply filters."
+        />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white">
+        <div className="ui-table-shell">
           <table className="min-w-full divide-y divide-zinc-100 text-sm">
-            <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Obligation</th>
                 <th className="px-5 py-3">Contract</th>
@@ -248,7 +251,7 @@ export default async function ContractObligationsPage(props: {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {obligations.map((ob) => (
-                <tr key={ob.id}>
+                <tr key={ob.id} className="ui-table-row">
                   <td className="px-5 py-4">
                     <p className="font-semibold text-zinc-900">{ob.title}</p>
                     <p className="mt-0.5 text-[13px] text-zinc-500">

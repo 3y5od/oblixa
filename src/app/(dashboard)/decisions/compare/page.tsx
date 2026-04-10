@@ -77,42 +77,61 @@ export default async function DecisionsComparePage(props: {
   const right = two.data ? summarize(two.data, "Decision B") : null;
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Compare view</p>
-        <h1 className="ui-display-title mt-2">Decision compare</h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
-          Side-by-side snapshot of type, status, dates, and structured recommendation or disposition payloads.
-        </p>
+        <div>
+          <p className="ui-eyebrow">Compare view</p>
+          <h1 className="ui-display-title mt-2">Decision compare</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Side-by-side snapshot of type, status, dates, and structured recommendation or disposition payloads.
+          </p>
+        </div>
       </header>
 
-      <section className="ui-card p-5">
-        <p className="ui-label-caps">Pick workspaces</p>
-        <form className="mt-4 grid gap-4 md:grid-cols-2" method="get" action="/decisions/compare">
-          <label className="text-xs font-medium text-zinc-600">
-            Decision A
-            <select name="decisionA" className="ui-input-compact mt-1 w-full" defaultValue={decisionA ?? ""}>
-              <option value="">—</option>
-              {(decisionList ?? []).map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.title} ({d.status})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-xs font-medium text-zinc-600">
-            Decision B
-            <select name="decisionB" className="ui-input-compact mt-1 w-full" defaultValue={decisionB ?? ""}>
-              <option value="">—</option>
-              {(decisionList ?? []).map((d) => (
-                <option key={`b-${d.id}`} value={d.id}>
-                  {d.title} ({d.status})
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="md:col-span-2">
-            <button type="submit" className="ui-btn-secondary px-4 py-2 text-sm">
+      <section className="ui-card p-5 md:p-6">
+        <p className="ui-eyebrow">Selection</p>
+        <p className="ui-section-title mt-1 text-base">Pick workspaces</p>
+        <form className="mt-4 space-y-4" method="get" action="/decisions/compare">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="compare-decision-a" className="ui-label-caps">
+                Decision A
+              </label>
+              <select
+                id="compare-decision-a"
+                name="decisionA"
+                className="ui-input mt-1 w-full min-w-0"
+                defaultValue={decisionA ?? ""}
+              >
+                <option value="">—</option>
+                {(decisionList ?? []).map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.title} ({d.status})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="compare-decision-b" className="ui-label-caps">
+                Decision B
+              </label>
+              <select
+                id="compare-decision-b"
+                name="decisionB"
+                className="ui-input mt-1 w-full min-w-0"
+                defaultValue={decisionB ?? ""}
+              >
+                <option value="">—</option>
+                {(decisionList ?? []).map((d) => (
+                  <option key={`b-${d.id}`} value={d.id}>
+                    {d.title} ({d.status})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-100 pt-4">
+            <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
               Apply
             </button>
           </div>
@@ -162,15 +181,20 @@ export default async function DecisionsComparePage(props: {
         </article>
       </section>
 
-      <p className="text-center text-sm text-zinc-500">
+      <nav
+        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-zinc-500"
+        aria-label="Decision shortcuts"
+      >
         <Link href="/decisions" className="ui-link">
           Back to decisions
         </Link>
-        {" · "}
+        <span className="text-zinc-300" aria-hidden>
+          ·
+        </span>
         <Link href="/decisions/review" className="ui-link">
           Manager review list
         </Link>
-      </p>
+      </nav>
     </div>
   );
 }

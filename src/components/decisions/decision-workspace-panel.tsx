@@ -120,7 +120,8 @@ export function DecisionWorkspacePanel({
 
   return (
     <section className="ui-card p-5">
-      <p className="ui-label-caps">Workspace actions</p>
+      <p className="ui-eyebrow">Decision</p>
+      <h2 className="ui-section-title mt-1 text-base">Workspace actions</h2>
       {error && (
         <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
           {error}
@@ -338,7 +339,7 @@ export function DecisionWorkspacePanel({
             <label className="flex items-center gap-2 text-xs text-zinc-600">
               <span className="whitespace-nowrap">Packet type</span>
               <select
-                className="rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-zinc-800"
+                className="rounded-lg border border-zinc-200 bg-surface px-2 py-1.5 text-zinc-800"
                 value={exportPacketType}
                 disabled={closed || busy !== null}
                 onChange={(e) => {

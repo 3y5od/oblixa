@@ -1,0 +1,25 @@
+import { NextResponse } from "next/server";
+import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
+import { requireV6Context } from "@/lib/v6/api-auth";
+import { listScorecards } from "@/lib/v6/assurance";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+
+export async function GET() {
+  const disabled = requireV6ApiFeature("v6AssuranceCore");
+  if (disabled) return disabled;
+
+  const { ctx, errorResponse } = await requireV6Context();
+  if (!ctx) return errorResponse!;
+
+  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_scorecards_total", 1).catch(
+    () => undefined
+  );
+
+  const { data, error } = await listScorecards(ctx.admin, ctx.orgId);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({
+    scorecards: data ?? [],
+    explainability_note:
+      "Each row includes score_drivers_json and dimensions_json; compare scorecard_snapshots for drift drivers.",
+  });
+}

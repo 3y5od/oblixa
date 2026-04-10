@@ -15,12 +15,13 @@ import {
   Grid2x2,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { signOut } from "@/actions/auth";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
   canAccessItem,
+  PRIMARY_NAV_GROUPS,
   isActivePath,
   isV5NavChildVisible,
   isV5NavItemVisible,
@@ -65,6 +66,27 @@ export function Sidebar(props: {
     }
   });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileNavOpenedRef = useRef(false);
+  const mobileOpenButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileCloseButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      mobileNavOpenedRef.current = true;
+      requestAnimationFrame(() => mobileCloseButtonRef.current?.focus());
+    } else if (mobileNavOpenedRef.current) {
+      mobileOpenButtonRef.current?.focus();
+    }
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMobileOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   useEffect(() => {
     try {
@@ -85,6 +107,32 @@ export function Sidebar(props: {
       workspace: visible.filter((item) => item.section === "workspace"),
     };
   }, [role, v5Flags]);
+
+  const workflowHubs = useMemo(() => {
+    const visible = NAV_ITEMS.filter(
+      (item) => canAccessItem(item, role) && isV5NavItemVisible(item, v5Flags)
+    );
+    const preferredHrefs = [
+      "/dashboard",
+      "/work",
+      "/assurance",
+      "/reports",
+      "/settings",
+    ];
+    const hubs: NavItem[] = [];
+    for (const href of preferredHrefs) {
+      const match = visible.find((item) => item.href === href);
+      if (match) hubs.push(match);
+    }
+    return hubs;
+  }, [role, v5Flags]);
+
+  const groupedPrimary = useMemo(() => {
+    return PRIMARY_NAV_GROUPS.map((group) => ({
+      label: group.label,
+      items: navBySection.primary.filter((item) => group.hrefs.includes(item.href)),
+    })).filter((group) => group.items.length > 0);
+  }, [navBySection.primary]);
 
   const renderNavSection = ({
     title,
@@ -227,6 +275,7 @@ export function Sidebar(props: {
         )}
         {mobile ? (
           <button
+            ref={mobileCloseButtonRef}
             type="button"
             onClick={() => setMobileOpen(false)}
             className="rounded-lg p-2 text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.1] hover:text-white"
@@ -252,25 +301,45 @@ export function Sidebar(props: {
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-4">
-        {renderNavSection({ items: navBySection.primary, compact: true })}
+        {mobile && !collapsed ? (
+          <Link
+            href="/more"
+            onClick={() => setMobileOpen(false)}
+            className="mx-1 mb-3 block rounded-xl border border-white/[0.18] bg-white/[0.06] px-3 py-2 text-[12px] font-semibold text-white/95"
+          >
+            Open full index
+          </Link>
+        ) : null}
+        {collapsed ? renderNavSection({ title: "Primary", items: workflowHubs, compact: true }) : null}
+        {!collapsed
+          ? groupedPrimary.map((group) => (
+              <div key={group.label}>
+                {renderNavSection({
+                  title: group.label,
+                  items: group.items,
+                  compact: true,
+                })}
+              </div>
+            ))
+          : null}
         {!collapsed && (
           <>
             {renderNavSection({
-              title: "Operations",
-              items: navBySection.operations.slice(0, 4),
+              title: "Workflow queues",
+              items: navBySection.operations.slice(0, 6),
             })}
-            {navBySection.operations.length > 4 && (
+            {navBySection.operations.length > 6 && (
               <Link
-                href="/more?section=operations"
+                href="/more?section=workflows"
                 onClick={() => setMobileOpen(false)}
                 className="mt-2 block rounded-lg px-3 py-1.5 text-[12px] font-medium text-zinc-200 hover:bg-white/[0.08] hover:text-white"
               >
-                Show all operations tools
+                Browse all queues
               </Link>
             )}
             {renderNavSection({
-              title: "Personal",
-              items: navBySection.personal.slice(0, 2),
+              title: "My views",
+              items: navBySection.personal,
             })}
           </>
         )}
@@ -299,9 +368,10 @@ export function Sidebar(props: {
   return (
     <>
       <button
+        ref={mobileOpenButtonRef}
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="fixed left-3 top-3 z-40 rounded-lg border border-zinc-200 bg-white/95 p-2 text-zinc-700 shadow-sm backdrop-blur lg:hidden"
+        className="fixed left-3 top-3 z-40 inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-zinc-200 bg-surface/95 p-2 text-zinc-700 shadow-sm backdrop-blur lg:hidden"
         aria-label="Open navigation"
       >
         <Grid2x2 size={18} aria-hidden />

@@ -1,17 +1,13 @@
 import type { ContractStatus, Profile } from "@/lib/types";
 import type { createAdminClient } from "@/lib/supabase/server";
+import type { SemanticStatus } from "@/components/ui/status-badge";
 
-export const STATUS_STYLES: Record<ContractStatus, string> = {
-  draft:
-    "border border-zinc-200/80 bg-zinc-50/90 font-semibold text-zinc-600",
-  pending_review:
-    "border border-amber-200/70 bg-amber-50/80 font-semibold text-amber-900",
-  active:
-    "border border-emerald-200/70 bg-emerald-50/70 font-semibold text-emerald-900",
-  expired:
-    "border border-rose-200/70 bg-rose-50/80 font-semibold text-rose-900",
-  terminated:
-    "border border-zinc-200/70 bg-zinc-100/50 font-semibold text-zinc-600",
+export const STATUS_SEMANTICS: Record<ContractStatus, SemanticStatus> = {
+  draft: "empty",
+  pending_review: "warning",
+  active: "healthy",
+  expired: "overdue",
+  terminated: "disabled",
 };
 
 export const STATUS_LABELS: Record<ContractStatus, string> = {
@@ -20,6 +16,15 @@ export const STATUS_LABELS: Record<ContractStatus, string> = {
   active: "Active",
   expired: "Expired",
   terminated: "Terminated",
+};
+
+/** Tailwind utility fragments for contract header `ui-badge` chips */
+export const STATUS_STYLES: Record<ContractStatus, string> = {
+  draft: "bg-zinc-100 text-zinc-700",
+  pending_review: "bg-amber-100 text-amber-900",
+  active: "bg-emerald-100 text-emerald-900",
+  expired: "bg-rose-100 text-rose-900",
+  terminated: "bg-zinc-200/90 text-zinc-600",
 };
 
 /**

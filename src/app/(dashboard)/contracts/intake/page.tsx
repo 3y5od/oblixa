@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { ArrowRightLeft, CheckCircle2, Inbox, ListOrdered } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { upsertContractIntakeRequestForm } from "@/actions/contracts";
 
 const STATUS_ORDER = [
@@ -77,24 +79,54 @@ export default async function IntakeQueuePage() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Last 30d transitions</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{transitions.length}</p>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Throughput</p>
+          <h2 className="ui-section-title mt-2 text-xl">Intake signals</h2>
         </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Activated</p>
-          <p className="mt-2 text-2xl font-semibold text-emerald-700">{activeTransitions}</p>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <OperationalSummaryCard
+            eyebrow="Window"
+            headline="Status transitions"
+            tone="neutral"
+            icon={ArrowRightLeft}
+            primaryValue={transitions.length}
+            primaryUnit={`last ${lookbackDays}d`}
+            action={{ href: "/contracts/intake", label: "Refresh intake" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Outcome"
+            headline="Activated"
+            tone={activeTransitions > 0 ? "healthy" : "neutral"}
+            icon={CheckCircle2}
+            primaryValue={activeTransitions}
+            primaryUnit="to active"
+            action={{ href: "/contracts/intake", label: "View queue" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Friction"
+            headline="Clarification loops"
+            tone={clarificationTransitions > 0 ? "attention" : "healthy"}
+            icon={ListOrdered}
+            primaryValue={clarificationTransitions}
+            primaryUnit="to clarification"
+            action={{ href: "/contracts/intake", label: "Triage clarifications" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Depth"
+            headline="Sampled queue"
+            tone="neutral"
+            icon={Inbox}
+            primaryValue={contracts?.length ?? 0}
+            primaryUnit="contracts loaded"
+            action={{ href: "/contracts", label: "Browse contracts" }}
+            variant="compact"
+          />
         </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Clarification loops</p>
-          <p className="mt-2 text-2xl font-semibold text-amber-700">{clarificationTransitions}</p>
-        </div>
-        <div className="ui-card p-5">
-          <p className="ui-label-caps">Queue size</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{contracts?.length ?? 0}</p>
-        </div>
-      </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {STATUS_ORDER.map((status) => {
@@ -102,7 +134,8 @@ export default async function IntakeQueuePage() {
           return (
             <section key={status} className="ui-card overflow-hidden">
               <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-                <h2 className="text-sm font-semibold text-zinc-800">
+                <p className="ui-eyebrow">Stage</p>
+                <h2 className="ui-section-title mt-1 text-base">
                   {status.replace(/_/g, " ")} ({rows.length})
                 </h2>
               </div>

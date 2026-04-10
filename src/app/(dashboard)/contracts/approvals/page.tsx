@@ -5,13 +5,16 @@ import {
   delegateContractApprovalForm,
   updateContractApprovalStatusForm,
 } from "@/actions/approvals";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 export default async function ApprovalsPage(props: {
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status } = await props.searchParams;
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId } = ctx;
 
   const query = admin
@@ -45,25 +48,27 @@ export default async function ApprovalsPage(props: {
   });
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b border-zinc-200/60 pb-8">
-        <div className="flex flex-wrap gap-3 text-xs">
-          <Link href="/contracts/approvals/workload" className="ui-btn-secondary px-3 py-1.5">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
+        <div>
+          <p className="ui-eyebrow">Decision controls</p>
+          <h1 className="ui-display-title mt-2">Approvals & scenarios</h1>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Approval signoff and renewal scenario status.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/contracts/approvals/workload" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Workload view
           </Link>
-          <Link href="/contracts/approvals/sla-simulator" className="ui-btn-secondary px-3 py-1.5">
+          <Link href="/contracts/approvals/sla-simulator" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             SLA simulator
           </Link>
         </div>
-        <p className="ui-eyebrow">Decision controls</p>
-        <h1 className="ui-display-title">Approvals & scenarios</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
-          Track internal signoff for renewal/notice workflows and record current renewal scenarios.
-        </p>
       </header>
 
-      <div className="rounded-2xl border border-zinc-200/70 bg-white p-5">
-        <form action="/contracts/approvals" method="get" className="flex items-end gap-3">
+      <div className="ui-panel md:p-6">
+        <form action="/contracts/approvals" method="get" className="flex flex-wrap items-end gap-3">
           <div>
             <label className="ui-label-caps" htmlFor="status">
               Approval status
@@ -83,10 +88,13 @@ export default async function ApprovalsPage(props: {
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-          <h2 className="ui-section-title text-base">Approval queue</h2>
+          <p className="ui-eyebrow">Queue</p>
+          <h2 className="ui-section-title mt-1 text-base">Approval queue</h2>
         </div>
         {(approvals?.length ?? 0) === 0 ? (
-          <p className="px-6 py-6 text-sm text-zinc-500">No approvals found.</p>
+          <div className="px-6 py-6">
+            <EmptyState title="No approvals found" copy="No approval rows match this filter." />
+          </div>
         ) : (
           <ul className="divide-y divide-zinc-100">
             {approvals?.map((row) => {
@@ -131,9 +139,9 @@ export default async function ApprovalsPage(props: {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700">
+                      <StatusBadge status={row.status === "rejected" ? "blocked" : row.status === "approved" ? "healthy" : "in_review"}>
                         {row.status}
-                      </span>
+                      </StatusBadge>
                       {row.status === "pending" && (
                         <div className="flex items-center gap-2">
                           <form action={updateContractApprovalStatusForm}>
@@ -179,10 +187,13 @@ export default async function ApprovalsPage(props: {
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-          <h2 className="ui-section-title text-base">Renewal scenarios</h2>
+          <p className="ui-eyebrow">Scenarios</p>
+          <h2 className="ui-section-title mt-1 text-base">Renewal scenarios</h2>
         </div>
         {(scenarios?.length ?? 0) === 0 ? (
-          <p className="px-6 py-6 text-sm text-zinc-500">No renewal scenarios recorded yet.</p>
+          <div className="px-6 py-6">
+            <EmptyState title="No renewal scenarios" copy="No scenario rows recorded yet." />
+          </div>
         ) : (
           <ul className="divide-y divide-zinc-100">
             {scenarios?.map((row) => {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OperationalMetricChip } from "@/components/ui/operational-summary-card";
 import type { V5SignalQualityDisplayRow } from "@/lib/v5/v5-signal-quality-labels";
 
 export function V5TelemetryCompact(props: {
@@ -20,15 +21,9 @@ export function V5TelemetryCompact(props: {
         <p className="ui-eyebrow">V5 success metrics</p>
         <p className="text-[11px] text-zinc-500">As of {props.metricsDate}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="list">
         {props.rows.slice(0, 8).map((r) => (
-          <span
-            key={r.key}
-            className="inline-flex items-baseline gap-1.5 rounded-full border border-zinc-200/80 bg-white px-3 py-1 text-xs text-zinc-700"
-          >
-            <span className="font-medium text-zinc-900 tabular-nums">{r.value}</span>
-            <span className="text-zinc-600">{r.label}</span>
-          </span>
+          <OperationalMetricChip key={r.key} label={r.label} value={String(r.value)} />
         ))}
       </div>
       <Link href="/reports#v5-success-metrics" className="ui-link inline-block text-xs">

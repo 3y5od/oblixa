@@ -19,6 +19,10 @@ import { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
 import { setDashboardQueuePinForm } from "@/actions/dashboard";
 import { CommandCenterRoleMetrics } from "@/components/v4/command-center-role-metrics";
+import {
+  OperationalMetricChip,
+  OperationalQueueRow,
+} from "@/components/ui/operational-summary-card";
 import type { WorkspaceRole } from "@/lib/navigation";
 
 type DashboardDeadlineField = {
@@ -200,7 +204,8 @@ export async function DashboardLower(props: {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <section className="ui-card overflow-hidden xl:col-span-1">
           <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
-            <h2 className="ui-section-title">Now</h2>
+            <p className="ui-eyebrow">Queue</p>
+            <h2 className="ui-section-title mt-2">Now</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
               Immediate actions requiring attention today
             </p>
@@ -219,46 +224,34 @@ export async function DashboardLower(props: {
               <MyTasks tasks={myTasks.slice(0, 5)} />
             ) : view === "team" ? (
               <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-                  Review queue
-                </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Review</p>
                 <ul className="mt-2 space-y-2">
                   {filteredPendingContracts.slice(0, 5).map((c) => (
                     <li key={c.id}>
-                      <Link
+                      <OperationalQueueRow
                         href={`/contracts/${c.id}`}
-                        className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-[13px] text-zinc-700 hover:bg-zinc-50 md:text-sm"
-                      >
-                        <p className="truncate font-semibold text-zinc-900">{c.title}</p>
-                        <p className="text-[12px] text-zinc-500">
-                          {c.counterparty || "No counterparty"}
-                        </p>
-                        <p className="text-[11px] text-zinc-400">
-                          Why: pending review requires triage ownership.
-                        </p>
-                      </Link>
+                        eyebrow="Pending review"
+                        title={c.title}
+                        hint={c.counterparty || "No counterparty"}
+                        chips={[{ label: "Status", value: "Needs triage" }]}
+                        actionLabel="Open contract"
+                        tone="attention"
+                      />
                     </li>
                   ))}
                 </ul>
               </div>
             ) : (
-              <div className="space-y-2 text-sm text-zinc-600">
-                <p>
-                  Open tasks:{" "}
-                  <span className="font-semibold text-zinc-900">{metrics.teamOpenTasks}</span>
-                </p>
-                <p>
-                  Open obligations:{" "}
-                  <span className="font-semibold text-zinc-900">
-                    {metrics.teamOpenObligations}
-                  </span>
-                </p>
-                <p>
-                  At-risk contracts:{" "}
-                  <span className="font-semibold text-zinc-900">
-                    {metrics.atRiskContracts}
-                  </span>
-                </p>
+              <div className="space-y-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Portfolio</p>
+                <div className="flex flex-wrap gap-2" role="list">
+                  <OperationalMetricChip label="Open tasks" value={String(metrics.teamOpenTasks)} />
+                  <OperationalMetricChip label="Open obligations" value={String(metrics.teamOpenObligations)} />
+                  <OperationalMetricChip label="At-risk contracts" value={String(metrics.atRiskContracts)} />
+                </div>
+                <Link href="/work" className="text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900">
+                  View work queue
+                </Link>
               </div>
             )}
             {overduePersonalTasks.length > 0 && (
@@ -272,7 +265,8 @@ export async function DashboardLower(props: {
 
         <section className="ui-card overflow-hidden xl:col-span-1">
           <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
-            <h2 className="ui-section-title">Next</h2>
+            <p className="ui-eyebrow">Horizon</p>
+            <h2 className="ui-section-title mt-2">Next</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
               Upcoming deadlines and obligations in the next two weeks
             </p>
@@ -305,7 +299,8 @@ export async function DashboardLower(props: {
 
         <section className="ui-card overflow-hidden xl:col-span-1">
           <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
-            <h2 className="ui-section-title">Risk</h2>
+            <p className="ui-eyebrow">Exposure</p>
+            <h2 className="ui-section-title mt-2">Risk</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
               Exceptions, missing critical fields, and renewal risk signals
             </p>
@@ -320,37 +315,33 @@ export async function DashboardLower(props: {
             </div>
           </div>
           <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
-            <Link
+            <OperationalQueueRow
               href="/contracts/exceptions"
-              className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              <span className="font-semibold text-zinc-900">Exceptions</span>
-              <p className="text-[12px] text-zinc-500">Review stale records and workflow gaps.</p>
-              <p className="text-[11px] text-zinc-400">
-                Why: unresolved exceptions hide execution risk.
-              </p>
-            </Link>
-            <Link
+              eyebrow="Backlog"
+              title="Exceptions"
+              hint="Stale records and workflow gaps."
+              chips={[{ label: "Focus", value: "Execution risk" }]}
+              actionLabel="View exceptions"
+              tone="attention"
+            />
+            <OperationalQueueRow
               href="/contracts/approvals"
-              className="block rounded-lg border border-zinc-200/80 px-3 py-2 text-sm hover:bg-zinc-50"
-            >
-              <span className="font-semibold text-zinc-900">Pending approvals</span>
-              <p className="text-[12px] text-zinc-500">Resolve queued approvals and blockers.</p>
-              <p className="text-[11px] text-zinc-400">
-                Why: stalled approvals block downstream actions.
-              </p>
-            </Link>
-            <div className="rounded-lg border border-zinc-200/80 px-3 py-2 text-sm">
-              <span className="font-semibold text-zinc-900">
-                {filteredRiskContracts.length} contracts missing key dates
-              </span>
-              <p className="text-[12px] text-zinc-500">
-                End/renewal/notice fields still need approved values.
-              </p>
-              <p className="text-[11px] text-zinc-400">
-                Why: missing dates weaken reminder and renewal orchestration.
-              </p>
-            </div>
+              eyebrow="SLA"
+              title="Pending approvals"
+              hint="Queued sign-offs and blockers."
+              chips={[{ label: "Focus", value: "Downstream flow" }]}
+              actionLabel="View approvals"
+              tone="attention"
+            />
+            <OperationalQueueRow
+              href="/contracts"
+              eyebrow="Data quality"
+              title="Critical date gaps"
+              hint="End, renewal, and notice fields need approved values."
+              chips={[{ label: "Contracts", value: String(filteredRiskContracts.length) }]}
+              actionLabel="Review contracts"
+              tone={filteredRiskContracts.length > 0 ? "risk" : "healthy"}
+            />
           </div>
         </section>
       </div>
@@ -358,7 +349,8 @@ export async function DashboardLower(props: {
       <section className="space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="ui-section-title text-base">Recent contracts</h2>
+            <p className="ui-eyebrow">Ledger</p>
+            <h2 className="ui-section-title mt-2 text-xl">Recent contracts</h2>
             <p className="mt-1 text-[12px] text-zinc-500 md:text-[13px]">
               Latest activity in your workspace
             </p>

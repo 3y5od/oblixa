@@ -11,7 +11,7 @@ export function EmptyState(props: {
       {props.icon}
       <h3 className="ui-empty-state-title">{props.title}</h3>
       <p className="ui-empty-state-copy">{props.copy}</p>
-      {props.action ? <div className="mt-8">{props.action}</div> : null}
+      {props.action ? <div className="mt-6">{props.action}</div> : null}
     </div>
   );
 }

@@ -20,8 +20,9 @@ export function SlaSimulatorClient() {
 
   return (
     <div className="ui-card space-y-4 p-5">
-      <p className="ui-label-caps">Approval SLA simulation</p>
-      <p className="text-sm text-zinc-600">
+      <p className="ui-eyebrow">Approvals</p>
+      <h2 className="ui-section-title mt-1 text-base">Approval SLA simulation</h2>
+      <p className="ui-muted-tight">
         Estimate breach time from a hypothetical request. Parallel mode applies a simple 15% compression factor
         for illustration only.
       </p>

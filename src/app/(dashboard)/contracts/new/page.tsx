@@ -53,19 +53,21 @@ export default async function NewContractPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-10">
+    <div className="mx-auto max-w-2xl space-y-6 md:space-y-8">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">New record</p>
-        <h1 className="ui-display-title mt-2">Upload contract</h1>
-        <p className="ui-muted mt-3">
-          Add files and metadata. After saving, run AI extraction from the contract
-          detail page.
-        </p>
+        <div>
+          <p className="ui-eyebrow">New record</p>
+          <h1 className="ui-display-title mt-2">Upload contract</h1>
+          <p className="ui-muted-tight mt-3 max-w-xl">
+            Add files and metadata. After saving, run AI extraction from the contract
+            detail page.
+          </p>
+        </div>
       </header>
 
-      <div className="rounded-2xl border border-indigo-200/50 bg-gradient-to-br from-indigo-50/40 to-white px-5 py-4 text-[13px] leading-relaxed text-zinc-700">
+      <div className="rounded-2xl border border-indigo-200/55 bg-gradient-to-br from-indigo-50/50 to-white p-5 text-[13px] leading-relaxed text-zinc-700 sm:p-6">
         <p className="font-semibold text-zinc-900">From email</p>
-        <p className="mt-1.5 text-zinc-600">
+        <p className="mt-2 text-zinc-600">
           Save PDF or DOCX attachments locally, then upload here. No inbox integration
           in this version — keeping the trust loop explicit.
         </p>

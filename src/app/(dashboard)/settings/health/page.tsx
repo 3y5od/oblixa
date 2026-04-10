@@ -1,5 +1,7 @@
+import { AlertTriangle, Clock, Inbox, Percent, PlugZap, FileWarning } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { hasRoleCapability } from "@/lib/access-control";
 
@@ -26,7 +28,7 @@ export default async function SettingsHealthPage() {
       <div className="ui-card px-6 py-8">
         <p className="ui-eyebrow">Workspace</p>
         <h1 className="ui-display-title mt-2">System health</h1>
-        <p className="mt-3 max-w-xl text-sm text-zinc-500">
+        <p className="ui-muted-tight mt-3 max-w-xl text-[15px] leading-relaxed">
           You do not have permission to view operational health details for this workspace.
         </p>
       </div>
@@ -154,13 +156,15 @@ export default async function SettingsHealthPage() {
   const topFailureSignatures = [...failureSignatureCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Admin</p>
-        <h1 className="ui-display-title mt-2">System health transparency</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Operational status across notifications, webhook delivery retries, and report execution.
-        </p>
+        <div>
+          <p className="ui-eyebrow">Admin</p>
+          <h1 className="ui-display-title mt-2">System health transparency</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Operational status across notifications, webhook delivery retries, and report execution.
+          </p>
+        </div>
       </header>
 
       {alerts.length > 0 && (
@@ -174,58 +178,122 @@ export default async function SettingsHealthPage() {
         </section>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Notification retry queue</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{retryQueueDepth}</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            pending {pendingDeliveries} · retrying {retryingDeliveries} · failed {failedDeliveries}
-          </p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Notification failures</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{failedDeliveries}</p>
-          <p className="mt-1 text-xs text-zinc-500">Retrying {retryingDeliveries} · suppressed {suppressedDeliveries}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Webhook backlog</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{webhookPending}</p>
-          <p className="mt-1 text-xs text-zinc-500">{webhookHighAttempts} deliveries at 3+ attempts</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Retry worker freshness</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {retryRunAgeMinutes == null ? "unknown" : `${retryRunAgeMinutes}m`}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {lastRetryRunAt ? `Last run ${new Date(lastRetryRunAt).toISOString()}` : "No heartbeat recorded yet"}
-          </p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Failed report runs</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{failedReportRuns}</p>
-        </section>
-      </div>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Throughput</p>
+          <h2 className="ui-section-title mt-2 text-xl">Delivery posture</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <OperationalSummaryCard
+            eyebrow="Notifications"
+            headline="Retry queue depth"
+            tone={retryQueueDepth >= 25 ? "attention" : "healthy"}
+            icon={Inbox}
+            primaryValue={retryQueueDepth}
+            primaryUnit="pending + retrying"
+            breakdown={[
+              { label: "Pending", value: String(pendingDeliveries) },
+              { label: "Retrying", value: String(retryingDeliveries) },
+              { label: "Failed", value: String(failedDeliveries) },
+            ]}
+            action={{ href: "/settings/operations", label: "Workspace operations" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Notifications"
+            headline="Failed deliveries"
+            tone={failedDeliveries >= 10 ? "risk" : failedDeliveries > 0 ? "attention" : "healthy"}
+            icon={AlertTriangle}
+            primaryValue={failedDeliveries}
+            primaryUnit="in sampled window"
+            breakdown={[
+              { label: "Retrying", value: String(retryingDeliveries) },
+              { label: "Suppressed", value: String(suppressedDeliveries) },
+            ]}
+            action={{ href: "/settings/health", label: "Refresh health" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Webhooks"
+            headline="Outbound backlog"
+            tone={webhookPending > 0 || webhookHighAttempts > 0 ? "attention" : "healthy"}
+            icon={PlugZap}
+            primaryValue={webhookPending}
+            primaryUnit="undelivered samples"
+            breakdown={[{ label: "3+ attempts", value: String(webhookHighAttempts) }]}
+            action={{ href: "/settings/operations", label: "Check integrations" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Workers"
+            headline="Retry worker lag"
+            tone={
+              retryRunAgeMinutes != null && retryRunAgeMinutes > 30
+                ? "risk"
+                : lastRetryRunAt == null
+                  ? "attention"
+                  : "healthy"
+            }
+            icon={Clock}
+            primaryValue={retryRunAgeMinutes == null ? null : `${retryRunAgeMinutes}m`}
+            primaryFallback="Unknown"
+            primaryUnit="behind latest activity"
+            secondaryLine={
+              lastRetryRunAt ? `Last run ${new Date(lastRetryRunAt).toISOString()}` : "No heartbeat recorded yet"
+            }
+            breakdown={
+              retryRunAgeMinutes != null && lastRetryRunAt
+                ? [{ label: "Last run", value: new Date(lastRetryRunAt).toISOString().slice(0, 19) }]
+                : []
+            }
+            action={{ href: "/settings/health", label: "View health" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Reports"
+            headline="Failed digest runs"
+            tone={failedReportRuns > 0 ? "attention" : "healthy"}
+            icon={FileWarning}
+            primaryValue={failedReportRuns}
+            primaryUnit="in recent sample"
+            action={{ href: "/contracts/reports", label: "Open report history" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Delivery success rate (recent)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{deliverySuccessRateRecent.toFixed(1)}%</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            delivered {deliveredRecent} · failed {failedRecent}
-          </p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Failed deliveries (recent)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{failedRecent}</p>
-          <p className="mt-1 text-xs text-zinc-500">Operational dead-letter indicator</p>
-        </section>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <OperationalSummaryCard
+          eyebrow="Quality"
+          headline="Delivery success (recent)"
+          tone={deliverySuccessRateRecent < 90 ? "attention" : "healthy"}
+          icon={Percent}
+          primaryValue={`${deliverySuccessRateRecent.toFixed(1)}%`}
+          primaryUnit="delivered vs failed sample"
+          breakdown={[
+            { label: "Delivered", value: String(deliveredRecent) },
+            { label: "Failed", value: String(failedRecent) },
+          ]}
+          action={{ href: "/settings/health", label: "Refresh metrics" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Dead letter"
+          headline="Recent failures"
+          tone={failedRecent > 0 ? "attention" : "healthy"}
+          icon={AlertTriangle}
+          primaryValue={failedRecent}
+          primaryUnit="failed in sample"
+          action={{ href: "/settings/health", label: "Review breakdowns" }}
+          variant="compact"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Top failed notification types</h2>
+            <p className="ui-eyebrow">Diagnostics</p>
+            <h2 className="ui-section-title mt-1 text-base">Top failed notification types</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {topFailedTypes.length === 0 ? (
@@ -242,7 +310,8 @@ export default async function SettingsHealthPage() {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Top failure signatures</h2>
+            <p className="ui-eyebrow">Diagnostics</p>
+            <h2 className="ui-section-title mt-1 text-base">Top failure signatures</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {topFailureSignatures.length === 0 ? (
@@ -261,7 +330,8 @@ export default async function SettingsHealthPage() {
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Recent operational events</h2>
+          <p className="ui-eyebrow">Audit</p>
+          <h2 className="ui-section-title mt-1 text-base">Recent operational events</h2>
         </div>
         <ul className="divide-y divide-zinc-100">
           {(cronAuditRes.data ?? []).length === 0 ? (

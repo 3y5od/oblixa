@@ -50,8 +50,9 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
   if (contracts.length === 0) {
     return (
       <section className="ui-card p-5">
-        <p className="ui-label-caps">Policy simulation</p>
-        <p className="mt-2 text-sm text-zinc-600">
+        <p className="ui-eyebrow">Governance</p>
+        <h2 className="ui-section-title mt-1 text-base">Policy simulation</h2>
+        <p className="ui-muted-tight mt-2">
           Add at least one contract to your workspace to run a simulation against a real record.
         </p>
       </section>
@@ -61,8 +62,9 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
   return (
     <section className="ui-card p-5 space-y-4">
       <div>
-        <p className="ui-label-caps">Policy simulation</p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="ui-eyebrow">Governance</p>
+        <h2 className="ui-section-title mt-1 text-base">Policy simulation</h2>
+        <p className="ui-muted-tight mt-1">
           Calls <code className="text-[10px]">POST /api/policy/simulate</code> with no writes. Leave draft empty to use
           the saved registry from the database.
         </p>

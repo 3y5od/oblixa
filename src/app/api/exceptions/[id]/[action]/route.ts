@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 
 export async function POST(
   request: Request,
@@ -68,6 +70,9 @@ export async function POST(
         details: { owner_id: ownerId, due_date: body.dueDate ?? null },
       });
     }
+    if (isFeatureEnabled("v6AssuranceCore")) {
+      await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -113,6 +118,9 @@ export async function POST(
         resolution_note: body.resolutionNote ?? null,
       },
     });
+    if (isFeatureEnabled("v6AssuranceCore")) {
+      await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -145,6 +153,9 @@ export async function POST(
         entityId: id,
         actorUserId: ctx.userId,
       });
+    }
+    if (isFeatureEnabled("v6AssuranceCore")) {
+      await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
     }
     return NextResponse.json({ ok: true });
   }

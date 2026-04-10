@@ -71,6 +71,8 @@ const pendingLabel: Record<AuthFormProps["mode"], string> = {
 export function AuthForm({ mode, urlBanner }: AuthFormProps) {
   const [state, action, pending] = useActionState(authAction(mode), undefined);
   const c = config[mode];
+  const formErrorId = "auth-form-error";
+  const showFormError = Boolean(state?.error);
 
   return (
     <div
@@ -92,31 +94,25 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
             Oblixa
           </p>
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Access</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
             {c.title}
           </h1>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200/70 bg-white/90 p-8 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-9">
+        <div className="ui-card p-8 sm:p-9">
           <form action={action} className="space-y-5">
             {urlBanner && (
-              <div
-                className="rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-[13px] font-medium text-amber-950"
-                role="alert"
-              >
+              <div className="ui-alert-warning" role="alert">
                 {urlBanner}
               </div>
             )}
             {state?.error && (
-              <div className="rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-[13px] font-medium text-red-900">
+              <div id={formErrorId} className="ui-alert-error" role="alert">
                 {state.error}
               </div>
             )}
-            {state?.success && (
-              <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-4 py-3 text-[13px] font-medium text-emerald-950">
-                {state.success}
-              </div>
-            )}
+            {state?.success && <div className="ui-alert-success">{state.success}</div>}
 
             {mode === "signup" && (
               <div>
@@ -147,6 +143,8 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
                   autoComplete="email"
                   autoFocus={mode === "login" || mode === "forgot-password"}
                   className="ui-input"
+                  aria-invalid={showFormError ? true : undefined}
+                  aria-describedby={showFormError ? formErrorId : undefined}
                 />
               </div>
             )}
@@ -169,6 +167,8 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
                   }
                   autoFocus={mode === "reset-password"}
                   className="ui-input"
+                  aria-invalid={showFormError ? true : undefined}
+                  aria-describedby={showFormError ? formErrorId : undefined}
                 />
               </div>
             )}

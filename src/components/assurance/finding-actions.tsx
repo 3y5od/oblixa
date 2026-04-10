@@ -1,0 +1,82 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export function FindingActions({ findingId }: { findingId: string }) {
+  const router = useRouter();
+  const [note, setNote] = useState("");
+  const [signalFeedback, setSignalFeedback] = useState<string>("");
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function submit(action: "resolve" | "dismiss") {
+    setPending(true);
+    setErr(null);
+    try {
+      const res = await fetch(`/api/assurance/findings/${encodeURIComponent(findingId)}/resolve`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action,
+          note: note || undefined,
+          signalFeedback: signalFeedback || undefined,
+        }),
+      });
+      const j = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setErr(j.error ?? "Request failed");
+        return;
+      }
+      router.push("/assurance/findings");
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-zinc-100 p-3 text-sm">
+      <p className="text-xs font-semibold text-zinc-800">Analyst note</p>
+      <textarea
+        className="mt-2 w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        rows={2}
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Optional resolution note"
+      />
+      <label className="mt-2 block text-xs text-zinc-600">
+        Signal quality (optional — used for calibration and reporting)
+        <select
+          className="mt-1 block w-full max-w-md rounded border border-zinc-200 px-2 py-1 text-sm"
+          value={signalFeedback}
+          onChange={(e) => setSignalFeedback(e.target.value)}
+        >
+          <option value="">No label</option>
+          <option value="false_positive">False positive / noise</option>
+          <option value="not_actionable">Not actionable</option>
+          <option value="confirmed_true">Confirmed issue</option>
+        </select>
+      </label>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={pending}
+          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          onClick={() => void submit("resolve")}
+        >
+          {pending ? "Working…" : "Mark resolved"}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-800 disabled:opacity-50"
+          onClick={() => void submit("dismiss")}
+        >
+          Dismiss
+        </button>
+      </div>
+      {err ? <p className="mt-2 text-xs text-red-600">{err}</p> : null}
+    </div>
+  );
+}

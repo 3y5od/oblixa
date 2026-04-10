@@ -1,4 +1,18 @@
+import {
+  AlertTriangle,
+  CalendarClock,
+  CheckSquare,
+  Database,
+  Eye,
+  ListChecks,
+  Percent,
+  Shield,
+  Stamp,
+  Timer,
+  Users,
+} from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { normalizeAnalyticsScope } from "@/lib/analytics-scope";
 
 function monthKey(dateIso: string): string {
@@ -233,80 +247,167 @@ export default async function ContractAnalyticsPage(props: {
         </form>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Overdue obligations</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{overdueObligations}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Pending approvals</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{pendingApprovals}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Avg approval cycle</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {avgApprovalDays.toFixed(1)}d
-          </p>
-        </section>
-      </div>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Execution</p>
+          <h2 className="ui-section-title mt-2 text-xl">Workflow pressure</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Obligations"
+            headline="Overdue"
+            tone={overdueObligations > 0 ? "risk" : "healthy"}
+            icon={ListChecks}
+            primaryValue={overdueObligations}
+            primaryUnit="open or in progress"
+            action={{ href: "/contracts/obligations", label: "View obligations" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Approvals"
+            headline="Pending"
+            tone={pendingApprovals > 0 ? "attention" : "healthy"}
+            icon={Stamp}
+            primaryValue={pendingApprovals}
+            primaryUnit="awaiting resolution"
+            action={{ href: "/contracts/approvals", label: "View approvals" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Cycle time"
+            headline="Avg approval duration"
+            tone="neutral"
+            icon={Timer}
+            primaryValue={`${avgApprovalDays.toFixed(1)}d`}
+            primaryUnit="resolved samples"
+            action={{ href: "/contracts/approvals", label: "Review queue" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Avg data completeness</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{avgCompleteness.toFixed(1)}%</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Unresolved data gaps</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{unresolvedGaps}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Weekly active operators</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {behavior ? Number(behavior.weekly_active_operators ?? 0) : 0}
-          </p>
-        </section>
-      </div>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Quality</p>
+          <h2 className="ui-section-title mt-2 text-xl">Data and adoption</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Snapshots"
+            headline="Avg completeness"
+            tone={avgCompleteness < 70 ? "attention" : "healthy"}
+            icon={Percent}
+            primaryValue={`${avgCompleteness.toFixed(1)}%`}
+            primaryUnit="latest samples"
+            action={{ href: "/contracts/data-quality", label: "Open data quality" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Gaps"
+            headline="Unresolved gaps"
+            tone={unresolvedGaps > 0 ? "attention" : "healthy"}
+            icon={Database}
+            primaryValue={unresolvedGaps}
+            primaryUnit="across snapshots"
+            action={{ href: "/contracts/data-quality", label: "Review gaps" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Adoption"
+            headline="Weekly operators"
+            tone="neutral"
+            icon={Users}
+            primaryValue={behavior ? Number(behavior.weekly_active_operators ?? 0) : 0}
+            primaryUnit="from behavior feed"
+            action={{ href: "/reports", label: "View reports hub" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Digest runs (30-50 recent)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{reportRuns.length}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Failed digest runs</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{failedReportRuns}</p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Digest open rate</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">{recipientOpenRate.toFixed(1)}%</p>
-        </section>
-      </div>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Reporting</p>
+          <h2 className="ui-section-title mt-2 text-xl">Digest health</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Runs"
+            headline="Digest executions"
+            tone="neutral"
+            icon={CalendarClock}
+            primaryValue={reportRuns.length}
+            primaryUnit="recent sample"
+            action={{ href: "/contracts/reports", label: "Open report history" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Reliability"
+            headline="Failed runs"
+            tone={failedReportRuns > 0 ? "attention" : "healthy"}
+            icon={AlertTriangle}
+            primaryValue={failedReportRuns}
+            primaryUnit="in sample"
+            action={{ href: "/contracts/reports", label: "Inspect failures" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Engagement"
+            headline="Open rate"
+            tone={recipientOpenRate < 40 && deliveredRecipients > 0 ? "attention" : "neutral"}
+            icon={Eye}
+            primaryValue={`${recipientOpenRate.toFixed(1)}%`}
+            primaryUnit="opens / delivered"
+            action={{ href: "/contracts/reports", label: "Review recipients" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Role coverage</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {behavior ? Number(behavior.role_coverage_count ?? 0) : 0}
-          </p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Tasks completed (7d)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {behavior ? Number(behavior.tasks_completed_7d ?? 0) : 0}
-          </p>
-        </section>
-        <section className="ui-card px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Missed dates prevented (7d)</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {behavior ? Number(behavior.missed_dates_prevented_7d ?? 0) : 0}
-          </p>
-        </section>
-      </div>
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Outcomes</p>
+          <h2 className="ui-section-title mt-2 text-xl">Weekly operating metrics</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <OperationalSummaryCard
+            eyebrow="Coverage"
+            headline="Role coverage"
+            tone="neutral"
+            icon={Shield}
+            primaryValue={behavior ? Number(behavior.role_coverage_count ?? 0) : 0}
+            primaryUnit="tracked seats"
+            action={{ href: "/settings/operations", label: "Workspace operations" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Throughput"
+            headline="Tasks completed"
+            tone="healthy"
+            icon={CheckSquare}
+            primaryValue={behavior ? Number(behavior.tasks_completed_7d ?? 0) : 0}
+            primaryUnit="last 7 days"
+            action={{ href: "/contracts/tasks", label: "View tasks" }}
+            variant="compact"
+          />
+          <OperationalSummaryCard
+            eyebrow="Prevention"
+            headline="Missed dates prevented"
+            tone="healthy"
+            icon={CalendarClock}
+            primaryValue={behavior ? Number(behavior.missed_dates_prevented_7d ?? 0) : 0}
+            primaryUnit="last 7 days"
+            action={{ href: "/contracts/renewals", label: "View renewals" }}
+            variant="compact"
+          />
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Contracts created by month</h2>
+            <p className="ui-eyebrow">Velocity</p>
+            <h2 className="ui-section-title mt-1 text-base">Contracts created by month</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {contractRows.length === 0 ? (
@@ -324,7 +425,8 @@ export default async function ContractAnalyticsPage(props: {
 
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Task completions by month</h2>
+            <p className="ui-eyebrow">Execution</p>
+            <h2 className="ui-section-title mt-1 text-base">Task completions by month</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {taskRows.length === 0 ? (
@@ -342,7 +444,8 @@ export default async function ContractAnalyticsPage(props: {
 
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Renewal concentration (next 6m)</h2>
+            <p className="ui-eyebrow">Horizon</p>
+            <h2 className="ui-section-title mt-1 text-base">Renewal concentration (next 6m)</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {renewalRows.length === 0 ? (
@@ -362,9 +465,8 @@ export default async function ContractAnalyticsPage(props: {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">
-              Owner trend ({topOwner ?? "none"})
-            </h2>
+            <p className="ui-eyebrow">Scoped trend</p>
+            <h2 className="ui-section-title mt-1 text-base">Owner ({topOwner ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {ownerTrendRows.length === 0 ? (
@@ -381,9 +483,8 @@ export default async function ContractAnalyticsPage(props: {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">
-              Region trend ({topRegion ?? "none"})
-            </h2>
+            <p className="ui-eyebrow">Scoped trend</p>
+            <h2 className="ui-section-title mt-1 text-base">Region ({topRegion ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {regionTrendRows.length === 0 ? (
@@ -400,9 +501,8 @@ export default async function ContractAnalyticsPage(props: {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">
-              Contract type trend ({topType ?? "none"})
-            </h2>
+            <p className="ui-eyebrow">Scoped trend</p>
+            <h2 className="ui-section-title mt-1 text-base">Contract type ({topType ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {typeTrendRows.length === 0 ? (
@@ -422,7 +522,8 @@ export default async function ContractAnalyticsPage(props: {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Portfolio by owner</h2>
+            <p className="ui-eyebrow">Mix</p>
+            <h2 className="ui-section-title mt-1 text-base">Portfolio by owner</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {ownerRows.length === 0 ? (
@@ -439,7 +540,8 @@ export default async function ContractAnalyticsPage(props: {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Portfolio by region</h2>
+            <p className="ui-eyebrow">Mix</p>
+            <h2 className="ui-section-title mt-1 text-base">Portfolio by region</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {regionRows.length === 0 ? (
@@ -456,7 +558,8 @@ export default async function ContractAnalyticsPage(props: {
         </section>
         <section className="ui-card overflow-hidden">
           <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
-            <h2 className="text-sm font-semibold text-zinc-800">Portfolio by contract type</h2>
+            <p className="ui-eyebrow">Mix</p>
+            <h2 className="ui-section-title mt-1 text-base">Portfolio by contract type</h2>
           </div>
           <ul className="divide-y divide-zinc-100">
             {typeRows.length === 0 ? (

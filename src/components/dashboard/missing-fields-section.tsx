@@ -16,7 +16,7 @@ export function MissingFieldsSection({ contracts }: MissingFieldsSectionProps) {
     >
       <div className="flex flex-col gap-4 border-b border-orange-100/80 px-6 py-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-orange-200/60 bg-white shadow-sm">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-orange-200/60 bg-surface shadow-sm">
             <AlertTriangle className="text-orange-700" size={18} strokeWidth={1.75} aria-hidden />
           </div>
           <div>

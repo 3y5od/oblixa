@@ -93,7 +93,7 @@ export default async function BillingPage(props: {
   const StatusIcon = config.icon;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
+    <div className="ui-page-stack mx-auto max-w-3xl">
       <header className="border-b border-zinc-200/60 pb-8">
         <Link
           href="/settings"
@@ -101,11 +101,11 @@ export default async function BillingPage(props: {
         >
           ← Settings
         </Link>
-        <p className="ui-eyebrow mt-6">Subscription</p>
-        <h1 className="ui-display-title mt-2">Billing</h1>
-        <p className="ui-muted mt-3">
-          Plan status and Stripe customer portal access.
-        </p>
+        <div className="mt-6">
+          <p className="ui-eyebrow">Subscription</p>
+          <h1 className="ui-display-title mt-2">Billing</h1>
+          <p className="ui-muted-tight mt-3">Plan status and Stripe customer portal access.</p>
+        </div>
       </header>
 
       {searchParams.success && (
@@ -130,7 +130,10 @@ export default async function BillingPage(props: {
       <section className="ui-card overflow-hidden">
         <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="ui-section-title text-base">Your plan</h2>
+            <div>
+              <p className="ui-eyebrow">Stripe</p>
+              <h2 className="ui-section-title mt-1 text-base">Your plan</h2>
+            </div>
             <div
               className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold ${config.color}`}
             >

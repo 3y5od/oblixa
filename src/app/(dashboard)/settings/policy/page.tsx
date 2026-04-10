@@ -63,24 +63,27 @@ export default async function PolicyRegistryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="ui-page-stack mx-auto max-w-3xl">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Governance</p>
-        <h1 className="ui-display-title mt-2">Policy registry & simulation</h1>
-        <p className="mt-3 text-sm text-zinc-600">
-          Store a versioned JSON registry of org policies. Duplicate <code className="text-xs">id</code> values are
-          rejected on save. Approval SLA cron uses <code className="text-xs">sla_hours</code> from entries whose{" "}
-          <code className="text-xs">applies_to</code> includes <code className="text-xs">approval</code> when no matching{" "}
-          <code className="text-xs">approval_slas</code> row exists. Use the simulator below to preview impact without
-          writes.
-        </p>
-        <Link href="/settings" className="ui-link mt-3 inline-block text-sm">
-          ← Settings
-        </Link>
+        <div>
+          <p className="ui-eyebrow">Governance</p>
+          <h1 className="ui-display-title mt-2">Policy registry & simulation</h1>
+          <p className="ui-muted-tight mt-3">
+            Store a versioned JSON registry of org policies. Duplicate <code className="text-xs">id</code> values are
+            rejected on save. Approval SLA cron uses <code className="text-xs">sla_hours</code> from entries whose{" "}
+            <code className="text-xs">applies_to</code> includes <code className="text-xs">approval</code> when no
+            matching <code className="text-xs">approval_slas</code> row exists. Use the simulator below to preview
+            impact without writes.
+          </p>
+          <Link href="/settings" className="ui-link mt-3 inline-block text-sm">
+            ← Settings
+          </Link>
+        </div>
       </header>
 
       <section className="ui-card p-5">
-        <p className="ui-label-caps">Registry JSON (array of policies)</p>
+        <p className="ui-eyebrow">Source</p>
+        <p className="ui-section-title mt-1 text-base">Registry JSON (array of policies)</p>
         <form action={saveAction} className="mt-3 space-y-2">
           <textarea
             name="registryJson"

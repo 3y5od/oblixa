@@ -87,7 +87,7 @@ export default async function DashboardLayout({
           tabIndex={-1}
           className="flex-1 overflow-y-auto px-4 py-5 outline-none md:px-7 md:py-6"
         >
-          <div className="mx-auto max-w-[1680px]">{children}</div>
+          <div className="ui-page-stack mx-auto max-w-[1680px]">{children}</div>
         </main>
         <LegalFooter />
       </div>

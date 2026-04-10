@@ -91,6 +91,26 @@ export default async function DecisionDetailPage({
 
   const externalLinksForDecision = showExternal ? (externalLinkRows ?? []) : [];
 
+  function workflowFieldsFromScope(scope: unknown) {
+    const s = scope as Record<string, unknown> | null | undefined;
+    if (!s) {
+      return {
+        workflowStepCount: 0,
+        workflowDeadlineIso: null as string | null,
+        lastWorkflowStepType: null as string | null,
+        correctionMessage: null as string | null,
+      };
+    }
+    const chain = Array.isArray(s.workflow_chain) ? s.workflow_chain : [];
+    const last = chain.length > 0 ? (chain[chain.length - 1] as Record<string, unknown>) : null;
+    return {
+      workflowStepCount: chain.length,
+      workflowDeadlineIso: typeof s.workflow_deadline_iso === "string" ? s.workflow_deadline_iso : null,
+      lastWorkflowStepType: last && typeof last.type === "string" ? last.type : null,
+      correctionMessage: typeof s.correction_message === "string" ? s.correction_message : null,
+    };
+  }
+
   const executionContext = await buildDecisionExecutionContext(
     admin,
     orgId,
@@ -103,7 +123,7 @@ export default async function DecisionDetailPage({
         <div>
           <p className="ui-eyebrow">Decision workspace</p>
           <h1 className="ui-display-title mt-2">{decision.title}</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-zinc-500">
+          <p className="ui-muted-tight mt-2">
             Type: {decision.decision_type} · Status: {decision.status}
           </p>
         </div>
@@ -120,10 +140,6 @@ export default async function DecisionDetailPage({
       <section className="grid gap-4 lg:grid-cols-2">
         <article className="ui-card p-5">
           <p className="ui-label-caps">Required inputs</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Captured fields for this workspace (also editable under workspace actions). Trace: create → save inputs →
-            recommend → approve → close with disposition.
-          </p>
           {decision.required_inputs_json &&
           typeof decision.required_inputs_json === "object" &&
           !Array.isArray(decision.required_inputs_json) &&
@@ -137,10 +153,6 @@ export default async function DecisionDetailPage({
         </article>
         <article className="ui-card p-5">
           <p className="ui-label-caps">Post-close actions (planned)</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Executed when the decision is closed if included in the close payload (
-            <code className="text-[11px]">postActions</code>).
-          </p>
           {Array.isArray(decision.post_decision_actions_json) &&
           (decision.post_decision_actions_json as unknown[]).length > 0 ? (
             <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
@@ -273,14 +285,18 @@ export default async function DecisionDetailPage({
         <DecisionExternalPanel
           decisionId={id}
           appOrigin={appOrigin || undefined}
-          initialLinks={externalLinksForDecision.map((l) => ({
-            id: l.id,
-            token: l.token,
-            action_type: l.action_type,
-            status: l.status,
-            expires_at: l.expires_at,
-            submitted_at: l.submitted_at,
-          }))}
+          initialLinks={externalLinksForDecision.map((l) => {
+            const w = workflowFieldsFromScope(l.scope_json);
+            return {
+              id: l.id,
+              token: l.token,
+              action_type: l.action_type,
+              status: l.status,
+              expires_at: l.expires_at,
+              submitted_at: l.submitted_at,
+              ...w,
+            };
+          })}
         />
       ) : null}
 

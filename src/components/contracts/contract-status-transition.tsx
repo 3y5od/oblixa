@@ -71,7 +71,7 @@ export function ContractStatusTransition({
           disabled={isPending}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
             buttonStyles[target] ||
-            "border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50"
+            "border border-zinc-200 bg-surface text-zinc-800 hover:bg-zinc-50"
           }`}
         >
           {isPending ? "Updating..." : label}

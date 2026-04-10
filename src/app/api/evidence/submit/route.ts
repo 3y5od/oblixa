@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(request: Request) {
   const ctx = await getApiAuthContext();
@@ -33,6 +36,7 @@ export async function POST(request: Request) {
       submitted_by: ctx.userId,
       status: "submitted",
       payload_json: body.payload ?? {},
+      v6_freshness_score: 100,
     })
     .select("id, requirement_id, status, submitted_at")
     .single();
@@ -43,6 +47,13 @@ export async function POST(request: Request) {
     .update({ status: "submitted" })
     .eq("id", requirementId)
     .eq("organization_id", ctx.orgId);
+
+  if (isFeatureEnabled("v6AssuranceCore")) {
+    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "evidence_submit_incremental_assurance_hook_total", 1).catch(
+      () => undefined
+    );
+    await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
+  }
 
   return NextResponse.json({ submission }, { status: 201 });
 }

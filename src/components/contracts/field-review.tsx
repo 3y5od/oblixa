@@ -10,6 +10,7 @@ import {
 import { Check, X, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
 import type { ExtractedField } from "@/lib/types";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const statusBadge: Record<string, string> = {
   pending: "border border-amber-200/70 bg-amber-50/90 text-amber-950",
@@ -40,13 +41,10 @@ interface FieldReviewProps {
 export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
   if (fields.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-zinc-200/90 bg-zinc-50/30 px-8 py-12 text-center">
-        <p className="text-[13px] leading-relaxed text-zinc-500">
-          No extracted fields yet. Run{" "}
-          <span className="font-semibold text-zinc-800">Extract fields with AI</span>{" "}
-          after upload. Image-only PDFs are not supported — use text-based PDF or DOCX.
-        </p>
-      </div>
+      <EmptyState
+        title="No extracted fields"
+        copy="Run Extract fields with AI after upload. Use text-based PDF or DOCX."
+      />
     );
   }
 
@@ -55,7 +53,7 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
   return (
     <div className="space-y-4">
       {canEdit && hasPending && (
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-xl border border-zinc-200/70 bg-white px-4 py-3 text-[12px] text-zinc-500 shadow-sm">
+        <div className="ui-toolbar">
           <span className="font-semibold text-zinc-700">Shortcuts</span>
           <span className="hidden sm:inline text-zinc-300">·</span>
           <span>
@@ -64,7 +62,7 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
           </span>
         </div>
       )}
-      <div className="overflow-hidden rounded-2xl border border-zinc-200/70 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div className="ui-table-shell">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-[13px]">
             <caption className="sr-only">
@@ -316,7 +314,7 @@ const FieldRow = memo(function FieldRow({
                 type="button"
                 onClick={() => handleAction("approved")}
                 disabled={isPending || needsCitation}
-                className="rounded-lg p-2 text-emerald-700 transition-colors hover:bg-white hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
+                className="rounded-lg p-2 text-emerald-700 transition-colors hover:bg-surface hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
                 title={
                   needsCitation
                     ? "Add a source citation by editing first"
@@ -333,7 +331,7 @@ const FieldRow = memo(function FieldRow({
                   setEditValue(currentField.field_value || "");
                 }}
                 disabled={isPending}
-                className="rounded-lg p-2 text-[var(--accent)] transition-colors hover:bg-white hover:shadow-sm disabled:opacity-50"
+                className="rounded-lg p-2 text-[var(--accent)] transition-colors hover:bg-surface hover:shadow-sm disabled:opacity-50"
                 title="Edit"
                 aria-label={`Edit ${fieldLabel}`}
               >
@@ -343,7 +341,7 @@ const FieldRow = memo(function FieldRow({
                 type="button"
                 onClick={() => handleAction("rejected")}
                 disabled={isPending}
-                className="rounded-lg p-2 text-rose-700 transition-colors hover:bg-white hover:shadow-sm disabled:opacity-50"
+                className="rounded-lg p-2 text-rose-700 transition-colors hover:bg-surface hover:shadow-sm disabled:opacity-50"
                 title="Reject"
                 aria-label={`Reject ${fieldLabel}`}
               >
