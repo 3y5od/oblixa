@@ -4,6 +4,7 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
@@ -11,6 +12,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/campaigns/[id]/resume",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "maintenance_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

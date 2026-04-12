@@ -33,7 +33,7 @@ export function MyObligations({ obligations }: { obligations: ObligationRow[] })
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
+      <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="ui-section-title">My obligations</h2>
@@ -46,7 +46,7 @@ export function MyObligations({ obligations }: { obligations: ObligationRow[] })
           </Link>
         </div>
       </div>
-      <ul className="divide-y divide-zinc-100">
+      <ul className="divide-y divide-[var(--border-subtle)]">
         {obligations.map((ob) => (
           <li key={ob.id}>
             <Link

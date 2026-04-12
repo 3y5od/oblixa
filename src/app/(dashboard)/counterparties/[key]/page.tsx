@@ -121,7 +121,7 @@ export default async function CounterpartyWorkspacePage({ params }: { params: Pr
         <article className="ui-card p-5">
           <p className="ui-eyebrow">Records</p>
           <p className="ui-section-title mt-1 text-base">Contracts</p>
-          <ul className="mt-3 divide-y divide-zinc-100 text-sm">
+          <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm">
             {(contracts ?? []).length === 0 ? (
               <li className="py-2 text-zinc-500">No contracts with this counterparty key.</li>
             ) : (

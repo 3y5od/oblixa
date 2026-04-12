@@ -5,6 +5,7 @@ import { requireV6Context } from "@/lib/v6/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { createSegment, listSegments } from "@/lib/v6/segments";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 const ALLOWED_SEGMENT_TYPES = new Set([
@@ -25,6 +26,14 @@ export async function GET() {
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
 
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/segments",
+  });
+  if (modeGate) return modeGate;
+
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_segments_list_total", 1).catch(() => undefined);
 
   const { data, error } = await listSegments(ctx.admin, ctx.orgId);
@@ -38,6 +47,14 @@ export async function POST(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/segments",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{ segmentType?: string; key?: string; name?: string; criteria?: Record<string, unknown> }>(
     await request.json().catch(() => ({})),

@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase/server";
+import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -32,8 +33,10 @@ export async function computeReportPackMetrics(input: {
   admin: AdminClient;
   organizationId: string;
   reportType: string;
+  workspaceProductMode?: WorkspaceProductMode;
 }): Promise<Record<string, unknown>> {
   const { admin, organizationId, reportType } = input;
+  const mode = input.workspaceProductMode ?? "core";
   const nowIso = new Date().toISOString();
   const today = nowIso.slice(0, 10);
 
@@ -101,13 +104,19 @@ export async function computeReportPackMetrics(input: {
     open_exceptions: openExceptions ?? 0,
     pending_approvals: pendingApprovals ?? 0,
     approvals_past_due: approvalsPastDue ?? 0,
-    active_program_assignments: activePrograms ?? 0,
-    active_execution_edges: graphEdges ?? 0,
     overdue_tasks: overdueTaskCount ?? 0,
     generated_at: nowIso,
     report_type: reportType,
     dashboard_rpc_ok: !dashErr,
   };
+  const withAdvanced =
+    mode === "advanced" || mode === "assurance"
+      ? {
+          ...core,
+          active_program_assignments: activePrograms ?? 0,
+          active_execution_edges: graphEdges ?? 0,
+        }
+      : core;
 
   if (reportType === "monthly_renewal_readiness" || reportType.includes("renewal")) {
     const { count: renewalPending } = await admin
@@ -121,7 +130,7 @@ export async function computeReportPackMetrics(input: {
       .eq("organization_id", organizationId)
       .eq("renewal_state", "decision_pending");
     return {
-      ...core,
+      ...withAdvanced,
       renewal_checkpoints_pending: renewalPending ?? 0,
       renewal_decision_pending_checkpoints: decisionPending ?? 0,
     };
@@ -134,12 +143,12 @@ export async function computeReportPackMetrics(input: {
       .eq("organization_id", organizationId)
       .in("status", ["open", "in_progress"])
       .eq("severity", "critical");
-    return { ...core, open_exceptions_critical: criticalEx ?? 0 };
+    return { ...withAdvanced, open_exceptions_critical: criticalEx ?? 0 };
   }
 
   if (reportType.includes("approval") || reportType.includes("sla")) {
     return {
-      ...core,
+      ...withAdvanced,
       focus: "approvals_sla",
       approvals_past_due: approvalsPastDue ?? 0,
     };
@@ -152,8 +161,8 @@ export async function computeReportPackMetrics(input: {
       .eq("organization_id", organizationId)
       .in("status", ["open", "in_progress"])
       .lt("due_date", today);
-    return { ...core, obligations_overdue: overdueOb ?? 0 };
+    return { ...withAdvanced, obligations_overdue: overdueOb ?? 0 };
   }
 
-  return core;
+  return withAdvanced;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -10,7 +10,9 @@ interface AuthFormProps {
   urlBanner?: string;
 }
 
-type AuthState = { error?: string; success?: string } | undefined;
+type AuthState =
+  | { error?: string; success?: string; redirectTo?: string }
+  | undefined;
 
 function authAction(mode: string) {
   return async (_prevState: AuthState, formData: FormData): Promise<AuthState> => {
@@ -70,6 +72,13 @@ const pendingLabel: Record<AuthFormProps["mode"], string> = {
 
 export function AuthForm({ mode, urlBanner }: AuthFormProps) {
   const [state, action, pending] = useActionState(authAction(mode), undefined);
+
+  useEffect(() => {
+    const path = state?.redirectTo;
+    if (!path) return;
+    window.location.assign(path);
+  }, [state]);
+
   const c = config[mode];
   const formErrorId = "auth-form-error";
   const showFormError = Boolean(state?.error);
@@ -78,29 +87,31 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
     <div
       id="main-content"
       tabIndex={-1}
-      className="flex min-h-screen flex-col justify-center bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(30,58,95,0.08),transparent)] px-4 py-16 outline-none sm:px-6"
+      className="flex min-h-0 flex-1 flex-col justify-center bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(30,58,95,0.08),transparent)] px-4 py-16 outline-none sm:px-6"
     >
       <div className="mx-auto w-full max-w-[420px]">
-        <nav className="mb-6 flex justify-center" aria-label="Site">
+        <nav className="mb-5 flex justify-center" aria-label="Site">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg px-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)]"
           >
             <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
             Back to home
           </Link>
         </nav>
-        <div className="mb-10 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
+        <div className="mb-8 text-center sm:mb-9">
+          <Link
+            href="/"
+            className="inline-block text-2xl font-bold tracking-tight text-zinc-950 no-underline transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:text-3xl"
+          >
             Oblixa
-          </p>
-          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Access</p>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
+          </Link>
+          <h1 className="mx-auto mt-4 max-w-[28ch] text-pretty text-lg font-medium leading-snug text-zinc-600 sm:mt-5 sm:text-xl">
             {c.title}
           </h1>
         </div>
 
-        <div className="ui-card p-8 sm:p-9">
+        <div className="ui-card p-7 shadow-sm sm:p-9">
           <form action={action} className="space-y-5">
             {urlBanner && (
               <div className="ui-alert-warning" role="alert">

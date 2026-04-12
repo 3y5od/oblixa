@@ -36,6 +36,17 @@ type OutcomeRow = {
   recurrence_delta: number;
 };
 
+type AssuranceDashboardVisibility = {
+  findings: boolean;
+  controlPolicies: boolean;
+  healthGraph: boolean;
+  playbooks: boolean;
+  reviewBoards: boolean;
+  scorecards: boolean;
+  programEvolution: boolean;
+  automationOps: boolean;
+};
+
 function findingsTone(open: number, high: number): OperationalTone {
   if (high > 0) return "risk";
   if (open > 0) return "attention";
@@ -53,7 +64,10 @@ export function DashboardV6AssuranceSnapshotSection(props: {
     risk_delta_json?: { confidence_degradation?: boolean } | null;
   } | null;
   canViewAssuranceOps: boolean;
+  visibility: AssuranceDashboardVisibility;
+  showAssuranceMode: boolean;
 }) {
+  if (!props.showAssuranceMode) return null;
   const {
     v6Snapshot,
     v6Analytics,
@@ -62,6 +76,7 @@ export function DashboardV6AssuranceSnapshotSection(props: {
     v6PriorAssuranceRun,
     v6LastAssuranceRun,
     canViewAssuranceOps,
+    visibility,
   } = props;
 
   const watchTone: OperationalTone = watchSignalsPreview.length > 0 ? "attention" : "healthy";
@@ -89,91 +104,105 @@ export function DashboardV6AssuranceSnapshotSection(props: {
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <OperationalSummaryCard
-          eyebrow="Queue"
-          headline="Findings backlog"
-          tone={findingsTone(v6Snapshot.openFindings, v6Snapshot.highSeverity)}
-          icon={ClipboardList}
-          primaryValue={v6Snapshot.openFindings}
-          primaryUnit="open findings"
-          breakdown={[{ label: "High / critical", value: String(v6Snapshot.highSeverity) }]}
-          action={{ href: "/assurance/findings", label: "Review findings" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Controls"
-          headline="Control posture"
-          tone={v6Snapshot.publishedPolicies > 0 ? "neutral" : "attention"}
-          icon={ShieldCheck}
-          primaryValue={v6Snapshot.publishedPolicies}
-          primaryUnit="published policies"
-          breakdown={
-            v6Analytics
-              ? [{ label: "Pass rate", value: `${(v6Analytics.policy_pass_rate * 100).toFixed(0)}%` }]
-              : []
-          }
-          action={{ href: "/assurance/control-policies", label: "Review policies" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Graph"
-          headline="Propagation risk"
-          tone={v6Snapshot.graphEdges > 0 ? "neutral" : "healthy"}
-          icon={Share2}
-          primaryValue={v6Snapshot.graphEdges}
-          primaryUnit="health graph edges"
-          action={{ href: "/assurance/health-graph", label: "Open health graph" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Automation"
-          headline="Playbooks"
-          tone={playbookTone}
-          icon={PlayCircle}
-          primaryValue={v6Snapshot.playbooksRunning}
-          primaryUnit="running now"
-          breakdown={[
-            { label: "Awaiting approval", value: String(v6Snapshot.playbooksAwaitingApproval) },
-          ]}
-          action={{ href: "/assurance/playbooks", label: "Review playbooks" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Checks"
-          headline="Watch signals"
-          tone={watchTone}
-          icon={Radio}
-          primaryValue={watchSignalsPreview.length}
-          primaryUnit="preview rows"
-          breakdown={
-            watchSignalsPreview.length
-              ? [{ label: "Latest", value: watchSignalsPreview.join(", ").slice(0, 72) }]
-              : []
-          }
-          action={{ href: "/api/assurance/check-runs?limit=40", label: "View check runs (JSON)", external: true }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Routing"
-          headline="Recommended next"
-          tone={recTone}
-          icon={ListOrdered}
-          primaryValue={recommendedPreview.length}
-          primaryUnit="suggestions"
-          breakdown={
-            recommendedPreview.length
-              ? [{ label: "Top picks", value: recommendedPreview.join(", ").slice(0, 72) }]
-              : []
-          }
-          action={{ href: "/assurance/scorecards", label: "Review scorecards" }}
-          variant="compact"
-        />
+        {visibility.findings ? (
+          <OperationalSummaryCard
+            eyebrow="Queue"
+            headline="Findings backlog"
+            tone={findingsTone(v6Snapshot.openFindings, v6Snapshot.highSeverity)}
+            icon={ClipboardList}
+            primaryValue={v6Snapshot.openFindings}
+            primaryUnit="open findings"
+            breakdown={[{ label: "High / critical", value: String(v6Snapshot.highSeverity) }]}
+            action={{ href: "/assurance/findings", label: "Review findings" }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.controlPolicies ? (
+          <OperationalSummaryCard
+            eyebrow="Controls"
+            headline="Control posture"
+            tone={v6Snapshot.publishedPolicies > 0 ? "neutral" : "attention"}
+            icon={ShieldCheck}
+            primaryValue={v6Snapshot.publishedPolicies}
+            primaryUnit="published policies"
+            breakdown={
+              v6Analytics
+                ? [{ label: "Pass rate", value: `${(v6Analytics.policy_pass_rate * 100).toFixed(0)}%` }]
+                : []
+            }
+            action={{ href: "/assurance/control-policies", label: "Review policies" }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.healthGraph ? (
+          <OperationalSummaryCard
+            eyebrow="Graph"
+            headline="Propagation risk"
+            tone={v6Snapshot.graphEdges > 0 ? "neutral" : "healthy"}
+            icon={Share2}
+            primaryValue={v6Snapshot.graphEdges}
+            primaryUnit="health graph edges"
+            action={{ href: "/assurance/health-graph", label: "Open health graph" }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.playbooks ? (
+          <OperationalSummaryCard
+            eyebrow="Automation"
+            headline="Playbooks"
+            tone={playbookTone}
+            icon={PlayCircle}
+            primaryValue={v6Snapshot.playbooksRunning}
+            primaryUnit="running now"
+            breakdown={[
+              { label: "Awaiting approval", value: String(v6Snapshot.playbooksAwaitingApproval) },
+            ]}
+            action={{ href: "/assurance/playbooks", label: "Review playbooks" }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.reviewBoards ? (
+          <OperationalSummaryCard
+            eyebrow="Checks"
+            headline="Watch signals"
+            tone={watchTone}
+            icon={Radio}
+            primaryValue={watchSignalsPreview.length}
+            primaryUnit="preview rows"
+            breakdown={
+              watchSignalsPreview.length
+                ? [{ label: "Latest", value: watchSignalsPreview.join(", ").slice(0, 72) }]
+                : []
+            }
+            action={{ href: "/api/assurance/check-runs?limit=40", label: "View check runs (JSON)", external: true }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.scorecards ? (
+          <OperationalSummaryCard
+            eyebrow="Routing"
+            headline="Recommended next"
+            tone={recTone}
+            icon={ListOrdered}
+            primaryValue={recommendedPreview.length}
+            primaryUnit="suggestions"
+            breakdown={
+              recommendedPreview.length
+                ? [{ label: "Top picks", value: recommendedPreview.join(", ").slice(0, 72) }]
+                : []
+            }
+            action={{ href: "/assurance/scorecards", label: "Review scorecards" }}
+            variant="compact"
+          />
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-2 text-xs">
-        <Link className="ui-link" href="/assurance/program-evolution">
-          Program evolution
-        </Link>
+        {visibility.programEvolution ? (
+          <Link className="ui-link" href="/assurance/program-evolution" prefetch={false}>
+            Program evolution
+          </Link>
+        ) : null}
         {canViewAssuranceOps ? (
           <Link className="ui-link" href="/reports#assurance-analytics">
             Assurance analytics
@@ -287,8 +316,14 @@ export function DashboardOutcomeIntelligenceSection(props: {
   );
 }
 
-export function DashboardAssuranceSignalsSection(props: { analytics: AssuranceAnalyticsSummary }) {
+export function DashboardAssuranceSignalsSection(props: {
+  analytics: AssuranceAnalyticsSummary;
+  visibility: Pick<AssuranceDashboardVisibility, "controlPolicies" | "playbooks" | "automationOps">;
+  showAssuranceMode: boolean;
+}) {
+  if (!props.showAssuranceMode) return null;
   const a = props.analytics;
+  const { visibility } = props;
   const playbookFailTone: OperationalTone = a.playbook_runs_last_30d.failed > 0 ? "attention" : "healthy";
   const autopilotTone: OperationalTone = a.autopilot_logs_last_30d.blocked > 0 ? "attention" : "neutral";
 
@@ -299,49 +334,55 @@ export function DashboardAssuranceSignalsSection(props: { analytics: AssuranceAn
         <h2 className="ui-section-title mt-2 text-xl">Operational signal summary</h2>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
-        <OperationalSummaryCard
-          eyebrow="Policies"
-          headline="Pass rate"
-          tone="neutral"
-          icon={ShieldCheck}
-          primaryValue={`${(a.policy_pass_rate * 100).toFixed(1)}%`}
-          primaryUnit="evaluations"
-          breakdown={[{ label: "Units", value: String(a.policy_evaluation_units) }]}
-          action={{ href: "/api/assurance/analytics/summary", label: "Analytics JSON", external: true }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Playbooks"
-          headline="Success (30d)"
-          tone={playbookFailTone}
-          icon={PlayCircle}
-          primaryValue={
-            a.playbook_success_rate_30d != null
-              ? `${(a.playbook_success_rate_30d * 100).toFixed(1)}%`
-              : "—"
-          }
-          primaryUnit="success rate"
-          breakdown={[
-            { label: "Completed", value: String(a.playbook_runs_last_30d.completed) },
-            { label: "Failed", value: String(a.playbook_runs_last_30d.failed) },
-          ]}
-          action={{ href: "/assurance", label: "Assurance hub" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Autopilot"
-          headline="Guardrails"
-          tone={autopilotTone}
-          icon={Radio}
-          primaryValue={a.autopilot_logs_last_30d.blocked}
-          primaryUnit="blocked (30d)"
-          breakdown={[
-            { label: "Executed", value: String(a.autopilot_logs_last_30d.executed) },
-            { label: "Dry-run", value: String(a.autopilot_logs_last_30d.dry_run) },
-          ]}
-          action={{ href: "/reports#assurance-analytics", label: "View reports" }}
-          variant="compact"
-        />
+        {visibility.controlPolicies ? (
+          <OperationalSummaryCard
+            eyebrow="Policies"
+            headline="Pass rate"
+            tone="neutral"
+            icon={ShieldCheck}
+            primaryValue={`${(a.policy_pass_rate * 100).toFixed(1)}%`}
+            primaryUnit="evaluations"
+            breakdown={[{ label: "Units", value: String(a.policy_evaluation_units) }]}
+            action={{ href: "/api/assurance/analytics/summary", label: "Analytics JSON", external: true }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.playbooks ? (
+          <OperationalSummaryCard
+            eyebrow="Playbooks"
+            headline="Success (30d)"
+            tone={playbookFailTone}
+            icon={PlayCircle}
+            primaryValue={
+              a.playbook_success_rate_30d != null
+                ? `${(a.playbook_success_rate_30d * 100).toFixed(1)}%`
+                : "—"
+            }
+            primaryUnit="success rate"
+            breakdown={[
+              { label: "Completed", value: String(a.playbook_runs_last_30d.completed) },
+              { label: "Failed", value: String(a.playbook_runs_last_30d.failed) },
+            ]}
+            action={{ href: "/assurance", label: "Assurance hub" }}
+            variant="compact"
+          />
+        ) : null}
+        {visibility.automationOps ? (
+          <OperationalSummaryCard
+            eyebrow="Autopilot"
+            headline="Guardrails"
+            tone={autopilotTone}
+            icon={Radio}
+            primaryValue={a.autopilot_logs_last_30d.blocked}
+            primaryUnit="blocked (30d)"
+            breakdown={[
+              { label: "Executed", value: String(a.autopilot_logs_last_30d.executed) },
+              { label: "Dry-run", value: String(a.autopilot_logs_last_30d.dry_run) },
+            ]}
+            action={{ href: "/reports#assurance-analytics", label: "View reports" }}
+            variant="compact"
+          />
+        ) : null}
       </div>
       <details className="ui-soft-details text-xs text-zinc-600">
         <summary className="cursor-pointer font-semibold text-zinc-800">Full assurance diagnostics</summary>
@@ -368,7 +409,7 @@ export function DashboardAssuranceSignalsSection(props: { analytics: AssuranceAn
         <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
           Analytics JSON
         </Link>
-        <Link className="ui-link" href="/assurance">
+        <Link className="ui-link" href="/assurance" prefetch={false}>
           Assurance hub
         </Link>
         <Link className="ui-link" href="/reports#assurance-analytics">

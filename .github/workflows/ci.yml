@@ -31,11 +31,80 @@ jobs:
       - name: npm audit (high+)
         run: npm audit --audit-level=high
 
+      - name: Security static greps (src/, strict)
+        run: npm run check:security-static:strict:grep
+
+      - name: GitHub workflow danger patterns
+        run: npm run check:github-workflows-security
+
+      - name: PWA / deep-link well-known allowlist
+        run: npm run check:pwa-well-known
+
+      - name: .env.example parity vs src process.env
+        run: npm run check:env-example-parity
+
+      - name: Onboarding QA matrix (tests + strict lib/onboarding glob)
+        run: npm run check:onboarding-qa-matrix
+
+      - name: Onboarding stale cron env documented
+        run: npm run check:onboarding-stale-env-parity
+
+      - name: Library createAdminClient allowlist
+        run: npm run check:server-lib-admin
+
+      - name: Tracked secrets and coverage hygiene
+        run: npm run check:tracked-secrets-hygiene
+
+      - name: Performance static audit (strict; zero WARN)
+        run: npm run check:performance-static:strict
+
+      - name: QA loading.tsx checklist vs repo
+        run: npm run check:qa-loading-routes
+
+      - name: QA route coverage TSV hygiene
+        run: npm run check:qa-route-coverage-tsv
+
+      - name: QA bug log JSON schema
+        run: npm run check:qa-bug-log
+
+      - name: Refinement acceptance checklist commands
+        run: npm run check:refinement-acceptance-commands
+
       - name: Migration prefix guard
         run: npm run check:migrations
 
       - name: API route test coverage (colocated or allowlist)
         run: npm run check:api-route-tests
+
+      - name: Server action exports (no sync exports in use server)
+        run: npm run check:server-action-exports
+
+      - name: API route rate limit coverage (createAdminClient)
+        run: npm run check:api-route-rate-limit-coverage
+
+      - name: Cron routes reference shared cron auth
+        run: npm run check:cron-route-auth
+
+      - name: API workspace eligibility (strict)
+        run: npm run check:api-workspace-eligibility:strict
+
+      - name: V7 cross-surface href audit (strict)
+        run: npm run check:v7-hrefs:strict
+
+      - name: V7 search vocabulary vs registry labels
+        run: npm run check:v7-vocabulary
+
+      - name: Route inventory drift
+        run: npm run check:route-inventory
+
+      - name: Plan IA coherence
+        run: npm run check:plan-ia
+
+      - name: Refinement API route coverage
+        run: npm run check:refinement-api-coverage
+
+      - name: Outbound events + client hash + copy audits (verify parity)
+        run: npm run check:ci-verify-extras
 
       - name: Vercel cron vs codebase alignment
         run: npm run check:vercel-cron
@@ -76,8 +145,8 @@ jobs:
       - name: Install Semgrep
         run: pip install "semgrep>=1.90.0"
 
-      - name: Semgrep (OSS rules)
-        run: semgrep scan --config p/ci --config p/typescript --error .
+      - name: Semgrep (OSS + Oblixa rules)
+        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --error .
 
       - name: OSV dependency scan
         uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
@@ -128,6 +197,52 @@ jobs:
 
       - name: Playwright smoke + accessibility
         run: npm run test:e2e
+
+  # Optional: set repository secret E2E_ONBOARDING_FULL to a non-empty value to run deep onboarding + multi-browser Playwright.
+  quality_e2e_onboarding_full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: ${{ secrets.E2E_ONBOARDING_FULL != '' }}
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      E2E_ONBOARDING_BLOCKING: "1"
+      E2E_ONBOARDING_A11Y: "1"
+      E2E_ONBOARDING_EXPORT: "1"
+      PLAYWRIGHT_ONBOARDING_DEEP: "1"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Playwright Chromium, Firefox, WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Require authenticated E2E credentials
+        run: |
+          test -n "$E2E_TEST_EMAIL" || (echo "Missing E2E_TEST_EMAIL secret" && exit 1)
+          test -n "$E2E_TEST_PASSWORD" || (echo "Missing E2E_TEST_PASSWORD secret" && exit 1)
+
+      - name: Onboarding deep E2E (multi-browser)
+        run: npm run test:e2e:onboarding-deep
 
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:

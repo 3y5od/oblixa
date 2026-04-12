@@ -87,7 +87,7 @@ export default async function ApprovalsPage(props: {
       </div>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <p className="ui-eyebrow">Queue</p>
           <h2 className="ui-section-title mt-1 text-base">Approval queue</h2>
         </div>
@@ -96,7 +96,7 @@ export default async function ApprovalsPage(props: {
             <EmptyState title="No approvals found" copy="No approval rows match this filter." />
           </div>
         ) : (
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {approvals?.map((row) => {
               const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
                 | { id: string; title: string }
@@ -186,7 +186,7 @@ export default async function ApprovalsPage(props: {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <p className="ui-eyebrow">Scenarios</p>
           <h2 className="ui-section-title mt-1 text-base">Renewal scenarios</h2>
         </div>
@@ -195,7 +195,7 @@ export default async function ApprovalsPage(props: {
             <EmptyState title="No renewal scenarios" copy="No scenario rows recorded yet." />
           </div>
         ) : (
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {scenarios?.map((row) => {
               const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
                 | { id: string; title: string }

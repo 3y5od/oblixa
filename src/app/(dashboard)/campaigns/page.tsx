@@ -190,7 +190,7 @@ export default async function CampaignsPage({
                   <li className="text-zinc-500">No simulations yet.</li>
                 ) : (
                   (simulations ?? []).map((s) => (
-                    <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-zinc-100 pb-2 last:border-0">
+                    <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] pb-2 last:border-0">
                       <span className="font-medium text-zinc-900">{s.name}</span>
                       <span className="font-mono text-[11px] text-zinc-500">{s.simulation_type}</span>
                       <Link
@@ -213,7 +213,7 @@ export default async function CampaignsPage({
                   <li className="text-zinc-500">No runs yet.</li>
                 ) : (
                   (simRuns ?? []).map((r) => (
-                    <li key={r.id} className="border-b border-zinc-100 pb-2 text-xs last:border-0">
+                    <li key={r.id} className="border-b border-[var(--border-subtle)] pb-2 text-xs last:border-0">
                       <span className="font-mono text-zinc-600">{r.id.slice(0, 8)}…</span> · sim{" "}
                       <span className="font-mono">{r.simulation_id.slice(0, 8)}…</span>
                       {r.promoted_campaign_id ? (
@@ -261,7 +261,7 @@ export default async function CampaignsPage({
       )}
 
       <div className="ui-card overflow-hidden">
-        <table className="min-w-full divide-y divide-zinc-100 text-sm">
+        <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
           <thead className="ui-table-header">
             <tr>
               <th className="px-5 py-3">Campaign</th>
@@ -274,7 +274,7 @@ export default async function CampaignsPage({
               <th className="px-5 py-3">Next action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {filteredCampaigns.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-5 py-8">

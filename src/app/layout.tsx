@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import { SkipLink } from "@/components/layout/skip-link";
+import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -15,10 +16,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+
 export const metadata: Metadata = {
-  title: "Oblixa — Contract Execution Platform",
+  metadataBase: new URL(getAppBaseUrlFromEnv()),
+  title: {
+    default: "Oblixa — Contract Execution Platform",
+    template: "%s — Oblixa",
+  },
   description:
     "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+  applicationName: "Oblixa",
+  openGraph: {
+    type: "website",
+    siteName: "Oblixa",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  ...(siteVerification ? { verification: { google: siteVerification } } : {}),
+  icons: {
+    icon: [{ url: "/icon", type: "image/png" }],
+    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fafaf9",
 };
 
 export default function RootLayout({

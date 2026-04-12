@@ -4,6 +4,7 @@ import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
 import { createHash } from "node:crypto";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET(
   request: Request,
@@ -48,6 +49,12 @@ export async function GET(
   if (!feed) {
     return NextResponse.json({ error: "Feed not found" }, { status: 404 });
   }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: feed.organization_id,
+    apiPath: "/api/export/calendar/feed/[token]",
+  });
+  if (modeGate) return modeGate;
 
   await admin
     .from("calendar_feeds")

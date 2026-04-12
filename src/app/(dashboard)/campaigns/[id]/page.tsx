@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BookOpen } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CampaignAssignmentPanel } from "@/components/campaigns/campaign-assignment-panel";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
@@ -9,12 +10,24 @@ import { CampaignControlPanel } from "@/components/campaigns/campaign-control-pa
 import { CampaignSimulationPromote } from "@/components/campaigns/campaign-simulation-promote";
 import { RelationshipTimelineCard } from "@/components/relationship/relationship-timeline-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
+import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
 
 export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   assertV5PageFeature("v5PortfolioCampaigns");
+
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showAssurancePlaybooksLink = productSurface.seesAssuranceNav;
+  const showCampaignCompareLink = evaluateFeatureEligibility(productSurface, "compare_views").allowed;
 
   const { admin, orgId } = ctx;
   const apiCtx = await getApiAuthContext();
@@ -110,11 +123,26 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         </>
       ) : null}
 
+      {showAssurancePlaybooksLink ? (
+        <section aria-label="Assurance playbooks">
+          <OperationalSurfaceLinkCard
+            href="/assurance/playbooks"
+            eyebrow="Assurance"
+            title="Playbooks"
+            hint="Tie bulk remediation and campaign follow-up to documented response playbooks."
+            icon={BookOpen}
+            actionLabel="Open playbooks"
+            tone="neutral"
+          />
+        </section>
+      ) : null}
+
       <section className="grid gap-4 lg:grid-cols-3">
         <CampaignControlPanel
           campaignId={id}
           status={campaign.status}
           rolledBackAt={campaign.rolled_back_at}
+          showCompareLink={showCampaignCompareLink}
         />
         <article className="ui-card p-5">
           <p className="ui-label-caps">Eligibility</p>
@@ -146,7 +174,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                       <th className="px-3 py-2">Skipped</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-100">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {Object.entries(segmentBreakdown).map(([seg, counts]) => (
                       <tr key={seg}>
                         <td className="px-3 py-2 font-medium text-zinc-800">{seg}</td>
@@ -177,7 +205,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                       <th className="px-3 py-2">Skipped</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-100">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {Object.entries(teamBreakdown).map(([team, counts]) => (
                       <tr key={team}>
                         <td className="px-3 py-2 font-medium text-zinc-800">{team}</td>

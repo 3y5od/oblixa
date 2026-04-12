@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
@@ -20,6 +21,10 @@ export async function GET(request: Request) {
       durationMs: Date.now() - startedAt,
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const rate = await rateLimitCheck("cron:integrations:crm-sync", RATE_LIMITS.integrationCrmSync);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
   }
   const admin = await createAdminClient();
   const { data: connections } = await admin

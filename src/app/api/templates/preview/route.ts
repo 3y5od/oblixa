@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { getOrgMemberRole } from "@/lib/permissions";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { isUuid } from "@/lib/security/validation";
 
 export async function GET(request: Request) {
@@ -17,10 +23,23 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
+  const { data: memberships, error: membershipError } = await admin
+    .from("organization_members")
+    .select("organization_id")
+    .eq("user_id", user.id);
+  if (membershipError) {
+    return NextResponse.json({ error: "Could not verify organization access" }, { status: 500 });
+  }
+  const orgIds = [...new Set((memberships ?? []).map((m) => String(m.organization_id)).filter(Boolean))];
+  if (orgIds.length === 0) {
+    return NextResponse.json({ error: "No organization membership" }, { status: 403 });
+  }
+
   const { data: contract, error: contractError } = await admin
     .from("contracts")
     .select("id, organization_id, contract_type")
     .eq("id", contractId)
+    .in("organization_id", orgIds)
     .maybeSingle();
   if (contractError) {
     return NextResponse.json({ error: "Failed to load contract" }, { status: 500 });
@@ -29,6 +48,25 @@ export async function GET(request: Request) {
 
   const role = await getOrgMemberRole(admin, user.id, contract.organization_id);
   if (!role) return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: contract.organization_id,
+    role,
+    apiPath: "/api/templates/preview",
+  });
+  if (modeGate) return modeGate;
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`templates-preview:${user.id}:${ip}`, RATE_LIMITS.templatesPreview);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
+  }
 
   const [fields, reminders, tasks, existingFields, existingReminders, existingTasks] =
     await Promise.all([

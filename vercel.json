@@ -159,6 +159,10 @@
     {
       "path": "/api/cron/v6/external-workflow-deadlines",
       "schedule": "*/25 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/onboarding-calibration-stale",
+      "schedule": "18 4 * * *"
     }
   ]
 }

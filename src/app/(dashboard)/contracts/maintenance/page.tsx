@@ -254,7 +254,7 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Maintenance campaigns (V4)</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
@@ -321,10 +321,10 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Stale active/review records</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {staleContracts.length === 0 ? (
             <li className="px-6 py-4 text-sm text-zinc-500">No stale records.</li>
           ) : (
@@ -341,10 +341,10 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Ownerless contracts (reassign)</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {missingOwner.length === 0 ? (
             <li className="px-6 py-4 text-sm text-zinc-500">No ownerless records.</li>
           ) : (
@@ -373,10 +373,10 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Duplicate review queue (archive)</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {duplicates.length === 0 ? (
             <li className="px-6 py-4 text-sm text-zinc-500">No duplicate groups.</li>
           ) : (
@@ -406,10 +406,10 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Orphaned file rows (cleanup)</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {orphaned.length === 0 ? (
             <li className="px-6 py-4 text-sm text-zinc-500">No orphaned file rows detected.</li>
           ) : (
@@ -429,7 +429,7 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Correction campaigns</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
@@ -462,7 +462,7 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Guided change-event maintenance</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
@@ -495,7 +495,7 @@ export default async function MaintenancePage() {
             <p className="text-xs text-zinc-500">Creates follow-up tasks and marks queued events processed.</p>
           </form>
         </div>
-        <ul className="divide-y divide-zinc-100 border-t border-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)] border-t border-zinc-100">
           {changeEvents.length === 0 ? (
             <li className="px-6 py-4 text-sm text-zinc-500">No pending change events.</li>
           ) : (

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { parseWorkspaceMode } from "@/lib/product-surface/context";
+import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 
 function csvEscape(value: string) {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -15,6 +19,13 @@ export async function GET(
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/report-packs/[id]/runs",
+  });
+  if (modeGate) return modeGate;
 
   const url = new URL(request.url);
   const format = url.searchParams.get("format");
@@ -27,6 +38,12 @@ export async function GET(
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
   if (!pack) return NextResponse.json({ error: "Report pack not found" }, { status: 404 });
+
+  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const mode = parseWorkspaceMode(v6);
+  if (!workspaceModeAllowsReportType(mode, String(pack.report_type ?? ""))) {
+    return NextResponse.json({ error: "Feature not available in workspace mode" }, { status: 404 });
+  }
 
   const { data, error } = await ctx.admin
     .from("report_pack_runs")

@@ -136,7 +136,7 @@ export default async function DecisionsManagerReviewPage() {
               <th className="px-4 py-3">Review actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {enriched.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-6">

@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import {
+  ContractContinuityLinks,
+  type ContinuityPage,
+} from "@/components/ui/contract-continuity-links";
+import {
   OperationalMetricChip,
   semanticStatusToOperationalTone,
 } from "@/components/ui/operational-summary-card";
@@ -17,6 +21,8 @@ export function QueueItemCard({
   due,
   nextAction,
   meta,
+  continuityContractId,
+  continuityOmit,
 }: {
   title: string;
   href?: string;
@@ -27,6 +33,9 @@ export function QueueItemCard({
   due?: string;
   nextAction: { label: string; href: string };
   meta?: string;
+  /** When set, shows cross-surface links for this contract (refinement §16.3). */
+  continuityContractId?: string;
+  continuityOmit?: ContinuityPage[];
 }) {
   const opTone = semanticStatusToOperationalTone(statusTone);
   const chips: { label: string; value: string }[] = [
@@ -57,6 +66,13 @@ export function QueueItemCard({
                 title
               )}
             </h3>
+            {continuityContractId ? (
+              <ContractContinuityLinks
+                contractId={continuityContractId}
+                omit={continuityOmit}
+                className="mt-1 text-[10px] leading-snug text-zinc-500"
+              />
+            ) : null}
           </div>
         </div>
         <StatusBadge status={statusTone} className="shrink-0">

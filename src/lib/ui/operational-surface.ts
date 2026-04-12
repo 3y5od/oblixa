@@ -1,6 +1,9 @@
 /**
  * Shared semantic tones for operational summary surfaces (dashboard signals,
  * metric strips, queue cards). Keeps control-room data and UI aligned.
+ *
+ * docs/refinement.md §15.4 — queue/state chrome: map operational facts to `OperationalTone`, then to shells/chips
+ * (`semanticStatusToOperationalTone` in `operational-summary-card.tsx` bridges `SemanticStatus` → tone).
  */
 export type OperationalTone = "healthy" | "neutral" | "attention" | "risk";
 

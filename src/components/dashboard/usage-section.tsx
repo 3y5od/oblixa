@@ -19,11 +19,11 @@ export function UsageSection({
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-6 py-4">
+      <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/30 px-6 py-4">
         <h2 className="ui-section-title">Workspace activity</h2>
         <p className="mt-1 text-[12px] font-medium text-zinc-500">{periodLabel}</p>
       </div>
-      <div className="grid divide-y divide-zinc-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="grid divide-y divide-[var(--border-subtle)] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         {items.map((item) => (
           <div
             key={item.label}

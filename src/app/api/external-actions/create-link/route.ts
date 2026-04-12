@@ -7,6 +7,7 @@ import {
   isValidExternalActionType,
 } from "@/lib/v5/external-action-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
@@ -19,6 +20,13 @@ export async function POST(request: Request) {
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/external-actions/create-link",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

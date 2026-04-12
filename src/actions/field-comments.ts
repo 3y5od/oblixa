@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
+import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
 
 const MAX_COMMENT_LEN = 4000;
 
@@ -91,17 +92,23 @@ export async function addFieldComment(input: {
       .in("user_id", mentions);
     const validMentionIds = (members ?? []).map((m) => m.user_id).filter((id) => id !== user.id);
     if (validMentionIds.length > 0) {
-      await admin.from("internal_notifications").insert(
-        validMentionIds.map((userId) => ({
-          organization_id: contract.organization_id,
-          user_id: userId,
-          notification_type: "mention",
-          title: "You were mentioned on a contract field",
-          body: comment.slice(0, 180),
-          entity_type: "field_comment",
-          entity_id: created.id,
-        }))
-      );
+      const notificationsAllowed = await isNotificationTypeAllowedForWorkspace(admin as never, {
+        organizationId: contract.organization_id,
+        notificationType: "mention",
+      });
+      if (notificationsAllowed) {
+        await admin.from("internal_notifications").insert(
+          validMentionIds.map((userId) => ({
+            organization_id: contract.organization_id,
+            user_id: userId,
+            notification_type: "mention",
+            title: "You were mentioned on a contract field",
+            body: comment.slice(0, 180),
+            entity_type: "field_comment",
+            entity_id: created.id,
+          }))
+        );
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, differenceInDays } from "date-fns";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { getAuthContext } from "@/lib/supabase/server";
 import { SlackRenewalSummaryForm } from "@/components/v4/slack-renewal-summary-form";
 import { seedRenewalPlaybook } from "@/actions/renewal-playbook";
@@ -16,6 +17,8 @@ import {
 } from "@/lib/contract-filters";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 
 const HORIZON_OPTIONS: { value: DeadlinePreset; label: string }[] = [
   { value: "renewal_30", label: "Renewal <= 30d" },
@@ -48,6 +51,17 @@ export default async function RenewalsWorkspacePage(props: {
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId } = ctx;
+
+  const productSurface = await loadProductSurfaceContext(
+    admin,
+    orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showDecisionsCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "decisions");
+  const showSlackRenewalSummary =
+    productSurface.mode === "advanced" || productSurface.mode === "assurance";
 
   const candidateIds = (await getContractIdsForDeadlinePreset(admin, orgId, horizon)) ?? [];
   const { data: contractsData } =
@@ -174,7 +188,7 @@ export default async function RenewalsWorkspacePage(props: {
         blocker: scenario?.blocker ?? null,
         playbookRecommendation:
           stats.total === 0
-            ? "Seed a baseline playbook"
+            ? "Seed a baseline checklist"
             : daysUntil != null && daysUntil <= 30
               ? "Escalate final approvals and send action"
               : stats.completed / Math.max(1, stats.total) < 0.5
@@ -223,19 +237,32 @@ export default async function RenewalsWorkspacePage(props: {
         <div>
           <p className="ui-eyebrow">Renewal preparation</p>
           <h1 className="ui-display-title mt-2">Renewals workspace</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">Horizon-based renewal queue with checkpoints and playbooks.</p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Horizon-based renewal queue with checkpoints and structured follow-ups.
+          </p>
         </div>
         <Link href="/contracts/tasks" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           Open task queue
         </Link>
       </header>
 
+      {showDecisionsCta ? (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 text-sm text-zinc-700 shadow-[var(--shadow-1)]">
+          <span className="font-medium text-zinc-900">Decisions</span>
+          {" — "}
+          Compare scenarios and record renewal choices in one place.{" "}
+          <Link href="/decisions" prefetch={false} className="ui-link">
+            Open decisions
+          </Link>
+        </div>
+      ) : null}
+
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="ui-card p-5">
           <p className="ui-label-caps">Renewal workspace 2.0</p>
           <p className="mt-2 text-sm text-zinc-600">
             Open any contract to edit checkpoint JSON (stakeholder checklist, scenario comparison, commercial notes,
-            meeting agenda). Renewal states and decision packets continue to layer on the contract record.
+            meeting agenda). Renewal states and review packets continue to layer on the contract record.
           </p>
           <p className="mt-3 text-xs text-zinc-500">
             Portfolio signals: {renewalSignals.total} checkpoints · {renewalSignals.overdue} overdue ·{" "}
@@ -245,7 +272,13 @@ export default async function RenewalsWorkspacePage(props: {
             Open portfolio signals JSON
           </Link>
         </div>
-        <SlackRenewalSummaryForm />
+        {showSlackRenewalSummary ? (
+          <SlackRenewalSummaryForm />
+        ) : (
+          <div className="ui-card p-5 text-sm text-zinc-600">
+            Slack renewal digests are currently disabled for this workspace configuration.
+          </div>
+        )}
       </section>
 
       <div className="ui-panel md:p-6">
@@ -341,7 +374,7 @@ export default async function RenewalsWorkspacePage(props: {
         />
       ) : (
         <div className="ui-table-shell">
-          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Contract</th>
@@ -350,17 +383,18 @@ export default async function RenewalsWorkspacePage(props: {
                 <th className="px-5 py-3">Key date</th>
                 <th className="px-5 py-3">Countdown</th>
                 <th className="px-5 py-3">Annual value</th>
-                <th className="px-5 py-3">Playbook</th>
+                <th className="px-5 py-3">Checklist</th>
                 <th className="px-5 py-3">Workspace</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {rows.map((row) => (
                 <tr key={row.id} className="ui-table-row">
                   <td className="px-5 py-4 font-semibold text-zinc-900">
                     <Link href={`/contracts/${row.id}`} className="ui-link">
                       {row.title}
                     </Link>
+                    <ContractContinuityLinks contractId={row.id} omit={["renewals"]} />
                   </td>
                   <td className="px-5 py-4 text-zinc-600">{row.counterparty || "—"}</td>
                   <td className="px-5 py-4 text-zinc-600">{row.status}</td>
@@ -410,7 +444,7 @@ export default async function RenewalsWorkspacePage(props: {
                     ) : (
                       <form action={seedRenewalPlaybook.bind(null, row.id)}>
                         <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                          Seed playbook
+                          Seed checklist
                         </button>
                       </form>
                     )}

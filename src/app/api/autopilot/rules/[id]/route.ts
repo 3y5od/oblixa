@@ -5,7 +5,9 @@ import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { disableAutopilotRule, patchAutopilotRule } from "@/lib/v6/autopilot";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6Autopilot");
@@ -13,6 +15,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/autopilot/rules/[id]",
+  });
+  if (modeGate) return modeGate;
+
+  const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
+  if (modeBlock) return modeBlock;
 
   const ruleId = toSafeString((await params).id);
   const body = readJsonBody<{
@@ -40,6 +53,17 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/autopilot/rules/[id]",
+  });
+  if (modeGate) return modeGate;
+
+  const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
+  if (modeBlock) return modeBlock;
 
   const ruleId = toSafeString((await params).id);
   const result = await disableAutopilotRule(ctx.admin, ctx.orgId, ruleId);

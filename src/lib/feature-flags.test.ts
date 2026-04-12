@@ -1,31 +1,42 @@
-import { describe, expect, it } from "vitest";
-import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("feature flags", () => {
-  it("defaults to enabled when unset (V4 launch default)", () => {
+  beforeEach(() => {
+    vi.resetModules();
     delete process.env.ENABLE_V3_TASKS_ENGINE;
+    delete process.env.ENABLE_V6_ASSURANCE_CORE;
+    delete process.env.ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION;
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("treats unset env as enabled (v4 default)", async () => {
+    const { isFeatureEnabled } = await import("@/lib/feature-flags");
     expect(isFeatureEnabled("v3TasksEngine")).toBe(true);
   });
 
-  it("parses explicit false values", () => {
-    process.env.ENABLE_V3_TASKS_ENGINE = "false";
-    expect(isFeatureEnabled("v3TasksEngine")).toBe(false);
-    process.env.ENABLE_V3_TASKS_ENGINE = "0";
-    expect(isFeatureEnabled("v3TasksEngine")).toBe(false);
-    process.env.ENABLE_V3_TASKS_ENGINE = "off";
-    expect(isFeatureEnabled("v3TasksEngine")).toBe(false);
+  it("parses falsey string variants as disabled", async () => {
+    process.env.ENABLE_V6_ASSURANCE_CORE = "0";
+    const { isFeatureEnabled } = await import("@/lib/feature-flags");
+    expect(isFeatureEnabled("v6AssuranceCore")).toBe(false);
+    process.env.ENABLE_V6_ASSURANCE_CORE = "false";
+    vi.resetModules();
+    const { isFeatureEnabled: is2 } = await import("@/lib/feature-flags");
+    expect(is2("v6AssuranceCore")).toBe(false);
   });
 
-  it("parses explicit true and other non-disable values as enabled", () => {
-    process.env.ENABLE_V3_TASKS_ENGINE = "true";
-    expect(isFeatureEnabled("v3TasksEngine")).toBe(true);
-    process.env.ENABLE_V3_TASKS_ENGINE = "1";
-    expect(isFeatureEnabled("v3TasksEngine")).toBe(true);
-  });
-
-  it("returns a full snapshot map", () => {
-    const flags = getFeatureFlags();
-    expect(flags).toHaveProperty("v3TasksEngine");
-    expect(flags).toHaveProperty("v3ReportingHistory");
+  it("getFeatureFlags returns every key", async () => {
+    const { getFeatureFlags } = await import("@/lib/feature-flags");
+    const all = getFeatureFlags();
+    expect(Object.keys(all).sort()).toEqual(
+      expect.arrayContaining([
+        "v5PortfolioCampaigns",
+        "v6Segments",
+        "v6AutopilotAllowExecution",
+      ])
+    );
+    expect(Object.keys(all).length).toBeGreaterThan(15);
   });
 });

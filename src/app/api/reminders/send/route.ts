@@ -9,10 +9,8 @@ import {
 } from "@/lib/env/server";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
-import {
-  evaluateNotificationPolicy,
-  loadNotificationPoliciesForOrganizations,
-} from "@/lib/notification-policy";
+import { isNotificationAllowed } from "@/lib/notification-policy";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
@@ -49,6 +47,10 @@ export async function GET(request: Request) {
       { error: "Server misconfigured for reminder delivery" },
       { status: 500 }
     );
+  }
+  const rate = await rateLimitCheck("cron:reminders:send", RATE_LIMITS.remindersSendCron);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
   }
   const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: { getAll: () => [], setAll: () => {} },
@@ -130,10 +132,6 @@ export async function GET(request: Request) {
         .filter((id): id is string => !!id)
     ),
   ];
-  const policyByOrg = await loadNotificationPoliciesForOrganizations(
-    admin,
-    orgIdsForBatch
-  );
 
   const DEDUP_SCAN_LIMIT = 8000;
   const { data: priorDeliveryRows } =
@@ -209,7 +207,8 @@ export async function GET(request: Request) {
       continue;
     }
     if (contractOrg) {
-      const allowed = evaluateNotificationPolicy(policyByOrg.get(contractOrg), {
+      const allowed = await isNotificationAllowed(admin, {
+        organizationId: contractOrg,
         channel: "email",
         notificationType: "reminder_due",
       });

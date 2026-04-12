@@ -29,7 +29,7 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
+      <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="ui-section-title">My open tasks</h2>
@@ -42,7 +42,7 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
           </Link>
         </div>
       </div>
-      <ul className="divide-y divide-zinc-100">
+      <ul className="divide-y divide-[var(--border-subtle)]">
         {tasks.map((task) => (
           <li key={task.id}>
             <Link

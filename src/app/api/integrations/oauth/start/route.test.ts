@@ -2,10 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
+const getDeterministicMembership = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
   createAdminClient,
+  getDeterministicMembership,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 function buildAuthClient(userId: string | null) {
@@ -22,6 +29,7 @@ describe("POST /api/integrations/oauth/start", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
   });
 
   it("returns 400 for unsupported provider", async () => {
@@ -51,14 +59,10 @@ describe("POST /api/integrations/oauth/start", () => {
     process.env.OAUTH_SLACK_CLIENT_SECRET = "csecret";
     const userId = crypto.randomUUID();
     const orgId = crypto.randomUUID();
-    const orgMembershipQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      maybeSingle: vi.fn().mockResolvedValue({
-        data: { organization_id: orgId, role: "admin" },
-      }),
-    };
+    getDeterministicMembership.mockResolvedValue({
+      organization_id: orgId,
+      role: "admin",
+    });
     const oauthStateInsert = vi.fn().mockResolvedValue({
       error: { message: "insert failed" },
     });
@@ -71,7 +75,6 @@ describe("POST /api/integrations/oauth/start", () => {
     };
     createAdminClient.mockResolvedValue({
       from: vi.fn((table: string) => {
-        if (table === "organization_members") return orgMembershipQuery;
         if (table === "integration_oauth_states") return { insert: oauthStateInsert };
         if (table === "integration_connections") return integrationConnectionQuery;
         return {};

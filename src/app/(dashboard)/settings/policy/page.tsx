@@ -4,6 +4,8 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { PolicySimulationPanel } from "@/components/v4/policy-simulation-panel";
 import { savePolicyRegistryAction } from "@/actions/v4";
 import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/v4/policy-registry";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { loadProductSurfaceContext } from "@/lib/product-surface";
 
 const DEFAULT_REGISTRY = [
   {
@@ -57,6 +59,13 @@ export default async function PolicyRegistryPage() {
     .order("updated_at", { ascending: false })
     .limit(40);
 
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showPolicySimulation = productSurface.mode !== "core";
+
   async function saveAction(formData: FormData) {
     "use server";
     await savePolicyRegistryAction(formData);
@@ -98,12 +107,22 @@ export default async function PolicyRegistryPage() {
         </form>
       </section>
 
-      <PolicySimulationPanel
-        contracts={(recentContracts ?? []).map((c) => ({
-          id: c.id as string,
-          title: (c.title as string) || "Untitled",
-        }))}
-      />
+      {showPolicySimulation ? (
+        <PolicySimulationPanel
+          contracts={(recentContracts ?? []).map((c) => ({
+            id: c.id as string,
+            title: (c.title as string) || "Untitled",
+          }))}
+        />
+      ) : (
+        <section className="ui-card p-5 text-sm text-zinc-600">
+          <p className="font-medium text-zinc-900">Policy simulation</p>
+          <p className="ui-muted-tight mt-2 text-[13px]">
+            Contract-level simulation is available when the workspace is in Advanced or Assurance mode (Settings →
+            Product experience). The registry JSON above still applies to execution and SLAs in Core.
+          </p>
+        </section>
+      )}
 
       {savedWarnings.length > 0 ? (
         <section className="rounded-lg border border-amber-200/80 bg-amber-50/40 p-4 text-sm text-amber-950">

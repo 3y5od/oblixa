@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import {
   workflowExternalEvidenceRefresh,
@@ -18,6 +19,14 @@ export async function POST() {
 
   const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/assurance/workflows/run-all",
+  });
+  if (modeGate) return modeGate;
 
   const [w1, w2, w3, w4, w5] = await Promise.all([
     workflowFindingToIntervention(ctx.admin, ctx.orgId, ctx.userId),

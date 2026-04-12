@@ -1,5 +1,6 @@
 import type { AdminClient } from "@/lib/v6/service";
-import { deliverWithRetries } from "@/lib/notification-delivery";
+import { isNotificationAllowed } from "@/lib/notification-policy";
+import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 import { sendReviewBoardPacketEmail } from "@/lib/email";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
@@ -76,6 +77,22 @@ export async function deliverReviewBoardRunNotifications(
       const to = String(s.email ?? "").trim();
       if (!isLikelyEmail(to)) continue;
       attempted += 1;
+      const allowed = await isNotificationAllowed(admin, {
+        organizationId: orgId,
+        channel: "email",
+        notificationType: "review_board_packet",
+      });
+      if (!allowed) {
+        await markNotificationSuppressed(admin, {
+          organizationId: orgId,
+          channel: "email",
+          notificationType: "review_board_packet",
+          recipient: to,
+          subject: `Assurance review board: ${opts.boardName}`,
+          metadata: { review_board_id: opts.boardId, review_board_run_id: opts.runId },
+        });
+        continue;
+      }
       const subject = `Assurance review board: ${opts.boardName}`;
       const htmlBody = `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
@@ -126,6 +143,21 @@ export async function deliverReviewBoardRunNotifications(
       const webhook = validateOutboundHttpUrl(webhookRaw);
       if (!webhook) continue;
       attempted += 1;
+      const slackAllowed = await isNotificationAllowed(admin, {
+        organizationId: orgId,
+        channel: "slack",
+        notificationType: "review_board_slack",
+      });
+      if (!slackAllowed) {
+        await markNotificationSuppressed(admin, {
+          organizationId: orgId,
+          channel: "slack",
+          notificationType: "review_board_slack",
+          subject: `Review board packet: ${opts.boardName}`,
+          metadata: { review_board_id: opts.boardId, review_board_run_id: opts.runId },
+        });
+        continue;
+      }
       const slackChannel = s.slack_channel != null ? String(s.slack_channel) : null;
       const title = `Review board packet: ${opts.boardName}`;
       const result = await deliverWithRetries(admin, {

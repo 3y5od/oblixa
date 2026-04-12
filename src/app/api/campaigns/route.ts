@@ -8,12 +8,20 @@ import {
   isValidCampaignType,
 } from "@/lib/v5/campaign-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/campaigns",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("portfolio_campaigns")
@@ -30,6 +38,13 @@ export async function POST(request: Request) {
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/campaigns",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "maintenance_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

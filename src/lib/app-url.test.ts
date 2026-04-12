@@ -1,52 +1,36 @@
-import { describe, it, expect, afterEach } from "vitest";
-import {
-  getAppBaseUrlFromEnv,
-  getRequestOrigin,
-  resolveExtractionWorkerOrigin,
-} from "@/lib/app-url";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("getRequestOrigin", () => {
-  it("returns origin from Request URL", () => {
-    const r = new Request("https://my-preview.vercel.app/api/extract");
-    expect(getRequestOrigin(r)).toBe("https://my-preview.vercel.app");
-  });
-});
+const headersMock = vi.fn();
+vi.mock("next/headers", () => ({
+  headers: () => headersMock(),
+}));
 
-describe("getAppBaseUrlFromEnv", () => {
-  const orig = process.env.NEXT_PUBLIC_APP_URL;
-
-  afterEach(() => {
-    process.env.NEXT_PUBLIC_APP_URL = orig;
+describe("resolveAppBaseUrl", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    delete process.env.VERCEL_URL;
+    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
   });
 
-  it("strips trailing slashes", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000///";
-    expect(getAppBaseUrlFromEnv()).toBe("http://localhost:3000");
-  });
-});
-
-describe("resolveExtractionWorkerOrigin", () => {
-  const origWorker = process.env.EXTRACTION_WORKER_BASE_URL;
-
-  afterEach(() => {
-    process.env.EXTRACTION_WORKER_BASE_URL = origWorker;
+  it("prefers x-forwarded-host and x-forwarded-proto when present", async () => {
+    headersMock.mockResolvedValue(
+      new Headers({
+        "x-forwarded-host": "app.example.com",
+        "x-forwarded-proto": "https",
+      })
+    );
+    const { resolveAppBaseUrl } = await import("@/lib/app-url");
+    await expect(resolveAppBaseUrl()).resolves.toBe("https://app.example.com");
   });
 
-  it("uses EXTRACTION_WORKER_BASE_URL when set", () => {
-    process.env.EXTRACTION_WORKER_BASE_URL = "https://api.example.com/";
-    const r = new Request("http://localhost:3000/api/extract");
-    expect(resolveExtractionWorkerOrigin(r)).toBe("https://api.example.com");
-  });
-
-  it("falls back to request origin", () => {
-    process.env.EXTRACTION_WORKER_BASE_URL = "";
-    const r = new Request("https://preview.vercel.app/api/extract");
-    expect(resolveExtractionWorkerOrigin(r)).toBe("https://preview.vercel.app");
-  });
-
-  it("falls back when EXTRACTION_WORKER_BASE_URL is unsafe (SSRF hardening)", () => {
-    process.env.EXTRACTION_WORKER_BASE_URL = "http://127.0.0.1:3000";
-    const r = new Request("https://good.example.com/api/extract");
-    expect(resolveExtractionWorkerOrigin(r)).toBe("https://good.example.com");
+  it("builds an origin from forwarded headers as provided (edge must validate host trust)", async () => {
+    headersMock.mockResolvedValue(
+      new Headers({
+        "x-forwarded-host": "untrusted-host.example",
+        "x-forwarded-proto": "https",
+      })
+    );
+    const { resolveAppBaseUrl } = await import("@/lib/app-url");
+    await expect(resolveAppBaseUrl()).resolves.toBe("https://untrusted-host.example");
   });
 });

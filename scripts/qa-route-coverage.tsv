@@ -1,0 +1,71 @@
+route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_found	open_p0p1	notes
+/	n	n	a11y.spec,smoke	pending_human	n	0	n	public_marketing
+/login	n	n	a11y.spec,smoke,perf	pending_human	y	0	n	auth_segment_loading
+/signup	n	n	a11y.spec	pending_human	n	0	n	
+/forgot-password	n	n	a11y.spec	pending_human	n	0	n	
+/reset-password	y	y	a11y.spec	pending_human	n	0	n	
+/privacy	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/terms	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/security	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/accessibility	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/cookies	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/dashboard	y	y	authenticated,v3,v5,v6	pending_human	y	0	n	
+/dashboard/persona	n	n	v3_workflows	pending_human	y	0	n	tier3_axe_candidate
+/work	y	y	authenticated	pending_human	y	0	n	dashboard_segment_loading
+/more	y	y	v3_workflows	pending_human	n	0	n	
+/relationship-workspaces	n	n	v5_surfaces_optional	pending_human	n	0	n	404_if_flag_off
+/settings	y	y	authenticated	pending_human	y	1	n	UI-2026-001_layout_fixed
+/settings/operations	y	y	authenticated	pending_human	n	0	n	
+/settings/billing	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/settings/health	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
+/settings/policy	y	y	authenticated	pending_human	n	0	n	
+/settings/product	n	n	authenticated,onboarding_calibration_e2e	pending_human	n	0	n	calibration_summary_export_e2e
+/onboarding/calibration	n	n	authenticated,onboarding_calibration_e2e,security_api	pending_human	y	0	n	blocking_fixture_optional_e2e_onboarding_env
+/decisions	y	y	authenticated,v5,v6	pending_human	y	0	n	decisions_segment_loading
+/decisions/compare	n	n	v5_workflows_optional	pending_human	n	0	n	tier3_axe_candidate
+/decisions/review	n	n	v5_workflows_optional	pending_human	n	0	n	tier3_axe_candidate
+/campaigns	y	y	v5_surfaces_if_enabled	pending_human	n	0	n	axe_skips_404_403
+/campaigns/compare	n	n	v5_surfaces	pending_human	n	0	n	tier3_axe_candidate
+/reports	y	y	authenticated,v5,v6	pending_human	y	0	n	reports_segment_loading
+/contracts	y	y	authenticated,auth-flow,v3	pending_human	y	0	n	
+/contracts/new	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/contracts/intake	y	y	authenticated,v3_workflows	pending_human	n	0	n	tier3_axe_candidate
+/contracts/review	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/contracts/review-cadence	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/contracts/bulk	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/contracts/collaboration	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/contracts/data-quality	y	y	authenticated,v3	pending_human	y	0	n	
+/contracts/analytics	y	y	authenticated,v3_workflows	pending_human	y	0	n	tier3_axe_candidate
+/contracts/reports	y	y	authenticated,v3	pending_human	y	0	n	
+/contracts/tasks	n	n	v3_workflows	pending_human	y	0	n	tier3_axe_candidate
+/contracts/obligations	n	n	v3_workflows	pending_human	n	0	n	tier3_axe_candidate
+/contracts/approvals	y	y	authenticated,v3	pending_human	n	0	n	
+/contracts/approvals/sla-simulator	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/contracts/approvals/workload	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/contracts/renewals	n	n	v3_workflows	pending_human	n	0	n	tier3_axe_candidate
+/contracts/programs	y	y	authenticated	pending_human	n	0	n	
+/contracts/maintenance	y	y	authenticated	pending_human	n	0	n	
+/contracts/exceptions	n	n	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/contracts/execution-graph	y	n	authenticated	pending_human	n	0	n	viewport_excluded_wide_viz
+/contracts/evidence-studio	y	y	authenticated	pending_human	n	0	n	
+/contracts/watchlists	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/assurance	n	n	v6_assurance	pending_human	y	0	n	assurance_segment_loading
+/assurance/findings	y	y	authenticated,v6	pending_human	n	0	n	
+/assurance/health-graph	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/scorecards	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/review-boards	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/program-evolution	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/control-policies	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/playbooks	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/autopilot	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/assurance/segments	n	n	v6_assurance	pending_human	n	0	n	tier3_axe_candidate
+/external/[token]	n	n	v5_surfaces_invalid_token	pending_human	n	0	n	
+/contracts/[id]	n	n	manual_needs_id	pending_human	y	0	n	dynamic
+/decisions/[id]	n	n	v5_surfaces_optional	pending_human	n	0	n	dynamic
+/campaigns/[id]	n	n	manual	pending_human	n	0	n	dynamic
+/assurance/findings/[id]	n	n	manual	pending_human	n	0	n	dynamic
+/assurance/control-policies/[id]	n	n	manual	pending_human	n	0	n	dynamic
+/accounts/[key]	n	n	v5_surfaces_optional	pending_human	n	0	n	dynamic
+/counterparties/[key]	n	n	v5_surfaces_optional	pending_human	n	0	n	dynamic
+/robots.txt	n	n	marketing_public	pending_human	n	0	n	http_metadata_route
+/sitemap.xml	n	n	marketing_public	pending_human	n	0	n	http_metadata_route

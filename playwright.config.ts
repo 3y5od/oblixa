@@ -1,5 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const onboardingDeep =
+  process.env.PLAYWRIGHT_ONBOARDING_DEEP === "1" || process.env.PLAYWRIGHT_ONBOARDING_DEEP === "true";
+
+/** Opt-in: run marketing + perf smokes on Firefox/WebKit (same matrix shape as onboarding-deep). */
+const multiBrowser =
+  process.env.PLAYWRIGHT_MULTI_BROWSER === "1" || process.env.PLAYWRIGHT_MULTI_BROWSER === "true";
+
 export default defineConfig({
   testDir: "./e2e",
   // Local: serialized for stability. CI: parallelize against a production `next start` server.
@@ -11,7 +18,13 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: onboardingDeep || multiBrowser
+    ? [
+        { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+        { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+        { name: "webkit", use: { ...devices["Desktop Safari"] } },
+      ]
+    : [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {

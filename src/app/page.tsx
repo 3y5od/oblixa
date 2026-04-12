@@ -1,17 +1,45 @@
 import type { Metadata } from "next";
+import { LandingJsonLd } from "@/components/landing/landing-json-ld";
 import { LandingPage } from "@/components/landing/landing-page";
 
+/** Public landing ISR — aligns with (marketing) segment revalidate. */
+export const revalidate = 86400;
+
+const title = "Oblixa — Contract execution for post-signature teams";
+const description =
+  "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.";
+const ogDescription =
+  "Contract execution platform for post-signature operations. Upload, review, execute, and prove outcomes.";
+
 export const metadata: Metadata = {
-  title: "Oblixa — Contract execution for post-signature teams",
-  description:
-    "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+  title,
+  description,
+  alternates: { canonical: "/" },
+  keywords: [
+    "contract execution",
+    "renewals",
+    "contract operations",
+    "obligations",
+    "post-signature",
+  ],
   openGraph: {
-    title: "Oblixa — Contract execution for post-signature teams",
-    description:
-      "Contract execution platform for post-signature operations. Upload, review, execute, and prove outcomes.",
+    title,
+    description: ogDescription,
+    type: "website",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description: ogDescription,
   },
 };
 
 export default function Home() {
-  return <LandingPage />;
+  return (
+    <>
+      <LandingJsonLd />
+      <LandingPage />
+    </>
+  );
 }

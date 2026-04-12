@@ -129,7 +129,7 @@ export default async function DecisionsPage({
       </section>
 
       <div className="ui-card overflow-hidden">
-        <table className="min-w-full divide-y divide-zinc-100 text-sm">
+        <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
           <thead className="ui-table-header">
             <tr>
               <th className="px-5 py-3">Title</th>
@@ -141,7 +141,7 @@ export default async function DecisionsPage({
               <th className="px-5 py-3">Next action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-8">

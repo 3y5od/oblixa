@@ -6,6 +6,33 @@ import {
   getSupabaseServiceRoleKey,
 } from "@/lib/env/server";
 import type { OrgRole } from "@/lib/types";
+import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { ONBOARDING_CALIBRATION_JSON_VERSION } from "@/lib/onboarding/calibration-types";
+
+/** docs/refinement.md §13.1 / §17.1 — persisted on first org creation via `ensureUserOrg`. */
+export const NEW_WORKSPACE_V6_ORG_SETTINGS_JSON: V6OrgSettingsJson = {
+  workspace_mode: "core",
+  autopilot_allow_execution: false,
+  search_scope: "match_mode",
+  advanced_modules_hidden: ["decisions", "campaigns", "programs", "relationships"],
+  assurance_modules_hidden: [
+    "findings",
+    "control_policies",
+    "scorecards",
+    "playbooks",
+    "autopilot",
+    "review_boards",
+    "segments",
+    "program_evolution",
+    "health_graph",
+    "outcome_intelligence",
+  ],
+  onboarding_calibration: {
+    version: ONBOARDING_CALIBRATION_JSON_VERSION,
+    blocking_required: true,
+    status: "pending",
+  },
+};
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -144,5 +171,14 @@ export async function ensureUserOrg(userId: string, orgName: string) {
 
   if (memberError) {
     console.error("Failed to create membership:", memberError.message);
+    return;
   }
+
+  // docs/refinement.md §13.1 + §17.1 — new workspaces start in Core with no mutating autopilot execution.
+  await admin
+    .from("organizations")
+    .update({
+      v6_org_settings_json: { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON },
+    })
+    .eq("id", org.id);
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { mergeExternalResponsePack } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
@@ -14,6 +15,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/assurance/external-links/[id]/response-pack",
+  });
+  if (modeGate) return modeGate;
 
   const linkId = toSafeString((await params).id);
   const body = readJsonBody<{ pack?: Record<string, unknown> }>(await request.json().catch(() => ({})), {});

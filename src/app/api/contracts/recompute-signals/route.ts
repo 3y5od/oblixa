@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
@@ -19,6 +20,11 @@ export async function GET(request: Request) {
       durationMs: Date.now() - startedAt,
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rate = await rateLimitCheck("cron:contracts:recompute-signals", RATE_LIMITS.contractsRecomputeSignalsCron);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
   }
 
   const admin = await createAdminClient();

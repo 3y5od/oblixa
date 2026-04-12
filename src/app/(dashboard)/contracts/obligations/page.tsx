@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { format } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
@@ -235,7 +236,7 @@ export default async function ContractObligationsPage(props: {
         />
       ) : (
         <div className="ui-table-shell">
-          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Obligation</th>
@@ -249,7 +250,7 @@ export default async function ContractObligationsPage(props: {
                 <th className="px-5 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {obligations.map((ob) => (
                 <tr key={ob.id} className="ui-table-row">
                   <td className="px-5 py-4">
@@ -277,6 +278,7 @@ export default async function ContractObligationsPage(props: {
                     <Link href={`/contracts/${ob.contractId}`} className="ui-link">
                       {ob.contractTitle}
                     </Link>
+                    <ContractContinuityLinks contractId={ob.contractId} omit={["obligations"]} />
                   </td>
                   <td className="px-5 py-4 text-zinc-600">
                     {ob.ownerId ? ownerById.get(ob.ownerId) ?? "Member" : "Unassigned"}

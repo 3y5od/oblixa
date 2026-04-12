@@ -41,5 +41,15 @@ test.describe("accessibility", () => {
     );
     expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
   });
+
+  test("reset-password page has no serious violations", async ({ page }) => {
+    await page.goto("/reset-password");
+    await expect(page.locator("h1")).toBeVisible();
+    const results = await new AxeBuilder({ page }).analyze();
+    const blocking = results.violations.filter((v) =>
+      ["serious", "critical"].includes(v.impact ?? "")
+    );
+    expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
+  });
 });
 

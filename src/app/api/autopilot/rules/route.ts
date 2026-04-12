@@ -6,6 +6,8 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { createAutopilotRule, listAutopilotRules } from "@/lib/v6/autopilot";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6Autopilot");
@@ -13,6 +15,16 @@ export async function GET() {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/autopilot/rules",
+  });
+  if (modeGate) return modeGate;
+
+  const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
+  if (modeBlock) return modeBlock;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_autopilot_rules_list_total", 1).catch(
     () => undefined
@@ -29,6 +41,16 @@ export async function POST(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/autopilot/rules",
+  });
+  if (modeGate) return modeGate;
+
+  const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
+  if (modeBlock) return modeBlock;
 
   const body = readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(
     await request.json().catch(() => ({})),

@@ -74,6 +74,7 @@ async function requireWriteAccess(
   if (!canEditContracts(role)) {
     return { error: "Viewers cannot make changes." };
   }
+  // §4.4 — billing write gate only (not IA / workspace mode).
   if (isPlanEnforcementEnabled() && !(await orgHasActivePlan(admin, orgId))) {
     return {
       error: "An active subscription is required. Open Billing to subscribe.",
@@ -135,6 +136,20 @@ export async function createContract(formData: FormData) {
   const writeErr = await requireWriteAccess(admin, user.id, organizationId);
   if (writeErr) return writeErr;
 
+  const files = formData.getAll("files") as File[];
+  const attemptedFiles = files.filter((f) => f.size > 0);
+  const validFiles = attemptedFiles.filter((f) => {
+    if (f.size > MAX_FILE_SIZE) return false;
+    if (!ALLOWED_TYPES.has(f.type)) return false;
+    return true;
+  });
+  if (attemptedFiles.length > 0 && validFiles.length === 0) {
+    return {
+      error:
+        "None of the selected files could be uploaded. Use PDF or DOCX, each 20 MB or smaller.",
+    };
+  }
+
   const { data: contract, error } = await admin
     .from("contracts")
     .insert({
@@ -162,20 +177,6 @@ export async function createContract(formData: FormData) {
     .single();
 
   if (error) return { error: mapDataSourceError(error.message) };
-
-  const files = formData.getAll("files") as File[];
-  const validFiles = files.filter((f) => {
-    if (!f.size) return false;
-    if (f.size > MAX_FILE_SIZE) {
-      console.error(`File too large: ${f.name} (${f.size} bytes)`);
-      return false;
-    }
-    if (!ALLOWED_TYPES.has(f.type)) {
-      console.error(`Unsupported file type: ${f.name} (${f.type})`);
-      return false;
-    }
-    return true;
-  });
 
   await Promise.all(
     validFiles.map(async (file) => {

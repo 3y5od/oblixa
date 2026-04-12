@@ -39,8 +39,8 @@ export default async function ContractReviewQueuePage(props: {
   );
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-6 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-start lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="ui-eyebrow">Field approval</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -84,6 +84,7 @@ export default async function ContractReviewQueuePage(props: {
         <ContractTable
           contracts={contracts}
           reviewStats={reviewStats}
+          showContinuityLinks
           footer={
             <ContractPagination
               total={queue.total}

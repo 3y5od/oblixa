@@ -68,6 +68,7 @@ describe("GET /api/cron/v5/campaign-progress", () => {
           };
         }
         if (table === "portfolio_campaign_contracts") {
+          let segRangeCall = 0;
           return {
             select: vi.fn((cols: string, opts?: { count?: string; head?: boolean }) => {
               if (opts?.count === "exact" && opts?.head) {
@@ -83,14 +84,20 @@ describe("GET /api/cron/v5/campaign-progress", () => {
               return {
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    limit: vi.fn(async () => ({
-                      data: [
-                        { segment_key: "enterprise", assigned_team: "legal", status: "pending" },
-                        { segment_key: "enterprise", assigned_team: "legal", status: "processed" },
-                        { segment_key: null, assigned_team: null, status: "failed" },
-                      ],
-                      error: null,
-                    })),
+                    range: vi.fn(async () => {
+                      segRangeCall += 1;
+                      if (segRangeCall === 1) {
+                        return {
+                          data: [
+                            { segment_key: "enterprise", assigned_team: "legal", status: "pending" },
+                            { segment_key: "enterprise", assigned_team: "legal", status: "processed" },
+                            { segment_key: null, assigned_team: null, status: "failed" },
+                          ],
+                          error: null,
+                        };
+                      }
+                      return { data: [], error: null };
+                    }),
                   })),
                 })),
               };

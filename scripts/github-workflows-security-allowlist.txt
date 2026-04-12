@@ -1,0 +1,1 @@
+# Basenames under .github/workflows to skip (document rare justified exceptions).

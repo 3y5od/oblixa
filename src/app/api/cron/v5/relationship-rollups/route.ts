@@ -4,6 +4,7 @@
  * appends rollup events when derived contract counts change (see inline snapshot compare).
  */
 import { NextResponse } from "next/server";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
@@ -19,6 +20,10 @@ import { appendTimelineEventDeduped } from "@/lib/v5/relationship-timeline";
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
   if (unauthorized) return unauthorized;
+  const rate = await rateLimitCheck("cron:v5:relationship-rollups", RATE_LIMITS.v5CronDefault);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
+  }
   const skipped = requireV5CronFeature("v5RelationshipLayer");
   if (skipped) return skipped;
   const admin = await createAdminClient();

@@ -13,6 +13,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
   canManageCapability,
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 describe("v6 API feature guards", () => {
   it("blocks assurance findings when feature is disabled", async () => {
     requireV6ApiFeature.mockReturnValueOnce(

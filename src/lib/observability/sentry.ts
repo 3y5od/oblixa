@@ -31,3 +31,24 @@ export function captureClientException(
   if (!hasClientDsn()) return;
   Sentry.captureException(error, context);
 }
+
+/** Scrubbed product-surface denial breadcrumbs (V7 §21.2); enable with PRODUCT_SURFACE_SENTRY_DIAGNOSTICS=1. */
+export function addProductSurfaceDiagnosticBreadcrumb(
+  channel: string,
+  details: Record<string, unknown>
+): void {
+  if (process.env.PRODUCT_SURFACE_SENTRY_DIAGNOSTICS !== "1") return;
+  const family = details.family;
+  const reason = details.reason;
+  const discoverability = details.discoverability;
+  Sentry.addBreadcrumb({
+    category: "product_surface",
+    message: channel,
+    level: "info",
+    data: {
+      ...(typeof family === "string" ? { family } : {}),
+      ...(typeof reason === "string" ? { reason } : {}),
+      ...(typeof discoverability === "string" ? { discoverability } : {}),
+    },
+  });
+}

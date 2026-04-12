@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 const DELIVERY_LEASE_MS = 5 * 60 * 1000;
@@ -31,6 +32,7 @@ type RetryPayload =
       workspacePath: string;
       sampleRows: Array<{ label: string; href: string; meta: string }>;
       openPixelUrl?: string | null;
+      workspaceProductMode?: WorkspaceProductMode;
     }
   | {
       kind: "review_board_packet";
@@ -63,6 +65,9 @@ function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPa
     };
   }
   if (payload.kind === "saved_view_summary") {
+    const mode = payload.workspaceProductMode;
+    const safeMode: WorkspaceProductMode | undefined =
+      mode === "core" || mode === "advanced" || mode === "assurance" ? mode : undefined;
     return {
       kind: "saved_view_summary",
       to: limitString(payload.to, 320),
@@ -76,6 +81,7 @@ function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPa
         meta: limitString(row.meta, 280),
       })),
       openPixelUrl: payload.openPixelUrl ? limitString(payload.openPixelUrl, 1024) : null,
+      workspaceProductMode: safeMode,
     };
   }
   if (payload.kind === "review_board_packet") {
@@ -159,6 +165,7 @@ async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | 
       workspacePath: payload.workspacePath,
       sampleRows: payload.sampleRows,
       openPixelUrl: payload.openPixelUrl ?? null,
+      workspaceProductMode: payload.workspaceProductMode,
     });
     return { error: result.error ?? null };
   }

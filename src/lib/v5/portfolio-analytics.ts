@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase/server";
+import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -19,19 +20,24 @@ export async function getPortfolioByProgramRows(
   admin: Admin,
   organizationId: string
 ): Promise<{ programs: ProgramWorkloadRow[]; error: string | null }> {
-  const { data: rows, error } = await admin
-    .from("contract_program_assignments")
-    .select("program_id")
-    .eq("organization_id", organizationId)
-    .eq("status", "active")
-    .limit(5000);
-  if (error) return { programs: [], error: error.message };
-
   const byProgram = new Map<string, number>();
-  for (const r of rows ?? []) {
-    const pid = String(r.program_id);
-    byProgram.set(pid, (byProgram.get(pid) ?? 0) + 1);
-  }
+  const { error: pageError } = await forEachSupabaseRangePage<{ program_id: string }>(
+    (from, to) =>
+      admin
+        .from("contract_program_assignments")
+        .select("program_id")
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .range(from, to),
+    (chunk) => {
+      for (const r of chunk) {
+        const pid = String(r.program_id);
+        byProgram.set(pid, (byProgram.get(pid) ?? 0) + 1);
+      }
+    },
+    { pageSize: 1000 }
+  );
+  if (pageError) return { programs: [], error: pageError.message };
 
   const programs = [...byProgram.entries()]
     .map(([program_id, active_assignments]) => ({

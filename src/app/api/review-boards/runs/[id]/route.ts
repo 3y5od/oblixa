@@ -4,6 +4,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 function csvEscape(value: string): string {
@@ -18,6 +19,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/review-boards/runs/[id]",
+  });
+  if (modeGate) return modeGate;
 
   const runId = toSafeString((await params).id);
   const format = new URL(request.url).searchParams.get("format") === "csv" ? "csv" : "json";
@@ -93,6 +102,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/review-boards/runs/[id]",
+  });
+  if (modeGate) return modeGate;
 
   const runId = toSafeString((await params).id);
   const body = readJsonBody<{

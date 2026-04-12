@@ -1,0 +1,4 @@
+-- Optional maintainer seed for E2E_ONBOARDING_BLOCKING=1 (preview / disposable org only).
+-- Set organizations.v6_org_settings_json->onboarding_calibration to blocking_required: true
+-- with status pending or in_progress for the target organization UUID.
+-- Never run against production. See scripts/onboarding-qa-matrix.json "e2eSeedHint".

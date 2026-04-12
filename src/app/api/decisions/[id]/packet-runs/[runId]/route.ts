@@ -7,6 +7,7 @@ import {
   getV5DecisionPacketBucket,
 } from "@/lib/v5/decision-packet-storage";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 /**
  * Download a packet run as JSON (default), or HTML / print-ready HTML for browser PDF
@@ -21,6 +22,13 @@ export async function GET(
   const { id: decisionId, runId } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/[id]/packet-runs/[runId]",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

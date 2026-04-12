@@ -1,0 +1,2 @@
+# Paths relative to src/app/api (see scripts/check-api-route-rate-limit-coverage.mjs).
+# List route.ts paths that use createAdminClient without rateLimitCheck only when justified.

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { History, Upload } from "lucide-react";
+import { History, Megaphone, Upload } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { BulkUploadForm } from "@/components/contracts/bulk-upload-form";
 import {
@@ -9,6 +9,8 @@ import {
 import { canEditContracts } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 
 export default async function BulkImportPage() {
   const ctx = await getAuthContext();
@@ -22,6 +24,18 @@ export default async function BulkImportPage() {
   }
 
   const canEdit = canEditContracts(ctx.role as OrgRole);
+
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showCampaignCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "campaigns");
+  const showMaintenanceSurfaces =
+    productSurface.mode !== "core" || ctx.role === "admin";
+
   const { data: recentJobs } = await ctx.admin
     .from("contract_import_jobs")
     .select("id, status, total_rows, inserted_rows, error_rows, created_at")
@@ -29,6 +43,7 @@ export default async function BulkImportPage() {
     .order("created_at", { ascending: false })
     .limit(5);
 
+  /** §4.4 — plan/subscription gate for import only; not used for IA or workspace mode. */
   const hasPlan =
     !isPlanEnforcementEnabled() ||
     (await orgHasActivePlan(ctx.admin, ctx.orgId));
@@ -77,15 +92,28 @@ export default async function BulkImportPage() {
           action={{ href: "/contracts/bulk", label: "Refresh" }}
           variant="compact"
         />
-        <OperationalSurfaceLinkCard
-          href="/contracts/maintenance"
-          eyebrow="Hygiene"
-          title="Backfill & correction"
-          hint="Normalization campaigns and date backfills from the maintenance workspace."
-          actionLabel="Open maintenance"
-          icon={Upload}
-          tone="neutral"
-        />
+        {showMaintenanceSurfaces ? (
+          <OperationalSurfaceLinkCard
+            href="/contracts/maintenance"
+            eyebrow="Hygiene"
+            title="Backfill & correction"
+            hint="Normalization campaigns and date backfills from the maintenance workspace."
+            actionLabel="Open maintenance"
+            icon={Upload}
+            tone="neutral"
+          />
+        ) : null}
+        {showCampaignCta ? (
+          <OperationalSurfaceLinkCard
+            href="/campaigns"
+            eyebrow="Remediation"
+            title="Coordinated campaigns"
+            hint="After import, run structured outreach or follow-up as a campaign."
+            actionLabel="Open campaigns"
+            icon={Megaphone}
+            tone="neutral"
+          />
+        ) : null}
       </div>
 
       <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-6 shadow-[var(--shadow-1)]">
@@ -120,18 +148,27 @@ export default async function BulkImportPage() {
                 </li>
               ))}
             </ul>
+            <p className="ui-muted-tight mt-3 text-[13px]">
+              After import, open{" "}
+              <Link href="/contracts" className="ui-link">
+                Contracts
+              </Link>{" "}
+              to review new rows.
+            </p>
           </div>
         )}
-        <div className="mt-6 border-t border-zinc-100 pt-4">
-          <p className="ui-eyebrow">Remediation</p>
-          <p className="ui-section-title mt-1 text-base">Bulk correction and backfill</p>
-          <p className="ui-muted-tight mt-1 text-[13px]">
-            Run normalization campaigns and date backfills from the maintenance workspace.
-          </p>
-          <Link href="/contracts/maintenance" className="ui-link mt-2 inline-block text-xs">
-            Open maintenance campaigns
-          </Link>
-        </div>
+        {showMaintenanceSurfaces ? (
+          <div className="mt-6 border-t border-zinc-100 pt-4">
+            <p className="ui-eyebrow">Remediation</p>
+            <p className="ui-section-title mt-1 text-base">Bulk correction and backfill</p>
+            <p className="ui-muted-tight mt-1 text-[13px]">
+              Run normalization campaigns and date backfills from the maintenance workspace.
+            </p>
+            <Link href="/contracts/maintenance" className="ui-link mt-2 inline-block text-xs">
+              Open maintenance campaigns
+            </Link>
+          </div>
+        ) : null}
       </div>
     </div>
   );

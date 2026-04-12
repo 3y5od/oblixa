@@ -9,16 +9,19 @@ import type { ContractReviewStats } from "@/lib/contract-review-stats";
 import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 
 interface ContractTableProps {
   contracts: Contract[];
   /** When set, shows extraction review progress per row. */
   reviewStats?: Record<string, ContractReviewStats>;
+  /** Per-row “Open in” links (docs/refinement.md §16.3). */
+  showContinuityLinks?: boolean;
   /** Renders below the table inside the same card (e.g. pagination). */
   footer?: ReactNode;
 }
 
-export function ContractTable({ contracts, reviewStats, footer }: ContractTableProps) {
+export function ContractTable({ contracts, reviewStats, showContinuityLinks, footer }: ContractTableProps) {
   if (contracts.length === 0) {
     return (
       <EmptyState
@@ -65,7 +68,7 @@ export function ContractTable({ contracts, reviewStats, footer }: ContractTableP
               return (
                 <tr
                   key={contract.id}
-                  className="ui-table-row border-b border-zinc-100/90 odd:bg-surface even:bg-zinc-50/20 last:border-0"
+                  className="ui-table-row border-b border-[var(--border-subtle)]/90 odd:bg-surface even:bg-zinc-50/20 last:border-0"
                 >
                   <td className="whitespace-nowrap px-5 py-3.5 first:pl-6 lg:pl-8">
                     <Link
@@ -80,6 +83,9 @@ export function ContractTable({ contracts, reviewStats, footer }: ContractTableP
                         {contract.contract_type}
                       </p>
                     )}
+                    {showContinuityLinks ? (
+                      <ContractContinuityLinks contractId={contract.id} />
+                    ) : null}
                   </td>
                   <td className="whitespace-nowrap px-5 py-3.5 text-[13px] text-zinc-600">
                     {contract.counterparty || "—"}

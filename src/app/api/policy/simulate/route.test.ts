@@ -2,10 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 vi.mock("@/lib/missing-critical-fields", () => ({
@@ -39,6 +44,7 @@ function adminForPolicy(contractFound: boolean) {
 describe("POST /api/policy/simulate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: adminForPolicy(true),
       userId: "user-1",

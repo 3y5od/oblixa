@@ -7,6 +7,10 @@ import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { applyProgramToContract } from "@/lib/v4/execution-engine";
 import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
 import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-packet";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { parseWorkspaceMode } from "@/lib/product-surface/context";
+import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
+import type { WorkspaceRole } from "@/lib/navigation";
 
 async function getContext() {
   const supabase = await createClient();
@@ -38,6 +42,49 @@ function deny() {
   return { error: "Access denied" as const };
 }
 
+function roleSeesAdvancedNavByDefault(role: WorkspaceRole): boolean {
+  return (
+    role === "admin" ||
+    role === "editor" ||
+    role === "ops_manager" ||
+    role === "manager"
+  );
+}
+
+async function ensureProgramsSurfaceAccess(ctx: NonNullable<Awaited<ReturnType<typeof getContext>>>) {
+  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const mode = parseWorkspaceMode(v6);
+  if (mode === "core") {
+    return { error: "Programs are not available in Core mode." as const };
+  }
+  if ((v6.advanced_modules_hidden ?? []).includes("programs")) {
+    return { error: "Programs are hidden for this workspace." as const };
+  }
+  if (Array.isArray(v6.advanced_nav_roles)) {
+    if (v6.advanced_nav_roles.length === 0 && ctx.role !== "admin") {
+      return { error: "Programs are restricted to admins for this workspace." as const };
+    }
+    if (v6.advanced_nav_roles.length > 0 && !v6.advanced_nav_roles.includes(ctx.role)) {
+      return { error: "Your role cannot access Programs in this workspace." as const };
+    }
+  } else if (!roleSeesAdvancedNavByDefault(ctx.role)) {
+    return { error: "Your role cannot access Programs in this workspace." as const };
+  }
+  return null;
+}
+
+async function ensureReportPackReportTypeAllowed(
+  ctx: NonNullable<Awaited<ReturnType<typeof getContext>>>,
+  reportType: string
+) {
+  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const mode = parseWorkspaceMode(v6);
+  if (!workspaceModeAllowsReportType(mode, reportType)) {
+    return { error: "This report type is not available in the current workspace mode." as const };
+  }
+  return null;
+}
+
 export async function createProgramAction(formData: FormData) {
   const ctx = await getContext();
   if (!ctx) return { error: "Not authenticated" as const };
@@ -50,6 +97,8 @@ export async function createProgramAction(formData: FormData) {
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
 
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -83,6 +132,8 @@ export async function publishProgramAction(programId: string) {
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
 
   const { data: latestVersion } = await ctx.admin
     .from("contract_program_versions")
@@ -122,6 +173,8 @@ export async function applyProgramAction(formData: FormData) {
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
   const programId = String(formData.get("programId") ?? "").trim();
   const contractIdsRaw = String(formData.get("contractIds") ?? "");
   const contractIds = contractIdsRaw
@@ -230,6 +283,8 @@ export async function createReportPackAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const reportType = String(formData.get("reportType") ?? "").trim() || "weekly_execution_health";
   if (!name) return { error: "Name is required" as const };
+  const typeGate = await ensureReportPackReportTypeAllowed(ctx, reportType);
+  if (typeGate) return typeGate;
   const emitWebhooks = formData.get("emitWebhooks") === "on" || formData.get("emitWebhooks") === "true";
 
   const { data, error } = await ctx.admin
@@ -262,6 +317,8 @@ export async function saveProgramVersionDefinitionAction(formData: FormData) {
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
   const programId = String(formData.get("programId") ?? "").trim();
   const rawJson = String(formData.get("definitionJson") ?? "").trim();
   if (!programId || !rawJson) return { error: "programId and definition JSON are required" as const };
@@ -308,6 +365,8 @@ export async function updateProgramRoutingAction(formData: FormData) {
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
   const programId = String(formData.get("programId") ?? "").trim();
   const autoRulesRaw = String(formData.get("autoAssignmentRulesJson") ?? "").trim();
   const defaultRoutingRaw = String(formData.get("defaultRoutingJson") ?? "").trim();
@@ -360,6 +419,8 @@ export async function updateProgramAssignmentOverrideAction(formData: FormData) 
   ) {
     return deny();
   }
+  const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
+  if (surfaceGate) return surfaceGate;
   const assignmentId = String(formData.get("assignmentId") ?? "").trim();
   const raw = String(formData.get("overrideJson") ?? "").trim();
   if (!assignmentId) return { error: "assignmentId is required" as const };
@@ -509,6 +570,17 @@ export async function saveReportPackAnnotationsAction(formData: FormData) {
   const packId = String(formData.get("reportPackId") ?? "").trim();
   const raw = String(formData.get("annotationsJson") ?? "").trim() || "[]";
   if (!packId) return { error: "reportPackId is required" as const };
+
+  const { data: packRow } = await ctx.admin
+    .from("report_packs")
+    .select("report_type")
+    .eq("id", packId)
+    .eq("organization_id", ctx.orgId)
+    .maybeSingle();
+  if (!packRow) return { error: "Report pack not found" as const };
+  const annTypeGate = await ensureReportPackReportTypeAllowed(ctx, String(packRow.report_type ?? ""));
+  if (annTypeGate) return annTypeGate;
+
   let annotations: unknown;
   try {
     annotations = JSON.parse(raw);
@@ -547,6 +619,17 @@ export async function createReportPackSubscriptionAction(formData: FormData) {
     .map((e) => e.trim())
     .filter(Boolean);
   if (!packId) return { error: "reportPackId is required" as const };
+
+  const { data: subPack } = await ctx.admin
+    .from("report_packs")
+    .select("report_type")
+    .eq("id", packId)
+    .eq("organization_id", ctx.orgId)
+    .maybeSingle();
+  if (!subPack) return { error: "Report pack not found" as const };
+  const subTypeGate = await ensureReportPackReportTypeAllowed(ctx, String(subPack.report_type ?? ""));
+  if (subTypeGate) return subTypeGate;
+
   const { error } = await ctx.admin.from("report_pack_subscriptions").insert({
     organization_id: ctx.orgId,
     report_pack_id: packId,

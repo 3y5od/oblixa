@@ -42,17 +42,18 @@ export function SubscribeButton() {
       <button
         onClick={handleCheckout}
         disabled={loading}
-        className="ui-btn-primary disabled:opacity-50"
+        className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
+        aria-busy={loading}
       >
         {loading ? (
           <span className="flex items-center gap-2">
-            <Loader2 size={14} className="animate-spin" /> Redirecting...
+            <Loader2 size={14} className="animate-spin" aria-hidden /> Redirecting…
           </span>
         ) : (
           "Subscribe now"
         )}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error ? <p className="ui-alert-error text-sm">{error}</p> : null}
     </div>
   );
 }
@@ -95,17 +96,18 @@ export function ManageSubscriptionButton() {
       <button
         onClick={handlePortal}
         disabled={loading}
-        className="ui-btn-secondary px-4 py-2 disabled:opacity-50"
+        className="ui-btn-secondary px-4 py-2 disabled:pointer-events-none disabled:opacity-45"
+        aria-busy={loading}
       >
         {loading ? (
           <span className="flex items-center gap-2">
-            <Loader2 size={14} className="animate-spin" /> Loading...
+            <Loader2 size={14} className="animate-spin" aria-hidden /> Loading…
           </span>
         ) : (
           "Manage subscription"
         )}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error ? <p className="ui-alert-error text-sm">{error}</p> : null}
     </div>
   );
 }

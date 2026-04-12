@@ -1,0 +1,27 @@
+# API route authentication inventory (maintenance helper)
+#
+# Invariant: src/proxy.ts does NOT enforce auth on /api/*. Every route.ts must implement
+# its own model: session (Supabase getUser), CRON_SECRET, inbound automation token,
+# Stripe webhook signature, integration API key, capability token in URL, etc.
+#
+# Regenerate hints with repo search:
+#   - CRON_SECRET / isAuthorized(request)
+#   - isInboundAutomationAuthorized
+#   - constructEvent / stripe-signature
+#   - parseBearerToken / EXTRACTION_WORKER_SECRET
+#   - x-api-key / secureCompareUtf8 (integration keys)
+#
+## Cron / scheduled (CRON_SECRET or local isAuthorized)
+# contracts/recompute-signals, integrations/calendar/sync, integrations/crm/sync,
+# integrations/refresh-tokens, maintenance/prune-operational-data,
+# notifications/retry-deliveries, reminders/send, reports/capture-metrics,
+# reports/send-summaries, tasks/run-rules, webhooks/dispatch, cron/stripe-webhook-events
+#
+## Inbound automation (shared secret + org allowlist where applicable)
+# tasks/from-slack, tasks/from-email, integrations/actions/callback
+#
+## Review checklist per new route
+# [ ] Classify: public read vs session vs secret vs webhook vs token URL
+# [ ] Service-role queries scoped by server-derived organization_id (or token-bound org)
+# [ ] Rate limit anonymous or high-risk handlers
+# [ ] Colocated route.test.ts or allowlist entry (npm run check:api-route-tests)

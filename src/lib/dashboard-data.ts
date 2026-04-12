@@ -65,6 +65,10 @@ export async function fetchDashboardOrgMetrics(
   };
 }
 
+/**
+ * Loads metrics via one SQL RPC (avoids N+1 client queries). Wrapped in React `cache()` for
+ * per-request dedupe — call `revalidatePath` after mutations so KPIs stay fresh.
+ */
 export const getDashboardOrgMetricsCached = cache(fetchDashboardOrgMetrics);
 
 export async function fetchNavBadgeCounts(
@@ -117,6 +121,7 @@ export const getProfileOnboardingCached = cache(async (userId: string) => {
   return data;
 });
 
+/** §4.4 — billing/subscription checks only (e.g. dashboard plan banner), not product IA. */
 export const getOrgHasActivePlanCached = cache(async (orgId: string) => {
   const admin = await createAdminClient();
   return orgHasActivePlan(admin, orgId);

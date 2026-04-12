@@ -92,7 +92,7 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {fields.map((field) => (
                 <FieldRow key={field.id} field={field} canEdit={canEdit} />
               ))}

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash, randomBytes } from "node:crypto";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 function createFeedToken(): string {
   return randomBytes(32).toString("hex");
@@ -31,13 +32,15 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: membership.organization_id,
+    role: membership.role,
+    apiPath: "/api/export/calendar/feed",
+  });
+  if (modeGate) return modeGate;
 
   const { data: existing } = await admin
     .from("calendar_feeds")

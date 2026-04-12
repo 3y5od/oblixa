@@ -12,6 +12,7 @@ import {
 } from "@/lib/v5/relationship-timeline";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
@@ -19,6 +20,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/[id]/close",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

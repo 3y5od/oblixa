@@ -65,12 +65,12 @@ export default async function CollaborationPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
             <p className="ui-eyebrow">Comments</p>
             <h2 className="ui-section-title mt-1 text-base">Recent field comments</h2>
           </div>
           {comments?.length ? (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-[var(--border-subtle)]">
               {comments.map((row) => {
                 const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
                   | { id: string; title: string }
@@ -93,12 +93,12 @@ export default async function CollaborationPage() {
         </section>
 
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
             <p className="ui-eyebrow">Alerts</p>
             <h2 className="ui-section-title mt-1 text-base">My notifications</h2>
           </div>
           {notifications?.length ? (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-[var(--border-subtle)]">
               {notifications.map((row) => (
                 <li key={row.id} className="px-6 py-4">
                   <div className="flex items-start justify-between gap-2">

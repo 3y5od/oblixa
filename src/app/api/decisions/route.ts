@@ -7,12 +7,20 @@ import {
   mergeRequiredInputs,
 } from "@/lib/v5/decision-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("decision_workspaces")
@@ -31,6 +39,13 @@ export async function POST(request: Request) {
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

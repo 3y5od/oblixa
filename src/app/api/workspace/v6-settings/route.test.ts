@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
+import { NextResponse } from "next/server";
 
 const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const isFeatureEnabled = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v6/feature-guards", () => ({
   requireV6ApiFeature,
@@ -16,6 +18,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
 
 vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 vi.mock("@/lib/v6/org-settings", () => ({
@@ -35,12 +41,26 @@ vi.mock("@/lib/v6/telemetry", () => ({
 }));
 
 describe("/api/workspace/v6-settings", () => {
+  it("mocks workspace eligibility guard", () => {
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
+    expect(requireApiWorkspaceEligibility).toBeDefined();
+  });
+
   it("GET returns 401 when unauthenticated", async () => {
     requireV6ApiFeature.mockReturnValueOnce(null);
     getApiAuthContext.mockResolvedValueOnce(null);
     const { GET } = await import("@/app/api/workspace/v6-settings/route");
     const res = await GET();
     expect(res.status).toBe(401);
+  });
+
+  it("GET returns 403 when V6 API feature guard fails closed", async () => {
+    requireV6ApiFeature.mockReturnValueOnce(
+      NextResponse.json({ error: "This V6 feature is disabled for your workspace." }, { status: 403 })
+    );
+    const { GET } = await import("@/app/api/workspace/v6-settings/route");
+    const res = await GET();
+    expect(res.status).toBe(403);
   });
 
   it("GET returns settings when authenticated", async () => {

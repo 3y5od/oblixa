@@ -4,6 +4,7 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -22,11 +23,16 @@ vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(() => false),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
 
 describe("POST /api/external-actions/create-link", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     mockedV5Guard.mockReturnValue(null);
     getApiAuthContext.mockResolvedValue({
       userId: "u1",

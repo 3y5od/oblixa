@@ -1,6 +1,9 @@
-# Optional: uncomment and set real @org/team or @username handles so GitHub requests reviews
-# on sensitive paths. Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-#
-# /src/app/api/ @your-org/backend
-# /supabase/migrations/ @your-org/backend
-# /.github/workflows/ @your-org/platform
+# Optional ownership hints for high-risk areas. Replace @YOUR_ORG/team with a real GitHub team or usernames.
+# Lines starting with # are ignored by CODEOWNERS; uncomment to enforce review assignment.
+
+# supabase/migrations/ @YOUR_ORG/backend
+# src/app/api/ @YOUR_ORG/backend
+# src/lib/security/ @YOUR_ORG/backend
+# semgrep/ @YOUR_ORG/backend
+# next.config.ts @YOUR_ORG/backend
+# .github/workflows/ @YOUR_ORG/backend

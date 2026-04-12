@@ -12,6 +12,16 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
 }));
 
+const rateLimitCheck = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
+
 vi.mock("@/lib/v6/external-collaboration", () => ({
   appendExternalWorkflowStep: vi.fn(),
 }));
@@ -49,6 +59,26 @@ function mockOpenLink() {
 describe("POST /api/external-actions/[token]/participant/workflow-step", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rateLimitCheck.mockResolvedValue({ ok: true });
+  });
+
+  it("returns 429 when rate limited", async () => {
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 1000 });
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "x", passcode: "p" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    expect(res.status).toBe(429);
+    expect(res.headers.get("retry-after")).toBe("1");
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 403 when V5 external collaboration is disabled", async () => {

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 
 function safeFallback(request: Request): string {
   const url = new URL(request.url);
@@ -43,6 +48,19 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`report-track-click:${ip}`, RATE_LIMITS.reportTrackClick);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
   const { token } = await params;
   const target = getSafeTarget(request);
   if (token && token.length >= 8) {

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/stripe";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import type Stripe from "stripe";
 import {
@@ -44,6 +49,18 @@ export async function POST(request: Request) {
     console.error("[stripe/webhook] signature verification failed:", err);
     captureServerException(err, { extra: { phase: "constructEvent" } });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`stripe-webhook:${ip}`, RATE_LIMITS.stripeWebhook);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
   }
 
   let supabase: Awaited<ReturnType<typeof createAdminClient>>;

@@ -4,6 +4,7 @@ import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { createPlaybook, listPlaybooks } from "@/lib/v6/playbooks";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6AdaptivePlaybooks");
@@ -11,6 +12,13 @@ export async function GET() {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/playbooks",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_playbooks_list_total", 1).catch(() => undefined);
 
@@ -25,6 +33,13 @@ export async function POST(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/playbooks",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{ name?: string; playbookType?: string }>(await request.json().catch(() => ({})), {});
   const name = toSafeString(body.name);

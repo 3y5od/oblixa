@@ -1,0 +1,27 @@
+# docs/refinement.md §4.1 / §23 — nudge reviewers when API routes or migrations are deleted.
+name: Refinement deletion notice
+on:
+  pull_request:
+    paths:
+      - "src/app/api/**"
+      - "supabase/migrations/**"
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+      - name: List deleted API routes or migrations
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          git fetch origin "${BASE}" --depth=1 2>/dev/null || true
+          base=$(git merge-base HEAD "origin/${BASE}" 2>/dev/null || echo "HEAD~1")
+          deleted=$(git diff --name-only --diff-filter=D "${base}"...HEAD | grep -E '^(src/app/api/.+/route\.ts|supabase/migrations/)' || true)
+          if [ -n "${deleted}" ]; then
+            echo "::notice title=Refinement §4.1/§23::Destructive deletes under src/app/api or supabase/migrations — confirm this is not IA-only cleanup; prefer hide/gate per docs/refinement.md."
+            echo "${deleted}"
+          fi

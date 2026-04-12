@@ -99,6 +99,48 @@ export const RATE_LIMITS = {
   v4EvidenceFollowupCron: { max: 60, windowMs: 60_000 },
   v4ProgramReconcileCron: { max: 60, windowMs: 60_000 },
   v4RenewalSignalsCron: { max: 60, windowMs: 60_000 },
+  /** Report email open pixel — high ceiling; IP-keyed */
+  reportTrackOpen: { max: 240, windowMs: 60_000 },
+  /** Report email click redirect */
+  reportTrackClick: { max: 120, windowMs: 60_000 },
+  /** Public external action POST (submit, participant workflow-step) */
+  externalTokenMutate: { max: 40, windowMs: 60_000 },
+  /** Public external action GET (status poll) */
+  externalTokenRead: { max: 120, windowMs: 60_000 },
+  /** Session-backed external workflow-step (internal staff) */
+  externalWorkflowStepInternal: { max: 80, windowMs: 60_000 },
+  /** V5 cron batch jobs (CRON_SECRET + optional feature skip) */
+  v5CronDefault: { max: 60, windowMs: 60_000 },
+  /** V6 cron batch jobs */
+  v6CronDefault: { max: 60, windowMs: 60_000 },
+  contractsRecomputeSignalsCron: { max: 30, windowMs: 60_000 },
+  /** Stripe webhook after signature verification */
+  stripeWebhook: { max: 200, windowMs: 60_000 },
+  remindersSendCron: { max: 30, windowMs: 60_000 },
+  reportsCaptureMetricsCron: { max: 30, windowMs: 60_000 },
+  exportContractsCsv: { max: 30, windowMs: 60_000 },
+  exportCalendar: { max: 30, windowMs: 60_000 },
+  exportReviewPacket: { max: 15, windowMs: 60_000 },
+  importContractsJob: { max: 40, windowMs: 60_000 },
+  integrationCalendarSync: { max: 20, windowMs: 60_000 },
+  integrationCrmSync: { max: 20, windowMs: 60_000 },
+  integrationRefreshTokens: { max: 40, windowMs: 60_000 },
+  stripeCheckoutSession: { max: 20, windowMs: 60_000 },
+  stripePortalSession: { max: 20, windowMs: 60_000 },
+  templatesPreview: { max: 40, windowMs: 60_000 },
+  /**
+   * Onboarding questionnaire server actions — user+IP keyed via callers.
+   * When UPSTASH_REDIS_* is unset, limits are in-process (per instance), not global; acceptable for UX gates and actions; cron IP limits remain best-effort per instance.
+   */
+  onboardingCalibrationMutation: { max: 45, windowMs: 60_000 },
+  onboardingCalibrationPreview: { max: 90, windowMs: 60_000 },
+  onboardingCalibrationExport: { max: 12, windowMs: 60_000 },
+  /** Proxy / RLS gate: user-keyed only (no IP throttle for anonymous paths here). */
+  onboardingCalibrationGateUser: { max: 120, windowMs: 60_000 },
+  /** Auth callback hot path: high ceiling to bound pathological loops only. */
+  onboardingCalibrationGateAdmin: { max: 180, windowMs: 60_000 },
+  /** V6 stale calibration cron — same ceiling as v6CronDefault; dedicated key prefix in route. */
+  v6OnboardingCalibrationStaleCron: { max: 60, windowMs: 60_000 },
 } as const;
 
 export function getClientIpFromRequest(request: Request): string {

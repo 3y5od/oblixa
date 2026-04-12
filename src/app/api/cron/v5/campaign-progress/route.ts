@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
+import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
+
+type CampaignContractSegRow = {
+  segment_key: string | null;
+  assigned_team: string | null;
+  status: string;
+};
 
 /** Recomputes progress_summary_json from portfolio_campaign_contracts row statuses only. */
 
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
   if (unauthorized) return unauthorized;
+  const rate = await rateLimitCheck("cron:v5:campaign-progress", RATE_LIMITS.v5CronDefault);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
+  }
   const skipped = requireV5CronFeature("v5PortfolioCampaigns");
   if (skipped) return skipped;
   const admin = await createAdminClient();
@@ -53,13 +65,6 @@ export async function GET(request: Request) {
             .eq("status", "failed"),
         ]);
 
-      const { data: segRows } = await admin
-        .from("portfolio_campaign_contracts")
-        .select("segment_key, assigned_team, status")
-        .eq("organization_id", orgId)
-        .eq("campaign_id", campaign.id)
-        .limit(5000);
-
       const emptyBucket = () => ({
         pending: 0,
         in_progress: 0,
@@ -79,18 +84,33 @@ export async function GET(request: Request) {
         const bucket = team_breakdown[team];
         if (st in bucket) bucket[st] += 1;
       };
-      for (const r of segRows ?? []) {
-        const st = String(r.status);
-        const seg =
-          r.segment_key && String(r.segment_key).trim()
-            ? String(r.segment_key)
-            : "_unsegmented";
-        bumpSeg(seg, st);
-        const team =
-          r.assigned_team && String(r.assigned_team).trim()
-            ? String(r.assigned_team)
-            : "_unassigned";
-        bumpTeam(team, st);
+      const { error: pageError } = await forEachSupabaseRangePage<CampaignContractSegRow>(
+        (from, to) =>
+          admin
+            .from("portfolio_campaign_contracts")
+            .select("segment_key, assigned_team, status")
+            .eq("organization_id", orgId)
+            .eq("campaign_id", campaign.id)
+            .range(from, to),
+        (chunk) => {
+          for (const r of chunk) {
+            const st = String(r.status);
+            const seg =
+              r.segment_key && String(r.segment_key).trim()
+                ? String(r.segment_key)
+                : "_unsegmented";
+            bumpSeg(seg, st);
+            const team =
+              r.assigned_team && String(r.assigned_team).trim()
+                ? String(r.assigned_team)
+                : "_unassigned";
+            bumpTeam(team, st);
+          }
+        },
+        { pageSize: 1000 }
+      );
+      if (pageError) {
+        return NextResponse.json({ error: pageError.message }, { status: 500 });
       }
 
       await admin

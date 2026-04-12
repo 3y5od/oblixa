@@ -2,6 +2,10 @@
  * Ensures vercel.json cron paths have matching route handlers and documented
  * JSON shapes (CRON_ROUTE_EXPECTED_KEYS). Prevents drift between deploy schedules,
  * canaries, and the codebase.
+ *
+ * V7 user-visible fan-out: crons that email/Slack or enqueue notifications must respect
+ * workspace mode and notification tier inside the handler (see e.g. report-packs-generate,
+ * send-summaries); extend the handler test matrix when adding schedules.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";

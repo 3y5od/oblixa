@@ -18,7 +18,7 @@ export default function ContractsLoading() {
           <div className="ui-skeleton h-4 w-full rounded" />
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="border-b border-zinc-100 px-6 py-4">
+          <div key={i} className="border-b border-[var(--border-subtle)] px-6 py-4">
             <div className="ui-skeleton h-4 w-full rounded" />
           </div>
         ))}

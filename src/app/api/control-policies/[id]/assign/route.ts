@@ -5,6 +5,7 @@ import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { assignControlPolicy } from "@/lib/v6/control-policies";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -13,6 +14,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/control-policies/[id]/assign",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{ assignmentType?: string; segmentId?: string; targetRefType?: string; targetRefId?: string }>(
     await request.json().catch(() => ({})),

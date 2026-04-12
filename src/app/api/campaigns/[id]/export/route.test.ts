@@ -14,6 +14,10 @@ vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
 
 function exportAdminMock() {
@@ -42,24 +46,31 @@ function exportAdminMock() {
         };
       }
       if (table === "portfolio_campaign_contracts") {
+        let rangeCall = 0;
         return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({
               eq: vi.fn(() => ({
                 order: vi.fn(() => ({
-                  limit: vi.fn(async () => ({
-                    data: [
-                      {
-                        contract_id: "ct-1",
-                        status: "pending",
-                        segment_key: "s1",
-                        assigned_team: "ops",
-                        status_reason: "queued",
-                        updated_at: "2026-01-01T00:00:00Z",
-                      },
-                    ],
-                    error: null,
-                  })),
+                  range: vi.fn(async () => {
+                    rangeCall += 1;
+                    if (rangeCall === 1) {
+                      return {
+                        data: [
+                          {
+                            contract_id: "ct-1",
+                            status: "pending",
+                            segment_key: "s1",
+                            assigned_team: "ops",
+                            status_reason: "queued",
+                            updated_at: "2026-01-01T00:00:00Z",
+                          },
+                        ],
+                        error: null,
+                      };
+                    }
+                    return { data: [], error: null };
+                  }),
                 })),
               })),
             })),

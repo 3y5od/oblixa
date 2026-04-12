@@ -3,6 +3,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { getSentryRelease } from "@/lib/observability/sentry-release";
+import { scrubSentryEvent } from "@/lib/observability/sentry-scrub";
 
 function numEnv(key: string, fallback: number): number {
   const raw = process.env[key]?.trim();
@@ -19,6 +20,7 @@ if (dsn) {
   Sentry.init({
     dsn,
     release: getSentryRelease(),
+    beforeSend: scrubSentryEvent,
     tracesSampleRate: numEnv(
       "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
       isProd ? 0.1 : 1

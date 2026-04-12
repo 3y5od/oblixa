@@ -1,4 +1,10 @@
+import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
+import type { WorkspaceRole } from "@/lib/navigation";
+import {
+  isAssuranceModuleHidden,
+  loadProductSurfaceContext,
+} from "@/lib/product-surface/context";
 import {
   applyProgramAction,
   createProgramAction,
@@ -7,6 +13,7 @@ import {
   updateProgramRoutingAction,
 } from "@/actions/v4";
 import { ProgramImpactPreviewButton } from "@/components/v4/program-impact-preview-button";
+import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 
 const PROGRAM_DEFINITION_PLACEHOLDER = `{
   "taskBundles": [
@@ -31,6 +38,16 @@ export default async function ContractProgramsPage() {
   const ctx = await getAuthContext();
   if (!ctx) return null;
 
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showProgramEvolutionCta =
+    productSurface.mode === "assurance" &&
+    productSurface.seesAssuranceNav &&
+    !isAssuranceModuleHidden(productSurface, "program_evolution");
+
   // Wall clock for rolling apply windows; acceptable in async server component request scope.
   // eslint-disable-next-line react-hooks/purity -- snapshot time for analytics cutoffs
   const now = Date.now();
@@ -42,7 +59,6 @@ export default async function ContractProgramsPage() {
     { data: versions },
     { data: assignments },
     { count: portfolioContractCount },
-    { data: programApplyEvents },
   ] = await Promise.all([
     ctx.admin
       .from("contract_programs")
@@ -65,15 +81,22 @@ export default async function ContractProgramsPage() {
       .from("contracts")
       .select("id", { count: "exact", head: true })
       .eq("organization_id", ctx.orgId),
-    ctx.admin
-      .from("operational_casefile_events")
-      .select("entity_id, occurred_at")
-      .eq("organization_id", ctx.orgId)
-      .eq("event_type", "program.applied")
-      .not("entity_id", "is", null)
-      .order("occurred_at", { ascending: false })
-      .limit(8000),
   ]);
+
+  type ProgramApplyEventRow = { entity_id: string | null; occurred_at: string | null };
+  const { rows: programApplyEvents, truncated: programApplyEventsTruncated } =
+    await collectSupabaseRangePages<ProgramApplyEventRow>(
+      (from, to) =>
+        ctx.admin
+          .from("operational_casefile_events")
+          .select("entity_id, occurred_at")
+          .eq("organization_id", ctx.orgId)
+          .eq("event_type", "program.applied")
+          .not("entity_id", "is", null)
+          .order("occurred_at", { ascending: false })
+          .range(from, to),
+      { pageSize: 1000, maxRows: 150_000 }
+    );
 
   type ApplyStats = { d30: number; d90: number; all: number };
   const applyStatsByProgram = new Map<string, ApplyStats>();
@@ -162,6 +185,14 @@ export default async function ContractProgramsPage() {
           <p className="ui-muted mt-3">
             Reusable execution blueprints that generate tasks, obligations, approvals, and checkpoints.
           </p>
+          {showProgramEvolutionCta ? (
+            <p className="mt-3 text-sm text-zinc-700">
+              <Link href="/assurance/program-evolution" prefetch={false} className="ui-link font-medium">
+                Open program evolution
+              </Link>{" "}
+              to compare blueprint drift and adoption in Assurance.
+            </p>
+          ) : null}
         </div>
       </header>
 
@@ -204,7 +235,9 @@ export default async function ContractProgramsPage() {
             <dd className="text-lg font-semibold text-zinc-900">{orgApplies90}</dd>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Program applies (all time, capped)</dt>
+            <dt className="text-xs text-zinc-500">
+              Program applies (all time{programApplyEventsTruncated ? ", truncated at fetch cap" : ""})
+            </dt>
             <dd className="text-lg font-semibold text-zinc-900">{orgAppliesAll}</dd>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 sm:col-span-3">

@@ -10,6 +10,20 @@ import {
   Users,
   Workflow,
 } from "lucide-react";
+import {
+  antiGoalSummary,
+  ctaPrimaryLabel,
+  ctaSecondaryLabel,
+  heroEyebrow,
+  heroSubcopy,
+  heroTitle,
+  objectionBullets,
+  riskReducerLine,
+  trustSummary,
+  useCaseItems,
+  faqItems,
+} from "@/components/landing/landing-content";
+import { MarketingSiteFooter, MarketingSiteHeader } from "@/components/landing/marketing-site-chrome";
 
 const features = [
   {
@@ -89,58 +103,68 @@ const valuePoints = [
   },
 ] as const;
 
+const landingSectionNavClassName =
+  "inline-flex min-h-9 items-center rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 no-underline transition-colors first:pl-0 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:min-h-10 sm:px-2.5";
+
 export function LandingPage() {
   return (
-    <div className="flex min-h-full flex-col bg-canvas">
-      <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/85 backdrop-blur-md">
-        <div className="mx-auto flex h-[3.75rem] max-w-5xl items-center justify-between px-4 sm:px-6">
-          <span className="text-[15px] font-semibold tracking-tight text-zinc-950">
-            Oblixa
-          </span>
-          <nav className="flex items-center gap-2 sm:gap-3" aria-label="Site">
-            <Link
-              href="/login"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
-            >
-              Sign in
-            </Link>
-            <Link href="/signup" className="ui-btn-primary py-2 text-sm">
-              Get started
-            </Link>
-          </nav>
-        </div>
-      </header>
+    <div className="landing-root flex min-h-full flex-col bg-canvas">
+      <MarketingSiteHeader
+        secondaryNav={
+          <>
+            <a href="#capabilities" className={landingSectionNavClassName}>
+              Capabilities
+            </a>
+            <a href="#how-it-works" className={landingSectionNavClassName}>
+              How it works
+            </a>
+            <a href="#use-cases" className={landingSectionNavClassName}>
+              Use cases
+            </a>
+            <a href="#trust" className={landingSectionNavClassName}>
+              Trust
+            </a>
+            <a href="#faq" className={landingSectionNavClassName}>
+              FAQ
+            </a>
+          </>
+        }
+      />
 
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-        <section className="border-b border-zinc-200/80 bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.09),transparent)] px-4 py-16 sm:px-6 sm:py-24">
+        <section
+          id="hero"
+          className="border-b border-[var(--border-subtle)] bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.09),transparent)] px-4 py-16 sm:px-6 sm:py-24 scroll-mt-36"
+        >
           <div className="mx-auto max-w-5xl">
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                Contract operations, not CLM
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-600">
+                {heroEyebrow}
               </p>
               <h1 className="mx-auto mt-5 max-w-4xl text-balance text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl md:text-[2.9rem] md:leading-[1.1]">
-                Run renewals, approvals, and obligations from one trusted system
+                {heroTitle}
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-zinc-600 sm:text-lg">
-                Oblixa gives operations teams a practical execution layer: centralize agreements,
-                verify extracted fields with evidence, and execute date-driven workflows with clear ownership.
+                {heroSubcopy}
               </p>
             </div>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link href="/signup" className="ui-btn-primary min-w-[10rem] px-6 py-2.5 text-sm">
-                Create free account
+              <Link href="/signup" className="ui-btn-primary min-h-10 min-w-[10rem] px-6 py-2.5 text-sm">
+                {ctaPrimaryLabel}
               </Link>
               <Link
                 href="/login"
-                className="ui-btn-secondary min-w-[10rem] px-6 py-2.5 text-sm"
+                prefetch={false}
+                className="ui-btn-secondary min-h-10 min-w-[10rem] px-6 py-2.5 text-sm"
               >
-                Sign in
+                {ctaSecondaryLabel}
               </Link>
             </div>
+            <p className="mt-4 text-center text-xs text-zinc-600">{riskReducerLine}</p>
             <div className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
               {valuePoints.map(({ icon: Icon, title, description }) => (
                 <div key={title} className="ui-card-quiet px-4 py-4 text-left">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200/90 bg-white text-zinc-700">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-surface text-zinc-700">
                     <Icon size={16} aria-hidden />
                   </div>
                   <p className="mt-3 text-sm font-semibold text-zinc-900">{title}</p>
@@ -148,15 +172,22 @@ export function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-center text-xs text-zinc-500">
+            <p className="mt-6 text-center text-xs text-zinc-600">
               Upload -&gt; extract -&gt; review -&gt; approve -&gt; automate with confidence.
             </p>
           </div>
         </section>
 
-        <section className="px-4 py-16 sm:px-6 sm:py-20">
+        <section
+          id="capabilities"
+          className="scroll-mt-36 px-4 py-16 sm:px-6 sm:py-20"
+          aria-labelledby="capabilities-heading"
+        >
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">
+            <h2
+              id="capabilities-heading"
+              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+            >
               Purpose-built capabilities for contract operations
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600 sm:text-base">
@@ -166,30 +197,35 @@ export function LandingPage() {
               {features.map(({ icon: Icon, title, description }) => (
                 <li
                   key={title}
-                  className="ui-card group p-6 transition-[border-color] hover:border-zinc-300/90"
+                  className="ui-card group p-6 transition-[border-color] motion-safe:duration-[var(--ui-duration)] motion-safe:ease-[var(--ui-ease-out)] hover:border-zinc-300/90"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200/80 bg-zinc-50/90 text-zinc-700 transition-colors group-hover:border-indigo-200/60 group-hover:bg-indigo-50/40">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-zinc-50/90 text-zinc-700 transition-colors motion-safe:duration-[var(--ui-duration)] group-hover:border-indigo-200/60 group-hover:bg-indigo-50/40">
                     <Icon size={20} strokeWidth={1.75} aria-hidden />
                   </div>
                   <h3 className="mt-4 text-sm font-semibold text-zinc-900">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-                    {description}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{description}</p>
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        <section className="border-y border-zinc-200/80 bg-zinc-50/40 px-4 py-16 sm:px-6 sm:py-20">
+        <section
+          id="how-it-works"
+          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-16 sm:px-6 sm:py-20"
+          aria-labelledby="how-heading"
+        >
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">
+            <h2
+              id="how-heading"
+              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+            >
               How it works
             </h2>
             <ol className="mt-12 grid gap-8 sm:grid-cols-3">
               {steps.map((s) => (
                 <li key={s.n} className="relative text-center">
-                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-surface text-sm font-bold text-zinc-900">
+                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-surface text-sm font-bold text-zinc-900">
                     {s.n}
                   </span>
                   <h3 className="mt-4 text-sm font-semibold text-zinc-900">{s.title}</h3>
@@ -200,15 +236,68 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="px-4 py-16 sm:px-6 sm:py-20">
+        <section
+          id="use-cases"
+          className="scroll-mt-36 px-4 py-16 sm:px-6 sm:py-20"
+          aria-labelledby="use-cases-heading"
+        >
+          <div className="mx-auto max-w-5xl">
+            <h2
+              id="use-cases-heading"
+              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+            >
+              Use cases teams run every week
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600 sm:text-base">
+              Start narrow, expand once ownership and data quality are steady.
+            </p>
+            <ul className="mt-10 grid gap-6 sm:grid-cols-3">
+              {useCaseItems.map((u) => (
+                <li key={u.title} className="ui-card-quiet p-5">
+                  <h3 className="text-sm font-semibold text-zinc-900">{u.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{u.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section
+          id="objections"
+          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-14 sm:px-6 sm:py-16"
+          aria-labelledby="objections-heading"
+        >
+          <div className="mx-auto max-w-5xl">
+            <h2
+              id="objections-heading"
+              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+            >
+              Practical answers to common concerns
+            </h2>
+            <ul className="mt-10 grid gap-6 sm:grid-cols-3">
+              {objectionBullets.map((o) => (
+                <li key={o.title} className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-5">
+                  <h3 className="text-sm font-semibold text-zinc-900">{o.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{o.body}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-zinc-600">{antiGoalSummary}</p>
+          </div>
+        </section>
+
+        <section className="px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="cta-mid-heading">
           <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div className="rounded-2xl border border-zinc-200/90 bg-surface px-6 py-10 sm:px-8">
-              <h2 className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-10 sm:px-8">
+              <h2
+                id="cta-mid-heading"
+                className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl"
+              >
                 Move your next renewal cycle into a controlled workflow
               </h2>
               <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-                Start with a narrow rollout: ingest active agreements, validate key fields, and
-                assign ownership for upcoming milestones.
+                Start with a narrow rollout: ingest active agreements, validate key fields, and assign
+                ownership for upcoming milestones.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
                 <span className="ui-chip">Approvals</span>
@@ -218,53 +307,99 @@ export function LandingPage() {
                 <span className="ui-chip">Calendar exports</span>
               </div>
             </div>
-            <div className="rounded-2xl border border-zinc-200/90 bg-surface px-6 py-10 text-center sm:px-8 lg:text-left">
-              <h3 className="text-lg font-semibold tracking-tight text-zinc-950">
-                Ready to get started?
-              </h3>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-10 text-center sm:px-8 lg:text-left">
+              <h3 className="text-lg font-semibold tracking-tight text-zinc-950">Ready to get started?</h3>
               <p className="mt-2 text-sm text-zinc-600">
                 Create your workspace and upload the first contract in minutes.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col">
-                <Link href="/signup" className="ui-btn-primary px-6 py-2.5 text-sm">
-                  Create free account
+                <Link href="/signup" className="ui-btn-primary min-h-10 px-6 py-2.5 text-sm">
+                  {ctaPrimaryLabel}
                 </Link>
-                <Link href="/login" className="ui-btn-secondary px-6 py-2.5 text-sm">
-                  Sign in
+                <Link href="/login" prefetch={false} className="ui-btn-secondary min-h-10 px-6 py-2.5 text-sm">
+                  {ctaSecondaryLabel}
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="border-t border-zinc-200/80 bg-zinc-50/40 px-4 py-10 sm:px-6">
-          <div className="mx-auto max-w-5xl rounded-2xl border border-zinc-200/80 bg-white px-6 py-6 sm:px-8">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <section
+          id="trust"
+          className="scroll-mt-36 border-t border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-10 sm:px-6"
+          aria-labelledby="trust-heading"
+        >
+          <div className="mx-auto max-w-5xl rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-6 sm:px-8">
+            <h2 id="trust-heading" className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-600">
               Trust and controls
             </h2>
-            <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-              Role-aware access, API key controls, signed outbound webhooks, and configurable workflows help teams scale operations safely.
+            <p className="mt-3 text-sm text-zinc-600 sm:text-base">{trustSummary}</p>
+            <p className="mt-4 text-sm">
+              <Link href="/security" className="ui-link font-medium text-zinc-800">
+                Read the security overview
+              </Link>{" "}
+              <span className="text-zinc-600">for how we approach access, integrations, and reporting issues.</span>
             </p>
+          </div>
+        </section>
+
+        <section
+          id="faq"
+          className="scroll-mt-36 px-4 py-16 sm:px-6 sm:py-20"
+          aria-labelledby="faq-heading"
+        >
+          <div className="mx-auto max-w-3xl">
+            <h2 id="faq-heading" className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">
+              Frequently asked questions
+            </h2>
+            <p className="mx-auto mt-3 text-center text-sm text-zinc-600">
+              Straightforward answers about scope, AI, and how teams use Oblixa.
+            </p>
+            <div className="mt-10 space-y-3">
+              {faqItems.map((item) => (
+                <details
+                  key={item.question}
+                  className="group rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 sm:px-5"
+                >
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
+                    <span className="flex items-center justify-between gap-3">
+                      {item.question}
+                      <span className="text-zinc-400 motion-safe:transition-transform group-open:rotate-180">▼</span>
+                    </span>
+                  </summary>
+                  <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-sm leading-relaxed text-zinc-600">
+                    {item.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="border-t border-[var(--border-subtle)] bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.06),transparent)] px-4 py-14 sm:px-6 sm:py-16"
+          aria-labelledby="cta-final-heading"
+        >
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 id="cta-final-heading" className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+              Start with one workspace and prove the workflow
+            </h2>
+            <p className="mt-3 text-sm text-zinc-600 sm:text-base">
+              Upload a contract, validate the fields that matter, and assign owners for the next milestones.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/signup" className="ui-btn-primary min-h-10 min-w-[10rem] px-6 py-2.5 text-sm">
+                {ctaPrimaryLabel}
+              </Link>
+              <Link href="/login" prefetch={false} className="ui-btn-secondary min-h-10 min-w-[10rem] px-6 py-2.5 text-sm">
+                {ctaSecondaryLabel}
+              </Link>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-zinc-200/90 bg-surface px-4 py-8 sm:px-6">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-center text-xs text-zinc-500 sm:text-left">
-            © {new Date().getFullYear()} Oblixa. Contract execution platform.
-            does not provide legal advice—verify terms against your originals.
-          </p>
-          <div className="flex gap-4 text-xs font-medium">
-            <Link href="/login" className="text-zinc-600 hover:text-zinc-900">
-              Sign in
-            </Link>
-            <Link href="/signup" className="text-zinc-600 hover:text-zinc-900">
-              Sign up
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <MarketingSiteFooter />
     </div>
   );
 }

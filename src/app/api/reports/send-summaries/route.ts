@@ -15,6 +15,11 @@ import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { randomUUID } from "node:crypto";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import {
+  degradeOutboundEmailCopyForCore,
+  emailCopyUsesCoreSurface,
+} from "@/lib/email-workspace-degrade";
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -144,17 +149,24 @@ export async function GET(request: Request) {
   const errors: string[] = [];
 
   for (const row of list) {
+    const v6Org = await getV6OrgSettingsJson(admin, row.organization_id);
+    const workspaceProductMode = v6Org.workspace_mode;
+
     const emailAllowed = await isNotificationAllowed(admin, {
       organizationId: row.organization_id,
       channel: "email",
       notificationType: "saved_view_summary",
     });
     if (!emailAllowed) {
+      const rawName = (row.saved_views as { name?: string } | null)?.name ?? "Saved view";
+      const subjectName = emailCopyUsesCoreSurface(workspaceProductMode)
+        ? degradeOutboundEmailCopyForCore(rawName)
+        : rawName;
       await markNotificationSuppressed(admin, {
         organizationId: row.organization_id,
         channel: "email",
         notificationType: "saved_view_summary",
-        subject: `Weekly summary: ${(row.saved_views as { name?: string } | null)?.name ?? "Saved view"}`,
+        subject: `Weekly summary: ${subjectName}`,
         metadata: { subscription_id: row.id },
       });
       continue;
@@ -396,12 +408,15 @@ export async function GET(request: Request) {
       const trackedWorkspacePath = token
         ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${appUrl.replace(/\/+$/, "")}${workspacePath}`)}`
         : workspacePath;
+      const summarySubjectName = emailCopyUsesCoreSurface(workspaceProductMode)
+        ? degradeOutboundEmailCopyForCore(savedView.name)
+        : savedView.name;
       const delivery = await deliverWithRetries(admin, {
         organizationId: row.organization_id,
         channel: "email",
         notificationType: "saved_view_summary",
         recipient,
-        subject: `Weekly summary: ${savedView.name}`,
+        subject: `Weekly summary: ${summarySubjectName}`,
         metadata: { subscription_id: row.id, report_run_id: reportRun?.id ?? null },
         maxAttempts: 3,
         retryPayload: {
@@ -413,6 +428,7 @@ export async function GET(request: Request) {
           workspacePath: trackedWorkspacePath,
           sampleRows: trackedRows,
           openPixelUrl: token ? `${appUrl.replace(/\/+$/, "")}/api/reports/track/open/${token}` : null,
+          workspaceProductMode,
         },
         send: () =>
           sendSavedViewSummaryEmail({
@@ -423,6 +439,7 @@ export async function GET(request: Request) {
             workspacePath: trackedWorkspacePath,
             sampleRows: trackedRows,
             openPixelUrl: token ? `${appUrl.replace(/\/+$/, "")}/api/reports/track/open/${token}` : null,
+            workspaceProductMode,
           }),
       });
 

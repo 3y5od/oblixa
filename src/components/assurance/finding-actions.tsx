@@ -1,7 +1,10 @@
 "use client";
+// V7 exempt: client actions mounted only from assurance finding surfaces; post-mutation navigation stays in-family.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { fetchJson } from "@/lib/http/client-json";
+import { captureClientException } from "@/lib/observability/sentry";
 
 export function FindingActions({ findingId }: { findingId: string }) {
   const router = useRouter();
@@ -14,7 +17,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/assurance/findings/${encodeURIComponent(findingId)}/resolve`, {
+      const result = await fetchJson(`/api/assurance/findings/${encodeURIComponent(findingId)}/resolve`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -23,13 +26,15 @@ export function FindingActions({ findingId }: { findingId: string }) {
           signalFeedback: signalFeedback || undefined,
         }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Request failed");
+      if (!result.ok) {
+        setErr(result.message);
         return;
       }
       router.push("/assurance/findings");
       router.refresh();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Request failed");
+      captureClientException(e, { extra: { surface: "FindingActions" } });
     } finally {
       setPending(false);
     }

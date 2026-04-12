@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
@@ -13,6 +14,13 @@ export async function GET() {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/workspace/v6-settings",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_workspace_v6_settings_total", 1).catch(() => undefined);
 
@@ -26,6 +34,13 @@ export async function PATCH(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/workspace/v6-settings",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{
     autopilotAllowExecution?: boolean;

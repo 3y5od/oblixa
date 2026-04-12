@@ -24,4 +24,14 @@ describe("validateOutboundHttpUrl", () => {
     expect(validateOutboundHttpUrl("http://[::]/internal")).toBeNull();
     expect(validateOutboundHttpUrl("http://[::ffff:127.0.0.1]/internal")).toBeNull();
   });
+
+  it("rejects non-http(s) schemes and malformed input", () => {
+    expect(validateOutboundHttpUrl("ftp://example.com/hook")).toBeNull();
+    expect(validateOutboundHttpUrl("javascript:alert(1)")).toBeNull();
+    expect(validateOutboundHttpUrl("not a url")).toBeNull();
+  });
+
+  it("rejects *.localhost hostnames", () => {
+    expect(validateOutboundHttpUrl("http://app.localhost/path")).toBeNull();
+  });
 });

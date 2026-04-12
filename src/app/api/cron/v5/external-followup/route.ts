@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
@@ -8,6 +9,10 @@ import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collabora
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
   if (unauthorized) return unauthorized;
+  const rate = await rateLimitCheck("cron:v5:external-followup", RATE_LIMITS.v5CronDefault);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
+  }
   const skipped = requireV5CronFeature("v5ExternalCollaboration");
   if (skipped) return skipped;
   const admin = await createAdminClient();

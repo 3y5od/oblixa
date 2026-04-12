@@ -3,6 +3,7 @@ import { toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { listReviewBoardRuns } from "@/lib/v6/review-boards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -11,6 +12,14 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/review-boards/[id]/runs",
+  });
+  if (modeGate) return modeGate;
 
   const boardId = toSafeString((await params).id);
   const result = await listReviewBoardRuns(ctx.admin, ctx.orgId, boardId);

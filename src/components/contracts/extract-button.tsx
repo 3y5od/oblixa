@@ -85,6 +85,7 @@ export function ExtractButton({
         type="button"
         onClick={handleExtract}
         disabled={isPending || extractionInFlight || requestLock}
+        aria-busy={isPending || requestLock}
         title={
           extractionInFlight
             ? "An extraction is already running. Wait or refresh the page."

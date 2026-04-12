@@ -20,9 +20,9 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
 
   if (!isAdmin) {
     return (
-      <div>
-        <label className="block text-sm font-medium text-zinc-700">Organization name</label>
-        <p className="mt-1 text-sm text-zinc-900">{name}</p>
+      <div className="min-w-0">
+        <label className="ui-label mb-0">Organization name</label>
+        <p className="mt-1 w-full text-sm text-zinc-900">{name}</p>
       </div>
     );
   }
@@ -30,19 +30,17 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   const errId = "org-form-error";
 
   return (
-    <form action={action} className="space-y-4">
-      {state?.error && (
-        <div id={errId} role="alert" className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800">
+    <form action={action} className="flex flex-col gap-6">
+      {state?.error ? (
+        <div id={errId} role="alert" className="ui-alert-error text-sm">
           {state.error}
         </div>
-      )}
-      {state?.success && (
-        <div className="rounded-lg border border-emerald-200/70 bg-emerald-50/80 p-3 text-sm text-emerald-900">
-          Organization updated.
-        </div>
-      )}
-      <div>
-        <label htmlFor="orgName" className="block text-sm font-medium text-zinc-700">
+      ) : null}
+      {state?.success ? (
+        <div className="ui-alert-success text-sm">Organization updated.</div>
+      ) : null}
+      <div className="min-w-0">
+        <label htmlFor="orgName" className="ui-label">
           Organization name
         </label>
         <input
@@ -51,19 +49,19 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
           type="text"
           defaultValue={name}
           required
-          className="ui-input mt-1 max-w-sm"
+          className="ui-input mt-1 w-full min-w-0"
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? errId : undefined}
         />
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-4">
         <button
           type="submit"
           disabled={pending}
-          className="ui-btn-primary disabled:opacity-50"
+          className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
           aria-busy={pending}
         >
-          {pending ? "Saving..." : "Save changes"}
+          {pending ? "Saving…" : "Save changes"}
         </button>
       </div>
     </form>

@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { getAuthContext } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 import type { OrgRole } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 
@@ -21,6 +24,15 @@ export default async function ExceptionsPage(props: {
   const ctx = await getAuthContext();
   if (!ctx) return null;
   const canEdit = canEditContracts(ctx.role as OrgRole);
+
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showDecisionsCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "decisions");
 
   let query = ctx.admin
     .from("exceptions")
@@ -138,6 +150,17 @@ export default async function ExceptionsPage(props: {
         </div>
       </header>
 
+      {showDecisionsCta ? (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 text-sm text-zinc-700 shadow-[var(--shadow-1)]">
+          <span className="font-medium text-zinc-900">Decisions</span>
+          {" — "}
+          When an exception needs an explicit call, open or continue a decision record.{" "}
+          <Link href="/decisions" prefetch={false} className="ui-link">
+            Open decisions
+          </Link>
+        </div>
+      ) : null}
+
       <section className="ui-card p-5">
         <form action="/contracts/exceptions" method="get" className="flex flex-wrap items-end gap-3">
           <div>
@@ -192,6 +215,9 @@ export default async function ExceptionsPage(props: {
                     )}
                     {item.due_date ? ` · due ${item.due_date}` : ""}
                   </p>
+                  {item.contract_id ? (
+                    <ContractContinuityLinks contractId={item.contract_id} omit={["exceptions"]} />
+                  ) : null}
                   <p className="mt-2 text-xs text-zinc-500">
                     Recent events:{" "}
                     {history.slice(0, 4).map((evt) => `${evt.event_type} (${new Date(evt.created_at).toLocaleDateString()})`).join(" · ") ||

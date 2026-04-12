@@ -18,6 +18,10 @@ vi.mock("@/lib/v6/playbooks", () => ({
   approveAndContinuePlaybookRun,
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 describe("POST /api/playbooks/runs/[id]/approve", () => {
   beforeEach(() => {
     vi.clearAllMocks();

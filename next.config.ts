@@ -1,6 +1,7 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+import { buildSecurityHeaders } from "@/lib/security/csp-builders";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
@@ -13,66 +14,31 @@ const sentryRelease =
   process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
   process.env.GITHUB_SHA?.trim();
 
-const csp = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
-  "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vercel.live",
-  "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
-
-const strictCspReportOnly = [
-  "default-src 'self'",
-  `script-src 'self'${isProd ? "" : " 'unsafe-eval'"}`,
-  "style-src 'self'",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
-  "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vercel.live",
-  "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
-
-const securityHeaders: { key: string; value: string }[] = [
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-DNS-Prefetch-Control", value: "off" },
-  { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  {
-    key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  },
-  { key: "Content-Security-Policy", value: csp },
-  { key: "Content-Security-Policy-Report-Only", value: strictCspReportOnly },
-];
-
-if (process.env.VERCEL) {
-  securityHeaders.push({
-    key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
-  });
-}
+const securityHeaders = buildSecurityHeaders({
+  isProd,
+  isVercel: Boolean(process.env.VERCEL),
+});
 
 const nextConfig: NextConfig = {
   ...(sentryRelease
     ? { env: { NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease } }
     : {}),
+  poweredByHeader: false,
   serverExternalPackages: ["pdf-parse", "mammoth"],
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   experimental: {
-    optimizePackageImports: ["lucide-react", "date-fns"],
+    optimizePackageImports: ["lucide-react", "date-fns", "clsx"],
   },
   async headers() {
     return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Vary", value: "Cookie" },
+        ],
+      },
       {
         source: "/:path*",
         headers: securityHeaders,

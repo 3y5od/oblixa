@@ -5,6 +5,7 @@ import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { patchControlPolicySettings } from "@/lib/v6/control-policies";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -13,6 +14,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/control-policies/[id]",
+  });
+  if (modeGate) return modeGate;
 
   const policyId = toSafeString((await params).id);
   const body = readJsonBody<{ remediationPlaybookId?: string | null }>(await request.json().catch(() => ({})), {});

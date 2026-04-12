@@ -41,7 +41,19 @@ function sumSeverity(a: Record<string, number>): number {
 export function ReportsV6AssuranceAnalyticsSection(props: {
   analytics: AssuranceAnalyticsSummary;
   canViewAssuranceOps: boolean;
+  showAssuranceMode: boolean;
 }) {
+  if (!props.showAssuranceMode) {
+    return (
+      <section id="assurance-analytics" className="scroll-mt-8 space-y-4">
+        <OperationalSectionHeader
+          eyebrow="Assurance"
+          title="Assurance analytics"
+          description="Assurance analytics are hidden for this workspace mode."
+        />
+      </section>
+    );
+  }
   const a = props.analytics;
   const openSev = a.open_findings_by_severity;
   const openTotal = sumSeverity(openSev);
@@ -479,7 +491,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
       ) : (
         <p className="text-sm text-zinc-600">
           Detailed assurance analytics are limited to workspace operators. Open the{" "}
-          <Link className="ui-link" href="/assurance">
+          <Link className="ui-link" href="/assurance" prefetch={false}>
             Assurance hub
           </Link>{" "}
           for your available views.

@@ -1,4 +1,6 @@
 import { getAuthContext } from "@/lib/supabase/server";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { isHrefEligibleForProductSurface, loadProductSurfaceContext } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
 import { attachOwnerProfiles } from "@/lib/contracts";
@@ -78,11 +80,28 @@ export default async function ContractsPage(props: {
     page?: string;
   }>;
 }) {
+  // docs/refinement.md §20.3 — this `search` query filters the contracts table only (not cmd-K / global discovery).
   const searchParams = await props.searchParams;
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
 
   const { orgId, admin } = ctx;
+  const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
+  const moreActionLinks: { href: string; label: string }[] = [
+    { href: "/api/export/calendar/feed", label: "Calendar feed token" },
+    { href: "/contracts/intake", label: "Intake" },
+    { href: "/contracts/approvals", label: "Approvals" },
+    { href: "/contracts/renewals", label: "Renewals" },
+    { href: "/contracts/tasks", label: "Tasks" },
+    { href: "/contracts/obligations", label: "Obligations" },
+    { href: "/contracts/exceptions", label: "Exceptions" },
+    { href: "/contracts/review-cadence", label: "Review cadence" },
+    { href: "/contracts/analytics", label: "Analytics" },
+    { href: "/contracts/maintenance", label: "Maintenance" },
+  ];
+  const visibleMoreActionLinks = moreActionLinks.filter((row) =>
+    isHrefEligibleForProductSurface(productSurface, row.href)
+  );
 
   const parsedPage = parseInt(searchParams.page ?? "1", 10);
   const page =
@@ -261,65 +280,24 @@ export default async function ContractsPage(props: {
           <a href="/api/export/calendar" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Export calendar
           </a>
-          <details className="relative">
-            <summary className="ui-btn-secondary cursor-pointer list-none px-4 py-2.5 text-[13px] [&::-webkit-details-marker]:hidden">
-              More actions
-            </summary>
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 w-64 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)]">
-              <ul className="divide-y divide-zinc-100 text-sm">
-                <li>
-                  <Link href="/api/export/calendar/feed" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Calendar feed token
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/intake" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Intake
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/approvals" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Approvals
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/renewals" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Renewals
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/tasks" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Tasks
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/obligations" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Obligations
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/exceptions" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Exceptions
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/review-cadence" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Review cadence
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/analytics" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Analytics
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contracts/maintenance" className="block px-4 py-2.5 hover:bg-zinc-50">
-                    Maintenance
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </details>
+          {visibleMoreActionLinks.length > 0 ? (
+            <details className="relative">
+              <summary className="ui-btn-secondary cursor-pointer list-none px-4 py-2.5 text-[13px] [&::-webkit-details-marker]:hidden">
+                More actions
+              </summary>
+              <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 w-64 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)]">
+                <ul className="divide-y divide-[var(--border-subtle)] text-sm">
+                  {visibleMoreActionLinks.map((row) => (
+                    <li key={row.href}>
+                      <Link href={row.href} className="block px-4 py-2.5 hover:bg-zinc-50">
+                        {row.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          ) : null}
         </div>
       </header>
 

@@ -12,6 +12,16 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
 }));
 
+const rateLimitCheck = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
+
 vi.mock("@/lib/v5/relationship-timeline", () => ({
   appendAccountTimelineEvent: vi.fn(),
   appendCounterpartyTimelineEvent: vi.fn(),
@@ -46,6 +56,24 @@ function mockLinkSelect(data: Record<string, unknown> | null) {
 describe("POST /api/external-actions/[token]/submit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rateLimitCheck.mockResolvedValue({ ok: true });
+  });
+
+  it("returns 429 when rate limited", async () => {
+    mockedFlags.mockReturnValue(true);
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 2000 });
+    const { POST } = await import("@/app/api/external-actions/[token]/submit/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "x" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    expect(res.status).toBe(429);
+    expect(res.headers.get("retry-after")).toBe("2");
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 403 when external collaboration is disabled", async () => {

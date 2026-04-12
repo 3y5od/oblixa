@@ -75,7 +75,7 @@ export function DeleteContractButton({
   }
 
   return (
-    <div className="mt-6 border-t border-zinc-100 pt-4">
+    <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
       <p className="mb-2 text-xs font-medium uppercase text-zinc-500">Danger zone</p>
       <button
         ref={triggerRef}
@@ -97,7 +97,7 @@ export function DeleteContractButton({
 
       {confirmOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 p-4 backdrop-blur-[2px]"
+          className="ui-overlay-scrim fixed inset-0 z-50 flex items-center justify-center p-4"
           role="presentation"
           onClick={closeDialog}
         >
@@ -120,7 +120,7 @@ export function DeleteContractButton({
               This cannot be undone.
             </p>
             {error && (
-              <p className="mt-3 rounded-lg border border-red-200/70 bg-red-50/80 px-3 py-2 text-sm text-red-800">
+              <p className="ui-alert-error mt-3 text-sm" role="alert">
                 {error}
               </p>
             )}
@@ -130,7 +130,7 @@ export function DeleteContractButton({
                 type="button"
                 disabled={isPending}
                 onClick={closeDialog}
-                className="rounded-lg border border-zinc-300 bg-surface px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+                className="ui-btn-secondary disabled:pointer-events-none disabled:opacity-45"
               >
                 Cancel
               </button>
@@ -138,7 +138,7 @@ export function DeleteContractButton({
                 type="button"
                 disabled={isPending}
                 onClick={performDelete}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45"
               >
                 {isPending ? (
                   <>

@@ -20,6 +20,10 @@ vi.mock("@/lib/v6/feature-guards", () => ({
   requireV6ApiFeature: vi.fn(() => null),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(() => false),
 }));
@@ -507,6 +511,23 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     getApiAuthContext.mockResolvedValue({
       admin: {
         from: (table: string) => {
+          if (table === "organizations") {
+            return {
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: vi.fn(async () => ({
+                    data: {
+                      v6_org_settings_json: {
+                        workspace_mode: "assurance",
+                        autopilot_allow_execution: true,
+                      },
+                    },
+                    error: null,
+                  })),
+                }),
+              }),
+            };
+          }
           if (table === "autopilot_run_logs") {
             return {
               select: () => ({
@@ -596,23 +617,37 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     const eqLog: EqLog[] = [];
     getApiAuthContext.mockResolvedValue({
       admin: {
-        from: (table: string) => ({
-          update: () => ({
-            eq: (col: string, val: string) => {
-              eqLog.push({ table, col, val });
-              return {
-                eq: (col2: string, val2: string) => {
-                  eqLog.push({ table, col: col2, val: val2 });
-                  return {
-                    select: () => ({
-                      maybeSingle: vi.fn(async () => ({ data: { id: "rule-1" }, error: null })),
-                    }),
-                  };
-                },
-              };
-            },
-          }),
-        }),
+        from: (table: string) => {
+          if (table === "organizations") {
+            return {
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: vi.fn(async () => ({
+                    data: { v6_org_settings_json: { workspace_mode: "assurance" } },
+                    error: null,
+                  })),
+                }),
+              }),
+            };
+          }
+          return {
+            update: () => ({
+              eq: (col: string, val: string) => {
+                eqLog.push({ table, col, val });
+                return {
+                  eq: (col2: string, val2: string) => {
+                    eqLog.push({ table, col: col2, val: val2 });
+                    return {
+                      select: () => ({
+                        maybeSingle: vi.fn(async () => ({ data: { id: "rule-1" }, error: null })),
+                      }),
+                    };
+                  },
+                };
+              },
+            }),
+          };
+        },
       },
       userId: "user-1",
       orgId: ORG,
@@ -697,5 +732,80 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     const rows = eqLog.filter((e) => e.table === "segment_definitions");
     expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
     expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/playbooks applies organization_id to adaptive_playbooks", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          select: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                order: () => ({
+                  limit: vi.fn(async () => ({ data: [], error: null })),
+                }),
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/playbooks/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const rows = eqLog.filter((e) => e.table === "adaptive_playbooks");
+    expect(rows.map((e) => e.col)).toEqual(["organization_id"]);
+    expect(rows[0]?.val).toBe(ORG);
+  });
+
+  it("GET /api/assurance/findings/[id]/events applies organization_id before finding id and on events", async () => {
+    const eqLog: EqLog[] = [];
+    getApiAuthContext.mockResolvedValue({
+      admin: {
+        from: (table: string) => ({
+          select: () => ({
+            eq: (col: string, val: string) => {
+              eqLog.push({ table, col, val });
+              return {
+                eq: (col2: string, val2: string) => {
+                  eqLog.push({ table, col: col2, val: val2 });
+                  if (table === "assurance_findings") {
+                    return {
+                      maybeSingle: vi.fn(async () => ({ data: { id: "f-1" }, error: null })),
+                    };
+                  }
+                  return {
+                    order: () => ({
+                      limit: vi.fn(async () => ({ data: [], error: null })),
+                    }),
+                  };
+                },
+              };
+            },
+          }),
+        }),
+      },
+      userId: "user-1",
+      orgId: ORG,
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/assurance/findings/[id]/events/route");
+    const res = await GET(new Request("http://localhost/api/assurance/findings/f-1/events"), {
+      params: Promise.resolve({ id: "f-1" }),
+    });
+    expect(res.status).toBe(200);
+    const findings = eqLog.filter((e) => e.table === "assurance_findings");
+    expect(findings.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(findings[0]?.val).toBe(ORG);
+    expect(findings[1]?.val).toBe("f-1");
+    const ev = eqLog.filter((e) => e.table === "assurance_finding_events");
+    expect(ev.map((e) => e.col)).toEqual(["organization_id", "finding_id"]);
+    expect(ev[0]?.val).toBe(ORG);
+    expect(ev[1]?.val).toBe("f-1");
   });
 });

@@ -3,6 +3,20 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const DECISION_CONTEXT_MAX_CONTRACTS = 25;
 
+/** Normalizes linked contract ids: valid UUIDs only, max {@link DECISION_CONTEXT_MAX_CONTRACTS}, truncation flag from raw array length. */
+export function normalizeLinkedContractIds(linkedContractIds: unknown): {
+  ids: string[];
+  truncated: boolean;
+} {
+  const raw = Array.isArray(linkedContractIds) ? linkedContractIds : [];
+  const ids = raw
+    .map((x) => String(x))
+    .filter((id) => UUID_RE.test(id))
+    .slice(0, DECISION_CONTEXT_MAX_CONTRACTS);
+  const truncated = raw.length > DECISION_CONTEXT_MAX_CONTRACTS;
+  return { ids, truncated };
+}
+
 type Admin = SupabaseClient;
 
 export type DecisionExecutionContext = {
@@ -63,12 +77,7 @@ export async function buildDecisionExecutionContext(
   organizationId: string,
   linkedContractIds: unknown
 ): Promise<DecisionExecutionContext> {
-  const raw = Array.isArray(linkedContractIds) ? linkedContractIds : [];
-  const ids = raw
-    .map((x) => String(x))
-    .filter((id) => UUID_RE.test(id))
-    .slice(0, DECISION_CONTEXT_MAX_CONTRACTS);
-  const truncated = raw.length > DECISION_CONTEXT_MAX_CONTRACTS;
+  const { ids, truncated } = normalizeLinkedContractIds(linkedContractIds);
 
   const empty: DecisionExecutionContext = {
     linkedContractIdsUsed: ids,

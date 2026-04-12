@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import {
+  isAdvancedModuleHidden,
+  isAssuranceModuleHidden,
+  loadProductSurfaceContext,
+} from "@/lib/product-surface/context";
+import type { WorkspaceRole } from "@/lib/navigation";
 import {
   ensureCounterpartyWorkspaceFromContracts,
   ensureTimelineForCounterparty,
@@ -15,6 +22,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
   const counterpartyKey = decodeURIComponent(rawKey);
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/counterparties/[key]/summary",
+  });
+  if (modeGate) return modeGate;
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
 
   const ensured = await ensureCounterpartyWorkspaceFromContracts(
     ctx.admin,
@@ -25,21 +44,22 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
     return NextResponse.json({ error: "Unable to resolve counterparty workspace" }, { status: 400 });
   }
 
-  const { data: workspace, error } = await ctx.admin
-    .from("counterparty_workspaces")
-    .select("id, counterparty_key, display_name, summary_json, health_signal_json, updated_at")
-    .eq("organization_id", ctx.orgId)
-    .eq("id", ensured.id)
-    .single();
+  const [{ data: workspace, error }, { data: contracts }] = await Promise.all([
+    ctx.admin
+      .from("counterparty_workspaces")
+      .select("id, counterparty_key, display_name, summary_json, health_signal_json, updated_at")
+      .eq("organization_id", ctx.orgId)
+      .eq("id", ensured.id)
+      .single(),
+    ctx.admin
+      .from("contracts")
+      .select("id, title, counterparty, status, annual_value")
+      .eq("organization_id", ctx.orgId)
+      .eq("counterparty_key", counterpartyKey)
+      .order("updated_at", { ascending: false })
+      .limit(200),
+  ]);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-
-  const { data: contracts } = await ctx.admin
-    .from("contracts")
-    .select("id, title, counterparty, status, annual_value")
-    .eq("organization_id", ctx.orgId)
-    .eq("counterparty_key", counterpartyKey)
-    .order("updated_at", { ascending: false })
-    .limit(200);
 
   const timelineId = await ensureTimelineForCounterparty(
     ctx.admin,
@@ -59,6 +79,28 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
       .limit(25);
     timelineEvents = evs ?? [];
   }
+  const filteredTimelineEvents = (timelineEvents as Array<{ event_type?: string }>).filter((evt) => {
+    const type = String(evt.event_type ?? "").toLowerCase();
+    if (type.startsWith("decision.")) {
+      return productSurface.mode !== "core" && !isAdvancedModuleHidden(productSurface, "decisions");
+    }
+    if (type.startsWith("campaign.")) {
+      return productSurface.mode !== "core" && !isAdvancedModuleHidden(productSurface, "campaigns");
+    }
+    if (type.startsWith("program.")) {
+      return productSurface.mode !== "core" && !isAdvancedModuleHidden(productSurface, "programs");
+    }
+    if (type.startsWith("relationship.")) {
+      return productSurface.mode !== "core" && !isAdvancedModuleHidden(productSurface, "relationships");
+    }
+    if (type.startsWith("finding.")) {
+      return productSurface.mode === "assurance" && !isAssuranceModuleHidden(productSurface, "findings");
+    }
+    if (type.startsWith("playbook.")) {
+      return productSurface.mode === "assurance" && !isAssuranceModuleHidden(productSurface, "playbooks");
+    }
+    return true;
+  });
 
   const contractIds = (contracts ?? []).map((c) => String(c.id));
   const liveMetrics = await buildRelationshipKeyMetrics(ctx.admin, ctx.orgId, contractIds);
@@ -66,7 +108,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
   return NextResponse.json({
     workspace,
     contracts: contracts ?? [],
-    timelineEvents,
+    timelineEvents: filteredTimelineEvents,
     liveMetrics,
   });
 }

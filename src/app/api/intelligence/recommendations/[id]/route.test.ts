@@ -16,6 +16,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
   canManageCapability,
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 vi.mock("@/lib/v5/persist-signal-quality", () => ({
   incrementOrgV5SignalQuality: vi.fn(async () => {}),
 }));

@@ -1,0 +1,34 @@
+docs/refinement.md §22 — manual acceptance (record pass/fail + date in release notes)
+
+22.1 Product identity
+  - Ask a first-time tester (or internal volunteer) to describe the product in one sentence after 10 minutes on Core.
+  - Pass: post-signature contract execution workspace; no need to mention campaigns, assurance, or autopilot.
+
+22.2 Default navigation (also covered by e2e/authenticated.spec.ts Core matrix)
+  - Core workspace: primary nav has no Decisions, Campaigns, Assurance, or Programs.
+
+22.3 Dashboard coherence
+  - Core home foregrounds work, renewals, exceptions, evidence, recent changes — not assurance portfolio chrome.
+
+22.4 Feature containment
+  - Deep links to /decisions or /assurance in Core non-admin redirect or block as expected.
+
+22.5 Naming consistency
+  - Run: npm run audit:core-terminology:strict && npm run audit:marketing-identity:strict
+
+22.6 Cross-surface consistency
+  - Cmd-K recent targets and nav badges match surface (E2E smoke).
+  - Run: npm run check:v7-suite (href audit, vocabulary, route-inventory drift, plan IA, refinement API coverage).
+
+22.7 Quality / polish
+  - Walk Core routes in docs/refinement.md §7.1 order; npm run audit:ui-operational:strict
+
+Optional CI-deep E2E (pre-release)
+  - Set in .env.local (see .env.example): E2E_ADVANCED_EMAIL/PASSWORD, E2E_ASSURANCE_EMAIL/PASSWORD, E2E_CORE_NON_ADMIN_EMAIL/PASSWORD.
+  - Run: npm run test:e2e — optional describes in e2e/refinement-optional-fixtures.spec.ts execute when these are set; default CI keeps only E2E_TEST_*.
+
+— Product owner sign-off (manual) —
+  Name:
+  Date:
+  Outcome (pass / pass-with-notes / fail):
+  Notes:

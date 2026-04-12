@@ -1,4 +1,9 @@
 import { Resend } from "resend";
+import type { WorkspaceProductMode } from "@/lib/product-surface/types";
+import {
+  degradeOutboundEmailCopyForCore,
+  emailCopyUsesCoreSurface,
+} from "@/lib/email-workspace-degrade";
 
 let resend: Resend | null = null;
 
@@ -129,6 +134,8 @@ interface SavedViewSummaryEmailParams {
   workspacePath: string;
   sampleRows: Array<{ label: string; href: string; meta: string }>;
   openPixelUrl?: string | null;
+  /** When Core (default), strip contained-module names from copy (refinement §18). */
+  workspaceProductMode?: WorkspaceProductMode;
 }
 
 export async function sendSavedViewSummaryEmail({
@@ -139,20 +146,30 @@ export async function sendSavedViewSummaryEmail({
   workspacePath,
   sampleRows,
   openPixelUrl,
+  workspaceProductMode,
 }: SavedViewSummaryEmailParams) {
   const resendClient = getResendClient();
   if (!resendClient) {
     return { error: new Error("Email provider is not configured") };
   }
-  const safeViewName = escapeHtml(viewName);
+  const coreCopy = emailCopyUsesCoreSurface(workspaceProductMode);
+  const viewNameForEmail = coreCopy ? degradeOutboundEmailCopyForCore(viewName) : viewName;
+  const rowsForEmail = coreCopy
+    ? sampleRows.map((r) => ({
+        ...r,
+        label: degradeOutboundEmailCopyForCore(r.label),
+        meta: degradeOutboundEmailCopyForCore(r.meta),
+      }))
+    : sampleRows;
+  const safeViewName = escapeHtml(viewNameForEmail);
   const safeAppUrl = escapeHtml(appUrl.replace(/\/+$/, ""));
   const safeOpenPixelUrl = openPixelUrl ? escapeHtml(openPixelUrl) : null;
 
   const rowsHtml =
-    sampleRows.length === 0
+    rowsForEmail.length === 0
       ? `<p style="color:#6b7280;font-size:13px;margin:0;">No contracts currently match this view.</p>`
       : `<ul style="padding-left:18px;margin:0;">
-          ${sampleRows
+          ${rowsForEmail
             .map((row) => {
               const safeTitle = escapeHtml(row.label);
               const safeMeta = escapeHtml(row.meta);
@@ -168,7 +185,7 @@ export async function sendSavedViewSummaryEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject: `Weekly summary: ${viewName} (${itemCount})`,
+    subject: `Weekly summary: ${viewNameForEmail} (${itemCount})`,
     html: `
       <div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
         <h2 style="color:#111827;font-size:18px;margin-bottom:8px;">Oblixa weekly summary</h2>
@@ -207,6 +224,7 @@ interface ReportPackDigestEmailParams {
   appUrl: string;
   metricsSummary: Array<{ label: string; value: string }>;
   reportsPath?: string;
+  workspaceProductMode?: WorkspaceProductMode;
 }
 
 export async function sendReportPackDigestEmail({
@@ -216,20 +234,30 @@ export async function sendReportPackDigestEmail({
   appUrl,
   metricsSummary,
   reportsPath = "/contracts/reports",
+  workspaceProductMode,
 }: ReportPackDigestEmailParams) {
   const resendClient = getResendClient();
   if (!resendClient) {
     return { error: new Error("Email provider is not configured") };
   }
-  const safeName = escapeHtml(packName);
-  const safeType = escapeHtml(reportType);
+  const coreCopy = emailCopyUsesCoreSurface(workspaceProductMode);
+  const packNameForEmail = coreCopy ? degradeOutboundEmailCopyForCore(packName) : packName;
+  const reportTypeForEmail = coreCopy ? degradeOutboundEmailCopyForCore(reportType) : reportType;
+  const metricsForEmail = coreCopy
+    ? metricsSummary.map((m) => ({
+        label: degradeOutboundEmailCopyForCore(m.label),
+        value: degradeOutboundEmailCopyForCore(m.value),
+      }))
+    : metricsSummary;
+  const safeName = escapeHtml(packNameForEmail);
+  const safeType = escapeHtml(reportTypeForEmail);
   const base = appUrl.replace(/\/+$/, "");
   const safeBase = escapeHtml(base);
   const rows =
-    metricsSummary.length === 0
+    metricsForEmail.length === 0
       ? "<p style=\"color:#6b7280;font-size:13px;\">No KPI rows.</p>"
       : `<table style="border-collapse:collapse;width:100%;max-width:480px;font-size:13px;">
-          ${metricsSummary
+          ${metricsForEmail
             .map(
               (r) =>
                 `<tr><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;color:#52525b;">${escapeHtml(
@@ -244,7 +272,7 @@ export async function sendReportPackDigestEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject: `Report pack: ${packName}`,
+    subject: `Report pack: ${packNameForEmail}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
         <h2 style="color:#111827;font-size:18px;">${safeName}</h2>

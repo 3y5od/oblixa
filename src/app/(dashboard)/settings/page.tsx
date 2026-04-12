@@ -88,7 +88,9 @@ export default async function SettingsPage() {
   return (
     <div className="ui-page-stack mx-auto max-w-4xl">
       <header className="border-b border-zinc-200/60 pb-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        {/* Always stack: viewport breakpoints ignore sidebar width, so side-by-side rows
+            overlapped title + pills in the main column (~1024–1400px effective width). */}
+        <div className="flex flex-col gap-5">
           <div className="min-w-0">
             <p className="ui-eyebrow">Workspace</p>
             <h1 className="ui-display-title mt-2">Settings</h1>
@@ -96,7 +98,7 @@ export default async function SettingsPage() {
               Profile, organization, and team access for your workspace.
             </p>
           </div>
-          <div className="ui-page-actions shrink-0 lg:pt-1">
+          <div className="ui-page-actions w-full shrink-0 justify-start pt-0">
             {canOpenHealth && (
               <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
                 System health
@@ -105,6 +107,11 @@ export default async function SettingsPage() {
             <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
               Workflow configuration
             </Link>
+            {membership?.role === "admin" ? (
+              <Link href="/settings/product" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                Product experience
+              </Link>
+            ) : null}
             {membership?.role === "admin" ? (
               <Link href="/settings/policy" className="ui-btn-secondary px-4 py-2 text-[13px]">
                 Policy registry
@@ -131,13 +138,13 @@ export default async function SettingsPage() {
       </header>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
+        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <div className="min-w-0">
               <p className="ui-eyebrow">You</p>
               <h2 className="ui-section-title mt-1 text-base">Profile</h2>
             </div>
-            <p className="text-[12px] text-zinc-400">
+            <p className="shrink-0 text-[12px] text-zinc-500 sm:pt-0.5 sm:text-right">
               Joined{" "}
               {user.created_at
                 ? format(new Date(user.created_at), "MMM d, yyyy")
@@ -155,59 +162,57 @@ export default async function SettingsPage() {
 
       {membership && (
         <section className="ui-card overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
-            <div>
+          <div className="flex flex-col gap-2 border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="min-w-0">
               <p className="ui-eyebrow">Workspace</p>
               <h2 className="ui-section-title mt-1 text-base">Organization</h2>
             </div>
-            <span className="inline-flex rounded-full border border-zinc-200/80 bg-surface px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
+            <span className="inline-flex w-fit shrink-0 rounded-full border border-zinc-200/80 bg-surface px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
 
-          <div className="p-6 md:p-8">
-          <div className="mb-8">
+          <div className="space-y-8 p-6 md:p-8">
             <OrgForm
               organizationId={membership.organization_id}
               name={orgName}
               isAdmin={membership.role === "admin"}
             />
-          </div>
 
-          <div className="mb-3">
-            <p className="ui-eyebrow">Access</p>
-            <h3 className="ui-section-title mt-1 text-base">Team members</h3>
-          </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-200/90">
-            <table className="min-w-full divide-y divide-zinc-200/80">
-              <thead className="bg-zinc-50/80">
-                <tr>
-                  <th className="ui-table-header px-4 py-3">
-                    Name
-                  </th>
-                  <th className="ui-table-header px-4 py-3">Email</th>
-                  <th className="ui-table-header px-4 py-3">Role</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200/70">
-                {members.map((m) => (
-                  <tr key={m.id}>
-                    <td className="px-4 py-2.5 text-sm font-medium text-zinc-900">
-                      {m.profiles?.full_name || "—"}
-                    </td>
-                    <td className="px-4 py-2.5 text-sm text-zinc-500">
-                      {m.profiles?.email || "—"}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700">
-                        {roleLabels[m.role] || m.role}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            <div>
+              <p className="ui-eyebrow">Access</p>
+              <h3 className="ui-section-title mt-1 text-base">Team members</h3>
+              <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200/90">
+                <table className="min-w-full divide-y divide-zinc-200/80">
+                  <thead className="bg-zinc-50/80">
+                    <tr>
+                      <th className="ui-table-header px-4 py-3">
+                        Name
+                      </th>
+                      <th className="ui-table-header px-4 py-3">Email</th>
+                      <th className="ui-table-header px-4 py-3">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-200/70">
+                    {members.map((m) => (
+                      <tr key={m.id}>
+                        <td className="px-4 py-2.5 text-sm font-medium text-zinc-900">
+                          {m.profiles?.full_name || "—"}
+                        </td>
+                        <td className="px-4 py-2.5 text-sm text-zinc-500">
+                          {m.profiles?.email || "—"}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700">
+                            {roleLabels[m.role] || m.role}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
           {membership.role === "admin" && (
             <>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET(
   _request: Request,
@@ -8,6 +9,13 @@ export async function GET(
   const { contractId } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/evidence/export/[contractId]",
+  });
+  if (modeGate) return modeGate;
 
   const { data: contract } = await ctx.admin
     .from("contracts")

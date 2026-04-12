@@ -17,11 +17,18 @@ import {
   rateLimitCheck,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 /** Large PDFs + OpenAI can exceed default serverless limits on some hosts */
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
+  const ctReject = jsonContentTypeRejection(request);
+  if (ctReject) {
+    return NextResponse.json(ctReject.body, { status: ctReject.status });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -96,9 +103,20 @@ export async function POST(request: Request) {
   }
 
   const role = await getOrgMemberRole(admin, user.id, contract.organization_id);
+  if (!role) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: contract.organization_id,
+    role,
+    apiPath: "/api/extract",
+  });
+  if (modeGate) return modeGate;
   if (!canEditContracts(role)) {
     return NextResponse.json({ error: "Viewers cannot run extraction" }, { status: 403 });
   }
+  // §4.4 — billing gate for extraction only; unrelated to product surface mode.
   if (
     isPlanEnforcementEnabled() &&
     !(await orgHasActivePlan(admin, contract.organization_id))
@@ -138,6 +156,31 @@ export async function POST(request: Request) {
   const workerSecret = process.env.EXTRACTION_WORKER_SECRET?.trim();
   const workerOrigin = resolveExtractionWorkerOrigin(request);
 
+  /** When the worker HTTP call fails without running the pipeline (4xx, gateway, network), run here. Skip on 500 so we do not double-run OpenAI if the worker failed mid-pipeline. */
+  function shouldFallbackToInlinePipeline(status: number): boolean {
+    if (status >= 500 && status !== 502 && status !== 503 && status !== 504) {
+      return false;
+    }
+    return true;
+  }
+
+  async function finalizeUnexpectedInlineError() {
+    try {
+      const freshAdmin = await createAdminClient();
+      await finishExtractionJob(
+        freshAdmin,
+        contractId,
+        false,
+        "Extraction failed unexpectedly. Please try again."
+      );
+    } catch (finishErr) {
+      console.error("[api/extract] failed to finalize job after error:", finishErr);
+      captureServerException(finishErr, {
+        extra: { route: "api/extract", phase: "finalize-inline-failure", contractId },
+      });
+    }
+  }
+
   if (workerSecret) {
     after(async () => {
       try {
@@ -172,6 +215,27 @@ export async function POST(request: Request) {
               body: t.slice(0, 500),
             },
           });
+          if (shouldFallbackToInlinePipeline(res.status)) {
+            captureServerMessage("extraction worker unreachable or rejected; running inline pipeline", {
+              level: "warning",
+              extra: { contractId, status: res.status },
+            });
+            try {
+              await runExtractionPipeline({
+                contractId,
+                userId: uid,
+                organizationId: orgId,
+              });
+              return;
+            } catch (inlineErr) {
+              console.error("[api/extract] inline fallback after worker failure:", inlineErr);
+              captureServerException(inlineErr, {
+                extra: { route: "api/extract", mode: "worker-fallback-inline", contractId },
+              });
+              await finalizeUnexpectedInlineError();
+              return;
+            }
+          }
           const admin = await createAdminClient();
           const friendly =
             res.status >= 500
@@ -182,13 +246,23 @@ export async function POST(request: Request) {
       } catch (err) {
         console.error("[api/extract] worker fetch error:", err);
         captureServerException(err, { extra: { contractId } });
-        const admin = await createAdminClient();
-        await finishExtractionJob(
-          admin,
-          contractId,
-          false,
-          "Could not start extraction. Please try again."
-        );
+        captureServerMessage("extraction worker fetch threw; running inline pipeline", {
+          level: "warning",
+          extra: { contractId },
+        });
+        try {
+          await runExtractionPipeline({
+            contractId,
+            userId: uid,
+            organizationId: orgId,
+          });
+        } catch (inlineErr) {
+          console.error("[api/extract] inline fallback after worker throw:", inlineErr);
+          captureServerException(inlineErr, {
+            extra: { route: "api/extract", mode: "worker-fallback-inline", contractId },
+          });
+          await finalizeUnexpectedInlineError();
+        }
       }
     });
   } else {

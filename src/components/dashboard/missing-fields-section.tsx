@@ -29,12 +29,17 @@ export function MissingFieldsSection({ contracts }: MissingFieldsSectionProps) {
             </p>
           </div>
         </div>
-        <Link
-          href="/contracts/review"
-          className="ui-btn-secondary shrink-0 self-start px-4 py-2 text-[13px]"
-        >
-          Open review queue
-        </Link>
+        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
+          <Link href="/contracts/data-quality" className="ui-link text-center text-[13px] sm:text-right">
+            Open data quality
+          </Link>
+          <Link
+            href="/contracts/review"
+            className="ui-btn-secondary px-4 py-2 text-[13px]"
+          >
+            Open review queue
+          </Link>
+        </div>
       </div>
       {contracts.length === 0 ? (
         <p className="px-6 py-10 text-center text-[13px] text-zinc-500">

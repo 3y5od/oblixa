@@ -8,6 +8,7 @@ import type { ApprovalStatus, ApprovalType, RenewalScenario } from "@/lib/types"
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { hasRoleCapability } from "@/lib/access-control";
 import { autoTransitionTasksForApproval } from "@/actions/tasks";
+import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
 
 const APPROVAL_TYPES: ApprovalType[] = [
   "renewal_decision",
@@ -160,15 +161,21 @@ export async function requestContractApproval(input: {
   if (error) return { error: mapDataSourceError(error.message) };
 
   if (approverId) {
-    await admin.from("internal_notifications").insert({
-      organization_id: contract.organization_id,
-      user_id: approverId,
-      notification_type: "approval_requested",
-      title: "Approval requested",
-      body: notes ?? "A contract approval request is waiting for review.",
-      entity_type: "contract_approval",
-      entity_id: approval.id,
+    const notificationsAllowed = await isNotificationTypeAllowedForWorkspace(admin as never, {
+      organizationId: contract.organization_id,
+      notificationType: "approval_requested",
     });
+    if (notificationsAllowed) {
+      await admin.from("internal_notifications").insert({
+        organization_id: contract.organization_id,
+        user_id: approverId,
+        notification_type: "approval_requested",
+        title: "Approval requested",
+        body: notes ?? "A contract approval request is waiting for review.",
+        entity_type: "contract_approval",
+        entity_id: approval.id,
+      });
+    }
   }
 
   await admin.from("audit_events").insert({

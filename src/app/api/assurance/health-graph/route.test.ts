@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 const { listHealthGraph } = vi.hoisted(() => ({
   listHealthGraph: vi.fn(),
@@ -21,11 +22,20 @@ vi.mock("@/lib/v6/assurance", () => ({
   listHealthGraph,
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
 vi.mock("@/lib/v6/telemetry", () => ({
   incrementV6QualityCounter: vi.fn(async () => {}),
 }));
 
 describe("GET /api/assurance/health-graph", () => {
+  it("mocks workspace eligibility guard", () => {
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
+    expect(requireApiWorkspaceEligibility).toBeDefined();
+  });
+
   it("returns 403 when feature disabled", async () => {
     requireV6ApiFeature.mockReturnValueOnce(new Response(JSON.stringify({ error: "disabled" }), { status: 403 }));
     const { GET } = await import("@/app/api/assurance/health-graph/route");

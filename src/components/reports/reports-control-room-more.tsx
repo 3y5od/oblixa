@@ -30,8 +30,9 @@ type PortfolioCounterpartyRow = { counterparty_key: string; open_exceptions: num
 export function ReportsPortfolioAnalyticsSection(props: {
   portfolioByProgram: { programs: PortfolioProgramRow[]; error: string | null };
   portfolioByCounterparty: { counterparties: PortfolioCounterpartyRow[]; error: string | null };
+  relationshipsVisible: boolean;
 }) {
-  const { portfolioByProgram, portfolioByCounterparty } = props;
+  const { portfolioByProgram, portfolioByCounterparty, relationshipsVisible } = props;
   return (
     <section id="portfolio-analytics" className="scroll-mt-8 space-y-4">
       <OperationalSectionHeader
@@ -56,7 +57,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
                   <th className="px-3 py-2">Active assignments</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {(portfolioByProgram.programs ?? []).length === 0 ? (
                   <tr>
                     <td colSpan={2} className="px-3 py-4 text-zinc-500">
@@ -90,7 +91,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
                   <th className="px-3 py-2">Open / in progress</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {(portfolioByCounterparty.counterparties ?? []).length === 0 ? (
                   <tr>
                     <td colSpan={2} className="px-3 py-4 text-zinc-500">
@@ -101,12 +102,16 @@ export function ReportsPortfolioAnalyticsSection(props: {
                   (portfolioByCounterparty.counterparties ?? []).map((c) => (
                     <tr key={c.counterparty_key}>
                       <td className="px-3 py-2">
-                        <Link
-                          href={`/counterparties/${encodeURIComponent(c.counterparty_key)}`}
-                          className="ui-link font-mono text-xs"
-                        >
-                          {c.counterparty_key}
-                        </Link>
+                        {relationshipsVisible ? (
+                          <Link
+                            href={`/counterparties/${encodeURIComponent(c.counterparty_key)}`}
+                            className="ui-link font-mono text-xs"
+                          >
+                            {c.counterparty_key}
+                          </Link>
+                        ) : (
+                          <span className="font-mono text-xs">{c.counterparty_key}</span>
+                        )}
                       </td>
                       <td className="px-3 py-2">{c.open_exceptions}</td>
                     </tr>
@@ -164,6 +169,9 @@ export function ReportsCapacityCampaignsSection(props: {
   deltaStalledDecisions: number | null;
   latestOpenTasks: number | null;
   latestPendingApprovals: number | null;
+  showCampaignSurfaces: boolean;
+  showDecisionSignals: boolean;
+  showAnalyticsLinks: boolean;
 }) {
   const {
     simOn,
@@ -174,6 +182,9 @@ export function ReportsCapacityCampaignsSection(props: {
     deltaStalledDecisions,
     latestOpenTasks,
     latestPendingApprovals,
+    showCampaignSurfaces,
+    showDecisionSignals,
+    showAnalyticsLinks,
   } = props;
 
   return (
@@ -189,7 +200,7 @@ export function ReportsCapacityCampaignsSection(props: {
           ...(deltaTasks !== null
             ? [{ label: "Δ open tasks", value: deltaTasks > 0 ? `+${deltaTasks}` : String(deltaTasks) }]
             : []),
-          ...(deltaStalledDecisions !== null
+          ...(showDecisionSignals && deltaStalledDecisions !== null
             ? [
                 {
                   label: "Δ stalled decisions",
@@ -198,11 +209,15 @@ export function ReportsCapacityCampaignsSection(props: {
               ]
             : []),
         ]}
-        action={{ href: "/api/capacity/forecast", label: "Forecast JSON", external: true }}
+        action={
+          showAnalyticsLinks
+            ? { href: "/api/capacity/forecast", label: "Forecast JSON", external: true }
+            : { href: "/reports#capacity-forecasts", label: "Forecast details" }
+        }
         variant="compact"
         footerExtra={
           <div className="mt-3 space-y-2 text-[11px] text-zinc-600">
-            {simOn ? (
+            {simOn && showAnalyticsLinks ? (
               <p>
                 Tie to{" "}
                 <Link href="/reports#portfolio-signals" className="ui-link">
@@ -241,9 +256,18 @@ export function ReportsCapacityCampaignsSection(props: {
         <OperationalSectionHeader
           eyebrow="Planning"
           title="Reassignment planner"
-          description="Model delegation, then apply updates in campaigns and decisions."
+          description={
+            showCampaignSurfaces || showDecisionSignals
+              ? "Model delegation, then apply updates in campaigns and decisions."
+              : "Model delegation and track operational workload shifts."
+          }
         />
-        <form className="mt-4 grid gap-2" action="/api/capacity/reassignment-plan" method="post" target="_blank">
+        <form
+          className="mt-4 grid gap-2"
+          action="/api/capacity/reassignment-plan"
+          method="post"
+          target="_blank"
+        >
           <label className="text-xs text-zinc-600">
             Team key
             <input name="teamKey" className="ui-input-compact mt-1 w-full" defaultValue="ops" required />
@@ -268,9 +292,13 @@ export function ReportsCapacityCampaignsSection(props: {
               required
             />
           </label>
-          <button type="submit" className="ui-btn-secondary mt-2 px-3 py-2 text-xs">
-            Generate reassignment plan
-          </button>
+          {showAnalyticsLinks ? (
+            <button type="submit" className="ui-btn-secondary mt-2 px-3 py-2 text-xs">
+              Generate reassignment plan
+            </button>
+          ) : (
+            <p className="mt-2 text-xs text-zinc-500">Reassignment planner is hidden for this workspace.</p>
+          )}
         </form>
       </article>
 
@@ -280,7 +308,7 @@ export function ReportsCapacityCampaignsSection(props: {
           title="Recommendations"
           description="Accept or dismiss grounded recommendations."
         />
-        <ul className="mt-3 divide-y divide-zinc-100 text-sm text-zinc-700">
+        <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm text-zinc-700">
           {(recommendations ?? []).map((r) => (
             <li key={r.id} className="flex flex-col gap-2 py-3 first:pt-0">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -288,7 +316,7 @@ export function ReportsCapacityCampaignsSection(props: {
                   {r.recommendation_type} · {r.priority} ·{" "}
                   {r.accepted ? "accepted" : r.dismissed ? "dismissed" : "pending"}
                 </span>
-                {simOn ? (
+                {simOn && showAnalyticsLinks ? (
                   <RecommendationRowActions
                     recommendationId={r.id}
                     accepted={!!r.accepted}
@@ -300,35 +328,44 @@ export function ReportsCapacityCampaignsSection(props: {
           ))}
           {(recommendations ?? []).length === 0 ? <li className="py-2 text-zinc-500">No recommendations.</li> : null}
         </ul>
-        <Link href="/api/intelligence/recommendations" className="ui-link mt-3 inline-block text-xs" target="_blank" rel="noreferrer">
-          Recommendations JSON
-        </Link>
+        {showAnalyticsLinks ? (
+          <Link
+            href="/api/intelligence/recommendations"
+            className="ui-link mt-3 inline-block text-xs"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Recommendations JSON
+          </Link>
+        ) : null}
       </article>
 
-      <OperationalSummaryCard
-        eyebrow="Rollout"
-        headline="Campaign drift"
-        tone={(activeCampaigns ?? []).length > 0 ? "neutral" : "healthy"}
-        icon={Megaphone}
-        primaryValue={(activeCampaigns ?? []).length}
-        primaryUnit="active / paused"
-        action={{ href: "/campaigns", label: "Open campaign center" }}
-        variant="compact"
-        id="campaign-drift"
-        footerExtra={
-          <ul className="mt-3 space-y-2 text-sm text-zinc-700">
-            {(activeCampaigns ?? []).map((c) => (
-              <li key={c.id}>
-                <Link href={`/campaigns/${c.id}`} className="ui-link">
-                  {c.name}
-                </Link>{" "}
-                <span className="text-zinc-500">· {c.status}</span>
-              </li>
-            ))}
-            {(activeCampaigns ?? []).length === 0 ? <li className="text-zinc-500">No active campaigns.</li> : null}
-          </ul>
-        }
-      />
+      {showCampaignSurfaces ? (
+        <OperationalSummaryCard
+          eyebrow="Rollout"
+          headline="Campaign drift"
+          tone={(activeCampaigns ?? []).length > 0 ? "neutral" : "healthy"}
+          icon={Megaphone}
+          primaryValue={(activeCampaigns ?? []).length}
+          primaryUnit="active / paused"
+          action={{ href: "/campaigns", label: "Open campaign center" }}
+          variant="compact"
+          id="campaign-drift"
+          footerExtra={
+            <ul className="mt-3 space-y-2 text-sm text-zinc-700">
+              {(activeCampaigns ?? []).map((c) => (
+                <li key={c.id}>
+                  <Link href={`/campaigns/${c.id}`} prefetch={false} className="ui-link">
+                    {c.name}
+                  </Link>{" "}
+                  <span className="text-zinc-500">· {c.status}</span>
+                </li>
+              ))}
+              {(activeCampaigns ?? []).length === 0 ? <li className="text-zinc-500">No active campaigns.</li> : null}
+            </ul>
+          }
+        />
+      ) : null}
     </section>
   );
 }
@@ -378,8 +415,13 @@ export function ReportsOutcomeIntelligenceSection(props: {
   outcomeIntel: OutcomeIntelResult | null;
   outcomeDrilldown: OutcomeDrilldownResult | null;
   canViewAssuranceOps: boolean;
+  visibility: {
+    campaigns: boolean;
+    playbooks: boolean;
+    controlPolicies: boolean;
+  };
 }) {
-  const { outcomeIntel, outcomeDrilldown, canViewAssuranceOps } = props;
+  const { outcomeIntel, outcomeDrilldown, canViewAssuranceOps, visibility } = props;
 
   return (
     <section className="ui-card scroll-mt-8 p-5" id="outcome-intelligence">
@@ -471,23 +513,30 @@ export function ReportsOutcomeIntelligenceSection(props: {
                   ) : null}
                 </div>
                 <span className="mt-1 block text-[11px] text-zinc-500">
-                  {row.source_playbook_run_id ? (
-                    <Link className="ui-link" href="/assurance/playbooks">
+                  {visibility.playbooks && row.source_playbook_run_id ? (
+                    <Link className="ui-link" href="/assurance/playbooks" prefetch={false}>
                       Playbook run {row.source_playbook_run_id.slice(0, 8)}…
                     </Link>
                   ) : null}
-                  {row.source_campaign_id ? (
+                  {visibility.campaigns && row.source_campaign_id ? (
                     <>
-                      {row.source_playbook_run_id ? " · " : null}
-                      <Link className="ui-link" href="/campaigns">
+                      {visibility.playbooks && row.source_playbook_run_id ? " · " : null}
+                      <Link className="ui-link" href="/campaigns" prefetch={false}>
                         Campaign {row.source_campaign_id.slice(0, 8)}…
                       </Link>
                     </>
                   ) : null}
-                  {row.source_control_policy_id ? (
+                  {visibility.controlPolicies && row.source_control_policy_id ? (
                     <>
-                      {row.source_playbook_run_id || row.source_campaign_id ? " · " : null}
-                      <Link className="ui-link" href={`/assurance/control-policies/${row.source_control_policy_id}`}>
+                      {(visibility.playbooks && row.source_playbook_run_id) ||
+                      (visibility.campaigns && row.source_campaign_id)
+                        ? " · "
+                        : null}
+                      <Link
+                      className="ui-link"
+                      prefetch={false}
+                      href={`/assurance/control-policies/${row.source_control_policy_id}`}
+                    >
                         Control policy
                       </Link>
                     </>

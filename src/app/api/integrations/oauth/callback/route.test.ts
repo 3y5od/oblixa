@@ -26,6 +26,38 @@ describe("GET /api/integrations/oauth/callback", () => {
     vi.unstubAllGlobals();
   });
 
+  it("returns 400 when state or code is missing", async () => {
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=&code=x")
+    );
+    expect(res.status).toBe(400);
+    expect(createAdminClient).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state row is missing (invalid state)", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request(
+        "http://localhost:3000/api/integrations/oauth/callback?state=not-in-db&code=auth_code"
+      )
+    );
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: "Invalid state" });
+  });
+
   it("returns 500 when loading oauth state fails", async () => {
     const authStateQuery = {
       select: vi.fn().mockReturnThis(),

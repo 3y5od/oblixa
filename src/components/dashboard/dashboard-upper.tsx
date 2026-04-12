@@ -1,3 +1,8 @@
+/**
+ * docs/refinement.md §8.1–§8.2 (Core home): supports “what needs action now / due soon” via stats + command
+ * shortcuts, onboarding, deadlines lane, and persona-aware command tiles. §8.3 items (assurance scorecards,
+ * health graph, etc.) stay in `dashboard/page.tsx` and are mode-gated for Core.
+ */
 import Link from "next/link";
 import { differenceInDays, isValid } from "date-fns";
 import { Bookmark, ClipboardList, Scale, ShieldAlert, UserCircle, Wallet } from "lucide-react";
@@ -19,7 +24,16 @@ import {
   getProfileOnboardingCached,
 } from "@/lib/dashboard-data";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  isOnboardingBlockingForAdmin,
+  parseOnboardingCalibration,
+} from "@/lib/onboarding/calibration-types";
+import { dashboardOrgRoleCalibrationNudge } from "@/lib/onboarding/calibration-copy";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 import type { WorkspaceRole } from "@/lib/navigation";
+import type { WorkspaceProductMode } from "@/lib/product-surface/types";
+import type { ProductSurfaceContext } from "@/lib/product-surface/context";
+import { isHrefEligibleForProductSurface } from "@/lib/product-surface/href-eligibility";
 
 const COMMAND_LANE_ICONS = [ClipboardList, Scale, ShieldAlert] as const;
 
@@ -49,8 +63,15 @@ export async function DashboardUpper(props: {
   role: WorkspaceRole;
   view: "personal" | "team" | "portfolio";
   quickFilter: "all" | "approvals" | "deadlines" | "data_gaps";
+  /** Core home hides duplicate persona chrome (docs/refinement.md §8.3). */
+  workspaceProductMode?: WorkspaceProductMode;
+  productSurfaceContext: ProductSurfaceContext;
 }) {
-  const { orgId, userId, role, view, quickFilter } = props;
+  const { orgId, userId, role, view, quickFilter, workspaceProductMode, productSurfaceContext } = props;
+  const isCoreHome = workspaceProductMode === "core";
+  const isHrefEligible = (href: string) =>
+    isHrefEligibleForProductSurface(productSurfaceContext, href);
+  /** §4.4 — subscription gate for create/edit only; never used for nav, mode, or landing IA. */
   const enforcePlan = isPlanEnforcementEnabled();
 
   const [
@@ -72,6 +93,12 @@ export async function DashboardUpper(props: {
   ]);
 
   const admin = await createAdminClient();
+  const v6OrgSettings = await getV6OrgSettingsJson(admin, orgId);
+  const onboardingCalibration = parseOnboardingCalibration(v6OrgSettings.onboarding_calibration);
+  const calibrationBlocking = isOnboardingBlockingForAdmin({
+    role,
+    calibration: onboardingCalibration,
+  });
   if (workflowSettings?.dashboard_tracking_enabled !== false) {
     await admin.from("audit_events").insert({
       organization_id: orgId,
@@ -119,7 +146,8 @@ export async function DashboardUpper(props: {
     query_json: Record<string, unknown> | null;
     pinned: boolean;
   }>;
-  const commandViewLinks = commandSavedViews.map((v) => {
+  const commandViewLinks = commandSavedViews
+    .map((v) => {
     const query = new URLSearchParams();
     const q = v.query_json ?? {};
     for (const [k, val] of Object.entries(q)) {
@@ -134,17 +162,20 @@ export async function DashboardUpper(props: {
           : v.view_type === "renewals"
             ? "/contracts/renewals"
             : "/contracts";
-    return {
-      id: v.id,
-      name: v.name,
-      href: query.toString() ? `${base}?${query.toString()}` : base,
-      viewType: v.view_type,
-    };
-  });
+      return {
+        id: v.id,
+        name: v.name,
+        href: query.toString() ? `${base}?${query.toString()}` : base,
+        viewType: v.view_type,
+      };
+    })
+    .filter((row) => isHrefEligible(row.href));
 
   const showPlanBanner = enforcePlan && !hasActivePlan;
-  const showOnboarding = !profileRow?.onboarding_completed_at;
-  const showPersonaPresets = isFeatureEnabled("v3PersonaDashboards");
+  const showOnboarding =
+    !profileRow?.onboarding_completed_at && !calibrationBlocking;
+  const showPersonaPresets =
+    isFeatureEnabled("v3PersonaDashboards") && !isCoreHome;
   const onboardingStats: OnboardingActivationStats = {
     contractCount: metrics.totalContracts,
     hasExtractions: metrics.extractedFieldsTotal > 0,
@@ -176,7 +207,7 @@ export async function DashboardUpper(props: {
       {
         title: "Pending approvals",
         href: "/contracts/approvals",
-        why: "Legal decisions are bottlenecks for downstream work.",
+        why: "Legal approvals are bottlenecks for downstream work.",
       },
       {
         title: "Policy mismatches",
@@ -198,7 +229,7 @@ export async function DashboardUpper(props: {
       {
         title: "Approval bottlenecks",
         href: "/contracts/approvals",
-        why: "SLA breaches delay revenue decisions.",
+        why: "SLA breaches delay revenue operations.",
       },
       {
         title: "Billing checkpoint exceptions",
@@ -277,10 +308,22 @@ export async function DashboardUpper(props: {
   };
   const commandCenterForRole =
     roleCommandCenterCards[role] ?? roleCommandCenterCards.viewer;
+  const visibleCommandCenterCards = commandCenterForRole.filter((card) => {
+    if (isCoreHome && card.href.startsWith("/contracts/maintenance")) return false;
+    return isHrefEligible(card.href);
+  });
+  const manageSavedViewsHref = isHrefEligible("/contracts/tasks")
+    ? "/contracts/tasks"
+    : "/contracts";
 
   return (
     <>
-      {showOnboarding && <OnboardingBanner stats={onboardingStats} />}
+      {showOnboarding && (
+        <OnboardingBanner
+          stats={onboardingStats}
+          setupChecklist={onboardingCalibration?.last_recommendation?.recommended_setup_checklist}
+        />
+      )}
       {showPlanBanner && (
         <div className="flex flex-col gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[14px] leading-relaxed text-amber-950">
@@ -301,6 +344,11 @@ export async function DashboardUpper(props: {
           <p className="ui-eyebrow">Mission control</p>
           <h1 className="ui-display-title mt-2">Dashboard</h1>
           <p className="ui-muted-tight mt-2 max-w-xl">Critical queues, risk signals, and next actions.</p>
+          {onboardingCalibration?.last_recommendation &&
+          onboardingCalibration.answers_optional?.org_role &&
+          onboardingCalibration.answers_optional.org_role !== "unspecified" ? (
+            <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">{dashboardOrgRoleCalibrationNudge}</p>
+          ) : null}
         </div>
         <div className="ui-page-actions">
           <div className="mr-1 hidden sm:flex">
@@ -331,16 +379,25 @@ export async function DashboardUpper(props: {
               </Link>
             </div>
           </div>
-          {showPersonaPresets && (
+          {showPersonaPresets ? (
             <Link href="/dashboard/persona" className="ui-btn-secondary h-11 px-5">
               Persona views
             </Link>
-          )}
+          ) : null}
           <Link href="/contracts/new" className="ui-btn-primary h-11 px-6">
             Upload contract
           </Link>
         </div>
       </header>
+
+      {/* §8.1 — portfolio metrics before deep action lanes */}
+      <StatsCards
+        totalContracts={metrics.totalContracts}
+        pendingReview={metrics.pendingReview}
+        upcomingDeadlines={upcomingDeadlines}
+        activeContracts={metrics.activeContracts}
+        missingCriticalCount={missingCritical.length}
+      />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -349,12 +406,14 @@ export async function DashboardUpper(props: {
             <h2 className="ui-section-title mt-2 text-xl">Action lanes</h2>
             <p className="ui-muted-tight mt-1 text-[12px]">Role defaults for {role.replace("_", " ")}.</p>
           </div>
-          <Link href="/dashboard/persona" className="ui-link text-xs">
-            Persona views
-          </Link>
+          {showPersonaPresets ? (
+            <Link href="/dashboard/persona" className="ui-link text-xs">
+              Persona views
+            </Link>
+          ) : null}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {commandCenterForRole.map((card, i) => {
+          {visibleCommandCenterCards.map((card, i) => {
             const Icon = COMMAND_LANE_ICONS[i % COMMAND_LANE_ICONS.length]!;
             return (
               <OperationalSurfaceLinkCard
@@ -421,13 +480,6 @@ export async function DashboardUpper(props: {
         </section>
       )}
 
-      <StatsCards
-        totalContracts={metrics.totalContracts}
-        pendingReview={metrics.pendingReview}
-        upcomingDeadlines={upcomingDeadlines}
-        activeContracts={metrics.activeContracts}
-        missingCriticalCount={missingCritical.length}
-      />
       <section className="ui-card p-5">
         <p className="ui-eyebrow">Shortcuts</p>
         <h2 className="ui-section-title mt-1 text-base">Quick filters</h2>
@@ -480,7 +532,7 @@ export async function DashboardUpper(props: {
             <p className="ui-eyebrow">Saved</p>
             <h2 className="ui-section-title mt-2 text-xl">Pinned command views</h2>
           </div>
-          <Link href="/contracts/tasks" className="ui-link text-xs">
+          <Link href={manageSavedViewsHref} className="ui-link text-xs">
             Manage saved views
           </Link>
         </div>

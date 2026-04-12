@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { nowIso, readJsonBody, toSafeString, verifyExternalPasscode } from "@/lib/v5/api";
@@ -15,6 +20,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   if (disabled) return disabled;
   if (!isFeatureEnabled("v6AssuranceCore")) {
     return NextResponse.json({ error: "V6 assurance is disabled" }, { status: 403 });
+  }
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`external-participant-workflow:${ip}`, RATE_LIMITS.externalTokenMutate);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
   }
 
   const { token } = await params;

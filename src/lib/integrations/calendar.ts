@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 
+/** ICS all-day events use UTC calendar parts from stored date strings / timestamps. */
+
 function formatIcsDate(dateLike: string): string {
   const date = new Date(dateLike);
   const year = date.getUTCFullYear();

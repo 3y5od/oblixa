@@ -1,22 +1,22 @@
 import Link from "next/link";
-import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { AdminClient } from "@/lib/v6/service";
 
 /**
  * Open external action links whose scope_json includes `contractId` (set when creating links with that scope).
+ * Caller must set `allowed` from product-surface eligibility (collaboration family) and feature flags.
  */
 export async function ContractExternalCollaborationSummary({
   admin,
   orgId,
   contractId,
+  allowed,
 }: {
   admin: AdminClient;
   orgId: string;
   contractId: string;
+  allowed: boolean;
 }) {
-  if (!isFeatureEnabled("v5ExternalCollaboration") || !isFeatureEnabled("v6AssuranceCore")) {
-    return null;
-  }
+  if (!allowed) return null;
 
   const { data: rows } = await admin
     .from("external_action_links")

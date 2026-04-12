@@ -49,6 +49,9 @@ import type {
 import { buildUnifiedWorkflowTimeline } from "@/lib/workflow-activity";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { ContractExternalCollaborationSummary } from "@/components/contracts/contract-external-collaboration-summary";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { loadProductSurfaceContext } from "@/lib/product-surface";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metrics";
 
 export default async function ContractDetailPage(props: {
@@ -69,6 +72,19 @@ export default async function ContractDetailPage(props: {
 
   const { orgId, admin, role } = ctx;
   const canEdit = canEditContracts(role as OrgRole);
+  const productSurface = await loadProductSurfaceContext(admin, orgId, role as WorkspaceRole);
+  const showUtilityExecutionSurfaces = evaluateFeatureEligibility(
+    productSurface,
+    "execution_graph"
+  ).allowed;
+  const showRelationshipWorkspaces =
+    isFeatureEnabled("v5RelationshipLayer") &&
+    evaluateFeatureEligibility(productSurface, "relationship_workspaces").allowed;
+  const showProgramsSurface = evaluateFeatureEligibility(productSurface, "programs").allowed;
+  const showCollaborationSurface =
+    isFeatureEnabled("v5ExternalCollaboration") &&
+    isFeatureEnabled("v6AssuranceCore") &&
+    evaluateFeatureEligibility(productSurface, "collaboration").allowed;
 
   const [
     { data: contractData },
@@ -90,6 +106,7 @@ export default async function ContractDetailPage(props: {
     { data: watchlistData },
     { data: renewalWorkspaceNotesData },
     { data: casefileEventsData },
+    { data: evidenceRequirementsData },
   ] = await Promise.all([
     admin
       .from("contracts")
@@ -216,23 +233,32 @@ export default async function ContractDetailPage(props: {
       .eq("contract_id", id)
       .order("occurred_at", { ascending: false })
       .limit(80),
+    admin
+      .from("evidence_requirements")
+      .select("id, title, requirement_type, status, due_at, review_due_at, work_item_type, work_item_id")
+      .eq("contract_id", id)
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(40),
   ]);
 
   if (!contractData) notFound();
 
-  const { data: evidenceRequirementsData } = await admin
-    .from("evidence_requirements")
-    .select("id, title, requirement_type, status, due_at, review_due_at, work_item_type, work_item_id")
-    .eq("contract_id", id)
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false })
-    .limit(40);
+  type OwnerProfileRow = { full_name: string | null; email: string | null };
+  const ownerProfilePromise = contractData.owner_id
+    ? admin
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", contractData.owner_id)
+        .single()
+    : Promise.resolve({ data: null as OwnerProfileRow | null });
 
   const [
     { data: graphEdgesData },
     { data: exceptionsCasefileData },
     { data: changeEventsCasefileData },
     { data: programAssignmentsData },
+    { data: ownerProfile },
   ] = await Promise.all([
     admin
       .from("execution_graph_edges")
@@ -262,19 +288,10 @@ export default async function ContractDetailPage(props: {
       .eq("organization_id", orgId)
       .eq("contract_id", id)
       .eq("status", "active"),
+    ownerProfilePromise,
   ]);
 
-  let ownerProfile: { full_name: string | null; email: string | null } | null = null;
-  if (contractData.owner_id) {
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("full_name, email")
-      .eq("id", contractData.owner_id)
-      .single();
-    ownerProfile = profile;
-  }
-
-  const contract = { ...contractData, owner: ownerProfile };
+  const contract = { ...contractData, owner: ownerProfile as OwnerProfileRow | null };
   const auditEvents = auditEventsData ?? [];
   const reminders = remindersData ?? [];
 
@@ -448,7 +465,7 @@ export default async function ContractDetailPage(props: {
   return (
     <div className="space-y-7 md:space-y-8">
       <div className="ui-card-hero overflow-hidden">
-        <div className="border-b border-zinc-100/90 bg-gradient-to-br from-zinc-50/90 via-white to-white px-5 py-6 md:px-10 md:py-8">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-gradient-to-br from-zinc-50/90 via-white to-white px-5 py-6 md:px-10 md:py-8">
           <Link
             href="/contracts"
             className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
@@ -526,7 +543,7 @@ export default async function ContractDetailPage(props: {
       </div>
 
       <div className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3">
           <div className="flex flex-wrap gap-1.5">
             {[
               ["overview", "Overview"],
@@ -556,7 +573,7 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-7 md:space-y-8 lg:col-span-2">
           {(activeTab === "overview" || activeTab === "dates") && (
           <div id="extracted-fields" className="scroll-mt-28 ui-card overflow-hidden">
-            <div className="flex flex-col gap-4 border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
+            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div>
                 <h2 className="ui-section-title text-base">Extracted fields</h2>
                 <p className="mt-1 text-[12px] text-zinc-500">Review before reminders run.</p>
@@ -601,7 +618,7 @@ export default async function ContractDetailPage(props: {
           )}
 
           {activeTab === "overview" &&
-            isFeatureEnabled("v5RelationshipLayer") &&
+            showRelationshipWorkspaces &&
             (Boolean((contract as { account_key?: string | null }).account_key) ||
               Boolean((contract as { counterparty_key?: string | null }).counterparty_key)) && (
               <div className="ui-card border-emerald-200/50 bg-emerald-50/30 p-5 md:p-6">
@@ -632,7 +649,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "dates") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-8 md:py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-8 md:py-4">
               <h2 className="ui-section-title text-base">Source documents</h2>
               <p className="mt-1 text-[12px] text-zinc-500">Signed files on this agreement.</p>
             </div>
@@ -640,7 +657,7 @@ export default async function ContractDetailPage(props: {
               {!contract.contract_files?.length ? (
                 <p className="text-[13px] text-zinc-500">No files uploaded yet.</p>
               ) : (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-[var(--border-subtle)]">
                   {contract.contract_files.map(
                     (file: {
                       id: string;
@@ -714,7 +731,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "tasks") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Tasks & follow-up</h2>
               <p className="mt-1 text-[12px] text-zinc-500">Ownership and execution work.</p>
             </div>
@@ -737,7 +754,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "obligations") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Obligations</h2>
               <p className="mt-1 text-[12px] text-zinc-500">Ongoing commitments and evidence.</p>
             </div>
@@ -756,16 +773,16 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "dates") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="ui-section-title text-base">Renewal playbook</h2>
+                  <h2 className="ui-section-title text-base">Renewal checklist</h2>
                   <p className="mt-1 text-[12px] text-zinc-500">120/90/60/30 renewal checkpoints.</p>
                 </div>
                 {canEdit && checkpoints.length === 0 && (
                   <form action={seedRenewalPlaybook.bind(null, contract.id)}>
                     <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                      Seed playbook
+                      Seed checklist
                     </button>
                   </form>
                 )}
@@ -781,7 +798,7 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-7 md:space-y-8">
           {activeTab === "overview" && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Workflow status</h3>
             </div>
             <div className="p-6">
@@ -802,8 +819,9 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={updateContractOperationalStateForm} className="mt-3 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <select name="intakeStatus" defaultValue={contract.intake_status ?? "awaiting_review"} className="ui-input text-xs">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <div className="min-w-0">
+                      <select name="intakeStatus" defaultValue={contract.intake_status ?? "awaiting_review"} className="ui-input w-full min-w-0 text-xs">
                         <option value="awaiting_review">awaiting review</option>
                         <option value="in_clarification">in clarification</option>
                         <option value="active">active</option>
@@ -812,12 +830,15 @@ export default async function ContractDetailPage(props: {
                         <option value="notice_decision">notice decision</option>
                         <option value="archived">archived</option>
                       </select>
-                      <select name="healthStatus" defaultValue={contract.health_status ?? "unknown"} className="ui-input text-xs">
+                      </div>
+                      <div className="min-w-0">
+                      <select name="healthStatus" defaultValue={contract.health_status ?? "unknown"} className="ui-input w-full min-w-0 text-xs">
                         <option value="healthy">healthy</option>
                         <option value="watch">watch</option>
                         <option value="at_risk">at risk</option>
                         <option value="unknown">unknown</option>
                       </select>
+                      </div>
                     </div>
                     <input
                       name="requiredNextStep"
@@ -832,23 +853,25 @@ export default async function ContractDetailPage(props: {
                   </form>
                 )}
               </div>
-              <div className="mt-6 border-t border-zinc-100 pt-5">
-                <p className="ui-label-caps">Execution graph</p>
-                <p className="mt-1 text-xs text-zinc-500">Cross-work dependencies for this contract.</p>
-                <Link
-                  href={`/contracts/execution-graph?contractId=${contract.id}`}
-                  className="ui-link mt-2 inline-block text-xs"
-                >
-                  Open portfolio graph view
-                </Link>
-                {executionGraphEdges.length > 0 ? (
-                  <div className="mt-3 max-h-[320px] overflow-auto">
-                    <ExecutionGraphVizDynamic edges={executionGraphEdges} />
-                  </div>
-                ) : (
-                  <p className="mt-2 text-xs text-zinc-500">Apply a program to generate dependency edges.</p>
-                )}
-              </div>
+              {showUtilityExecutionSurfaces ? (
+                <div className="mt-6 border-t border-zinc-100 pt-5">
+                  <p className="ui-label-caps">Execution graph</p>
+                  <p className="mt-1 text-xs text-zinc-500">Cross-work dependencies for this contract.</p>
+                  <Link
+                    href={`/contracts/execution-graph?contractId=${contract.id}`}
+                    className="ui-link mt-2 inline-block text-xs"
+                  >
+                    Open portfolio graph view
+                  </Link>
+                  {executionGraphEdges.length > 0 ? (
+                    <div className="mt-3 max-h-[320px] overflow-auto">
+                      <ExecutionGraphVizDynamic edges={executionGraphEdges} />
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-xs text-zinc-500">Apply a program to generate dependency edges.</p>
+                  )}
+                </div>
+              ) : null}
               <div className="mt-6 border-t border-zinc-100 pt-5">
                 <p className="ui-label-caps">Operational evidence pack</p>
                 <p className="mt-1 text-xs text-zinc-500">
@@ -875,8 +898,13 @@ export default async function ContractDetailPage(props: {
                   </div>
                 </div>
               </div>
-              <ContractExternalCollaborationSummary admin={admin} orgId={orgId} contractId={contract.id} />
-              {(programAssignmentsData ?? []).length > 0 ? (
+              <ContractExternalCollaborationSummary
+                admin={admin}
+                orgId={orgId}
+                contractId={contract.id}
+                allowed={showCollaborationSurface}
+              />
+              {showProgramsSurface && (programAssignmentsData ?? []).length > 0 ? (
                 <div className="mt-6 border-t border-zinc-100 pt-5">
                   <p className="ui-label-caps">Program assignment overrides</p>
                   <p className="mt-1 text-xs text-zinc-500">
@@ -977,7 +1005,7 @@ export default async function ContractDetailPage(props: {
 
           {activeTab === "overview" && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Renewal scenario & approvals</h3>
             </div>
             <div className="p-6 space-y-4">
@@ -1166,7 +1194,7 @@ export default async function ContractDetailPage(props: {
 
           {activeTab === "overview" && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="flex items-center gap-2 ui-section-title text-base">
                 <Bell size={17} className="text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
                 Reminders
@@ -1261,7 +1289,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Operational casefile</h3>
             </div>
             <div className="p-6">
@@ -1289,7 +1317,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Ownership & record</h3>
             </div>
             <div className="p-6">
@@ -1382,7 +1410,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Unified workflow timeline</h3>
             </div>
             <div className="p-6">
@@ -1408,7 +1436,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Activity</h3>
             </div>
             <div className="p-6">
@@ -1446,7 +1474,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "notes") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
               <h3 className="ui-section-title text-base">Notes & commentary</h3>
             </div>
             <div className="p-6">

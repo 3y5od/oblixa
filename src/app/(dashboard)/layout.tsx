@@ -10,7 +10,14 @@ import {
 } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
-import { getFeatureFlags } from "@/lib/feature-flags";
+import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import { moreToolsIndexHasVisibleEntries } from "@/lib/product-surface/more-index-visibility";
+import {
+  filterNavBadgesForSurface,
+  toNavSurfaceInput,
+} from "@/lib/product-surface/nav-visibility";
+import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 
 type NavBadges = {
   reviewQueue: number;
@@ -46,6 +53,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Use the user-scoped Supabase client here (not cached getAuthContext): we must run ensureUserOrg when
+  // the user has no membership row; getAuthContext would return null and skip that provisioning path.
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -70,22 +79,44 @@ export default async function DashboardLayout({
     }
   }
 
-  const navBadges = user && orgId ? await loadNavBadges(orgId, user.id) : {};
   const v5Flags = getFeatureFlags();
 
+  let navSurface: NavSurfaceInput | null = null;
+  let navBadges: Partial<Record<keyof NavBadges, number>> = {};
+  let showHeaderUtilitiesLink = true;
+  if (user && orgId) {
+    // Independent IO once orgId + role are resolved (after membership / ensureUserOrg).
+    const [rawNavBadges, surface] = await Promise.all([
+      loadNavBadges(orgId, user.id),
+      loadProductSurfaceContext(admin, orgId, role),
+    ]);
+    navSurface = toNavSurfaceInput(surface);
+    navBadges = filterNavBadgesForSurface(rawNavBadges, navSurface);
+    const v6Any =
+      isFeatureEnabled("v6AssuranceCore") ||
+      isFeatureEnabled("v6ControlPolicies") ||
+      isFeatureEnabled("v6AdaptivePlaybooks") ||
+      isFeatureEnabled("v6ReviewBoards") ||
+      isFeatureEnabled("v6Autopilot") ||
+      isFeatureEnabled("v6Segments");
+    showHeaderUtilitiesLink = moreToolsIndexHasVisibleEntries(navSurface, v6Any);
+  }
+
   return (
-    <div className="flex h-screen bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(248,248,246,0.9))]">
-      <Sidebar role={role} navBadges={navBadges} v5Flags={v5Flags} />
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas">
+    <div className="flex h-dvh max-h-dvh min-h-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(248,248,246,0.9))]">
+      <Sidebar role={role} navBadges={navBadges} v5Flags={v5Flags} navSurface={navSurface} />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-canvas">
         <Header
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
+          navSurface={navSurface}
+          showUtilitiesLink={showHeaderUtilitiesLink}
         />
-        <CommandPaletteLoader role={role} v5Flags={v5Flags} />
+        <CommandPaletteLoader role={role} v5Flags={v5Flags} navSurface={navSurface} />
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto px-4 py-5 outline-none md:px-7 md:py-6"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-5 outline-none md:px-7 md:py-6"
         >
           <div className="ui-page-stack mx-auto max-w-[1680px]">{children}</div>
         </main>

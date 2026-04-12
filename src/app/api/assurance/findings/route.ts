@@ -3,6 +3,7 @@ import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { listFindings } from "@/lib/v6/assurance";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 const SEVERITIES = new Set(["low", "medium", "high", "critical"]);
 const STATUSES = new Set(["open", "in_review", "resolved", "dismissed"]);
@@ -13,6 +14,13 @@ export async function GET(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/assurance/findings",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_findings_total", 1).catch(
     () => undefined

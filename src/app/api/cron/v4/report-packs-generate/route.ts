@@ -12,6 +12,17 @@ import {
 import { sendReportPackDigestEmail } from "@/lib/email";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { parseWorkspaceMode } from "@/lib/product-surface/context";
+import { isNotificationAllowed } from "@/lib/notification-policy";
+import { buildProductSurfaceContext } from "@/lib/product-surface/context";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
+import { getFeatureFlags } from "@/lib/feature-flags";
+import {
+  REPORT_TYPE_MAP,
+  minWorkspaceModeForReportType,
+  workspaceModeAtLeast,
+} from "@/lib/product-surface/feature-registry";
 
 function metricsToSummaryRows(metrics: Record<string, unknown>): Array<{ label: string; value: string }> {
   const skip = new Set(["generated_at", "report_type", "dashboard_rpc_ok", "prior"]);
@@ -25,6 +36,12 @@ function metricsToSummaryRows(metrics: Record<string, unknown>): Array<{ label: 
     });
   }
   return rows.slice(0, 24);
+}
+
+function notificationTypeForReportPack(reportType: string): string {
+  const normalized = reportType.trim().toLowerCase();
+  if (normalized.includes("campaign")) return "campaign_digest";
+  return "saved_view_summary";
 }
 
 export async function GET(request: Request) {
@@ -53,6 +70,27 @@ export async function GET(request: Request) {
 
     const orgId = pack.organization_id as string;
     const packId = pack.id as string;
+    const v6Org = await getV6OrgSettingsJson(admin, orgId);
+    const workspaceProductMode = parseWorkspaceMode(v6Org);
+    const reportType = String(pack.report_type ?? "");
+    const minModeForReport = minWorkspaceModeForReportType(reportType);
+    if (!workspaceModeAtLeast(workspaceProductMode, minModeForReport)) {
+      continue;
+    }
+
+    const normalizedRt = reportType.trim().toLowerCase();
+    const reportMapEntry = REPORT_TYPE_MAP.find((row) => row.reportType === normalizedRt);
+    if (reportMapEntry) {
+      const surfaceCtx = buildProductSurfaceContext({
+        orgId,
+        role: "viewer",
+        v6: v6Org,
+        featureFlags: getFeatureFlags(),
+      });
+      if (!evaluateFeatureEligibility(surfaceCtx, reportMapEntry.featureFamily).allowed) {
+        continue;
+      }
+    }
 
     const { data: prevRun } = await admin
       .from("report_pack_runs")
@@ -70,7 +108,8 @@ export async function GET(request: Request) {
     const baseMetrics = await computeReportPackMetrics({
       admin,
       organizationId: orgId,
-      reportType: String(pack.report_type),
+      reportType,
+      workspaceProductMode,
     });
     const metricsJson = {
       ...baseMetrics,
@@ -139,12 +178,20 @@ export async function GET(request: Request) {
       if (!cronMatchesUtc(sub.schedule_cron as string | null, now)) continue;
       const emails = (sub.recipient_emails as string[]) ?? [];
       if (emails.length === 0) continue;
+      const notificationType = notificationTypeForReportPack(String(pack.report_type ?? ""));
+      const allowed = await isNotificationAllowed(admin, {
+        organizationId: orgId,
+        channel: "email",
+        notificationType,
+      });
+      if (!allowed) continue;
       const sendRes = await sendReportPackDigestEmail({
         to: emails,
         packName: String(pack.name),
         reportType: String(pack.report_type),
         appUrl,
         metricsSummary: summaryRows,
+        workspaceProductMode,
       });
       if (!sendRes.error) {
         emailsSent += 1;

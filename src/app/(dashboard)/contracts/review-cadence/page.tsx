@@ -91,6 +91,9 @@ export default async function ReviewCadencePage() {
           Open analytics
         </Link>
       </div>
+      <p className="max-w-2xl text-[13px] text-zinc-500">
+        The CSV summarizes pending approvals, renewal checkpoints, and data gaps for cadence reviews.
+      </p>
 
       <section className="space-y-3">
         <div>
@@ -119,7 +122,7 @@ export default async function ReviewCadencePage() {
             variant="compact"
           />
           <OperationalSummaryCard
-            eyebrow="Decisions"
+            eyebrow="Approvals"
             headline="Pending approvals"
             tone={monthly.pendingApprovals > 0 ? "attention" : "healthy"}
             icon={Stamp}
@@ -142,11 +145,11 @@ export default async function ReviewCadencePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
           <p className="ui-eyebrow">Agenda</p>
           <h2 className="ui-section-title mt-1 text-base">Weekly intake and decisions</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {(newIntake ?? []).slice(0, 10).map((row) => (
             <li key={`intake-${row.id}`} className="px-5 py-3 text-sm">
               <Link href={`/contracts/${row.id}`} className="ui-link">

@@ -405,11 +405,11 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Velocity</p>
             <h2 className="ui-section-title mt-1 text-base">Contracts created by month</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {contractRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
             ) : (
@@ -424,11 +424,11 @@ export default async function ContractAnalyticsPage(props: {
         </section>
 
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Execution</p>
             <h2 className="ui-section-title mt-1 text-base">Task completions by month</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {taskRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
             ) : (
@@ -443,11 +443,11 @@ export default async function ContractAnalyticsPage(props: {
         </section>
 
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Horizon</p>
             <h2 className="ui-section-title mt-1 text-base">Renewal concentration (next 6m)</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {renewalRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No upcoming renewals.</li>
             ) : (
@@ -464,11 +464,11 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Owner ({topOwner ?? "none"})</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {ownerTrendRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
             ) : (
@@ -482,11 +482,11 @@ export default async function ContractAnalyticsPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Region ({topRegion ?? "none"})</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {regionTrendRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
             ) : (
@@ -500,11 +500,11 @@ export default async function ContractAnalyticsPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Contract type ({topType ?? "none"})</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {typeTrendRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
             ) : (
@@ -521,11 +521,11 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by owner</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {ownerRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
             ) : (
@@ -539,11 +539,11 @@ export default async function ContractAnalyticsPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by region</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {regionRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
             ) : (
@@ -557,11 +557,11 @@ export default async function ContractAnalyticsPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by contract type</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {typeRows.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
             ) : (

@@ -128,7 +128,7 @@ export default async function BillingPage(props: {
       </p>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="ui-eyebrow">Stripe</p>

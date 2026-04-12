@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash, randomBytes } from "crypto";
 import { getRequestOrigin } from "@/lib/app-url";
 import { readOAuthProviderConfigFromEnv, readOAuthProviderConfigFromConnection } from "@/lib/integrations/oauth-config";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 const ALLOWED_PROVIDERS = new Set([
   "google_calendar",
@@ -51,15 +52,17 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership || membership.role !== "admin") {
     return NextResponse.json({ error: "Only admins can start integration auth" }, { status: 403 });
   }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: membership.organization_id,
+    role: membership.role,
+    apiPath: "/api/integrations/oauth/start",
+  });
+  if (modeGate) return modeGate;
   const providerConfigFromEnv = readOAuthProviderConfigFromEnv(providerId);
   const { data: existingConnection } = await admin
     .from("integration_connections")

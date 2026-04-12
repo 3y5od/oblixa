@@ -1,0 +1,2 @@
+# One path prefix (relative to repo root) or filename suffix match per line.
+# Example: src/app/(dashboard)/decisions/page.tsx

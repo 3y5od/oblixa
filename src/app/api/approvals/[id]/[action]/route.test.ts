@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const appendCasefileEvent = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -11,6 +12,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
 
 vi.mock("@/lib/v4/casefile", () => ({
   appendCasefileEvent,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 function createAdminClientMock() {
@@ -48,6 +53,7 @@ describe("POST /api/approvals/[id]/[action]", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: createAdminClientMock(),
       userId: "user-1",

@@ -128,7 +128,7 @@ function ContextList(props: {
       {props.rows.length === 0 ? (
         <p className="mt-1 text-sm text-zinc-500">{props.empty}</p>
       ) : (
-        <ul className="mt-2 divide-y divide-zinc-100 text-sm">
+        <ul className="mt-2 divide-y divide-[var(--border-subtle)] text-sm">
           {props.rows.map((r) => (
             <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 py-2">
               <div>

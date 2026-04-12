@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { readResponseJson } from "@/lib/http/client-json";
+import { captureClientException } from "@/lib/observability/sentry";
 
 type Props = {
   token: string;
@@ -115,21 +117,30 @@ export function ExternalSubmitForm({ token }: Props) {
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch(`/api/external-actions/${encodeURIComponent(token)}/status`);
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
+      const res = await fetch(`/api/external-actions/${encodeURIComponent(token)}/status`, {
+        credentials: "same-origin",
+      });
+      const parsed = await readResponseJson(res);
+      if (!parsed.ok) {
+        setLoadError(parsed.message);
+        setStatus(null);
+        return;
+      }
+      const data = parsed.data as {
         externalAction?: ExternalStatus;
       };
-      if (!res.ok) {
-        throw new Error(data.error || `Could not load link (${res.status})`);
-      }
       const ex = data.externalAction;
-      if (!ex) throw new Error("Invalid status response");
+      if (!ex) {
+        setLoadError("Invalid status response");
+        setStatus(null);
+        return;
+      }
       setStatus(ex);
       setSubmitTicket(ex.submitTicket);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load");
       setStatus(null);
+      captureClientException(err, { extra: { surface: "ExternalSubmitForm", phase: "status" } });
     } finally {
       setLoading(false);
     }
@@ -168,16 +179,20 @@ export function ExternalSubmitForm({ token }: Props) {
       if (submitTicket) body.submitTicket = submitTicket;
       const res = await fetch(`/api/external-actions/${encodeURIComponent(token)}/submit`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        throw new Error(data.error || `Request failed (${res.status})`);
+      const parsed = await readResponseJson(res);
+      if (!parsed.ok) {
+        setError(parsed.message);
+        await refreshStatus();
+        return;
       }
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
+      captureClientException(err, { extra: { surface: "ExternalSubmitForm", phase: "submit" } });
       await refreshStatus();
     } finally {
       setBusy(false);

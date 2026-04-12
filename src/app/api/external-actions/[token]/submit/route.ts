@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { nowIso, verifyExternalPasscode, verifyExternalSubmitTicket } from "@/lib/v5/api";
 import { validateExternalActionPayload } from "@/lib/v5/external-action-payload";
@@ -21,6 +26,19 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`external-submit:${ip}`, RATE_LIMITS.externalTokenMutate);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
   const { token } = await params;
   const admin = await createAdminClient();
   const rawPayload = (await request.json().catch(() => ({}))) as Record<string, unknown>;

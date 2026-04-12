@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { computeOutcomeViews, listOutcomeInterventionsPaginated } from "@/lib/v6/outcomes";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
@@ -10,6 +11,14 @@ export async function GET(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/outcomes/interventions",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_outcomes_interventions_total", 1).catch(
     () => undefined

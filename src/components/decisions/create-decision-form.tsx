@@ -1,4 +1,5 @@
 "use client";
+// V7 exempt: create flow only mounted from decisions surfaces; post-create router targets decisions routes.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";

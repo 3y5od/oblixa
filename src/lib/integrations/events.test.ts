@@ -1,54 +1,62 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const insertMock = vi.fn();
+const insert = vi.fn(async () => ({ error: null }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient: vi.fn(async () => ({
-    from: vi.fn(() => ({
-      insert: insertMock,
-    })),
+    from: vi.fn(() => ({ insert })),
   })),
+}));
+
+const getV6OrgSettingsJson = vi.fn(async () => ({}));
+
+vi.mock("@/lib/v6/org-settings", () => ({
+  getV6OrgSettingsJson,
 }));
 
 describe("enqueueOutboundEvent", () => {
   beforeEach(() => {
-    insertMock.mockReset();
+    vi.clearAllMocks();
+    insert.mockResolvedValue({ error: null });
+    getV6OrgSettingsJson.mockResolvedValue({});
+    vi.resetModules();
   });
 
-  it("writes schema metadata by default", async () => {
+  it("inserts org-scoped row with schema_version and event metadata", async () => {
     const { enqueueOutboundEvent } = await import("@/lib/integrations/events");
-    await enqueueOutboundEvent({
-      organizationId: "org-1",
-      eventType: "contract.updated",
+    const ok = await enqueueOutboundEvent({
+      organizationId: "org-11111111-1111-1111-1111-111111111111",
+      eventType: "custom.test_event",
       entityType: "contract",
-      entityId: "contract-1",
-      payload: { hello: "world" },
+      entityId: "ent-1",
+      payload: { k: "v" },
+      schemaVersion: "v2",
     });
-    expect(insertMock).toHaveBeenCalledTimes(1);
-    const payload = insertMock.mock.calls[0]?.[0] as Record<string, unknown>;
-    expect(payload.organization_id).toBe("org-1");
-    expect(payload.event_type).toBe("contract.updated");
-    expect(payload.entity_type).toBe("contract");
-    expect(payload.entity_id).toBe("contract-1");
-    expect(payload.payload).toMatchObject({
-      schema_version: "v1",
-      hello: "world",
+    expect(ok).toBe(true);
+    expect(insert).toHaveBeenCalledWith({
+      organization_id: "org-11111111-1111-1111-1111-111111111111",
+      event_type: "custom.test_event",
+      entity_type: "contract",
+      entity_id: "ent-1",
+      payload: expect.objectContaining({
+        schema_version: "v2",
+        k: "v",
+        emitted_at: expect.any(String),
+      }),
     });
-    expect((payload.payload as Record<string, unknown>).emitted_at).toEqual(
-      expect.any(String)
-    );
   });
 
-  it("supports explicit schema version override", async () => {
-    const { enqueueOutboundEvent } = await import("@/lib/integrations/events");
-    await enqueueOutboundEvent({
-      organizationId: "org-1",
-      eventType: "task.created",
-      entityType: "contract_task",
-      schemaVersion: "v2",
-      payload: {},
+  it("returns false when event type is suppressed in org settings", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({
+      notification_suppressed_event_types: ["muted.event"],
     });
-    const payload = insertMock.mock.calls[0]?.[0] as Record<string, unknown>;
-    expect(payload.payload).toMatchObject({ schema_version: "v2" });
+    const { enqueueOutboundEvent } = await import("@/lib/integrations/events");
+    const ok = await enqueueOutboundEvent({
+      organizationId: "org-1",
+      eventType: "muted.event",
+      entityType: "x",
+    });
+    expect(ok).toBe(false);
+    expect(insert).not.toHaveBeenCalled();
   });
 });

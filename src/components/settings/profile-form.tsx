@@ -19,24 +19,18 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
   const errId = "profile-form-error";
 
   return (
-    <form action={action} className="space-y-4" noValidate>
-      {state?.error && (
-        <div
-          id={errId}
-          role="alert"
-          className="rounded-lg border border-red-200/70 bg-red-50/80 p-3 text-sm text-red-800"
-        >
+    <form action={action} className="flex flex-col gap-6" noValidate>
+      {state?.error ? (
+        <div id={errId} role="alert" className="ui-alert-error text-sm">
           {state.error}
         </div>
-      )}
-      {state?.success && (
-        <div className="rounded-lg border border-emerald-200/70 bg-emerald-50/80 p-3 text-sm text-emerald-900">
-          Profile updated.
-        </div>
-      )}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-zinc-700">
+      ) : null}
+      {state?.success ? (
+        <div className="ui-alert-success text-sm">Profile updated.</div>
+      ) : null}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-4">
+        <div className="min-w-0">
+          <label htmlFor="fullName" className="ui-label">
             Full name
           </label>
           <input
@@ -44,13 +38,13 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             name="fullName"
             type="text"
             defaultValue={fullName || ""}
-            className="ui-input mt-1"
+            className="ui-input mt-1 w-full min-w-0"
             aria-invalid={state?.error ? true : undefined}
             aria-describedby={state?.error ? errId : undefined}
           />
         </div>
-        <div>
-          <label htmlFor="profile-email-readonly" className="block text-sm font-medium text-zinc-700">
+        <div className="min-w-0">
+          <label htmlFor="profile-email-readonly" className="ui-label">
             Email
           </label>
           <input
@@ -60,15 +54,15 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             value={email}
             autoComplete="email"
             aria-readonly="true"
-            className="ui-input mt-1 cursor-default border-zinc-200 bg-zinc-50 text-zinc-500"
+            className="ui-input mt-1 w-full min-w-0 cursor-default border-zinc-200 bg-zinc-50 text-zinc-500"
           />
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-4">
         <button
           type="submit"
           disabled={pending}
-          className="ui-btn-primary disabled:opacity-50"
+          className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
           aria-busy={pending}
         >
           {pending ? "Saving…" : "Save changes"}

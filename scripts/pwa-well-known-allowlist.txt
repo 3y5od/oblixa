@@ -1,0 +1,3 @@
+# One path per line (relative to repo root), e.g. public/manifest.json
+# Add entries only after reviewing scope, start_url, and auth bypass risk.
+public/.well-known/security.txt

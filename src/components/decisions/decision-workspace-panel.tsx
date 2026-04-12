@@ -129,7 +129,7 @@ export function DecisionWorkspacePanel({
       )}
 
       <div className="mt-4 space-y-4">
-        <div className="border-b border-zinc-100 pb-4">
+        <div className="border-b border-[var(--border-subtle)] pb-4">
           <p className="text-xs font-semibold text-zinc-600">Workspace details</p>
           <label className="mt-2 block text-[11px] font-medium text-zinc-500">
             Decision type

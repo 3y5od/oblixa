@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 /**
  * Each row’s `forecast_json` is written by the capacity-forecast-refresh cron. See
@@ -13,6 +14,13 @@ export async function GET() {
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/capacity/forecast",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("capacity_forecasts")

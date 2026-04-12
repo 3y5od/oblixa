@@ -1,3 +1,5 @@
+// Optional local gate for product-surface drift: `npm run check:v7-suite` (href + vocabulary + inventory scripts).
+import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -261,6 +263,9 @@ async function main() {
   const rlsEmail = requireEnv("COMPREHENSIVE_PASS_EMAIL");
   const rlsPassword = requireEnv("COMPREHENSIVE_PASS_PASSWORD");
   await checkRlsSanity(supabaseUrl, anonKey, rlsEmail, rlsPassword);
+
+  execSync("npm run check:onboarding-qa-matrix", { stdio: "inherit", cwd });
+  execSync("npm run check:onboarding-stale-env-parity", { stdio: "inherit", cwd });
 
   ok("comprehensive pass checks finished");
 }

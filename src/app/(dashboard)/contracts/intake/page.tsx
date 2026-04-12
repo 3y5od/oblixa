@@ -133,7 +133,7 @@ export default async function IntakeQueuePage() {
           const rows = grouped.get(status) ?? [];
           return (
             <section key={status} className="ui-card overflow-hidden">
-              <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+              <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
                 <p className="ui-eyebrow">Stage</p>
                 <h2 className="ui-section-title mt-1 text-base">
                   {status.replace(/_/g, " ")} ({rows.length})
@@ -142,7 +142,7 @@ export default async function IntakeQueuePage() {
               {rows.length === 0 ? (
                 <p className="px-5 py-4 text-sm text-zinc-500">No contracts in this stage.</p>
               ) : (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-[var(--border-subtle)]">
                   {rows.slice(0, 15).map((row) => (
                     <li key={String(row.id)} className="px-5 py-3">
                       <Link

@@ -18,6 +18,7 @@ export default async function NewContractPage() {
   }
 
   const canEdit = canEditContracts(ctx.role as OrgRole);
+  /** §4.4 — subscription gate for uploads; not used for workspace mode or navigation. */
   const hasPlan =
     !isPlanEnforcementEnabled() ||
     (await orgHasActivePlan(ctx.admin, ctx.orgId));

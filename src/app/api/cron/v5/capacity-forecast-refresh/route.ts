@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
@@ -6,10 +7,18 @@ import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { buildV6AssuranceProjectionForCapacity } from "@/lib/v6/capacity-assurance-bridge";
+import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
+
+type OpenTaskTeamRow = { team_key?: string | null };
+type PendingApprovalTypeRow = { approval_type?: string | null };
 
 export async function GET(request: Request) {
   const unauthorized = requireV5CronAuth(request);
   if (unauthorized) return unauthorized;
+  const rate = await rateLimitCheck("cron:v5:capacity-forecast-refresh", RATE_LIMITS.v5CronDefault);
+  if (!rate.ok) {
+    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
+  }
   const skipped = requireV5CronFeature("v5SimulationAndIntelligence");
   if (skipped) return skipped;
   const admin = await createAdminClient();
@@ -21,8 +30,6 @@ export async function GET(request: Request) {
       { count: openTasks },
       { count: pendingApprovals },
       { count: openDecisions },
-      { data: taskTeamRows },
-      { data: approvalTypeRows },
       { count: contractsWithoutOwner },
     ] = await Promise.all([
       admin
@@ -41,23 +48,59 @@ export async function GET(request: Request) {
         .eq("organization_id", orgId)
         .in("status", ["open", "in_review"]),
       admin
-        .from("contract_tasks")
-        .select("team_key")
-        .eq("organization_id", orgId)
-        .in("status", ["open", "in_progress", "blocked"])
-        .limit(5000),
-      admin
-        .from("contract_approvals")
-        .select("approval_type")
-        .eq("organization_id", orgId)
-        .eq("status", "pending")
-        .limit(5000),
-      admin
         .from("contracts")
         .select("id", { count: "exact", head: true })
         .eq("organization_id", orgId)
         .is("owner_id", null),
     ]);
+
+    const open_tasks_by_team_key: Record<string, number> = {};
+    const { error: teamPageError } = await forEachSupabaseRangePage<OpenTaskTeamRow>(
+      (from, to) =>
+        admin
+          .from("contract_tasks")
+          .select("team_key")
+          .eq("organization_id", orgId)
+          .in("status", ["open", "in_progress", "blocked"])
+          .range(from, to),
+      (chunk) => {
+        for (const r of chunk) {
+          const k =
+            typeof r.team_key === "string" && r.team_key.trim()
+              ? r.team_key.trim()
+              : "_unset";
+          open_tasks_by_team_key[k] = (open_tasks_by_team_key[k] ?? 0) + 1;
+        }
+      },
+      { pageSize: 1000 }
+    );
+    if (teamPageError) {
+      return NextResponse.json({ error: teamPageError.message }, { status: 500 });
+    }
+
+    const pending_approvals_by_type: Record<string, number> = {};
+    const { error: approvalPageError } = await forEachSupabaseRangePage<PendingApprovalTypeRow>(
+      (from, to) =>
+        admin
+          .from("contract_approvals")
+          .select("approval_type")
+          .eq("organization_id", orgId)
+          .eq("status", "pending")
+          .range(from, to),
+      (chunk) => {
+        for (const r of chunk) {
+          const t =
+            typeof r.approval_type === "string" && r.approval_type.trim()
+              ? r.approval_type.trim()
+              : "_unset";
+          pending_approvals_by_type[t] = (pending_approvals_by_type[t] ?? 0) + 1;
+        }
+      },
+      { pageSize: 1000 }
+    );
+    if (approvalPageError) {
+      return NextResponse.json({ error: approvalPageError.message }, { status: 500 });
+    }
 
     const { data: priorForecast } = await admin
       .from("capacity_forecasts")
@@ -73,22 +116,6 @@ export async function GET(request: Request) {
         : null;
     const deltaOpenVsPrior =
       priorTasks !== null ? (openTasks ?? 0) - priorTasks : null;
-
-    const open_tasks_by_team_key: Record<string, number> = {};
-    for (const r of taskTeamRows ?? []) {
-      const k =
-        typeof r.team_key === "string" && r.team_key.trim() ? r.team_key.trim() : "_unset";
-      open_tasks_by_team_key[k] = (open_tasks_by_team_key[k] ?? 0) + 1;
-    }
-
-    const pending_approvals_by_type: Record<string, number> = {};
-    for (const r of approvalTypeRows ?? []) {
-      const t =
-        typeof r.approval_type === "string" && r.approval_type.trim()
-          ? r.approval_type.trim()
-          : "_unset";
-      pending_approvals_by_type[t] = (pending_approvals_by_type[t] ?? 0) + 1;
-    }
 
     const generatedAt = new Date().toISOString();
     const v6AssuranceProjection = isFeatureEnabled("v6AssuranceCore")

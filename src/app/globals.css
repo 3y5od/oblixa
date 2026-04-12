@@ -19,6 +19,7 @@
 }
 
 :root {
+  /* Theme: light-first. Partial `dark:` utilities exist on some components; full dark tokens TBD (see product plan P9). */
   /* Quiet Ledger palette: warm neutrals + restrained slate accent */
   --canvas: oklch(0.978 0.003 80);
   --surface: oklch(0.996 0.002 80);
@@ -54,6 +55,12 @@
   :root {
     --ui-duration: 0.01ms;
     --ui-duration-slow: 0.01ms;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ui-overlay-scrim {
+    @apply backdrop-blur-none;
   }
 }
 
@@ -125,6 +132,18 @@
   }
   .ui-input-compact {
     @apply block min-h-8 w-full rounded-lg border border-zinc-200/85 bg-white px-3 py-2 text-[13px] leading-tight text-zinc-900 shadow-none placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/18;
+  }
+
+  /* WebKit autofill: keep text readable and background aligned with surface cards */
+  .ui-input:-webkit-autofill,
+  .ui-input:-webkit-autofill:hover,
+  .ui-input:-webkit-autofill:focus,
+  .ui-input-compact:-webkit-autofill,
+  .ui-input-compact:-webkit-autofill:hover,
+  .ui-input-compact:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary);
+    box-shadow: 0 0 0 1000px var(--surface) inset;
+    transition: background-color 50000s ease-in-out 0s;
   }
 
   .ui-label {
@@ -449,5 +468,23 @@
     transition-property: background-color, color, border-color, box-shadow;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
+  }
+
+  /**
+   * Modal / drawer / command-palette dim layer — one recipe so overlays feel consistent.
+   * Apply on the full-viewport layer or a flex-1 scrim hit target; pair with z-50+ as needed.
+   */
+  .ui-overlay-scrim {
+    @apply bg-zinc-950/45 backdrop-blur-[2px];
+  }
+}
+
+/* Marketing landing — print: keep primary CTAs readable; expose absolute URLs for external links only */
+@media print {
+  .landing-root a.ui-link[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    font-weight: 400;
+    color: #71717a;
   }
 }

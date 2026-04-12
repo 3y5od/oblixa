@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { FIELD_NAMES } from "@/lib/types";
 import { isUuid } from "@/lib/security/validation";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 function csvEscape(value: string | null | undefined): string {
   if (value == null || value === "") return "";
@@ -35,7 +42,7 @@ export async function GET(request: Request) {
 
   const { data: memberships, error: membershipError } = await admin
     .from("organization_members")
-    .select("organization_id")
+    .select("organization_id, role")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -53,13 +60,18 @@ export async function GET(request: Request) {
   }
 
   let orgId: string;
+  let memberRole: WorkspaceRole = "viewer";
   if (orgIdParam) {
     if (!orgIds.includes(orgIdParam)) {
       return NextResponse.json({ error: "Access denied for orgId" }, { status: 403 });
     }
     orgId = orgIdParam;
+    const row = (memberships ?? []).find((m) => m.organization_id === orgIdParam);
+    if (row?.role) memberRole = row.role as WorkspaceRole;
   } else if (orgIds.length === 1) {
     orgId = orgIds[0];
+    const row = (memberships ?? []).find((m) => m.organization_id === orgId);
+    if (row?.role) memberRole = row.role as WorkspaceRole;
   } else {
     return NextResponse.json(
       {
@@ -67,6 +79,25 @@ export async function GET(request: Request) {
           "Multiple organizations found. Include ?orgId=<organization-id> to export a specific organization.",
       },
       { status: 400 }
+    );
+  }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId,
+    role: memberRole,
+    apiPath: "/api/export/contracts",
+  });
+  if (modeGate) return modeGate;
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`export-contracts:${user.id}:${ip}`, RATE_LIMITS.exportContractsCsv);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
     );
   }
 

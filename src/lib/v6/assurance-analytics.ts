@@ -1,6 +1,7 @@
 import type { AdminClient } from "@/lib/v6/service";
 import { evaluatePublishedControlPolicies } from "@/lib/v6/policy-evaluator";
 import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
+import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 
 export type AssuranceAnalyticsSummary = {
   generated_at: string;
@@ -98,7 +99,7 @@ export type AssuranceAnalyticsSummary = {
   external_action_links_created_rows_30d: number;
   /**
    * Links created in the last 30 days whose scope_json includes a non-empty workflow_deadline_iso string.
-   * Counted from up to 5000 newest rows in the window (lower bound if the org exceeds that sample).
+   * Counted from all matching rows in the window via paged `.range` (capped at 100k rows per summary build).
    */
   external_links_with_workflow_deadline_30d: number;
   /**
@@ -199,7 +200,6 @@ export async function buildAssuranceAnalyticsSummary(
     { data: qualityMetrics7d },
     { count: externalLinkRows30 },
     { count: externalWorkflowSteps30 },
-    { data: externalLinkScopes30d },
   ] = await Promise.all([
     admin
       .from("assurance_findings")
@@ -317,14 +317,21 @@ export async function buildAssuranceAnalyticsSummary(
       .eq("organization_id", orgId)
       .gte("created_at", since)
       .like("event_type", "external.workflow%"),
-    admin
-      .from("external_action_links")
-      .select("scope_json")
-      .eq("organization_id", orgId)
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(5000),
   ]);
+
+  type ExternalLinkScopeRow = { scope_json?: unknown };
+  const { rows: externalLinkScopes30dRows, error: externalLinkScopesError } =
+    await collectSupabaseRangePages<ExternalLinkScopeRow>(
+      (from, to) =>
+        admin
+          .from("external_action_links")
+          .select("scope_json")
+          .eq("organization_id", orgId)
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .range(from, to),
+      { pageSize: 1000, maxRows: 100_000 }
+    );
 
   const open_findings_by_severity: Record<string, number> = {};
   const open_findings_by_type: Record<string, number> = {};
@@ -522,7 +529,7 @@ export async function buildAssuranceAnalyticsSummary(
   const external_collaboration_submissions_per_link_row_30d =
     linkRows30 > 0 ? Number((subs30 / linkRows30).toFixed(4)) : null;
   const external_links_with_workflow_deadline_30d = countExternalLinksWithWorkflowDeadline(
-    externalLinkScopes30d ?? null
+    externalLinkScopesError ? null : externalLinkScopes30dRows
   );
 
   return {

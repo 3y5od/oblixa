@@ -77,6 +77,78 @@ export async function runExtractionPipeline(params: {
   };
 
   try {
+    const { data: contract, error: contractErr } = await admin
+      .from("contracts")
+      .select("organization_id")
+      .eq("id", contractId)
+      .maybeSingle();
+
+    if (contractErr) {
+      await fail(contractErr.message);
+      console.info(
+        JSON.stringify({
+          event: "extraction.failed",
+          contractId,
+          userId,
+          durationMs: Date.now() - pipelineStartedAt,
+          reason: "contract_lookup",
+        })
+      );
+      return;
+    }
+
+    if (!contract?.organization_id) {
+      await fail("Contract not found");
+      console.info(
+        JSON.stringify({
+          event: "extraction.failed",
+          contractId,
+          userId,
+          durationMs: Date.now() - pipelineStartedAt,
+          reason: "contract_not_found",
+        })
+      );
+      return;
+    }
+
+    if (contract.organization_id !== organizationId) {
+      await fail("Extraction request does not match this contract's organization");
+      console.info(
+        JSON.stringify({
+          event: "extraction.failed",
+          contractId,
+          userId,
+          durationMs: Date.now() - pipelineStartedAt,
+          reason: "organization_mismatch",
+        })
+      );
+      return;
+    }
+
+    const { data: memberRow } = await admin
+      .from("organization_members")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("organization_id", contract.organization_id)
+      .limit(1)
+      .maybeSingle();
+
+    if (!memberRow) {
+      await fail("Access denied");
+      console.info(
+        JSON.stringify({
+          event: "extraction.failed",
+          contractId,
+          userId,
+          durationMs: Date.now() - pipelineStartedAt,
+          reason: "not_org_member",
+        })
+      );
+      return;
+    }
+
+    const resolvedOrganizationId = contract.organization_id as string;
+
     const { data: filesRaw } = await admin
       .from("contract_files")
       .select("file_name, file_type, storage_path")
@@ -345,7 +417,7 @@ export async function runExtractionPipeline(params: {
     }
 
     await admin.from("audit_events").insert({
-      organization_id: organizationId,
+      organization_id: resolvedOrganizationId,
       contract_id: contractId,
       user_id: userId,
       action: "extraction.completed",

@@ -14,6 +14,10 @@ vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 describe("POST /api/capacity/reassignment-plan", () => {
   beforeEach(() => {
     vi.clearAllMocks();

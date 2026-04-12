@@ -1,0 +1,28 @@
+rules:
+  - id: oblixa-perf-supabase-select-star
+    languages: [tsx, typescript]
+    severity: WARNING
+    message:
+      Prefer explicit Supabase .select columns over select("*") to reduce payload size and
+      sequential scan pressure (see docs/PERFORMANCE_OPTIMIZATION_SWEEP.md).
+    pattern-regex: \.select\s*\(\s*['"]\*['"]\s*\)
+    paths:
+      exclude:
+        - "**/*.test.ts"
+        - "**/*.test.tsx"
+        - "**/*.spec.ts"
+        - "**/e2e/**"
+        - "src/lib/v6/service.ts"
+  - id: oblixa-perf-supabase-large-limit
+    languages: [tsx, typescript]
+    severity: WARNING
+    message:
+      Large Supabase .limit without pagination — prefer .range paging or forEachSupabaseRangePage
+      (see scripts/performance-static-audit.mjs and src/lib/supabase/range-pagination.ts).
+    pattern-regex: \.limit\s*\(\s*(?:5000|[6-9]\d{3}|\d{5,})\s*\)
+    paths:
+      exclude:
+        - "**/*.test.ts"
+        - "**/*.test.tsx"
+        - "**/*.spec.ts"
+        - "**/e2e/**"

@@ -3,6 +3,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { SegmentRecomputeButton } from "@/components/assurance/segment-recompute-button";
 import { getAuthContext } from "@/lib/supabase/server";
+import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 
 export default async function AssuranceSegmentsPage() {
@@ -10,26 +11,30 @@ export default async function AssuranceSegmentsPage() {
   if (!ctx) return <WorkspaceRequiredState />;
   assertV6PageFeature("v6Segments");
 
-  const [{ data: segments }, { data: memRows }] = await Promise.all([
-    ctx.admin
-      .from("segment_definitions")
-      .select("id, segment_type, key, name, criteria_json, active, updated_at")
-      .eq("organization_id", ctx.orgId)
-      .order("updated_at", { ascending: false })
-      .limit(50),
-    ctx.admin
-      .from("segment_memberships")
-      .select("segment_definition_id, computed_at")
-      .eq("organization_id", ctx.orgId)
-      .limit(8000),
-  ]);
+  const { data: segments } = await ctx.admin
+    .from("segment_definitions")
+    .select("id, segment_type, key, name, criteria_json, active, updated_at")
+    .eq("organization_id", ctx.orgId)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+
+  type SegmentMembershipRow = { segment_definition_id: string; computed_at: string };
+  const { rows: memRows } = await collectSupabaseRangePages<SegmentMembershipRow>(
+    (from, to) =>
+      ctx.admin
+        .from("segment_memberships")
+        .select("segment_definition_id, computed_at")
+        .eq("organization_id", ctx.orgId)
+        .range(from, to),
+    { pageSize: 1000, maxRows: 250_000 }
+  );
 
   const memberCountBySegment = new Map<string, number>();
   const lastComputedBySegment = new Map<string, string>();
   for (const m of memRows ?? []) {
-    const sid = String((m as { segment_definition_id: string }).segment_definition_id);
+    const sid = String(m.segment_definition_id);
     memberCountBySegment.set(sid, (memberCountBySegment.get(sid) ?? 0) + 1);
-    const ca = String((m as { computed_at: string }).computed_at);
+    const ca = String(m.computed_at);
     const prev = lastComputedBySegment.get(sid);
     if (!prev || ca > prev) lastComputedBySegment.set(sid, ca);
   }

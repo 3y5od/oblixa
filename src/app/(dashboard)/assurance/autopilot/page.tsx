@@ -7,6 +7,8 @@ import { OrgV6SettingsPanel } from "@/components/assurance/org-v6-settings-panel
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
+import { parseWorkspaceMode } from "@/lib/product-surface/context";
+import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
 
 export default async function AssuranceAutopilotPage() {
   const ctx = await getAuthContext();
@@ -38,6 +40,9 @@ export default async function AssuranceAutopilotPage() {
     autopilot_allow_execution?: boolean;
     review_board_notification_emails?: string[];
   };
+  const workspaceMode = parseWorkspaceMode((orgRow?.v6_org_settings_json ?? {}) as V6OrgSettingsJson);
+  const mutatingExecutionEnabled =
+    workspaceMode === "assurance" && orgSettings.autopilot_allow_execution === true;
 
   const logStats = { blocked: 0, failed: 0, reverted: 0, dry_run: 0, executed: 0 };
   for (const row of logs ?? []) {
@@ -51,6 +56,15 @@ export default async function AssuranceAutopilotPage() {
 
   return (
     <div className="space-y-6">
+      {!mutatingExecutionEnabled ? (
+        <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 px-4 py-3 text-sm text-amber-950">
+          <p className="font-semibold">Dry-run posture</p>
+          <p className="mt-1 text-[13px] leading-relaxed">
+            Mutating autopilot execution is off for this workspace. Rules may still evaluate and log dry-runs; turn on
+            execution under Settings → Product experience when you are in Assurance mode and ready for bounded actions.
+          </p>
+        </div>
+      ) : null}
       <AssuranceListCard
         title="Safe autopilot"
         subtitle="Assurance"

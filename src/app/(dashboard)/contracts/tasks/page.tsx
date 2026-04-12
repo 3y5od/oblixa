@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { format } from "date-fns";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
@@ -246,7 +247,7 @@ export default async function ContractTasksPage(props: {
         />
       ) : (
         <div className="ui-table-shell">
-          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Task</th>
@@ -259,7 +260,7 @@ export default async function ContractTasksPage(props: {
                 <th className="px-5 py-3">Updated</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {tasks.map((task) => (
                 <tr key={task.id} className="ui-table-row align-top">
                   <td className="px-5 py-4">
@@ -284,6 +285,7 @@ export default async function ContractTasksPage(props: {
                     <Link href={`/contracts/${task.contractId}`} className="ui-link">
                       {task.contractTitle}
                     </Link>
+                    <ContractContinuityLinks contractId={task.contractId} omit={["tasks"]} />
                   </td>
                   <td className="px-5 py-4 text-zinc-600">
                     {task.assigneeId ? memberById.get(task.assigneeId) ?? "Member" : "Unassigned"}

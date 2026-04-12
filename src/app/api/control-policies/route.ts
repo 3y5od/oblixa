@@ -6,6 +6,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { createControlPolicy, listControlPolicies } from "@/lib/v6/control-policies";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6ControlPolicies");
@@ -13,6 +14,13 @@ export async function GET() {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/control-policies",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_control_policies_list_total", 1).catch(
     () => undefined
@@ -29,6 +37,13 @@ export async function POST(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/control-policies",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{ name?: string; objective?: string; enforcementMode?: string; scope?: Record<string, unknown> }>(
     await request.json().catch(() => ({})),

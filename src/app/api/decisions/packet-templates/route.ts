@@ -3,12 +3,20 @@ import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isValidPacketType, packetTypeValidationError } from "@/lib/v5/packet-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/packet-templates",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("decision_packet_templates")
@@ -25,6 +33,13 @@ export async function POST(request: Request) {
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/packet-templates",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

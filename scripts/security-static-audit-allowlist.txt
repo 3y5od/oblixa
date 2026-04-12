@@ -1,3 +1,6 @@
 # One substring per line (relative path under repo). If a path contains the substring,
 # grep-based checks in scripts/security-static-audit.mjs skip that file.
 # Add only documented false positives; prefer fixing the code.
+# JSON-LD only: serialized with serializeJsonLdForInlineScript (no raw user HTML).
+src/components/landing/landing-json-ld.tsx
+src/components/landing/legal-page-json-ld.tsx

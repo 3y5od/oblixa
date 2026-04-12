@@ -22,14 +22,14 @@ export function RecentUploads({ files }: { files: RecentFileRow[] }) {
 
   return (
     <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
-      <div className="border-b border-zinc-100 px-5 py-4 sm:px-6">
+      <div className="border-b border-[var(--border-subtle)] px-5 py-4 sm:px-6">
         <h2 className="text-sm font-semibold text-zinc-900">Recent uploads</h2>
         <p className="text-xs text-zinc-500">
           Latest files attached to contracts in your workspace. Open a contract to run
           extraction or continue review.
         </p>
       </div>
-      <ul className="max-h-64 divide-y divide-zinc-100 overflow-y-auto">
+      <ul className="max-h-64 divide-y divide-[var(--border-subtle)] overflow-y-auto">
         {files.map((f) => (
           <li key={f.id} className="flex items-start gap-3 px-5 py-3 sm:px-6">
             <FileText size={18} className="mt-0.5 shrink-0 text-zinc-400" />

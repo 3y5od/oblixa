@@ -1,48 +1,75 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
 import { Search, Command } from "lucide-react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
-  canAccessItem,
   getWorkflowAreaForNavItem,
-  isV5NavItemVisible,
   type NavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
+import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import {
+  isNavItemVisibleForSurface,
+} from "@/lib/product-surface/nav-visibility";
+import {
+  CMDK_EXTRA_NAV_ITEMS,
+  cmdkFilterRecentHrefsForSurface,
+  cmdkResultSortKey,
+  isCmdkHrefAllowed,
+} from "@/lib/product-surface/resolver";
+import { getCmdkSearchJumpItems } from "@/lib/product-surface/cmdk-search-jumps";
+import {
+  COMMAND_PALETTE_OPEN_EVENT,
+  type CommandPaletteOpenDetail,
+} from "@/lib/product-surface/command-palette-bridge";
 
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 
-const DEEP_LINK_COMMANDS: NavItem[] = [
-  {
-    name: "Compare campaigns & simulations",
-    href: "/campaigns/compare",
-    description: "Side-by-side campaign progress and simulation inputs.",
-    section: "primary",
-    v5FlagsAnyOf: ["v5PortfolioCampaigns"],
-  },
-];
+function fallbackNavSurface(
+  role: WorkspaceRole,
+  flags: Record<FeatureFlagKey, boolean>
+): NavSurfaceInput {
+  return {
+    mode: "core",
+    role,
+    featureFlags: flags,
+    seesAdvancedPrimaryNav: false,
+    seesAssuranceNav: false,
+    advancedModulesHidden: [],
+    assuranceModulesHidden: [],
+    utilityModulesHidden: [],
+    searchScope: "match_mode",
+  };
+}
 
-function navItemVisible(item: NavItem, v5Flags: Record<FeatureFlagKey, boolean>) {
-  return isV5NavItemVisible(item, v5Flags);
+function allCommandItems(): NavItem[] {
+  return [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS];
 }
 
 export function CommandPalette(props: {
   role?: WorkspaceRole;
   v5Flags?: Record<FeatureFlagKey, boolean>;
+  navSurface?: NavSurfaceInput | null;
 }) {
   const role = props.role ?? "viewer";
   const v5Flags = useMemo(
     () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
     [props.v5Flags]
   );
+  const surface = useMemo(
+    () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
+    [props.navSurface, role, v5Flags]
+  );
   const [open, setOpen] = useState(false);
   const openButtonRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const prevOpen = useRef(false);
   const [query, setQuery] = useState("");
+  const deferredFilterQ = useDeferredValue(query.trim().toLowerCase());
   const [activeIndex, setActiveIndex] = useState(0);
   const [footerVisible, setFooterVisible] = useState(false);
   const [recentHrefs, setRecentHrefs] = useState<string[]>(() => {
@@ -65,6 +92,19 @@ export function CommandPalette(props: {
       prevOpen.current = false;
     }
   }, [open]);
+
+  useEffect(() => {
+    function onPaletteOpen(event: Event) {
+      const ce = event as CustomEvent<CommandPaletteOpenDetail>;
+      const q = typeof ce.detail?.query === "string" ? ce.detail.query : "";
+      setQuery(q);
+      setActiveIndex(0);
+      setOpen(true);
+      queueMicrotask(() => searchInputRef.current?.focus());
+    }
+    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
+    return () => window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
+  }, []);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -104,17 +144,49 @@ export function CommandPalette(props: {
     return () => observer.disconnect();
   }, []);
 
+  const searchJumpNavItems = useMemo((): NavItem[] => {
+    return getCmdkSearchJumpItems(surface, query).map((j) => ({
+      name: j.name,
+      href: j.href,
+      description: j.description,
+      section: "workspace",
+    }));
+  }, [query, surface]);
+
   const items = useMemo(() => {
-    const base = [...NAV_ITEMS, ...DEEP_LINK_COMMANDS];
+    const base = allCommandItems();
     const filtered = base.filter(
-      (item) => canAccessItem(item, role) && navItemVisible(item, v5Flags)
+      (item) => isNavItemVisibleForSurface(item, surface) && isCmdkHrefAllowed(item.href, surface)
     );
-    if (!query.trim()) return filtered;
-    const q = query.trim().toLowerCase();
-    return filtered.filter((item) =>
-      `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
-    );
-  }, [query, role, v5Flags]);
+    const sorted = [...filtered].sort((a, b) => {
+      const d = cmdkResultSortKey(a.href) - cmdkResultSortKey(b.href);
+      if (d !== 0) return d;
+      return a.name.localeCompare(b.name);
+    });
+    const q = deferredFilterQ;
+    const navPart = !q
+      ? sorted
+      : sorted.filter((item) =>
+          `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
+        );
+    const hrefSeen = new Set(navPart.map((i) => i.href.split("?")[0] ?? i.href));
+    const jumps = !q
+      ? searchJumpNavItems
+      : searchJumpNavItems.filter((item) =>
+          `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
+        );
+    const extra = jumps.filter((item) => {
+      const path = item.href.split("?")[0] ?? item.href;
+      return !hrefSeen.has(path) && !hrefSeen.has(item.href);
+    });
+    return [...navPart, ...extra];
+  }, [deferredFilterQ, surface, searchJumpNavItems]);
+
+  const visibleRecentHrefs = useMemo(
+    () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface),
+    [recentHrefs, surface]
+  );
+
   const grouped = useMemo(() => {
     const groups = {
       monitor: items.filter((item) => getWorkflowAreaForNavItem(item) === "monitor"),
@@ -186,7 +258,7 @@ export function CommandPalette(props: {
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 pt-[12vh]"
+          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh]"
         >
           <button
             type="button"
@@ -195,9 +267,10 @@ export function CommandPalette(props: {
             aria-label="Close command palette overlay"
           />
           <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-2xl">
-            <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3">
+            <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
               <Search size={16} className="text-zinc-400" aria-hidden />
               <input
+                ref={searchInputRef}
                 autoFocus
                 value={query}
                 onChange={(event) => {
@@ -208,15 +281,20 @@ export function CommandPalette(props: {
                 placeholder="Jump to queue, page, or report..."
               />
             </div>
-            {!query && recentHrefs.length > 0 && (
-              <div className="border-b border-zinc-100 px-4 py-2">
+            {!query && visibleRecentHrefs.length > 0 && (
+              <div className="border-b border-[var(--border-subtle)] px-4 py-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
                   Recent
                 </p>
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  {recentHrefs.map((href) => {
-                    const match = NAV_ITEMS.find((item) => item.href === href);
-                    if (!match) return null;
+                  {visibleRecentHrefs.map((href) => {
+                    const match = allCommandItems().find((item) => item.href === href);
+                    if (
+                      !match ||
+                      !isNavItemVisibleForSurface(match, surface) ||
+                      !isCmdkHrefAllowed(match.href, surface)
+                    )
+                      return null;
                     return (
                       <Link
                         key={href}
@@ -225,7 +303,7 @@ export function CommandPalette(props: {
                           rememberCommand(match);
                           setOpen(false);
                         }}
-                        className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] font-medium text-zinc-600 hover:bg-zinc-100"
+                        className="rounded-md border border-[var(--border-subtle)] bg-zinc-50/90 px-2 py-1 text-[11px] font-medium text-zinc-600 hover:bg-zinc-100"
                       >
                         {match.name}
                       </Link>
@@ -279,6 +357,10 @@ export function CommandPalette(props: {
                 })
               )}
             </ul>
+            <p className="border-t border-zinc-100 px-4 py-2 text-[11px] text-zinc-500">
+              Arrow keys and Enter to open · Esc to close · On tables with checkboxes, use row selection for
+              batch actions where available (refinement §16.1).
+            </p>
           </div>
         </div>
       )}

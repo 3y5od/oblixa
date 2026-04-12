@@ -26,10 +26,13 @@ function urgencyRing(days: number): string {
 }
 
 function rationaleForField(fieldName: string): string {
-  if (fieldName === "notice_window") return "Why: notice deadlines drive non-renewal decision timing.";
-  if (fieldName === "renewal_date") return "Why: renewal window needs scenario + owner alignment.";
-  if (fieldName === "end_date") return "Why: term ending requires continuity or offboarding decision.";
-  return "Why: approved contract date is entering execution horizon.";
+  if (fieldName === "notice_window")
+    return "Notice deadline drives non-renewal and exit timing.";
+  if (fieldName === "renewal_date")
+    return "Renewal window needs scenario, owner, and commercial alignment.";
+  if (fieldName === "end_date")
+    return "Term ending requires continuity or offboarding decisions.";
+  return "Approved effective date is entering the execution horizon.";
 }
 
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
@@ -50,13 +53,13 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-zinc-100/90 bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
+      <div className="border-b border-[var(--border-subtle)] bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
         <h2 className="ui-section-title">Upcoming actions</h2>
         <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
           Approved operational dates in the next 90 days
         </p>
       </div>
-      <ul className="divide-y divide-zinc-100">
+      <ul className="divide-y divide-[var(--border-subtle)]">
         {actions.map((action) => (
           <li key={action.field.id}>
             <Link

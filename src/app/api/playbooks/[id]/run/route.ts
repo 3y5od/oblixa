@@ -5,6 +5,7 @@ import { requireV6Context } from "@/lib/v6/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { runPlaybook } from "@/lib/v6/playbooks";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -13,6 +14,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { ctx, errorResponse } = await requireV6Context("maintenance_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/playbooks/[id]/run",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{ sourceFindingId?: string }>(await request.json().catch(() => ({})), {});
   const playbookId = toSafeString((await params).id);

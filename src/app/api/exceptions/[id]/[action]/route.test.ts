@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -14,6 +15,10 @@ vi.mock("@/lib/v4/casefile", () => ({
 
 vi.mock("@/lib/integrations/events", () => ({
   enqueueOutboundEvent: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 function adminExceptions(row: Record<string, unknown> | null, ownerExists: boolean) {
@@ -69,6 +74,7 @@ describe("POST /api/exceptions/[id]/[action]", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: adminExceptions(exceptionRow, true),
       userId: "user-1",

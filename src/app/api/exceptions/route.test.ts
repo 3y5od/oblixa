@@ -1,15 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 describe("GET /api/exceptions", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
   });
 
   it("returns 401 when unauthenticated", async () => {

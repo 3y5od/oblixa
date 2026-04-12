@@ -43,4 +43,16 @@ export const CRON_ROUTE_EXPECTED_KEYS = new Map([
   ["/api/cron/v6/segment-recompute", ["ok", "recomputed"]],
   ["/api/cron/v6/playbook-follow-up-assurance", ["ok", "assuranceRuns"]],
   ["/api/cron/v6/external-workflow-deadlines", ["ok", "escalated"]],
+  [
+    "/api/cron/v6/onboarding-calibration-stale",
+    [
+      "ok",
+      "expired",
+      "scanned",
+      "orgs_scanned",
+      "duration_ms",
+      "orgs_processed",
+      "errors_count",
+    ],
+  ],
 ]);

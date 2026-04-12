@@ -418,7 +418,9 @@ export async function approveAndContinuePlaybookRun(
 export async function getPlaybookRun(admin: AdminClient, orgId: string, runId: string) {
   const { data: run, error } = await admin
     .from("adaptive_playbook_runs")
-    .select("*")
+    .select(
+      "id, organization_id, adaptive_playbook_id, source_finding_id, status, preview_json, execution_input_json, result_json, success_assessment_json, run_by, started_at, completed_at, created_at, updated_at"
+    )
     .eq("organization_id", orgId)
     .eq("id", runId)
     .maybeSingle();
@@ -427,7 +429,9 @@ export async function getPlaybookRun(admin: AdminClient, orgId: string, runId: s
 
   const { data: steps } = await admin
     .from("adaptive_playbook_steps")
-    .select("*")
+    .select(
+      "id, organization_id, playbook_run_id, step_key, step_order, stage, status, output_json, started_at, completed_at, created_at"
+    )
     .eq("organization_id", orgId)
     .eq("playbook_run_id", runId)
     .order("step_order", { ascending: true });

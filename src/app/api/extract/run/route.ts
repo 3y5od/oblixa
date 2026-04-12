@@ -8,7 +8,11 @@ import {
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 import { isUuid } from "@/lib/security/validation";
 
-/** Isolated invocation for extraction (separate from POST /api/extract request lifecycle). */
+/**
+ * Isolated invocation for extraction (separate from POST /api/extract request lifecycle).
+ * `maxDuration` should match the host’s serverless cap; large PDFs + OpenAI may need
+ * this worker on a separate origin or queue if the platform times out earlier.
+ */
 export const maxDuration = 300;
 
 export async function POST(request: Request) {

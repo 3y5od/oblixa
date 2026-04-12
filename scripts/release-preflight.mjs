@@ -1,5 +1,8 @@
 // Used by `npm run preflight:release` / `release:checklist` before production-style runs.
 // Stricter than minimal local dev: crons and absolute URLs need these in deployed environments.
+import { execSync } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import nextEnv from "@next/env";
 
 const { loadEnvConfig } = nextEnv;
@@ -24,4 +27,12 @@ if (missing.length > 0) {
 }
 
 console.log("Release preflight env check passed.");
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const cwd = path.join(__dirname, "..");
+execSync("npm run check:onboarding-qa-matrix", { stdio: "inherit", cwd });
+execSync("npm run check:onboarding-stale-env-parity", { stdio: "inherit", cwd });
+execSync("npm run check:performance-static:strict", { stdio: "inherit", cwd });
+
+console.log("Optional (V7 product-surface): npm run check:v7-suite before shipping nav, cmd-K, or API guard changes.");
 

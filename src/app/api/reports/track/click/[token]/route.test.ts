@@ -1,6 +1,38 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const rateLimitCheck = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
 
 describe("GET /api/reports/track/click/[token]", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    rateLimitCheck.mockResolvedValue({ ok: true });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 429 when rate limited", async () => {
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 5000 });
+    const { GET } = await import("@/app/api/reports/track/click/[token]/route");
+    const req = new Request(
+      "http://localhost:3000/api/reports/track/click/abc?target=%2Fcontracts%2F123"
+    );
+    const res = await GET(req, { params: Promise.resolve({ token: "abc" }) });
+    expect(res.status).toBe(429);
+    expect(res.headers.get("retry-after")).toBe("5");
+    const body = (await res.json()) as { error?: string };
+    expect(body.error).toBe("Too many requests");
+  });
+
   it("redirects to dashboard fallback for invalid target", async () => {
     const { GET } = await import("@/app/api/reports/track/click/[token]/route");
     const req = new Request(

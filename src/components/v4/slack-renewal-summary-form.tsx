@@ -16,19 +16,23 @@ export function SlackRenewalSummaryForm(props: { defaultContractId?: string }) {
       <p className="ui-muted-tight mt-1">
         Posts to your connected Slack webhook (same integration as workflow notifications).
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <input
-          value={contractId}
-          onChange={(e) => setContractId(e.target.value)}
-          placeholder="Contract ID"
-          className="ui-input text-xs"
-        />
-        <input
-          value={outcome}
-          onChange={(e) => setOutcome(e.target.value)}
-          placeholder="Outcome"
-          className="ui-input text-xs"
-        />
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="min-w-0">
+          <input
+            value={contractId}
+            onChange={(e) => setContractId(e.target.value)}
+            placeholder="Contract ID"
+            className="ui-input w-full min-w-0 text-xs"
+          />
+        </div>
+        <div className="min-w-0">
+          <input
+            value={outcome}
+            onChange={(e) => setOutcome(e.target.value)}
+            placeholder="Outcome"
+            className="ui-input w-full min-w-0 text-xs"
+          />
+        </div>
       </div>
       <textarea
         value={details}

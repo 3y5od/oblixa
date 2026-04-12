@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   GitBranch,
@@ -15,97 +16,36 @@ import { getAuthContext } from "@/lib/supabase/server";
 import {
   NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
-  canAccessItem,
   getWorkflowAreaForNavItem,
-  isV5NavItemVisible,
   type WorkflowArea,
   type WorkspaceRole,
 } from "@/lib/navigation";
+import { MORE_PAGE_JUMP_LINKS, MORE_TOOLS_GROUP_ORDER } from "@/lib/navigation/more-tools-model";
 import { EmptyState } from "@/components/ui/empty-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
-import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import { isHrefEligibleForProductSurface } from "@/lib/product-surface/href-eligibility";
+import {
+  isNavItemVisibleForSurface,
+  toNavSurfaceInput,
+} from "@/lib/product-surface/nav-visibility";
+import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
+import { isCmdkHrefAllowed } from "@/lib/product-surface/resolver";
 
-const ASSURANCE_JUMP_LINKS = [
-  {
-    href: "/contracts/programs",
-    title: "Programs",
-    hint: "Portfolio programs and operating coverage.",
-    actionLabel: "View programs",
-    icon: LayoutGrid,
-  },
-  {
-    href: "/relationship-workspaces",
-    title: "Relationships",
-    hint: "Account and counterparty jump points.",
-    actionLabel: "Open relationships",
-    icon: GitBranch,
-  },
-  {
-    href: "/contracts/maintenance",
-    title: "Maintenance",
-    hint: "Bulk hygiene and correction tools.",
-    actionLabel: "Open maintenance",
-    icon: Wrench,
-  },
-  {
-    href: "/settings",
-    title: "Settings",
-    hint: "Workspace profile, members, and policy.",
-    actionLabel: "Open settings",
-    icon: Settings,
-  },
-  {
-    href: "/settings/health",
-    title: "System health",
-    hint: "Delivery, webhooks, and worker transparency.",
-    actionLabel: "View health",
-    icon: HeartPulse,
-  },
-  {
-    href: "/assurance",
-    title: "Assurance hub",
-    hint: "Findings, policies, and automation entry.",
-    actionLabel: "Open assurance",
-    icon: Shield,
-  },
-  {
-    href: "/assurance/program-evolution",
-    title: "Program evolution",
-    hint: "Stage changes with measured impact.",
-    actionLabel: "View evolution",
-    icon: Sparkles,
-  },
-  {
-    href: "/assurance/control-policies",
-    title: "Control policies",
-    hint: "Published controls and evaluations.",
-    actionLabel: "View policies",
-    icon: ShieldCheck,
-  },
-  {
-    href: "/reports#outcome-intelligence",
-    title: "Outcome intelligence",
-    hint: "Interventions and effectiveness (reports).",
-    actionLabel: "Open reports section",
-    icon: TrendingUp,
-  },
-  {
-    href: "/reports#assurance-analytics",
-    title: "Assurance analytics",
-    hint: "Diagnostics and advanced assurance metrics.",
-    actionLabel: "Open reports section",
-    icon: BarChart3,
-  },
-] as const;
-
-const GROUP_ORDER: WorkflowArea[] = [
-  "monitor",
-  "workflows",
-  "assurance",
-  "insights",
-  "workspace",
-];
+const JUMP_LINK_ICONS: Record<(typeof MORE_PAGE_JUMP_LINKS)[number]["href"], LucideIcon> = {
+  "/contracts/programs": LayoutGrid,
+  "/relationship-workspaces": GitBranch,
+  "/contracts/maintenance": Wrench,
+  "/settings": Settings,
+  "/settings/health": HeartPulse,
+  "/assurance": Shield,
+  "/assurance/program-evolution": Sparkles,
+  "/assurance/control-policies": ShieldCheck,
+  "/reports#outcome-intelligence": TrendingUp,
+  "/reports#assurance-analytics": BarChart3,
+};
 
 export default async function MoreToolsPage(props: {
   searchParams: Promise<{ q?: string; section?: string }>;
@@ -120,17 +60,28 @@ export default async function MoreToolsPage(props: {
     isFeatureEnabled("v6Autopilot") ||
     isFeatureEnabled("v6Segments");
   const role = (ctx.role as WorkspaceRole | undefined) ?? "viewer";
-  const v5Flags = getFeatureFlags();
+  const productSurface = await loadProductSurfaceContext(ctx.admin, ctx.orgId, role);
+  const navInput = toNavSurfaceInput(productSurface);
   const params = await props.searchParams;
   const query = String(params.q ?? "").trim().toLowerCase();
   const selectedSection = (params.section ?? "").trim() as WorkflowArea | "";
 
-  const groups = GROUP_ORDER.map((group) => {
+  const jumpLinks = MORE_PAGE_JUMP_LINKS.filter((link) =>
+    isPathAllowedForWorkspaceMode(link.href.split("#")[0] ?? link.href, productSurface.mode)
+  )
+    .filter((link) => {
+      const path = link.href.split("#")[0] ?? link.href;
+      if (navInput.searchScope !== "core_only") return true;
+      return minWorkspaceModeForPath(path) === "core";
+    })
+    .filter((link) => isHrefEligibleForProductSurface(productSurface, link.href));
+
+  const groups = MORE_TOOLS_GROUP_ORDER.map((group) => {
     const items = NAV_ITEMS.filter(
       (item) =>
         getWorkflowAreaForNavItem(item) === group &&
-        canAccessItem(item, role) &&
-        isV5NavItemVisible(item, v5Flags)
+        isNavItemVisibleForSurface(item, navInput) &&
+        isCmdkHrefAllowed(item.href, navInput)
     ).filter((item) => {
       if (selectedSection && group !== selectedSection) return false;
       if (!query) return true;
@@ -147,10 +98,11 @@ export default async function MoreToolsPage(props: {
   return (
     <div className="space-y-8">
       <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Navigation hub</p>
-        <h1 className="ui-display-title mt-2">Workflow index</h1>
+        <p className="ui-eyebrow">Utilities</p>
+        <h1 className="ui-display-title mt-2">Tools index</h1>
         <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Browse destinations by area: Monitor, Workflows, Assurance, Insights, and Workspace.
+          Secondary destinations and workspace tools. Primary work lives under Home, Contracts,
+          Review, Work, and Reports.
         </p>
         <form action="/more" method="get" className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
@@ -179,15 +131,15 @@ export default async function MoreToolsPage(props: {
         </form>
       </header>
 
-      {v6Any ? (
+      {v6Any && jumpLinks.length > 0 ? (
         <section className="ui-card p-5">
-          <p className="ui-eyebrow">Assurance</p>
-          <h2 className="ui-section-title mt-1 text-base">Adjacent jump points</h2>
+          <p className="ui-eyebrow">Shortcuts</p>
+          <h2 className="ui-section-title mt-1 text-base">Jump points</h2>
           <p className="ui-muted-tight mt-1 max-w-3xl text-[13px]">
-            Direct paths for ownership, maintenance, and reporting next to assurance work.
+            Contextual shortcuts for your workspace mode.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {ASSURANCE_JUMP_LINKS.map((item) => (
+            {jumpLinks.map((item) => (
               <OperationalSurfaceLinkCard
                 key={item.href}
                 href={item.href}
@@ -195,7 +147,7 @@ export default async function MoreToolsPage(props: {
                 title={item.title}
                 hint={item.hint}
                 actionLabel={item.actionLabel}
-                icon={item.icon}
+                icon={JUMP_LINK_ICONS[item.href]}
                 tone="neutral"
               />
             ))}
@@ -212,10 +164,10 @@ export default async function MoreToolsPage(props: {
         <div className="grid gap-6 xl:grid-cols-3">
           {groups.map((group) => (
             <section key={group.key} className="ui-card overflow-hidden">
-              <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-4">
+              <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-4">
                 <h2 className="ui-section-title">{group.label}</h2>
               </div>
-              <ul className="divide-y divide-zinc-100">
+              <ul className="divide-y divide-[var(--border-subtle)]">
                 {group.items.map((item) => (
                   <li key={item.href}>
                     <Link

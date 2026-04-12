@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
   canManageCapability: vi.fn(),
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 function adminSla() {
@@ -50,6 +55,7 @@ function adminSla() {
 describe("GET /api/approvals/sla-metrics", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: adminSla(),
       userId: "user-1",

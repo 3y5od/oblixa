@@ -8,6 +8,7 @@ import {
   createProgramEvolutionExperiment,
   listProgramEvolutionExperiments,
 } from "@/lib/v6/program-evolution";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function GET() {
@@ -16,6 +17,14 @@ export async function GET() {
 
   const { ctx, errorResponse } = await requireV6Context();
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/program-evolution/experiments",
+  });
+  if (modeGate) return modeGate;
 
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_program_evolution_experiments_list_total", 1).catch(
     () => undefined
@@ -32,6 +41,14 @@ export async function POST(request: Request) {
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/program-evolution/experiments",
+  });
+  if (modeGate) return modeGate;
 
   const body = readJsonBody<{
     hypothesis?: string;

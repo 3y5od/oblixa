@@ -1,14 +1,32 @@
 import { NextResponse } from "next/server";
 import { nowIso, signExternalSubmitTicket } from "@/lib/v5/api";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ token: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`external-status:${ip}`, RATE_LIMITS.externalTokenRead);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
   const { token } = await params;
   const admin = await createAdminClient();
   const { data, error } = await admin

@@ -6,6 +6,7 @@ import {
   analyzePolicyRegistry,
 } from "@/lib/v4/policy-registry";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 /**
  * Preview-only: evaluates a draft registry against a contract (counts only, no writes).
@@ -13,6 +14,13 @@ import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields
 export async function POST(request: Request) {
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/policy/simulate",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

@@ -1,4 +1,5 @@
 "use client";
+// V7 exempt: campaign control panel only mounted from campaign detail surfaces; compare/hrefs stay in campaigns tree.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,8 @@ type Props = {
   campaignId: string;
   status: string;
   rolledBackAt?: string | null;
+  /** When false, hides compare deep links (V7 compare_views module / surface). */
+  showCompareLink?: boolean;
 };
 
 async function post(url: string) {
@@ -22,7 +25,7 @@ async function post(url: string) {
   return data;
 }
 
-export function CampaignControlPanel({ campaignId, status, rolledBackAt }: Props) {
+export function CampaignControlPanel({ campaignId, status, rolledBackAt, showCompareLink = true }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -99,9 +102,11 @@ export function CampaignControlPanel({ campaignId, status, rolledBackAt }: Props
         >
           {busy === "close" ? "…" : "Close"}
         </button>
-        <Link href={`/campaigns/compare?campaignA=${campaignId}`} className="ui-btn-ghost px-3 py-2 text-xs">
-          Compare
-        </Link>
+        {showCompareLink ? (
+          <Link href={`/campaigns/compare?campaignA=${campaignId}`} className="ui-btn-ghost px-3 py-2 text-xs">
+            Compare
+          </Link>
+        ) : null}
         <Link
           href={`/api/campaigns/${campaignId}/export?format=json`}
           className="ui-btn-ghost px-3 py-2 text-xs"

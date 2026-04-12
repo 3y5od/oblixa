@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { readResponseJson } from "@/lib/http/client-json";
 
 type TimelineEvent = {
   id: string;
@@ -13,16 +14,18 @@ type TimelineEvent = {
 
 async function loadTimeline(
   kind: "accounts" | "counterparties",
-  key: string
+  key: string,
+  signal?: AbortSignal
 ): Promise<TimelineEvent[]> {
   const path =
     kind === "accounts"
       ? `/api/accounts/${encodeURIComponent(key)}/summary`
       : `/api/counterparties/${encodeURIComponent(key)}/summary`;
-  const res = await fetch(path, { credentials: "same-origin" });
-  if (!res.ok) return [];
-  const body = (await res.json()) as { timelineEvents?: TimelineEvent[] };
-  return Array.isArray(body.timelineEvents) ? body.timelineEvents : [];
+  const res = await fetch(path, { credentials: "same-origin", signal });
+  const parsed = await readResponseJson(res);
+  if (!parsed.ok) return [];
+  const payload = parsed.data as { timelineEvents?: TimelineEvent[] };
+  return Array.isArray(payload.timelineEvents) ? payload.timelineEvents : [];
 }
 
 export function RelationshipTimelineCard({
@@ -37,30 +40,28 @@ export function RelationshipTimelineCard({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const ac = new AbortController();
     async function run() {
       setError(null);
       try {
         if (accountKey) {
-          const evs = await loadTimeline("accounts", accountKey);
-          if (!cancelled) setAccountEvents(evs);
+          const evs = await loadTimeline("accounts", accountKey, ac.signal);
+          if (!ac.signal.aborted) setAccountEvents(evs);
         } else {
           setAccountEvents(null);
         }
         if (counterpartyKey) {
-          const evs = await loadTimeline("counterparties", counterpartyKey);
-          if (!cancelled) setCounterpartyEvents(evs);
+          const evs = await loadTimeline("counterparties", counterpartyKey, ac.signal);
+          if (!ac.signal.aborted) setCounterpartyEvents(evs);
         } else {
           setCounterpartyEvents(null);
         }
       } catch {
-        if (!cancelled) setError("Could not load relationship timeline.");
+        if (!ac.signal.aborted) setError("Could not load relationship timeline.");
       }
     }
     void run();
-    return () => {
-      cancelled = true;
-    };
+    return () => ac.abort();
   }, [accountKey, counterpartyKey]);
 
   if (!accountKey && !counterpartyKey) return null;

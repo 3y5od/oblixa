@@ -1,3 +1,7 @@
+/**
+ * docs/refinement.md §9.1 — Work hub unifies execution queues (tasks, obligations, approvals, exceptions)
+ * without duplicating Renewals / Review / Evidence as primary-only destinations (those stay first-class in nav).
+ */
 import Link from "next/link";
 import {
   AlertOctagon,
@@ -7,6 +11,8 @@ import {
   Stamp,
 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 import { blockerCountForEntity } from "@/components/v4/execution-edge-blockers";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -26,6 +32,15 @@ export default async function WorkPage() {
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   const userId = ctx.user.id;
+
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const showDecisionsCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "decisions");
 
   const [tasksRes, approvalsRes, obligationsRes, exceptionsRes] = await Promise.all([
     ctx.admin
@@ -116,6 +131,17 @@ export default async function WorkPage() {
         </div>
       </header>
 
+      {showDecisionsCta ? (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 text-sm text-zinc-700 shadow-[var(--shadow-1)]">
+          <span className="font-medium text-zinc-900">Decisions</span>
+          {" — "}
+          Escalate items that need a recorded decision path.{" "}
+          <Link href="/decisions" prefetch={false} className="ui-link">
+            Open decisions
+          </Link>
+        </div>
+      ) : null}
+
       <section className="space-y-3">
         <div>
           <p className="ui-eyebrow">Workload</p>
@@ -203,6 +229,8 @@ export default async function WorkPage() {
                         ? `Blocked by ${blockerCountForEntity(edges, "task", row.id as string)} upstream`
                         : undefined
                     }
+                    continuityContractId={row.contract_id ?? undefined}
+                    continuityOmit={row.contract_id ? ["work", "tasks"] : undefined}
                     nextAction={{
                       label: row.contract_id ? "Review contract record" : "Review task details",
                       href: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts/tasks",
@@ -241,6 +269,8 @@ export default async function WorkPage() {
                         ? `Blocked by ${blockerCountForEntity(edges, "approval", row.id as string)} upstream`
                         : undefined
                     }
+                    continuityContractId={row.contract_id ?? undefined}
+                    continuityOmit={row.contract_id ? ["work"] : undefined}
                     nextAction={{
                       label: row.contract_id ? "Review contract record" : "Review approvals queue",
                       href: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts/approvals",
@@ -279,6 +309,8 @@ export default async function WorkPage() {
                         ? `Blocked by ${blockerCountForEntity(edges, "obligation", row.id as string)} upstream`
                         : undefined
                     }
+                    continuityContractId={row.contract_id ?? undefined}
+                    continuityOmit={row.contract_id ? ["work", "obligations"] : undefined}
                     nextAction={{
                       label: row.contract_id ? "Review contract record" : "Review obligations queue",
                       href: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts/obligations",
@@ -311,6 +343,8 @@ export default async function WorkPage() {
                     statusLabel={`${row.status} · ${row.severity}`}
                     statusTone={row.severity === "critical" ? "critical" : row.severity === "high" ? "warning" : "info"}
                     owner={row.owner_id ? "Assigned" : "Unassigned"}
+                    continuityContractId={row.contract_id ?? undefined}
+                    continuityOmit={row.contract_id ? ["work", "exceptions"] : undefined}
                     nextAction={{
                       label: row.contract_id ? "Review contract record" : "Review exceptions ledger",
                       href: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts/exceptions",

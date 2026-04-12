@@ -108,11 +108,11 @@ export default async function ContractDataQualityPage() {
       </section>
 
       <section id="gap-leaders" className="ui-card scroll-mt-8 overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
           <p className="ui-eyebrow">Portfolio</p>
           <h2 className="ui-section-title mt-1 text-base">Contracts with largest data gaps</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {topGaps.length === 0 ? (
             <li className="px-5 py-4 text-sm text-zinc-500">No snapshot data yet.</li>
           ) : (
@@ -138,11 +138,11 @@ export default async function ContractDataQualityPage() {
       </section>
 
       <section id="weak-lineage" className="ui-card scroll-mt-8 overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
           <p className="ui-eyebrow">Fields</p>
           <h2 className="ui-section-title mt-1 text-base">Weak lineage / low-confidence fields</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {weakLineage.length === 0 ? (
             <li className="px-5 py-4 text-sm text-zinc-500">No weak lineage signals found.</li>
           ) : (

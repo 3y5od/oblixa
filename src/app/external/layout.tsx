@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthLegalFooter } from "@/components/auth/auth-legal-footer";
 
 export const metadata: Metadata = {
   title: "External action — Oblixa",
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function ExternalLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <div className="flex-1">{children}</div>
+      <AuthLegalFooter />
+    </div>
+  );
 }

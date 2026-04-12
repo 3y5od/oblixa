@@ -3,6 +3,7 @@ import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isValidPacketType, packetTypeValidationError } from "@/lib/v5/packet-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
@@ -10,6 +11,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/packet-templates/[id]",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("decision_packet_templates")
@@ -28,6 +36,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/packet-templates/[id]",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
@@ -78,6 +93,13 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { id } = await params;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/decisions/packet-templates/[id]",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "renewals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

@@ -4,6 +4,12 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import type { WorkspaceRole } from "@/lib/navigation";
+import {
+  eligibleReportTypeOptionsForWorkspaceMode,
+  loadProductSurfaceContext,
+  workspaceModeAllowsReportType,
+} from "@/lib/product-surface";
 import {
   createReportPackAction,
   createReportPackSubscriptionAction,
@@ -30,6 +36,10 @@ export default async function ReportsHistoryPage(props: {
   if (!ctx) return <WorkspaceRequiredState />;
   const { runId } = await props.searchParams;
   const { admin, orgId } = ctx;
+  const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
+  const workspaceMode = productSurface.mode;
+  const eligibleReportTypes = eligibleReportTypeOptionsForWorkspaceMode(workspaceMode);
+
   const [
     { data: runs },
     { data: reportPacks },
@@ -61,11 +71,23 @@ export default async function ReportsHistoryPage(props: {
       .order("created_at", { ascending: false })
       .limit(100),
   ]);
-  const reportPackSubscriptions = subsResult.error ? [] : subsResult.data ?? [];
+  const reportPackSubscriptionsRaw = subsResult.error ? [] : subsResult.data ?? [];
+  const rawReportPacks = reportPacks ?? [];
+  const visibleReportPacks = rawReportPacks.filter((p) =>
+    workspaceModeAllowsReportType(workspaceMode, String((p as { report_type?: string }).report_type ?? ""))
+  );
+  const allowedPackIds = new Set(visibleReportPacks.map((p) => String((p as { id: string }).id)));
+  const reportPackSubscriptions = reportPackSubscriptionsRaw.filter((s) =>
+    allowedPackIds.has(String((s as { report_pack_id: string }).report_pack_id))
+  );
+  const packRunRowsAll = reportPackRuns ?? [];
+  const packRunRows = packRunRowsAll.filter((r) =>
+    allowedPackIds.has(String((r as { report_pack_id: string }).report_pack_id))
+  );
+
   const selectedRunId = runId || runs?.[0]?.id || null;
   const runRows = runs ?? [];
   const failedDigestRuns = runRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
-  const packRunRows = reportPackRuns ?? [];
   const failedPackRuns = packRunRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
   const { data: recipients } = selectedRunId
     ? await admin
@@ -117,10 +139,10 @@ export default async function ReportsHistoryPage(props: {
         <OperationalSummaryCard
           eyebrow="Catalog"
           headline="V4 report packs"
-          tone={(reportPacks ?? []).length > 0 ? "neutral" : "attention"}
+          tone={visibleReportPacks.length > 0 ? "neutral" : "attention"}
           icon={Package}
-          primaryValue={(reportPacks ?? []).length}
-          breakdown={[{ label: "Active", value: String((reportPacks ?? []).filter((p) => p.active).length) }]}
+          primaryValue={visibleReportPacks.length}
+          breakdown={[{ label: "Active", value: String(visibleReportPacks.filter((p) => p.active).length) }]}
           action={{ href: "#report-packs", label: "Manage packs" }}
           variant="compact"
         />
@@ -151,14 +173,24 @@ export default async function ReportsHistoryPage(props: {
         />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <section id="report-packs" className="ui-card overflow-hidden lg:col-span-2">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <section id="report-packs" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Configure</p>
             <h2 className="ui-section-title mt-1 text-base">Create V4 report pack</h2>
           </div>
-          <form action={createReportPackFormAction} className="grid gap-2 border-b border-zinc-100 px-5 py-4 md:grid-cols-2">
+          <form action={createReportPackFormAction} className="grid gap-2 border-b border-[var(--border-subtle)] px-5 py-4 md:grid-cols-2">
             <input name="name" required placeholder="Weekly execution health" className="ui-input" />
-            <input name="reportType" defaultValue="weekly_execution_health" className="ui-input" />
+            <select
+              name="reportType"
+              className="ui-input"
+              defaultValue={eligibleReportTypes[0] ?? "weekly_execution_health"}
+            >
+              {eligibleReportTypes.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
             <input name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
             <label className="flex items-center gap-2 text-xs text-zinc-600 md:col-span-2">
               <input type="checkbox" name="emitWebhooks" className="rounded border-zinc-300" />
@@ -168,17 +200,17 @@ export default async function ReportsHistoryPage(props: {
               Create report pack
             </button>
           </form>
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Library</p>
             <h2 className="ui-section-title mt-1 text-base">V4 report packs</h2>
           </div>
-          {(reportPacks ?? []).length === 0 ? (
+          {visibleReportPacks.length === 0 ? (
             <p className="px-5 py-4 text-sm text-zinc-500">
               No report packs yet. Create one using `POST /api/report-packs`.
             </p>
           ) : (
-            <ul className="divide-y divide-zinc-100">
-              {(reportPacks ?? []).map((pack) => (
+            <ul className="divide-y divide-[var(--border-subtle)]">
+              {visibleReportPacks.map((pack) => (
                 <li key={pack.id} className="space-y-2 px-5 py-3 text-sm text-zinc-700">
                   <p className="font-semibold text-zinc-900">{pack.name}</p>
                   <p className="text-xs text-zinc-500">
@@ -250,12 +282,12 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section id="subscriptions" className="ui-card overflow-hidden lg:col-span-2">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <section id="subscriptions" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Routing</p>
             <h2 className="ui-section-title mt-1 text-base">Report pack subscriptions</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {reportPackSubscriptions.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No subscriptions yet.</li>
             ) : (
@@ -273,15 +305,15 @@ export default async function ReportsHistoryPage(props: {
             )}
           </ul>
         </section>
-        <section id="pack-runs" className="ui-card overflow-hidden lg:col-span-2">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <section id="pack-runs" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Executions</p>
             <h2 className="ui-section-title mt-1 text-base">V4 report pack run history</h2>
           </div>
           {(reportPackRuns ?? []).length === 0 ? (
             <p className="px-5 py-4 text-sm text-zinc-500">No V4 report pack runs yet.</p>
           ) : (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-[var(--border-subtle)]">
               {(reportPackRuns ?? []).map((run) => (
                 <li key={run.id} className="px-5 py-3 text-sm">
                   <p className="font-semibold text-zinc-900">
@@ -314,12 +346,12 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section id="digest-runs" className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <section id="digest-runs" className="ui-card scroll-mt-8 overflow-hidden">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Timeline</p>
             <h2 className="ui-section-title mt-1 text-base">Digest runs</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {(runs ?? []).map((run) => (
               <li key={run.id} className="px-5 py-3 text-sm">
                 <Link
@@ -342,12 +374,12 @@ export default async function ReportsHistoryPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Engagement</p>
             <h2 className="ui-section-title mt-1 text-base">Recipients</h2>
           </div>
           {selectedRunId ? (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-[var(--border-subtle)]">
               {(recipients ?? []).map((recipient) => (
                 <li key={String(recipient.id)} className="px-5 py-3 text-sm text-zinc-700">
                   <p className="font-semibold">{String(recipient.recipient_email)}</p>

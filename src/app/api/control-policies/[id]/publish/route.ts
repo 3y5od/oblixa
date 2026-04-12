@@ -8,6 +8,7 @@ import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
 import { recordControlPolicyOutcome } from "@/lib/v6/outcome-writers";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6ControlPolicies");
@@ -15,6 +16,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { ctx, errorResponse } = await requireV6Context("settings_manage");
   if (!ctx) return errorResponse!;
+
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/control-policies/[id]/publish",
+  });
+  if (modeGate) return modeGate;
 
   const policyId = toSafeString((await params).id);
   const metricsBefore = await gatherPortfolioMetrics(ctx.admin, ctx.orgId);

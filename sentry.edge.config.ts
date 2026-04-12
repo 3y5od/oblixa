@@ -3,12 +3,14 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { getSentryRelease } from "@/lib/observability/sentry-release";
+import { scrubSentryEvent } from "@/lib/observability/sentry-scrub";
 
 const dsn = process.env.SENTRY_DSN;
 if (dsn) {
   Sentry.init({
     dsn,
     release: getSentryRelease(),
+    beforeSend: scrubSentryEvent,
     tracesSampleRate:
       Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? "0") || 0,
     profilesSampleRate:

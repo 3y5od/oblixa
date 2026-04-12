@@ -17,6 +17,7 @@ export function requireV6CronAuth(request: Request) {
 }
 
 export async function listOrganizationIds(admin: AdminClient): Promise<string[]> {
+  // FUTURE: paginate past 500 for full-table stale sweeps when operator SLO requires it.
   const { data } = await admin.from("organizations").select("id").limit(500);
   return (data ?? []).map((row) => String(row.id));
 }

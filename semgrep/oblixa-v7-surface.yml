@@ -1,0 +1,13 @@
+# V7 product-surface regression: canonical check is `npm run check:v7-hrefs:strict`
+# (`scripts/audit-v7-cross-surface-hrefs.mjs`). Semgrep here stays minimal so CI stays green;
+# extend only with rules that produce near-zero false positives across the full contracts tree.
+rules:
+  - id: oblixa-v7-surface-placeholder
+    languages: [typescript, tsx]
+    message: >
+      Semgrep V7 pack reserved — use the Node href audit for cross-surface link enforcement.
+    severity: INFO
+    pattern: oblixaV7SemgrepPlaceholderNeverUsed()
+    paths:
+      include:
+        - src/app/(dashboard)/contracts/**/*.tsx

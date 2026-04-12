@@ -1,4 +1,5 @@
 "use client";
+/* Primary nav Links use default Next prefetch (hover-driven). Rare / heavy destinations use prefetch={false} at call sites. */
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,14 +21,33 @@ import { signOut } from "@/actions/auth";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
-  canAccessItem,
   PRIMARY_NAV_GROUPS,
   isActivePath,
-  isV5NavChildVisible,
-  isV5NavItemVisible,
   type NavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
+import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import {
+  isNavChildVisibleForSurface,
+  isNavItemVisibleForSurface,
+} from "@/lib/product-surface/nav-visibility";
+
+function fallbackNavSurface(
+  role: WorkspaceRole,
+  flags: Record<FeatureFlagKey, boolean>
+): NavSurfaceInput {
+  return {
+    mode: "core",
+    role,
+    featureFlags: flags,
+    seesAdvancedPrimaryNav: false,
+    seesAssuranceNav: false,
+    advancedModulesHidden: [],
+    assuranceModulesHidden: [],
+    utilityModulesHidden: [],
+    searchScope: "match_mode",
+  };
+}
 
 const iconByKey = {
   dashboard: LayoutDashboard,
@@ -44,6 +64,7 @@ const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
 export function Sidebar(props: {
   role?: WorkspaceRole;
   v5Flags?: Record<FeatureFlagKey, boolean>;
+  navSurface?: NavSurfaceInput | null;
   navBadges?: Partial<
     Record<"reviewQueue" | "approvals" | "obligations" | "watchlists", number>
   >;
@@ -88,6 +109,10 @@ export function Sidebar(props: {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
+  /** Onboarding routes: icon rail only on desktop (focused calibration shell; pathname-driven). */
+  const isOnboardingShell = pathname.startsWith("/onboarding");
+  const effectiveCollapsed = isOnboardingShell || collapsed;
+
   useEffect(() => {
     try {
       window.localStorage.setItem(COLLAPSED_PREF_KEY, collapsed ? "1" : "0");
@@ -96,36 +121,37 @@ export function Sidebar(props: {
     }
   }, [collapsed]);
 
+  const surface = useMemo(
+    () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
+    [props.navSurface, role, v5Flags]
+  );
+
   const navBySection = useMemo(() => {
-    const visible = NAV_ITEMS.filter(
-      (item) => canAccessItem(item, role) && isV5NavItemVisible(item, v5Flags)
-    );
+    const visible = NAV_ITEMS.filter((item) => isNavItemVisibleForSurface(item, surface));
     return {
       primary: visible.filter((item) => item.section === "primary"),
       operations: visible.filter((item) => item.section === "operations"),
       personal: visible.filter((item) => item.section === "personal"),
       workspace: visible.filter((item) => item.section === "workspace"),
     };
-  }, [role, v5Flags]);
+  }, [surface]);
 
   const workflowHubs = useMemo(() => {
-    const visible = NAV_ITEMS.filter(
-      (item) => canAccessItem(item, role) && isV5NavItemVisible(item, v5Flags)
-    );
     const preferredHrefs = [
       "/dashboard",
       "/work",
-      "/assurance",
+      "/contracts/review",
       "/reports",
       "/settings",
+      "/assurance",
     ];
     const hubs: NavItem[] = [];
     for (const href of preferredHrefs) {
-      const match = visible.find((item) => item.href === href);
+      const match = navBySection.primary.find((item) => item.href === href);
       if (match) hubs.push(match);
     }
     return hubs;
-  }, [role, v5Flags]);
+  }, [navBySection.primary]);
 
   const groupedPrimary = useMemo(() => {
     return PRIMARY_NAV_GROUPS.map((group) => ({
@@ -152,7 +178,11 @@ export function Sidebar(props: {
       <nav className={title ? "mt-2 space-y-1" : "space-y-1"}>
         {items.map((item) => {
           const isActive = isActivePath(pathname, item.href);
-          const badgeValue = item.badgeKey ? Number(navBadges[item.badgeKey] ?? 0) : 0;
+          const hasBadgeValue =
+            item.badgeKey != null &&
+            Object.prototype.hasOwnProperty.call(navBadges, item.badgeKey);
+          const badgeValue =
+            item.badgeKey && hasBadgeValue ? Number(navBadges[item.badgeKey] ?? 0) : 0;
           const badgeTone =
             item.badgeKey === "reviewQueue"
               ? "bg-amber-300/20 text-amber-100"
@@ -175,7 +205,7 @@ export function Sidebar(props: {
                       : "ui-sidebar-link-idle"
                   }`}
                   aria-current={isActive ? "page" : undefined}
-                  title={collapsed ? item.name : undefined}
+                  title={effectiveCollapsed ? item.name : undefined}
                 >
                   {Icon ? (
                     <Icon
@@ -189,10 +219,10 @@ export function Sidebar(props: {
                       className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-zinc-500"}`}
                     />
                   )}
-                  {!collapsed && (
+                  {!effectiveCollapsed && (
                     <>
                       <span>{item.name}</span>
-                      {badgeValue > 0 && (
+                      {hasBadgeValue && badgeValue > 0 && (
                         <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
                           {badgeValue > 99 ? "99+" : badgeValue}
                         </span>
@@ -200,9 +230,9 @@ export function Sidebar(props: {
                     </>
                   )}
                 </Link>
-                {!collapsed && item.navChildren?.length
+                {!effectiveCollapsed && item.navChildren?.length
                   ? item.navChildren
-                      .filter((c) => isV5NavChildVisible(c, v5Flags))
+                      .filter((c) => isNavChildVisibleForSurface(c, surface))
                       .map((c) => (
                         <Link
                           key={`${c.name}-${c.href}`}
@@ -235,15 +265,15 @@ export function Sidebar(props: {
                   className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-zinc-100" : "bg-zinc-500"}`}
                 />
                 <span>{item.name}</span>
-                {badgeValue > 0 && (
+                {hasBadgeValue && badgeValue > 0 && (
                   <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight ${badgeTone}`}>
                     {badgeValue > 99 ? "99+" : badgeValue}
                   </span>
                 )}
               </Link>
-              {!collapsed && item.navChildren?.length
+              {!effectiveCollapsed && item.navChildren?.length
                 ? item.navChildren
-                    .filter((c) => isV5NavChildVisible(c, v5Flags))
+                    .filter((c) => isNavChildVisibleForSurface(c, surface))
                     .map((c) => (
                       <Link
                         key={`${c.name}-${c.href}`}
@@ -265,7 +295,7 @@ export function Sidebar(props: {
   const renderSidebarBody = ({ mobile = false }: { mobile?: boolean }) => (
     <>
       <div className="flex h-[3.5rem] items-center justify-between border-b border-white/[0.1] px-2.5">
-        {!collapsed && (
+        {!effectiveCollapsed && (
           <Link
             href="/dashboard"
             className="pl-1 text-[14px] font-semibold tracking-tight text-white"
@@ -283,6 +313,8 @@ export function Sidebar(props: {
           >
             <X size={18} aria-hidden />
           </button>
+        ) : isOnboardingShell ? (
+          <div className="mx-auto h-10 w-10 shrink-0" aria-hidden />
         ) : (
           <button
             type="button"
@@ -300,29 +332,31 @@ export function Sidebar(props: {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-4">
-        {mobile && !collapsed ? (
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2 py-4">
+        {mobile && !effectiveCollapsed ? (
           <Link
             href="/more"
             onClick={() => setMobileOpen(false)}
             className="mx-1 mb-3 block rounded-xl border border-white/[0.18] bg-white/[0.06] px-3 py-2 text-[12px] font-semibold text-white/95"
           >
-            Open full index
+            Open utilities
           </Link>
         ) : null}
-        {collapsed ? renderNavSection({ title: "Primary", items: workflowHubs, compact: true }) : null}
-        {!collapsed
-          ? groupedPrimary.map((group) => (
-              <div key={group.label}>
-                {renderNavSection({
-                  title: group.label,
-                  items: group.items,
-                  compact: true,
-                })}
-              </div>
-            ))
-          : null}
-        {!collapsed && (
+        <div data-testid="primary-nav">
+          {effectiveCollapsed ? renderNavSection({ title: "Primary", items: workflowHubs, compact: true }) : null}
+          {!effectiveCollapsed
+            ? groupedPrimary.map((group) => (
+                <div key={group.label}>
+                  {renderNavSection({
+                    title: group.label,
+                    items: group.items,
+                    compact: true,
+                  })}
+                </div>
+              ))
+            : null}
+        </div>
+        {!effectiveCollapsed && (
           <>
             {renderNavSection({
               title: "Workflow queues",
@@ -344,7 +378,7 @@ export function Sidebar(props: {
           </>
         )}
         {renderNavSection({
-          title: collapsed ? undefined : "Workspace",
+          title: effectiveCollapsed ? undefined : "Workspace",
           items: navBySection.workspace,
           compact: true,
         })}
@@ -355,10 +389,10 @@ export function Sidebar(props: {
           <button
             type="submit"
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.08] hover:text-white"
-            title={collapsed ? "Sign out" : undefined}
+            title={effectiveCollapsed ? "Sign out" : undefined}
           >
             <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-95" aria-hidden />
-            {!collapsed && <span>Sign out</span>}
+            {!effectiveCollapsed && <span>Sign out</span>}
           </button>
         </form>
       </div>
@@ -386,11 +420,11 @@ export function Sidebar(props: {
         >
           <button
             type="button"
-            className="h-full flex-1 bg-black/52"
+            className="ui-overlay-scrim h-full flex-1"
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation overlay"
           />
-          <aside className="flex w-80 max-w-[90vw] flex-col border-l border-[var(--sidebar-border)] bg-[var(--sidebar)]">
+          <aside className="flex h-dvh max-h-dvh min-h-0 w-80 max-w-[90vw] flex-col border-l border-[var(--sidebar-border)] bg-[var(--sidebar)]">
             {renderSidebarBody({ mobile: true })}
           </aside>
         </div>
@@ -398,8 +432,8 @@ export function Sidebar(props: {
 
       <aside
         aria-label="Workspace"
-        className={`hidden flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out lg:flex ${
-          collapsed ? "w-[4rem]" : "w-56"
+        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out lg:flex ${
+          effectiveCollapsed ? "w-[4rem]" : "w-56"
         }`}
       >
         {renderSidebarBody({})}

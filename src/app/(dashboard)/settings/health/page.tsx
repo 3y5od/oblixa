@@ -291,11 +291,11 @@ export default async function SettingsHealthPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Diagnostics</p>
             <h2 className="ui-section-title mt-1 text-base">Top failed notification types</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {topFailedTypes.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No failed delivery types.</li>
             ) : (
@@ -309,11 +309,11 @@ export default async function SettingsHealthPage() {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
             <p className="ui-eyebrow">Diagnostics</p>
             <h2 className="ui-section-title mt-1 text-base">Top failure signatures</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {topFailureSignatures.length === 0 ? (
               <li className="px-5 py-4 text-sm text-zinc-500">No failure signatures.</li>
             ) : (
@@ -329,11 +329,11 @@ export default async function SettingsHealthPage() {
       </div>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
           <p className="ui-eyebrow">Audit</p>
           <h2 className="ui-section-title mt-1 text-base">Recent operational events</h2>
         </div>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)]">
           {(cronAuditRes.data ?? []).length === 0 ? (
             <li className="px-5 py-4 text-sm text-zinc-500">No recent events.</li>
           ) : (

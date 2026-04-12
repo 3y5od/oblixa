@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
   const { jobId } = await params;
@@ -13,13 +19,27 @@ export async function GET(
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: membership.organization_id,
+    role: membership.role,
+    apiPath: "/api/import/contracts/[jobId]",
+  });
+  if (modeGate) return modeGate;
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`import-contracts-job:${user.id}:${ip}`, RATE_LIMITS.importContractsJob);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
+  }
 
   const [{ data: job }, { data: rows }] = await Promise.all([
     admin

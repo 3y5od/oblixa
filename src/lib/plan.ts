@@ -2,6 +2,11 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 const PAID_UP_STATUSES = new Set(["active", "trialing"]);
 
+/**
+ * Billing / Stripe enforcement is separate from workspace **product mode** (Core / Advanced /
+ * Assurance in `organizations.v6_org_settings_json`). Product IA and navigation must not depend
+ * on paid tier (docs/refinement.md §4.4); use plan checks only for optional commercial limits.
+ */
 /** When `REQUIRE_ACTIVE_SUBSCRIPTION=true`, mutations require a paid-up Stripe subscription on the org. */
 export function isPlanEnforcementEnabled(): boolean {
   return process.env.REQUIRE_ACTIVE_SUBSCRIPTION === "true";

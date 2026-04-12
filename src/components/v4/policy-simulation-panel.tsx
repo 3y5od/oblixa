@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { fetchJson } from "@/lib/http/client-json";
+import { captureClientException } from "@/lib/observability/sentry";
 import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/v4/policy-registry";
 
 export type PolicySimulationContractOption = { id: string; title: string };
@@ -31,17 +33,35 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
     try {
       const body: Record<string, unknown> = { contractId };
       if (draftJson.trim()) {
-        body.registryDraft = JSON.parse(draftJson);
+        let registryDraft: unknown;
+        try {
+          registryDraft = JSON.parse(draftJson);
+        } catch {
+          setResponseText("Draft is not valid JSON.");
+          setLoading(false);
+          return;
+        }
+        body.registryDraft = registryDraft;
       }
-      const res = await fetch("/api/policy/simulate", {
+      const result = await fetchJson("/api/policy/simulate", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      setResponseText(JSON.stringify(data, null, 2));
+      if (!result.ok) {
+        setResponseText(`Request failed (${result.status}): ${result.message}`);
+        if (result.status >= 500) {
+          captureClientException(new Error(result.message), {
+            extra: { surface: "PolicySimulationPanel", status: result.status },
+          });
+        }
+        return;
+      }
+      setResponseText(JSON.stringify(result.data, null, 2));
     } catch (e) {
-      setResponseText(e instanceof Error ? e.message : "Request failed");
+      const msg = e instanceof Error ? e.message : "Request failed";
+      setResponseText(msg);
+      captureClientException(e, { extra: { surface: "PolicySimulationPanel", phase: "network" } });
     } finally {
       setLoading(false);
     }

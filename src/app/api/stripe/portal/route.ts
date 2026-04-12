@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
+import { createClient, createAdminClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { getStripeClient } from "@/lib/stripe";
 import { getRequestOrigin } from "@/lib/app-url";
 import * as Sentry from "@sentry/nextjs";
@@ -15,17 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { data: membership, error: membershipError } = await admin
-    .from("organization_members")
-    .select("role, organizations(stripe_customer_id)")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
-
-  if (membershipError) {
-    console.error("[stripe/portal] membership query:", membershipError.message);
-    return NextResponse.json({ error: "Could not load organization" }, { status: 500 });
-  }
+  const membership = await getDeterministicMembership(admin, user.id);
 
   if (!membership) {
     return NextResponse.json({ error: "No organization" }, { status: 400 });
@@ -34,6 +29,33 @@ export async function POST(request: Request) {
   if (membership.role !== "admin") {
     return NextResponse.json({ error: "Only admins can manage billing" }, { status: 403 });
   }
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`stripe-portal:${user.id}:${ip}`, RATE_LIMITS.stripePortalSession);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
+  }
+
+  const { data: orgRow, error: orgError } = await admin
+    .from("organizations")
+    .select("stripe_customer_id")
+    .eq("id", membership.organization_id)
+    .single();
+
+  if (orgError) {
+    console.error("[stripe/portal] organization query:", orgError.message);
+    return NextResponse.json({ error: "Could not load organization" }, { status: 500 });
+  }
+
+  if (!orgRow) {
+    return NextResponse.json({ error: "No organization" }, { status: 400 });
+  }
   const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/portal] config:", stripeClient.error);
@@ -41,9 +63,7 @@ export async function POST(request: Request) {
   }
   const stripe = stripeClient.stripe;
 
-  const customerId = (
-    membership.organizations as unknown as { stripe_customer_id: string | null } | null
-  )?.stripe_customer_id;
+  const customerId = orgRow.stripe_customer_id;
 
   if (!customerId) {
     return NextResponse.json({ error: "No billing account" }, { status: 400 });

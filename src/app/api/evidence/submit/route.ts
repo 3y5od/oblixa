@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 export async function POST(request: Request) {
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/evidence/submit",
+  });
+  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

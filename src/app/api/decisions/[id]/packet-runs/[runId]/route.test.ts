@@ -18,6 +18,10 @@ vi.mock("@/lib/v5/decision-packet-pdf", () => ({
   renderDecisionPacketPdfBuffer: vi.fn(async () => new Uint8Array([0x25, 0x50, 0x44, 0x46])),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 describe("GET /api/decisions/[id]/packet-runs/[runId]", () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "UI-2026-001",
+    "severity": "P1",
+    "type": "Layout / responsive",
+    "route": "/settings",
+    "status": "fixed",
+    "suspected_files": ["src/app/(dashboard)/settings/page.tsx"],
+    "summary": "Settings header pills overlapped the title because flex-row used viewport breakpoints (xl) while the main column stays narrow (viewport minus sidebar). Fix: always stack title block above actions (flex-col only) so pills never sit beside the H1.",
+    "regression_test": "e2e/authenticated.spec.ts — settings title and workflow action do not overlap at mid viewport"
+  }
+]

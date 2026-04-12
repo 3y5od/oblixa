@@ -4,6 +4,7 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn(async () => null);
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -12,6 +13,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
 
 vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility,
 }));
 
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);

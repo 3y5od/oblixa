@@ -39,7 +39,8 @@ export type SegmentCriteriaJson = {
   membership_entity_types?: string[];
 };
 
-function normalizeMembershipEntityTypes(criteria: SegmentCriteriaJson): string[] {
+/** Normalizes `membership_entity_types` for segment criteria (exported for unit tests). */
+export function normalizeMembershipEntityTypes(criteria: SegmentCriteriaJson): string[] {
   const raw = criteria.membership_entity_types;
   if (!Array.isArray(raw) || raw.length === 0) return ["contract"];
   const out = raw.map((x) => String(x).toLowerCase()).filter((t) => MEMBERSHIP_ENTITY_TYPES.has(t));

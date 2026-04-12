@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthLegalFooter } from "@/components/auth/auth-legal-footer";
 
 export const metadata: Metadata = {
   title: "Sign in — Oblixa",
@@ -12,8 +13,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-canvas text-zinc-900 antialiased">
-      {children}
+    <div className="flex min-h-screen flex-col bg-canvas text-zinc-900 antialiased">
+      <div className="flex-1">{children}</div>
+      <AuthLegalFooter />
     </div>
   );
 }

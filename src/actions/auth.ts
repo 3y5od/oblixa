@@ -1,7 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient, ensureUserOrg } from "@/lib/supabase/server";
+import {
+  createAdminClient,
+  createClient,
+  ensureUserOrg,
+  getDeterministicMembership,
+} from "@/lib/supabase/server";
+import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { mapAuthError } from "@/lib/errors/user-facing";
 import {
@@ -49,7 +55,9 @@ export async function signUp(formData: FormData) {
     );
   }
 
-  redirect("/dashboard");
+  // Client navigation (not `redirect()`): `useActionState` forms expect a serializable
+  // action result; `redirect()` in the same action breaks the Flight/action response in Next 15+.
+  return { redirectTo: "/dashboard" };
 }
 
 export async function signIn(formData: FormData) {
@@ -70,13 +78,28 @@ export async function signIn(formData: FormData) {
     return { error: mapAuthError(error.message) };
   }
 
-  redirect("/dashboard");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const admin = await createAdminClient();
+    const membership = await getDeterministicMembership(admin, user.id);
+    const orgId = membership?.organization_id ?? null;
+    const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
+      admin,
+      userId: user.id,
+      orgId,
+    });
+    return { redirectTo: calibrationPath ?? "/dashboard" };
+  }
+
+  return { redirectTo: "/dashboard" };
 }
 
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/api/auth/post-sign-out");
 }
 
 export async function forgotPassword(formData: FormData) {
@@ -112,5 +135,5 @@ export async function resetPassword(formData: FormData) {
     return { error: mapAuthError(error.message) };
   }
 
-  redirect("/dashboard");
+  return { redirectTo: "/dashboard" };
 }

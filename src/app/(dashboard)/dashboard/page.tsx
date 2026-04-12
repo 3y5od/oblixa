@@ -1,3 +1,12 @@
+/**
+ * docs/refinement.md §8 — Home layout intent (viewport order is a best-effort match to DOM):
+ * §8.1 six questions: (1) action now → stats + command shortcuts (DashboardUpper); (2) due soon → upcoming dates;
+ * (3) blocked → tasks/obligations with blockers; (4) missing → missing fields; (5) changed recently → recent contracts;
+ * (6) owned work → My tasks/obligations. Portfolio/Advanced strips above Suspense are mode-gated (§8.3).
+ * §8.2 eight bullets map to DashboardUpper (metrics, deadlines, shortcuts), DashboardLower (tasks, obligations,
+ * approvals context, renewals horizon via dates, exceptions via queues, evidence via missing/usage, review backlog,
+ * recent contracts).
+ */
 import { Suspense } from "react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
@@ -16,6 +25,14 @@ import {
   DashboardOutcomeIntelligenceSection,
   DashboardV6AssuranceSnapshotSection,
 } from "@/components/dashboard/dashboard-v6-operational-blocks";
+import {
+  isAssuranceAutomationModuleHidden,
+  isAssuranceModuleHidden,
+  loadProductSurfaceContext,
+} from "@/lib/product-surface/context";
+import { isHomeBlockAllowed } from "@/lib/product-surface/resolver";
+
+export const metadata = { title: "Dashboard" };
 
 function DashboardUpperFallback() {
   return (
@@ -61,13 +78,28 @@ export default async function DashboardPage(props: {
 
   const { orgId, user, role, admin } = ctx;
   const workspaceRole = role as WorkspaceRole;
-  const showControlRoomStrip = isFeatureEnabled("v5ControlRoomUx");
+  const productSurface = await loadProductSurfaceContext(admin, orgId, workspaceRole);
+  const isCoreHome = productSurface.mode === "core";
+  const findingsVisible = !isAssuranceModuleHidden(productSurface, "findings");
+  const controlPoliciesVisible = !isAssuranceModuleHidden(productSurface, "control_policies");
+  const scorecardsVisible = !isAssuranceModuleHidden(productSurface, "scorecards");
+  const playbooksVisible = !isAssuranceModuleHidden(productSurface, "playbooks");
+  const automationOpsVisible = !isAssuranceAutomationModuleHidden(productSurface);
+  const reviewBoardsVisible = !isAssuranceModuleHidden(productSurface, "review_boards");
+  const programEvolutionVisible = !isAssuranceModuleHidden(productSurface, "program_evolution");
+  const healthGraphVisible = !isAssuranceModuleHidden(productSurface, "health_graph");
+  const outcomeIntelligenceVisible = !isAssuranceModuleHidden(
+    productSurface,
+    "outcome_intelligence"
+  );
+  const v6 = productSurface.v6;
+  const showPortfolioIntel =
+    !isCoreHome && (productSurface.mode === "advanced" || productSurface.mode === "assurance");
+
+  const showControlRoomStrip = showPortfolioIntel && isFeatureEnabled("v5ControlRoomUx");
   const v6AssuranceOn = isFeatureEnabled("v6AssuranceCore");
   const v6OutcomeOn = isFeatureEnabled("v6OutcomeIntelligence");
   const intelligenceOn = isFeatureEnabled("v5SimulationAndIntelligence");
-  const liveControlRoom = showControlRoomStrip
-    ? await fetchControlRoomDashboardData(admin, orgId)
-    : null;
 
   const canViewV5Telemetry =
     workspaceRole === "admin" ||
@@ -77,25 +109,15 @@ export default async function DashboardPage(props: {
     workspaceRole === "admin" ||
     workspaceRole === "manager" ||
     workspaceRole === "ops_manager";
-  let telemetryCompact: { metricsDate: string; rows: ReturnType<typeof parseV5SignalQualityForDisplay> } | null =
-    null;
-  if ((intelligenceOn || showControlRoomStrip) && canViewV5Telemetry) {
-    const { data } = await admin
-      .from("org_behavior_metrics")
-      .select("metrics_date, v5_signal_quality_json")
-      .eq("organization_id", orgId)
-      .order("metrics_date", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (data?.metrics_date) {
-      telemetryCompact = {
-        metricsDate: data.metrics_date,
-        rows: parseV5SignalQualityForDisplay(data.v5_signal_quality_json),
-      };
-    }
-  }
+  const hasVisibleAssuranceSnapshotCards =
+    findingsVisible ||
+    controlPoliciesVisible ||
+    scorecardsVisible ||
+    playbooksVisible ||
+    reviewBoardsVisible ||
+    healthGraphVisible;
 
-  let v6Snapshot: {
+  type V6Snapshot = {
     openFindings: number;
     highSeverity: number;
     avgScore: number | null;
@@ -103,84 +125,160 @@ export default async function DashboardPage(props: {
     playbooksAwaitingApproval: number;
     graphEdges: number;
     publishedPolicies: number;
-  } | null = null;
-  if (v6AssuranceOn) {
-    const [
-      { count: openFindings },
-      { count: highSeverity },
-      { data: scorecards },
-      { count: playbooksRunning },
-      { count: playbooksAwaitingApproval },
-      { count: graphEdges },
-      { count: publishedPolicies },
-    ] = await Promise.all([
-      admin
-        .from("assurance_findings")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "open"),
-      admin
-        .from("assurance_findings")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .in("status", ["open", "in_review"])
-        .in("severity", ["high", "critical"]),
-      admin
-        .from("assurance_scorecards")
-        .select("overall_score")
-        .eq("organization_id", orgId)
-        .limit(25),
-      admin
-        .from("adaptive_playbook_runs")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "running"),
-      admin
-        .from("adaptive_playbook_runs")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "awaiting_approval"),
-      admin
-        .from("portfolio_health_graph_edges")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId),
-      admin
-        .from("control_policies")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "published"),
-    ]);
-    const scoreValues = (scorecards ?? [])
-      .map((row) => Number(row.overall_score))
-      .filter((value) => Number.isFinite(value));
-    v6Snapshot = {
-      openFindings: openFindings ?? 0,
-      highSeverity: highSeverity ?? 0,
-      avgScore:
-        scoreValues.length > 0
-          ? Number(
-              (scoreValues.reduce((sum, value) => sum + value, 0) / scoreValues.length).toFixed(2)
-            )
-          : null,
-      playbooksRunning: playbooksRunning ?? 0,
-      playbooksAwaitingApproval: playbooksAwaitingApproval ?? 0,
-      graphEdges: graphEdges ?? 0,
-      publishedPolicies: publishedPolicies ?? 0,
-    };
-  }
+  };
 
-  const v6Analytics = v6AssuranceOn ? await buildAssuranceAnalyticsSummary(admin, orgId) : null;
-  const v6AssuranceRuns = v6AssuranceOn
-    ? (
-        await admin
+  const v6SnapshotP: Promise<V6Snapshot | null> =
+    productSurface.mode === "assurance" && v6AssuranceOn && hasVisibleAssuranceSnapshotCards
+      ? (async () => {
+          const [
+            { count: openFindings },
+            { count: highSeverity },
+            { data: scorecards },
+            { count: playbooksRunning },
+            { count: playbooksAwaitingApproval },
+            { count: graphEdges },
+            { count: publishedPolicies },
+          ] = await Promise.all([
+            findingsVisible
+              ? admin
+                  .from("assurance_findings")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+                  .eq("status", "open")
+              : Promise.resolve({ count: 0, error: null }),
+            findingsVisible
+              ? admin
+                  .from("assurance_findings")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+                  .in("status", ["open", "in_review"])
+                  .in("severity", ["high", "critical"])
+              : Promise.resolve({ count: 0, error: null }),
+            scorecardsVisible
+              ? admin
+                  .from("assurance_scorecards")
+                  .select("overall_score")
+                  .eq("organization_id", orgId)
+                  .limit(25)
+              : Promise.resolve({ data: [], error: null }),
+            playbooksVisible
+              ? admin
+                  .from("adaptive_playbook_runs")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+                  .eq("status", "running")
+              : Promise.resolve({ count: 0, error: null }),
+            playbooksVisible
+              ? admin
+                  .from("adaptive_playbook_runs")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+                  .eq("status", "awaiting_approval")
+              : Promise.resolve({ count: 0, error: null }),
+            healthGraphVisible
+              ? admin
+                  .from("portfolio_health_graph_edges")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+              : Promise.resolve({ count: 0, error: null }),
+            controlPoliciesVisible
+              ? admin
+                  .from("control_policies")
+                  .select("id", { count: "exact", head: true })
+                  .eq("organization_id", orgId)
+                  .eq("status", "published")
+              : Promise.resolve({ count: 0, error: null }),
+          ]);
+          const scoreValues = (scorecards ?? [])
+            .map((row) => Number(row.overall_score))
+            .filter((value) => Number.isFinite(value));
+          return {
+            openFindings: openFindings ?? 0,
+            highSeverity: highSeverity ?? 0,
+            avgScore:
+              scoreValues.length > 0
+                ? Number(
+                    (scoreValues.reduce((sum, value) => sum + value, 0) / scoreValues.length).toFixed(
+                      2
+                    )
+                  )
+                : null,
+            playbooksRunning: playbooksRunning ?? 0,
+            playbooksAwaitingApproval: playbooksAwaitingApproval ?? 0,
+            graphEdges: graphEdges ?? 0,
+            publishedPolicies: publishedPolicies ?? 0,
+          };
+        })()
+      : Promise.resolve(null);
+
+  const telemetryP =
+    showPortfolioIntel && (intelligenceOn || showControlRoomStrip) && canViewV5Telemetry
+      ? admin
+          .from("org_behavior_metrics")
+          .select("metrics_date, v5_signal_quality_json")
+          .eq("organization_id", orgId)
+          .order("metrics_date", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .then(({ data }) => data)
+      : Promise.resolve(null);
+
+  const v6AnalyticsP =
+    productSurface.mode === "assurance" &&
+    v6AssuranceOn &&
+    (controlPoliciesVisible || playbooksVisible || automationOpsVisible || canViewAssuranceOps)
+      ? buildAssuranceAnalyticsSummary(admin, orgId)
+      : Promise.resolve(null);
+
+  const v6AssuranceRunsP =
+    productSurface.mode === "assurance" && v6AssuranceOn && (reviewBoardsVisible || scorecardsVisible)
+      ? admin
           .from("assurance_check_runs")
-          .select("watch_signals_json, recommended_interventions_json, risk_delta_json, summary_json, created_at")
+          .select(
+            "watch_signals_json, recommended_interventions_json, risk_delta_json, summary_json, created_at"
+          )
           .eq("organization_id", orgId)
           .eq("check_type", "portfolio_assurance")
           .order("created_at", { ascending: false })
           .limit(2)
-      ).data
-    : null;
+          .then(({ data }) => data ?? null)
+      : Promise.resolve(null);
+
+  const outcomeP =
+    productSurface.mode === "assurance" && v6OutcomeOn && outcomeIntelligenceVisible
+      ? Promise.all([
+          computeOutcomeViews(admin, orgId),
+          listOutcomeInterventionsPaginated(admin, orgId, { limit: 5, offset: 0 }),
+        ]).then(([views, page]) => ({ views, page }))
+      : Promise.resolve(null);
+
+  const [
+    liveControlRoom,
+    telemetryData,
+    v6Snapshot,
+    v6Analytics,
+    v6AssuranceRuns,
+    outcomeBundle,
+  ] = await Promise.all([
+    showControlRoomStrip ? fetchControlRoomDashboardData(admin, orgId) : Promise.resolve(null),
+    telemetryP,
+    v6SnapshotP,
+    v6AnalyticsP,
+    v6AssuranceRunsP,
+    outcomeP,
+  ]);
+
+  let telemetryCompact: {
+    metricsDate: string;
+    rows: ReturnType<typeof parseV5SignalQualityForDisplay>;
+  } | null = null;
+  if (telemetryData?.metrics_date) {
+    telemetryCompact = {
+      metricsDate: telemetryData.metrics_date,
+      rows: parseV5SignalQualityForDisplay(telemetryData.v5_signal_quality_json),
+    };
+  }
+
   const v6LastAssuranceRun = v6AssuranceRuns?.[0] ?? null;
   const v6PriorAssuranceRun = v6AssuranceRuns?.[1] ?? null;
   const watchSignalsPreview =
@@ -191,25 +289,24 @@ export default async function DashboardPage(props: {
     v6LastAssuranceRun && Array.isArray(v6LastAssuranceRun.recommended_interventions_json)
       ? (v6LastAssuranceRun.recommended_interventions_json as string[]).slice(0, 3)
       : [];
+
   let outcomeViews: Awaited<ReturnType<typeof computeOutcomeViews>> | null = null;
   let outcomeRecentRows: Awaited<ReturnType<typeof listOutcomeInterventionsPaginated>>["rows"] = [];
-  if (v6OutcomeOn) {
-    const [views, page] = await Promise.all([
-      computeOutcomeViews(admin, orgId),
-      listOutcomeInterventionsPaginated(admin, orgId, { limit: 5, offset: 0 }),
-    ]);
-    outcomeViews = views;
-    if (!page.error) outcomeRecentRows = page.rows;
+  if (outcomeBundle) {
+    outcomeViews = outcomeBundle.views;
+    if (!outcomeBundle.page.error) outcomeRecentRows = outcomeBundle.page.rows;
   }
 
   return (
     <div className="ui-page-stack">
-      {showControlRoomStrip ? <V5ControlRoomStrip liveCards={liveControlRoom?.cards} /> : null}
-      {telemetryCompact ? (
+      {showControlRoomStrip && isHomeBlockAllowed("control_room_strip", v6) ? (
+        <V5ControlRoomStrip liveCards={liveControlRoom?.cards} />
+      ) : null}
+      {telemetryCompact && isHomeBlockAllowed("telemetry_compact", v6) ? (
         <V5TelemetryCompact metricsDate={telemetryCompact.metricsDate} rows={telemetryCompact.rows} />
       ) : null}
 
-      {v6Snapshot ? (
+      {v6Snapshot && isHomeBlockAllowed("v6_assurance_snapshot", v6) ? (
         <div className="ui-card p-5">
           <DashboardV6AssuranceSnapshotSection
             v6Snapshot={v6Snapshot}
@@ -219,11 +316,22 @@ export default async function DashboardPage(props: {
             v6PriorAssuranceRun={v6PriorAssuranceRun}
             v6LastAssuranceRun={v6LastAssuranceRun}
             canViewAssuranceOps={canViewAssuranceOps}
+            showAssuranceMode={productSurface.mode === "assurance"}
+            visibility={{
+              findings: findingsVisible,
+              controlPolicies: controlPoliciesVisible,
+              healthGraph: healthGraphVisible,
+              playbooks: playbooksVisible,
+              reviewBoards: reviewBoardsVisible,
+              scorecards: scorecardsVisible,
+              programEvolution: programEvolutionVisible,
+              automationOps: automationOpsVisible,
+            }}
           />
         </div>
       ) : null}
 
-      {outcomeViews?.summary ? (
+      {outcomeViews?.summary && isHomeBlockAllowed("outcome_intelligence", v6) ? (
         <div className="ui-card p-5">
           <DashboardOutcomeIntelligenceSection
             summary={outcomeViews.summary}
@@ -232,9 +340,21 @@ export default async function DashboardPage(props: {
         </div>
       ) : null}
 
-      {v6Analytics && canViewAssuranceOps ? (
+      {productSurface.mode === "assurance" &&
+      v6Analytics &&
+      canViewAssuranceOps &&
+      (controlPoliciesVisible || playbooksVisible || automationOpsVisible) &&
+      isHomeBlockAllowed("assurance_signals", v6) ? (
         <div className="ui-card p-5">
-          <DashboardAssuranceSignalsSection analytics={v6Analytics} />
+          <DashboardAssuranceSignalsSection
+            analytics={v6Analytics}
+            showAssuranceMode={productSurface.mode === "assurance"}
+            visibility={{
+              controlPolicies: controlPoliciesVisible,
+              playbooks: playbooksVisible,
+              automationOps: automationOpsVisible,
+            }}
+          />
         </div>
       ) : null}
 
@@ -245,6 +365,8 @@ export default async function DashboardPage(props: {
           role={workspaceRole}
           view={view}
           quickFilter={quickFilter}
+          workspaceProductMode={productSurface.mode}
+          productSurfaceContext={productSurface}
         />
       </Suspense>
       <Suspense fallback={<DashboardLowerFallback />}>
@@ -254,6 +376,7 @@ export default async function DashboardPage(props: {
           role={workspaceRole}
           view={view}
           quickFilter={quickFilter}
+          productSurfaceContext={productSurface}
         />
       </Suspense>
     </div>

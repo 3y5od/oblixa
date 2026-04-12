@@ -7,6 +7,8 @@ import { isUuid } from "@/lib/security/validation";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { sendSlackWorkflowNotification } from "@/lib/integrations/slack";
 
+/** Outbound Slack/email from this module should pass `isNotificationAllowed` (workspace mode tiers in `notification-product-tier.ts`). */
+
 type TriggerType =
   | "field_missing"
   | "field_changed"

@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+/** Guardrail for serverless memory when buffering packet bytes before upload. */
+const MAX_DECISION_PACKET_UPLOAD_BYTES = 25 * 1024 * 1024;
+
 /** Private bucket name; create in Supabase Storage and set in server env. */
 export function getV5DecisionPacketBucket(): string | null {
   const b = (process.env.V5_DECISION_PACKET_BUCKET ?? "").trim();
@@ -31,6 +34,13 @@ export async function uploadDecisionPacketArtifact(
   const bucket = getV5DecisionPacketBucket();
   if (!bucket) return null;
   if (!admin.storage?.from) return null;
+  if (params.bytes.byteLength > MAX_DECISION_PACKET_UPLOAD_BYTES) {
+    console.error(
+      "[decision-packet-storage] upload rejected: payload exceeds max bytes",
+      params.bytes.byteLength
+    );
+    return null;
+  }
 
   const storagePath =
     params.extension === "pdf"

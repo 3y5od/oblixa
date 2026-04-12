@@ -18,6 +18,10 @@ vi.mock("@/lib/v4/execution-engine", () => ({
   applyProgramToContract,
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 function createAdminClientMock() {
   const from = vi.fn((table: string) => {
     const chain = {

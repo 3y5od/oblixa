@@ -122,13 +122,13 @@ export default async function OperationsSettingsPage() {
           <p className="ui-eyebrow">Operations</p>
           <h1 className="ui-display-title mt-2">Workflow configuration</h1>
           <p className="ui-muted-tight mt-3 max-w-2xl">
-            Configure task rules, renewal playbooks, obligation templates, and outbound webhooks.
+            Configure task rules, renewal checklist templates, obligation templates, and outbound webhooks.
           </p>
         </div>
       </header>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Task automation rules</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -210,7 +210,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Policy packs</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -231,7 +231,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Workflow cadence settings</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -387,7 +387,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Field templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -414,7 +414,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Approval policies</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -462,7 +462,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Reminder templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -487,7 +487,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Task templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -518,8 +518,8 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
-          <h2 className="ui-section-title text-base">Renewal playbook templates</h2>
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+          <h2 className="ui-section-title text-base">Renewal checklist templates</h2>
         </div>
         <div className="space-y-4 p-6">
           <form action={createRenewalPlaybookTemplateForm} className="grid gap-3 md:grid-cols-2">
@@ -528,7 +528,7 @@ export default async function OperationsSettingsPage() {
             <input name="offsetDays" type="number" min={0} required placeholder="45" className="ui-input" />
             <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
             <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add playbook step
+              Add checklist step
             </button>
           </form>
           <ul className="space-y-2">
@@ -550,7 +550,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Integration connections</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -739,7 +739,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Obligation templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -766,7 +766,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
           <h2 className="ui-section-title text-base">Webhook subscriptions</h2>
         </div>
         <div className="space-y-4 p-6">

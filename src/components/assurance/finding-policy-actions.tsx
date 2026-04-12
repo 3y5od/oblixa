@@ -1,4 +1,5 @@
 "use client";
+// V7 exempt: control policy actions only mounted from assurance policy surfaces; hrefs stay in assurance tree.
 
 import Link from "next/link";
 import { useState } from "react";

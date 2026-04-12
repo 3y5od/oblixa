@@ -52,46 +52,60 @@ export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
   label: string;
   hrefs: readonly string[];
 }> = [
-  { label: "Monitor", hrefs: ["/dashboard", "/work"] },
   {
-    label: "Records",
-    hrefs: ["/contracts", "/decisions", "/campaigns", "/relationship-workspaces"],
+    label: "Workspace",
+    hrefs: [
+      "/dashboard",
+      "/contracts",
+      "/contracts/review",
+      "/work",
+      "/contracts/renewals",
+      "/contracts/exceptions",
+      "/contracts/evidence-studio",
+      "/reports",
+      "/settings",
+    ],
   },
+  { label: "Advanced", hrefs: ["/decisions", "/campaigns", "/contracts/programs", "/relationship-workspaces"] },
   { label: "Assurance", hrefs: ["/assurance"] },
-  { label: "Insights", hrefs: ["/reports"] },
-  { label: "Index", hrefs: ["/more"] },
+  { label: "Utilities", hrefs: ["/more"] },
 ];
 
 export const NAV_ITEMS: NavItem[] = [
   {
     name: "Home",
     href: "/dashboard",
-    description: "Command center for current execution risk.",
+    description: "What needs action, what is due, and what you own.",
     section: "primary",
     icon: "dashboard",
   },
   {
     name: "Contracts",
     href: "/contracts",
-    description: "Contract records, watchlists, and relationship context.",
+    description: "Contract records and portfolio context.",
     section: "primary",
     icon: "contracts",
     navChildren: [
       { name: "All contracts", href: "/contracts" },
       { name: "Review", href: "/contracts/review" },
-      { name: "Intake", href: "/contracts/intake" },
-      { name: "Watchlists", href: "/contracts/watchlists" },
-      {
-        name: "Relationship views",
-        href: "/relationship-workspaces",
-        v5FlagsAnyOf: ["v5RelationshipLayer"],
-      },
     ],
   },
   {
+    name: "Review",
+    href: "/contracts/review",
+    description: "Extraction and field validation queue.",
+    section: "primary",
+    icon: "review",
+    badgeKey: "reviewQueue",
+  },
+  /**
+   * §9.1 hub for execution queues. Renewals, Exceptions, and Evidence also stay §7.1 primary
+   * destinations (§9.2); duplicates here are intentional quick paths under Work.
+   */
+  {
     name: "Work",
     href: "/work",
-    description: "Tasks, blockers, and generated operational actions.",
+    description: "Tasks, obligations, approvals, and execution queues.",
     section: "primary",
     icon: "tasks",
     navChildren: [
@@ -102,6 +116,27 @@ export const NAV_ITEMS: NavItem[] = [
       { name: "Exceptions", href: "/contracts/exceptions" },
       { name: "Evidence", href: "/contracts/evidence-studio" },
     ],
+  },
+  {
+    name: "Renewals",
+    href: "/contracts/renewals",
+    description: "Renewal horizon and structured renewal workspaces.",
+    section: "primary",
+    icon: "contracts",
+  },
+  {
+    name: "Exceptions",
+    href: "/contracts/exceptions",
+    description: "Open exceptions and policy-risk items.",
+    section: "primary",
+    icon: "tasks",
+  },
+  {
+    name: "Evidence",
+    href: "/contracts/evidence-studio",
+    description: "Evidence requests, templates, and export guidance.",
+    section: "primary",
+    icon: "review",
   },
   {
     name: "Decisions",
@@ -154,20 +189,21 @@ export const NAV_ITEMS: NavItem[] = [
       "v6Autopilot",
       "v6Segments",
     ],
+    /** Order follows docs/refinement.md §7.3 */
     navChildren: [
       { name: "Findings", href: "/assurance/findings", v5FlagsAnyOf: ["v6AssuranceCore"] },
       { name: "Control policies", href: "/assurance/control-policies", v5FlagsAnyOf: ["v6ControlPolicies"] },
       { name: "Scorecards", href: "/assurance/scorecards", v5FlagsAnyOf: ["v6AssuranceCore"] },
-      { name: "Health graph", href: "/assurance/health-graph", v5FlagsAnyOf: ["v6AssuranceCore"] },
-      { name: "Review boards", href: "/assurance/review-boards", v5FlagsAnyOf: ["v6ReviewBoards"] },
       { name: "Playbooks", href: "/assurance/playbooks", v5FlagsAnyOf: ["v6AdaptivePlaybooks"] },
+      { name: "Review boards", href: "/assurance/review-boards", v5FlagsAnyOf: ["v6ReviewBoards"] },
       { name: "Autopilot", href: "/assurance/autopilot", v5FlagsAnyOf: ["v6Autopilot"] },
       { name: "Segments", href: "/assurance/segments", v5FlagsAnyOf: ["v6Segments"] },
       {
-        name: "Evolution",
+        name: "Program evolution",
         href: "/assurance/program-evolution",
         v5FlagsAnyOf: ["v6AssuranceCore"],
       },
+      { name: "Health graph", href: "/assurance/health-graph", v5FlagsAnyOf: ["v6AssuranceCore"] },
     ],
   },
   {
@@ -180,9 +216,8 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Reports",
     href: "/reports",
-    description: "Portfolio analytics, capacity signals, and trends.",
+    description: "Operational and portfolio reports.",
     section: "primary",
-    v5FlagsAnyOf: ["v5ControlRoomUx", "v5SimulationAndIntelligence"],
     navChildren: [
       { name: "Contract report packs", href: "/contracts/reports" },
       { name: "Portfolio signals", href: "/reports#portfolio-signals" },
@@ -202,30 +237,16 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    name: "Index",
+    name: "Utilities",
     href: "/more",
-    description: "All tools, queues, reports, and workspace destinations.",
+    description: "Secondary tools, maintenance, and admin-only destinations.",
     section: "primary",
     icon: "more",
-  },
-  {
-    name: "Review",
-    href: "/contracts/review",
-    description: "Extraction and field validation queue.",
-    section: "operations",
-    icon: "review",
-    badgeKey: "reviewQueue",
   },
   {
     name: "Intake",
     href: "/contracts/intake",
     description: "Monitor intake queues and throughput.",
-    section: "operations",
-  },
-  {
-    name: "Renewals",
-    href: "/contracts/renewals",
-    description: "Structured renewal workspaces and at-risk signals.",
     section: "operations",
   },
   {
@@ -243,12 +264,6 @@ export const NAV_ITEMS: NavItem[] = [
     badgeKey: "obligations",
   },
   {
-    name: "Exceptions",
-    href: "/contracts/exceptions",
-    description: "Exception ledger for overdue and policy-risk items.",
-    section: "operations",
-  },
-  {
     name: "Report packs",
     href: "/contracts/reports",
     description: "Operational report packs and trend insights.",
@@ -258,18 +273,12 @@ export const NAV_ITEMS: NavItem[] = [
     name: "Programs",
     href: "/contracts/programs",
     description: "Manage contract program catalog and versions.",
-    section: "operations",
+    section: "primary",
   },
   {
     name: "Execution graph",
     href: "/contracts/execution-graph",
     description: "Cross-work dependency view and blockers.",
-    section: "operations",
-  },
-  {
-    name: "Evidence studio",
-    href: "/contracts/evidence-studio",
-    description: "Evidence templates and export guidance.",
     section: "operations",
   },
   {
@@ -326,8 +335,8 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Settings",
     href: "/settings",
-    description: "Workflow configuration and org preferences.",
-    section: "workspace",
+    description: "Members, workspace product mode, and workflow configuration.",
+    section: "primary",
     icon: "settings",
   },
   {

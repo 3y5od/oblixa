@@ -2,13 +2,40 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
+const getV6OrgSettingsJson = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-function adminMock(opts: { listError?: boolean; insertError?: boolean }) {
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/v6/org-settings", () => ({
+  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+}));
+
+function adminMock(opts: {
+  listError?: boolean;
+  insertError?: boolean;
+  listData?: Array<Record<string, unknown>>;
+}) {
+  const listRows =
+    opts.listData ??
+    [
+      {
+        id: "p1",
+        name: "A",
+        description: null,
+        report_type: "weekly_execution_health",
+        schedule: null,
+        active: true,
+        updated_at: null,
+      },
+    ];
   return {
     from: vi.fn((table: string) => {
       if (table !== "report_packs") {
@@ -21,17 +48,7 @@ function adminMock(opts: { listError?: boolean; insertError?: boolean }) {
               opts.listError
                 ? { data: null, error: { message: "list failed" } }
                 : {
-                    data: [
-                      {
-                        id: "p1",
-                        name: "A",
-                        description: null,
-                        report_type: "weekly_execution_health",
-                        schedule: null,
-                        active: true,
-                        updated_at: null,
-                      },
-                    ],
+                    data: listRows,
                     error: null,
                   }
             ),
@@ -63,6 +80,8 @@ function adminMock(opts: { listError?: boolean; insertError?: boolean }) {
 describe("/api/report-packs", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     getApiAuthContext.mockResolvedValue({
       admin: adminMock({}),
       userId: "user-1",
@@ -80,6 +99,42 @@ describe("/api/report-packs", () => {
   });
 
   it("GET returns report packs for org", async () => {
+    const { GET } = await import("@/app/api/report-packs/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.reportPacks).toHaveLength(1);
+    expect(body.reportPacks[0].id).toBe("p1");
+  });
+
+  it("GET omits report packs whose type is ineligible for Core mode", async () => {
+    getApiAuthContext.mockResolvedValueOnce({
+      admin: adminMock({
+        listData: [
+          {
+            id: "p1",
+            name: "Core",
+            description: null,
+            report_type: "weekly_execution_health",
+            schedule: null,
+            active: true,
+            updated_at: null,
+          },
+          {
+            id: "p2",
+            name: "Adv",
+            description: null,
+            report_type: "decision_queue_summary",
+            schedule: null,
+            active: true,
+            updated_at: null,
+          },
+        ],
+      }),
+      userId: "user-1",
+      orgId: "org-1",
+      role: "admin",
+    });
     const { GET } = await import("@/app/api/report-packs/route");
     const res = await GET();
     expect(res.status).toBe(200);
@@ -125,5 +180,17 @@ describe("/api/report-packs", () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.reportPack.id).toBe("pack-1");
+  });
+
+  it("POST returns 404 for report type ineligible in Core mode", async () => {
+    const { POST } = await import("@/app/api/report-packs/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/report-packs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: "Adv pack", reportType: "decision_queue_summary" }),
+      })
+    );
+    expect(res.status).toBe(404);
   });
 });

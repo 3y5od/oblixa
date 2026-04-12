@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import {
+  RATE_LIMITS,
+  getClientIpFromHeaders,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 function csvEscape(value: string | null | undefined): string {
   if (!value) return "";
@@ -16,14 +22,26 @@ export async function GET() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
   const orgId = membership.organization_id;
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId,
+    apiPath: "/api/export/review-packet",
+  });
+  if (modeGate) return modeGate;
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`export-review-packet:${user.id}:${ip}`, RATE_LIMITS.exportReviewPacket);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
+  }
   const today = new Date().toISOString().slice(0, 10);
   const ninetyDaysOut = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -44,6 +62,15 @@ export async function GET() {
       .gte("due_date", today)
       .lte("due_date", ninetyDaysOut),
   ]);
+
+  if (approvalsRes.error) {
+    console.error("[export/review-packet] approvals:", approvalsRes.error.message);
+    return NextResponse.json({ error: "Could not load approvals" }, { status: 500 });
+  }
+  if (renewalsRes.error) {
+    console.error("[export/review-packet] renewals:", renewalsRes.error.message);
+    return NextResponse.json({ error: "Could not load renewals" }, { status: 500 });
+  }
 
   const lines = ["section,contract_id,contract_title,item,detail"];
   for (const c of exceptions) {

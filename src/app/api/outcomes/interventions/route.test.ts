@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v6/feature-guards", () => ({
   requireV6ApiFeature,
@@ -10,6 +11,10 @@ vi.mock("@/lib/v6/feature-guards", () => ({
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
   canManageCapability: vi.fn(),
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 vi.mock("@/lib/v6/outcomes", () => ({
@@ -34,6 +39,11 @@ vi.mock("@/lib/v6/telemetry", () => ({
 }));
 
 describe("GET /api/outcomes/interventions", () => {
+  it("mocks workspace eligibility guard", () => {
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
+    expect(requireApiWorkspaceEligibility).toBeDefined();
+  });
+
   it("returns 403 when feature disabled", async () => {
     requireV6ApiFeature.mockReturnValueOnce(new Response(null, { status: 403 }));
     const { GET } = await import("@/app/api/outcomes/interventions/route");

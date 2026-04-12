@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { decisionQueueSlaFields } from "@/lib/v5/decision-queue-sla";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
   if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/intelligence/decision-queue",
+  });
+  if (modeGate) return modeGate;
 
   const { data, error } = await ctx.admin
     .from("decision_workspaces")

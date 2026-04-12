@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash } from "crypto";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { parseWorkspaceMode } from "@/lib/product-surface/context";
+import { filterAuditEventsForWorkspaceMode } from "@/lib/product-surface/audit-events-filter";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
 import { secureCompareUtf8 } from "@/lib/security/secret-compare";
+import type { WorkspaceRole } from "@/lib/navigation";
 
 function parseIsoDate(input: string): string | null {
   const trimmed = input.trim();
@@ -32,6 +37,7 @@ export async function GET(request: Request) {
   }
   const admin = await createAdminClient();
   let organizationId: string | null = null;
+  let workspaceRole: WorkspaceRole = "viewer";
   const apiKey = request.headers.get("x-api-key")?.trim() ?? "";
   if (apiKey) {
     const keyHash = createHash("sha256").update(apiKey).digest("hex");
@@ -69,17 +75,24 @@ export async function GET(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-    const { data: membership } = await admin
-      .from("organization_members")
-      .select("organization_id")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle();
+    const membership = await getDeterministicMembership(admin, user.id);
     if (!membership) {
       return NextResponse.json({ error: "No organization found" }, { status: 400 });
     }
     organizationId = membership.organization_id;
+    workspaceRole = membership.role;
   }
+
+  if (!organizationId) {
+    return NextResponse.json({ error: "No organization found" }, { status: 400 });
+  }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: organizationId,
+    role: workspaceRole,
+    apiPath: "/api/events",
+  });
+  if (modeGate) return modeGate;
 
   const url = new URL(request.url);
   const limit = Math.max(1, Math.min(200, Number(url.searchParams.get("limit") ?? "50")));
@@ -104,8 +117,13 @@ export async function GET(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  const v6 = await getV6OrgSettingsJson(admin, organizationId);
+  const workspaceMode = parseWorkspaceMode(v6);
+  const filtered = filterAuditEventsForWorkspaceMode(data ?? [], workspaceMode);
+
   return NextResponse.json({
-    events: data ?? [],
-    count: data?.length ?? 0,
+    events: filtered,
+    count: filtered.length,
   });
 }

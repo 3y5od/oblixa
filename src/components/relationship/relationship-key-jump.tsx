@@ -1,4 +1,5 @@
 "use client";
+// V7 exempt: relationship workspace utility; router targets are advanced account/counterparty hubs only reached from native relationship-workspaces pages.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";

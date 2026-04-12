@@ -1,8 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublicEnv } from "@/lib/env/server";
+import {
+  isPublicAuthSurfacePath,
+  unauthenticatedAccessAllowed,
+} from "@/lib/auth/proxy-path-policy";
+import { resolveBlockingCalibrationPathForUserClient } from "@/lib/onboarding/calibration-gate";
 
-const publicRoutes = ["/login", "/signup", "/forgot-password", "/reset-password"];
+// Marketing surfaces are GET-only for anonymous users; auth mutations stay on server actions with existing limits.
+// Keep branches cheap: avoid extra DB or network work here beyond Supabase session refresh for protected paths.
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -35,26 +41,31 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublicRoute = publicRoutes.some((route) => pathname === route);
-  const isAuthCallback = pathname.startsWith("/auth/callback");
-  const isApiRoute = pathname.startsWith("/api/");
-  const isExternalParticipantPage =
-    pathname.startsWith("/external/") && pathname !== "/external";
-
-  if (
-    !user &&
-    !isPublicRoute &&
-    !isAuthCallback &&
-    !isApiRoute &&
-    pathname !== "/" &&
-    !isExternalParticipantPage
-  ) {
+  if (!user && !unauthenticatedAccessAllowed(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublicRoute) {
+  if (user && request.method === "GET") {
+    const calPath = await resolveBlockingCalibrationPathForUserClient(supabase);
+    if (
+      calPath &&
+      pathname !== calPath &&
+      !pathname.startsWith("/onboarding/") &&
+      !pathname.startsWith("/api/") &&
+      !pathname.startsWith("/auth/") &&
+      !pathname.startsWith("/external/") &&
+      !pathname.startsWith("/.well-known/")
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = calPath;
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  if (user && isPublicAuthSurfacePath(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
@@ -62,6 +73,7 @@ export async function proxy(request: NextRequest) {
 
   if (user && pathname === "/") {
     const url = request.nextUrl.clone();
+    // Default app entry; org-specific landing is applied after OAuth in auth/callback (default_landing_path).
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }

@@ -1,3 +1,7 @@
+/**
+ * docs/refinement.md §8.1–§8.2 (Core home): “blocked / missing / recent / owned” via My tasks & obligations,
+ * upcoming actions, missing fields, usage/evidence, recent contracts table, and review-oriented queues.
+ */
 import Link from "next/link";
 import { differenceInDays, isValid } from "date-fns";
 import { ContractTable } from "@/components/contracts/contract-table";
@@ -19,11 +23,14 @@ import { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
 import { setDashboardQueuePinForm } from "@/actions/dashboard";
 import { CommandCenterRoleMetrics } from "@/components/v4/command-center-role-metrics";
+import { DetailsOpenOnHash } from "@/components/ui/details-open-on-hash";
 import {
   OperationalMetricChip,
   OperationalQueueRow,
 } from "@/components/ui/operational-summary-card";
 import type { WorkspaceRole } from "@/lib/navigation";
+import type { ProductSurfaceContext } from "@/lib/product-surface/context";
+import { isHrefEligibleForProductSurface } from "@/lib/product-surface/href-eligibility";
 
 type DashboardDeadlineField = {
   id: string;
@@ -38,12 +45,20 @@ export async function DashboardLower(props: {
   role: WorkspaceRole;
   view: "personal" | "team" | "portfolio";
   quickFilter: "all" | "approvals" | "deadlines" | "data_gaps";
+  productSurfaceContext: ProductSurfaceContext;
 }) {
-  const { orgId, userId, role, view, quickFilter } = props;
+  const { orgId, userId, role, view, quickFilter, productSurfaceContext } = props;
+  const isHrefEligible = (href: string) =>
+    isHrefEligibleForProductSurface(productSurfaceContext, href);
   const admin = await createAdminClient();
 
+  /** §12.1 — viewers stay on assigned/due scope; team/portfolio URLs do not broaden data. */
+  const narrowPersonal =
+    role === "viewer" || role === "legal_reviewer" || role === "finance_reviewer";
+  const effectiveView = narrowPersonal ? "personal" : view;
+
   const obligationPromise =
-    view === "personal"
+    effectiveView === "personal"
       ? admin
           .from("contract_obligations")
           .select(
@@ -57,7 +72,7 @@ export async function DashboardLower(props: {
       : Promise.resolve({ data: [] as unknown[] });
 
   const pendingPromise =
-    view === "team"
+    effectiveView === "team"
       ? admin
           .from("contracts")
           .select("id, title, counterparty")
@@ -77,6 +92,7 @@ export async function DashboardLower(props: {
     { data: pendingContractsData },
     { data: recentContractsData },
     usageStats,
+    { count: evidenceRequiredRaw },
   ] = await Promise.all([
     getDashboardOrgMetricsCached(orgId),
     getDashboardMissingCriticalCached(orgId),
@@ -101,7 +117,14 @@ export async function DashboardLower(props: {
       .order("created_at", { ascending: false })
       .limit(5),
     getDashboardUsageStatsCached(orgId),
+    admin
+      .from("evidence_requirements")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "required"),
   ]);
+
+  const evidenceRequiredCount = evidenceRequiredRaw ?? 0;
 
   const recentContracts = await attachOwnerProfiles(admin, recentContractsData ?? []);
   const pendingContracts = pendingContractsData ?? [];
@@ -203,7 +226,7 @@ export async function DashboardLower(props: {
       <CommandCenterRoleMetrics orgId={orgId} role={role} />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Queue</p>
             <h2 className="ui-section-title mt-2">Now</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
@@ -220,9 +243,9 @@ export async function DashboardLower(props: {
             </div>
           </div>
           <div className="space-y-4 px-4 py-4 md:space-y-5 md:px-5 md:py-5">
-            {view === "personal" ? (
+            {effectiveView === "personal" ? (
               <MyTasks tasks={myTasks.slice(0, 5)} />
-            ) : view === "team" ? (
+            ) : effectiveView === "team" ? (
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Review</p>
                 <ul className="mt-2 space-y-2">
@@ -249,9 +272,11 @@ export async function DashboardLower(props: {
                   <OperationalMetricChip label="Open obligations" value={String(metrics.teamOpenObligations)} />
                   <OperationalMetricChip label="At-risk contracts" value={String(metrics.atRiskContracts)} />
                 </div>
-                <Link href="/work" className="text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900">
-                  View work queue
-                </Link>
+                {isHrefEligible("/work") ? (
+                  <Link href="/work" className="text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900">
+                    View work queue
+                  </Link>
+                ) : null}
               </div>
             )}
             {overduePersonalTasks.length > 0 && (
@@ -264,7 +289,7 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Horizon</p>
             <h2 className="ui-section-title mt-2">Next</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
@@ -282,9 +307,9 @@ export async function DashboardLower(props: {
           </div>
           <div className="space-y-4 px-4 py-4 md:space-y-5 md:px-5 md:py-5">
             <UpcomingActions actions={filteredSoonActions} />
-            {view === "personal" ? (
+            {effectiveView === "personal" ? (
               <MyObligations obligations={myObligations.slice(0, 5)} />
-            ) : view === "team" ? (
+            ) : effectiveView === "team" ? (
               <p className="text-[12px] text-zinc-500">
                 Switch to Personal mode for your assigned obligations.
               </p>
@@ -298,7 +323,7 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Exposure</p>
             <h2 className="ui-section-title mt-2">Risk</h2>
             <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
@@ -315,33 +340,50 @@ export async function DashboardLower(props: {
             </div>
           </div>
           <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
-            <OperationalQueueRow
-              href="/contracts/exceptions"
-              eyebrow="Backlog"
-              title="Exceptions"
-              hint="Stale records and workflow gaps."
-              chips={[{ label: "Focus", value: "Execution risk" }]}
-              actionLabel="View exceptions"
-              tone="attention"
-            />
-            <OperationalQueueRow
-              href="/contracts/approvals"
-              eyebrow="SLA"
-              title="Pending approvals"
-              hint="Queued sign-offs and blockers."
-              chips={[{ label: "Focus", value: "Downstream flow" }]}
-              actionLabel="View approvals"
-              tone="attention"
-            />
-            <OperationalQueueRow
-              href="/contracts"
-              eyebrow="Data quality"
-              title="Critical date gaps"
-              hint="End, renewal, and notice fields need approved values."
-              chips={[{ label: "Contracts", value: String(filteredRiskContracts.length) }]}
-              actionLabel="Review contracts"
-              tone={filteredRiskContracts.length > 0 ? "risk" : "healthy"}
-            />
+            {isHrefEligible("/contracts/exceptions") ? (
+              <OperationalQueueRow
+                href="/contracts/exceptions"
+                eyebrow="Backlog"
+                title="Exceptions"
+                hint="Stale records and workflow gaps."
+                chips={[{ label: "Focus", value: "Execution risk" }]}
+                actionLabel="View exceptions"
+                tone="attention"
+              />
+            ) : null}
+            {isHrefEligible("/contracts/approvals") ? (
+              <OperationalQueueRow
+                href="/contracts/approvals"
+                eyebrow="SLA"
+                title="Pending approvals"
+                hint="Queued sign-offs and blockers."
+                chips={[{ label: "Focus", value: "Downstream flow" }]}
+                actionLabel="View approvals"
+                tone="attention"
+              />
+            ) : null}
+            {isHrefEligible("/contracts/data-quality") ? (
+              <OperationalQueueRow
+                href="/contracts/data-quality"
+                eyebrow="Data quality"
+                title="Critical date gaps"
+                hint="End, renewal, and notice fields need approved values."
+                chips={[{ label: "Contracts", value: String(filteredRiskContracts.length) }]}
+                actionLabel="Review gaps"
+                tone={filteredRiskContracts.length > 0 ? "risk" : "healthy"}
+              />
+            ) : null}
+            {isHrefEligible("/contracts/evidence-studio") ? (
+              <OperationalQueueRow
+                href="/contracts/evidence-studio"
+                eyebrow="Evidence"
+                title="Open evidence requests"
+                hint="Submissions still required for gated work."
+                chips={[{ label: "Required", value: String(evidenceRequiredCount) }]}
+                actionLabel="Open evidence studio"
+                tone={evidenceRequiredCount > 0 ? "attention" : "healthy"}
+              />
+            ) : null}
           </div>
         </section>
       </div>
@@ -362,10 +404,15 @@ export async function DashboardLower(props: {
         <ContractTable contracts={recentContracts as Contract[]} />
       </section>
 
-      <details className="ui-card overflow-hidden">
-        <summary className="cursor-pointer list-none border-b border-zinc-100 bg-zinc-50/60 px-5 py-3.5 text-[13px] font-semibold text-zinc-700 marker:hidden md:px-6 md:py-4 md:text-sm">
-          Portfolio diagnostics and usage
-        </summary>
+      <DetailsOpenOnHash
+        className="ui-card overflow-hidden"
+        openForHashIds={["missing-critical"]}
+        summary={
+          <summary className="cursor-pointer list-none border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3.5 text-[13px] font-semibold text-zinc-700 marker:hidden md:px-6 md:py-4 md:text-sm">
+            Portfolio diagnostics and usage
+          </summary>
+        }
+      >
         <div className="space-y-7 px-5 py-4 md:space-y-8 md:px-6 md:py-5">
           <UsageSection
             contractsCreated={usageStats.contractsCreated}
@@ -375,7 +422,7 @@ export async function DashboardLower(props: {
           />
           <MissingFieldsSection contracts={missingCritical} />
         </div>
-      </details>
+      </DetailsOpenOnHash>
     </>
   );
 }

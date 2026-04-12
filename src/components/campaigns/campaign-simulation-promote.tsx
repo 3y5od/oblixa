@@ -1,4 +1,5 @@
 "use client";
+// V7 exempt: simulation promote UI only mounted from campaign contexts; navigation targets campaigns routes.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";

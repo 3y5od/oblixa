@@ -13,7 +13,9 @@ export default function DashboardError({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    if (process.env.NODE_ENV === "development") {
+      console.error(error);
+    }
     captureClientException(error, {
       extra: { route: "dashboard/error", digest: error.digest },
     });

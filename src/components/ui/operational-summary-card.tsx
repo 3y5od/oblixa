@@ -39,7 +39,10 @@ export function OperationalSectionHeader(props: {
   );
 }
 
-/** Compact actionable row for queue columns (dashboard lower, risk lane). */
+/**
+ * Compact actionable row for queue columns (dashboard lower, risk lane).
+ * Hash-only `href` uses a native anchor for reliable same-document jumps.
+ */
 export function OperationalQueueRow(props: {
   href: string;
   eyebrow?: string;
@@ -50,11 +53,9 @@ export function OperationalQueueRow(props: {
   tone?: OperationalTone;
 }) {
   const tone = props.tone ?? "neutral";
-  return (
-    <Link
-      href={props.href}
-      className={`ui-operational-focusable block rounded-xl border border-[var(--border-subtle)] px-3 py-2.5 shadow-[var(--shadow-1)] transition-[border-color,box-shadow] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim()}
-    >
+  const wrapClass = `ui-operational-focusable block rounded-xl border border-[var(--border-subtle)] px-3 py-2.5 shadow-[var(--shadow-1)] transition-[border-color,box-shadow] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim();
+  const inner = (
+    <>
       {props.eyebrow ? (
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{props.eyebrow}</p>
       ) : null}
@@ -68,6 +69,15 @@ export function OperationalQueueRow(props: {
         </div>
       ) : null}
       <span className="mt-2 inline-block text-[11px] font-semibold text-[var(--accent)]">{props.actionLabel}</span>
+    </>
+  );
+  return props.href.startsWith("#") ? (
+    <a href={props.href} className={wrapClass}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={props.href} className={wrapClass}>
+      {inner}
     </Link>
   );
 }
@@ -218,14 +228,23 @@ export function OperationalSummaryCard(props: {
       ) : null}
 
       <div className="mt-3 border-t border-zinc-200/60 pt-3 dark:border-zinc-700/50">
-        <Link
-          href={action.href}
-          target={action.external ? "_blank" : undefined}
-          rel={action.external ? "noopener noreferrer" : undefined}
-          className="ui-operational-focusable inline-block rounded-sm text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900"
-        >
-          {action.label}
-        </Link>
+        {action.href.startsWith("#") ? (
+          <a
+            href={action.href}
+            className="ui-operational-focusable inline-block rounded-sm text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900"
+          >
+            {action.label}
+          </a>
+        ) : (
+          <Link
+            href={action.href}
+            target={action.external ? "_blank" : undefined}
+            rel={action.external ? "noopener noreferrer" : undefined}
+            className="ui-operational-focusable inline-block rounded-sm text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900"
+          >
+            {action.label}
+          </Link>
+        )}
         {footerExtra}
       </div>
     </article>
@@ -234,6 +253,7 @@ export function OperationalSummaryCard(props: {
 
 /**
  * Whole-card link for shortcut grids (action lanes, module hubs).
+ * Hash-only `href` (e.g. `#section`) uses a native anchor so in-page jumps match browser behavior.
  */
 export function OperationalSurfaceLinkCard(props: {
   href: string;
@@ -248,11 +268,9 @@ export function OperationalSurfaceLinkCard(props: {
   const tone = props.tone ?? "neutral";
   const badge = badgeForTone(tone);
   const Icon = props.icon;
-  return (
-    <Link
-      href={props.href}
-      className={`ui-operational-focusable block rounded-2xl border border-[var(--border-subtle)] py-3 pl-3 pr-3 shadow-[var(--shadow-1)] transition-[box-shadow,border-color] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim()}
-    >
+  const wrapClass = `ui-operational-focusable block rounded-2xl border border-[var(--border-subtle)] py-3 pl-3 pr-3 shadow-[var(--shadow-1)] transition-[box-shadow,border-color] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim();
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-start gap-2.5">
           <span
@@ -278,6 +296,15 @@ export function OperationalSurfaceLinkCard(props: {
         </div>
       ) : null}
       <span className="mt-2 inline-block text-[12px] font-semibold text-[var(--accent)]">{props.actionLabel}</span>
+    </>
+  );
+  return props.href.startsWith("#") ? (
+    <a href={props.href} className={wrapClass}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={props.href} className={wrapClass}>
+      {inner}
     </Link>
   );
 }

@@ -6,6 +6,12 @@ import {
 } from "@/lib/supabase/server";
 import { getSafeRedirectPath } from "@/lib/security/redirect";
 import { isUuid } from "@/lib/security/validation";
+import {
+  getUserPrimaryOrganizationId,
+  resolveDestinationWithBlockingCalibration,
+  resolvePostAuthRedirectPath,
+} from "@/lib/auth/post-auth-redirect";
+import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -20,13 +26,10 @@ export async function GET(request: Request) {
       const user = data.user;
       const meta = user.user_metadata as Record<string, unknown>;
       const inviteIdRaw = typeof meta.invite_id === "string" ? meta.invite_id : undefined;
-      const invitedOrgId =
-        typeof meta.invited_org_id === "string" ? meta.invited_org_id : undefined;
-      const invitedRoleRaw =
-        typeof meta.invited_role === "string" ? meta.invited_role : "editor";
 
       const admin = await createAdminClient();
       const emailLower = user.email?.trim().toLowerCase() ?? "";
+      let orgIdForLanding: string | null = null;
 
       if (inviteIdRaw && isUuid(inviteIdRaw)) {
         const { data: inv, error: invErr } = await admin
@@ -65,28 +68,24 @@ export async function GET(request: Request) {
           .from("organization_invites")
           .update({ consumed_at: new Date().toISOString() })
           .eq("id", inv.id);
-      } else if (
-        invitedOrgId &&
-        isUuid(invitedOrgId) &&
-        ["admin", "editor", "viewer"].includes(invitedRoleRaw)
-      ) {
-        await admin.from("organization_members").upsert(
-          {
-            organization_id: invitedOrgId,
-            user_id: user.id,
-            role: invitedRoleRaw,
-          },
-          { onConflict: "organization_id,user_id" }
-        );
+        orgIdForLanding = inv.organization_id;
       } else {
         const fullName = user.user_metadata?.full_name;
         await ensureUserOrg(
           user.id,
           fullName ? `${fullName}'s Organization` : "My Organization"
         );
+        orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      const destination = await resolvePostAuthRedirectPath(admin, orgIdForLanding, next);
+      const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
+        admin,
+        userId: user.id,
+        orgId: orgIdForLanding,
+      });
+      const finalDestination = resolveDestinationWithBlockingCalibration(destination, calibrationPath);
+      return NextResponse.redirect(`${origin}${finalDestination}`);
     }
   }
 

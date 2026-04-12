@@ -9,14 +9,17 @@ import {
   Target,
   UserCircle,
 } from "lucide-react";
+import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import type { WorkspaceRole } from "@/lib/navigation";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import {
   OperationalQueueRow,
   OperationalSectionHeader,
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
-import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 
 const PERSONAS = [
@@ -92,7 +95,17 @@ export default async function PersonaDashboardPage(props: {
   const persona = (PERSONAS.find((p) => p.id === rawPersona)?.id ?? "ops") as PersonaId;
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
-  const { admin, orgId, user } = ctx;
+  const { admin, orgId, user, role } = ctx;
+  const productSurface = await loadProductSurfaceContext(admin, orgId, role as WorkspaceRole);
+  const workspaceRole = role as WorkspaceRole;
+  if (
+    productSurface.mode === "core" &&
+    (workspaceRole === "viewer" ||
+      workspaceRole === "legal_reviewer" ||
+      workspaceRole === "finance_reviewer")
+  ) {
+    redirect("/dashboard");
+  }
 
   const [contractsRes, tasksRes, obligationsRes, approvalsRes, renewalScenariosRes] = await Promise.all([
     admin
@@ -388,13 +401,21 @@ export default async function PersonaDashboardPage(props: {
     ];
   }
 
+  /** Appendix N / §8.3 — Core keeps execution signals; portfolio/health rollups need Advanced+. */
+  if (productSurface.mode === "core") {
+    const intelligenceKeys = new Set(["exposure", "at-risk"]);
+    personaMetrics = personaMetrics.filter((m) => !intelligenceKeys.has(m.key));
+  }
+
   const queueDescription =
     persona === "legal"
       ? "Surface pending sign-offs before downstream work stalls."
       : persona === "finance"
         ? "Prioritize blocked renewals and approaching decision dates."
         : persona === "manager"
-          ? "Track portfolio risk and unresolved approvals in one lane."
+          ? productSurface.mode === "core"
+            ? "Track approvals and obligations in one lane."
+            : "Track portfolio risk and unresolved approvals in one lane."
           : "Focus on high-priority and blocked execution items.";
 
   return (
@@ -471,10 +492,10 @@ export default async function PersonaDashboardPage(props: {
         </div>
       </section>
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-zinc-100 bg-zinc-50/60 px-5 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-4">
           <OperationalSectionHeader eyebrow="Queue" title="Persona action queue" description={queueDescription} />
         </div>
-        <ul className="divide-y divide-zinc-100 p-3">
+        <ul className="divide-y divide-[var(--border-subtle)] p-3">
           {personaQueue.length === 0 ? (
             <li className="px-2 py-4 text-sm text-zinc-500">No queue items in this persona view.</li>
           ) : (

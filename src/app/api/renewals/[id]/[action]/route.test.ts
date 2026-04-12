@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -17,6 +18,10 @@ vi.mock("@/lib/v4/renewal-decision-packet", () => ({
     packet_json: { ok: true },
     assumptions_json: {},
   })),
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 const checkpoint = {
@@ -80,6 +85,7 @@ function adminRenewals(checkpointRow: typeof checkpoint | null) {
 describe("POST /api/renewals/[id]/[action]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: adminRenewals(checkpoint),
       userId: "user-1",

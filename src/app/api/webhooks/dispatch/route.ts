@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
@@ -225,7 +226,7 @@ export async function GET(request: Request) {
           return;
         }
         const attemptStartedAt = Date.now();
-        const res = await fetch(url.toString(), {
+        const res = await safeFetch(url.toString(), {
           method: "POST",
           headers: {
             "content-type": "application/json",

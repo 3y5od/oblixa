@@ -4,6 +4,7 @@ const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const upsertDetectedExceptions = vi.fn();
 const recordAutomationEvent = vi.fn();
+const requireApiWorkspaceEligibility = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -16,6 +17,10 @@ vi.mock("@/lib/v4/exceptions", () => ({
 
 vi.mock("@/lib/v4/automation-audit", () => ({
   recordAutomationEvent,
+}));
+
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
 function adminEmptyQueries() {
@@ -54,6 +59,7 @@ function adminEmptyQueries() {
 describe("POST /api/exceptions/run-detection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
     getApiAuthContext.mockResolvedValue({
       admin: adminEmptyQueries(),
       userId: "user-1",

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 
 type CsvRow = {
@@ -106,6 +107,13 @@ export async function POST(request: Request) {
 
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin,
+    orgId: membership.organization_id,
+    role: membership.role,
+    apiPath: "/api/import/contracts",
+  });
+  if (modeGate) return modeGate;
   if (!canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

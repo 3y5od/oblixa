@@ -67,7 +67,7 @@ export default async function ContractWatchlistsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
-          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
               <tr>
                 <th className="px-5 py-3">Contract</th>
@@ -77,7 +77,7 @@ export default async function ContractWatchlistsPage() {
                 <th className="px-5 py-3">Annual value</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {rows.map((row) => (
                 <tr key={row.id}>
                   <td className="px-5 py-4 font-semibold text-zinc-900">

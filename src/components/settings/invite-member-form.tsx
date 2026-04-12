@@ -14,7 +14,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
+    <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
       <h3 className="text-sm font-semibold text-zinc-900">Invite teammate</h3>
       <p className="mt-1 text-xs text-zinc-600">
         Sends a secure email invite. They join this workspace after signing up or signing in
@@ -38,7 +38,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
           });
         }}
       >
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <label htmlFor="invite-email" className="sr-only">
             Email
           </label>

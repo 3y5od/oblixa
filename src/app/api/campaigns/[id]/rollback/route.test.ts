@@ -14,6 +14,10 @@ vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
+vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
+  requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
 
 describe("POST /api/campaigns/[id]/rollback", () => {
