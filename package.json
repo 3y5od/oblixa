@@ -95,7 +95,7 @@
     "@react-pdf/renderer": "^4.4.0",
     "@sentry/nextjs": "^10.47.0",
     "@supabase/ssr": "^0.10.0",
-    "@supabase/supabase-js": "^2.101.1",
+    "@supabase/supabase-js": "^2.103.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "clsx": "^2.1.1",
