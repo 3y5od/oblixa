@@ -2,6 +2,7 @@ import { test, expect } from "./fixtures/app-fixture";
 import { GENERATED_AUTHENTICATED_ROUTES } from "./generated/authenticated-routes";
 import { VISUAL_AUTH_ENABLED, snapshotName } from "./visual-helpers";
 import { hasCoverage } from "@/lib/qa/generated-route-matrices";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=visual_baselines_feature_flag_gated
 
 test.describe("visual core surfaces", () => {
   test.skip(!VISUAL_AUTH_ENABLED, "Set PLAYWRIGHT_VISUAL=1 and PLAYWRIGHT_VISUAL_AUTH=1 for authenticated screenshots.");

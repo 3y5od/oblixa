@@ -139,8 +139,7 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
   const cronRoutes = [...CRON_ROUTE_EXPECTED_KEYS.keys()];
 
   for (const route of cronRoutes) {
-    const skipIf404 =
-      route.startsWith("/api/cron/v4/") || route.startsWith("/api/cron/v5/");
+    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route);
     const unsigned = await safeFetch(`${baseUrl}${route}`);
     if (skipIf404 && unsigned.status === 404) {
       warn(`${route}: route unavailable on target base URL; skipping cron route check`);

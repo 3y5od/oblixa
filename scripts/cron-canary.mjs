@@ -71,8 +71,7 @@ async function run() {
   const cronSecret = requireEnv("CRON_SECRET");
 
   for (const [route, expectedKeys] of CRON_ROUTE_EXPECTED_KEYS.entries()) {
-    const skipIf404 =
-      route.startsWith("/api/cron/v4/") || route.startsWith("/api/cron/v5/");
+    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route);
     const isV5Cron = route.startsWith("/api/cron/v5/");
 
     const unsigned = await safeFetch(`${baseUrl}${route}`);

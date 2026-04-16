@@ -5,6 +5,7 @@ import { attachFailOnRequestErrors } from "./fail-on-request-errors";
 import { annotateRouteState } from "./route-state-fixture";
 import { applyTheme } from "./theme-fixture";
 import { annotateWorkspaceMode } from "./workspace-mode-fixture";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=fixture_auth_secrets_gate
 
 type AppFixture = {
   app: {

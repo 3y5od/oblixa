@@ -24,6 +24,7 @@ jobs:
 
       - name: Healthchecks start
         if: ${{ secrets.HC_CRON_CANARY_PING != '' }}
+        continue-on-error: true
         run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/start"
 
       - name: Run cron canary checks
@@ -34,8 +35,10 @@ jobs:
 
       - name: Healthchecks success
         if: ${{ success() && secrets.HC_CRON_CANARY_PING != '' }}
+        continue-on-error: true
         run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}"
 
       - name: Healthchecks fail
         if: ${{ failure() && secrets.HC_CRON_CANARY_PING != '' }}
+        continue-on-error: true
         run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/fail"
