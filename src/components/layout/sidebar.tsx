@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BriefcaseBusiness,
   LayoutDashboard,
   SearchCheck,
   Files,
@@ -11,17 +12,21 @@ import {
   Settings,
   CreditCard,
   LogOut,
+  Orbit,
   PanelLeftOpen,
   PanelLeftClose,
   Grid2x2,
+  Shield,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { signOut } from "@/actions/auth";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
+  getWorkflowAreaForNavItem,
   NAV_ITEMS,
   PRIMARY_NAV_GROUPS,
+  WORKFLOW_AREA_LABELS,
   isActivePath,
   type NavItem,
   type WorkspaceRole,
@@ -31,6 +36,7 @@ import {
   isNavChildVisibleForSurface,
   isNavItemVisibleForSurface,
 } from "@/lib/product-surface/nav-visibility";
+import { shellTestIds } from "@/lib/qa/test-ids";
 
 function fallbackNavSurface(
   role: WorkspaceRole,
@@ -57,6 +63,14 @@ const iconByKey = {
   settings: Settings,
   billing: CreditCard,
   more: Grid2x2,
+} as const;
+
+const areaIconByKey = {
+  monitor: Orbit,
+  workflows: BriefcaseBusiness,
+  assurance: Shield,
+  insights: SearchCheck,
+  workspace: Settings,
 } as const;
 
 const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
@@ -238,7 +252,9 @@ export function Sidebar(props: {
                           key={`${c.name}-${c.href}`}
                           href={c.href}
                           onClick={() => setMobileOpen(false)}
-                          className="ui-sidebar-link ui-sidebar-link-idle pl-9 text-[12px] opacity-90"
+                          className={`ui-sidebar-link ui-sidebar-link-idle text-[12px] opacity-90 ${
+                            Icon ? "ui-sidebar-sublink-align-icon" : "ui-sidebar-sublink-align-dot"
+                          }`}
                         >
                           {c.name}
                         </Link>
@@ -279,7 +295,7 @@ export function Sidebar(props: {
                         key={`${c.name}-${c.href}`}
                         href={c.href}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-2 rounded-lg py-1.5 pr-3 pl-8 text-[12px] text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-zinc-100"
+                        className="ui-sidebar-sublink-align-dot-row flex items-center gap-2 rounded-lg py-1.5 pr-3 text-[12px] text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-zinc-100"
                       >
                         {c.name}
                       </Link>
@@ -292,23 +308,59 @@ export function Sidebar(props: {
     </div>
   );
 
+  const workflowAreaLinks = useMemo(() => {
+    return (["monitor", "workflows", "assurance", "insights", "workspace"] as const)
+      .map((area) => {
+        const item = navBySection.primary.find((entry) => getWorkflowAreaForNavItem(entry) === area) ??
+          (area === "workspace"
+            ? NAV_ITEMS.find((entry) => entry.href === "/settings")
+            : area === "insights"
+              ? NAV_ITEMS.find((entry) => entry.href === "/reports")
+              : area === "assurance"
+                ? NAV_ITEMS.find((entry) => entry.href === "/assurance")
+                : area === "monitor"
+                  ? NAV_ITEMS.find((entry) => entry.href === "/dashboard")
+                  : NAV_ITEMS.find((entry) => entry.href === "/work"));
+        if (!item || !isNavItemVisibleForSurface(item, surface)) return null;
+        return { area, item };
+      })
+      .filter((value): value is NonNullable<typeof value> => value != null);
+  }, [navBySection.primary, surface]);
+
+  const activeWorkflowArea = useMemo(() => {
+    const active = NAV_ITEMS
+      .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+      .sort((a, b) => b.href.length - a.href.length)[0];
+    return active ? getWorkflowAreaForNavItem(active) : "monitor";
+  }, [pathname]);
+
   const renderSidebarBody = ({ mobile = false }: { mobile?: boolean }) => (
     <>
-      <div className="flex h-[3.5rem] items-center justify-between border-b border-white/[0.1] px-2.5">
+      <div className="flex h-[4.5rem] items-center justify-between border-b border-white/[0.08] px-3">
         {!effectiveCollapsed && (
-          <Link
-            href="/dashboard"
-            className="pl-1 text-[14px] font-semibold tracking-tight text-white"
-          >
-            Oblixa
-          </Link>
+          <div className="flex min-w-0 items-center gap-3 pl-1">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0.06))] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]">
+              <Orbit size={18} strokeWidth={1.85} aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <Link
+                href="/dashboard"
+                className="block truncate text-[15px] font-semibold tracking-tight text-white"
+              >
+                Oblixa
+              </Link>
+              <p className="truncate text-[11px] uppercase tracking-[0.16em] text-white/55">
+                Contract operations OS
+              </p>
+            </div>
+          </div>
         )}
         {mobile ? (
           <button
             ref={mobileCloseButtonRef}
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="rounded-lg p-2 text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.1] hover:text-white"
+            className="rounded-[0.95rem] p-2 text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.1] hover:text-white"
             aria-label="Close navigation"
           >
             <X size={18} aria-hidden />
@@ -319,7 +371,7 @@ export function Sidebar(props: {
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
-            className={`rounded-lg p-2 text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.1] hover:text-white ${collapsed ? "mx-auto" : ""}`}
+            className={`rounded-[0.95rem] p-2 text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.1] hover:text-white ${collapsed ? "mx-auto" : ""}`}
             aria-expanded={!collapsed}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -332,17 +384,45 @@ export function Sidebar(props: {
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-4">
         {mobile && !effectiveCollapsed ? (
           <Link
             href="/more"
             onClick={() => setMobileOpen(false)}
-            className="mx-1 mb-3 block rounded-xl border border-white/[0.18] bg-white/[0.06] px-3 py-2 text-[12px] font-semibold text-white/95"
+            className="mb-4 block rounded-[1rem] border border-white/[0.14] bg-white/[0.06] px-3 py-2.5 text-[12px] font-semibold text-white/95"
           >
             Open utilities
           </Link>
         ) : null}
-        <div data-testid="primary-nav">
+        {!effectiveCollapsed ? (
+          <div className="mb-5 rounded-[1.25rem] border border-white/[0.08] bg-white/[0.03] p-2.5">
+            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/48">
+              Areas
+            </p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              {workflowAreaLinks.map(({ area, item }) => {
+                const Icon = areaIconByKey[area];
+                const isAreaActive = activeWorkflowArea === area;
+                return (
+                  <Link
+                    key={`${area}-${item.href}`}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-2 rounded-[0.95rem] px-2.5 py-2 text-[12px] font-semibold transition-colors ${
+                      isAreaActive
+                        ? "bg-white/[0.12] text-white"
+                        : "text-white/70 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    <Icon size={14} strokeWidth={1.8} aria-hidden />
+                    <span>{WORKFLOW_AREA_LABELS[area]}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+        <div data-testid={shellTestIds.primaryNav}>
           {effectiveCollapsed ? renderNavSection({ title: "Primary", items: workflowHubs, compact: true }) : null}
           {!effectiveCollapsed
             ? groupedPrimary.map((group) => (
@@ -366,7 +446,7 @@ export function Sidebar(props: {
               <Link
                 href="/more?section=workflows"
                 onClick={() => setMobileOpen(false)}
-                className="mt-2 block rounded-lg px-3 py-1.5 text-[12px] font-medium text-zinc-200 hover:bg-white/[0.08] hover:text-white"
+                className="mt-2 block rounded-[0.95rem] px-3 py-2 text-[12px] font-medium text-zinc-200 hover:bg-white/[0.08] hover:text-white"
               >
                 Browse all queues
               </Link>
@@ -384,11 +464,11 @@ export function Sidebar(props: {
         })}
       </div>
 
-      <div className="border-t border-white/[0.1] p-2.5">
+      <div className="border-t border-white/[0.08] p-2.5">
         <form action={signOut}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.08] hover:text-white"
+            className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-2.5 text-[13px] font-medium text-zinc-300 transition-[background-color,color] duration-200 ease-out hover:bg-white/[0.08] hover:text-white"
             title={effectiveCollapsed ? "Sign out" : undefined}
           >
             <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-95" aria-hidden />
@@ -405,7 +485,8 @@ export function Sidebar(props: {
         ref={mobileOpenButtonRef}
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="fixed left-3 top-3 z-40 inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-zinc-200 bg-surface/95 p-2 text-zinc-700 shadow-sm backdrop-blur lg:hidden"
+        data-testid={shellTestIds.sidebarMobileOpen}
+        className="fixed left-4 top-4 z-40 inline-flex min-h-11 min-w-11 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] backdrop-blur lg:hidden"
         aria-label="Open navigation"
       >
         <Grid2x2 size={18} aria-hidden />
@@ -417,6 +498,7 @@ export function Sidebar(props: {
           role="dialog"
           aria-modal="true"
           aria-label="Navigation drawer"
+          data-testid={shellTestIds.sidebarMobileDrawer}
         >
           <button
             type="button"
@@ -424,7 +506,7 @@ export function Sidebar(props: {
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation overlay"
           />
-          <aside className="flex h-dvh max-h-dvh min-h-0 w-80 max-w-[90vw] flex-col border-l border-[var(--sidebar-border)] bg-[var(--sidebar)]">
+          <aside className="flex h-dvh max-h-dvh min-h-0 w-[22rem] max-w-[92vw] flex-col border-l border-[var(--sidebar-border)] bg-[var(--sidebar)]">
             {renderSidebarBody({ mobile: true })}
           </aside>
         </div>
@@ -432,8 +514,8 @@ export function Sidebar(props: {
 
       <aside
         aria-label="Workspace"
-        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out lg:flex ${
-          effectiveCollapsed ? "w-[4rem]" : "w-56"
+        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.18),transparent_28%),linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_92%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out lg:flex ${
+          effectiveCollapsed ? "w-[4.5rem]" : "w-[18.75rem]"
         }`}
       >
         {renderSidebarBody({})}

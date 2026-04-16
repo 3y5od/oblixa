@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
   const { data: orgRow, error: orgError } = await admin
     .from("organizations")
-    .select("id, name, stripe_customer_id, stripe_subscription_id")
+    .select("id, name, stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
     .eq("id", membership.organization_id)
     .single();
 
@@ -66,7 +66,10 @@ export async function POST(request: Request) {
 
   const org = orgRow;
 
-  if (org.stripe_subscription_id) {
+  if (
+    org.stripe_subscription_id &&
+    (org.stripe_subscription_status === "active" || org.stripe_subscription_status === "trialing")
+  ) {
     return NextResponse.json(
       { error: "Organization already has an active subscription" },
       { status: 400 }

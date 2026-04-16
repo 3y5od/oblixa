@@ -40,10 +40,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const deliveryDays = Number(
+  let deliveryDays = Number(
     process.env.OPS_RETENTION_NOTIFICATION_DELIVERIES_DAYS ?? DEFAULT_DELIVERY_RETENTION_DAYS
   );
-  const auditDays = Number(process.env.OPS_RETENTION_AUDIT_EVENTS_DAYS ?? DEFAULT_AUDIT_RETENTION_DAYS);
+  if (!Number.isFinite(deliveryDays)) deliveryDays = DEFAULT_DELIVERY_RETENTION_DAYS;
+  let auditDays = Number(process.env.OPS_RETENTION_AUDIT_EVENTS_DAYS ?? DEFAULT_AUDIT_RETENTION_DAYS);
+  if (!Number.isFinite(auditDays)) auditDays = DEFAULT_AUDIT_RETENTION_DAYS;
   const deliveryCutoff = cutoffIso(deliveryDays);
   const auditCutoff = cutoffIso(auditDays);
   const admin = await createAdminClient();

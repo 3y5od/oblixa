@@ -100,6 +100,34 @@ export async function getDeterministicMembership(
   };
 }
 
+type UserWithOptionalProfile = {
+  id: string;
+  user_metadata?: {
+    full_name?: unknown;
+  } | null;
+};
+
+export function resolveDefaultOrganizationNameForUser(user: {
+  user_metadata?: {
+    full_name?: unknown;
+  } | null;
+}): string {
+  const fullName = typeof user.user_metadata?.full_name === "string"
+    ? user.user_metadata.full_name.trim()
+    : "";
+  return fullName ? `${fullName}'s Organization` : "My Organization";
+}
+
+export async function getOrEnsureDeterministicMembership(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  user: UserWithOptionalProfile
+): Promise<{ organization_id: string; role: OrgRole } | null> {
+  const membership = await getDeterministicMembership(admin, user.id);
+  if (membership) return membership;
+  await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user), admin);
+  return await getDeterministicMembership(admin, user.id);
+}
+
 export async function getUserOrgId(userId: string): Promise<string | null> {
   const admin = await createAdminClient();
   const membership = await getDeterministicMembership(admin, userId);
@@ -123,7 +151,7 @@ export const getAuthContext = cache(async () => {
   if (!user) return null;
 
   const admin = await createAdminClient();
-  const membership = await getDeterministicMembership(admin, user.id);
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
 
   if (!membership) return null;
 
@@ -135,8 +163,12 @@ export const getAuthContext = cache(async () => {
   };
 });
 
-export async function ensureUserOrg(userId: string, orgName: string) {
-  const admin = await createAdminClient();
+export async function ensureUserOrg(
+  userId: string,
+  orgName: string,
+  adminClient?: Awaited<ReturnType<typeof createAdminClient>>
+) {
+  const admin = adminClient ?? (await createAdminClient());
 
   const { data: existing } = await admin
     .from("organization_members")

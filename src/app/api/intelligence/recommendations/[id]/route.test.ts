@@ -34,6 +34,16 @@ describe("PATCH /api/intelligence/recommendations/[id]", () => {
             return { insert: vi.fn(async () => ({ error: null })) };
           }
           return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn(async () => ({
+                    data: { accepted: false, dismissed: false },
+                    error: null,
+                  })),
+                })),
+              })),
+            })),
             update: vi.fn(() => ({
               eq: vi.fn(() => ({
                 eq: vi.fn(() => ({

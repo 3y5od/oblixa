@@ -32,8 +32,8 @@ export async function POST(
   if (action === "delegate") {
     const body = (await request.json().catch(() => ({}))) as { delegateUserId?: string };
     const delegateUserId = String(body.delegateUserId ?? "").trim();
-    if (!delegateUserId) {
-      return NextResponse.json({ error: "delegateUserId is required" }, { status: 400 });
+    if (!delegateUserId || !/^[0-9a-f]{8}-/i.test(delegateUserId)) {
+      return NextResponse.json({ error: "Invalid delegate user" }, { status: 400 });
     }
     const { data: delegateMember, error: delegateMemberError } = await ctx.admin
       .from("organization_members")

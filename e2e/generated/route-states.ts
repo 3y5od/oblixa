@@ -1,0 +1,188 @@
+export const GENERATED_ROUTE_STATES = [
+  {
+    "route": "/",
+    "kind": "error",
+    "sourcePath": "src/app/error.tsx",
+    "shellFamily": "root"
+  },
+  {
+    "route": "/",
+    "kind": "not_found",
+    "sourcePath": "src/app/not-found.tsx",
+    "shellFamily": "root"
+  },
+  {
+    "route": "/dashboard",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/dashboard",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/dashboard",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/dashboard/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/dashboard/persona",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/work",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/[id]",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/[id]/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/[id]",
+    "kind": "not_found",
+    "sourcePath": "src/app/(dashboard)/contracts/[id]/not-found.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/tasks",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/analytics",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/analytics/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/data-quality",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/data-quality/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/reports",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/reports",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/assurance",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/assurance/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/decisions",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/decisions/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/settings",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/onboarding/calibration",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/onboarding/calibration",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/onboarding/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/login",
+    "kind": "loading",
+    "sourcePath": "src/app/(auth)/loading.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/login",
+    "kind": "error",
+    "sourcePath": "src/app/(auth)/error.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/privacy",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/terms",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/security",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/accessibility",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/cookies",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/",
+    "kind": "error",
+    "sourcePath": "src/app/(marketing)/error.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/",
+    "kind": "not_found",
+    "sourcePath": "src/app/(marketing)/not-found.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/external/[token]",
+    "kind": "error",
+    "sourcePath": "src/app/external/error.tsx",
+    "shellFamily": "external"
+  }
+] as const;

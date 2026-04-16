@@ -37,7 +37,7 @@ export function applyGroundingToFields<T extends GroundableField>(
       return f;
     }
     const normSn = normalizeForGrounding(String(sn));
-    if (normSn.length < 3) {
+    if (normSn.length < 2) {
       droppedCount += 1;
       return {
         ...f,

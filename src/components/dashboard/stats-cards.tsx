@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 interface StatsCardsProps {
   totalContracts: number;
@@ -92,11 +93,17 @@ export function StatsCards({
 
   return (
     <section className="space-y-3">
-      <div>
-        <p className="ui-eyebrow">Portfolio</p>
-        <h2 className="ui-section-title mt-2 text-xl">Contract metrics</h2>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="ui-eyebrow">Portfolio</p>
+          <h2 className="ui-section-title mt-2 text-xl">Contract metrics</h2>
+          <p className="ui-muted-tight mt-1 max-w-2xl">Portfolio volume, review pressure, deadline horizon, and data risk at a glance.</p>
+        </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div
+        data-testid={surfaceTestIds.dashboardStats}
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5"
+      >
         {metricsConfig.map((m) => {
           const value = values[m.valueKey];
           const tone = toneFor(m.valueKey, value);

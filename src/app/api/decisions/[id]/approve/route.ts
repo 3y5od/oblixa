@@ -3,6 +3,7 @@ import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
@@ -20,6 +21,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!(await canManageCapability(ctx, "approvals_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+  const duplicate = await enforceIdempotency(request, {
+    scope: "decisions.approve",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const raw = await request.json().catch(() => ({}));
   const body = readJsonBody<{ note?: string }>(raw, {});
@@ -44,6 +50,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .update({ status: "approved" })
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
+    .neq("status", "closed")
     .select("id, status, updated_at")
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

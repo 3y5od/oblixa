@@ -1,12 +1,14 @@
 "use client";
 
+import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
+
 export function SkipLink() {
   return (
     <a
-      href="#main-content"
+      href={`#${MAIN_CONTENT_ID}`}
       onClick={(e) => {
         e.preventDefault();
-        const el = document.getElementById("main-content");
+        const el = document.getElementById(MAIN_CONTENT_ID);
         const reduceMotion =
           typeof window !== "undefined" &&
           window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;

@@ -41,6 +41,7 @@ export async function getUserPrimaryOrganizationId(
     .from("organization_members")
     .select("organization_id")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   const row = data as { organization_id?: string } | null;

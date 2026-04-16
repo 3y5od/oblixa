@@ -1,4 +1,4 @@
-import type { NavItem, WorkspaceRole } from "@/lib/navigation";
+import { NAV_ITEMS, type NavItem, type WorkspaceRole } from "@/lib/navigation";
 import { canAccessItem } from "@/lib/navigation";
 import {
   SEARCH_INDEX_CLASSES,
@@ -7,6 +7,10 @@ import {
 } from "@/lib/product-surface/feature-registry";
 import { minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import {
+  isNavChildVisibleForSurface,
+  isNavItemVisibleForSurface,
+} from "@/lib/product-surface/nav-visibility";
 import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibility";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 
@@ -84,6 +88,27 @@ function descriptionForSearchClass(row: SearchIndexClassDef, queryTrimmed: strin
   return `Open ${row.label.toLowerCase()}.`;
 }
 
+function pathOnly(href: string): string {
+  return href.split("?")[0] ?? href;
+}
+
+function isSearchJumpHrefVisibleForSurface(href: string, surface: NavSurfaceInput): boolean {
+  const p = pathOnly(href);
+  for (const item of NAV_ITEMS) {
+    const itemPath = pathOnly(item.href);
+    if (itemPath === p) return isNavItemVisibleForSurface(item, surface);
+    for (const child of item.navChildren ?? []) {
+      const childPath = pathOnly(child.href);
+      if (childPath !== p) continue;
+      return (
+        isNavItemVisibleForSurface(item, surface) &&
+        isNavChildVisibleForSurface({ href: child.href, v5FlagsAnyOf: child.v5FlagsAnyOf }, surface)
+      );
+    }
+  }
+  return true;
+}
+
 /**
  * Registry-backed cmd-K rows (V7 search jump list). Filtered by mode, role, module hides, and search scope.
  */
@@ -102,8 +127,12 @@ export function getCmdkSearchJumpItems(surface: NavSurfaceInput, query: string):
       continue;
     }
     const href = hrefForSearchClass(row, queryTrimmed);
-    const pathOnly = href.split("?")[0] ?? href;
-    if (surface.searchScope === "core_only" && minWorkspaceModeForPath(pathOnly) !== "core") {
+    const hrefPath = pathOnly(href);
+    if (surface.searchScope === "core_only" && minWorkspaceModeForPath(hrefPath) !== "core") {
+      dropped += 1;
+      continue;
+    }
+    if (!isSearchJumpHrefVisibleForSurface(href, surface)) {
       dropped += 1;
       continue;
     }

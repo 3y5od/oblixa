@@ -4,21 +4,11 @@ import { featureFamilyForPath } from "@/lib/product-surface/feature-registry";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { getFeatureFlags } from "@/lib/feature-flags";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
+import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
+import { v8GovernedPageRootPrefixes } from "@/lib/product-surface/v8-governed-prefixes";
 
-/** Path prefixes that must not be reachable without a resolved feature family when gating links. */
-const STRICT_DENY_PREFIXES = [
-  "/decisions",
-  "/decisions/compare",
-  "/campaigns",
-  "/campaigns/compare",
-  "/assurance",
-  "/relationship-workspaces",
-  "/accounts",
-  "/counterparties",
-  "/contracts/programs",
-  "/contracts/maintenance",
-  "/contracts/collaboration",
-] as const;
+/** Governed roots fail closed when mapping is unresolved (single source: `v8-governed-prefixes`). */
+const GOVERNED_ROOT_PREFIXES = v8GovernedPageRootPrefixes();
 
 function pathnameFromHref(href: string): string {
   const raw = href.split("?")[0] ?? href;
@@ -29,8 +19,9 @@ export function featureFamilyForHref(href: string): ReturnType<typeof featureFam
   return featureFamilyForPath(pathnameFromHref(href));
 }
 
-function matchesStrictDenyPrefix(pathname: string): boolean {
-  for (const p of STRICT_DENY_PREFIXES) {
+function matchesGovernedRootPrefix(pathname: string): boolean {
+  for (const p of GOVERNED_ROOT_PREFIXES) {
+    if (p === "/") return pathname === "/";
     if (pathname === p || pathname.startsWith(`${p}/`)) return true;
   }
   return false;
@@ -38,25 +29,31 @@ function matchesStrictDenyPrefix(pathname: string): boolean {
 
 export function isHrefEligibleForProductSurface(ctx: ProductSurfaceContext, href: string): boolean {
   const pathname = pathnameFromHref(href);
-  const family = featureFamilyForPath(pathname);
-  if (!family) {
-    if (matchesStrictDenyPrefix(pathname)) {
+  const mapping = resolveFeatureMappingForPagePath(pathname);
+  if (mapping.status === "exempt") return true;
+  if (mapping.status === "unmapped") {
+    if (matchesGovernedRootPrefix(pathname)) {
       logProductSurfaceDiagnostic("href_eligibility_denied", {
         href,
         pathname,
-        reason: "strict_unmapped_prefix",
+        reason: "registry_missing_or_mapping_missing",
       });
       return false;
     }
     return true;
   }
-  const eligibility = evaluateFeatureEligibility(ctx, family);
+  const family = featureFamilyForPath(pathname) ?? mapping.featureFamily;
+  const eligibility = evaluateFeatureEligibility(ctx, family, {
+    surfaceType: "page",
+    surfaceIdentifier: pathname,
+  });
   if (!eligibility.allowed) {
     logProductSurfaceDiagnostic("href_eligibility_denied", {
       href,
       pathname,
       family,
       reason: eligibility.reason,
+      denialClass: eligibility.denialClass,
       discoverability: eligibility.discoverability,
     });
   }

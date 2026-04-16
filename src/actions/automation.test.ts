@@ -9,15 +9,15 @@ vi.mock("@/lib/supabase/server", () => ({
     auth: { getUser },
   })),
   createAdminClient: vi.fn(async () => ({ from })),
-  getDeterministicMembership: vi.fn(),
+  getOrEnsureDeterministicMembership: vi.fn(),
 }));
 
-import { getDeterministicMembership } from "@/lib/supabase/server";
+import { getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 
 describe("createTaskAutomationRule (org scope)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDeterministicMembership).mockReset();
+    vi.mocked(getOrEnsureDeterministicMembership).mockReset();
     from.mockImplementation((table: string) => {
       if (table === "task_automation_rules") {
         return { insert: (payload: unknown) => insertData(payload) };
@@ -40,7 +40,7 @@ describe("createTaskAutomationRule (org scope)", () => {
 
   it("returns access denied when membership is missing", async () => {
     getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    vi.mocked(getDeterministicMembership).mockResolvedValue(null);
+    vi.mocked(getOrEnsureDeterministicMembership).mockResolvedValue(null);
     const { createTaskAutomationRule } = await import("@/actions/automation");
     const res = await createTaskAutomationRule({
       name: "R",
@@ -53,7 +53,7 @@ describe("createTaskAutomationRule (org scope)", () => {
 
   it("inserts with organization_id from deterministic membership", async () => {
     getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    vi.mocked(getDeterministicMembership).mockResolvedValue({
+    vi.mocked(getOrEnsureDeterministicMembership).mockResolvedValue({
       organization_id: "org-aaa",
       role: "admin",
     } as never);

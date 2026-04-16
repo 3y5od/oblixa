@@ -197,7 +197,7 @@ export async function executeAutopilotAction(
             priority: "low",
             created_by: userId ?? undefined,
             assignee_id: String(assignee),
-            created_via: "manual",
+            created_via: "rule",
           });
           if (task.data?.id) taskIds.push(String(task.data.id));
           if (taskIds.length >= 5) break;
@@ -206,7 +206,7 @@ export async function executeAutopilotAction(
       }
       if (taskIds.length > 0 && rule.reversible) {
         output.reversible = true;
-        output.revert_hint = { table: "contract_tasks", ids: taskIds, action: "delete_or_close" };
+        output.revert_hint = { table: "contract_tasks", id: taskIds[0], action: "delete_or_close" };
       }
       if (taskIds.length === 0) {
         const rec = await createRow(admin, "operational_recommendations", orgId, {
@@ -282,7 +282,7 @@ export async function executeAutopilotAction(
     default:
       output.mode = "logged_only";
       output.note = "action_type_not_implemented";
-      output.created = true;
+      output.created = false;
   }
 
   return { output, wouldExecute: true };

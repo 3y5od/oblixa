@@ -9,9 +9,9 @@ export function normalizeLinkedContractIds(linkedContractIds: unknown): {
   truncated: boolean;
 } {
   const raw = Array.isArray(linkedContractIds) ? linkedContractIds : [];
-  const ids = raw
+  const ids = [...new Set(raw
     .map((x) => String(x))
-    .filter((id) => UUID_RE.test(id))
+    .filter((id) => UUID_RE.test(id)))]
     .slice(0, DECISION_CONTEXT_MAX_CONTRACTS);
   const truncated = raw.length > DECISION_CONTEXT_MAX_CONTRACTS;
   return { ids, truncated };
@@ -101,12 +101,12 @@ export async function buildDecisionExecutionContext(
   if (ids.length === 0) return empty;
 
   const [
-    { data: tasks },
-    { data: approvals },
-    { data: obligations },
-    { data: exceptions },
-    { data: evidenceRequirements },
-    { data: attestations },
+    { data: tasks, error: tasksErr },
+    { data: approvals, error: approvalsErr },
+    { data: obligations, error: obligationsErr },
+    { data: exceptions, error: exceptionsErr },
+    { data: evidenceRequirements, error: evidenceErr },
+    { data: attestations, error: attestationsErr },
   ] = await Promise.all([
     admin
       .from("contract_tasks")
@@ -157,6 +157,13 @@ export async function buildDecisionExecutionContext(
       .order("due_at", { ascending: true, nullsFirst: false })
       .limit(80),
   ]);
+
+  if (tasksErr) console.error("[decision-context] tasks query failed:", tasksErr.message);
+  if (approvalsErr) console.error("[decision-context] approvals query failed:", approvalsErr.message);
+  if (obligationsErr) console.error("[decision-context] obligations query failed:", obligationsErr.message);
+  if (exceptionsErr) console.error("[decision-context] exceptions query failed:", exceptionsErr.message);
+  if (evidenceErr) console.error("[decision-context] evidence query failed:", evidenceErr.message);
+  if (attestationsErr) console.error("[decision-context] attestations query failed:", attestationsErr.message);
 
   const taskRows = tasks ?? [];
   const apprRows = approvals ?? [];

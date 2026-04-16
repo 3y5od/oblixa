@@ -25,13 +25,16 @@ import type {
   UtilityModuleKey,
   WorkspaceProductMode,
 } from "@/lib/product-surface/types";
+import { resolveEffectiveLandingPath } from "@/lib/product-surface/landing-eligibility";
 
 export type ProductSurfaceContext = {
   orgId: string;
+  workspaceMode: WorkspaceProductMode;
   mode: WorkspaceProductMode;
   v6: V6OrgSettingsJson;
   featureFlags: Record<FeatureFlagKey, boolean>;
   role: WorkspaceRole;
+  isAdmin: boolean;
   /** Primary nav: Decisions, Campaigns, Programs, Relationships. */
   seesAdvancedPrimaryNav: boolean;
   /** Top-level Assurance section (§7.3). */
@@ -43,6 +46,7 @@ export type ProductSurfaceContext = {
   utilityModulesHidden: Set<UtilityModuleKey>;
   defaultLandingPath: string | null;
   searchScope: ProductSearchScope;
+  autopilotAllowExecution: boolean;
 };
 
 export function parseWorkspaceMode(raw: V6OrgSettingsJson): WorkspaceProductMode {
@@ -149,17 +153,24 @@ export function buildProductSurfaceContext(input: {
   }
 
   const defaultLandingPath =
-    typeof input.v6.default_landing_path === "string" &&
-    input.v6.default_landing_path.startsWith("/")
-      ? input.v6.default_landing_path
+    typeof input.v6.default_landing_path === "string"
+      ? resolveEffectiveLandingPath(input.v6.default_landing_path, mode, {
+          role: input.role,
+          advancedModulesHidden,
+          assuranceModulesHidden,
+          utilityModulesHidden,
+          isAdmin: input.role === "admin",
+        })
       : null;
 
   return {
     orgId: input.orgId,
+    workspaceMode: mode,
     mode,
     v6: input.v6,
     featureFlags: input.featureFlags,
     role: input.role,
+    isAdmin: input.role === "admin",
     seesAdvancedPrimaryNav,
     seesAssuranceNav,
     assuranceNavAdminTesting,
@@ -168,6 +179,7 @@ export function buildProductSurfaceContext(input: {
     utilityModulesHidden,
     defaultLandingPath,
     searchScope: input.v6.search_scope === "core_only" ? "core_only" : "match_mode",
+    autopilotAllowExecution: input.v6.autopilot_allow_execution === true,
   };
 }
 

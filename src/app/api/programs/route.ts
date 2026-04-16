@@ -17,8 +17,9 @@ export async function GET() {
     .from("contract_programs")
     .select("id, name, description, state, current_version_id, created_at, updated_at")
     .eq("organization_id", ctx.orgId)
-    .order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) return NextResponse.json({ error: "Failed to load programs" }, { status: 400 });
 
   return NextResponse.json({ programs: data ?? [] });
 }
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     })
     .select("id, name, description, state, current_version_id, created_at, updated_at")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: "Failed to create program" }, { status: 400 });
 
   const { data: version } = await ctx.admin
     .from("contract_program_versions")

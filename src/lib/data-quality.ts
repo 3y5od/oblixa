@@ -15,7 +15,7 @@ export async function persistContractDataQualitySnapshot(
     .maybeSingle();
   if (!contract) return { ok: false, reason: "contract_not_found" };
 
-  const [{ data: fields }, { data: tasks }, { data: obligations }] = await Promise.all([
+  const [fieldsRes, tasksRes, obligationsRes] = await Promise.all([
     admin
       .from("extracted_fields")
       .select("field_name, status, updated_at")
@@ -32,6 +32,16 @@ export async function persistContractDataQualitySnapshot(
       .in("status", ["open", "in_progress"]),
   ]);
 
+  const queryErrors = [fieldsRes.error, tasksRes.error, obligationsRes.error].filter(Boolean);
+  if (queryErrors.length > 0) {
+    for (const err of queryErrors) console.error("data-quality query failed:", err);
+    return { ok: false, reason: "query_failed" };
+  }
+
+  const fields = fieldsRes.data;
+  const tasks = tasksRes.data;
+  const obligations = obligationsRes.data;
+
   const rows = fields ?? [];
   const approved = rows.filter((row) => row.status === "approved");
   const approvedNames = new Set(approved.map((row) => row.field_name));
@@ -41,8 +51,7 @@ export async function persistContractDataQualitySnapshot(
     if (!row.updated_at) return false;
     return new Date(row.updated_at).getTime() < staleCutoffMs;
   }).length;
-  const unresolvedGapWeight =
-    missingCriticalCount + (tasks?.length ?? 0) + (obligations?.length ?? 0);
+  const unresolvedGapWeight = (tasks?.length ?? 0) + (obligations?.length ?? 0);
   const totalFieldCount = rows.length;
   const approvedFieldCount = approved.length;
   const completenessScore =

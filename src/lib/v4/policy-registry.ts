@@ -88,7 +88,7 @@ export function getApprovalSlaFallbackHours(registry: unknown): number | null {
     if (!appliesToApproval(o)) continue;
     const hours = o.sla_hours;
     if (typeof hours === "number" && Number.isFinite(hours) && hours > 0) {
-      return Math.round(hours);
+      return Math.max(1, Math.round(hours));
     }
   }
   return null;

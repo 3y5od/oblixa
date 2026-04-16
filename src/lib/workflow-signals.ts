@@ -23,7 +23,7 @@ export async function recomputeContractSignals(
   if (!contract) return { ok: false, reason: "contract_not_found" };
 
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: settings }, fieldsRes, tasksRes, obligationsRes, remindersRes, approvalsRes, scenarioRes, watchlistRes] =
+  const [settingsRes, fieldsRes, tasksRes, obligationsRes, remindersRes, approvalsRes, scenarioRes, watchlistRes] =
     await Promise.all([
       admin
         .from("organization_workflow_settings")
@@ -59,12 +59,31 @@ export async function recomputeContractSignals(
         .from("contract_renewal_scenarios")
         .select("scenario, blocker")
         .eq("contract_id", contractId)
+        .order("updated_at", { ascending: false })
+        .limit(1)
         .maybeSingle(),
       admin
         .from("contract_watchlists")
         .select("id", { count: "exact", head: true })
         .eq("contract_id", contractId),
     ]);
+
+  const queryErrors = [
+    settingsRes.error,
+    fieldsRes.error,
+    tasksRes.error,
+    obligationsRes.error,
+    remindersRes.error,
+    approvalsRes.error,
+    scenarioRes.error,
+    watchlistRes.error,
+  ].filter(Boolean);
+  if (queryErrors.length > 0) {
+    for (const err of queryErrors) console.error("workflow-signals query failed:", err);
+    return { ok: false, reason: "query_failed" };
+  }
+
+  const settings = settingsRes.data;
 
   const approvedFields = new Set(
     (fieldsRes.data ?? []).filter((f) => f.status === "approved").map((f) => f.field_name)
@@ -119,6 +138,8 @@ export async function recomputeContractSignals(
     requiredNextStep = "Review imminent reminders";
   } else if (scenarioAwaitingDecision) {
     requiredNextStep = "Record renewal decision";
+  } else if (watchlistCount > 0) {
+    requiredNextStep = "Review watchlist entries";
   }
 
   await admin

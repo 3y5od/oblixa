@@ -1,16 +1,16 @@
 "use server";
 
-import { createClient, createAdminClient, getDeterministicMembership } from "@/lib/supabase/server";
+import { createClient, createAdminClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { hasRoleCapability } from "@/lib/access-control";
 import { revalidatePath } from "next/cache";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { applyProgramToContract } from "@/lib/v4/execution-engine";
 import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
 import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-packet";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-import { parseWorkspaceMode } from "@/lib/product-surface/context";
-import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
-import type { WorkspaceRole } from "@/lib/navigation";
+import {
+  ensureProgramsSurfaceAccess,
+  ensureReportPackReportTypeAllowed,
+} from "@/actions/v4-surface-guards";
 
 async function getContext() {
   const supabase = await createClient();
@@ -20,7 +20,7 @@ async function getContext() {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const membership = await getDeterministicMembership(admin, user.id);
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
   if (!membership) return null;
 
   const { data: settings } = await admin
@@ -40,49 +40,6 @@ async function getContext() {
 
 function deny() {
   return { error: "Access denied" as const };
-}
-
-function roleSeesAdvancedNavByDefault(role: WorkspaceRole): boolean {
-  return (
-    role === "admin" ||
-    role === "editor" ||
-    role === "ops_manager" ||
-    role === "manager"
-  );
-}
-
-async function ensureProgramsSurfaceAccess(ctx: NonNullable<Awaited<ReturnType<typeof getContext>>>) {
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
-  const mode = parseWorkspaceMode(v6);
-  if (mode === "core") {
-    return { error: "Programs are not available in Core mode." as const };
-  }
-  if ((v6.advanced_modules_hidden ?? []).includes("programs")) {
-    return { error: "Programs are hidden for this workspace." as const };
-  }
-  if (Array.isArray(v6.advanced_nav_roles)) {
-    if (v6.advanced_nav_roles.length === 0 && ctx.role !== "admin") {
-      return { error: "Programs are restricted to admins for this workspace." as const };
-    }
-    if (v6.advanced_nav_roles.length > 0 && !v6.advanced_nav_roles.includes(ctx.role)) {
-      return { error: "Your role cannot access Programs in this workspace." as const };
-    }
-  } else if (!roleSeesAdvancedNavByDefault(ctx.role)) {
-    return { error: "Your role cannot access Programs in this workspace." as const };
-  }
-  return null;
-}
-
-async function ensureReportPackReportTypeAllowed(
-  ctx: NonNullable<Awaited<ReturnType<typeof getContext>>>,
-  reportType: string
-) {
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
-  const mode = parseWorkspaceMode(v6);
-  if (!workspaceModeAllowsReportType(mode, reportType)) {
-    return { error: "This report type is not available in the current workspace mode." as const };
-  }
-  return null;
 }
 
 export async function createProgramAction(formData: FormData) {
@@ -152,11 +109,12 @@ export async function publishProgramAction(programId: string) {
     .eq("organization_id", ctx.orgId);
   if (error) return { error: error.message as string };
 
-  await ctx.admin
+  const { error: versionError } = await ctx.admin
     .from("contract_program_versions")
     .update({ state: "published", published_at: new Date().toISOString(), published_by: ctx.userId })
     .eq("id", latestVersion.id)
     .eq("organization_id", ctx.orgId);
+  if (versionError) return { error: versionError.message as string };
   revalidatePath("/contracts/programs");
   return { success: true as const };
 }
@@ -192,11 +150,14 @@ export async function applyProgramAction(formData: FormData) {
     .order("version_number", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (!latestVersion) {
+    return { error: "Program must have at least one published version before applying." as const };
+  }
   const rows = contractIds.map((contractId) => ({
     organization_id: ctx.orgId,
     contract_id: contractId,
     program_id: programId,
-    program_version_id: latestVersion?.id ?? null,
+    program_version_id: latestVersion.id,
     assignment_mode: "manual",
     status: "active",
     assigned_by: ctx.userId,
@@ -214,7 +175,7 @@ export async function applyProgramAction(formData: FormData) {
       contractId: String(assignment.contract_id),
       programId,
       assignmentId: String(assignment.id),
-      versionId: latestVersion?.id ?? null,
+      versionId: latestVersion.id,
       actorUserId: ctx.userId,
     });
     await appendCasefileEvent({
@@ -810,11 +771,12 @@ export async function generateRenewalDecisionPacketAction(formData: FormData) {
     .single();
   if (error) return { error: error.message };
 
-  await ctx.admin
+  const { error: cpError } = await ctx.admin
     .from("contract_renewal_checkpoints")
     .update({ decision_packet_id: packet.id, renewal_state: "under_review" })
     .eq("id", checkpoint.id)
     .eq("organization_id", ctx.orgId);
+  if (cpError) return { error: cpError.message as string };
 
   await appendCasefileEvent({
     admin: ctx.admin,

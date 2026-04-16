@@ -200,16 +200,21 @@ export async function routePolicyEnforcement(
         const exec = await executeAutopilotAction(admin, orgId, ctx.actorUserId, rule, false, {
           findingId: ctx.findingId,
         });
+        const execFailed = !exec.wouldExecute || exec.output.created === false;
+        const execStatus = execFailed ? "failed" : "executed";
         await admin.from("autopilot_run_logs").insert({
           organization_id: orgId,
           autopilot_rule_id: rule.id,
-          status: "executed",
+          status: execStatus,
           action_type: rule.action_type,
           finding_id: ctx.findingId ?? null,
           input_json: { policy_id: evaluation.policy_id, source: "policy_enforcement" },
           output_json: exec.output,
-          reason: "Policy enforcement triggered autopilot",
+          reason: execFailed
+            ? `Policy enforcement autopilot failed: ${String(exec.output.blocked ?? "creation_error")}`
+            : "Policy enforcement triggered autopilot",
         });
+        if (execFailed) errors.push({ autopilot_execution_failed: true, output: exec.output });
         actions.push({ kind: "autopilot", id: rule.id, detail: exec.output });
       } else {
         const link = await createRow(admin, "external_action_links", orgId, {

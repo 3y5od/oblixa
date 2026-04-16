@@ -12,7 +12,10 @@ const cwd = process.cwd();
 const localBase = "http://127.0.0.1:3000";
 
 function run(cmd, args, env = process.env) {
+  const started = Date.now();
   const r = spawnSync(cmd, args, { stdio: "inherit", cwd, env });
+  const elapsedMs = Date.now() - started;
+  console.log(JSON.stringify({ step: `${cmd} ${args.join(" ")}`, status: r.status ?? 1, elapsedMs }));
   if (r.status !== 0) {
     process.exit(r.status ?? 1);
   }
@@ -65,6 +68,11 @@ async function main() {
       ...process.env,
       PLAYWRIGHT_BASE_URL: localBase,
     });
+    run("npm", ["run", "check:e2e:stability-threshold"], {
+      ...process.env,
+      PLAYWRIGHT_JSON_REPORT: "test-results/playwright-report.json",
+    });
+    run("npm", ["run", "report:ci-provenance"]);
   } finally {
     shutdown();
     await new Promise((r) => setTimeout(r, 500));

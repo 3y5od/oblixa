@@ -1,4 +1,5 @@
 import { test, type Page } from "@playwright/test";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=auth_provider_rate_limit_guard
 
 export async function loginWithCredentials(page: Page, email: string, password: string) {
   await page.goto("/login", { waitUntil: "domcontentloaded" });

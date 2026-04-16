@@ -217,7 +217,7 @@ export default async function OperationsSettingsPage() {
           <p className="text-sm text-zinc-500">
             Apply a preset package of workflow thresholds and required field coverage.
           </p>
-          <form action={applyPolicyPackForm} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <form action={applyPolicyPackForm as never} className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <select name="policyPack" defaultValue="balanced" className="ui-input max-w-xs">
               <option value="balanced">Balanced operations</option>
               <option value="compliance">Compliance-heavy</option>
@@ -235,7 +235,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Workflow cadence settings</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={upsertWorkflowSettingsForm} className="grid gap-3 md:grid-cols-2">
+          <form action={upsertWorkflowSettingsForm as never} className="grid gap-3 md:grid-cols-2">
             <input
               name="weeklyIntakeLookbackDays"
               type="number"
@@ -391,7 +391,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Field templates</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createFieldTemplateForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createFieldTemplateForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
             <input name="fieldName" required placeholder="payment_cadence" className="ui-input" />
             <input name="defaultValue" placeholder="net_30" className="ui-input" />
@@ -418,7 +418,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Approval policies</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createApprovalPolicyForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createApprovalPolicyForm as never} className="grid gap-3 md:grid-cols-2">
             <select name="approvalType" defaultValue="renewal_decision" className="ui-input">
               <option value="renewal_decision">renewal_decision</option>
               <option value="notice_action">notice_action</option>
@@ -450,7 +450,7 @@ export default async function OperationsSettingsPage() {
                   {row.contract_type ? ` · ${row.contract_type}` : " · any type"}
                   {row.min_annual_value != null ? ` · >=$${Number(row.min_annual_value).toLocaleString()}` : ""}
                 </span>
-                <form action={toggleApprovalPolicyForm.bind(null, row.id, !row.active)}>
+                <form action={toggleApprovalPolicyForm.bind(null, row.id, !row.active) as never}>
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                     {row.active ? "Disable" : "Enable"}
                   </button>
@@ -466,7 +466,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Reminder templates</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createReminderTemplateForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createReminderTemplateForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
             <input name="fieldName" required placeholder="renewal_date" className="ui-input" />
             <input name="reminderType" required placeholder="renewal_30d" className="ui-input" />
@@ -491,7 +491,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Task templates</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createTaskTemplateForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createTaskTemplateForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
             <input name="teamKey" placeholder="ops" className="ui-input" />
             <input name="title" required placeholder="Prepare renewal strategy memo" className="ui-input" />
@@ -522,7 +522,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Renewal checklist templates</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createRenewalPlaybookTemplateForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createRenewalPlaybookTemplateForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="taskKey" required placeholder="r045_exec_alignment" className="ui-input" />
             <input name="label" required placeholder="Align leadership decision and owner" className="ui-input" />
             <input name="offsetDays" type="number" min={0} required placeholder="45" className="ui-input" />
@@ -538,7 +538,7 @@ export default async function OperationsSettingsPage() {
                   {row.offset_days}d · {row.label}
                   {row.contract_type ? ` · ${row.contract_type}` : " · default"}
                 </span>
-                <form action={toggleRenewalPlaybookTemplateForm.bind(null, row.id, !row.active)}>
+                <form action={toggleRenewalPlaybookTemplateForm.bind(null, row.id, !row.active) as never}>
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                     {row.active ? "Disable" : "Enable"}
                   </button>
@@ -580,7 +580,7 @@ export default async function OperationsSettingsPage() {
               <code className="text-[10px]">NEXT_PUBLIC_APP_URL</code> in production so links resolve to your real domain.
             </p>
           </div>
-          <form action={upsertIntegrationConnectionForm} className="grid gap-3 md:grid-cols-2">
+          <form action={upsertIntegrationConnectionForm as never} className="grid gap-3 md:grid-cols-2">
             <select name="provider" defaultValue="google_calendar" className="ui-input">
               <option value="google_calendar">google_calendar</option>
               <option value="outlook_calendar">outlook_calendar</option>
@@ -603,7 +603,7 @@ export default async function OperationsSettingsPage() {
               Save integration state
             </button>
           </form>
-          <form action={setIntegrationTokenForm} className="grid gap-3 border-t border-zinc-100 pt-4 md:grid-cols-2">
+          <form action={setIntegrationTokenForm as never} className="grid gap-3 border-t border-zinc-100 pt-4 md:grid-cols-2">
             <select name="provider" defaultValue="google_calendar" className="ui-input">
               <option value="google_calendar">google_calendar</option>
               <option value="outlook_calendar">outlook_calendar</option>
@@ -697,7 +697,7 @@ export default async function OperationsSettingsPage() {
                   )}
                   {!key.revoked_at && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <form action={updateIntegrationApiKeyPolicyForm} className="flex flex-wrap items-center gap-2">
+                      <form action={updateIntegrationApiKeyPolicyForm as never} className="flex flex-wrap items-center gap-2">
                         <input type="hidden" name="keyId" value={key.id} />
                         <input
                           name="scopes"
@@ -718,7 +718,7 @@ export default async function OperationsSettingsPage() {
                           Save policy
                         </button>
                       </form>
-                      <form action={revokeIntegrationApiKeyForm} className="flex items-center gap-1.5">
+                      <form action={revokeIntegrationApiKeyForm as never} className="flex items-center gap-1.5">
                         <input type="hidden" name="keyId" value={key.id} />
                         <input
                           name="reason"
@@ -743,7 +743,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Obligation templates</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createObligationTemplateForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createObligationTemplateForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="contractType" required placeholder="MSA" className="ui-input" />
             <input name="title" required placeholder="Quarterly usage report" className="ui-input" />
             <input name="obligationType" placeholder="reporting" className="ui-input" />
@@ -770,7 +770,7 @@ export default async function OperationsSettingsPage() {
           <h2 className="ui-section-title text-base">Webhook subscriptions</h2>
         </div>
         <div className="space-y-4 p-6">
-          <form action={createWebhookSubscriptionForm} className="grid gap-3 md:grid-cols-2">
+          <form action={createWebhookSubscriptionForm as never} className="grid gap-3 md:grid-cols-2">
             <input name="url" required placeholder="https://your-system.example/webhooks" className="ui-input md:col-span-2" />
             <input name="secret" required placeholder="webhook signing secret" className="ui-input" />
             <input name="events" placeholder="contract.created,reminder.due" className="ui-input" />
@@ -782,7 +782,7 @@ export default async function OperationsSettingsPage() {
             {(webhooks ?? []).map((wh) => (
               <li key={wh.id} className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm">
                 <span className="truncate pr-3">{wh.url}</span>
-                <form action={toggleWebhookSubscriptionForm.bind(null, wh.id, !wh.active)}>
+                <form action={toggleWebhookSubscriptionForm.bind(null, wh.id, !wh.active) as never}>
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                     {wh.active ? "Disable" : "Enable"}
                   </button>

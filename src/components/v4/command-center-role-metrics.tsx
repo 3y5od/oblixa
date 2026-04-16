@@ -126,7 +126,7 @@ export async function CommandCenterRoleMetrics(props: { orgId: string; role: Wor
         title="Live portfolio metrics"
         description={`Org-wide counts · ${props.role.replace(/_/g, " ")} lens`}
       />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         {cards.map((c) => (
           <OperationalSummaryCard
             key={c.headline}

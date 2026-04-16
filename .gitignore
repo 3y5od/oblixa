@@ -56,7 +56,10 @@ yarn-error.log*
 Thumbs.db
 
 # Editors & temp files
-.cursor/
+# Cursor: keep shared rules in-repo; ignore local editor/workspace state
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .idea/
 *.swp
 *.swo

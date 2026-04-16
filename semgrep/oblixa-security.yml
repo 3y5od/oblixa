@@ -100,3 +100,26 @@ rules:
     paths:
       include:
         - "src/components/**"
+
+  - id: oblixa-logs-authorization-or-bearer
+    languages: [typescript, tsx, javascript]
+    severity: ERROR
+    message:
+      Avoid logging authorization headers, bearer tokens, or webhook signatures.
+      Log only redacted values.
+    pattern-regex: >-
+      (console\.(?:log|info|warn|error)|logger\.(?:debug|info|warn|error))\s*\([^)]*(?:authorization|bearer|stripe-signature|x-api-key|token)
+    paths:
+      exclude:
+        - "**/*.test.ts"
+        - "**/*.test.tsx"
+        - "**/*.spec.ts"
+
+  - id: oblixa-api-raw-error-leak
+    languages: [typescript, tsx]
+    severity: ERROR
+    message:
+      Avoid returning raw Error objects or stack traces in API responses.
+      Return safe error codes/messages instead.
+    pattern-regex: >-
+      NextResponse\.json\s*\([^)]*(?:error\s*:\s*(?:error|err)|stack\s*:)

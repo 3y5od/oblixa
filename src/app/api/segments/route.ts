@@ -37,7 +37,10 @@ export async function GET() {
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_segments_list_total", 1).catch(() => undefined);
 
   const { data, error } = await listSegments(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/segments] GET error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   return NextResponse.json({ segments: data ?? [] });
 }
 
@@ -78,7 +81,10 @@ export async function POST(request: Request) {
     name,
     criteria: body.criteria,
   });
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    console.error("[api/segments] POST error:", result.error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_segment_create_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);

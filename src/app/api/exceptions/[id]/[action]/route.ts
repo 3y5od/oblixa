@@ -38,6 +38,7 @@ export async function POST(
     rootCause?: string;
     dueDate?: string;
   };
+  if (body.dueDate && isNaN(new Date(body.dueDate).getTime())) return NextResponse.json({ error: "Invalid due date" }, { status: 400 });
   const now = new Date().toISOString();
 
   if (action === "assign") {
@@ -49,7 +50,7 @@ export async function POST(
       .eq("organization_id", ctx.orgId)
       .eq("user_id", ownerId)
       .maybeSingle();
-    if (ownerMemberError) return NextResponse.json({ error: ownerMemberError.message }, { status: 400 });
+    if (ownerMemberError) return NextResponse.json({ error: "Failed to validate owner" }, { status: 400 });
     if (!ownerMember) {
       return NextResponse.json({ error: "ownerId must belong to your organization" }, { status: 400 });
     }
@@ -58,7 +59,7 @@ export async function POST(
       .update({ owner_id: ownerId, due_date: body.dueDate || null, status: "in_progress" })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "Failed to assign exception" }, { status: 400 });
     await ctx.admin.from("exception_events").insert({
       organization_id: ctx.orgId,
       exception_id: id,
@@ -96,7 +97,7 @@ export async function POST(
       })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "Failed to resolve exception" }, { status: 400 });
 
     await ctx.admin.from("exception_events").insert({
       organization_id: ctx.orgId,
@@ -143,7 +144,7 @@ export async function POST(
       })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "Failed to reopen exception" }, { status: 400 });
     await ctx.admin.from("exception_events").insert({
       organization_id: ctx.orgId,
       exception_id: id,

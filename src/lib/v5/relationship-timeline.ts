@@ -74,7 +74,13 @@ export async function appendTimelineEventDeduped(
     .order("event_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (last?.payload_json && JSON.stringify(last.payload_json) === snap) return;
+  if (last?.payload_json) {
+    const storedPayload = {
+      ...(last.payload_json as Record<string, unknown>),
+    };
+    delete storedPayload.recorded_at;
+    if (JSON.stringify(storedPayload) === snap) return;
+  }
   await admin.from("relationship_timeline_events").insert({
     organization_id: organizationId,
     relationship_timeline_id: timelineId,

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=v3_legacy_workflow_smokes_are_fixture_gated
 
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL;
 const E2E_PASSWORD = process.env.E2E_TEST_PASSWORD;

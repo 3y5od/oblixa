@@ -4,11 +4,15 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { createResult, finishWithResult } from "./lib/result.mjs";
+import { nowMs } from "./lib/timing.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const apiRoot = path.join(root, "src", "app", "api");
 const allowlistPath = path.join(__dirname, "api-route-test-allowlist.txt");
+const reportOnly = process.argv.includes("--report");
+const startMs = nowMs();
 
 function walkRoutes(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;
@@ -22,15 +26,49 @@ function walkRoutes(dir, acc = []) {
 }
 
 function loadAllowlist() {
-  if (!fs.existsSync(allowlistPath)) return new Set();
+  if (!fs.existsSync(allowlistPath)) return { routes: new Set(), metadataIssues: [] };
   const raw = fs.readFileSync(allowlistPath, "utf8");
-  const set = new Set();
-  for (const line of raw.split("\n")) {
+  const routes = new Set();
+  const metadataIssues = [];
+  let currentMeta = null;
+  const metaRe =
+    /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
+  const isExpired = (dateStr) => {
+    const parsed = Date.parse(dateStr);
+    return Number.isNaN(parsed) || parsed < Date.now();
+  };
+
+  for (const [idx, line] of raw.split("\n").entries()) {
     const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    set.add(t.replace(/\\/g, "/"));
+    if (!t) continue;
+    if (t.startsWith("#")) {
+      const m = t.match(metaRe);
+      if (m) {
+        currentMeta = {
+          owner: m[1],
+          expiry: m[2],
+          reason: m[3].trim(),
+        };
+        if (isExpired(currentMeta.expiry)) {
+          metadataIssues.push({
+            line: idx + 1,
+            issue: "expired_allowlist_meta",
+            meta: currentMeta,
+          });
+        }
+      }
+      continue;
+    }
+    if (!currentMeta) {
+      metadataIssues.push({
+        line: idx + 1,
+        issue: "missing_allowlist_meta",
+        route: t.replace(/\\/g, "/"),
+      });
+    }
+    routes.add(t.replace(/\\/g, "/"));
   }
-  return set;
+  return { routes, metadataIssues };
 }
 
 function toApiRelative(abs) {
@@ -40,25 +78,78 @@ function toApiRelative(abs) {
 const routes = walkRoutes(apiRoot).sort();
 const allowlist = loadAllowlist();
 const violations = [];
+const staleAllowlistEntries = [];
+let colocatedCount = 0;
+let allowlistedCount = 0;
 
 for (const abs of routes) {
   const rel = toApiRelative(abs);
   const dir = path.dirname(abs);
   const colocated = path.join(dir, "route.test.ts");
-  if (fs.existsSync(colocated)) continue;
-  if (allowlist.has(rel)) continue;
+  if (fs.existsSync(colocated)) {
+    colocatedCount += 1;
+    continue;
+  }
+  if (allowlist.routes.has(rel)) {
+    allowlistedCount += 1;
+    continue;
+  }
   violations.push(rel);
 }
 
-if (violations.length > 0) {
-  console.error(
-    "API route(s) missing colocated route.test.ts and not in scripts/api-route-test-allowlist.txt:\n"
-  );
-  for (const v of violations) console.error(`  - ${v}`);
-  console.error(
-    "\nAdd a colocated test, or list the path in the allowlist with a comment documenting bundle coverage."
-  );
-  process.exit(1);
+for (const rel of allowlist.routes) {
+  const abs = path.join(apiRoot, rel);
+  const colocated = path.join(path.dirname(abs), "route.test.ts");
+  if (fs.existsSync(colocated)) {
+    staleAllowlistEntries.push(rel);
+  }
 }
 
-console.log(`OK: ${routes.length} API route(s) have tests or allowlist entries.`);
+const meta = {
+  totalRoutes: routes.length,
+  colocatedCount,
+  allowlistedCount,
+  uncoveredCount: violations.length,
+  uncoveredRoutes: violations,
+  staleAllowlistCount: staleAllowlistEntries.length,
+  staleAllowlistEntries,
+  allowlistMetadataIssueCount: allowlist.metadataIssues.length,
+  allowlistMetadataIssues: allowlist.metadataIssues,
+};
+
+if (reportOnly) {
+  finishWithResult(
+    createResult({
+      checkId: "api-route-tests",
+      ok: true,
+      strict: false,
+      errors: [],
+      meta,
+      startMs,
+    })
+  );
+}
+
+const errors = [];
+if (violations.length > 0) {
+  errors.push("uncovered API routes found");
+}
+
+if (allowlist.metadataIssues.length > 0) {
+  errors.push("allowlist metadata issues found");
+}
+
+if (staleAllowlistEntries.length > 0) {
+  errors.push("allowlist contains stale entries that already have route.test.ts");
+}
+
+finishWithResult(
+  createResult({
+    checkId: "api-route-tests",
+    ok: errors.length === 0,
+    strict: true,
+    errors,
+    meta,
+    startMs,
+  })
+);

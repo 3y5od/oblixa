@@ -73,15 +73,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
-  const { data: alreadyDone } = await supabase
+  const { error: claimErr } = await supabase
     .from("stripe_webhook_events")
-    .select("id")
-    .eq("id", event.id)
-    .maybeSingle();
+    .insert({ id: event.id, status: "processing" });
 
-  if (alreadyDone) {
-    return NextResponse.json({ received: true, duplicate: true });
+  if (claimErr) {
+    if (claimErr.code === "23505") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    console.error("[stripe/webhook] could not claim event:", claimErr.message);
+    captureServerMessage(claimErr.message, {
+      level: "error",
+      extra: { eventId: event.id },
+    });
+    return NextResponse.json({ error: "Could not claim event" }, { status: 500 });
   }
+
+  let processingFailed = false;
 
   try {
     switch (event.type) {
@@ -100,6 +108,20 @@ export async function POST(request: Request) {
               : null;
 
         if (orgId && session.subscription && customerId) {
+          const { data: existingOrg } = await supabase
+            .from("organizations")
+            .select("stripe_customer_id")
+            .eq("id", orgId)
+            .maybeSingle();
+
+          if (existingOrg?.stripe_customer_id && existingOrg.stripe_customer_id !== customerId) {
+            captureServerMessage("checkout customer-org binding mismatch", {
+              level: "error",
+              extra: { orgId, expected: existingOrg.stripe_customer_id, received: customerId },
+            });
+            break;
+          }
+
           const subId =
             typeof session.subscription === "string"
               ? session.subscription
@@ -119,6 +141,7 @@ export async function POST(request: Request) {
               })
               .eq("id", orgId);
             if (upErr) {
+              processingFailed = true;
               console.error(
                 "[stripe/webhook] checkout.session.completed DB update:",
                 upErr.message
@@ -140,6 +163,7 @@ export async function POST(request: Request) {
               });
             }
           } catch (err) {
+            processingFailed = true;
             console.error("[stripe/webhook] subscription retrieve failed:", err);
             captureServerException(err, { extra: { event: event.type, orgId } });
           }
@@ -174,6 +198,7 @@ export async function POST(request: Request) {
             })
             .eq("stripe_subscription_id", sub.id);
           if (clearErr) {
+            processingFailed = true;
             console.error("[stripe/webhook] subscription.updated clear:", clearErr.message);
             captureServerMessage(clearErr.message, {
               level: "error",
@@ -191,6 +216,7 @@ export async function POST(request: Request) {
             })
             .eq("stripe_subscription_id", sub.id);
           if (upErr) {
+            processingFailed = true;
             console.error("[stripe/webhook] subscription.updated DB update:", upErr.message);
             captureServerMessage(upErr.message, {
               level: "error",
@@ -212,6 +238,7 @@ export async function POST(request: Request) {
           })
           .eq("stripe_subscription_id", sub.id);
         if (delErr) {
+          processingFailed = true;
           console.error("[stripe/webhook] subscription.deleted DB update:", delErr.message);
           captureServerMessage(delErr.message, {
             level: "error",
@@ -235,24 +262,31 @@ export async function POST(request: Request) {
       }
     }
 
-    const { error: recordErr } = await supabase
-      .from("stripe_webhook_events")
-      .insert({ id: event.id });
-
-    if (recordErr && recordErr.code !== "23505") {
-      console.error("[stripe/webhook] could not record processed event:", recordErr.message);
-      captureServerMessage(recordErr.message, {
-        level: "error",
-        extra: { eventId: event.id },
-      });
-      return NextResponse.json({ error: "Could not finalize event" }, { status: 500 });
-    }
   } catch (err) {
     console.error("[stripe/webhook] handler error:", err);
     captureServerException(err, {
       extra: { eventType: event.type, eventId: event.id },
     });
+    await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
     return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+  }
+
+  if (processingFailed) {
+    await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
+    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+  }
+
+  const { error: completeErr } = await supabase
+    .from("stripe_webhook_events")
+    .update({ status: "completed" })
+    .eq("id", event.id);
+
+  if (completeErr) {
+    console.error("[stripe/webhook] could not mark event completed:", completeErr.message);
+    captureServerMessage(completeErr.message, {
+      level: "error",
+      extra: { eventId: event.id },
+    });
   }
 
   return NextResponse.json({ received: true });

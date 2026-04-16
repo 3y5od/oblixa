@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { isUuid } from "@/lib/security/validation";
@@ -18,6 +18,9 @@ type TriggerType =
   | "approval_stall"
   | "risk_threshold"
   | "data_quality_gap";
+
+const MAX_RULE_NAME_LEN = 240;
+const MAX_CONFIG_JSON_SIZE = 10000;
 
 const TRIGGERS: TriggerType[] = [
   "field_missing",
@@ -43,8 +46,10 @@ export async function createTaskAutomationRule(input: {
   if (!user) return { error: "Not authenticated" };
   if (!TRIGGERS.includes(input.triggerType)) return { error: "Invalid trigger type" };
   if (!input.name.trim()) return { error: "Name is required" };
+  if (input.name.length > MAX_RULE_NAME_LEN) return { error: "Rule name is too long" };
+  if (JSON.stringify(input.configJson).length > MAX_CONFIG_JSON_SIZE) return { error: "Rule configuration is too large" };
 
-  const membership = await getDeterministicMembership(admin, user.id);
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
     return { error: "Access denied" };
   }
@@ -77,6 +82,10 @@ export async function createTaskAutomationRuleForm(formData: FormData) {
   const webhookEventType = String(formData.get("webhookEventType") ?? "").trim();
   const actionType = String(formData.get("actionType") ?? "create_task").trim();
   const reportMode = String(formData.get("reportMode") ?? "exceptions").trim();
+  if (!TRIGGERS.includes(triggerType as TriggerType)) {
+    console.error("[automation] createTaskAutomationRuleForm: invalid triggerType", triggerType);
+    return;
+  }
   const res = await createTaskAutomationRule({
     name,
     triggerType: triggerType as TriggerType,
@@ -193,6 +202,7 @@ export async function runTaskAutomationRulesForOrg(admin: Awaited<ReturnType<typ
       .eq("created_via", "rule")
       .eq("title", title)
       .in("status", ["open", "in_progress", "blocked"])
+      .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
     if (existing.data) return false;

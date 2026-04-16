@@ -28,6 +28,7 @@ const BASE_CAPABILITIES: Record<OrgRole, RoleCapability[]> = {
   manager: ["contracts_edit", "approvals_manage", "renewals_manage", "maintenance_manage"],
 };
 
+// Policy-aware check; `canEditContracts` in permissions.ts does NOT consult role_policy_json.
 export function hasRoleCapability(input: {
   role: OrgRole | null;
   capability: RoleCapability;

@@ -23,6 +23,11 @@ function fail(msg) {
   console.error(`FAIL ${msg}`);
 }
 
+const diagnostics = {
+  generatedAt: new Date().toISOString(),
+  checks: [],
+};
+
 async function main() {
   const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
   const serviceRoleKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
@@ -58,6 +63,12 @@ async function main() {
   const successRate = total === 0 ? 100 : (delivered / total) * 100;
 
   pass(`delivery 24h: delivered=${delivered}, failed=${failed}, successRate=${successRate.toFixed(1)}%`);
+  diagnostics.checks.push({
+    name: "delivery_success_rate_24h",
+    delivered,
+    failed,
+    successRate: Number(successRate.toFixed(2)),
+  });
 
   // Thresholds from docs.
   if (total >= 20 && successRate < 80) {
@@ -84,6 +95,12 @@ async function main() {
 
   const queueDepth = (pending ?? 0) + (retrying ?? 0);
   pass(`retry queue depth=${queueDepth} (pending=${pending ?? 0}, retrying=${retrying ?? 0})`);
+  diagnostics.checks.push({
+    name: "retry_queue_depth",
+    pending: pending ?? 0,
+    retrying: retrying ?? 0,
+    queueDepth,
+  });
 
   if (queueDepth >= 50) {
     throw new Error(`critical: retry queue depth too high (${queueDepth})`);
@@ -106,15 +123,23 @@ async function main() {
 
   const heartbeatAgeMin = Math.round((now - new Date(heartbeatRow.created_at).getTime()) / 60000);
   pass(`retry heartbeat age=${heartbeatAgeMin}m`);
+  diagnostics.checks.push({
+    name: "retry_worker_heartbeat_age_minutes",
+    heartbeatAgeMin,
+  });
 
   if (heartbeatAgeMin > 30) {
     throw new Error(`critical: retry-worker heartbeat stale (${heartbeatAgeMin}m)`);
   }
 
   pass("slo-monitor completed");
+  console.log(JSON.stringify({ ok: true, ...diagnostics }, null, 2));
 }
 
 main().catch((err) => {
-  fail(err instanceof Error ? err.message : String(err));
+  const message = err instanceof Error ? err.message : String(err);
+  diagnostics.checks.push({ name: "failure", message });
+  console.log(JSON.stringify({ ok: false, ...diagnostics }, null, 2));
+  fail(message);
   process.exit(1);
 });

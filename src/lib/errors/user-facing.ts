@@ -26,7 +26,8 @@ export function mapDataSourceError(message: string): string {
   if (message.length > 180 || looksLikeTechnicalDump(message)) {
     return "Something went wrong. Please try again.";
   }
-  return message;
+  console.warn("mapDataSourceError: unmapped message:", message);
+  return "An unexpected error occurred. Please try again.";
 }
 
 function looksLikeTechnicalDump(raw: string): boolean {

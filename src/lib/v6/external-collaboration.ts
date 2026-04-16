@@ -49,6 +49,7 @@ export async function appendExternalWorkflowStep(
   const { data: link } = await admin
     .from("external_action_links")
     .select("id, scope_json, expires_at, status")
+    .eq("organization_id", orgId)
     .eq("id", linkId)
     .maybeSingle();
 
@@ -83,13 +84,15 @@ export async function appendExternalWorkflowStep(
     .select("id, status, scope_json")
     .single();
 
-  await admin.from("external_action_events").insert({
-    organization_id: orgId,
-    external_action_link_id: linkId,
-    event_type: `external.workflow.${stepType}`,
-    payload_json: payload,
-    actor_user_id: actorUserId ?? null,
-  });
+  if (!result.error) {
+    await admin.from("external_action_events").insert({
+      organization_id: orgId,
+      external_action_link_id: linkId,
+      event_type: `external.workflow.${stepType}`,
+      payload_json: payload,
+      actor_user_id: actorUserId ?? null,
+    });
+  }
 
   return result;
 }

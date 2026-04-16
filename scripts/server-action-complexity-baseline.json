@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-04-14T00:00:00.000Z",
+  "offenders": [
+    { "file": "src/actions/contracts.ts", "lines": 1419 },
+    { "file": "src/actions/contracts-lifecycle.ts", "lines": 683 },
+    { "file": "src/actions/tasks.ts", "lines": 1046 },
+    { "file": "src/actions/v4.ts", "lines": 795 },
+    { "file": "src/actions/workflow-config.ts", "lines": 767 },
+    { "file": "src/actions/onboarding-calibration.ts", "lines": 655 },
+    { "file": "src/actions/approvals.ts", "lines": 636 },
+    { "file": "src/actions/obligations.ts", "lines": 627 },
+    { "file": "src/actions/automation.ts", "lines": 476 }
+  ]
+}

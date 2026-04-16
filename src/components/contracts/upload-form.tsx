@@ -72,73 +72,87 @@ export function UploadForm({
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-6">
       {disabled && disabledReason && (
-        <div className="rounded-lg border border-amber-200/70 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950">
+        <div className="ui-alert-warning">
           {disabledReason}
         </div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-200/70 bg-red-50/80 px-3 py-2.5 text-sm text-red-800">
+        <div className="ui-alert-error">
           {error}
         </div>
       )}
       {fileNotice && !error && (
-        <div className="rounded-lg border border-amber-200/70 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950">
+        <div className="ui-alert-warning">
           {fileNotice}
         </div>
       )}
-      <p className="ui-muted-tight text-[13px]">
-        PDF and DOCX up to 20 MB per file. Files are validated server-side; unsupported
-        types are rejected.
-      </p>
 
-      <div>
-        <label htmlFor="title" className="ui-label">
-          Contract title
-        </label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          required
-          placeholder="e.g., Acme Corp MSA 2025"
-          className="ui-input mt-1 w-full"
-        />
+      <div className="ui-toolbar justify-between gap-3">
+        <p className="ui-muted-tight text-[13px]">
+          PDF and DOCX up to 20 MB per file. Files are validated server-side; unsupported types are rejected.
+        </p>
+        <span className="ui-chip">Step 1 of 3</span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="min-w-0">
-          <label htmlFor="counterparty" className="ui-label">
-            Counterparty
+      <section className="space-y-4">
+        <div>
+          <p className="ui-eyebrow">Record metadata</p>
+          <h2 className="ui-section-title mt-2 text-xl">Give the contract a durable identity</h2>
+        </div>
+
+        <div>
+          <label htmlFor="title" className="ui-label">
+            Contract title
           </label>
           <input
-            id="counterparty"
-            name="counterparty"
+            id="title"
+            name="title"
             type="text"
-            placeholder="e.g., Acme Corp"
-            className="ui-input mt-1 w-full min-w-0"
+            required
+            placeholder="e.g., Acme Corp MSA 2025"
+            className="ui-input mt-1 w-full"
           />
         </div>
-        <div className="min-w-0">
-          <label htmlFor="contractType" className="ui-label">
-            Contract type
-          </label>
-          <select
-            id="contractType"
-            name="contractType"
-            className="ui-input mt-1 w-full min-w-0"
-          >
-            <option value="">Select type</option>
-            <option value="MSA">Master Service Agreement</option>
-            <option value="SOW">Statement of Work</option>
-            <option value="NDA">Non-Disclosure Agreement</option>
-            <option value="SaaS">SaaS Agreement</option>
-            <option value="Employment">Employment Agreement</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
 
-      <div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="min-w-0">
+            <label htmlFor="counterparty" className="ui-label">
+              Counterparty
+            </label>
+            <input
+              id="counterparty"
+              name="counterparty"
+              type="text"
+              placeholder="e.g., Acme Corp"
+              className="ui-input mt-1 w-full min-w-0"
+            />
+          </div>
+          <div className="min-w-0">
+            <label htmlFor="contractType" className="ui-label">
+              Contract type
+            </label>
+            <select
+              id="contractType"
+              name="contractType"
+              className="ui-input mt-1 w-full min-w-0"
+            >
+              <option value="">Select type</option>
+              <option value="MSA">Master Service Agreement</option>
+              <option value="SOW">Statement of Work</option>
+              <option value="NDA">Non-Disclosure Agreement</option>
+              <option value="SaaS">SaaS Agreement</option>
+              <option value="Employment">Employment Agreement</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">Files</p>
+          <h2 className="ui-section-title mt-2 text-xl">Upload the signed source documents</h2>
+        </div>
         <span id="files-label" className="ui-label">
           Contract files (PDF or DOCX)
         </span>
@@ -154,12 +168,12 @@ export function UploadForm({
               fileInputRef.current?.click();
             }
           }}
-          className={`group mt-1 flex min-h-[200px] items-center justify-center rounded-2xl border border-dashed px-5 py-8 transition-all duration-200 sm:min-h-[220px] sm:px-6 sm:py-10 ${
+          className={`group mt-1 flex min-h-[220px] items-center justify-center rounded-[1.75rem] border border-dashed px-5 py-8 transition-all duration-200 sm:min-h-[240px] sm:px-6 sm:py-10 ${
             disabled
-              ? "cursor-not-allowed border-zinc-200 bg-zinc-50/30 opacity-50"
+              ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] opacity-50"
               : isDragOver
-                ? "cursor-pointer border-[var(--accent)] bg-indigo-50/50 shadow-[inset_0_0_0_1px_rgba(30,58,95,0.08)]"
-                : "cursor-pointer border-zinc-200/90 bg-gradient-to-b from-zinc-50/80 to-white hover:border-zinc-300 hover:shadow-[inset_0_0_0_1px_rgba(15,23,42,0.04)]"
+                ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_56%,transparent)] shadow-[var(--shadow-glow)]"
+                : "cursor-pointer border-[var(--border-subtle)] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--surface)_90%,white),color-mix(in_oklab,var(--surface-muted)_54%,transparent))] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-1)]"
           }`}
           onClick={() => !disabled && fileInputRef.current?.click()}
           onDragEnter={(e) => {
@@ -186,13 +200,13 @@ export function UploadForm({
           }}
         >
           <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200/80 bg-surface shadow-sm transition-transform duration-200 group-hover:scale-[1.02]">
-              <Upload className="h-6 w-6 text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.25rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] shadow-[var(--shadow-1)] transition-transform duration-200 group-hover:scale-[1.02]">
+              <Upload className="h-6 w-6 text-[var(--accent-strong)]" strokeWidth={1.75} aria-hidden />
             </div>
-            <p className="mt-4 text-[15px] font-semibold text-zinc-900">
+            <p className="mt-4 text-[15px] font-semibold text-[var(--text-primary)]">
               Drop files or click to browse
             </p>
-            <p className="mt-1.5 text-[13px] text-zinc-500">PDF or DOCX · max 20 MB each</p>
+            <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">PDF or DOCX · max 20 MB each</p>
           </div>
         </div>
         <input
@@ -212,19 +226,19 @@ export function UploadForm({
             {files.map((file, i) => (
               <li
                 key={`${file.name}-${i}`}
-                className="flex items-center justify-between rounded-xl border border-zinc-200/80 bg-surface px-4 py-3 shadow-sm"
+                className="flex items-center justify-between rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] px-4 py-3 shadow-[var(--shadow-1)]"
               >
                 <div className="flex items-center gap-2">
-                  <FileText size={16} className="text-zinc-400" />
-                  <span className="text-sm text-zinc-700">{file.name}</span>
-                  <span className="text-xs text-zinc-400">
+                  <FileText size={16} className="text-[var(--text-tertiary)]" />
+                  <span className="text-sm text-[var(--text-primary)]">{file.name}</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">
                     ({formatFileSize(file.size)})
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
-                  className="text-zinc-400 hover:text-zinc-600"
+                  className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   aria-label={`Remove ${file.name} from list`}
                 >
                   <X size={16} aria-hidden />
@@ -233,9 +247,9 @@ export function UploadForm({
             ))}
           </ul>
         )}
-      </div>
+      </section>
 
-      <div className="flex flex-wrap justify-end gap-3 border-t border-zinc-100 pt-6">
+      <div className="flex flex-wrap justify-end gap-3 border-t border-[var(--border-subtle)] pt-6">
         <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
           Cancel
         </Link>

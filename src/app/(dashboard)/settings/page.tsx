@@ -86,65 +86,61 @@ export default async function SettingsPage() {
   };
 
   return (
-    <div className="ui-page-stack mx-auto max-w-4xl">
-      <header className="border-b border-zinc-200/60 pb-8">
-        {/* Always stack: viewport breakpoints ignore sidebar width, so side-by-side rows
-            overlapped title + pills in the main column (~1024–1400px effective width). */}
-        <div className="flex flex-col gap-5">
-          <div className="min-w-0">
-            <p className="ui-eyebrow">Workspace</p>
-            <h1 className="ui-display-title mt-2">Settings</h1>
-            <p className="ui-muted-tight mt-3 max-w-2xl">
-              Profile, organization, and team access for your workspace.
-            </p>
-          </div>
-          <div className="ui-page-actions w-full shrink-0 justify-start pt-0">
-            {canOpenHealth && (
-              <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                System health
-              </Link>
-            )}
-            <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
-              Workflow configuration
+    <div className="ui-page-stack mx-auto max-w-6xl">
+      <header className="ui-page-header">
+        <div className="min-w-0">
+          <p className="ui-eyebrow">Workspace</p>
+          <h1 className="ui-display-title mt-2">Settings</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Profile, organization, team access, and operational controls for the workspace.
+          </p>
+        </div>
+        <div className="ui-page-actions w-full shrink-0 justify-start pt-0">
+          {canOpenHealth && (
+            <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
+              System health
             </Link>
-            {membership?.role === "admin" ? (
-              <Link href="/settings/product" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                Product experience
-              </Link>
-            ) : null}
-            {membership?.role === "admin" ? (
-              <Link href="/settings/policy" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                Policy registry
-              </Link>
-            ) : null}
-            <a
-              href="/api/export/calendar?role=legal"
-              className="ui-btn-secondary px-4 py-2 text-[13px]"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Legal calendar (.ics)
-            </a>
-            <a
-              href="/api/export/calendar?role=finance"
-              className="ui-btn-secondary px-4 py-2 text-[13px]"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Finance calendar (.ics)
-            </a>
-          </div>
+          )}
+          <Link href="/settings/operations" className="ui-btn-secondary px-4 py-2 text-[13px]">
+            Workflow configuration
+          </Link>
+          {membership?.role === "admin" ? (
+            <Link href="/settings/product" className="ui-btn-secondary px-4 py-2 text-[13px]">
+              Product experience
+            </Link>
+          ) : null}
+          {membership?.role === "admin" ? (
+            <Link href="/settings/policy" className="ui-btn-secondary px-4 py-2 text-[13px]">
+              Policy registry
+            </Link>
+          ) : null}
+          <a
+            href="/api/export/calendar?role=legal"
+            className="ui-btn-secondary px-4 py-2 text-[13px]"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Legal calendar (.ics)
+          </a>
+          <a
+            href="/api/export/calendar?role=finance"
+            className="ui-btn-secondary px-4 py-2 text-[13px]"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Finance calendar (.ics)
+          </a>
         </div>
       </header>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-6 py-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <div className="min-w-0">
               <p className="ui-eyebrow">You</p>
               <h2 className="ui-section-title mt-1 text-base">Profile</h2>
             </div>
-            <p className="shrink-0 text-[12px] text-zinc-500 sm:pt-0.5 sm:text-right">
+            <p className="shrink-0 text-[12px] text-[var(--text-secondary)] sm:pt-0.5 sm:text-right">
               Joined{" "}
               {user.created_at
                 ? format(new Date(user.created_at), "MMM d, yyyy")
@@ -162,12 +158,12 @@ export default async function SettingsPage() {
 
       {membership && (
         <section className="ui-card overflow-hidden">
-          <div className="flex flex-col gap-2 border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex flex-col gap-2 border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="min-w-0">
               <p className="ui-eyebrow">Workspace</p>
               <h2 className="ui-section-title mt-1 text-base">Organization</h2>
             </div>
-            <span className="inline-flex w-fit shrink-0 rounded-full border border-zinc-200/80 bg-surface px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700">
+            <span className="inline-flex w-fit shrink-0 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
@@ -182,9 +178,9 @@ export default async function SettingsPage() {
             <div>
               <p className="ui-eyebrow">Access</p>
               <h3 className="ui-section-title mt-1 text-base">Team members</h3>
-              <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200/90">
-                <table className="min-w-full divide-y divide-zinc-200/80">
-                  <thead className="bg-zinc-50/80">
+              <div className="ui-table-shell mt-4">
+                <table className="min-w-full divide-y divide-[var(--border-subtle)]">
+                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_64%,transparent)]">
                     <tr>
                       <th className="ui-table-header px-4 py-3">
                         Name
@@ -195,15 +191,15 @@ export default async function SettingsPage() {
                   </thead>
                   <tbody className="divide-y divide-zinc-200/70">
                     {members.map((m) => (
-                      <tr key={m.id}>
-                        <td className="px-4 py-2.5 text-sm font-medium text-zinc-900">
+                      <tr key={m.id} className="ui-table-row">
+                        <td className="px-4 py-2.5 text-sm font-medium text-[var(--text-primary)]">
                           {m.profiles?.full_name || "—"}
                         </td>
-                        <td className="px-4 py-2.5 text-sm text-zinc-500">
+                        <td className="px-4 py-2.5 text-sm text-[var(--text-secondary)]">
                           {m.profiles?.email || "—"}
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className="inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700">
+                          <span className="inline-flex rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_64%,transparent)] px-2 py-0.5 text-xs font-medium text-[var(--text-secondary)]">
                             {roleLabels[m.role] || m.role}
                           </span>
                         </td>
@@ -222,7 +218,7 @@ export default async function SettingsPage() {
           )}
 
           {membership.role === "admin" && (
-            <div className="mt-8 border-t border-zinc-100 pt-6">
+            <div className="mt-8 border-t border-[var(--border-subtle)] pt-6">
               <DemoSeedButton />
             </div>
           )}

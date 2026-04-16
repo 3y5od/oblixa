@@ -12,8 +12,8 @@ describe("incrementOrgV5SignalQuality", () => {
     expect(admin.from).not.toHaveBeenCalled();
   });
 
-  it("inserts when no existing row", async () => {
-    const insert = vi.fn().mockResolvedValue({ error: null });
+  it("upserts when no existing row", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
     const selectChain = {
       eq: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockResolvedValue({ data: null }),
@@ -23,8 +23,7 @@ describe("incrementOrgV5SignalQuality", () => {
         if (table === "org_behavior_metrics") {
           return {
             select: vi.fn(() => selectChain),
-            insert,
-            update: vi.fn(),
+            upsert,
           };
         }
         return {};
@@ -35,8 +34,8 @@ describe("incrementOrgV5SignalQuality", () => {
       organizationId: "org-1",
       increments: { foo: 1 },
     });
-    expect(insert).toHaveBeenCalled();
-    const arg = insert.mock.calls[0][0] as { organization_id: string };
+    expect(upsert).toHaveBeenCalled();
+    const arg = upsert.mock.calls[0][0] as { organization_id: string };
     expect(arg.organization_id).toBe("org-1");
   });
 });

@@ -32,25 +32,25 @@ export async function buildPortfolioSignalSummary(
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
-    { count: openExceptions },
-    { count: activeCampaigns },
-    { count: openDecisions },
-    { count: pendingApprovals },
-    { count: attestationGaps },
-    { count: openExecutionTasks },
-    { count: openExternalLinks },
-    { count: pendingEvidenceRequirements },
-    { count: obligationsDueMonth },
-    { count: staleOpenExceptions },
-    { count: renewalCheckpointPending },
-    { count: activeProgramAssignments },
-    { data: activeCampaignIdRows },
+    { count: openExceptions, error: e1 },
+    { count: activeCampaigns, error: e2 },
+    { count: openDecisions, error: e3 },
+    { count: pendingApprovals, error: e4 },
+    { count: attestationGaps, error: e5 },
+    { count: openExecutionTasks, error: e6 },
+    { count: openExternalLinks, error: e7 },
+    { count: pendingEvidenceRequirements, error: e8 },
+    { count: obligationsDueMonth, error: e9 },
+    { count: staleOpenExceptions, error: e10 },
+    { count: renewalCheckpointPending, error: e11 },
+    { count: activeProgramAssignments, error: e12 },
+    { data: activeCampaignIdRows, error: e13 },
   ] = await Promise.all([
     admin
       .from("exceptions")
       .select("id", { count: "exact", head: true })
       .eq("organization_id", orgId)
-      .eq("status", "open"),
+      .in("status", ["open", "in_progress"]),
     admin
       .from("portfolio_campaigns")
       .select("id", { count: "exact", head: true })
@@ -116,24 +116,30 @@ export async function buildPortfolioSignalSummary(
       .limit(400),
   ]);
 
+  for (const err of [e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13]) {
+    if (err) console.error("[portfolio-signal-summary] query failed:", err.message);
+  }
+
   const activeCampIds = (activeCampaignIdRows ?? []).map((r) => String(r.id));
   let campaignContractBacklog = 0;
   if (activeCampIds.length > 0) {
-    const { count: ccBacklog } = await admin
+    const { count: ccBacklog, error: ccErr } = await admin
       .from("portfolio_campaign_contracts")
       .select("id", { count: "exact", head: true })
       .eq("organization_id", orgId)
       .in("campaign_id", activeCampIds)
       .in("status", ["pending", "in_progress"]);
+    if (ccErr) console.error("[portfolio-signal-summary] campaign backlog query failed:", ccErr.message);
     campaignContractBacklog = ccBacklog ?? 0;
   }
 
-  const { data: exForAccounts } = await admin
+  const { data: exForAccounts, error: exAccErr } = await admin
     .from("exceptions")
     .select("contract_id")
     .eq("organization_id", orgId)
     .eq("status", "open")
     .limit(500);
+  if (exAccErr) console.error("[portfolio-signal-summary] exceptions for accounts query failed:", exAccErr.message);
   const exRows = exForAccounts ?? [];
   const cids = [...new Set(exRows.map((r) => r.contract_id).filter(Boolean))] as string[];
   let drivers: Record<string, unknown> = {
@@ -142,11 +148,12 @@ export async function buildPortfolioSignalSummary(
     reason: "Open exceptions grouped by contract account_key (top five).",
   };
   if (cids.length > 0) {
-    const { data: contracts } = await admin
+    const { data: contracts, error: cErr } = await admin
       .from("contracts")
       .select("id, account_key")
       .eq("organization_id", orgId)
       .in("id", cids);
+    if (cErr) console.error("[portfolio-signal-summary] contracts query failed:", cErr.message);
     const idToAccount = new Map(
       (contracts ?? []).map((c) => [String(c.id), c.account_key as string | null])
     );

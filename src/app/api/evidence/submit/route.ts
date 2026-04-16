@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     requirementId?: string;
     payload?: Record<string, unknown>;
   };
+  if (JSON.stringify(body).length > 50000) return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   const requirementId = String(body.requirementId ?? "").trim();
   if (!requirementId) {
     return NextResponse.json({ error: "requirementId is required" }, { status: 400 });

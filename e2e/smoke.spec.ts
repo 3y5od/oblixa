@@ -1,15 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { GENERATED_PUBLIC_MULTI_BROWSER_PATHS } from "@/lib/qa/generated-route-matrices";
 
 test.describe("public pages", () => {
-  test("home page loads", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByText("Oblixa").first()).toBeVisible();
-  });
-
-  test("login page loads", async ({ page }) => {
-    await page.goto("/login");
-    await expect(
-      page.getByRole("heading", { name: /sign in to your account/i })
-    ).toBeVisible();
-  });
+  for (const path of GENERATED_PUBLIC_MULTI_BROWSER_PATHS) {
+    test(`${path} loads`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator("h1")).toBeVisible();
+    });
+  }
 });

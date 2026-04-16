@@ -1,3 +1,5 @@
+import { validateOutboundHttpUrl } from "./url-policy";
+
 /**
  * Bounded server-side fetch: timeout, response size cap, redirect limit.
  * Use for outbound integration and webhook-style calls (defense in depth vs SSRF abuse).
@@ -53,7 +55,11 @@ export async function safeFetch(input: RequestInfo | URL, options: SafeFetchOpti
         throw new SafeFetchError("redirect limit exceeded or missing Location");
       }
       redirectCount++;
-      url = new URL(loc, url).toString();
+      const resolved = new URL(loc, url).toString();
+      if (!validateOutboundHttpUrl(resolved)) {
+        throw new SafeFetchError("redirect target failed URL policy validation");
+      }
+      url = resolved;
       continue;
     }
 

@@ -46,11 +46,9 @@ describe("POST /api/stripe/webhook", () => {
       from: vi.fn((table: string) => {
         if (table === "stripe_webhook_events") {
           return {
-            select: () => ({
-              eq: () => ({
-                maybeSingle: vi.fn(async () => ({ data: { id: "evt_already" }, error: null })),
-              }),
-            }),
+            insert: vi.fn(async () => ({
+              error: { code: "23505", message: "duplicate key" },
+            })),
           };
         }
         return {};

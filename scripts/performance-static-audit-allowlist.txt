@@ -4,3 +4,7 @@
 # Generic V6 CRUD helpers return full inserted/updated rows; table is dynamic at runtime.
 # Allowlisted for performance-static-audit select("*"); revisit when insert/update table sets stabilize.
 src/lib/v6/service.ts
+
+# Contract filter helpers intentionally cap large deadline/search candidate sets to 5000 before
+# in-memory narrowing; revisit if a paginated alternative lands.
+src/lib/contract-filters.ts

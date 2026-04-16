@@ -30,7 +30,7 @@ export async function GET() {
   };
   for (const row of rows ?? []) {
     if (row.status === "completed") totals.completed += 1;
-    else totals.pending += 1;
+    if (row.status === "pending") totals.pending += 1;
     if (row.status !== "completed" && row.due_date && row.due_date < today) totals.overdue += 1;
     if (row.renewal_state === "decision_pending") totals.decisionPending += 1;
   }

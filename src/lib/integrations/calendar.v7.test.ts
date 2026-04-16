@@ -20,7 +20,9 @@ function emptyAdmin() {
         return {
           select: () => ({
             eq: () => ({
-              eq: () => done,
+              eq: () => ({
+                not: () => done,
+              }),
             }),
           }),
         };

@@ -178,28 +178,28 @@ export async function buildAssuranceAnalyticsSummary(
   const sevenDayStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const [
-    { data: findings },
+    findingsResult,
     policyResults,
-    { data: pbRuns },
-    { data: apLogs },
-    { data: checkRuns },
+    pbRunsResult,
+    apLogsResult,
+    checkRunsResult,
     metrics,
-    { count: publishedPolicies },
-    { count: enabledAutopilot },
-    { count: boardRuns30 },
-    { count: incrementalRuns30 },
-    { count: outcomeAnalyses30 },
-    { data: scorecardRows },
-    { data: lastPortfolioRun },
-    { data: apLogsDetailed },
-    { data: qualityMetricRows },
-    { data: findingFeedbackEvents },
-    { count: externalSubmissions30 },
-    { count: externalLinkCreated30 },
-    { data: resolvedFindingsWindow },
-    { data: qualityMetrics7d },
-    { count: externalLinkRows30 },
-    { count: externalWorkflowSteps30 },
+    publishedPoliciesResult,
+    enabledAutopilotResult,
+    boardRuns30Result,
+    incrementalRuns30Result,
+    outcomeAnalyses30Result,
+    scorecardRowsResult,
+    lastPortfolioRunResult,
+    apLogsDetailedResult,
+    qualityMetricRowsResult,
+    findingFeedbackEventsResult,
+    externalSubmissions30Result,
+    externalLinkCreated30Result,
+    resolvedFindingsWindowResult,
+    qualityMetrics7dResult,
+    externalLinkRows30Result,
+    externalWorkflowSteps30Result,
   ] = await Promise.all([
     admin
       .from("assurance_findings")
@@ -318,6 +318,53 @@ export async function buildAssuranceAnalyticsSummary(
       .gte("created_at", since)
       .like("event_type", "external.workflow%"),
   ]);
+
+  for (const [label, res] of Object.entries({
+    findings: findingsResult,
+    pbRuns: pbRunsResult,
+    apLogs: apLogsResult,
+    checkRuns: checkRunsResult,
+    publishedPolicies: publishedPoliciesResult,
+    enabledAutopilot: enabledAutopilotResult,
+    boardRuns30: boardRuns30Result,
+    incrementalRuns30: incrementalRuns30Result,
+    outcomeAnalyses30: outcomeAnalyses30Result,
+    scorecardRows: scorecardRowsResult,
+    lastPortfolioRun: lastPortfolioRunResult,
+    apLogsDetailed: apLogsDetailedResult,
+    qualityMetricRows: qualityMetricRowsResult,
+    findingFeedbackEvents: findingFeedbackEventsResult,
+    externalSubmissions30: externalSubmissions30Result,
+    externalLinkCreated30: externalLinkCreated30Result,
+    resolvedFindingsWindow: resolvedFindingsWindowResult,
+    qualityMetrics7d: qualityMetrics7dResult,
+    externalLinkRows30: externalLinkRows30Result,
+    externalWorkflowSteps30: externalWorkflowSteps30Result,
+  })) {
+    const err = (res as { error?: unknown }).error;
+    if (err) console.error(`[assurance-analytics] ${label} query error:`, err);
+  }
+
+  const findings = findingsResult.data;
+  const pbRuns = pbRunsResult.data;
+  const apLogs = apLogsResult.data;
+  const checkRuns = checkRunsResult.data;
+  const publishedPolicies = publishedPoliciesResult.count;
+  const enabledAutopilot = enabledAutopilotResult.count;
+  const boardRuns30 = boardRuns30Result.count;
+  const incrementalRuns30 = incrementalRuns30Result.count;
+  const outcomeAnalyses30 = outcomeAnalyses30Result.count;
+  const scorecardRows = scorecardRowsResult.data;
+  const lastPortfolioRun = lastPortfolioRunResult.data;
+  const apLogsDetailed = apLogsDetailedResult.data;
+  const qualityMetricRows = qualityMetricRowsResult.data;
+  const findingFeedbackEvents = findingFeedbackEventsResult.data;
+  const externalSubmissions30 = externalSubmissions30Result.count;
+  const externalLinkCreated30 = externalLinkCreated30Result.count;
+  const resolvedFindingsWindow = resolvedFindingsWindowResult.data;
+  const qualityMetrics7d = qualityMetrics7dResult.data;
+  const externalLinkRows30 = externalLinkRows30Result.count;
+  const externalWorkflowSteps30 = externalWorkflowSteps30Result.count;
 
   type ExternalLinkScopeRow = { scope_json?: unknown };
   const { rows: externalLinkScopes30dRows, error: externalLinkScopesError } =

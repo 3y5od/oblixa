@@ -56,6 +56,7 @@ describe("decision-packet-storage", () => {
       payload: { x: true },
     });
 
+    if (r && 'error' in r) throw new Error(r.error);
     expect(r?.storagePath).toBe("o1/r1/packet.json");
     expect(upload).toHaveBeenCalledWith(
       "o1/r1/packet.json",
@@ -94,6 +95,7 @@ describe("decision-packet-storage", () => {
       runId: "r1",
       pdfBuffer: Buffer.from("%PDF mock"),
     });
+    if (r && 'error' in r) throw new Error(r.error);
     expect(r?.storagePath).toBe("o1/r1/packet.pdf");
     expect(upload).toHaveBeenCalledWith(
       "o1/r1/packet.pdf",

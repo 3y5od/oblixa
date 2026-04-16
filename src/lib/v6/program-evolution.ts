@@ -104,11 +104,11 @@ export async function simulateProgramEvolutionExperiment(
     .eq("organization_id", orgId)
     .limit(100);
 
-  let avg =
+  let avg: number | null =
     (scores ?? []).length > 0
       ? (scores as { overall_score?: number }[]).reduce((s, r) => s + Number(r.overall_score ?? 0), 0) /
         (scores ?? []).length
-      : 70;
+      : null;
 
   let segmentMemberCount: number | null = null;
   const targetSegId = exp?.target_segment_id as string | null | undefined;
@@ -135,7 +135,7 @@ export async function simulateProgramEvolutionExperiment(
         .eq("entity_ref_id", segKey)
         .maybeSingle();
       if (segScore && typeof (segScore as { overall_score?: number }).overall_score === "number") {
-        avg = Number((segScore as { overall_score: number }).overall_score);
+        avg = Number((segScore as { overall_score: number }).overall_score) as number;
       }
     }
   }
@@ -144,10 +144,9 @@ export async function simulateProgramEvolutionExperiment(
     segmentMemberCount != null && segmentMemberCount > 0
       ? Math.max(0.88, 1 - Math.min(0.12, segmentMemberCount / 800))
       : 1;
-  const projectedDelta = Math.max(
-    -15,
-    Math.min(15, Number((85 - avg).toFixed(2)) * cohortFactor)
-  );
+  const projectedDelta = avg != null
+    ? Math.max(-15, Math.min(15, Number((85 - avg).toFixed(2)) * cohortFactor))
+    : null;
 
   let versionDiff: Record<string, unknown> = {};
   const baseId = exp?.baseline_program_version_id as string | null | undefined;
@@ -249,6 +248,18 @@ export async function advanceExperimentRollout(
   experimentId: string,
   stage: string
 ) {
+  const { data: current } = await admin
+    .from("program_evolution_experiments")
+    .select("status")
+    .eq("organization_id", orgId)
+    .eq("id", experimentId)
+    .maybeSingle();
+
+  const status = current?.status as string | undefined;
+  if (status !== "draft" && status !== "running") {
+    return { data: null, error: { message: `Cannot advance experiment with status "${status ?? "unknown"}"` } };
+  }
+
   return updateRowById(admin, "program_evolution_experiments", orgId, experimentId, {
     status: "running",
     rollout_plan_json: { stage, updated_at: new Date().toISOString() },

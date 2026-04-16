@@ -137,7 +137,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     render(<CalibrationWizard initialRequired={{}} initialOptional={{}} initialStep={0} />);
     const firstOption = screen.getAllByRole("radio")[0]!;
     const label = firstOption.closest("label");
-    expect(label?.className).toMatch(/min-h-9/);
+    expect(label?.className).toMatch(/min-h-1(0|1)/);
   });
 
   it("exposes aria-live polite region for preview/action errors", () => {

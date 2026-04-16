@@ -61,6 +61,7 @@ const RENEWAL_STATE_OPTIONS = [
 
 const STATUS_OPTIONS: { value: RenewalCheckpointStatus; label: string }[] = [
   { value: "pending", label: "Pending" },
+  { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
   { value: "skipped", label: "Skipped" },
 ];
@@ -68,6 +69,7 @@ const STATUS_OPTIONS: { value: RenewalCheckpointStatus; label: string }[] = [
 function statusTone(status: RenewalCheckpointStatus): string {
   if (status === "completed") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "skipped") return "border-zinc-200 bg-zinc-100 text-zinc-700";
+  if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
 

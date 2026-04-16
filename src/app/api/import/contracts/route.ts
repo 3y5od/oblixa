@@ -4,6 +4,7 @@ import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 
 type CsvRow = {
   title: string;
@@ -18,6 +19,7 @@ type CsvRow = {
 const CONTRACT_INSERT_BATCH_SIZE = 200;
 const JOB_ROW_INSERT_BATCH_SIZE = 500;
 const MAX_IMPORT_BODY_CHARS = 2_000_000;
+const AUTO_ATTACH_PROGRAMS_CONCURRENCY = 6;
 
 function chunkArray<T>(items: T[], size: number): T[][] {
   if (items.length === 0) return [];
@@ -232,13 +234,19 @@ export async function POST(request: Request) {
         chunk[i].contractId = inserted?.[i]?.id ?? null;
         chunk[i].status = inserted?.[i]?.id ? "inserted" : "error";
         if (!inserted?.[i]?.id) chunk[i].errorMessage = "Insert failed";
-        else {
-          const cid = inserted[i].id as string;
-          const p = chunk[i].payload as Record<string, unknown>;
+      }
+      const insertedWithPayload = chunk.filter((row): row is (typeof chunk)[number] & { contractId: string } =>
+        typeof row.contractId === "string" && !!row.payload
+      );
+      await mapWithConcurrency(
+        insertedWithPayload,
+        AUTO_ATTACH_PROGRAMS_CONCURRENCY,
+        async (row) => {
+          const p = row.payload as Record<string, unknown>;
           await autoAttachProgramsForContract({
             admin,
             contract: {
-              id: cid,
+              id: row.contractId,
               organization_id: String(p.organization_id),
               contract_type: (p.contract_type as string | null) ?? null,
               source_system: (p.source_system as string | null) ?? null,
@@ -247,9 +255,10 @@ export async function POST(request: Request) {
               intake_source: (p.intake_source as string | null) ?? null,
             },
             actorUserId: user.id,
-          }).catch(() => {});
+          }).catch(() => undefined);
+          return null;
         }
-      }
+      );
     }
   }
 

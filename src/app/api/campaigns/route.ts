@@ -29,7 +29,10 @@ export async function GET() {
     .eq("organization_id", ctx.orgId)
     .order("updated_at", { ascending: false })
     .limit(200);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/campaigns] GET error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   return NextResponse.json({ campaigns: data ?? [] });
 }
 
@@ -83,7 +86,10 @@ export async function POST(request: Request) {
     })
     .select("id, name, campaign_type, status, created_at")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/campaigns] POST error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
 
   const contractIds = Array.isArray(body.contractIds) ? body.contractIds : [];
   if (contractIds.length > 0) {

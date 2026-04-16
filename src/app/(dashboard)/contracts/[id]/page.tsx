@@ -465,10 +465,10 @@ export default async function ContractDetailPage(props: {
   return (
     <div className="space-y-7 md:space-y-8">
       <div className="ui-card-hero overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)]/90 bg-gradient-to-br from-zinc-50/90 via-white to-white px-5 py-6 md:px-10 md:py-8">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-[radial-gradient(circle_at_top_right,var(--canvas-glow),transparent_24%),linear-gradient(180deg,color-mix(in_oklab,var(--surface)_92%,white),var(--surface-raised))] px-5 py-6 md:px-10 md:py-8">
           <Link
             href="/contracts"
-            className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
+            className="inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
           >
             <ArrowLeft size={16} strokeWidth={2} aria-hidden />
             Contracts
@@ -487,15 +487,15 @@ export default async function ContractDetailPage(props: {
                 </span>
               </div>
               {(contract.counterparty || contract.contract_type) && (
-                <p className="mt-3 text-[14px] text-zinc-600 md:text-[15px]">
+                <p className="mt-3 text-[14px] text-[var(--text-secondary)] md:text-[15px]">
                   {contract.counterparty && (
-                    <span className="font-medium text-zinc-800">{contract.counterparty}</span>
+                    <span className="font-medium text-[var(--text-primary)]">{contract.counterparty}</span>
                   )}
                   {contract.counterparty && contract.contract_type && (
-                    <span className="text-zinc-300"> · </span>
+                    <span className="text-[var(--text-tertiary)]"> · </span>
                   )}
                   {contract.contract_type && (
-                    <span className="text-zinc-500">{contract.contract_type}</span>
+                    <span className="text-[var(--text-secondary)]">{contract.contract_type}</span>
                   )}
                 </p>
               )}
@@ -543,7 +543,7 @@ export default async function ContractDetailPage(props: {
       </div>
 
       <div className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3">
           <div className="flex flex-wrap gap-1.5">
             {[
               ["overview", "Overview"],
@@ -556,10 +556,10 @@ export default async function ContractDetailPage(props: {
               <Link
                 key={value}
                 href={`/contracts/${contract.id}?tab=${value}`}
-                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12px] ${
+                className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12px] ${
                   activeTab === value
-                    ? "bg-[var(--accent)] text-[var(--accent-fg)]"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900"
+                    ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
+                    : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {label}
@@ -780,7 +780,7 @@ export default async function ContractDetailPage(props: {
                   <p className="mt-1 text-[12px] text-zinc-500">120/90/60/30 renewal checkpoints.</p>
                 </div>
                 {canEdit && checkpoints.length === 0 && (
-                  <form action={seedRenewalPlaybook.bind(null, contract.id)}>
+                  <form action={seedRenewalPlaybook.bind(null, contract.id) as never}>
                     <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
                       Seed checklist
                     </button>
@@ -1093,7 +1093,7 @@ export default async function ContractDetailPage(props: {
               <div className="border-t border-zinc-100 pt-4">
                 <p className="ui-label-caps">Workspace notes ({renewalWorkspaceNotes.length})</p>
                 {canEdit && (
-                  <form action={addRenewalWorkspaceNoteForm} className="mt-2 space-y-2">
+                  <form action={addRenewalWorkspaceNoteForm as never} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
                     <textarea name="body" placeholder="Add renewal workspace note" className="ui-input min-h-[60px] text-xs" />
                     <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
@@ -1488,7 +1488,7 @@ export default async function ContractDetailPage(props: {
               <div className="mt-6 border-t border-zinc-100 pt-5">
                 <p className="ui-label-caps">Field comments & mentions</p>
                 {canEdit && (
-                  <form action={createClarificationTaskForm} className="mt-2 space-y-2">
+                  <form action={createClarificationTaskForm as never} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
                     <input
                       name="fieldId"

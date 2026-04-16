@@ -21,10 +21,11 @@ async function resolveMentionsToUserIds(
     .select("user_id, profiles(full_name, email)")
     .eq("organization_id", organizationId);
 
+  const memberUserIds = new Set((members ?? []).map((m) => m.user_id));
   const resolved = new Set<string>();
   for (const token of matches) {
     if (isUuid(token)) {
-      resolved.add(token);
+      if (memberUserIds.has(token)) resolved.add(token);
       continue;
     }
     for (const member of members ?? []) {

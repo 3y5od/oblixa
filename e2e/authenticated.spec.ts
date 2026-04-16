@@ -18,14 +18,18 @@
  * §22.6 badges/cmd-K: no hidden modules (unit product-surface + cmd-K tests).
  * §22.7 polish: manual design review on Core paths.
  */
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures/app-fixture";
+import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
   AUTHENTICATED_VIEWPORT_OVERFLOW_EXCLUDED,
   getAuthenticatedA11yAndViewportPaths,
   REFINEMENT_S10_4_UTILITY_PATHS,
 } from "./authenticated-a11y-paths";
-import { loginWithCredentials } from "./login-test-user";
+import { AppShellPO } from "./page-objects/AppShellPO";
+import { ContractsPO } from "./page-objects/ContractsPO";
+import { DashboardPO } from "./page-objects/DashboardPO";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=fixture_and_secret_gated_e2e_paths
 
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL;
 const E2E_PASSWORD = process.env.E2E_TEST_PASSWORD;
@@ -39,7 +43,11 @@ async function isCoreWorkspaceByDecisionsProbe(page: Page): Promise<boolean> {
 }
 
 async function loginAsTestUser(page: Page) {
-  await loginWithCredentials(page, E2E_EMAIL!, E2E_PASSWORD!);
+  const email = E2E_EMAIL?.trim();
+  const password = E2E_PASSWORD?.trim();
+  test.skip(!email || !password, "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke.");
+  const { loginWithCredentials } = await import("./login-test-user");
+  await loginWithCredentials(page, email!, password!);
 }
 
 test.describe("authenticated smoke", () => {
@@ -49,10 +57,11 @@ test.describe("authenticated smoke", () => {
   );
 
   test("can log in and access dashboard/contracts/settings", async ({ page }) => {
+    const contracts = new ContractsPO(page);
     await loginAsTestUser(page);
 
-    await page.goto("/contracts", { waitUntil: "domcontentloaded" });
-    await expect(page).toHaveURL(/\/contracts/);
+    await contracts.goto();
+    await contracts.expectLoaded();
 
     await page.goto("/settings/operations", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/settings\/operations/);
@@ -78,11 +87,13 @@ test.describe("authenticated smoke", () => {
   test("primary nav hides Decisions, Campaigns, Programs, and Assurance on Core workspace", async ({
     page,
   }) => {
+    const shell = new AppShellPO(page);
+    const dashboard = new DashboardPO(page);
     await loginAsTestUser(page);
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
-    const primary = page.getByTestId("primary-nav");
+    await dashboard.goto();
+    await dashboard.expectLoaded();
+    const primary = shell.primaryNav();
     await expect(primary.getByRole("link", { name: /^Decisions$/ })).toHaveCount(0);
     await expect(primary.getByRole("link", { name: /^Campaigns$/ })).toHaveCount(0);
     await expect(primary.getByRole("link", { name: /^Programs$/ })).toHaveCount(0);
@@ -127,6 +138,8 @@ test.describe("authenticated smoke", () => {
     const dlg = page.getByRole("dialog", { name: /command palette/i });
     await expect(dlg).toBeVisible();
     await expect(dlg.getByRole("link", { name: /^Campaigns$/ })).toHaveCount(0);
+    await expect(dlg.getByRole("link", { name: /^Decisions$/ })).toHaveCount(0);
+    await expect(dlg.getByRole("link", { name: /^Assurance$/ })).toHaveCount(0);
     await page.keyboard.press("Escape");
   });
 
@@ -455,7 +468,10 @@ test.describe("refinement route visibility (docs/refinement.md §10, Core fixtur
   test("optional hidden-module probe path returns 403/404 or redirects to dashboard", async ({ page }) => {
     const probePath = process.env.E2E_HIDDEN_MODULE_PATH?.trim();
     if (!probePath) {
-      test.skip(true, "Optional: set E2E_HIDDEN_MODULE_PATH for hidden-module denial smoke.");
+      test.info().annotations.push({
+        type: "optional",
+        description: "E2E_HIDDEN_MODULE_PATH not set; hidden-module denial smoke not exercised.",
+      });
       return;
     }
     await loginAsTestUser(page);
@@ -488,7 +504,10 @@ test.describe("refinement route visibility (docs/refinement.md §10, Core fixtur
       }
     }
     if (!detailHref) {
-      test.skip(true, "No contract UUID row link found for dynamic detail smoke.");
+      test.info().annotations.push({
+        type: "optional",
+        description: "No contract UUID row link found for dynamic detail smoke.",
+      });
       return;
     }
     await expect(page).toHaveURL(new RegExp(`^.*${detailHref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
@@ -610,7 +629,10 @@ test.describe("V4 workspace mutations", () => {
       .isVisible()
       .catch(() => false);
     if (!created) {
-      test.skip(true, "Program draft creation did not materialize for this environment.");
+      test.info().annotations.push({
+        type: "optional",
+        description: "Program draft creation did not materialize for this environment.",
+      });
       return;
     }
   });
@@ -629,7 +651,10 @@ test.describe("V4 workspace mutations", () => {
       .isVisible()
       .catch(() => false);
     if (!created) {
-      test.skip(true, "Maintenance campaign draft did not materialize for this environment.");
+      test.info().annotations.push({
+        type: "optional",
+        description: "Maintenance campaign draft did not materialize for this environment.",
+      });
       return;
     }
   });

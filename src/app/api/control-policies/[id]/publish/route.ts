@@ -9,6 +9,7 @@ import { recordControlPolicyOutcome } from "@/lib/v6/outcome-writers";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6ControlPolicies");
@@ -24,6 +25,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/control-policies/[id]/publish",
   });
   if (modeGate) return modeGate;
+  const duplicate = await enforceIdempotency(request, {
+    scope: "control-policies.publish",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const policyId = toSafeString((await params).id);
   const metricsBefore = await gatherPortfolioMetrics(ctx.admin, ctx.orgId);

@@ -149,7 +149,9 @@ export async function incrementV6QualityCounter(
     .maybeSingle();
 
   const prev = (row?.v6_assurance_quality_json as Record<string, unknown>) ?? {};
-  const cur = Number(prev[field] ?? 0) + delta;
+  const prevVal = Number(prev[field] ?? 0);
+  const safeVal = Number.isFinite(prevVal) ? prevVal : 0;
+  const cur = safeVal + delta;
   const next = { ...prev, [field]: cur, updated_at: new Date().toISOString() };
 
   if (row?.id) {

@@ -7,6 +7,8 @@ export type SubscriptionStatus =
   | "past_due"
   | "canceled"
   | "incomplete"
+  | "unpaid"
+  | "paused"
   | "none";
 
 type Ok = { ok: true; stripe: Stripe; priceId: string };
@@ -43,5 +45,7 @@ export function resolveSubscriptionStatus(
   if (sub.status === "past_due") return "past_due";
   if (sub.status === "incomplete" || sub.status === "incomplete_expired")
     return "incomplete";
+  if (sub.status === "unpaid") return "unpaid";
+  if (sub.status === "paused") return "paused";
   return "canceled";
 }

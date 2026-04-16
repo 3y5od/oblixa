@@ -1,5 +1,10 @@
 import type { AdminClient } from "@/lib/v6/service";
 
+function safeNum(v: unknown): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export type OutcomeInterventionRow = {
   id: string;
   intervention_type: string;
@@ -44,12 +49,12 @@ export async function listOutcomeInterventionsPaginated(
       id: String(row.id),
       intervention_type: String(row.intervention_type ?? ""),
       intervention_ref_id: row.intervention_ref_id != null ? String(row.intervention_ref_id) : null,
-      effectiveness_score: Number(row.effectiveness_score ?? 0),
+      effectiveness_score: safeNum(row.effectiveness_score ?? 0),
       analyzed_at: String(row.analyzed_at ?? ""),
-      recurrence_delta: Number(row.recurrence_delta ?? 0),
+      recurrence_delta: safeNum(row.recurrence_delta ?? 0),
       time_to_stability_hours:
         row.time_to_stability_hours != null && row.time_to_stability_hours !== ""
-          ? Number(row.time_to_stability_hours)
+          ? safeNum(row.time_to_stability_hours)
           : null,
       source_playbook_run_id: row.source_playbook_run_id != null ? String(row.source_playbook_run_id) : null,
       source_campaign_id: row.source_campaign_id != null ? String(row.source_campaign_id) : null,
@@ -92,7 +97,7 @@ export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
       const key = String(typedRow.intervention_type || "unknown");
       const next = acc[key] ?? { count: 0, total: 0 };
       next.count += 1;
-      next.total += Number(typedRow.effectiveness_score ?? 0);
+      next.total += safeNum(typedRow.effectiveness_score ?? 0);
       acc[key] = next;
       return acc;
     },
@@ -105,15 +110,15 @@ export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
         .filter(([key]) => key.startsWith(prefix))
         .map(([key, value]) => {
           const bucket = value as { count: number; total: number };
-          return [key, Number((bucket.total / Math.max(1, bucket.count)).toFixed(2))];
+          return [key, safeNum((bucket.total / Math.max(1, bucket.count)).toFixed(2))];
         })
     );
 
   const weeklySeries = weeklyEffectivenessSeries(interventions as { analyzed_at?: string; effectiveness_score?: number }[]);
 
-  const scores = interventions.map((r) => Number((r as { effectiveness_score?: number }).effectiveness_score ?? 0));
+  const scores = interventions.map((r) => safeNum((r as { effectiveness_score?: number }).effectiveness_score ?? 0));
   const overallAvgEffectiveness =
-    scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)) : null;
+    scores.length > 0 ? safeNum((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)) : null;
 
   const last4 = weeklySeries.slice(-4);
   const prior4 = weeklySeries.slice(-8, -4);
@@ -152,12 +157,12 @@ function weeklyEffectivenessSeries(
     if (!at || Number.isNaN(at.getTime())) continue;
     const key = at.toISOString().slice(0, 7);
     const b = buckets.get(key) ?? { sum: 0, n: 0 };
-    b.sum += Number(r.effectiveness_score ?? 0);
+    b.sum += safeNum(r.effectiveness_score ?? 0);
     b.n += 1;
     buckets.set(key, b);
   }
   return Array.from(buckets.entries())
-    .map(([week, v]) => ({ week, avgScore: Number((v.sum / Math.max(1, v.n)).toFixed(2)), count: v.n }))
+    .map(([week, v]) => ({ week, avgScore: safeNum((v.sum / Math.max(1, v.n)).toFixed(2)), count: v.n }))
     .sort((a, b) => a.week.localeCompare(b.week))
     .slice(-12);
 }

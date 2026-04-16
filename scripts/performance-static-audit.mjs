@@ -12,6 +12,8 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { createResult, finishWithResult } from "./lib/result.mjs";
+import { nowMs } from "./lib/timing.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -20,6 +22,7 @@ const allowlistPath = path.join(__dirname, "performance-static-audit-allowlist.t
 
 const warningsOnly = process.argv.includes("--warnings-only");
 const strict = process.argv.includes("--strict");
+const startMs = nowMs();
 
 function loadAllowlist() {
   if (!fs.existsSync(allowlistPath)) return [];
@@ -75,6 +78,25 @@ function hasClientTimer(content, rel) {
   return /(?:^|\n)\s*(?:setInterval|setTimeout)\s*\(/m.test(content);
 }
 
+function isApiRoute(rel) {
+  return rel.startsWith("src/app/api/") && rel.endsWith("/route.ts");
+}
+
+function hasPotentialUnboundedSelect(content) {
+  if (!/\.select\s*\(/.test(content)) return false;
+  const hasSelectHead = /\.select\s*\([^)]*head\s*:\s*true/.test(content);
+  if (hasSelectHead) return false;
+  if (/\.single\s*\(|\.maybeSingle\s*\(/.test(content)) return false;
+  if (/\.eq\s*\(\s*["']id["']/.test(content)) return false;
+  if (/\.eq\s*\(\s*["']token["']/.test(content)) return false;
+  const hasBound = /\.limit\s*\(|\.range\s*\(/.test(content);
+  return !hasBound;
+}
+
+function isExportOrReportRoute(rel) {
+  return /src\/app\/api\/(?:export|reports)\//.test(rel);
+}
+
 function run() {
   const allowSubs = loadAllowlist();
   const files = walkSrcFiles(srcRoot).sort();
@@ -97,15 +119,34 @@ function run() {
 
     if (reSelectStar.test(content)) {
       console.warn(`WARN Supabase .select("*") in ${rel} — prefer explicit columns`);
-      warnCount++;
+      warnCount += 1;
     }
     if (reLargeLimit.test(content)) {
       console.warn(`WARN Large .limit(...) in ${rel} — confirm pagination/chunking`);
-      warnCount++;
+      warnCount += 1;
     }
     if (hasClientTimer(content, rel)) {
       console.warn(`WARN setInterval/setTimeout in client component ${rel} — check cleanup and rerenders`);
-      warnCount++;
+      warnCount += 1;
+    }
+    if (
+      isApiRoute(rel) &&
+      /export\s+async\s+function\s+GET\b/.test(content) &&
+      hasPotentialUnboundedSelect(content)
+    ) {
+      console.warn(`WARN Potential unbounded API read in ${rel} — prefer limit/range pagination`);
+      warnCount += 1;
+    }
+    if (isExportOrReportRoute(rel) && hasPotentialUnboundedSelect(content)) {
+      console.warn(`WARN Export/report route may miss pagination cap in ${rel}`);
+      warnCount += 1;
+    }
+    if (
+      isUseClientSource(content) &&
+      /\brouter\.refresh\s*\(/.test(content) &&
+      /setInterval\s*\(/.test(content)
+    ) {
+      info(`refresh:${rel}`, `Review setInterval + router.refresh in ${rel} for refresh amplification risk`);
     }
 
     if (/readFileSync\s*\(|writeFileSync\s*\(/.test(content) && rel.includes("src/app/api/")) {
@@ -133,14 +174,21 @@ function run() {
     }
   }
 
-  if (strict && warnCount > 0) {
-    console.error(`FAIL performance-static-audit: ${warnCount} WARN pattern(s)`);
-    process.exit(1);
-  }
+  return { warnCount };
 }
 
 console.log(
   `Performance static audit (warnings-only=${warningsOnly}, strict=${strict})`
 );
-run();
-console.log("PASS performance-static-audit");
+const { warnCount } = run();
+finishWithResult(
+  createResult({
+    checkId: "performance-static-audit",
+    ok: !(strict && warnCount > 0),
+    strict,
+    warnings: warnCount > 0 ? [`detected ${warnCount} warning pattern(s)`] : [],
+    errors: strict && warnCount > 0 ? [`strict mode failed with ${warnCount} warning pattern(s)`] : [],
+    meta: { warningsOnly, warnCount },
+    startMs,
+  })
+);

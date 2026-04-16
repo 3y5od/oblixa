@@ -10,6 +10,7 @@ import { FIELD_NAMES } from "@/lib/types";
 import { isUuid } from "@/lib/security/validation";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 
 function csvEscape(value: string | null | undefined): string {
   if (value == null || value === "") return "";
@@ -101,18 +102,36 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: contracts, error } = await admin
-    .from("contracts")
-    .select(
-      "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
-    )
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false });
+  const {
+    rows: contracts,
+    error,
+    truncated,
+  } = await collectSupabaseRangePages(
+    (from, to) =>
+      admin
+        .from("contracts")
+        .select(
+          "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
+        )
+        .eq("organization_id", orgId)
+        .order("created_at", { ascending: false })
+        .range(from, to),
+    {
+      pageSize: 500,
+      maxRows: 20_000,
+    }
+  );
 
   if (error) {
     return NextResponse.json(
       { error: mapDataSourceError(error.message) },
       { status: 500 }
+    );
+  }
+  if (truncated) {
+    return NextResponse.json(
+      { error: "Export exceeds row budget; narrow scope and retry." },
+      { status: 413 }
     );
   }
 

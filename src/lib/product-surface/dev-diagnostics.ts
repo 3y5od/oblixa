@@ -4,7 +4,10 @@ export type ProductSurfaceDiagnosticChannel =
   | "api_workspace_gate_denied"
   | "cmdk_search_index_filtered"
   | "href_eligibility_denied"
-  | "nav_badge_payload_filtered";
+  | "nav_badge_payload_filtered"
+  | "surface_mapping_missing"
+  | "server_action_eligibility_denied"
+  | "landing_path_normalized";
 
 import { addProductSurfaceDiagnosticBreadcrumb } from "@/lib/observability/sentry";
 

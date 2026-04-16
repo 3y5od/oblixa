@@ -26,14 +26,12 @@ export async function incrementOrgV5SignalQuality(params: {
 
   const merged = mergeV5SignalQuality(existing?.v5_signal_quality_json, increments);
 
-  if (existing?.id) {
-    await admin.from("org_behavior_metrics").update({ v5_signal_quality_json: merged }).eq("id", existing.id);
-    return;
-  }
-
-  await admin.from("org_behavior_metrics").insert({
-    organization_id: organizationId,
-    metrics_date,
-    v5_signal_quality_json: merged,
-  });
+  await admin.from("org_behavior_metrics").upsert(
+    {
+      organization_id: organizationId,
+      metrics_date,
+      v5_signal_quality_json: merged,
+    },
+    { onConflict: "organization_id,metrics_date" }
+  );
 }

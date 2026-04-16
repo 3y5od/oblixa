@@ -187,17 +187,19 @@ export function CalibrationWizard(props: {
   const currentField = step <= 6 ? REQUIRED_FIELDS[step] : null;
 
   return (
-    <div className="ui-page-stack motion-reduce:transition-none mx-auto max-w-lg">
+    <div className="ui-page-stack motion-reduce:transition-none mx-auto max-w-2xl">
       <nav aria-label="Questionnaire progress">
-        <p className="ui-eyebrow text-[var(--accent)]">
+        <p className="ui-eyebrow text-[var(--accent-strong)]">
           Step {step + 1} of {LAST_STEP_INDEX + 1}
         </p>
-        <ol className="mt-2 flex flex-wrap gap-2">
+        <ol className="mt-3 flex flex-wrap gap-2">
           {Array.from({ length: LAST_STEP_INDEX + 1 }, (_, i) => (
             <li key={i}>
               <span
                 className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] px-2 text-xs ${
-                  i === step ? "bg-zinc-900 font-semibold text-white" : "text-zinc-600"
+                  i === step
+                    ? "bg-[var(--accent-strong)] font-semibold text-[var(--accent-fg)]"
+                    : "text-[var(--text-secondary)]"
                 }`}
                 aria-current={i === step ? "step" : undefined}
               >
@@ -211,30 +213,30 @@ export function CalibrationWizard(props: {
         {actionError ?? previewError ?? ""}
       </div>
       {actionError && (
-        <p className="rounded-lg border border-red-200 bg-red-50/80 px-3 py-2 text-sm text-red-900" role="alert">
+        <p className="ui-alert-error" role="alert">
           {actionError}
         </p>
       )}
 
-      <section aria-labelledby="cal-step-title" className="ui-card bg-surface p-6">
+      <section aria-labelledby="cal-step-title" className="ui-card-hero p-6 md:p-8">
         {step <= 6 && (
           <>
-            <p className="text-sm font-semibold text-zinc-900">{calibrationFlowTitle}</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">{calibrationFlowTitle}</p>
             {step === 0 ? (
               <p className="ui-muted-tight mt-2 text-sm">{calibrationFlowSubtitle}</p>
             ) : null}
-            <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="mt-4 text-lg font-semibold text-zinc-900">
+            <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="mt-4 text-[1.5rem] font-semibold text-[var(--text-primary)]">
               {currentField ? stepLabels[currentField] : ""}
             </h1>
           </>
         )}
         {step === 7 && (
-          <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="text-lg font-semibold text-zinc-900">
+          <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="text-[1.5rem] font-semibold text-[var(--text-primary)]">
             {stepLabels.optional}
           </h1>
         )}
         {step === LAST_STEP_INDEX && (
-          <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="text-lg font-semibold text-zinc-900">
+          <h1 id="cal-step-title" ref={titleRef} tabIndex={-1} className="text-[1.5rem] font-semibold text-[var(--text-primary)]">
             {reviewStepTitle}
           </h1>
         )}
@@ -243,7 +245,7 @@ export function CalibrationWizard(props: {
           <ul className="mt-6 space-y-2">
             {options[currentField].map((o) => (
               <li key={o.id}>
-                <label className="flex min-h-9 cursor-pointer items-center gap-3 rounded-lg border border-[var(--border-subtle)] px-3 py-2 hover:bg-zinc-50/80">
+                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] px-3.5 py-2.5 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)]">
                   <input
                     type="radio"
                     name={currentField}
@@ -252,7 +254,7 @@ export function CalibrationWizard(props: {
                     onChange={() => setRequired(currentField, o.id)}
                     className="size-4"
                   />
-                  <span className="text-sm text-zinc-800">{o.label}</span>
+                  <span className="text-sm text-[var(--text-primary)]">{o.label}</span>
                 </label>
               </li>
             ))}
@@ -262,7 +264,7 @@ export function CalibrationWizard(props: {
         {step === 7 && (
           <div className="mt-6 space-y-5">
             <div>
-              <p className="text-sm font-medium text-zinc-800">Industry emphasis (optional)</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">Industry emphasis (optional)</p>
               <select
                 className="ui-input mt-2 w-full"
                 value={opt.industry_emphasis ?? "unspecified"}
@@ -281,7 +283,7 @@ export function CalibrationWizard(props: {
               </select>
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-800">Import volume (optional)</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">Import volume (optional)</p>
               <select
                 className="ui-input mt-2 w-full"
                 value={opt.import_volume ?? "unknown"}
@@ -300,7 +302,7 @@ export function CalibrationWizard(props: {
               </select>
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-800">Your role (optional)</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">Your role (optional)</p>
               <select
                 className="ui-input mt-2 w-full"
                 value={opt.org_role ?? "unspecified"}
@@ -322,9 +324,9 @@ export function CalibrationWizard(props: {
         )}
 
         {step === LAST_STEP_INDEX && (
-          <div className="mt-6 space-y-4 text-sm text-zinc-700">
+          <div className="mt-6 space-y-4 text-sm text-[var(--text-secondary)]">
             {previewError && (
-              <p className="text-red-700" role="alert">
+              <p className="text-[var(--danger-ink)]" role="alert">
                 {previewError}
               </p>
             )}
@@ -333,24 +335,24 @@ export function CalibrationWizard(props: {
                 <div role="region" aria-labelledby="cal-review-summary-heading">
                   <h3
                     id="cal-review-summary-heading"
-                    className="text-sm font-semibold text-zinc-900"
+                    className="text-sm font-semibold text-[var(--text-primary)]"
                   >
                     {reviewSectionHeadings.summary}
                   </h3>
                   <p className="mt-2">
-                    <span className="font-medium text-zinc-900">{modeLabels[preview.recommended_workspace_mode]}</span>
-                    <span className="text-zinc-500"> (recommended)</span>
+                    <span className="font-medium text-[var(--text-primary)]">{modeLabels[preview.recommended_workspace_mode]}</span>
+                    <span className="text-[var(--text-secondary)]"> (recommended)</span>
                   </p>
                   <p className="ui-muted-tight mt-2">{reviewChangeLater}</p>
                 </div>
 
                 <div role="region" aria-labelledby="cal-review-adv-heading">
-                  <h3 id="cal-review-adv-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-adv-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.advanced}
                   </h3>
-                  <ul className="mt-2 list-inside list-disc text-zinc-700">
+                  <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
                     {preview.recommended_advanced_families_enabled.length === 0 ? (
-                      <li className="text-zinc-600">None (Core)</li>
+                      <li className="text-[var(--text-secondary)]">None (Core)</li>
                     ) : (
                       preview.recommended_advanced_families_enabled.map((k) => (
                         <li key={k}>{labelForAdvancedKey(k)}</li>
@@ -360,12 +362,12 @@ export function CalibrationWizard(props: {
                 </div>
 
                 <div role="region" aria-labelledby="cal-review-asm-heading">
-                  <h3 id="cal-review-asm-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-asm-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.assurance}
                   </h3>
-                  <ul className="mt-2 list-inside list-disc text-zinc-700">
+                  <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
                     {preview.recommended_assurance_families_enabled.length === 0 ? (
-                      <li className="text-zinc-600">None</li>
+                      <li className="text-[var(--text-secondary)]">None</li>
                     ) : (
                       preview.recommended_assurance_families_enabled.map((k) => (
                         <li key={k}>{labelForAssuranceKey(k)}</li>
@@ -375,10 +377,10 @@ export function CalibrationWizard(props: {
                 </div>
 
                 <div role="region" aria-labelledby="cal-review-landing-heading">
-                  <h3 id="cal-review-landing-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-landing-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.landing}
                   </h3>
-                  <p className="mt-2 text-zinc-700">{preview.recommended_default_landing_path}</p>
+                  <p className="mt-2 text-[var(--text-secondary)]">{preview.recommended_default_landing_path}</p>
                 </div>
 
                 <div
@@ -386,10 +388,10 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-setup-heading"
                   data-testid={calibrationReviewTestIds.setup}
                 >
-                  <h3 id="cal-review-setup-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-setup-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.setup}
                   </h3>
-                  <p className="mt-2 text-zinc-700">
+                  <p className="mt-2 text-[var(--text-secondary)]">
                     {formatSetupChecklistSummary(preview.recommended_setup_checklist)}
                   </p>
                 </div>
@@ -399,10 +401,10 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-reports-heading"
                   data-testid={calibrationReviewTestIds.reports}
                 >
-                  <h3 id="cal-review-reports-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-reports-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.reports}
                   </h3>
-                  <p className="mt-2 text-zinc-700">
+                  <p className="mt-2 text-[var(--text-secondary)]">
                     {labelForReportProfileSuppress(
                       preview.recommended_report_profile.suppress_incompatible_subscriptions
                     )}
@@ -414,10 +416,10 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-home-heading"
                   data-testid={calibrationReviewTestIds.home}
                 >
-                  <h3 id="cal-review-home-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-home-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.home}
                   </h3>
-                  <p className="mt-2 text-zinc-700">
+                  <p className="mt-2 text-[var(--text-secondary)]">
                     {labelForDashboardProfile(
                       preview.recommended_dashboard_profile,
                       preview.recommended_workspace_mode
@@ -430,10 +432,10 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-search-heading"
                   data-testid={calibrationReviewTestIds.searchScope}
                 >
-                  <h3 id="cal-review-search-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-search-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.search}
                   </h3>
-                  <p className="mt-2 text-zinc-700">
+                  <p className="mt-2 text-[var(--text-secondary)]">
                     {labelForSearchScope(preview.recommended_search_scope)}
                   </p>
                 </div>
@@ -443,10 +445,10 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-notify-heading"
                   data-testid={calibrationReviewTestIds.notifications}
                 >
-                  <h3 id="cal-review-notify-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-notify-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.notifications}
                   </h3>
-                  <p className="mt-2 text-zinc-700">
+                  <p className="mt-2 text-[var(--text-secondary)]">
                     {labelForNotificationSuppressAdvanced(
                       preview.recommended_notification_profile.suppress_advanced_tiers
                     )}
@@ -458,13 +460,13 @@ export function CalibrationWizard(props: {
                   aria-labelledby="cal-review-util-heading"
                   data-testid={calibrationReviewTestIds.utilities}
                 >
-                  <h3 id="cal-review-util-heading" className="text-sm font-semibold text-zinc-900">
+                  <h3 id="cal-review-util-heading" className="text-sm font-semibold text-[var(--text-primary)]">
                     {reviewSectionHeadings.utilities}
                   </h3>
                   {preview.recommended_utility_modules_hidden.length === 0 ? (
-                    <p className="mt-2 text-zinc-700">{reviewUtilitiesNoneHidden}</p>
+                    <p className="mt-2 text-[var(--text-secondary)]">{reviewUtilitiesNoneHidden}</p>
                   ) : (
-                    <ul className="mt-2 list-inside list-disc text-zinc-700">
+                    <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
                       {preview.recommended_utility_modules_hidden.map((k) => (
                         <li key={k}>Hidden: {labelForUtilityKey(k)}</li>
                       ))}

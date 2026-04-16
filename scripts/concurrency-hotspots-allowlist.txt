@@ -1,0 +1,7 @@
+# Routes under src/app/api that are temporarily exempt from hotspot reporting.
+# Use repo-relative route paths in /api/... form, one per line.
+# Every route must be preceded by metadata.
+#
+# Example:
+# meta: owner=@api-runtime expiry=2026-12-31 reason=route uses external idempotency guarantees
+# /api/example/route.ts

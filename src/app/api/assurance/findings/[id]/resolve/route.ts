@@ -28,6 +28,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const findingId = toSafeString((await params).id);
   if (!findingId) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
+  if (body.action && !["resolve", "dismiss"].includes(body.action)) return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+
   const note = toSafeString(body.note);
   const feedbackRaw = toSafeString(body.signalFeedback).trim().toLowerCase();
   const allowed = new Set(["false_positive", "not_actionable", "confirmed_true"]);
@@ -38,6 +40,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       ? await dismissFinding(ctx.admin, ctx.orgId, ctx.userId, findingId, note || undefined, signalFeedback)
       : await resolveFinding(ctx.admin, ctx.orgId, ctx.userId, findingId, note || undefined, signalFeedback);
   if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (!result.data) return NextResponse.json({ error: "Finding not found" }, { status: 404 });
   if (signalFeedback === "false_positive") {
     await incrementV6QualityCounter(ctx.admin, ctx.orgId, "findings_labeled_false_positive_total", 1).catch(
       () => undefined

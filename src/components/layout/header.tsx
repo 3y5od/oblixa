@@ -4,7 +4,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Command } from "lucide-react";
+import { Command, PanelLeftOpen, Search, Sparkles } from "lucide-react";
 import {
   NAV_ITEMS,
   CONTRACTS_SUBROUTES,
@@ -17,6 +17,7 @@ import {
   COMMAND_PALETTE_OPEN_EVENT,
   type CommandPaletteOpenDetail,
 } from "@/lib/product-surface/command-palette-bridge";
+import { shellTestIds } from "@/lib/qa/test-ids";
 
 interface HeaderProps {
   fullName?: string | null;
@@ -75,76 +76,108 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
   }, [pathname, navSurface?.mode]);
 
   return (
-    <header className="flex h-[3.5rem] shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-surface/95 px-4 backdrop-blur md:gap-4 md:px-6">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-          {context}
-        </p>
-        <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500 sm:mt-0">
-          <span>Cmd/Ctrl + K</span>
-          {showUtilitiesLink ? (
-            <>
-              <span className="h-1 w-1 rounded-full bg-zinc-300" />
-              <Link
-                href="/more"
-                className="font-semibold text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline"
-              >
-                Utilities
-              </Link>
-              <Link
-                href="/more"
-                className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-zinc-200 px-2 py-1.5 text-[10px] font-semibold text-zinc-700 sm:hidden"
-                aria-label="Open utilities index"
-              >
-                <Command size={11} aria-hidden />
-                Utilities
-              </Link>
-            </>
-          ) : null}
+    <header className="relative z-20 shrink-0 border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,transparent)] px-4 py-3 backdrop-blur-md md:px-6">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:gap-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <div className="hidden rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] lg:flex">
+            <PanelLeftOpen size={16} aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+                {context}
+              </p>
+              <span className="hidden h-1 w-1 rounded-full bg-[var(--border-strong)] sm:block" />
+              <span className="hidden items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_70%,transparent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:inline-flex">
+                <Sparkles size={11} aria-hidden />
+                {navSurface?.mode ?? "core"}
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-tertiary)]">
+              <span className="inline-flex items-center gap-1">
+                <Command size={12} aria-hidden />
+                Cmd/Ctrl + K
+              </span>
+              {showUtilitiesLink ? (
+                <>
+                  <span className="h-1 w-1 rounded-full bg-[var(--border-strong)]" />
+                  <Link
+                    href="/more"
+                    prefetch={false}
+                    className="font-semibold text-[var(--accent-strong)] underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
+                  >
+                    Tools index
+                  </Link>
+                  <Link
+                    href="/more"
+                    prefetch={false}
+                    className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-[0.85rem] border border-[var(--border-subtle)] px-2 py-1.5 text-[10px] font-semibold text-[var(--text-secondary)] sm:hidden"
+                    aria-label="Open utilities index"
+                  >
+                    <Command size={11} aria-hidden />
+                    Tools
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          </div>
         </div>
-      </div>
-      <form
-        role="search"
-        aria-label="Search workspace"
-        className="hidden min-w-0 max-w-md flex-1 md:block"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const fd = new FormData(e.currentTarget);
-          const q = String(fd.get("q") ?? "").trim();
-          window.dispatchEvent(
-            new CustomEvent<CommandPaletteOpenDetail>(COMMAND_PALETTE_OPEN_EVENT, {
-              detail: { query: q },
-            })
-          );
-        }}
-      >
-        <input
-          data-testid="workspace-header-search"
-          name="q"
-          type="search"
-          enterKeyHint="search"
-          placeholder="Search workspace…"
-          className="ui-input w-full py-1.5 text-sm"
-          autoComplete="off"
-        />
-      </form>
-      <div
-        className="flex shrink-0 items-center gap-3.5"
-        aria-label={`Signed in as ${displayName}`}
-      >
-        <div className="text-right">
-          <p className="max-w-[16rem] truncate text-[13px] font-semibold tracking-tight text-zinc-900">
-            {displayName}
-          </p>
-          {fullName && email && (
-            <p className="max-w-[16rem] truncate text-[11px] text-zinc-500">{email}</p>
-          )}
-        </div>
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/85 bg-zinc-50 text-sm font-semibold text-zinc-700 shadow-[var(--shadow-1)] transition-[box-shadow,border-color] duration-200 ease-out"
-          aria-hidden
-        >
-          {initial}
+        <div className="flex min-w-0 flex-1 items-center gap-3 xl:max-w-[48rem]">
+          <form
+            role="search"
+            aria-label="Search workspace"
+            className="min-w-0 flex-1"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const q = String(fd.get("q") ?? "").trim();
+              window.dispatchEvent(
+                new CustomEvent<CommandPaletteOpenDetail>(COMMAND_PALETTE_OPEN_EVENT, {
+                  detail: { query: q },
+                })
+              );
+            }}
+          >
+            <label className="sr-only" htmlFor="workspace-header-search">
+              Search workspace
+            </label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-tertiary)]" aria-hidden />
+              <input
+                data-testid={shellTestIds.headerSearch}
+                id="workspace-header-search"
+                name="q"
+                type="search"
+                enterKeyHint="search"
+                placeholder="Search queues, pages, reports, or tools"
+                className="ui-input w-full py-2.5 pl-10 pr-4 text-sm sm:pr-20 lg:pr-24"
+                autoComplete="off"
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 hidden max-w-[4.5rem] -translate-y-1/2 items-center justify-end gap-1 overflow-hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:inline-flex">
+                <span className="ui-kbd">⌘</span>
+                <span className="ui-kbd">K</span>
+              </span>
+            </div>
+          </form>
+          <div
+            className="flex shrink-0 items-center gap-3 rounded-[1.15rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] px-3 py-2.5 shadow-[var(--shadow-1)]"
+            aria-label={`Signed in as ${displayName}`}
+          >
+            <div className="text-right">
+              <p className="max-w-[14rem] truncate text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
+                {displayName}
+              </p>
+              {fullName && email && (
+                <p className="max-w-[14rem] truncate text-[11px] text-[var(--text-tertiary)]">{email}</p>
+              )}
+            </div>
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_50%,transparent)] text-sm font-semibold text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
+              aria-hidden
+            >
+              {initial}
+            </div>
+          </div>
         </div>
       </div>
     </header>

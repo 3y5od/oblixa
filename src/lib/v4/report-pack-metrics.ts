@@ -118,7 +118,12 @@ export async function computeReportPackMetrics(input: {
         }
       : core;
 
-  if (reportType === "monthly_renewal_readiness" || reportType.includes("renewal")) {
+  const RENEWAL_TYPES = ["monthly_renewal_readiness", "renewal_status", "renewal_portfolio"];
+  const EXCEPTION_TYPES = ["exception_summary", "exception_detail", "exception_review"];
+  const APPROVAL_SLA_TYPES = ["approval_summary", "approval_status", "sla_performance", "sla_compliance"];
+  const OBLIGATION_TYPES = ["obligation_summary", "obligation_status", "obligation_compliance"];
+
+  if (RENEWAL_TYPES.includes(reportType)) {
     const { count: renewalPending } = await admin
       .from("contract_renewal_checkpoints")
       .select("id", { count: "exact", head: true })
@@ -136,7 +141,7 @@ export async function computeReportPackMetrics(input: {
     };
   }
 
-  if (reportType.includes("exception")) {
+  if (EXCEPTION_TYPES.includes(reportType)) {
     const { count: criticalEx } = await admin
       .from("exceptions")
       .select("id", { count: "exact", head: true })
@@ -146,7 +151,7 @@ export async function computeReportPackMetrics(input: {
     return { ...withAdvanced, open_exceptions_critical: criticalEx ?? 0 };
   }
 
-  if (reportType.includes("approval") || reportType.includes("sla")) {
+  if (APPROVAL_SLA_TYPES.includes(reportType)) {
     return {
       ...withAdvanced,
       focus: "approvals_sla",
@@ -154,7 +159,7 @@ export async function computeReportPackMetrics(input: {
     };
   }
 
-  if (reportType.includes("obligation")) {
+  if (OBLIGATION_TYPES.includes(reportType)) {
     const { count: overdueOb } = await admin
       .from("contract_obligations")
       .select("id", { count: "exact", head: true })

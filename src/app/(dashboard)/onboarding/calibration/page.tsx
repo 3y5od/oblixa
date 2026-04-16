@@ -29,10 +29,11 @@ export default async function OnboardingCalibrationPage({
 
   if (!blocking && !inProgress) {
     return (
-      <div className="ui-page-stack mx-auto max-w-lg px-4">
-        <div className="ui-card bg-surface p-6">
-          <h1 className="text-lg font-semibold text-zinc-900">Workspace calibration</h1>
-          <p className="ui-muted-tight mt-2 text-sm text-zinc-600">
+      <div className="ui-page-stack mx-auto max-w-2xl px-4">
+        <div className="ui-card-hero p-6">
+          <p className="ui-eyebrow">Calibration</p>
+          <h1 className="mt-3 text-lg font-semibold text-[var(--text-primary)]">Workspace calibration</h1>
+          <p className="ui-muted-tight mt-2 text-sm">
             There is no questionnaire to complete right now. You can run calibration again from product
             settings.
           </p>
@@ -48,7 +49,7 @@ export default async function OnboardingCalibrationPage({
   const initialStep = clampCalibrationWizardStep(parseCalibrationStepQuery(q.step), initialRequired);
 
   return (
-    <div className="px-4">
+    <div className="px-4 py-2">
       <CalibrationWizard
         initialRequired={initialRequired}
         initialOptional={cal?.answers_optional ?? {}}

@@ -32,9 +32,9 @@ export async function enqueueOutboundEvent(input: {
       entity_type: input.entityType,
       entity_id: input.entityId ?? null,
       payload: {
+        ...((input.payload ?? {}) as Record<string, unknown>),
         schema_version: input.schemaVersion ?? "v1",
         emitted_at: new Date().toISOString(),
-        ...((input.payload ?? {}) as Record<string, unknown>),
       },
     });
     if (error) {

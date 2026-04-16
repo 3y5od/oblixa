@@ -1,12 +1,11 @@
 "use server";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { hasOrgCapability } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import type { ApprovalStatus, ApprovalType, RenewalScenario } from "@/lib/types";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
-import { hasRoleCapability } from "@/lib/access-control";
 import { autoTransitionTasksForApproval } from "@/actions/tasks";
 import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
 
@@ -56,17 +55,12 @@ async function canManageApprovalsForOrg(
   organizationId: string,
   userId: string
 ) {
-  const role = await getOrgMemberRole(admin, userId, organizationId);
-  if (canEditContracts(role)) return true;
-  const { data: workflowSettings } = await admin
-    .from("organization_workflow_settings")
-    .select("role_policy_json")
-    .eq("organization_id", organizationId)
-    .maybeSingle();
-  return hasRoleCapability({
-    role,
+  return await hasOrgCapability({
+    admin,
+    organizationId,
+    userId,
     capability: "approvals_manage",
-    rolePolicyJson: (workflowSettings?.role_policy_json as Record<string, unknown> | null) ?? {},
+    allowContractEditors: true,
   });
 }
 
@@ -112,6 +106,16 @@ export async function requestContractApproval(input: {
 
   let approverId = input.approverId?.trim() || null;
   if (approverId && !isUuid(approverId)) return { error: "Invalid approver" };
+
+  if (approverId) {
+    const { data: approverMembership } = await admin
+      .from("organization_members")
+      .select("id")
+      .eq("organization_id", contract.organization_id)
+      .eq("user_id", approverId)
+      .maybeSingle();
+    if (!approverMembership) return { error: "Approver must be an organization member" };
+  }
 
   const { data: policies } = await admin
     .from("approval_policies")
@@ -289,10 +293,13 @@ export async function updateContractApprovalStatus(input: {
 
   const { data: approval } = await admin
     .from("contract_approvals")
-    .select("id, contract_id, organization_id, approver_id")
+    .select("id, contract_id, organization_id, approver_id, status")
     .eq("id", input.approvalId)
     .maybeSingle();
   if (!approval) return { error: "Approval not found" };
+  if (approval.status !== "pending") {
+    return { error: "Only pending approvals can be updated" };
+  }
 
   const canResolve =
     (await canManageApprovalsForOrg(admin, approval.organization_id, user.id)) ||

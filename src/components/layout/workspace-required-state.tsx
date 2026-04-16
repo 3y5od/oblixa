@@ -10,14 +10,13 @@ export function WorkspaceRequiredState({
   message = "Your account is not linked to an organization yet. Refresh this page, then contact your workspace admin if this keeps happening.",
 }: WorkspaceRequiredStateProps) {
   return (
-    <div className="min-h-[40vh]">
+    <div className="min-h-[48vh]">
       <EmptyState
+        eyebrow="Workspace access"
         title={title}
         copy={message}
         action={
-          <p className="ui-density-note">
-            Ask a workspace admin to invite you to an organization.
-          </p>
+          <p className="ui-density-note">Ask a workspace admin to invite you to an organization.</p>
         }
       />
     </div>

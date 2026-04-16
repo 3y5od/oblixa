@@ -13,13 +13,13 @@ import { UpcomingActions } from "@/components/dashboard/upcoming-actions";
 import { CONTRACT_LIST_ROW_COLUMNS } from "@/lib/contract-list";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import {
+  getDashboardAdminClientCached,
   getDashboardDateFieldsCached,
   getDashboardMissingCriticalCached,
   getDashboardOrgMetricsCached,
   getDashboardUsageStatsCached,
   getDashboardWorkflowSettingsCached,
 } from "@/lib/dashboard-data";
-import { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
 import { setDashboardQueuePinForm } from "@/actions/dashboard";
 import { CommandCenterRoleMetrics } from "@/components/v4/command-center-role-metrics";
@@ -50,7 +50,7 @@ export async function DashboardLower(props: {
   const { orgId, userId, role, view, quickFilter, productSurfaceContext } = props;
   const isHrefEligible = (href: string) =>
     isHrefEligibleForProductSurface(productSurfaceContext, href);
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
 
   /** §12.1 — viewers stay on assigned/due scope; team/portfolio URLs do not broaden data. */
   const narrowPersonal =
@@ -225,18 +225,18 @@ export async function DashboardLower(props: {
     <>
       <CommandCenterRoleMetrics orgId={orgId} role={role} />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+        <section className="ui-card-hero overflow-hidden xl:col-span-1">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Queue</p>
             <h2 className="ui-section-title mt-2">Now</h2>
-            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
               Immediate actions requiring attention today
             </p>
             <div className="mt-2">
-              <form action={setDashboardQueuePinForm}>
+              <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="now" />
                 <input type="hidden" name="pinned" value={nowPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-zinc-500 hover:text-zinc-800">
+                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
                   {nowPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -247,7 +247,7 @@ export async function DashboardLower(props: {
               <MyTasks tasks={myTasks.slice(0, 5)} />
             ) : effectiveView === "team" ? (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Review</p>
+                <p className="ui-kicker">Review</p>
                 <ul className="mt-2 space-y-2">
                   {filteredPendingContracts.slice(0, 5).map((c) => (
                     <li key={c.id}>
@@ -266,21 +266,22 @@ export async function DashboardLower(props: {
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Portfolio</p>
+                <p className="ui-kicker">Portfolio</p>
                 <div className="flex flex-wrap gap-2" role="list">
                   <OperationalMetricChip label="Open tasks" value={String(metrics.teamOpenTasks)} />
                   <OperationalMetricChip label="Open obligations" value={String(metrics.teamOpenObligations)} />
                   <OperationalMetricChip label="At-risk contracts" value={String(metrics.atRiskContracts)} />
                 </div>
                 {isHrefEligible("/work") ? (
-                  <Link href="/work" className="text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900">
+                  <Link href="/work" className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)] hover:text-[var(--text-primary)]">
                     View work queue
+                    <span aria-hidden>→</span>
                   </Link>
                 ) : null}
               </div>
             )}
             {overduePersonalTasks.length > 0 && (
-              <p className="rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-900">
+              <p className="ui-alert-warning">
                 {overduePersonalTasks.length} overdue personal task
                 {overduePersonalTasks.length === 1 ? "" : "s"}.
               </p>
@@ -289,17 +290,17 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Horizon</p>
             <h2 className="ui-section-title mt-2">Next</h2>
-            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
               Upcoming deadlines and obligations in the next two weeks
             </p>
             <div className="mt-2">
-              <form action={setDashboardQueuePinForm}>
+              <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="next" />
                 <input type="hidden" name="pinned" value={nextPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-zinc-500 hover:text-zinc-800">
+                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
                   {nextPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -310,11 +311,11 @@ export async function DashboardLower(props: {
             {effectiveView === "personal" ? (
               <MyObligations obligations={myObligations.slice(0, 5)} />
             ) : effectiveView === "team" ? (
-              <p className="text-[12px] text-zinc-500">
+              <p className="text-[12px] text-[var(--text-secondary)]">
                 Switch to Personal mode for your assigned obligations.
               </p>
             ) : (
-              <p className="text-[12px] text-zinc-500">
+              <p className="text-[12px] text-[var(--text-secondary)]">
                 Portfolio mode emphasizes global pipeline and risk rather than individual
                 ownership.
               </p>
@@ -323,17 +324,17 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-5 md:py-4">
+          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Exposure</p>
             <h2 className="ui-section-title mt-2">Risk</h2>
-            <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
               Exceptions, missing critical fields, and renewal risk signals
             </p>
             <div className="mt-2">
-              <form action={setDashboardQueuePinForm}>
+              <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="risk" />
                 <input type="hidden" name="pinned" value={riskPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-zinc-500 hover:text-zinc-800">
+                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
                   {riskPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -393,7 +394,7 @@ export async function DashboardLower(props: {
           <div>
             <p className="ui-eyebrow">Ledger</p>
             <h2 className="ui-section-title mt-2 text-xl">Recent contracts</h2>
-            <p className="mt-1 text-[12px] text-zinc-500 md:text-[13px]">
+            <p className="mt-1 text-[12px] text-[var(--text-secondary)] md:text-[13px]">
               Latest activity in your workspace
             </p>
           </div>

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const runExtractionPipeline = vi.fn();
 const rateLimitCheck = vi.fn();
+const enforceIdempotency = vi.fn();
 
 vi.mock("@/lib/extraction/run-pipeline", () => ({
   runExtractionPipeline,
@@ -13,11 +14,16 @@ vi.mock("@/lib/rate-limit", () => ({
   rateLimitCheck,
 }));
 
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
 describe("POST /api/extract/run", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.EXTRACTION_WORKER_SECRET = "topsecret";
     rateLimitCheck.mockResolvedValue({ ok: true });
+    enforceIdempotency.mockResolvedValue(null);
   });
 
   it("returns 401 when bearer token is missing", async () => {
@@ -82,5 +88,32 @@ describe("POST /api/extract/run", () => {
     expect(res.status).toBe(200);
     expect(body).toEqual({ ok: true });
     expect(runExtractionPipeline).toHaveBeenCalledWith(payload);
+  });
+
+  it("returns duplicate response when idempotency blocks a replay", async () => {
+    const duplicate = new Response(JSON.stringify({ error: "Duplicate request blocked by idempotency key" }), {
+      status: 409,
+      headers: { "content-type": "application/json" },
+    });
+    enforceIdempotency.mockResolvedValue(duplicate);
+    const { POST } = await import("@/app/api/extract/run/route");
+    const payload = {
+      contractId: crypto.randomUUID(),
+      userId: crypto.randomUUID(),
+      organizationId: crypto.randomUUID(),
+    };
+    const req = new Request("http://localhost:3000/api/extract/run", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer topsecret",
+        "x-idempotency-key": "extract-worker-duplicate-key",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(409);
+    expect(runExtractionPipeline).not.toHaveBeenCalled();
   });
 });

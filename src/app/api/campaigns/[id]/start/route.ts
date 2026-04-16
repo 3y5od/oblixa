@@ -8,8 +8,9 @@ import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
   const { id } = await params;
@@ -25,13 +26,25 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (!(await canManageCapability(ctx, "maintenance_manage"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+  const duplicate = await enforceIdempotency(request, {
+    scope: "campaigns.start",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const { data: campaignMeta } = await ctx.admin
     .from("portfolio_campaigns")
-    .select("name, assignment_json, v6_effectiveness_json")
+    .select("name, status, assignment_json, v6_effectiveness_json")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
+  if (!campaignMeta) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!["draft", "previewed"].includes(campaignMeta.status)) {
+    return NextResponse.json(
+      { error: `Cannot start a campaign with status "${campaignMeta.status}"` },
+      { status: 409 }
+    );
+  }
   const assignParsed = parseCampaignAssignmentJson(campaignMeta?.assignment_json);
   if (!assignParsed.ok) {
     return NextResponse.json({ error: assignParsed.error }, { status: 400 });

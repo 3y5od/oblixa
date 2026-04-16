@@ -199,7 +199,7 @@ export default async function MaintenancePage() {
           <p className="ui-eyebrow">Signals</p>
           <h2 className="ui-section-title mt-2 text-xl">Hygiene backlog</h2>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           <OperationalSummaryCard
             eyebrow="Freshness"
             headline="Stale records"
@@ -389,7 +389,7 @@ export default async function MaintenancePage() {
                       <Link href={`/contracts/${row.id}`} className="ui-link text-sm">
                         {row.title}
                       </Link>
-                      <form action={archiveContractAsDuplicateForm}>
+                      <form action={archiveContractAsDuplicateForm as never}>
                         <input type="hidden" name="contractId" value={row.id} />
                         <input type="hidden" name="reason" value="duplicate candidate archived in maintenance" />
                         <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
@@ -416,7 +416,7 @@ export default async function MaintenancePage() {
             orphaned.slice(0, 30).map((row) => (
               <li key={row.id} className="flex items-center justify-between gap-3 px-6 py-3">
                 <span className="text-sm text-zinc-700">{row.file_name}</span>
-                <form action={deleteOrphanFileRecordForm}>
+                <form action={deleteOrphanFileRecordForm as never}>
                   <input type="hidden" name="fileId" value={row.id} />
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                     Delete row
@@ -433,7 +433,7 @@ export default async function MaintenancePage() {
           <h2 className="ui-section-title text-base">Correction campaigns</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={runCorrectionCampaignForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={runCorrectionCampaignForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
             <p className="ui-label-caps">Normalization campaign</p>
             <select name="campaignType" className="ui-input w-full">
               <option value="normalize_counterparty">Normalize counterparty spacing</option>
@@ -443,7 +443,7 @@ export default async function MaintenancePage() {
               Run correction
             </button>
           </form>
-          <form action={runDateBackfillCampaignForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={runDateBackfillCampaignForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
             <p className="ui-label-caps">Date backfill campaign</p>
             <input name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
             <select name="fieldName" className="ui-input w-full">
@@ -466,7 +466,7 @@ export default async function MaintenancePage() {
           <h2 className="ui-section-title text-base">Guided change-event maintenance</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={logContractChangeEventForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={logContractChangeEventForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
             <p className="ui-label-caps">Log change event</p>
             <input name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
             <select name="eventType" defaultValue="amendment" className="ui-input w-full">
@@ -485,7 +485,7 @@ export default async function MaintenancePage() {
               Log change event
             </button>
           </form>
-          <form action={processContractChangeEventsForm} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={processContractChangeEventsForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
             <p className="ui-label-caps">Create maintenance tasks from queue</p>
             <input name="maxRows" type="number" min={1} max={100} defaultValue={25} className="ui-input w-full" />
             <input name="teamKey" defaultValue="ops" className="ui-input w-full" />

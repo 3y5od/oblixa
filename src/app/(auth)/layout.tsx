@@ -13,7 +13,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-canvas text-zinc-900 antialiased">
+    <div className="flex min-h-screen flex-col bg-[radial-gradient(circle_at_top,var(--canvas-glow),transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--canvas)_92%,white),var(--canvas-strong))] text-[var(--text-primary)] antialiased">
       <div className="flex-1">{children}</div>
       <AuthLegalFooter />
     </div>

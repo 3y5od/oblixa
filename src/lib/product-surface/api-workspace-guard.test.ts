@@ -6,7 +6,7 @@ vi.mock("@/lib/v6/org-settings", () => ({
 }));
 
 describe("requireApiWorkspaceEligibility", () => {
-  it("returns null for routes without advanced/assurance mode floors", async () => {
+  it("returns null for mapped core routes", async () => {
     getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
       "@/lib/product-surface/api-workspace-guard"
@@ -17,6 +17,19 @@ describe("requireApiWorkspaceEligibility", () => {
       apiPath: "/api/contracts/recompute-signals",
     });
     expect(res).toBeNull();
+  });
+
+  it("fails closed for unmapped api routes", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    const { requireApiWorkspaceEligibility } = await import(
+      "@/lib/product-surface/api-workspace-guard"
+    );
+    const res = await requireApiWorkspaceEligibility({
+      admin: {} as never,
+      orgId: "org-1",
+      apiPath: "/api/not-mapped-by-registry",
+    });
+    expect(res?.status).toBe(404);
   });
 
   it("returns 403 when workspace mode is below route family floor", async () => {

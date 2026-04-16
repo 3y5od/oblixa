@@ -68,6 +68,9 @@ export async function GET(request: Request) {
     );
   }
 
+  const safeType = String(contract.contract_type ?? "").replace(/[^a-zA-Z0-9_\- ]/g, "");
+  const typeFilter = `contract_type.eq.${safeType},contract_type.is.null`;
+
   const [fields, reminders, tasks, existingFields, existingReminders, existingTasks] =
     await Promise.all([
       admin
@@ -75,19 +78,19 @@ export async function GET(request: Request) {
         .select("id, field_name, default_value, required")
         .eq("organization_id", contract.organization_id)
         .eq("active", true)
-        .or(`contract_type.eq.${contract.contract_type},contract_type.is.null`),
+        .or(typeFilter),
       admin
         .from("reminder_templates")
         .select("id, field_name, offset_days, reminder_type")
         .eq("organization_id", contract.organization_id)
         .eq("active", true)
-        .or(`contract_type.eq.${contract.contract_type},contract_type.is.null`),
+        .or(typeFilter),
       admin
         .from("task_templates")
         .select("id, title, due_offset_days, priority, team_key")
         .eq("organization_id", contract.organization_id)
         .eq("active", true)
-        .or(`contract_type.eq.${contract.contract_type},contract_type.is.null`),
+        .or(typeFilter),
       admin
         .from("extracted_fields")
         .select("field_name")

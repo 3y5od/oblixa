@@ -5,8 +5,10 @@
  */
 import Link from "next/link";
 import { differenceInDays, isValid } from "date-fns";
-import { Bookmark, ClipboardList, Scale, ShieldAlert, UserCircle, Wallet } from "lucide-react";
+import { Bookmark, ClipboardList, Scale, ShieldAlert } from "lucide-react";
 import { StatsCards } from "@/components/dashboard/stats-cards";
+import { DashboardQuickFilterCard } from "@/components/dashboard/dashboard-quick-filter-card";
+import { DashboardPersonaPresets } from "@/components/dashboard/dashboard-persona-presets";
 import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
 import {
   OnboardingBanner,
@@ -15,6 +17,7 @@ import {
 import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
+  getDashboardAdminClientCached,
   getDashboardDateFieldsCached,
   getDashboardMissingCriticalCached,
   getDashboardOrgMetricsCached,
@@ -23,7 +26,6 @@ import {
   getPinnedSavedViewsCached,
   getProfileOnboardingCached,
 } from "@/lib/dashboard-data";
-import { createAdminClient } from "@/lib/supabase/server";
 import {
   isOnboardingBlockingForAdmin,
   parseOnboardingCalibration,
@@ -92,7 +94,7 @@ export async function DashboardUpper(props: {
     enforcePlan ? getOrgHasActivePlanCached(orgId) : Promise.resolve(true),
   ]);
 
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const v6OrgSettings = await getV6OrgSettingsJson(admin, orgId);
   const onboardingCalibration = parseOnboardingCalibration(v6OrgSettings.onboarding_calibration);
   const calibrationBlocking = isOnboardingBlockingForAdmin({
@@ -325,8 +327,8 @@ export async function DashboardUpper(props: {
         />
       )}
       {showPlanBanner && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[14px] leading-relaxed text-amber-950">
+        <div className="ui-alert-warning flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[14px] leading-relaxed">
             <span className="font-semibold">Subscription required</span> to create
             or edit contracts.
           </p>
@@ -343,7 +345,9 @@ export async function DashboardUpper(props: {
         <div>
           <p className="ui-eyebrow">Mission control</p>
           <h1 className="ui-display-title mt-2">Dashboard</h1>
-          <p className="ui-muted-tight mt-2 max-w-xl">Critical queues, risk signals, and next actions.</p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Critical queues, risk signals, next actions, and saved operating views for the current workspace.
+          </p>
           {onboardingCalibration?.last_recommendation &&
           onboardingCalibration.answers_optional?.org_role &&
           onboardingCalibration.answers_optional.org_role !== "unspecified" ? (
@@ -381,7 +385,7 @@ export async function DashboardUpper(props: {
           </div>
           {showPersonaPresets ? (
             <Link href="/dashboard/persona" className="ui-btn-secondary h-11 px-5">
-              Persona views
+              Persona studio
             </Link>
           ) : null}
           <Link href="/contracts/new" className="ui-btn-primary h-11 px-6">
@@ -399,12 +403,14 @@ export async function DashboardUpper(props: {
         missingCriticalCount={missingCritical.length}
       />
 
-      <section className="space-y-3">
+      <section className="ui-page-shell space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="ui-eyebrow">Shortcuts</p>
             <h2 className="ui-section-title mt-2 text-xl">Action lanes</h2>
-            <p className="ui-muted-tight mt-1 text-[12px]">Role defaults for {role.replace("_", " ")}.</p>
+            <p className="ui-muted-tight mt-1 text-[12px]">
+              Role defaults for {role.replace("_", " ")}.
+            </p>
           </div>
           {showPersonaPresets ? (
             <Link href="/dashboard/persona" className="ui-link text-xs">
@@ -431,106 +437,17 @@ export async function DashboardUpper(props: {
         </div>
       </section>
 
-      {showPersonaPresets && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="ui-eyebrow">Personas</p>
-              <h2 className="ui-section-title mt-2 text-xl">Preset views</h2>
-              <p className="ui-muted-tight mt-1 text-[12px]">One-click command layouts.</p>
-            </div>
-            <Link href="/dashboard/persona" className="ui-link text-xs">
-              Full persona dashboard
-            </Link>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <OperationalSurfaceLinkCard
-              href="/dashboard/persona?persona=ops"
-              eyebrow="Ops"
-              title="Ops daily"
-              icon={ClipboardList}
-              tone="neutral"
-              actionLabel="Open ops view"
-            />
-            <OperationalSurfaceLinkCard
-              href="/dashboard/persona?persona=legal"
-              eyebrow="Legal"
-              title="Legal approvals"
-              icon={Scale}
-              tone="neutral"
-              actionLabel="Open legal view"
-            />
-            <OperationalSurfaceLinkCard
-              href="/dashboard/persona?persona=finance"
-              eyebrow="Finance"
-              title="Finance renewals"
-              icon={Wallet}
-              tone="neutral"
-              actionLabel="Open finance view"
-            />
-            <OperationalSurfaceLinkCard
-              href="/dashboard/persona?persona=manager"
-              eyebrow="Manager"
-              title="Manager weekly"
-              icon={UserCircle}
-              tone="neutral"
-              actionLabel="Open manager view"
-            />
-          </div>
-        </section>
-      )}
+      {showPersonaPresets ? <DashboardPersonaPresets /> : null}
 
-      <section className="ui-card p-5">
-        <p className="ui-eyebrow">Shortcuts</p>
-        <h2 className="ui-section-title mt-1 text-base">Quick filters</h2>
-        <div className="ui-filter-row mt-3 text-xs">
-          <Link
-            href={`/dashboard?view=${view}`}
-            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
-              quickFilter === "all"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-            }`}
-          >
-            All
-          </Link>
-          <Link
-            href={`/dashboard?view=${view}&qf=approvals`}
-            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
-              quickFilter === "approvals"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-            }`}
-          >
-            Approvals
-          </Link>
-          <Link
-            href={`/dashboard?view=${view}&qf=deadlines`}
-            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
-              quickFilter === "deadlines"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-            }`}
-          >
-            Deadlines
-          </Link>
-          <Link
-            href={`/dashboard?view=${view}&qf=data_gaps`}
-            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-1.5 ${
-              quickFilter === "data_gaps"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-            }`}
-          >
-            Data gaps
-          </Link>
-        </div>
-      </section>
-      <section className="space-y-3">
+      <DashboardQuickFilterCard view={view} quickFilter={quickFilter} />
+      <section className="ui-page-shell space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="ui-eyebrow">Saved</p>
             <h2 className="ui-section-title mt-2 text-xl">Pinned command views</h2>
+            <p className="ui-muted-tight mt-1 text-[12px]">
+              Keep recurring queue configurations one click away.
+            </p>
           </div>
           <Link href={manageSavedViewsHref} className="ui-link text-xs">
             Manage saved views

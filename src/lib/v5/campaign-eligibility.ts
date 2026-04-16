@@ -77,19 +77,24 @@ export async function backfillCampaignContractSegments(
     typeof eligibility.segmentSource === "string" ? eligibility.segmentSource : "account_key";
   if (src !== "account_key" && src !== "counterparty_key") return;
 
-  const { data: rows } = await admin
+  const { data: rows, error: rowsErr } = await admin
     .from("portfolio_campaign_contracts")
     .select("id, contract_id, segment_key")
     .eq("organization_id", organizationId)
     .eq("campaign_id", campaignId);
+  if (rowsErr) {
+    console.error("[campaign-eligibility] backfill segment rows query failed:", rowsErr.message);
+    return;
+  }
   if (!rows?.length) return;
 
   const contractIds = [...new Set(rows.map((r) => String(r.contract_id)))];
-  const { data: contracts } = await admin
+  const { data: contracts, error: contractsErr } = await admin
     .from("contracts")
     .select("id, account_key, counterparty_key")
     .eq("organization_id", organizationId)
     .in("id", contractIds);
+  if (contractsErr) console.error("[campaign-eligibility] backfill contracts query failed:", contractsErr.message);
   const byId = new Map((contracts ?? []).map((c) => [String(c.id), c]));
 
   for (const row of rows) {
@@ -119,11 +124,12 @@ export async function syncCampaignContractsFromEligibility(
   const ids = await contractIdsMatchingEligibility(admin, organizationId, eligibility);
   if (ids.length === 0) return { inserted: 0 };
 
-  const { data: existing } = await admin
+  const { data: existing, error: existingErr } = await admin
     .from("portfolio_campaign_contracts")
     .select("contract_id")
     .eq("organization_id", organizationId)
     .eq("campaign_id", campaignId);
+  if (existingErr) console.error("[campaign-eligibility] sync existing query failed:", existingErr.message);
 
   const have = new Set((existing ?? []).map((r) => String(r.contract_id)));
   const missing = ids.filter((cid) => !have.has(cid));
@@ -159,12 +165,13 @@ export async function applyAssignmentDefaultsToPendingRows(
   campaignId: string,
   assignment: CampaignAssignment
 ): Promise<{ updated: number }> {
-  const { data: rows } = await admin
+  const { data: rows, error: rowsErr } = await admin
     .from("portfolio_campaign_contracts")
     .select("id, segment_key, assigned_team")
     .eq("organization_id", organizationId)
     .eq("campaign_id", campaignId)
     .eq("status", "pending");
+  if (rowsErr) console.error("[campaign-eligibility] assignment rows query failed:", rowsErr.message);
 
   let updated = 0;
   for (const row of rows ?? []) {

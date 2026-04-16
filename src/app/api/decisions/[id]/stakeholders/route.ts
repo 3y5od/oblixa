@@ -40,6 +40,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .maybeSingle();
   if (!exists) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
 
+  const { data: memberCheck } = await ctx.admin
+    .from("organization_members")
+    .select("id")
+    .eq("organization_id", ctx.orgId)
+    .eq("user_id", stakeholderUserId)
+    .maybeSingle();
+  if (!memberCheck) return NextResponse.json({ error: "Stakeholder must be an organization member" }, { status: 400 });
+
   const { data, error } = await ctx.admin
     .from("decision_workspace_stakeholders")
     .insert({

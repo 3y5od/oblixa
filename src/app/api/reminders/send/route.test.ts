@@ -14,7 +14,7 @@ describe("GET /api/reminders/send", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Server misconfigured: CRON_SECRET is not set" });
+    expect(body).toEqual({ error: "Service unavailable" });
   });
 
   it("returns 401 when request is unsigned", async () => {

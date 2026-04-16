@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { runTaskAutomationRulesForOrg } from "@/actions/automation";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
 function isAuthorized(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET?.trim();
@@ -30,17 +31,35 @@ export async function GET(request: Request) {
   }
 
   const admin = await createAdminClient();
-  const { data: organizations } = await admin.from("organizations").select("id");
   let generated = 0;
   let evaluatedRules = 0;
-  for (const org of organizations ?? []) {
-    const res = await runTaskAutomationRulesForOrg(admin, org.id);
-    generated += res.generated;
-    evaluatedRules += res.evaluatedRules;
+  let organizationsCount = 0;
+  const pageResult = await forEachSupabaseRangePage(
+    (from, to) =>
+      admin
+        .from("organizations")
+        .select("id")
+        .order("created_at", { ascending: true })
+        .range(from, to),
+    async (chunk) => {
+      organizationsCount += chunk.length;
+      for (const org of chunk) {
+        const res = await runTaskAutomationRulesForOrg(admin, org.id);
+        generated += res.generated;
+        evaluatedRules += res.evaluatedRules;
+      }
+    },
+    { pageSize: 200, maxOffsetExclusive: 20_000 }
+  );
+  if (pageResult.error) {
+    return NextResponse.json(
+      { error: "Failed to load organizations for automation rules" },
+      { status: 500 }
+    );
   }
 
   const payload = {
-    organizations: organizations?.length ?? 0,
+    organizations: organizationsCount,
     evaluatedRules,
     generated,
     ok: true,

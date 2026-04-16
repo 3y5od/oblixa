@@ -25,11 +25,14 @@ describe("stripe helpers", () => {
         } as Stripe.Subscription)
       ).toBe("incomplete");
       expect(
+        resolveSubscriptionStatus({ status: "unpaid" } as Stripe.Subscription)
+      ).toBe("unpaid");
+      expect(
         resolveSubscriptionStatus({ status: "canceled" } as Stripe.Subscription)
       ).toBe("canceled");
       expect(
         resolveSubscriptionStatus({ status: "paused" } as Stripe.Subscription)
-      ).toBe("canceled");
+      ).toBe("paused");
     });
   });
 

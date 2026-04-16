@@ -46,20 +46,20 @@ export function QueueItemCard({
 
   return (
     <article
-      className={`rounded-2xl border border-[var(--border-subtle)] p-3 shadow-[var(--shadow-1)] ${OPERATIONAL_SHELL_BY_TONE[opTone]}`}
+      className={`ui-transition-surface rounded-[1.35rem] border border-[var(--border-subtle)] p-3.5 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[opTone]}`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      <div className="flex flex-wrap items-start justify-between gap-2.5">
         <div className="flex min-w-0 flex-1 items-start gap-2.5">
           <span
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100/90 text-zinc-700 ring-1 ring-zinc-200/80`}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.95rem] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,white)] text-[var(--text-secondary)] ring-1 ring-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)]"
           >
             <FileText className="h-4 w-4" strokeWidth={1.75} aria-hidden />
           </span>
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">{objectType}</p>
-            <h3 className="mt-0.5 text-sm font-semibold tracking-tight text-zinc-900">
+          <div className="min-w-0 pr-1">
+            <p className="ui-kicker">{objectType}</p>
+            <h3 className="mt-1 break-words text-sm font-semibold tracking-tight leading-snug text-[var(--text-primary)]">
               {href ? (
-                <Link href={href} className="text-[var(--accent)] hover:text-zinc-900">
+                <Link href={href} className="break-words text-[var(--accent-strong)] hover:text-[var(--text-primary)]">
                   {title}
                 </Link>
               ) : (
@@ -70,12 +70,12 @@ export function QueueItemCard({
               <ContractContinuityLinks
                 contractId={continuityContractId}
                 omit={continuityOmit}
-                className="mt-1 text-[10px] leading-snug text-zinc-500"
+                className="mt-1 text-[10px] leading-snug text-[var(--text-tertiary)]"
               />
             ) : null}
           </div>
         </div>
-        <StatusBadge status={statusTone} className="shrink-0">
+        <StatusBadge status={statusTone} className="shrink-0 whitespace-nowrap">
           {statusLabel}
         </StatusBadge>
       </div>
@@ -86,9 +86,13 @@ export function QueueItemCard({
         ))}
       </div>
 
-      <div className="mt-2 border-t border-zinc-200/60 pt-2 dark:border-zinc-700/50">
-        <Link href={nextAction.href} className="text-[12px] font-semibold text-[var(--accent)] hover:text-zinc-900">
-          {nextAction.label}
+      <div className="mt-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] pt-2.5">
+        <Link
+          href={nextAction.href}
+          className="inline-flex min-w-0 max-w-full items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)] hover:text-[var(--text-primary)]"
+        >
+          <span className="truncate">{nextAction.label}</span>
+          <span aria-hidden>→</span>
         </Link>
       </div>
     </article>

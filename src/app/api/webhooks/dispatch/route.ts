@@ -8,6 +8,9 @@ import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 const MAX_FAILURES_REPORTED = 200;
 
 function hex(buffer: ArrayBuffer): string {

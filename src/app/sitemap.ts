@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import { SITEMAP_PATHS } from "@/lib/marketing/public-paths";
 
+export const revalidate = 3600;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getAppBaseUrlFromEnv();
   const lastModified = new Date();

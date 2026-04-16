@@ -26,8 +26,15 @@ describe("POST /api/integrations/actions/callback", () => {
     createAdminClient.mockResolvedValue({
       from: vi.fn(() => ({
         insert: vi.fn().mockResolvedValue({}),
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+              }),
+            }),
+          }),
+        }),
       })),
     });
   });
@@ -86,6 +93,41 @@ describe("POST /api/integrations/actions/callback", () => {
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body).toEqual({ error: "id is required" });
+  });
+
+  it("returns 404 when approve_evidence update matches no row in the allowed org", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        insert: vi.fn().mockResolvedValue({}),
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+              }),
+            }),
+          }),
+        }),
+      })),
+    });
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: JSON.stringify({
+        organizationId: "org-1",
+        action: "approve_evidence",
+        id: "submission-1",
+      }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(404);
+    expect(body).toEqual({ error: "Evidence submission not found for organization" });
   });
 
   it("returns 401 when bearer token does not match", async () => {

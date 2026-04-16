@@ -66,7 +66,7 @@ export async function fetchReviewQueuePage(
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
   const pageSize = CONTRACTS_PAGE_SIZE;
 
-  const [{ data: pendingReviewRows }, { data: pendingFieldRows }] = await Promise.all([
+  const [pendingReviewResult, pendingFieldResult] = await Promise.all([
     admin.from("contracts").select("id").eq("organization_id", orgId).eq("status", "pending_review"),
     admin
       .from("extracted_fields")
@@ -74,6 +74,16 @@ export async function fetchReviewQueuePage(
       .eq("status", "pending")
       .eq("contracts.organization_id", orgId),
   ]);
+
+  if (pendingReviewResult.error) {
+    console.error("[contract-review-stats] pendingReview query error:", pendingReviewResult.error.message);
+  }
+  if (pendingFieldResult.error) {
+    console.error("[contract-review-stats] pendingFields query error:", pendingFieldResult.error.message);
+  }
+
+  const pendingReviewRows = pendingReviewResult.data;
+  const pendingFieldRows = pendingFieldResult.data;
 
   const pendingReviewIds = new Set((pendingReviewRows ?? []).map((r) => r.id as string));
   const pendingCountByContractId: Record<string, number> = {};

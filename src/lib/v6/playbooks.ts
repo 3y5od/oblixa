@@ -101,8 +101,13 @@ export async function runPlaybook(
   orgId: string,
   playbookId: string,
   userId: string,
-  options: RunPlaybookOptions = {}
+  options: RunPlaybookOptions = {},
+  depth = 0
 ) {
+  if (depth > 3) {
+    return { data: null, error: { message: "max_playbook_depth_exceeded" } };
+  }
+
   const { data: playbook, error: pbErr } = await admin
     .from("adaptive_playbooks")
     .select("id, playbook_type, execution_template_json, preconditions_json, eligibility_json, approval_mode, follow_up_checks_json")
@@ -206,7 +211,8 @@ export async function runPlaybook(
     userId,
     String(playbook.playbook_type),
     template,
-    execCtx
+    execCtx,
+    depth
   );
 
   await insertStep(admin, orgId, runId, stepOrder++, "execution", "execution", sideEffects.error ? "failed" : "completed", {

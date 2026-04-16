@@ -9,6 +9,7 @@ const SENSITIVE_HEADER_KEYS = new Set([
   "x-vercel-cron-secret",
   "x-inbound-automation-token",
   "x-webhook-signature",
+  "x-integration-token",
 ]);
 
 /**
@@ -27,6 +28,8 @@ function scrubCalibrationPayloads<T>(event: T): T {
       "onboarding_calibration_json",
       "calibration_questionnaire",
       "calibration_wizard_payload",
+      "rawMessage",
+      "raw_message",
     ] as const;
     for (const key of redactKeys) {
       if (key in nextExtra) nextExtra[key] = "[redacted]";

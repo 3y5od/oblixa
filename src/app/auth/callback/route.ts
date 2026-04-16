@@ -3,6 +3,7 @@ import {
   createClient,
   createAdminClient,
   ensureUserOrg,
+  resolveDefaultOrganizationNameForUser,
 } from "@/lib/supabase/server";
 import { getSafeRedirectPath } from "@/lib/security/redirect";
 import { isUuid } from "@/lib/security/validation";
@@ -70,11 +71,7 @@ export async function GET(request: Request) {
           .eq("id", inv.id);
         orgIdForLanding = inv.organization_id;
       } else {
-        const fullName = user.user_metadata?.full_name;
-        await ensureUserOrg(
-          user.id,
-          fullName ? `${fullName}'s Organization` : "My Organization"
-        );
+        await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user));
         orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
       }
 

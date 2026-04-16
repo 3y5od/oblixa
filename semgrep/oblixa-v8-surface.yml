@@ -1,0 +1,57 @@
+# V8 product-surface regression checks are primarily enforced by `npm run check:v8-suite`.
+# Keep Semgrep pack narrow/low-noise and reserve richer policy for deterministic scripts/tests.
+rules:
+  - id: oblixa-v8-api-create-admin-needs-workspace-gate
+    languages: [typescript, tsx]
+    message: >
+      API routes using createAdminClient should also invoke requireApiWorkspaceEligibility unless explicitly exempt.
+    severity: WARNING
+    patterns:
+      - pattern: |
+          const $ADMIN = await createAdminClient(...);
+      - pattern-not: |
+          await requireApiWorkspaceEligibility(...)
+    paths:
+      include:
+        - src/app/api/**/route.ts
+      exclude:
+        - src/app/api/cron/**/route.ts
+        - src/app/api/stripe/**/route.ts
+        - src/app/api/tracking/**/route.ts
+        - src/app/api/health/**/route.ts
+
+  - id: oblixa-v8-server-action-needs-eligibility-or-org-scope
+    languages: [typescript]
+    message: >
+      Governed server action modules should call requireServerActionEligibility or enforce auth+org scope checks.
+    severity: WARNING
+    patterns:
+      - pattern: '"use server";'
+      - pattern: |
+          const $ADMIN = await createAdminClient(...);
+      - pattern-not: |
+          await requireServerActionEligibility(...)
+      - pattern-not: |
+          await getOrgMemberRole(...)
+    paths:
+      include:
+        - src/actions/**/*.ts
+      exclude:
+        - src/actions/auth.ts
+        - src/actions/demo.ts
+
+  - id: oblixa-v8-dashboard-layout-must-enforce-page-eligibility
+    languages: [typescript, tsx]
+    message: >
+      Dashboard layout must enforce page-surface eligibility via assertPagePathEligibleOrNotFound.
+    severity: WARNING
+    patterns:
+      - pattern: |
+          export default async function $LAYOUT(...) {
+            ...
+          }
+      - pattern-not: |
+          assertPagePathEligibleOrNotFound(...)
+    paths:
+      include:
+        - src/app/(dashboard)/layout.tsx

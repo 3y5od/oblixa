@@ -27,6 +27,18 @@ vi.mock("@/lib/v5/relationship-timeline", () => ({
   appendCounterpartyTimelineEvent: vi.fn(),
 }));
 
+vi.mock("@/lib/v6/external-collaboration", () => ({
+  appendExternalWorkflowStep: vi.fn(async () => {}),
+}));
+
+vi.mock("@/lib/v6/assurance-checks", () => ({
+  runIncrementalAssuranceChecks: vi.fn(async () => ({})),
+}));
+
+vi.mock("@/lib/v6/telemetry", () => ({
+  incrementV6QualityCounter: vi.fn(async () => {}),
+}));
+
 const mockedFlags = vi.mocked(isFeatureEnabled);
 
 function mockLinkSelect(data: Record<string, unknown> | null) {
@@ -117,6 +129,67 @@ describe("POST /api/external-actions/[token]/submit", () => {
     expect(res.status).toBe(409);
   });
 
+  it("returns 409 when a concurrent submit already consumed the link", async () => {
+    mockedFlags.mockReturnValue(true);
+    const future = new Date(Date.now() + 86400000).toISOString();
+    const admin = {
+      from: vi.fn((table: string) => {
+        if (table === "external_action_links") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => ({
+                  data: {
+                    id: "link-uuid-1",
+                    organization_id: "o1",
+                    status: "open",
+                    expires_at: future,
+                    one_time: true,
+                    action_type: "submit_evidence",
+                    scope_json: {},
+                    passcode_hash: null,
+                    decision_workspace_id: null,
+                    requires_reauth: false,
+                  },
+                  error: null,
+                })),
+              })),
+            })),
+            update: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  neq: vi.fn(() => ({
+                    select: vi.fn(() => ({
+                      maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+                    })),
+                  })),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "external_action_events") {
+          return { insert: vi.fn(async () => ({ error: null })) };
+        }
+        return {
+          select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
+        };
+      }),
+    };
+    createAdminClient.mockResolvedValueOnce(admin as never);
+
+    const { POST } = await import("@/app/api/external-actions/[token]/submit/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "hello" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    expect(res.status).toBe(409);
+  });
+
   it("returns 403 when requires_reauth and submit ticket missing", async () => {
     mockedFlags.mockReturnValue(true);
     const future = new Date(Date.now() + 86400000).toISOString();
@@ -178,10 +251,12 @@ describe("POST /api/external-actions/[token]/submit", () => {
             update: vi.fn(() => ({
               eq: vi.fn(() => ({
                 eq: vi.fn(() => ({
-                  select: vi.fn(() => ({
-                    single: vi.fn(async () => ({
-                      data: { id: "link-uuid-1", status: "submitted", submitted_at: future },
-                      error: null,
+                  neq: vi.fn(() => ({
+                    select: vi.fn(() => ({
+                      maybeSingle: vi.fn(async () => ({
+                        data: { id: "link-uuid-1", status: "submitted", submitted_at: future },
+                        error: null,
+                      })),
                     })),
                   })),
                 })),

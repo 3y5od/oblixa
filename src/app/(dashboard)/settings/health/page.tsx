@@ -183,7 +183,7 @@ export default async function SettingsHealthPage() {
           <p className="ui-eyebrow">Throughput</p>
           <h2 className="ui-section-title mt-2 text-xl">Delivery posture</h2>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           <OperationalSummaryCard
             eyebrow="Notifications"
             headline="Retry queue depth"

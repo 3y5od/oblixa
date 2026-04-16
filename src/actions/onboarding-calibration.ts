@@ -122,7 +122,7 @@ const previewPayloadSchema = z
   .strict();
 
 export type CalibrationActionResult =
-  | { ok: true }
+  | { ok: true; fallback?: true }
   | { ok: false; error: string };
 
 export async function previewCalibrationRecommendation(
@@ -165,16 +165,18 @@ export async function recordQuestionnaireStarted(): Promise<CalibrationActionRes
     .select("id")
     .eq("organization_id", ctx.orgId)
     .eq("action", "onboarding.questionnaire_started")
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   if (!existingStart) {
-    await ctx.admin.from("audit_events").insert({
+    const { error: auditErr } = await ctx.admin.from("audit_events").insert({
       organization_id: ctx.orgId,
       contract_id: null,
       user_id: ctx.user.id,
       action: "onboarding.questionnaire_started",
       details: { source: "wizard" },
     });
+    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
   }
   revalidateCalibrationSurfaces();
   return { ok: true };
@@ -231,6 +233,9 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "Calibration is not configured." };
+  if (prevCal.status !== "completed" && prevCal.status !== "skipped") {
+    return { ok: false, error: "Recalibration is only allowed from completed or skipped states." };
+  }
   const nextCal = baseCalibrationFrom(prevCal, {
     status: "in_progress",
     questionnaire_started_at: nowIso(),
@@ -239,13 +244,14 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
-  await ctx.admin.from("audit_events").insert({
+  const { error: auditErr } = await ctx.admin.from("audit_events").insert({
     organization_id: ctx.orgId,
     contract_id: null,
     user_id: ctx.user.id,
     action: "onboarding.recalibration_run",
     details: { source: "settings" },
   });
+  if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
   revalidateCalibrationSurfaces();
   return { ok: true };
 }
@@ -409,7 +415,7 @@ export async function completeQuestionnaireAcceptRecommendation(
       transition,
     });
 
-    await ctx.admin.from("audit_events").insert([
+    const { error: auditErr } = await ctx.admin.from("audit_events").insert([
       {
         organization_id: ctx.orgId,
         contract_id: null,
@@ -451,6 +457,7 @@ export async function completeQuestionnaireAcceptRecommendation(
         },
       },
     ]);
+    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
   } catch {
     Sentry.captureMessage("onboarding.calibration_apply_failed", {
       level: "error",
@@ -482,13 +489,16 @@ export async function completeQuestionnaireAcceptRecommendation(
       orgId: ctx.orgId,
       mode: "core",
     });
-    await ctx.admin.from("audit_events").insert({
+    const { error: auditErr } = await ctx.admin.from("audit_events").insert({
       organization_id: ctx.orgId,
       contract_id: null,
       user_id: ctx.user.id,
       action: "onboarding.calibration_error",
       details: { phase: "accept_recommendation", answers_hash: answerHash },
     });
+    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    revalidateCalibrationSurfaces();
+    return { ok: true, fallback: true as const };
   }
 
   revalidateCalibrationSurfaces();
@@ -581,7 +591,7 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
-  await ctx.admin.from("audit_events").insert([
+  const { error: auditErr } = await ctx.admin.from("audit_events").insert([
     {
       organization_id: ctx.orgId,
       contract_id: null,
@@ -597,6 +607,7 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
       details: { choice: "settings" },
     },
   ]);
+  if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
   revalidateCalibrationSurfaces();
   return { ok: true };
 }
@@ -631,12 +642,13 @@ export async function exportOnboardingCalibrationSupportJson(
   if (json.length > EXPORT_ONBOARDING_CALIBRATION_JSON_MAX_BYTES) {
     return { ok: false, error: "Export too large." };
   }
-  await ctx.admin.from("audit_events").insert({
+  const { error: auditErr } = await ctx.admin.from("audit_events").insert({
     organization_id: ctx.orgId,
     contract_id: null,
     user_id: ctx.user.id,
     action: "onboarding.calibration_support_export",
     details: { version: prevCal.version, status: prevCal.status },
   });
+  if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
   return { ok: true, json };
 }

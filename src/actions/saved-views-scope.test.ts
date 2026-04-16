@@ -38,13 +38,25 @@ describe("createSavedView (org scope via membership)", () => {
     });
   });
 
+  it("does not upsert when Supabase user is null", async () => {
+    getUser.mockResolvedValue({ data: { user: null } });
+    const { createSavedView } = await import("@/actions/saved-views");
+    const fd = new FormData();
+    fd.set("name", "Nope");
+    fd.set("organizationId", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    const result = await createSavedView(fd, "contracts");
+    expect(result).toEqual({ error: "Not authenticated" });
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
   it("does not upsert when user is not a member of the submitted organization", async () => {
     getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
     const { createSavedView } = await import("@/actions/saved-views");
     const fd = new FormData();
     fd.set("name", "My view");
     fd.set("organizationId", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    await createSavedView(fd, "contracts");
+    const result = await createSavedView(fd, "contracts");
+    expect(result).toEqual({ error: "Access denied" });
     expect(upsert).not.toHaveBeenCalled();
   });
 

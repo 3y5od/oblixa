@@ -63,11 +63,18 @@ export async function revertAutopilotRunLog(admin: AdminClient, orgId: string, l
   } else if (hint.table === "report_packs") {
     const { error: delErr } = await admin.from("report_packs").delete().eq("organization_id", orgId).eq("id", hint.id);
     if (delErr) return { ok: false as const, error: delErr.message };
+  } else if (hint.table === "contract_tasks") {
+    const { error: taskErr } = await admin
+      .from("contract_tasks")
+      .update({ status: "closed", updated_at: nowIso() })
+      .eq("organization_id", orgId)
+      .eq("id", hint.id);
+    if (taskErr) return { ok: false as const, error: taskErr.message };
   } else {
     return { ok: false as const, error: "unsupported_table" };
   }
 
-  await admin
+  const { error: logErr } = await admin
     .from("autopilot_run_logs")
     .update({
       status: "reverted",
@@ -75,6 +82,8 @@ export async function revertAutopilotRunLog(admin: AdminClient, orgId: string, l
     })
     .eq("organization_id", orgId)
     .eq("id", logId);
+
+  if (logErr) return { ok: false as const, error: logErr.message };
 
   return { ok: true as const };
 }

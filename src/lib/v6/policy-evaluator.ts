@@ -62,16 +62,27 @@ async function segmentKeyHasMembershipInScope(
     .maybeSingle();
   if (!seg?.id) return false;
   const sid = String((seg as { id: string }).id);
-  let q = admin
+  if (scopeContractIds.length > 0) {
+    const batchSize = 2000;
+    for (let i = 0; i < scopeContractIds.length; i += batchSize) {
+      const batch = scopeContractIds.slice(i, i + batchSize);
+      const { count: batchCount } = await admin
+        .from("segment_memberships")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("segment_definition_id", sid)
+        .eq("entity_type", "contract")
+        .in("entity_ref_id", batch);
+      if ((batchCount ?? 0) > 0) return true;
+    }
+    return false;
+  }
+  const { count } = await admin
     .from("segment_memberships")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", orgId)
     .eq("segment_definition_id", sid)
     .eq("entity_type", "contract");
-  if (scopeContractIds.length > 0) {
-    q = q.in("entity_ref_id", scopeContractIds.slice(0, 500));
-  }
-  const { count } = await q;
   return (count ?? 0) > 0;
 }
 

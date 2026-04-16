@@ -67,6 +67,7 @@ describe("scrubSentryEvent", () => {
           "Set-Cookie": "a=b",
           "x-inbound-automation-token": "tok",
           "x-webhook-signature": "sig",
+          "x-integration-token": "integration-secret",
           "x-forwarded-authorization": "Bearer x",
         },
       },
@@ -76,6 +77,7 @@ describe("scrubSentryEvent", () => {
       "Set-Cookie": "[redacted]",
       "x-inbound-automation-token": "[redacted]",
       "x-webhook-signature": "[redacted]",
+      "x-integration-token": "[redacted]",
       "x-forwarded-authorization": "[redacted]",
     });
   });
@@ -93,6 +95,22 @@ describe("scrubSentryEvent", () => {
       calibration_answers: "[redacted]",
       onboarding_calibration_json: "[redacted]",
       calibration_questionnaire: "[redacted]",
+    });
+  });
+
+  it("redacts raw AI/provider message fields in extras", () => {
+    const out = scrubSentryEvent({
+      request: { headers: {} },
+      extra: {
+        rawMessage: "provider stack dump",
+        raw_message: "provider stack dump",
+        mappedMessage: "AI extraction failed",
+      },
+    });
+    expect((out as { extra?: Record<string, unknown> }).extra).toEqual({
+      rawMessage: "[redacted]",
+      raw_message: "[redacted]",
+      mappedMessage: "AI extraction failed",
     });
   });
 });

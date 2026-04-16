@@ -50,8 +50,8 @@ describe("mapDataSourceError", () => {
     );
   });
 
-  it("returns short benign messages unchanged", () => {
-    expect(mapDataSourceError("Not found")).toBe("Not found");
+  it("returns generic message for short benign messages", () => {
+    expect(mapDataSourceError("Not found")).toBe("An unexpected error occurred. Please try again.");
   });
 });
 

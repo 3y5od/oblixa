@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { getContractAccessContext } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
@@ -22,6 +23,13 @@ const MAX_CHECKLIST_ITEM_LEN = 240;
 const MAX_ARTIFACT_LABEL_LEN = 240;
 const MAX_ARTIFACT_URL_LEN = 2000;
 
+const VALID_TASK_TRANSITIONS: Record<ContractTaskStatus, ContractTaskStatus[]> = {
+  open: ["in_progress", "blocked", "done"],
+  in_progress: ["open", "blocked", "done"],
+  blocked: ["open", "in_progress"],
+  done: ["open"],
+};
+
 function isTaskStatus(v: string): v is ContractTaskStatus {
   return TASK_STATUSES.includes(v as ContractTaskStatus);
 }
@@ -36,31 +44,16 @@ type MembershipCtx = {
   role: OrgRole | null;
 };
 
+async function importTaskAutomation() {
+  return await import("@/actions/tasks-automation");
+}
+
 async function getMembershipForContract(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   userId: string,
   contractId: string
 ): Promise<{ ok: true; ctx: MembershipCtx } | { ok: false; error: string; status: number }> {
-  const { data: contract, error } = await admin
-    .from("contracts")
-    .select("id, organization_id")
-    .eq("id", contractId)
-    .maybeSingle();
-
-  if (error) return { ok: false, error: mapDataSourceError(error.message), status: 500 };
-  if (!contract) return { ok: false, error: "Contract not found", status: 404 };
-
-  const role = await getOrgMemberRole(admin, userId, contract.organization_id);
-  if (!role) return { ok: false, error: "Access denied", status: 403 };
-
-  return {
-    ok: true,
-    ctx: {
-      userId,
-      orgId: contract.organization_id,
-      role,
-    },
-  };
+  return await getContractAccessContext(admin, userId, contractId);
 }
 
 async function ensureAssigneeMember(
@@ -89,7 +82,7 @@ async function appendTaskEvent(
     details?: Record<string, unknown>;
   }
 ) {
-  await admin.from("contract_task_events").insert({
+  const { error } = await admin.from("contract_task_events").insert({
     organization_id: input.organizationId,
     contract_id: input.contractId,
     task_id: input.taskId,
@@ -97,147 +90,21 @@ async function appendTaskEvent(
     event_type: input.eventType,
     details: input.details ?? {},
   });
+  if (error) console.error("[tasks] appendTaskEvent", error.message);
 }
 
-export async function autoTransitionTasksForApproval(input: {
-  admin: Awaited<ReturnType<typeof createAdminClient>>;
-  organizationId: string;
-  contractId: string;
-  actorId: string;
-  approvalStatus: "pending" | "approved" | "rejected";
-  approvalDueAt?: string | null;
-}) {
-  const { admin, organizationId, contractId, actorId, approvalStatus, approvalDueAt } = input;
-  const { data: tasks } = await admin
-    .from("contract_tasks")
-    .select("id, status, title, details")
-    .eq("organization_id", organizationId)
-    .eq("contract_id", contractId)
-    .in("status", ["open", "in_progress", "blocked"]);
-  const approvalLinked = (tasks ?? []).filter((task) => {
-    const text = `${task.title ?? ""} ${task.details ?? ""}`.toLowerCase();
-    return text.includes("approval");
-  });
-  if (approvalLinked.length === 0) return;
-
-  if (approvalStatus === "pending") {
-    const dueDate =
-      approvalDueAt && !Number.isNaN(new Date(approvalDueAt).getTime())
-        ? new Date(approvalDueAt).toISOString().slice(0, 10)
-        : null;
-    for (const task of approvalLinked) {
-      if (task.status === "blocked") continue;
-      await admin
-        .from("contract_tasks")
-        .update({
-          status: "blocked",
-          blocked_reason: "Waiting on approval decision",
-          due_date: dueDate ?? undefined,
-          last_auto_transition_at: new Date().toISOString(),
-        })
-        .eq("id", task.id);
-      await appendTaskEvent(admin, {
-        organizationId,
-        contractId,
-        taskId: task.id,
-        actorId,
-        eventType: "status_changed",
-        details: { status: "blocked", reason: "approval_pending_sync" },
-      });
-    }
-    return;
-  }
-
-  for (const task of approvalLinked) {
-    if (task.status !== "blocked") continue;
-    await admin
-      .from("contract_tasks")
-      .update({
-        status: "open",
-        blocked_reason: null,
-        blocked_by_task_id: null,
-        last_auto_transition_at: new Date().toISOString(),
-      })
-      .eq("id", task.id);
-    await appendTaskEvent(admin, {
-      organizationId,
-      contractId,
-      taskId: task.id,
-      actorId,
-      eventType: "status_changed",
-      details: { status: "open", reason: `approval_${approvalStatus}_sync` },
-    });
-  }
+export async function autoTransitionTasksForApproval(
+  input: Parameters<(typeof import("@/actions/tasks-automation"))["autoTransitionTasksForApproval"]>[0]
+) {
+  const { autoTransitionTasksForApproval } = await importTaskAutomation();
+  return await autoTransitionTasksForApproval(input);
 }
 
-export async function autoTransitionTasksForField(input: {
-  admin: Awaited<ReturnType<typeof createAdminClient>>;
-  organizationId: string;
-  contractId: string;
-  actorId: string;
-  fieldId: string;
-  fieldStatus: "approved" | "edited" | "rejected";
-  fieldDateValue?: string | null;
-}) {
-  const { admin, organizationId, contractId, actorId, fieldId, fieldStatus, fieldDateValue } = input;
-  const { data: tasks } = await admin
-    .from("contract_tasks")
-    .select("id, status")
-    .eq("organization_id", organizationId)
-    .eq("contract_id", contractId)
-    .eq("linked_field_id", fieldId)
-    .in("status", ["open", "in_progress", "blocked"]);
-  if (!tasks || tasks.length === 0) return;
-  const dueDate =
-    fieldDateValue && !Number.isNaN(new Date(`${fieldDateValue}T12:00:00`).getTime())
-      ? fieldDateValue.slice(0, 10)
-      : null;
-
-  for (const task of tasks) {
-    if (fieldStatus === "rejected") {
-      if (task.status === "blocked") continue;
-      await admin
-        .from("contract_tasks")
-        .update({
-          status: "blocked",
-          blocked_reason: "Blocked until linked field is approved",
-          last_auto_transition_at: new Date().toISOString(),
-        })
-        .eq("id", task.id);
-      await appendTaskEvent(admin, {
-        organizationId,
-        contractId,
-        taskId: task.id,
-        actorId,
-        eventType: "status_changed",
-        details: { status: "blocked", reason: "linked_field_rejected_sync" },
-      });
-      continue;
-    }
-
-    await admin
-      .from("contract_tasks")
-      .update({
-        status: task.status === "blocked" ? "open" : task.status,
-        blocked_reason: task.status === "blocked" ? null : undefined,
-        blocked_by_task_id: task.status === "blocked" ? null : undefined,
-        due_date: dueDate ?? undefined,
-        last_auto_transition_at: new Date().toISOString(),
-      })
-      .eq("id", task.id);
-    await appendTaskEvent(admin, {
-      organizationId,
-      contractId,
-      taskId: task.id,
-      actorId,
-      eventType: "status_changed",
-      details: {
-        status: task.status === "blocked" ? "open" : task.status,
-        reason: "linked_field_sync",
-        due_date: dueDate,
-      },
-    });
-  }
+export async function autoTransitionTasksForField(
+  input: Parameters<(typeof import("@/actions/tasks-automation"))["autoTransitionTasksForField"]>[0]
+) {
+  const { autoTransitionTasksForField } = await importTaskAutomation();
+  return await autoTransitionTasksForField(input);
 }
 
 export async function createContractTask(input: {
@@ -336,6 +203,11 @@ export async function createContractTask(input: {
   if (!(await ensureAssigneeMember(admin, membership.ctx.orgId, assigneeId))) {
     return { error: "Assignee must be a member of this organization." };
   }
+
+  if (input.linkedFieldId && !isUuid(input.linkedFieldId)) return { error: "Invalid linked field" };
+  if (input.linkedReminderId && !isUuid(input.linkedReminderId)) return { error: "Invalid linked reminder" };
+  if (input.linkedObligationId && !isUuid(input.linkedObligationId)) return { error: "Invalid linked obligation" };
+  if (input.linkedCheckpointId && !isUuid(input.linkedCheckpointId)) return { error: "Invalid linked checkpoint" };
 
   const { data: task, error } = await admin
     .from("contract_tasks")
@@ -470,8 +342,9 @@ export async function createClarificationTaskForm(formData: FormData) {
     teamKey: teamKey || null,
   });
   if (res && "error" in res && res.error) {
-    console.error("[tasks] createClarificationTaskForm", res.error);
+    return { error: res.error };
   }
+  return { success: true as const };
 }
 
 export async function createObligationClarificationTaskForm(formData: FormData) {
@@ -489,8 +362,9 @@ export async function createObligationClarificationTaskForm(formData: FormData) 
     teamKey: "obligations",
   });
   if (res && "error" in res && res.error) {
-    console.error("[tasks] createObligationClarificationTaskForm", res.error);
+    return { error: res.error };
   }
+  return { success: true as const };
 }
 
 export async function createCheckpointClarificationTaskForm(formData: FormData) {
@@ -508,8 +382,9 @@ export async function createCheckpointClarificationTaskForm(formData: FormData) 
     teamKey: "renewals",
   });
   if (res && "error" in res && res.error) {
-    console.error("[tasks] createCheckpointClarificationTaskForm", res.error);
+    return { error: res.error };
   }
+  return { success: true as const };
 }
 
 export async function createRuleGeneratedTask(input: {
@@ -543,13 +418,19 @@ export async function updateContractTaskStatus(
 
   const { data: task } = await admin
     .from("contract_tasks")
-    .select("id, contract_id, organization_id, recurrence_interval_days, recurrence_anchor_date, title, details, priority, team_key, assignee_id")
+    .select("id, contract_id, organization_id, status, recurrence_interval_days, recurrence_anchor_date, title, details, priority, team_key, assignee_id")
     .eq("id", taskId)
     .maybeSingle();
 
   if (!task) return { error: "Task not found" };
   const role = await getOrgMemberRole(admin, user.id, task.organization_id);
   if (!role) return { error: "Access denied" };
+  if (!canEditContracts(role)) return { error: "Viewers cannot update task status." };
+
+  const currentStatus = task.status as ContractTaskStatus;
+  if (!VALID_TASK_TRANSITIONS[currentStatus]?.includes(status)) {
+    return { error: `Cannot transition from "${currentStatus}" to "${status}".` };
+  }
 
   const completedAt = status === "done" ? new Date().toISOString() : null;
   const { error } = await admin
@@ -698,6 +579,17 @@ export async function addContractTaskComment(input: {
   if (!task) return { error: "Task not found" };
   const role = await getOrgMemberRole(admin, user.id, task.organization_id);
   if (!role) return { error: "Access denied" };
+  if (!canEditContracts(role)) return { error: "Viewers cannot add task comments." };
+
+  if (parentCommentId) {
+    const { data: parentComment } = await admin
+      .from("contract_task_comments")
+      .select("id, task_id")
+      .eq("id", parentCommentId)
+      .maybeSingle();
+    if (!parentComment) return { error: "Parent comment not found" };
+    if (parentComment.task_id !== task.id) return { error: "Parent comment does not belong to this task." };
+  }
 
   const { error } = await admin.from("contract_task_comments").insert({
     organization_id: task.organization_id,

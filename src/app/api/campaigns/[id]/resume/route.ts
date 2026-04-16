@@ -23,6 +23,20 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
+  const { data: current } = await ctx.admin
+    .from("portfolio_campaigns")
+    .select("status")
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .maybeSingle();
+  if (!current) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (current.status !== "paused") {
+    return NextResponse.json(
+      { error: `Cannot resume a campaign with status "${current.status}"; only paused campaigns can be resumed` },
+      { status: 409 }
+    );
+  }
+
   const { data, error } = await ctx.admin
     .from("portfolio_campaigns")
     .update({ status: "active" })

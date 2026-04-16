@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS,
-  REFINEMENT_S10_4_UTILITY_PATHS,
-} from "../../../e2e/authenticated-a11y-paths";
+  GENERATED_AUTHENTICATED_CORE_A11Y_PATHS,
+  GENERATED_AUTHENTICATED_UTILITY_A11Y_PATHS,
+} from "@/lib/qa/generated-route-matrices";
 
 function loadTsvRoutes(): Set<string> {
   const p = path.join(process.cwd(), "scripts", "qa-route-coverage.tsv");
@@ -22,14 +22,14 @@ function loadTsvRoutes(): Set<string> {
 describe("qa-route-coverage.tsv vs E2E path matrices", () => {
   it("every AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS row exists in TSV", () => {
     const routes = loadTsvRoutes();
-    for (const p of AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS) {
+    for (const p of GENERATED_AUTHENTICATED_CORE_A11Y_PATHS) {
       expect(routes.has(p), `Missing TSV row for ${p}`).toBe(true);
     }
   });
 
   it("every REFINEMENT_S10_4_UTILITY_PATHS row exists in TSV", () => {
     const routes = loadTsvRoutes();
-    for (const p of REFINEMENT_S10_4_UTILITY_PATHS) {
+    for (const p of GENERATED_AUTHENTICATED_UTILITY_A11Y_PATHS) {
       expect(routes.has(p), `Missing TSV row for ${p}`).toBe(true);
     }
   });

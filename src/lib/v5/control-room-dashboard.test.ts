@@ -24,8 +24,8 @@ describe("fetchControlRoomDashboardData", () => {
               order: vi.fn(() => ({
                 limit: vi.fn(async () => ({
                   data: [
-                    { forecast_json: { open_tasks: 100 } },
-                    { forecast_json: { open_tasks: 90 } },
+                    { forecast_json: { open_tasks: 100 }, forecast_horizon_days: 30 },
+                    { forecast_json: { open_tasks: 90 }, forecast_horizon_days: 30 },
                   ],
                   error: null,
                 })),

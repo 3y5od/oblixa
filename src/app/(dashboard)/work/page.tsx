@@ -19,6 +19,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { QueueItemCard } from "@/components/ui/queue-item-card";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import type { SemanticStatus } from "@/components/ui/status-badge";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 function toSemanticStatus(status: string): SemanticStatus {
   if (status === "blocked") return "blocked";
@@ -116,7 +117,9 @@ export default async function WorkPage() {
         <div>
           <p className="ui-eyebrow">Workflows</p>
           <h1 className="ui-display-title mt-2">Work Queue</h1>
-          <p className="ui-muted-tight mt-2">Assigned queues, due work, and escalation pressure.</p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Assigned queues, due work, escalation pressure, and the fastest route into your execution backlog.
+          </p>
           <div className="mt-3 flex flex-wrap gap-3 text-xs">
             <Link href="/contracts/tasks" className="ui-link">
               Tasks queue
@@ -132,8 +135,8 @@ export default async function WorkPage() {
       </header>
 
       {showDecisionsCta ? (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 text-sm text-zinc-700 shadow-[var(--shadow-1)]">
-          <span className="font-medium text-zinc-900">Decisions</span>
+        <div className="ui-card-hero px-4 py-3 text-sm text-[var(--text-secondary)]">
+          <span className="font-medium text-[var(--text-primary)]">Decisions</span>
           {" — "}
           Escalate items that need a recorded decision path.{" "}
           <Link href="/decisions" prefetch={false} className="ui-link">
@@ -142,12 +145,15 @@ export default async function WorkPage() {
         </div>
       ) : null}
 
-      <section className="space-y-3">
+      <section data-testid={surfaceTestIds.workPageSummary} className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Workload</p>
           <h2 className="ui-section-title mt-2 text-xl">Queue summary</h2>
+          <p className="ui-muted-tight mt-1 text-[12px]">
+            Personal workload, sign-off pressure, obligations, and exception severity in one strip.
+          </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           <OperationalSummaryCard
             eyebrow="Assigned"
             headline="Open items"

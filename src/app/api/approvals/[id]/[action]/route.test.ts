@@ -69,7 +69,7 @@ describe("POST /api/approvals/[id]/[action]", () => {
       new Request("http://localhost:3000/api/approvals/approval-1/delegate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ delegateUserId: "external-user" }),
+        body: JSON.stringify({ delegateUserId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }),
       }),
       { params: Promise.resolve({ id: "approval-1", action: "delegate" }) }
     );

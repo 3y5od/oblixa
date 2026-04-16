@@ -35,9 +35,12 @@ export async function updateProfile(formData: FormData) {
 
   if (error) return { error: mapDataSourceError(error.message) };
 
-  await supabase.auth.updateUser({
+  const { error: updateUserError } = await supabase.auth.updateUser({
     data: { full_name: fullName },
   });
+  if (updateUserError) {
+    console.error("[settings] updateUser:", updateUserError.message);
+  }
 
   return { success: true };
 }
@@ -136,6 +139,16 @@ export async function inviteOrgMember(formData: FormData) {
 
   if (membership.role !== "admin") {
     return { error: "Only admins can invite team members" };
+  }
+
+  const { data: existingMember } = await admin
+    .from("organization_members")
+    .select("id, profiles!inner(email)")
+    .eq("organization_id", orgId)
+    .eq("profiles.email", email)
+    .maybeSingle();
+  if (existingMember) {
+    return { error: "This user is already a member of the organization." };
   }
 
   const expiresAt = new Date(Date.now() + INVITE_TTL_MS).toISOString();

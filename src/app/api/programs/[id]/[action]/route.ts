@@ -48,7 +48,7 @@ export async function POST(
       .update({ state: "published", current_version_id: latestVersion.id })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "Failed to publish program" }, { status: 400 });
 
     await ctx.admin
       .from("contract_program_versions")
@@ -123,6 +123,7 @@ export async function POST(
     if (contractIds.length === 0) {
       return NextResponse.json({ error: "contractIds is required" }, { status: 400 });
     }
+    if (contractIds.length > 200) return NextResponse.json({ error: "Too many contracts" }, { status: 400 });
 
     const { data: existingContracts, error: contractLookupError } = await ctx.admin
       .from("contracts")
@@ -130,7 +131,7 @@ export async function POST(
       .eq("organization_id", ctx.orgId)
       .in("id", contractIds);
     if (contractLookupError) {
-      return NextResponse.json({ error: contractLookupError.message }, { status: 400 });
+      return NextResponse.json({ error: "Failed to look up contracts" }, { status: 400 });
     }
     const existingContractIds = new Set((existingContracts ?? []).map((row) => String(row.id)));
     const invalidContractIds = contractIds.filter((contractId) => !existingContractIds.has(contractId));
@@ -167,7 +168,7 @@ export async function POST(
       onConflict: "contract_id,program_id,status",
       ignoreDuplicates: false,
     }).select("id, contract_id");
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "Failed to apply program" }, { status: 400 });
 
     let generatedTotals = { tasks: 0, obligations: 0, approvals: 0, renewals: 0, edges: 0 };
     for (const assignment of assignments ?? []) {

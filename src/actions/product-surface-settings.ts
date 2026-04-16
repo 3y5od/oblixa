@@ -19,6 +19,7 @@ import type {
 import { applyWorkspaceProductTransitionSideEffects } from "@/lib/product-surface/workspace-transition";
 import { isValidDefaultLandingPath } from "@/lib/product-surface/landing-eligibility";
 import { parseOnboardingCalibration } from "@/lib/onboarding/calibration-types";
+import { requireServerActionEligibility } from "@/lib/product-surface/server-action-guard";
 
 const ADVANCED_NAV_ROLE_OPTIONS: WorkspaceRole[] = [
   "admin",
@@ -135,9 +136,15 @@ function parseHiddenHomeSections(formData: FormData): string[] {
 
 const EMAIL_MUTE_KEYS = ["reminder_due", "saved_view_summary", "automation_rule"] as const;
 
-export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<void> {
+export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<{ error: string } | { success: true }> {
+  const eligibility = await requireServerActionEligibility({
+    actionId: "product-surface-settings:updateWorkspaceProductSurfaceForm",
+    featureFamily: "settings",
+  });
+  if (!eligibility.ok) return { error: "Not eligible" };
+
   const ctx = await getAuthContext();
-  if (!ctx || ctx.role !== "admin") return;
+  if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
 
   const mode = parseMode(formData.get("workspace_mode")) ?? "core";
@@ -162,15 +169,16 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
   if (defaultLandingRaw === "") {
     patch.default_landing_path = "";
   } else if (defaultLandingRaw.startsWith("/")) {
-    patch.default_landing_path = isValidDefaultLandingPath(defaultLandingRaw, mode)
-      ? defaultLandingRaw
-      : "";
+    if (!isValidDefaultLandingPath(defaultLandingRaw, mode)) {
+      return { error: "Invalid landing path" };
+    }
+    patch.default_landing_path = defaultLandingRaw;
   }
 
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) {
     console.error("[product-surface-settings]", error.message);
-    return;
+    return { error: error.message };
   }
 
   const prevMode = parseWorkspaceMode(prevV6);
@@ -237,11 +245,18 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
   revalidatePath("/dashboard");
   revalidatePath("/more");
   revalidatePath("/onboarding/calibration");
+  return { success: true as const };
 }
 
-export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<void> {
+export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ error: string } | { success: true }> {
+  const eligibility = await requireServerActionEligibility({
+    actionId: "product-surface-settings:resetWorkspaceProductSurfaceDefaultsForm",
+    featureFamily: "settings",
+  });
+  if (!eligibility.ok) return { error: "Not eligible" };
+
   const ctx = await getAuthContext();
-  if (!ctx || ctx.role !== "admin") return;
+  if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const prevMode = parseWorkspaceMode(prevV6);
   const patch: V6OrgSettingsMergePatch = {
@@ -278,7 +293,7 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<void> 
     autopilot_allow_execution: false,
   };
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
-  if (error) return;
+  if (error) return { error: error.message };
   await applyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -301,12 +316,19 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<void> 
   revalidatePath("/dashboard");
   revalidatePath("/more");
   revalidatePath("/onboarding/calibration");
+  return { success: true as const };
 }
 
 /** Merge email notification `blocked_types` for known keys (docs/refinement.md §18.1 / §21). */
-export async function updateProductEmailNotificationCategoriesForm(formData: FormData): Promise<void> {
+export async function updateProductEmailNotificationCategoriesForm(formData: FormData): Promise<{ error: string } | { success: true }> {
+  const eligibility = await requireServerActionEligibility({
+    actionId: "product-surface-settings:updateProductEmailNotificationCategoriesForm",
+    featureFamily: "settings",
+  });
+  if (!eligibility.ok) return { error: "Not eligible" };
+
   const ctx = await getAuthContext();
-  if (!ctx || ctx.role !== "admin") return;
+  if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
 
   const muted = EMAIL_MUTE_KEYS.filter((k) => formData.get(`mute_email_${k}`) === "on");
   const { data: row } = await ctx.admin
@@ -338,7 +360,7 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
 
   if (error) {
     console.error("[product-surface-settings] notification categories", error.message);
-    return;
+    return { error: error.message };
   }
 
   await ctx.admin.from("audit_events").insert({
@@ -356,4 +378,5 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
 
   revalidatePath("/settings/product");
   revalidatePath("/settings/operations");
+  return { success: true as const };
 }

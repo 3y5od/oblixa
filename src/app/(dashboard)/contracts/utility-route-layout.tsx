@@ -7,5 +7,5 @@ export default async function ContractsUtilityRouteLayout({
   children: React.ReactNode;
 }) {
   await assertCoreUtilitySurfaceOrRedirect();
-  return children;
+  return <div className="ui-page-stack">{children}</div>;
 }

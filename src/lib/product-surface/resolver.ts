@@ -1,11 +1,16 @@
 import type { AdminClient } from "@/lib/v6/service";
 import { NAV_ITEMS, type NavItem } from "@/lib/navigation";
-import { isNavItemVisibleForSurface, type NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import {
+  isNavChildVisibleForSurface,
+  isNavItemVisibleForSurface,
+  type NavSurfaceInput,
+} from "@/lib/product-surface/nav-visibility";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
+import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibility";
 
 /** Extra cmd-K entries not on primary NAV_ITEMS (keep aligned with command-palette DEEP_LINK_COMMANDS). */
 export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
@@ -48,9 +53,24 @@ function allCmdkNavItems(): NavItem[] {
 export function isCmdkHrefAllowed(href: string, surface: NavSurfaceInput): boolean {
   const path = href.split("?")[0] ?? href;
   if (surface.searchScope === "core_only" && minWorkspaceModeForPath(path) !== "core") return false;
+  if (!isHrefEligibleForNavSurface(surface, href)) return false;
   const item = allCmdkNavItems().find((i) => (i.href.split("?")[0] ?? i.href) === path);
-  if (!item) return false;
-  return isNavItemVisibleForSurface(item, surface);
+  if (item) return isNavItemVisibleForSurface(item, surface);
+
+  for (const parent of NAV_ITEMS) {
+    for (const child of parent.navChildren ?? []) {
+      const childPath = child.href.split("?")[0] ?? child.href;
+      if (childPath !== path) continue;
+      return (
+        isNavItemVisibleForSurface(parent, surface) &&
+        isNavChildVisibleForSurface(
+          { href: child.href, v5FlagsAnyOf: child.v5FlagsAnyOf },
+          surface
+        )
+      );
+    }
+  }
+  return false;
 }
 
 /** docs/refinement.md §20.3 — drop recent cmd-K targets hidden for the current surface. */

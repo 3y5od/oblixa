@@ -81,11 +81,11 @@ export async function publishControlPolicy(
     .order("version", { ascending: false })
     .limit(1);
 
-  const version = Number(existing?.[0]?.version ?? 0) + 1;
+  let version = Number(existing?.[0]?.version ?? 0) + 1;
 
-  const versionInsert = await createRow(admin, "control_policy_versions", orgId, {
+  const buildVersionRow = (v: number) => ({
     control_policy_id: policyId,
-    version,
+    version: v,
     objective: (policyRow?.objective as string) || "Published policy version",
     policy_json: mergedPolicyJson,
     evidence_expectations_json: payload.evidenceExpectations,
@@ -96,6 +96,20 @@ export async function publishControlPolicy(
     published_at: nowIso(),
     created_by: userId,
   });
+
+  let versionInsert = await createRow(admin, "control_policy_versions", orgId, buildVersionRow(version));
+
+  if (versionInsert.error) {
+    const { data: latest } = await admin
+      .from("control_policy_versions")
+      .select("version")
+      .eq("organization_id", orgId)
+      .eq("control_policy_id", policyId)
+      .order("version", { ascending: false })
+      .limit(1);
+    version = Number(latest?.[0]?.version ?? 0) + 1;
+    versionInsert = await createRow(admin, "control_policy_versions", orgId, buildVersionRow(version));
+  }
 
   const policyUpdate = await updateRowById(admin, "control_policies", orgId, policyId, {
     status: "published",

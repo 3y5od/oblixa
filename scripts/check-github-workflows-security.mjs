@@ -34,6 +34,23 @@ if (fs.existsSync(workflowsDir)) {
     if (/\bpull_request_target\b/.test(text)) {
       violations.push(`${name}: uses pull_request_target (high fork risk)`);
     }
+    if (/permissions:\s*write-all/i.test(text)) {
+      violations.push(`${name}: uses permissions: write-all (overly broad)`);
+    }
+    if (/permissions:\s*\n\s*contents:\s*write\b/i.test(text) && !/release|publish|deploy/i.test(name)) {
+      violations.push(`${name}: uses contents: write without explicit deploy/release workflow naming`);
+    }
+    const runBlocks = text.match(/run:\s*\|[\s\S]*?(?=\n\s*[a-zA-Z_-]+:|\n\s*-\s*name:|\n\s*jobs:|\n\s*$)/g) ?? [];
+    for (const block of runBlocks) {
+      if (
+        /\$\{\{\s*github\.event\.pull_request\.(?:title|body)\s*\}\}/i.test(block) &&
+        /\b(?:bash|sh|node|python|ruby|pwsh)?\b/i.test(block)
+      ) {
+        violations.push(
+          `${name}: interpolates pull_request title/body directly inside shell run block (command injection risk)`
+        );
+      }
+    }
     for (const line of text.split("\n")) {
       const trimmed = line.trim();
       if (!trimmed.startsWith("uses:") && !trimmed.startsWith("- uses:")) continue;
@@ -42,6 +59,9 @@ if (fs.existsSync(workflowsDir)) {
       const ref = m[1];
       if (/@v\d+(\.|$)/i.test(ref)) {
         violations.push(`${name}: floating GitHub Actions version tag in "${ref}" — pin to a full commit SHA`);
+      }
+      if (/^docker:\/\/.+:latest$/i.test(ref)) {
+        violations.push(`${name}: floating docker image tag in "${ref}"`);
       }
     }
   }

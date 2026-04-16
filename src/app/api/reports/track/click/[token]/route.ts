@@ -81,5 +81,7 @@ export async function GET(
       })
       .eq("engagement_token", token);
   }
-  return NextResponse.redirect(target, { status: 302 });
+  const res = NextResponse.redirect(target, { status: 302 });
+  res.headers.set("Cache-Control", "no-store");
+  return res;
 }

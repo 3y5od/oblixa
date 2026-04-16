@@ -1,10 +1,21 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const rateLimitCheck = vi.fn();
+
+vi.mock("@/lib/rate-limit", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/rate-limit")>();
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
 
 describe("GET /api/cron/stripe-webhook-events", () => {
   const originalCronSecret = process.env.CRON_SECRET;
 
   beforeEach(() => {
     process.env.CRON_SECRET = originalCronSecret;
+    rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
   it("returns 500 when CRON_SECRET is missing", async () => {
@@ -27,5 +38,19 @@ describe("GET /api/cron/stripe-webhook-events", () => {
     const body = await res.json();
     expect(res.status).toBe(401);
     expect(body).toEqual({ error: "Unauthorized" });
+  });
+
+  it("returns 429 when rate limited", async () => {
+    process.env.CRON_SECRET = "cronsecret";
+    rateLimitCheck.mockResolvedValue({ ok: false, retryAfterMs: 10_000 });
+    const { GET } = await import("@/app/api/cron/stripe-webhook-events/route");
+    const req = new Request("http://localhost:3000/api/cron/stripe-webhook-events", {
+      headers: { Authorization: "Bearer cronsecret" },
+    });
+
+    const res = await GET(req);
+    const body = await res.json();
+    expect(res.status).toBe(429);
+    expect(body).toEqual({ error: "Too many requests", retryAfterMs: 10_000 });
   });
 });

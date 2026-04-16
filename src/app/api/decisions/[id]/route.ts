@@ -33,7 +33,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/decisions/[id]] GET error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   if (!data) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
 
   const [
@@ -176,7 +179,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       "id, title, decision_type, status, owner_user_id, due_at, required_inputs_json, approval_path_json, rationale_markdown, updated_at"
     )
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/decisions/[id]] PATCH error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   if (!data) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
 
   await ctx.admin.from("decision_workspace_events").insert({

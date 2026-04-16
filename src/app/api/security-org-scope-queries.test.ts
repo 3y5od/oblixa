@@ -252,6 +252,22 @@ describe("org scope on decision/campaign/intelligence routes", () => {
         from: (table: string) => {
           if (table === "operational_recommendations") {
             return {
+              select: () => ({
+                eq: (col: string, val: string) => {
+                  eqLog.push({ table, col, val });
+                  return {
+                    eq: (col2: string, val2: string) => {
+                      eqLog.push({ table, col: col2, val: val2 });
+                      return {
+                        maybeSingle: vi.fn(async () => ({
+                          data: { accepted: false, dismissed: false },
+                          error: null,
+                        })),
+                      };
+                    },
+                  };
+                },
+              }),
               update: () => ({
                 eq: (col: string, val: string) => {
                   eqLog.push({ table, col, val });
@@ -301,9 +317,11 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     );
     expect(res.status).toBe(200);
     const rec = eqLog.filter((e) => e.table === "operational_recommendations");
-    expect(rec.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(rec.map((e) => e.col)).toEqual(["organization_id", "id", "organization_id", "id"]);
     expect(rec[0]?.val).toBe(ORG);
     expect(rec[1]?.val).toBe("rec-1");
+    expect(rec[2]?.val).toBe(ORG);
+    expect(rec[3]?.val).toBe("rec-1");
   });
 
   it("GET /api/simulations/[id] applies organization_id to change_simulations and change_simulation_runs", async () => {

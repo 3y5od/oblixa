@@ -4,26 +4,17 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
-import { featureFamilyForApiPath, type FeatureFamilyKey } from "@/lib/product-surface/feature-registry";
+import { statusForEligibilityDenial } from "@/lib/product-surface/v8-denial-status";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-
-const SUPPRESSED_REASON_STATUS: Record<string, 403 | 404> = {
-  workspace_mode_ineligible: 404,
-  module_hidden: 404,
-  utility_module_hidden: 404,
-  disabled_or_retired_hidden: 404,
-  admin_only: 404,
-  experimental: 404,
-};
+import { resolveFeatureMappingForApiPath } from "@/lib/product-surface/v8-surface-mapping";
 
 export function resolveApiWorkspaceEligibilityDeniedStatus(input: {
-  family: FeatureFamilyKey;
-  reason: string | null;
+  denialClass?: Parameters<typeof statusForEligibilityDenial>[0];
   modeMismatchStatus?: 403 | 404;
 }): 403 | 404 {
   if (input.modeMismatchStatus) return input.modeMismatchStatus;
-  if (!input.reason) return 403;
-  return SUPPRESSED_REASON_STATUS[input.reason] ?? 403;
+  const status = statusForEligibilityDenial(input.denialClass, 403);
+  return status === 401 ? 403 : status;
 }
 
 export async function requireApiWorkspaceEligibility(input: {
@@ -34,9 +25,23 @@ export async function requireApiWorkspaceEligibility(input: {
   role?: WorkspaceRole;
   modeMismatchStatus?: 403 | 404;
 }): Promise<NextResponse | null> {
-  const family = featureFamilyForApiPath(input.apiPath);
-  if (!family) return null;
+  const mapping = resolveFeatureMappingForApiPath(input.apiPath);
+  if (mapping.status === "exempt") return null;
 
+  if (mapping.status === "unmapped") {
+    logProductSurfaceDiagnostic("surface_mapping_missing", {
+      surfaceType: "api",
+      apiPath: input.apiPath,
+      reason: "registry_missing_or_mapping_missing",
+    });
+    const status = resolveApiWorkspaceEligibilityDeniedStatus({
+      denialClass: "registry_missing_or_mapping_missing",
+      modeMismatchStatus: input.modeMismatchStatus,
+    });
+    return NextResponse.json({ error: "Feature mapping missing for API route" }, { status });
+  }
+
+  const family = mapping.featureFamily;
   const settings = await getV6OrgSettingsJson(input.admin, input.orgId);
   const role = input.role ?? "viewer";
   const ctx = buildProductSurfaceContext({
@@ -45,18 +50,21 @@ export async function requireApiWorkspaceEligibility(input: {
     v6: settings,
     featureFlags: getFeatureFlags(),
   });
-  const elig = evaluateFeatureEligibility(ctx, family);
+  const elig = evaluateFeatureEligibility(ctx, family, {
+    surfaceType: "api",
+    surfaceIdentifier: input.apiPath,
+  });
   if (elig.allowed) return null;
 
   logProductSurfaceDiagnostic("api_workspace_gate_denied", {
     apiPath: input.apiPath,
     family,
     reason: elig.reason,
+    denialClass: elig.denialClass,
     discoverability: elig.discoverability,
   });
   const status = resolveApiWorkspaceEligibilityDeniedStatus({
-    family,
-    reason: elig.reason,
+    denialClass: elig.denialClass,
     modeMismatchStatus: input.modeMismatchStatus,
   });
   return NextResponse.json({ error: "Feature not available in workspace mode" }, { status });

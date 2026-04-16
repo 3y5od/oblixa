@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import fc from "fast-check";
 import {
   isValidDefaultLandingPath,
   normalizeLandingPath,
@@ -8,6 +9,24 @@ import {
 describe("landing-eligibility", () => {
   it("normalizes query and hash", () => {
     expect(normalizeLandingPath("/work?q=1#frag")).toBe("/work");
+  });
+
+  it("property: normalizeLandingPath strips query/hash and trims whitespace", () => {
+    fc.assert(
+      fc.property(
+        fc.string(),
+        fc.string(),
+        fc.string(),
+        (prefix, query, hash) => {
+          const input = `  ${prefix}?${query}#${hash}  `;
+          const out = normalizeLandingPath(input);
+          expect(out.includes("?")).toBe(false);
+          expect(out.includes("#")).toBe(false);
+          expect(out).toBe(out.trim());
+        }
+      ),
+      { numRuns: 100 }
+    );
   });
 
   it("allows Core-safe paths", () => {
@@ -41,5 +60,27 @@ describe("landing-eligibility", () => {
 
   it("keeps valid paths after normalization", () => {
     expect(resolveEffectiveLandingPath("/work?foo=1", "core")).toBe("/work");
+  });
+
+  it("rejects landing paths hidden by module configuration when eligibility context is available", () => {
+    const denied = isValidDefaultLandingPath("/decisions", "advanced", {
+      role: "editor",
+      advancedModulesHidden: new Set(["decisions"]),
+      assuranceModulesHidden: new Set(),
+      utilityModulesHidden: new Set(),
+      isAdmin: false,
+    });
+    expect(denied).toBe(false);
+  });
+
+  it("normalizes to /dashboard when eligibility context denies landing", () => {
+    const resolved = resolveEffectiveLandingPath("/decisions", "advanced", {
+      role: "editor",
+      advancedModulesHidden: new Set(["decisions"]),
+      assuranceModulesHidden: new Set(),
+      utilityModulesHidden: new Set(),
+      isAdmin: false,
+    });
+    expect(resolved).toBe("/dashboard");
   });
 });

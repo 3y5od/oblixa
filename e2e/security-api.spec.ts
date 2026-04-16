@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=security_smokes_conditionally_skip_on_secret_presence
 
 /**
  * Lightweight security smokes: unauthenticated API calls must fail closed (401/403/404),

@@ -75,10 +75,10 @@ export default async function PersonaDashboardPage(props: {
 }) {
   if (!isFeatureEnabled("v3PersonaDashboards")) {
     return (
-      <div className="ui-card px-6 py-8">
+      <div className="ui-card-hero px-6 py-8">
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Persona dashboard is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-zinc-500">
+        <p className="mt-3 max-w-xl text-sm text-[var(--text-secondary)]">
           This surface is off when <code className="text-xs">ENABLE_V3_PERSONA_DASHBOARDS</code> is set to false, 0, no,
           or off on the server. Unset it to restore the default (on).
         </p>
@@ -420,14 +420,14 @@ export default async function PersonaDashboardPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="ui-page-header">
         <p className="ui-eyebrow">Role-based views</p>
         <h1 className="ui-display-title mt-2">Persona dashboard</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
+        <p className="mt-3 max-w-2xl text-[15px] text-[var(--text-secondary)]">
           A focused view tuned for different operating roles.
         </p>
       </header>
-      <form action="/dashboard/persona" method="get" className="flex items-end gap-3">
+      <form action="/dashboard/persona" method="get" className="ui-toolbar items-end gap-3">
         <div>
           <label htmlFor="persona" className="ui-label-caps">
             Persona
@@ -444,9 +444,9 @@ export default async function PersonaDashboardPage(props: {
           Switch view
         </button>
       </form>
-      <section className="ui-card p-5">
+      <section className="ui-page-shell p-5">
         <p className="ui-eyebrow">Shortcuts</p>
-        <h2 className="ui-section-title mt-1 text-base">Preset command views</h2>
+        <h2 className="ui-section-title mt-1 text-xl">Preset command views</h2>
         <p className="ui-muted-tight mt-1 text-[13px]">
           Quick role presets for recurring operating cadences.
         </p>
@@ -455,14 +455,14 @@ export default async function PersonaDashboardPage(props: {
             <Link
               key={preset.id}
               href={preset.href}
-              className={`rounded-xl border px-4 py-3 text-sm transition-colors ${
+              className={`rounded-[1rem] border px-4 py-3 text-sm transition-colors ${
                 preset.persona === persona
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 bg-surface text-zinc-700 hover:bg-zinc-50/90"
+                  ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
+                  : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
               }`}
             >
               <p className="font-semibold">{preset.label}</p>
-              <p className={`mt-1 text-xs ${preset.persona === persona ? "text-zinc-200" : "text-zinc-500"}`}>
+              <p className={`mt-1 text-xs ${preset.persona === persona ? "text-white/80" : "text-[var(--text-tertiary)]"}`}>
                 {preset.description}
               </p>
             </Link>
@@ -492,12 +492,12 @@ export default async function PersonaDashboardPage(props: {
         </div>
       </section>
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4">
           <OperationalSectionHeader eyebrow="Queue" title="Persona action queue" description={queueDescription} />
         </div>
         <ul className="divide-y divide-[var(--border-subtle)] p-3">
           {personaQueue.length === 0 ? (
-            <li className="px-2 py-4 text-sm text-zinc-500">No queue items in this persona view.</li>
+            <li className="px-2 py-4 text-sm text-[var(--text-secondary)]">No queue items in this persona view.</li>
           ) : (
             personaQueue.map((row) => (
               <li key={row.id} className="py-2">
@@ -514,7 +514,7 @@ export default async function PersonaDashboardPage(props: {
           )}
         </ul>
       </section>
-      <div className="text-sm text-zinc-500">
+      <div className="text-sm text-[var(--text-secondary)]">
         <Link className="ui-link" href="/dashboard">
           Back to default dashboard
         </Link>

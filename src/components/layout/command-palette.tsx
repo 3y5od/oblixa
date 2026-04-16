@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
-import { Search, Command } from "lucide-react";
+import { ArrowRight, Clock3, Search } from "lucide-react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   NAV_ITEMS,
@@ -26,6 +26,7 @@ import {
   COMMAND_PALETTE_OPEN_EVENT,
   type CommandPaletteOpenDetail,
 } from "@/lib/product-surface/command-palette-bridge";
+import { shellTestIds } from "@/lib/qa/test-ids";
 
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 
@@ -243,13 +244,14 @@ export function CommandPalette(props: {
         ref={openButtonRef}
         type="button"
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-10 min-w-10 items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-surface/95 px-2.5 py-2 text-[11px] font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-zinc-50/90 sm:px-3 sm:text-xs ${
+        data-testid={shellTestIds.commandPaletteTrigger}
+        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-3.5 py-2.5 text-[12px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
         aria-label="Open command palette"
       >
-        <Command size={14} aria-hidden />
-        <span className="text-zinc-900">Open</span>
+        <Search size={14} aria-hidden />
+        <span>Search</span>
         <span className="ui-kbd">K</span>
       </button>
 
@@ -258,7 +260,8 @@ export function CommandPalette(props: {
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
-          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh]"
+          data-testid={shellTestIds.commandPaletteRoot}
+          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-3 pb-6 pt-6 sm:px-4 sm:pt-[10vh]"
         >
           <button
             type="button"
@@ -266,27 +269,34 @@ export function CommandPalette(props: {
             onClick={() => setOpen(false)}
             aria-label="Close command palette overlay"
           />
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-2xl">
-            <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
-              <Search size={16} className="text-zinc-400" aria-hidden />
+          <div className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] shadow-[var(--shadow-3)]">
+            <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border-subtle)] px-4 py-4 sm:px-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] text-[var(--accent-strong)]">
+                <Search size={18} aria-hidden />
+              </div>
               <input
                 ref={searchInputRef}
+                data-testid={shellTestIds.commandPaletteInput}
                 autoFocus
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setActiveIndex(0);
                 }}
-                className="w-full bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                placeholder="Jump to queue, page, or report..."
+                className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
+                placeholder="Search pages, queues, reports, or tools"
               />
+              <div className="ml-auto hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:flex">
+                <span className="ui-kbd">⌘</span>
+                <span className="ui-kbd">K</span>
+              </div>
             </div>
             {!query && visibleRecentHrefs.length > 0 && (
-              <div className="border-b border-[var(--border-subtle)] px-4 py-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              <div className="border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                   Recent
                 </p>
-                <div className="mt-1 flex flex-wrap gap-1.5">
+                <div className="mt-2 flex flex-wrap gap-2">
                   {visibleRecentHrefs.map((href) => {
                     const match = allCommandItems().find((item) => item.href === href);
                     if (
@@ -303,8 +313,9 @@ export function CommandPalette(props: {
                           rememberCommand(match);
                           setOpen(false);
                         }}
-                        className="rounded-md border border-[var(--border-subtle)] bg-zinc-50/90 px-2 py-1 text-[11px] font-medium text-zinc-600 hover:bg-zinc-100"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
                       >
+                        <Clock3 size={12} aria-hidden />
                         {match.name}
                       </Link>
                     );
@@ -312,9 +323,9 @@ export function CommandPalette(props: {
                 </div>
               </div>
             )}
-            <ul className="max-h-[55vh] overflow-y-auto py-1">
+            <ul data-testid={shellTestIds.commandPaletteResults} className="max-h-[58vh] overflow-y-auto py-2">
               {flatItems.length === 0 ? (
-                <li className="px-4 py-5 text-sm text-zinc-500">No matches found.</li>
+                <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">No matches found.</li>
               ) : (
                 ([
                   [WORKFLOW_AREA_LABELS.monitor, grouped.monitor],
@@ -326,7 +337,7 @@ export function CommandPalette(props: {
                   if (groupItems.length === 0) return null;
                   return (
                     <li key={label}>
-                      <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+                      <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)] sm:px-5">
                         {label}
                       </p>
                       <ul>
@@ -341,12 +352,21 @@ export function CommandPalette(props: {
                                   rememberCommand(item);
                                   setOpen(false);
                                 }}
-                                className={`block px-4 py-3 transition-colors ${
-                                  active ? "bg-zinc-100" : "hover:bg-zinc-50"
+                                className={`group block px-4 py-3.5 transition-colors sm:px-5 ${
+                                  active
+                                    ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_68%,transparent)]"
+                                    : "hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)]"
                                 }`}
                               >
-                                <p className="text-sm font-semibold text-zinc-900">{item.name}</p>
-                                <p className="mt-0.5 text-xs text-zinc-500">{item.description}</p>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <p className="break-words text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
+                                    <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.description}</p>
+                                  </div>
+                                  <span className={`shrink-0 text-[var(--text-tertiary)] transition-transform ${active ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>
+                                    <ArrowRight size={15} aria-hidden />
+                                  </span>
+                                </div>
                               </Link>
                             </li>
                           );
@@ -357,7 +377,7 @@ export function CommandPalette(props: {
                 })
               )}
             </ul>
-            <p className="border-t border-zinc-100 px-4 py-2 text-[11px] text-zinc-500">
+            <p className="border-t border-[var(--border-subtle)] px-4 py-3 text-[11px] text-[var(--text-tertiary)] sm:px-5">
               Arrow keys and Enter to open · Esc to close · On tables with checkboxes, use row selection for
               batch actions where available (refinement §16.1).
             </p>

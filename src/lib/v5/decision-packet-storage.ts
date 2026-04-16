@@ -30,7 +30,7 @@ export async function uploadDecisionPacketArtifact(
     contentType: string;
     extension: "json" | "pdf";
   }
-): Promise<{ storagePath: string } | null> {
+): Promise<{ storagePath: string } | { error: string } | null> {
   const bucket = getV5DecisionPacketBucket();
   if (!bucket) return null;
   if (!admin.storage?.from) return null;
@@ -39,7 +39,7 @@ export async function uploadDecisionPacketArtifact(
       "[decision-packet-storage] upload rejected: payload exceeds max bytes",
       params.bytes.byteLength
     );
-    return null;
+    return { error: "Payload exceeds maximum size" };
   }
 
   const storagePath =
@@ -63,7 +63,7 @@ export async function uploadDecisionPacketArtifact(
 export async function uploadDecisionPacketJsonArtifact(
   admin: SupabaseClient,
   params: { orgId: string; runId: string; payload: Record<string, unknown> }
-): Promise<{ storagePath: string } | null> {
+): Promise<{ storagePath: string } | { error: string } | null> {
   const body = JSON.stringify(params.payload, null, 2);
   const bytes = new TextEncoder().encode(body);
   return uploadDecisionPacketArtifact(admin, {
@@ -78,7 +78,7 @@ export async function uploadDecisionPacketJsonArtifact(
 export async function uploadDecisionPacketPdfArtifact(
   admin: SupabaseClient,
   params: { orgId: string; runId: string; pdfBuffer: Buffer }
-): Promise<{ storagePath: string } | null> {
+): Promise<{ storagePath: string } | { error: string } | null> {
   return uploadDecisionPacketArtifact(admin, {
     orgId: params.orgId,
     runId: params.runId,

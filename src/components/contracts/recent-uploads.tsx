@@ -14,33 +14,36 @@ export interface RecentFileRow {
 export function RecentUploads({ files }: { files: RecentFileRow[] }) {
   if (files.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-zinc-50/50 px-5 py-5 text-center text-sm text-zinc-500 sm:px-6">
+      <div className="rounded-[1.5rem] border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,transparent)] px-5 py-6 text-center text-sm text-[var(--text-secondary)] shadow-[var(--shadow-1)] sm:px-6">
         No file uploads yet. PDF and DOCX up to 20 MB are supported.
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
+    <div className="ui-card overflow-hidden">
       <div className="border-b border-[var(--border-subtle)] px-5 py-4 sm:px-6">
-        <h2 className="text-sm font-semibold text-zinc-900">Recent uploads</h2>
-        <p className="text-xs text-zinc-500">
+        <p className="ui-eyebrow">Activity</p>
+        <h2 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">Recent uploads</h2>
+        <p className="mt-1 text-xs text-[var(--text-secondary)]">
           Latest files attached to contracts in your workspace. Open a contract to run
           extraction or continue review.
         </p>
       </div>
       <ul className="max-h-64 divide-y divide-[var(--border-subtle)] overflow-y-auto">
         {files.map((f) => (
-          <li key={f.id} className="flex items-start gap-3 px-5 py-3 sm:px-6">
-            <FileText size={18} className="mt-0.5 shrink-0 text-zinc-400" />
+          <li key={f.id} className="flex items-start gap-3 px-5 py-3.5 sm:px-6">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]">
+              <FileText size={16} className="text-[var(--text-tertiary)]" />
+            </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-zinc-900">
+              <p className="truncate text-sm font-medium text-[var(--text-primary)]">
                 {f.file_name}
               </p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-[var(--text-secondary)]">
                 <Link
                   href={`/contracts/${f.contract_id}`}
-                  className="ui-link text-sm"
+                  className="ui-link text-xs"
                 >
                   {f.contract_title}
                 </Link>

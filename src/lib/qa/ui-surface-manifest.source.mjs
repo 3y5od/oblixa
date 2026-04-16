@@ -1,0 +1,211 @@
+const coreRoutes = [
+  ["/dashboard", "dashboard", "Dashboard", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/dashboard/persona", "dashboard", "Persona dashboard", ["smoke", "a11y", "visual"]],
+  ["/contracts", "contracts", "Contracts", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/contracts/[id]", "contracts", null, ["smoke"]],
+  ["/contracts/new", "contracts", "Upload contract", ["smoke", "a11y", "visual"]],
+  ["/contracts/bulk", "contracts", "Bulk import", ["smoke", "a11y"]],
+  ["/contracts/review", "contracts", "Review", ["smoke", "a11y"]],
+  ["/work", "work", "Work Queue", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/contracts/tasks", "contracts", "Tasks", ["smoke", "a11y"]],
+  ["/contracts/obligations", "contracts", "Obligations", ["smoke", "a11y"]],
+  ["/contracts/approvals", "contracts", "Approvals", ["smoke", "a11y"]],
+  ["/contracts/renewals", "contracts", "Renewals", ["smoke", "a11y"]],
+  ["/contracts/exceptions", "contracts", "Exceptions", ["smoke", "a11y"]],
+  ["/contracts/evidence-studio", "contracts", "Evidence studio", ["smoke", "a11y"]],
+  ["/contracts/reports", "reports", "Contract report packs", ["smoke", "a11y"]],
+  ["/reports", "reports", "Operational reports", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/settings", "settings", "Settings", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/settings/billing", "settings", "Billing", ["smoke", "a11y"]],
+  ["/settings/operations", "settings", "Workflow configuration", ["smoke", "a11y"]],
+  ["/settings/product", "settings", "Product experience", ["smoke", "a11y"]],
+  ["/settings/health", "settings", "System health", ["smoke", "a11y"]],
+  ["/settings/policy", "settings", "Policy registry", ["smoke", "a11y"]],
+  ["/more", "utilities", "Tools index", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/onboarding/calibration", "dashboard", "Workspace calibration", ["smoke", "a11y"]],
+];
+
+const advancedRoutes = [
+  ["/campaigns", "advanced", "Campaign Queue", ["smoke", "a11y", "visual"]],
+  ["/campaigns/[id]", "advanced", null, ["smoke"]],
+  ["/campaigns/compare", "advanced", null, ["smoke"]],
+  ["/decisions", "advanced", "Decision Queue", ["smoke", "a11y", "visual"]],
+  ["/decisions/[id]", "advanced", null, ["smoke"]],
+  ["/decisions/compare", "advanced", null, ["smoke"]],
+  ["/decisions/review", "advanced", null, ["smoke"]],
+  ["/contracts/programs", "advanced", null, ["smoke", "a11y"]],
+  ["/relationship-workspaces", "advanced", null, ["smoke", "a11y"]],
+  ["/accounts/[key]", "advanced", null, ["smoke"]],
+  ["/counterparties/[key]", "advanced", null, ["smoke"]],
+];
+
+const assuranceRoutes = [
+  ["/assurance", "assurance", "Continuous assurance", ["smoke", "a11y", "visual"]],
+  ["/assurance/findings", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/findings/[id]", "assurance", null, ["smoke"]],
+  ["/assurance/control-policies", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/control-policies/[id]", "assurance", null, ["smoke"]],
+  ["/assurance/scorecards", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/playbooks", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/review-boards", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/autopilot", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/segments", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/program-evolution", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/health-graph", "assurance", null, ["smoke", "a11y"]],
+];
+
+const utilityRoutes = [
+  ["/contracts/analytics", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/maintenance", "utilities", "Maintenance workspace", ["smoke", "a11y"]],
+  ["/contracts/intake", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/data-quality", "utilities", "Data quality", ["smoke", "a11y"]],
+  ["/contracts/review-cadence", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/watchlists", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/collaboration", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/execution-graph", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/approvals/workload", "utilities", null, ["smoke", "a11y"]],
+  ["/contracts/approvals/sla-simulator", "utilities", null, ["smoke", "a11y"]],
+];
+
+function toAuthenticatedEntry([route, routeFamily, expectedHeading, coverage]) {
+  let workspaceModeTier = "core";
+  if (routeFamily === "advanced") workspaceModeTier = "advanced";
+  if (routeFamily === "assurance") workspaceModeTier = "assurance";
+  if (routeFamily === "utilities") workspaceModeTier = "utility";
+  return {
+    route,
+    routeFamily,
+    mode: "authenticated",
+    workspaceModeTier,
+    shellFamily: "dashboard",
+    expectedHeading,
+    visitPath: route === "/contracts/[id]" || route === "/campaigns/[id]" || route === "/decisions/[id]" || route === "/assurance/findings/[id]" || route === "/assurance/control-policies/[id]" || route === "/accounts/[key]" || route === "/counterparties/[key]" ? null : route,
+    coverage,
+  };
+}
+
+const publicRoutes = [
+  {
+    route: "/",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Run renewals, approvals, and obligations from one trusted system",
+    visitPath: "/",
+    coverage: ["smoke", "a11y", "visual", "multi_browser"],
+  },
+  {
+    route: "/login",
+    routeFamily: "auth",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "auth",
+    expectedHeading: "Sign in to your account",
+    visitPath: "/login",
+    coverage: ["smoke", "a11y", "visual", "multi_browser"],
+  },
+  {
+    route: "/signup",
+    routeFamily: "auth",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "auth",
+    expectedHeading: "Create your account",
+    visitPath: "/signup",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/forgot-password",
+    routeFamily: "auth",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "auth",
+    expectedHeading: "Reset your password",
+    visitPath: "/forgot-password",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/reset-password",
+    routeFamily: "auth",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "auth",
+    expectedHeading: "Set a new password",
+    visitPath: "/reset-password",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/privacy",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Privacy",
+    visitPath: "/privacy",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/terms",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Terms of use",
+    visitPath: "/terms",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/security",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Security",
+    visitPath: "/security",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/accessibility",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Accessibility",
+    visitPath: "/accessibility",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+  {
+    route: "/cookies",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Cookies",
+    visitPath: "/cookies",
+    coverage: ["smoke", "a11y", "visual"],
+  },
+];
+
+const externalRoutes = [
+  {
+    route: "/external/[token]",
+    routeFamily: "external",
+    mode: "external",
+    workspaceModeTier: "external",
+    shellFamily: "external",
+    expectedHeading: null,
+    visitPath: "/external/00000000-0000-0000-0000-000000000000",
+    coverage: ["smoke", "a11y", "visual", "multi_browser"],
+  },
+];
+
+export const uiSurfaceManifest = [
+  ...coreRoutes.map(toAuthenticatedEntry),
+  ...advancedRoutes.map(toAuthenticatedEntry),
+  ...assuranceRoutes.map(toAuthenticatedEntry),
+  ...utilityRoutes.map(toAuthenticatedEntry),
+  ...publicRoutes,
+  ...externalRoutes,
+];
+

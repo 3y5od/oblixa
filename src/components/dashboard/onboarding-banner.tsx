@@ -106,24 +106,24 @@ export function OnboardingBanner({
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-indigo-200/50 bg-gradient-to-br from-indigo-50/40 via-surface to-surface"
+      className="ui-card-hero relative overflow-hidden"
       role="region"
       aria-label="Getting started checklist"
     >
-      <div className="absolute inset-y-0 left-0 w-1 bg-[var(--accent)]" aria-hidden />
+      <div className="absolute inset-y-0 left-0 w-1 bg-[var(--accent-strong)]" aria-hidden />
       <div className="flex flex-col gap-6 px-6 py-6 pl-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="ui-eyebrow text-[var(--accent)]">Onboarding</p>
-          <p className="mt-2 text-lg font-semibold tracking-tight text-zinc-900">
+          <p className="ui-eyebrow text-[var(--accent-strong)]">Onboarding</p>
+          <p className="mt-2 text-lg font-semibold tracking-tight text-[var(--text-primary)]">
             Establish your post-signature execution baseline
           </p>
           {setupChecklist?.length ? (
-            <p className="ui-muted-tight mt-2 max-w-xl text-[13px] text-zinc-600">
-              <span className="font-medium text-zinc-800">Suggested first steps from setup: </span>
+            <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">
+              <span className="font-medium text-[var(--text-primary)]">Suggested first steps from setup: </span>
               {formatSetupChecklistSummary(setupChecklist)}
             </p>
           ) : null}
-          <ul className="mt-4 space-y-3 text-[14px] leading-relaxed text-zinc-600">
+          <ul className="mt-4 space-y-3 text-[14px] leading-relaxed text-[var(--text-secondary)]">
             {rowOrder.map((key) => (
               <li key={key} className="flex gap-3">
                 <StepIcon done={rows[key].done} />
@@ -131,7 +131,7 @@ export function OnboardingBanner({
               </li>
             ))}
           </ul>
-          {error && <p className="mt-3 text-xs font-medium text-red-700">{error}</p>}
+          {error && <p className="mt-3 text-xs font-medium text-[var(--danger-ink)]">{error}</p>}
         </div>
         <button
           type="button"

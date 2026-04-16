@@ -12,15 +12,23 @@ export function listAutopilotRules(admin: AdminClient, orgId: string) {
   );
 }
 
-export function createAutopilotRule(
+export async function createAutopilotRule(
   admin: AdminClient,
   orgId: string,
   userId: string,
   payload: { name: string; actionType: string; requiresApproval?: boolean }
 ) {
+  const trimmedName = (payload.name ?? "").trim();
+  if (!trimmedName || trimmedName.length > 240) {
+    return { data: null, error: { message: "name must be non-empty and at most 240 characters" } };
+  }
+  const trimmedAction = (payload.actionType ?? "").trim();
+  if (!trimmedAction) {
+    return { data: null, error: { message: "actionType must be non-empty" } };
+  }
   return createRow(admin, "autopilot_rules", orgId, {
-    name: payload.name,
-    action_type: payload.actionType,
+    name: trimmedName,
+    action_type: trimmedAction,
     requires_approval: payload.requiresApproval ?? true,
     created_by: userId,
   });

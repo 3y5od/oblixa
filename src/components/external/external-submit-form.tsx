@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { readResponseJson } from "@/lib/http/client-json";
 import { captureClientException } from "@/lib/observability/sentry";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 type Props = {
   token: string;
@@ -246,6 +247,7 @@ export function ExternalSubmitForm({ token }: Props) {
   return (
     <form
       onSubmit={onSubmit}
+      data-testid={surfaceTestIds.externalSubmitForm}
       className="ui-card mx-auto max-w-md space-y-4 p-8"
     >
       <div>

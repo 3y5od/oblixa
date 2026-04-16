@@ -36,9 +36,13 @@ export async function executePlaybookSideEffects(
   userId: string,
   playbookType: string,
   executionTemplate: Record<string, unknown>,
-  ctx: PlaybookExecutionContext
+  ctx: PlaybookExecutionContext,
+  depth = 0
 ): Promise<{ records: Record<string, unknown>; error?: unknown }> {
   const records: Record<string, unknown> = {};
+  if (depth > 3) {
+    return { records, error: { message: "max_playbook_depth_exceeded" } };
+  }
   if (!KNOWN_PLAYBOOK_TYPES.has(playbookType)) {
     return {
       records,
@@ -261,7 +265,8 @@ export async function executePlaybookSideEffects(
         userId,
         linkedType,
         ((linkedPb as { execution_template_json?: unknown }).execution_template_json as Record<string, unknown>) ?? {},
-        ctx
+        ctx,
+        depth + 1
       );
       Object.assign(records, nested.records);
       if (nested.error) return { records, error: nested.error };

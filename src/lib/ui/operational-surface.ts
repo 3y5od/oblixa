@@ -9,18 +9,24 @@ export type OperationalTone = "healthy" | "neutral" | "attention" | "risk";
 
 export const OPERATIONAL_SHELL_BY_TONE: Record<OperationalTone, string> = {
   healthy:
-    "border-l-[0.35rem] border-l-emerald-500 bg-emerald-50/40 shadow-[var(--shadow-1)] dark:bg-emerald-950/15",
-  neutral: "border-l-[0.35rem] border-l-zinc-400 bg-surface shadow-[var(--shadow-1)]",
+    "border-l-[0.35rem] border-l-[color:var(--success-ink)] bg-[color:color-mix(in_oklab,var(--success-soft)_76%,transparent)] shadow-[var(--shadow-1)]",
+  neutral:
+    "border-l-[0.35rem] border-l-[color:color-mix(in_oklab,var(--border-contrast)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] shadow-[var(--shadow-1)]",
   attention:
-    "border-l-[0.35rem] border-l-amber-500 bg-amber-50/45 shadow-[var(--shadow-1)] dark:bg-amber-950/20",
-  risk: "border-l-[0.35rem] border-l-rose-600 bg-rose-50/45 shadow-[var(--shadow-1)] dark:bg-rose-950/20",
+    "border-l-[0.35rem] border-l-[color:var(--warning-ink)] bg-[color:color-mix(in_oklab,var(--warning-soft)_76%,transparent)] shadow-[var(--shadow-1)]",
+  risk:
+    "border-l-[0.35rem] border-l-[color:var(--danger-ink)] bg-[color:color-mix(in_oklab,var(--danger-soft)_74%,transparent)] shadow-[var(--shadow-1)]",
 };
 
 export const OPERATIONAL_ICON_WRAP_BY_TONE: Record<OperationalTone, string> = {
-  healthy: "bg-emerald-100/90 text-emerald-900 ring-1 ring-emerald-200/80",
-  neutral: "bg-zinc-100/90 text-zinc-700 ring-1 ring-zinc-200/80",
-  attention: "bg-amber-100/90 text-amber-950 ring-1 ring-amber-200/80",
-  risk: "bg-rose-100/90 text-rose-950 ring-1 ring-rose-200/80",
+  healthy:
+    "bg-[color:color-mix(in_oklab,var(--success-soft)_64%,white)] text-[color:var(--success-ink)] ring-1 ring-[color:color-mix(in_oklab,var(--success-soft)_42%,transparent)]",
+  neutral:
+    "bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,white)] text-[color:var(--text-secondary)] ring-1 ring-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)]",
+  attention:
+    "bg-[color:color-mix(in_oklab,var(--warning-soft)_62%,white)] text-[color:var(--warning-ink)] ring-1 ring-[color:color-mix(in_oklab,var(--warning-soft)_42%,transparent)]",
+  risk:
+    "bg-[color:color-mix(in_oklab,var(--danger-soft)_62%,white)] text-[color:var(--danger-ink)] ring-1 ring-[color:color-mix(in_oklab,var(--danger-soft)_42%,transparent)]",
 };
 
 /** Portfolio / report signal severities → operational chrome */

@@ -70,6 +70,11 @@ describe("resolver", () => {
     expect(isCmdkHrefAllowed("/contracts", coreSurface)).toBe(true);
   });
 
+  it("isCmdkHrefAllowed allows eligible nav-child hrefs", () => {
+    expect(isCmdkHrefAllowed("/contracts/tasks", coreSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/contracts/approvals", coreSurface)).toBe(true);
+  });
+
   it("cmdkFilterRecentHrefsForSurface removes hidden modules (§20.3)", () => {
     expect(cmdkFilterRecentHrefsForSurface(["/campaigns", "/work"], coreSurface)).toEqual(["/work"]);
   });

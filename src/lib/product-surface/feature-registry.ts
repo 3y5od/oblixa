@@ -14,6 +14,9 @@ export type FeatureLifecycle =
   | "retired_visible"
   | "retired_hidden";
 
+export type V8FeatureDiscoverability = "normal" | "deep_link_only" | "hidden";
+export type V8AdminRevealPolicy = "none" | "admin_only";
+
 export type FeatureFamilyKey =
   | "contracts"
   | "review"
@@ -65,6 +68,14 @@ export type ProductFeatureDef = {
   contextualEntryAllowed: boolean;
   deepLinkAllowed: boolean;
   adminRevealAllowed: boolean;
+  v8Discoverability?: V8FeatureDiscoverability;
+  v8AdminRevealPolicy?: V8AdminRevealPolicy;
+  /** Optional explicit mappings; falls back to route/api prefixes and label-derived defaults. */
+  owningPagePatterns?: string[];
+  owningApiPrefixes?: string[];
+  owningActionIds?: string[];
+  commandVocabulary?: string[];
+  searchVocabulary?: string[];
   advancedModuleKey?: AdvancedNavModuleKey;
   assuranceModuleKey?: AssuranceNavModuleKey;
   routePrefixes: string[];
@@ -341,6 +352,43 @@ export function workspaceModeAtLeast(
 
 export function featureRegistryByKey(): Map<FeatureFamilyKey, ProductFeatureDef> {
   return new Map(PRODUCT_FEATURE_REGISTRY.map((row) => [row.key, row]));
+}
+
+export function v8DiscoverabilityForFeature(def: ProductFeatureDef): V8FeatureDiscoverability {
+  if (def.v8Discoverability) return def.v8Discoverability;
+  if (def.lifecycle === "retired_hidden" || def.defaultFeatureState === "disabled") return "hidden";
+  if (!def.contextualEntryAllowed && def.deepLinkAllowed) return "deep_link_only";
+  return "normal";
+}
+
+export function v8AdminRevealPolicyForFeature(def: ProductFeatureDef): V8AdminRevealPolicy {
+  if (def.v8AdminRevealPolicy) return def.v8AdminRevealPolicy;
+  return def.adminRevealAllowed ? "admin_only" : "none";
+}
+
+export function v8OwningPagePatternsForFeature(def: ProductFeatureDef): string[] {
+  if (def.owningPagePatterns?.length) return [...new Set(def.owningPagePatterns)];
+  return [...new Set(def.routePrefixes)];
+}
+
+export function v8OwningApiPrefixesForFeature(def: ProductFeatureDef): string[] {
+  if (def.owningApiPrefixes?.length) return [...new Set(def.owningApiPrefixes)];
+  return [...new Set(def.apiPrefixes)];
+}
+
+export function v8OwningActionIdsForFeature(def: ProductFeatureDef): string[] {
+  if (def.owningActionIds?.length) return [...new Set(def.owningActionIds)];
+  return [];
+}
+
+export function v8CommandVocabularyForFeature(def: ProductFeatureDef): string[] {
+  if (def.commandVocabulary?.length) return [...new Set(def.commandVocabulary)];
+  return [def.label.toLowerCase(), def.key.replaceAll("_", " ")];
+}
+
+export function v8SearchVocabularyForFeature(def: ProductFeatureDef): string[] {
+  if (def.searchVocabulary?.length) return [...new Set(def.searchVocabulary)];
+  return [def.label.toLowerCase(), def.key.replaceAll("_", " ")];
 }
 
 const FEATURE_LABEL_BY_KEY = new Map(PRODUCT_FEATURE_REGISTRY.map((row) => [row.key, row.label] as const));

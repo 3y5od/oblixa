@@ -21,6 +21,13 @@ import {
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+const RECIPIENT_SEND_CONCURRENCY = 4;
+const MAX_DUE_SUBSCRIPTIONS = 100;
+const MAX_RECIPIENTS_PER_SUBSCRIPTION = 20;
+
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) return false;
@@ -104,7 +111,8 @@ export async function GET(request: Request) {
     .eq("active", true)
     .in("frequency", ["weekly", "monthly"])
     .lte("next_run_at", nowIso)
-    .limit(100);
+    .order("next_run_at", { ascending: true })
+    .limit(MAX_DUE_SUBSCRIPTIONS);
 
   if (error) {
     console.error("[reports/cron] subscriptions query:", error.message);
@@ -166,7 +174,7 @@ export async function GET(request: Request) {
         organizationId: row.organization_id,
         channel: "email",
         notificationType: "saved_view_summary",
-        subject: `Weekly summary: ${subjectName}`,
+        subject: `${row.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${subjectName}`,
         metadata: { subscription_id: row.id },
       });
       continue;
@@ -190,7 +198,9 @@ export async function GET(request: Request) {
     };
     const ownerEmail = profileByUserId.get(row.user_id) ?? null;
     const extraRecipients = ((row.recipient_emails ?? []) as string[]).filter(Boolean);
-    const recipients = [...new Set([ownerEmail, ...extraRecipients].filter(Boolean))] as string[];
+    const recipients = [
+      ...new Set([ownerEmail, ...extraRecipients].filter(Boolean)),
+    ].slice(0, MAX_RECIPIENTS_PER_SUBSCRIPTION) as string[];
     if (recipients.length === 0) {
       if (reportRun?.id) {
         await supabase
@@ -397,7 +407,10 @@ export async function GET(request: Request) {
       },
     ].slice(0, 6);
     let deliveredRecipients = 0;
-    for (const recipient of recipients) {
+    let recipientIdx = 0;
+    async function sendRecipientWorker(): Promise<void> {
+      while (recipientIdx < recipients.length) {
+        const recipient = recipients[recipientIdx++];
       const token = recipientTokens.get(recipient);
       const trackedRows = sampleRows.map((sample) => ({
         ...sample,
@@ -416,7 +429,7 @@ export async function GET(request: Request) {
         channel: "email",
         notificationType: "saved_view_summary",
         recipient,
-        subject: `Weekly summary: ${summarySubjectName}`,
+        subject: `${row.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${summarySubjectName}`,
         metadata: { subscription_id: row.id, report_run_id: reportRun?.id ?? null },
         maxAttempts: 3,
         retryPayload: {
@@ -469,7 +482,14 @@ export async function GET(request: Request) {
             .eq("recipient_email", recipient);
         }
       }
+      }
     }
+    await Promise.all(
+      Array.from(
+        { length: Math.min(RECIPIENT_SEND_CONCURRENCY, recipients.length) },
+        () => sendRecipientWorker()
+      )
+    );
     if (deliveredRecipients === 0) {
       if (reportRun?.id) {
         await supabase

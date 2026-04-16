@@ -52,6 +52,15 @@ const YN = new Set(["y", "n"]);
 const MANUAL_3G = new Set(["pending_human"]);
 const OPEN_P0P1 = new Set(["y", "n"]);
 
+function loadGeneratedArray(filePath) {
+  const source = fs.readFileSync(filePath, "utf8");
+  const match = source.match(/=\s*(\[[\s\S]*\])\s+as const;/);
+  if (!match) {
+    throw new Error(`Could not parse generated matrix: ${filePath}`);
+  }
+  return JSON.parse(match[1]);
+}
+
 function main() {
   if (!fs.existsSync(tsvPath)) {
     console.error("Missing", tsvPath);
@@ -162,6 +171,28 @@ function main() {
     if (typeof notes !== "string") {
       console.error(`Line ${rowNum}: notes must be present (can be empty)`);
       process.exit(1);
+    }
+  }
+
+  const generatedMatrixFiles = [
+    path.join(root, "e2e", "generated", "authenticated-routes.ts"),
+    path.join(root, "e2e", "generated", "public-routes.ts"),
+    path.join(root, "e2e", "generated", "visual-routes.ts"),
+  ];
+  for (const filePath of generatedMatrixFiles) {
+    if (!fs.existsSync(filePath)) {
+      console.error("Missing generated matrix", path.relative(root, filePath));
+      process.exit(1);
+    }
+    const generated = loadGeneratedArray(filePath);
+    for (const entry of generated) {
+      const route = entry?.route;
+      if (typeof route === "string" && !routes.has(route)) {
+        console.error(
+          `Generated route ${route} from ${path.relative(root, filePath)} missing from qa-route-coverage.tsv`
+        );
+        process.exit(1);
+      }
     }
   }
 

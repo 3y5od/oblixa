@@ -32,12 +32,24 @@ export {
   SEARCH_INDEX_CLASSES,
   workspaceModeAllowsReportType,
   workspaceModeAtLeast,
+  v8AdminRevealPolicyForFeature,
+  v8CommandVocabularyForFeature,
+  v8DiscoverabilityForFeature,
+  v8OwningActionIdsForFeature,
+  v8OwningApiPrefixesForFeature,
+  v8OwningPagePatternsForFeature,
+  v8SearchVocabularyForFeature,
 } from "@/lib/product-surface/feature-registry";
 export {
   evaluateFeatureEligibility,
   type FeatureDiscoverability,
   type FeatureEligibility,
+  type V8EligibilityDenialClass,
 } from "@/lib/product-surface/eligibility";
+export {
+  statusForEligibilityDenial,
+  v8DenialStatusMatrix,
+} from "@/lib/product-surface/v8-denial-status";
 export {
   featureFamilyForHref,
   isHrefEligibleForNavSurface,
@@ -58,7 +70,24 @@ export type {
   SearchIndexClassDef,
   ReportHashMapEntry,
   ReportTypeMapEntry,
+  V8AdminRevealPolicy,
+  V8FeatureDiscoverability,
 } from "@/lib/product-surface/feature-registry";
+export {
+  allV8ExemptSurfaceRules,
+  resolveActionExemptSurface,
+  resolveApiExemptSurface,
+  resolvePageExemptSurface,
+  type V8ExemptSurfaceClass,
+  type V8ExemptSurfaceRule,
+} from "@/lib/product-surface/v8-exempt-surfaces";
+export {
+  resolveFeatureMappingForAction,
+  resolveFeatureMappingForApiPath,
+  resolveFeatureMappingForPagePath,
+  type V8SurfaceMapping,
+  type V8SurfaceType,
+} from "@/lib/product-surface/v8-surface-mapping";
 export {
   isNavItemVisibleForSurface,
   isNavChildVisibleForSurface,
@@ -71,7 +100,9 @@ export {
   assertWorkspaceModeAtLeast,
   assertAssuranceWorkspaceOrRedirect,
   assertCoreUtilitySurfaceOrRedirect,
+  assertPagePathEligibleOrNotFound,
 } from "@/lib/product-surface/route-guard";
+export { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
 export { filterAuditEventsForWorkspaceMode } from "@/lib/product-surface/audit-events-filter";
 export {
   ROUTE_INVENTORY,

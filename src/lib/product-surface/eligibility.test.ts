@@ -100,4 +100,42 @@ describe("evaluateFeatureEligibility", () => {
     expect(out.allowed).toBe(false);
     expect(out.reason).toBe("module_hidden");
   });
+
+  it("returns unauthenticated denial class when auth state indicates no session", () => {
+    const ctx = buildProductSurfaceContext({
+      orgId: "o1",
+      role: "viewer",
+      v6: { workspace_mode: "core" },
+      featureFlags: noFlags,
+    });
+    const out = evaluateFeatureEligibility(ctx, "contracts", {
+      surfaceType: "api",
+      surfaceIdentifier: "/api/contracts",
+      authState: "unauthenticated",
+    });
+    expect(out.allowed).toBe(false);
+    expect(out.denialClass).toBe("unauthenticated");
+  });
+
+  it("returns org_context_unresolved when org context is missing", () => {
+    const ctx = buildProductSurfaceContext({
+      orgId: "o1",
+      role: "viewer",
+      v6: { workspace_mode: "core" },
+      featureFlags: noFlags,
+    });
+    const out = evaluateFeatureEligibility(
+      {
+        ...ctx,
+        orgId: "",
+      },
+      "contracts",
+      {
+        surfaceType: "page",
+        surfaceIdentifier: "/contracts",
+      }
+    );
+    expect(out.allowed).toBe(false);
+    expect(out.denialClass).toBe("org_context_unresolved");
+  });
 });

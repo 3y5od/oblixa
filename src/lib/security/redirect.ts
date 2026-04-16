@@ -9,7 +9,7 @@ export function getSafeRedirectPath(raw: string | null, maxLen = 512): string {
   if (!s.startsWith("/") || s.startsWith("//") || s.includes("://")) {
     return fallback;
   }
-  if (/[\r\n\0\\]/.test(s) || s.includes("@") || s.includes("<")) {
+  if (/[\x00-\x1f\x7f\\]/.test(s) || s.includes("@") || s.includes("<")) {
     return fallback;
   }
   return s;

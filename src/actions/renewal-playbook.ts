@@ -1,7 +1,6 @@
 "use server";
 
 import { subDays } from "date-fns";
-import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
@@ -10,12 +9,26 @@ import type { RenewalCheckpointStatus } from "@/lib/types";
 
 const CHECKPOINT_STATUSES: RenewalCheckpointStatus[] = [
   "pending",
+  "in_progress",
   "completed",
   "skipped",
 ];
 
+const VALID_TRANSITIONS: Record<RenewalCheckpointStatus, RenewalCheckpointStatus[]> = {
+  pending: ["in_progress", "completed", "skipped"],
+  in_progress: ["pending", "completed", "skipped"],
+  completed: ["pending"],
+  skipped: ["pending"],
+};
+
 function isCheckpointStatus(v: string): v is RenewalCheckpointStatus {
   return CHECKPOINT_STATUSES.includes(v as RenewalCheckpointStatus);
+}
+
+async function revalidateRenewalPaths(contractId: string) {
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath(`/contracts/${contractId}`);
+  revalidatePath("/contracts/renewals");
 }
 
 async function getContractAndRole(
@@ -46,6 +59,7 @@ async function getRenewalDate(
     .eq("field_name", "renewal_date")
     .eq("status", "approved")
     .not("field_value", "is", null)
+    .order("updated_at", { ascending: false })
     .maybeSingle();
 
   const raw = field?.field_value?.trim();
@@ -56,19 +70,19 @@ async function getRenewalDate(
 
 export async function seedRenewalPlaybook(contractId: string) {
   const supabase = await createClient();
-  const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return;
-  if (!isUuid(contractId)) return;
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+  const admin = await createAdminClient();
 
   const contract = await getContractAndRole(admin, user.id, contractId);
-  if (!contract) return;
+  if (!contract) return { error: "Access denied" };
 
   const renewalDate = await getRenewalDate(admin, contractId);
-  if (!renewalDate) return;
+  if (!renewalDate) return { error: "No renewal date found" };
 
   const { data: templates } = await admin
     .from("renewal_playbook_templates")
@@ -86,7 +100,7 @@ export async function seedRenewalPlaybook(contractId: string) {
     offsetDays: t.offset_days,
     label: t.label,
   }));
-  if (templateRows.length === 0) return;
+  if (templateRows.length === 0) return { error: "No playbook templates found" };
   const { data: scenarioRow } = await admin
     .from("contract_renewal_scenarios")
     .select("id")
@@ -109,10 +123,7 @@ export async function seedRenewalPlaybook(contractId: string) {
     onConflict: "contract_id,task_key",
     ignoreDuplicates: false,
   });
-  if (error) {
-    console.error("[renewal-playbook] seed", mapDataSourceError(error.message));
-    return;
-  }
+  if (error) return { error: mapDataSourceError(error.message) };
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -122,8 +133,8 @@ export async function seedRenewalPlaybook(contractId: string) {
     details: { checkpoint_count: rows.length },
   });
 
-  revalidatePath(`/contracts/${contractId}`);
-  revalidatePath("/contracts/renewals");
+  await revalidateRenewalPaths(contractId);
+  return { success: true };
 }
 
 export async function updateRenewalCheckpointStatus(input: {
@@ -142,13 +153,18 @@ export async function updateRenewalCheckpointStatus(input: {
 
   const { data: checkpoint } = await admin
     .from("contract_renewal_checkpoints")
-    .select("id, contract_id, organization_id")
+    .select("id, contract_id, organization_id, status")
     .eq("id", input.checkpointId)
     .maybeSingle();
   if (!checkpoint) return { error: "Checkpoint not found" };
 
   const role = await getOrgMemberRole(admin, user.id, checkpoint.organization_id);
   if (!canEditContracts(role)) return { error: "Viewers cannot update checkpoints." };
+
+  const currentStatus = checkpoint.status as RenewalCheckpointStatus;
+  const allowed = VALID_TRANSITIONS[currentStatus];
+  if (!allowed || !allowed.includes(input.status))
+    return { error: `Cannot transition from ${currentStatus} to ${input.status}` };
 
   const completedAt =
     input.status === "completed" || input.status === "skipped"
@@ -173,8 +189,7 @@ export async function updateRenewalCheckpointStatus(input: {
     details: { checkpoint_id: input.checkpointId, status: input.status },
   });
 
-  revalidatePath(`/contracts/${checkpoint.contract_id}`);
-  revalidatePath("/contracts/renewals");
+  await revalidateRenewalPaths(checkpoint.contract_id);
   return { success: true as const };
 }
 
@@ -221,8 +236,7 @@ export async function addRenewalWorkspaceNote(input: {
     details: { pinned: Boolean(input.pinned) },
   });
 
-  revalidatePath(`/contracts/${contract.id}`);
-  revalidatePath("/contracts/renewals");
+  await revalidateRenewalPaths(contract.id);
   return { success: true as const };
 }
 
@@ -230,8 +244,5 @@ export async function addRenewalWorkspaceNoteForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
   const body = String(formData.get("body") ?? "");
   const pinned = String(formData.get("pinned") ?? "") === "1";
-  const res = await addRenewalWorkspaceNote({ contractId, body, pinned });
-  if (res && "error" in res && res.error) {
-    console.error("[renewal-playbook] addRenewalWorkspaceNoteForm", res.error);
-  }
+  return await addRenewalWorkspaceNote({ contractId, body, pinned });
 }

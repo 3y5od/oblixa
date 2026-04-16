@@ -89,9 +89,9 @@ export default async function CampaignsPage({
           <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Campaign Queue</h1>
           <p className="ui-muted-tight mt-2 max-w-2xl">
-            Campaign state, processed volume, and next action.
+            Campaign state, processed volume, simulation readiness, and next action.
             {statusFilter || typeFilter ? (
-              <span className="mt-2 block text-xs text-zinc-600">
+              <span className="mt-2 block text-xs text-[var(--text-secondary)]">
                 {statusFilter && statusOk ? (
                   <>
                     Status <code className="rounded bg-zinc-100 px-1">{statusFilter}</code>
@@ -126,10 +126,13 @@ export default async function CampaignsPage({
         </div>
       </header>
 
-      <section className="space-y-3">
+      <section className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Rollout</p>
           <h2 className="ui-section-title mt-2 text-xl">Campaign metrics</h2>
+          <p className="ui-muted-tight mt-1 text-[12px]">
+            Active rollout state, paused work, and contracts processed under the current filters.
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <OperationalSummaryCard
@@ -166,14 +169,14 @@ export default async function CampaignsPage({
       </section>
 
       {simOn ? (
-        <section id="simulations" className="scroll-mt-8 space-y-6">
+        <section id="simulations" className="scroll-mt-8 ui-page-shell space-y-6">
           <div>
             <p className="ui-eyebrow">Simulation</p>
             <h2 className="ui-section-title mt-1 text-xl">Simulation Studio</h2>
             <p className="ui-muted-tight mt-1 text-[13px]">Recent simulation runs and promotion readiness.</p>
           </div>
-          <details className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 text-sm text-zinc-600">
-            <summary className="cursor-pointer font-medium text-zinc-800">Simulation types</summary>
+          <details className="ui-soft-details text-sm text-[var(--text-secondary)]">
+            <summary className="cursor-pointer font-medium text-[var(--text-primary)]">Simulation types</summary>
             <ul className="mt-3 space-y-2 text-xs">
               {(Object.keys(SIMULATION_TYPE_FOCUS) as SimulationType[]).map((k) => (
                 <li key={k}>
@@ -185,14 +188,14 @@ export default async function CampaignsPage({
           <div className="grid gap-4 lg:grid-cols-2">
             <article className="ui-card p-5">
               <p className="ui-label-caps">Saved simulations</p>
-              <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-zinc-700">
+              <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-[var(--text-secondary)]">
                 {(simulations ?? []).length === 0 ? (
-                  <li className="text-zinc-500">No simulations yet.</li>
+                  <li className="text-[var(--text-secondary)]">No simulations yet.</li>
                 ) : (
                   (simulations ?? []).map((s) => (
                     <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] pb-2 last:border-0">
-                      <span className="font-medium text-zinc-900">{s.name}</span>
-                      <span className="font-mono text-[11px] text-zinc-500">{s.simulation_type}</span>
+                      <span className="font-medium text-[var(--text-primary)]">{s.name}</span>
+                      <span className="font-mono text-[11px] text-[var(--text-tertiary)]">{s.simulation_type}</span>
                       <Link
                         href={`/api/simulations/${s.id}`}
                         className="ui-link text-xs"
@@ -208,13 +211,13 @@ export default async function CampaignsPage({
             </article>
             <article className="ui-card p-5">
               <p className="ui-label-caps">Recent runs</p>
-              <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-zinc-700">
+              <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-[var(--text-secondary)]">
                 {(simRuns ?? []).length === 0 ? (
-                  <li className="text-zinc-500">No runs yet.</li>
+                  <li className="text-[var(--text-secondary)]">No runs yet.</li>
                 ) : (
                   (simRuns ?? []).map((r) => (
                     <li key={r.id} className="border-b border-[var(--border-subtle)] pb-2 text-xs last:border-0">
-                      <span className="font-mono text-zinc-600">{r.id.slice(0, 8)}…</span> · sim{" "}
+                      <span className="font-mono text-[var(--text-secondary)]">{r.id.slice(0, 8)}…</span> · sim{" "}
                       <span className="font-mono">{r.simulation_id.slice(0, 8)}…</span>
                       {r.promoted_campaign_id ? (
                         <>
@@ -253,7 +256,7 @@ export default async function CampaignsPage({
       ) : (
         <section id="simulations" className="scroll-mt-8">
           <h2 className="ui-section-title text-lg">Simulations</h2>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">
             Enable <code className="rounded bg-zinc-100 px-1">ENABLE_V5_SIMULATION_AND_INTELLIGENCE</code> to use the
             change simulation studio and promotion tools.
           </p>
@@ -290,22 +293,22 @@ export default async function CampaignsPage({
                 const progress = (campaign.progress_summary_json ?? {}) as Record<string, unknown>;
                 return (
                 <tr key={campaign.id} className="ui-table-row">
-                    <td className="px-5 py-4 font-semibold text-zinc-900">
+                    <td className="px-5 py-4 font-semibold text-[var(--text-primary)]">
                       <Link href={`/campaigns/${campaign.id}`} className="ui-link">
                         {campaign.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-4 text-zinc-600">Campaign</td>
-                    <td className="px-5 py-4 text-zinc-600">
+                    <td className="px-5 py-4 text-[var(--text-secondary)]">Campaign</td>
+                    <td className="px-5 py-4 text-[var(--text-secondary)]">
                       {CAMPAIGN_TYPE_LABELS[campaign.campaign_type as CampaignType] ??
                         campaign.campaign_type}
                     </td>
                     <td className="px-5 py-4">
                       <StatusBadge status={campaignStatusTone(campaign.status)}>{campaign.status}</StatusBadge>
                     </td>
-                    <td className="px-5 py-4 text-zinc-600">Unassigned</td>
-                    <td className="px-5 py-4 text-zinc-600">{Number(preview["pending"] ?? 0) + Number(preview["processed"] ?? 0)}</td>
-                    <td className="px-5 py-4 text-zinc-600">{Number(progress["processed"] ?? 0)}</td>
+                    <td className="px-5 py-4 text-[var(--text-secondary)]">Unassigned</td>
+                    <td className="px-5 py-4 text-[var(--text-secondary)]">{Number(preview["pending"] ?? 0) + Number(preview["processed"] ?? 0)}</td>
+                    <td className="px-5 py-4 text-[var(--text-secondary)]">{Number(progress["processed"] ?? 0)}</td>
                     <td className="px-5 py-4">
                       <Link href={`/campaigns/${campaign.id}`} className="ui-link">
                         Open campaign

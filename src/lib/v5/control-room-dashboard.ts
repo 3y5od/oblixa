@@ -99,15 +99,19 @@ export async function fetchControlRoomDashboardData(
 
   const { data: forecasts } = await admin
     .from("capacity_forecasts")
-    .select("forecast_json")
+    .select("forecast_json, forecast_horizon_days")
     .eq("organization_id", orgId)
     .order("generated_at", { ascending: false })
     .limit(2);
 
   const latestFj = forecasts?.[0]?.forecast_json as Record<string, unknown> | undefined;
   const prevFj = forecasts?.[1]?.forecast_json as Record<string, unknown> | undefined;
+  const sameHorizon =
+    forecasts?.[0]?.forecast_horizon_days != null &&
+    forecasts?.[0]?.forecast_horizon_days === forecasts?.[1]?.forecast_horizon_days;
   const openTasksKey = CAPACITY_FORECAST_JSON_KEYS.open_tasks;
   const deltaTasks =
+    sameHorizon &&
     latestFj &&
     prevFj &&
     typeof latestFj[openTasksKey] === "number" &&

@@ -56,9 +56,9 @@ export default async function DecisionsPage({
           <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Decision Queue</h1>
           <p className="ui-muted-tight mt-2 max-w-2xl">
-            Decision records by type, status, due date, and next action.
+            Decision records by type, status, due date, and next action across the governed advanced workspace.
             {typeFilter || queueActiveOnly ? (
-              <span className="mt-2 block text-xs text-zinc-600">
+              <span className="mt-2 block text-xs text-[var(--text-secondary)]">
                 {queueActiveOnly ? <>Showing open and in-review decisions only. </> : null}
                 {typeFilter ? (
                   <>
@@ -77,10 +77,13 @@ export default async function DecisionsPage({
         </Link>
       </header>
 
-      <section className="space-y-3">
+      <section className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Queue</p>
           <h2 className="ui-section-title mt-2 text-xl">Decision metrics</h2>
+          <p className="ui-muted-tight mt-1 text-[12px]">
+            Open workspaces, review pressure, and blocked decision paths.
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <OperationalSummaryCard
@@ -120,7 +123,7 @@ export default async function DecisionsPage({
         </div>
       </section>
 
-      <section className="ui-card p-5">
+      <section className="ui-card-hero p-5">
         <p className="ui-kicker">New decision</p>
         <p className="ui-muted-tight mt-1">Create a workspace with required decision type and linked scope.</p>
         <div className="mt-4 border-t border-zinc-100 pt-4">
@@ -151,23 +154,23 @@ export default async function DecisionsPage({
             ) : (
               rows.map((row) => (
                 <tr key={row.id} className="ui-table-row">
-                  <td className="px-5 py-4 font-semibold text-zinc-900">
+                  <td className="px-5 py-4 font-semibold text-[var(--text-primary)]">
                     <Link href={`/decisions/${row.id}`} className="ui-link">
                       {row.title}
                     </Link>
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">Decision</td>
-                  <td className="px-5 py-4 text-zinc-600">{row.decision_type}</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">Decision</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">{row.decision_type}</td>
                   <td className="px-5 py-4">
                     <StatusBadge status={decisionStatusTone(row.status)}>{row.status.replace(/_/g, " ")}</StatusBadge>
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">Unassigned</td>
-                  <td className="px-5 py-4 text-zinc-600">{row.due_at ? new Date(row.due_at).toLocaleDateString() : "—"}</td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">Unassigned</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">{row.due_at ? new Date(row.due_at).toLocaleDateString() : "—"}</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     <Link href={`/decisions/${row.id}`} className="ui-link">
                       Review decision
                     </Link>
-                    <span className="ml-2 text-xs text-zinc-500">
+                    <span className="ml-2 text-xs text-[var(--text-tertiary)]">
                       ({Array.isArray(row.linked_contract_ids) ? row.linked_contract_ids.length : 0} linked)
                     </span>
                   </td>

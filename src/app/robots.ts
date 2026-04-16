@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 
+export const revalidate = 3600;
+
 /**
  * Preview deployments: discourage indexing (production must remain indexable).
  * VERCEL_ENV is "production" | "preview" | "development" on Vercel; undefined locally.

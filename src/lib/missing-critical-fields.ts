@@ -12,13 +12,18 @@ export async function getContractsMissingCriticalFields(
   admin: Admin,
   orgId: string
 ): Promise<Pick<Contract, "id" | "title" | "counterparty">[]> {
-  const { data: contracts } = await admin
+  const { data: contracts, error } = await admin
     .from("contracts")
     .select("id, title, counterparty")
     .eq("organization_id", orgId)
     .in("status", ["pending_review", "active"])
     .order("updated_at", { ascending: false })
-    .limit(200);
+    .limit(2000);
+
+  if (error) {
+    console.error("[missing-critical-fields] contracts query error:", error.message);
+    return [];
+  }
 
   if (!contracts?.length) return [];
 

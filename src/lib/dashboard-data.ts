@@ -28,10 +28,12 @@ function num(v: unknown): number {
   return Number(v) || 0;
 }
 
+export const getDashboardAdminClientCached = cache(async () => createAdminClient());
+
 export async function fetchDashboardOrgMetrics(
   orgId: string
 ): Promise<DashboardOrgMetrics> {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const { data, error } = await admin.rpc("dashboard_org_metrics", {
     p_org_id: orgId,
   });
@@ -75,7 +77,7 @@ export async function fetchNavBadgeCounts(
   orgId: string,
   userId: string
 ): Promise<NavBadgeCounts> {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const { data, error } = await admin.rpc("org_nav_badge_counts", {
     p_org_id: orgId,
     p_user_id: userId,
@@ -101,46 +103,51 @@ export const getNavBadgeCountsCached = cache(fetchNavBadgeCounts);
 
 export const getDashboardMissingCriticalCached = cache(
   async (orgId: string) => {
-    const admin = await createAdminClient();
+    const admin = await getDashboardAdminClientCached();
     return getContractsMissingCriticalFields(admin, orgId);
   }
 );
 
 export const getDashboardUsageStatsCached = cache(async (orgId: string) => {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   return getOrgUsageStats(admin, orgId);
 });
 
 export const getProfileOnboardingCached = cache(async (userId: string) => {
-  const admin = await createAdminClient();
-  const { data } = await admin
+  const admin = await getDashboardAdminClientCached();
+  const { data, error } = await admin
     .from("profiles")
     .select("onboarding_completed_at")
     .eq("id", userId)
     .maybeSingle();
+  if (error) {
+    console.error("[dashboard] getProfileOnboardingCached query error:", error.message);
+  }
   return data;
 });
 
 /** §4.4 — billing/subscription checks only (e.g. dashboard plan banner), not product IA. */
 export const getOrgHasActivePlanCached = cache(async (orgId: string) => {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   return orgHasActivePlan(admin, orgId);
 });
 
 export const getDashboardDateFieldsCached = cache(async (orgId: string) => {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const { data } = await admin
     .from("extracted_fields")
     .select("id, field_name, field_value, contracts!inner(id, title, organization_id)")
     .eq("contracts.organization_id", orgId)
     .eq("status", "approved")
     .in("field_name", ["notice_window", "renewal_date", "end_date"])
-    .not("field_value", "is", null);
+    .not("field_value", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(2000);
   return data ?? [];
 });
 
 export const getDashboardWorkflowSettingsCached = cache(async (orgId: string) => {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const { data } = await admin
     .from("organization_workflow_settings")
     .select("dashboard_tracking_enabled, dashboard_pins_json")
@@ -150,7 +157,7 @@ export const getDashboardWorkflowSettingsCached = cache(async (orgId: string) =>
 });
 
 export const getPinnedSavedViewsCached = cache(async (orgId: string) => {
-  const admin = await createAdminClient();
+  const admin = await getDashboardAdminClientCached();
   const { data } = await admin
     .from("saved_views")
     .select("id, name, view_type, query_json, pinned")

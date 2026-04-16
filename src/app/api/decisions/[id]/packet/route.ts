@@ -225,10 +225,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     await ctx.admin
       .from("decision_packet_runs")
       .update({
-        artifact_storage_path: jsonUploadResult?.storagePath ?? null,
+        artifact_storage_path: jsonUploadResult && !('error' in jsonUploadResult) ? jsonUploadResult.storagePath : null,
         artifact_content_type: "application/json; charset=utf-8",
         artifact_generated_at: nowIso(),
-        artifact_pdf_storage_path: pdfUploadResult?.storagePath ?? null,
+        artifact_pdf_storage_path: pdfUploadResult && !('error' in pdfUploadResult) ? pdfUploadResult.storagePath : null,
         artifact_pdf_generated_at: nowIso(),
         report_pack_id: reportPackId || null,
       })

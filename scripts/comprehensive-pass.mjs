@@ -1,4 +1,4 @@
-// Optional local gate for product-surface drift: `npm run check:v7-suite` (href + vocabulary + inventory scripts).
+// Optional local gate for product-surface drift: `npm run check:v8-suite` (href + vocabulary + inventory scripts).
 import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -10,6 +10,7 @@ import { CRON_ROUTE_EXPECTED_KEYS } from "./cron-route-expected-keys.mjs";
 const cwd = process.cwd();
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(cwd);
+const traceId = process.env.COMPREHENSIVE_PASS_TRACE_ID?.trim() || `cp_${Date.now()}`;
 
 function env(name) {
   return (process.env[name] ?? "").trim();
@@ -25,6 +26,20 @@ function fail(msg) {
 
 function warn(msg) {
   console.warn(`WARN ${msg}`);
+}
+
+function emitSummary(payload) {
+  console.log(
+    JSON.stringify(
+      {
+        traceId,
+        generatedAt: new Date().toISOString(),
+        ...payload,
+      },
+      null,
+      2
+    )
+  );
 }
 
 function requireEnv(name) {
@@ -268,9 +283,12 @@ async function main() {
   execSync("npm run check:onboarding-stale-env-parity", { stdio: "inherit", cwd });
 
   ok("comprehensive pass checks finished");
+  emitSummary({ ok: true, baseUrl });
 }
 
 main().catch((error) => {
-  fail(error instanceof Error ? error.message : String(error));
+  const message = error instanceof Error ? error.message : String(error);
+  emitSummary({ ok: false, error: message });
+  fail(message);
   process.exit(1);
 });

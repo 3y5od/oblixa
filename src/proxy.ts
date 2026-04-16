@@ -6,6 +6,12 @@ import {
   unauthenticatedAccessAllowed,
 } from "@/lib/auth/proxy-path-policy";
 import { resolveBlockingCalibrationPathForUserClient } from "@/lib/onboarding/calibration-gate";
+import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+
+function withOblixaPathname(res: NextResponse, pathname: string): NextResponse {
+  res.headers.set(OBLIXA_PATHNAME_HEADER, pathname);
+  return res;
+}
 
 // Marketing surfaces are GET-only for anonymous users; auth mutations stay on server actions with existing limits.
 // Keep branches cheap: avoid extra DB or network work here beyond Supabase session refresh for protected paths.
@@ -14,7 +20,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const { url: supabaseUrl, anonKey } = getSupabasePublicEnv();
 
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = withOblixaPathname(NextResponse.next({ request }), pathname);
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -28,7 +34,7 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = withOblixaPathname(NextResponse.next({ request }), pathname);
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );

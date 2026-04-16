@@ -66,6 +66,7 @@ export async function buildOrganizationCalendarIcs(
           .select("id, label, due_date, contracts!inner(id, title, organization_id)")
           .eq("organization_id", orgId)
           .eq("status", "pending")
+          .not("due_date", "is", null)
       : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
     includeRenewalDecisions
       ? admin
@@ -87,7 +88,7 @@ export async function buildOrganizationCalendarIcs(
       buildEvent(
         `reminder-${row.id}@oblixa.io`,
         row.reminder_date,
-        `${row.reminder_type.replace(/_/g, " ")} — ${contract.title}`,
+        `${String(row.reminder_type ?? "reminder").replace(/_/g, " ")} — ${contract.title}`,
         `Reminder for contract ${contract.title}`
       )
     );

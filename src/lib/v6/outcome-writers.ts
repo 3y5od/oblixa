@@ -34,12 +34,13 @@ export async function recordPlaybookInterventionOutcome(
     score < 35 ? { heuristic_false_positive_risk: "elevated", note: "Low effectiveness vs stress delta" } : { heuristic_false_positive_risk: "low" };
 
   let time_to_stability_hours: number | null = null;
-  const { data: runRow } = await admin
+  const { data: runRow, error: runRowErr } = await admin
     .from("adaptive_playbook_runs")
     .select("started_at, completed_at")
     .eq("organization_id", orgId)
     .eq("id", playbookRunId)
     .maybeSingle();
+  if (runRowErr) console.error("autopilot_run fetch failed", runRowErr.message);
   const started = runRow && (runRow as { started_at?: string }).started_at;
   const completed = runRow && (runRow as { completed_at?: string }).completed_at;
   if (started && completed) {
@@ -142,8 +143,8 @@ export async function backfillOutcomeSnapshots(admin: AdminClient, orgId: string
     if (!before) continue;
 
     const after = await gatherPortfolioMetrics(admin, orgId);
-    await recordPlaybookInterventionOutcome(admin, orgId, rid, before, after);
-    created += 1;
+    const result = await recordPlaybookInterventionOutcome(admin, orgId, rid, before, after);
+    if (!result.error) created += 1;
   }
 
   const { count } = await admin

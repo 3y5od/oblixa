@@ -59,6 +59,21 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const orgRate = await rateLimitCheck(
+    `tasks-slack:org:${body.organizationId}`,
+    RATE_LIMITS.tasksFromSlackInbound
+  );
+  if (!orgRate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests for this organization" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(orgRate.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
   const orgBlocked = inboundOrgNotAllowedResponse(body.organizationId);
   if (orgBlocked) return orgBlocked;
   if (body.assigneeId && !isUuid(body.assigneeId)) {
@@ -96,6 +111,17 @@ export async function POST(request: Request) {
   if (!contract) {
     return NextResponse.json({ error: "Contract not found in organization" }, { status: 400 });
   }
+  if (body.assigneeId) {
+    const { data: assigneeMember } = await admin
+      .from("organization_members")
+      .select("id")
+      .eq("organization_id", body.organizationId)
+      .eq("user_id", body.assigneeId)
+      .maybeSingle();
+    if (!assigneeMember) {
+      return NextResponse.json({ error: "assigneeId must belong to the organization" }, { status: 400 });
+    }
+  }
   if (body.externalMessageId?.trim()) {
     const existing = await admin
       .from("contract_tasks")
@@ -103,7 +129,7 @@ export async function POST(request: Request) {
       .eq("contract_id", body.contractId)
       .eq("created_via", "integration")
       .eq("team_key", "slack")
-      .ilike("details", `%external_message_id:${body.externalMessageId.trim()}%`)
+      .ilike("details", `%external_message_id:${body.externalMessageId.trim().replace(/[_%]/g, "\\$&")}%`)
       .limit(1)
       .maybeSingle();
     if (existing.data) {

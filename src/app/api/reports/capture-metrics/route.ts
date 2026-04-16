@@ -151,7 +151,7 @@ export async function GET(request: Request) {
         key_field_completeness: Number(completeness.toFixed(2)),
         unresolved_gap_count: Math.max(0, (contractsRes.count ?? 0) + (fieldRows.length - approvedFieldCount)),
         active_workspaces_count: adoptionActions,
-        contracts_onboarded_30d: (auditRes.data ?? []).filter((evt) => String(evt.action) === "contract.created")
+        contracts_onboarded_7d: (auditRes.data ?? []).filter((evt) => String(evt.action) === "contract.created")
           .length,
         users_invited_30d: invitesRes.count ?? 0,
         role_coverage_count: roleCoverageCount,

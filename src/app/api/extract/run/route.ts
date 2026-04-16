@@ -5,6 +5,7 @@ import {
   rateLimitCheck,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+import { enforceIdempotency } from "@/lib/idempotency";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 import { isUuid } from "@/lib/security/validation";
 
@@ -73,6 +74,12 @@ export async function POST(request: Request) {
   if (!isUuid(contractId) || !isUuid(userId) || !isUuid(organizationId)) {
     return NextResponse.json({ error: "Invalid ids" }, { status: 400 });
   }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "extract-worker",
+    actorKey: `${organizationId}:${contractId}`,
+  });
+  if (duplicate) return duplicate;
 
   try {
     await runExtractionPipeline({

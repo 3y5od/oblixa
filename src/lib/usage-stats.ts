@@ -13,11 +13,11 @@ export async function getOrgUsageStats(admin: Admin, orgId: string) {
   const since = startOfCurrentMonthIso();
 
   const [
-    { count: contractsCreated },
-    { count: extractionsRun },
-    { count: fieldsApproved },
-    { count: fieldsEdited },
-    { count: fieldsRejected },
+    contractsCreatedResult,
+    extractionsRunResult,
+    fieldsApprovedResult,
+    fieldsEditedResult,
+    fieldsRejectedResult,
   ] = await Promise.all([
     admin
       .from("audit_events")
@@ -50,6 +50,22 @@ export async function getOrgUsageStats(admin: Admin, orgId: string) {
       .eq("action", "field.rejected")
       .gte("created_at", since),
   ]);
+
+  for (const [label, res] of Object.entries({
+    contractsCreated: contractsCreatedResult,
+    extractionsRun: extractionsRunResult,
+    fieldsApproved: fieldsApprovedResult,
+    fieldsEdited: fieldsEditedResult,
+    fieldsRejected: fieldsRejectedResult,
+  })) {
+    if (res.error) console.error(`[usage-stats] ${label} query error:`, res.error.message);
+  }
+
+  const contractsCreated = contractsCreatedResult.count;
+  const extractionsRun = extractionsRunResult.count;
+  const fieldsApproved = fieldsApprovedResult.count;
+  const fieldsEdited = fieldsEditedResult.count;
+  const fieldsRejected = fieldsRejectedResult.count;
 
   const fieldsReviewed =
     (fieldsApproved ?? 0) + (fieldsEdited ?? 0) + (fieldsRejected ?? 0);

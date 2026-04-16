@@ -20,7 +20,8 @@ describe("maintenance server actions (scope)", () => {
     const { deleteOrphanFileRecordForm } = await import("@/actions/maintenance");
     const fd = new FormData();
     fd.set("fileId", "not-a-uuid");
-    await deleteOrphanFileRecordForm(fd);
+    const result = await deleteOrphanFileRecordForm(fd);
+    expect(result).toEqual({ error: "Invalid file" });
     expect(getUser).not.toHaveBeenCalled();
     expect(from).not.toHaveBeenCalled();
   });
@@ -32,7 +33,8 @@ describe("maintenance server actions (scope)", () => {
     fd.set("eventType", "other");
     fd.set("impactLevel", "low");
     fd.set("summary", "summary text");
-    await logContractChangeEventForm(fd);
+    const result = await logContractChangeEventForm(fd);
+    expect(result).toEqual({ error: "Not authenticated" });
     expect(from).not.toHaveBeenCalled();
   });
 });

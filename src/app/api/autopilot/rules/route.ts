@@ -60,6 +60,8 @@ export async function POST(request: Request) {
   const name = toSafeString(body.name);
   const actionType = toSafeString(body.actionType) || "request_evidence_refresh";
   if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+  const validActionTypes = ["request_evidence_refresh", "flag_for_review", "auto_resolve", "notify_stakeholder", "escalate"];
+  if (!validActionTypes.includes(actionType)) return NextResponse.json({ error: "Invalid actionType" }, { status: 400 });
 
   const result = await createAutopilotRule(ctx.admin, ctx.orgId, ctx.userId, {
     name,

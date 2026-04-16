@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loginWithCredentials } from "./login-test-user";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=fixture_and_secret_gated_onboarding_paths
 
 /**
  * Optional: E2E_ONBOARDING_BLOCKING=1 with blocking fixture org.

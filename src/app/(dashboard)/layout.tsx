@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { LegalFooter } from "@/components/layout/legal-footer";
@@ -5,8 +7,7 @@ import { CommandPaletteLoader } from "@/components/layout/command-palette-loader
 import {
   createAdminClient,
   createClient,
-  ensureUserOrg,
-  getDeterministicMembership,
+  getOrEnsureDeterministicMembership,
 } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
@@ -18,6 +19,9 @@ import {
   toNavSurfaceInput,
 } from "@/lib/product-surface/nav-visibility";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+import { assertPagePathEligibleOrNotFound } from "@/lib/product-surface/route-guard";
+import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 
 type NavBadges = {
   reviewQueue: number;
@@ -48,13 +52,28 @@ async function loadNavBadges(orgId: string, userId: string): Promise<NavBadges> 
   return value;
 }
 
+function normalizePathnameFromHeader(raw: string | null): string | null {
+  if (raw == null || raw === "") return null;
+  const pathOnly = raw.split("?")[0]?.split("#")[0] ?? raw;
+  const withLeading = pathOnly.startsWith("/") ? pathOnly : `/${pathOnly}`;
+  return withLeading.replace(/\/+/g, "/");
+}
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Use the user-scoped Supabase client here (not cached getAuthContext): we must run ensureUserOrg when
-  // the user has no membership row; getAuthContext would return null and skip that provisioning path.
+  const h = await headers();
+  const pathname = normalizePathnameFromHeader(h.get(OBLIXA_PATHNAME_HEADER));
+  if (!pathname) {
+    notFound();
+  }
+  await assertPagePathEligibleOrNotFound(pathname);
+
+  // Use the user-scoped client here instead of cached getAuthContext so the layout can still
+  // access the concrete user object needed by nav/header rendering while sharing membership
+  // provisioning semantics with route guards and auth actions.
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -64,19 +83,9 @@ export default async function DashboardLayout({
   let orgId: string | null = null;
 
   if (user) {
-    const membership = await getDeterministicMembership(admin, user.id);
+    const membership = await getOrEnsureDeterministicMembership(admin, user);
     orgId = membership?.organization_id ?? null;
     role = (membership?.role as WorkspaceRole | null) ?? "viewer";
-    if (!orgId) {
-      const fullName = user.user_metadata?.full_name;
-      await ensureUserOrg(
-        user.id,
-        fullName ? `${fullName}'s Organization` : "My Organization"
-      );
-      const ensuredMembership = await getDeterministicMembership(admin, user.id);
-      orgId = ensuredMembership?.organization_id ?? null;
-      role = (ensuredMembership?.role as WorkspaceRole | null) ?? role;
-    }
   }
 
   const v5Flags = getFeatureFlags();
@@ -103,9 +112,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(248,248,246,0.9))]">
+    <div className="flex h-dvh max-h-dvh min-h-0 bg-[radial-gradient(circle_at_top_left,var(--canvas-glow),transparent_30%),radial-gradient(circle_at_top_right,var(--canvas-glow-secondary),transparent_26%),linear-gradient(180deg,color-mix(in_oklab,var(--canvas)_90%,white),var(--canvas-strong))]">
       <Sidebar role={role} navBadges={navBadges} v5Flags={v5Flags} navSurface={navSurface} />
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-canvas">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-transparent">
         <Header
           fullName={user?.user_metadata?.full_name}
           email={user?.email}
@@ -114,11 +123,11 @@ export default async function DashboardLayout({
         />
         <CommandPaletteLoader role={role} v5Flags={v5Flags} navSurface={navSurface} />
         <main
-          id="main-content"
+          id={MAIN_CONTENT_ID}
           tabIndex={-1}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-5 outline-none md:px-7 md:py-6"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-4 outline-none md:px-6 md:py-5 xl:px-7"
         >
-          <div className="ui-page-stack mx-auto max-w-[1680px]">{children}</div>
+          <div className="ui-page-stack mx-auto max-w-[1760px]">{children}</div>
         </main>
         <LegalFooter />
       </div>

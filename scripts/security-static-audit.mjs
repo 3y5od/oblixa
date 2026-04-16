@@ -11,8 +11,8 @@
  * Optional path allowlist: scripts/security-static-audit-allowlist.txt (one substring per line;
  * if a source path includes the substring, grep hits in that file are skipped).
  *
- * V7 cross-surface dashboard href policy is enforced separately by `npm run check:v7-hrefs:strict`
- * (scripts/audit-v7-cross-surface-hrefs.mjs); keep that as the canonical strict gate for raw /decisions,
+ * V8 cross-surface dashboard href policy is enforced separately by `npm run check:v8-hrefs:strict`
+ * (scripts/audit-v8-cross-surface-hrefs.mjs); keep that as the canonical strict gate for raw /decisions,
  * /campaigns, /assurance, etc. in UI trees.
  */
 import fs from "node:fs";
@@ -20,6 +20,8 @@ import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { createResult, finishWithResult } from "./lib/result.mjs";
+import { nowMs } from "./lib/timing.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -29,6 +31,7 @@ const allowlistPath = path.join(__dirname, "security-static-audit-allowlist.txt"
 const strict = process.argv.includes("--strict");
 const skipAudit = process.argv.includes("--no-audit");
 const auditLevel = strict ? "moderate" : "high";
+const startMs = nowMs();
 
 function loadGrepAllowlist() {
   if (!fs.existsSync(allowlistPath)) return [];
@@ -188,5 +191,16 @@ console.log(
 );
 const auditOk = skipAudit ? true : runNpmAudit();
 const grepOk = runGreps();
-if (!auditOk || !grepOk) process.exit(1);
-console.log("PASS security-static-audit");
+finishWithResult(
+  createResult({
+    checkId: "security-static-audit",
+    ok: auditOk && grepOk,
+    strict,
+    errors: [
+      ...(auditOk ? [] : [`npm audit failed at level=${auditLevel}`]),
+      ...(grepOk ? [] : ["strict grep checks failed"]),
+    ],
+    meta: { skipAudit, auditLevel },
+    startMs,
+  })
+);

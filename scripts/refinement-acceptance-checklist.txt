@@ -18,7 +18,7 @@ docs/refinement.md §22 — manual acceptance (record pass/fail + date in releas
 
 22.6 Cross-surface consistency
   - Cmd-K recent targets and nav badges match surface (E2E smoke).
-  - Run: npm run check:v7-suite (href audit, vocabulary, route-inventory drift, plan IA, refinement API coverage).
+  - Run: npm run check:v8-suite (href audit, vocabulary, route-inventory drift, plan IA, refinement API coverage).
 
 22.7 Quality / polish
   - Walk Core routes in docs/refinement.md §7.1 order; npm run audit:ui-operational:strict

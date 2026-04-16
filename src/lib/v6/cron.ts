@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { ensureCronAuthorized } from "@/lib/v4/cron";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+const ORG_PAGE_SIZE = 500;
+const ORG_MAX_SCAN = 10_000;
 
 /** Grep-friendly prefix for V6 cron routes in host logs (`[cron:v6] job phase`). */
 export const V6_CRON_LOG_PREFIX = "[cron:v6]";
@@ -17,9 +19,22 @@ export function requireV6CronAuth(request: Request) {
 }
 
 export async function listOrganizationIds(admin: AdminClient): Promise<string[]> {
-  // FUTURE: paginate past 500 for full-table stale sweeps when operator SLO requires it.
-  const { data } = await admin.from("organizations").select("id").limit(500);
-  return (data ?? []).map((row) => String(row.id));
+  const ids: string[] = [];
+  for (let offset = 0; offset < ORG_MAX_SCAN; offset += ORG_PAGE_SIZE) {
+    const { data, error } = await admin
+      .from("organizations")
+      .select("id")
+      .order("id", { ascending: true })
+      .range(offset, offset + ORG_PAGE_SIZE - 1);
+    if (error) {
+      console.error(`${V6_CRON_LOG_PREFIX} listOrganizationIds query error`, error);
+      break;
+    }
+    const page = (data ?? []).map((row) => String(row.id)).filter(Boolean);
+    ids.push(...page);
+    if (page.length < ORG_PAGE_SIZE) break;
+  }
+  return ids;
 }
 
 export function cronErrorResponse(message: string, status = 400) {

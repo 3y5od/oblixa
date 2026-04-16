@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const REQUIRED_PATHS = [
   "playwright.config.ts",
+  "vitest.ui.config.ts",
   "e2e/authenticated.spec.ts",
   "e2e/authenticated-a11y-paths.ts",
   "e2e/refinement-optional-fixtures.spec.ts",

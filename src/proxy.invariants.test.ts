@@ -24,4 +24,10 @@ describe("proxy.ts routing invariants", () => {
     expect(raw).toContain('!pathname.startsWith("/api/")');
     expect("/api/health".startsWith("/api/")).toBe(true);
   });
+
+  it("sets V8 pathname header from nextUrl only for dashboard layout guard", () => {
+    const raw = readFileSync(join(process.cwd(), "src/proxy.ts"), "utf8");
+    expect(raw).toContain("withOblixaPathname");
+    expect(raw).toContain("OBLIXA_PATHNAME_HEADER");
+  });
 });

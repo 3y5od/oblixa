@@ -10,10 +10,12 @@ const authServerMocks = vi.hoisted(() => ({
   signUp: vi.fn(async () => ({ data: {}, error: null })),
   getUser: vi.fn(async () => ({ data: { user: { id: "user-1" } } })),
   createAdminClient: vi.fn(async () => ({})),
-  getDeterministicMembership: vi.fn(async () => ({
+  getOrEnsureDeterministicMembership: vi.fn(async () => ({
     organization_id: "org-1",
     role: "admin" as const,
   })),
+  resolveDefaultOrganizationNameForUser: vi.fn(() => "My Organization"),
+  ensureUserOrg: vi.fn(async () => undefined),
 }));
 
 const calGateMocks = vi.hoisted(() => ({
@@ -39,11 +41,13 @@ vi.mock("@/lib/supabase/server", () => ({
       signInWithPassword: authServerMocks.signInWithPassword,
       signUp: authServerMocks.signUp,
       getUser: authServerMocks.getUser,
+      updateUser: vi.fn(async () => ({ error: null })),
     },
   })),
   createAdminClient: authServerMocks.createAdminClient,
-  getDeterministicMembership: authServerMocks.getDeterministicMembership,
-  ensureUserOrg: vi.fn(async () => undefined),
+  getOrEnsureDeterministicMembership: authServerMocks.getOrEnsureDeterministicMembership,
+  resolveDefaultOrganizationNameForUser: authServerMocks.resolveDefaultOrganizationNameForUser,
+  ensureUserOrg: authServerMocks.ensureUserOrg,
 }));
 
 vi.mock("@/lib/app-url", () => ({
@@ -86,6 +90,66 @@ describe("auth actions rate limits", () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 
+  describe("signIn input validation", () => {
+    beforeEach(() => {
+      rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
+    });
+
+    it("returns error for missing email", async () => {
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "secret123");
+      const res = await signIn(fd);
+      expect(res).toEqual({ error: "Please enter a valid email address." });
+    });
+
+    it("returns error for email without @", async () => {
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "not-an-email");
+      fd.set("password", "secret123");
+      const res = await signIn(fd);
+      expect(res).toEqual({ error: "Please enter a valid email address." });
+    });
+  });
+
+  describe("signUp input validation", () => {
+    beforeEach(() => {
+      rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
+    });
+
+    it("returns error for missing email", async () => {
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "longpassword123");
+      fd.set("fullName", "Test");
+      const res = await signUp(fd);
+      expect(res).toEqual({ error: "Please enter a valid email address." });
+    });
+
+    it("returns error for short password", async () => {
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "short");
+      fd.set("fullName", "Test");
+      const res = await signUp(fd);
+      expect(res).toEqual({
+        error: "Password must be between 8 and 128 characters.",
+      });
+    });
+
+    it("returns error for overly long name", async () => {
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "longpassword123");
+      fd.set("fullName", "A".repeat(201));
+      const res = await signUp(fd);
+      expect(res).toEqual({ error: "Name is too long." });
+    });
+  });
+
   describe("signIn blocking calibration redirect", () => {
     beforeEach(() => {
       rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
@@ -111,6 +175,30 @@ describe("auth actions rate limits", () => {
       const res = await signIn(fd);
       expect(res).toEqual({ redirectTo: "/onboarding/calibration" });
       expect(redirect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("resetPassword redirect resolution", () => {
+    beforeEach(() => {
+      rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
+      calGateMocks.resolveBlockingCalibrationPathForAdminOrg.mockResolvedValue(null);
+    });
+
+    it("returns redirectTo /dashboard when no blocking calibration is needed", async () => {
+      const { resetPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "longpassword123");
+      const res = await resetPassword(fd);
+      expect(res).toEqual({ redirectTo: "/dashboard" });
+    });
+
+    it("returns redirectTo /onboarding/calibration when the gate requires it", async () => {
+      calGateMocks.resolveBlockingCalibrationPathForAdminOrg.mockResolvedValue("/onboarding/calibration");
+      const { resetPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "longpassword123");
+      const res = await resetPassword(fd);
+      expect(res).toEqual({ redirectTo: "/onboarding/calibration" });
     });
   });
 });

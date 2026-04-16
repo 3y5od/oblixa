@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
@@ -13,6 +13,13 @@ const OBLIGATION_STATUSES: ContractObligationStatus[] = [
   "done",
   "waived",
 ];
+
+const VALID_OBLIGATION_TRANSITIONS: Record<ContractObligationStatus, ContractObligationStatus[]> = {
+  open: ["in_progress", "done", "waived"],
+  in_progress: ["open", "done", "waived"],
+  done: ["open"],
+  waived: ["open"],
+};
 
 const MAX_TITLE_LEN = 240;
 const MAX_DETAILS_LEN = 4000;
@@ -158,6 +165,9 @@ export async function createContractObligation(input: {
   if (evidenceUrl && evidenceUrl.length > MAX_URL_LEN) {
     return { error: "Evidence URL is too long" };
   }
+  if (evidenceUrl && !/^https?:\/\//i.test(evidenceUrl)) {
+    return { error: "Evidence URL must use http or https" };
+  }
   if (escalationDueAt && Number.isNaN(new Date(escalationDueAt).getTime())) {
     return { error: "Invalid escalation due date" };
   }
@@ -263,7 +273,7 @@ export async function updateContractObligation(input: {
 
   const { data: obligation } = await admin
     .from("contract_obligations")
-    .select("id, contract_id, organization_id, title, details, owner_id, recurrence_type, recurrence_interval_days, due_date, obligation_type, cadence")
+    .select("id, contract_id, organization_id, status, title, details, owner_id, recurrence_type, recurrence_interval_days, due_date, obligation_type, cadence")
     .eq("id", input.obligationId)
     .maybeSingle();
   if (!obligation) return { error: "Obligation not found" };
@@ -277,6 +287,10 @@ export async function updateContractObligation(input: {
 
   if (input.status !== undefined) {
     if (!isObligationStatus(input.status)) return { error: "Invalid status" };
+    const currentStatus = obligation.status as ContractObligationStatus;
+    if (!VALID_OBLIGATION_TRANSITIONS[currentStatus]?.includes(input.status)) {
+      return { error: `Cannot transition from ${currentStatus} to ${input.status}` };
+    }
     patch.status = input.status;
     patch.completed_at =
       input.status === "done" || input.status === "waived"
@@ -339,6 +353,9 @@ export async function updateContractObligation(input: {
   if (input.evidenceUrl !== undefined) {
     const url = input.evidenceUrl?.trim() || null;
     if (url && url.length > MAX_URL_LEN) return { error: "Evidence URL is too long" };
+    if (url && !/^https?:\/\//i.test(url)) {
+      return { error: "Evidence URL must use http or https" };
+    }
     patch.evidence_url = url;
   }
 
@@ -408,7 +425,9 @@ export async function updateContractObligation(input: {
         })
         .select("id")
         .single();
-      if (!generationError && generated?.id) {
+      if (generationError) {
+        console.error("[obligations] recurrence insert failed", generationError.message);
+      } else if (generated?.id) {
         await appendObligationEvent(admin, {
           organizationId: obligation.organization_id,
           contractId: obligation.contract_id,
@@ -492,13 +511,8 @@ export async function createObligationTemplate(input: {
   if (contractType.length > MAX_TYPE_LEN) return { error: "Contract type is too long" };
   if (title.length > MAX_TITLE_LEN) return { error: "Template title is too long" };
 
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
-  if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership || !canEditContracts(membership.role)) {
     return { error: "Access denied" };
   }
 
@@ -538,8 +552,9 @@ export async function createObligationTemplateForm(formData: FormData) {
       dueOffsetDays != null && Number.isFinite(dueOffsetDays) ? dueOffsetDays : null,
   });
   if (res && "error" in res && res.error) {
-    console.error("[obligations] createObligationTemplateForm", res.error);
+    return { error: res.error };
   }
+  return { success: true as const };
 }
 
 export async function applyObligationTemplatesToContract(contractId: string) {
@@ -605,6 +620,7 @@ export async function applyObligationTemplatesToContract(contractId: string) {
 export async function applyObligationTemplatesToContractForm(contractId: string) {
   const res = await applyObligationTemplatesToContract(contractId);
   if (res && "error" in res && res.error) {
-    console.error("[obligations] applyObligationTemplatesToContractForm", res.error);
+    return { error: res.error };
   }
+  return { success: true as const };
 }

@@ -32,4 +32,14 @@ describe("vitest.config.ts coverage policy", () => {
     expect(raw).toContain("**/src/lib/qa/**");
     expect(raw).toContain("exclude:");
   });
+
+  it("vitest.ui.config.ts exists and covers component-focused sources", () => {
+    const raw = fs.readFileSync(path.join(process.cwd(), "vitest.ui.config.ts"), "utf8");
+    expect(raw).toContain('environment: "jsdom"');
+    expect(raw).toContain("src/components/layout/header.tsx");
+    expect(raw).toContain("src/components/onboarding/calibration-wizard.tsx");
+    expect(raw).toContain("src/**/*.ui.test.tsx");
+    expect(raw).toContain("setupFiles:");
+    expect(raw).toContain("coverage/ui");
+  });
 });

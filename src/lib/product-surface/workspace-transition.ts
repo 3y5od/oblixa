@@ -58,7 +58,7 @@ export async function suppressNotificationTypesForModeDowngrade(input: {
     },
   };
 
-  await admin.from("organization_workflow_settings").upsert(
+  const { error: upsertError } = await admin.from("organization_workflow_settings").upsert(
     {
       organization_id: orgId,
       weekly_intake_lookback_days: row?.weekly_intake_lookback_days ?? 7,
@@ -69,6 +69,9 @@ export async function suppressNotificationTypesForModeDowngrade(input: {
     },
     { onConflict: "organization_id", ignoreDuplicates: false }
   );
+  if (upsertError) {
+    console.error("[workspace-transition] notification policy upsert failed", upsertError);
+  }
 
   return autoBlocked;
 }
@@ -119,11 +122,14 @@ export async function applyWorkspaceProductTransitionSideEffects(input: {
     return { autoBlockedNotificationTypes, suppressedSubscriptionCount: 0 };
   }
 
-  await admin
+  const { error: updateError } = await admin
     .from("report_pack_subscriptions")
     .update({ active: false })
     .in("id", deactivateIds)
     .eq("organization_id", orgId);
+  if (updateError) {
+    console.error("[workspace-transition] report_pack_subscriptions deactivation failed", updateError);
+  }
   await admin.from("audit_events").insert({
     organization_id: orgId,
     contract_id: null,

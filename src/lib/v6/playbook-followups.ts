@@ -13,6 +13,16 @@ export async function seedPlaybookFollowUpRecommendations(
   sourceFindingId: string | null
 ) {
   if (checks.length === 0) return;
+  const { data: existing } = await admin
+    .from("operational_recommendations")
+    .select("id")
+    .eq("organization_id", orgId)
+    .eq("recommendation_type", "v6_playbook_follow_up")
+    .eq("target_ref_id", orgId)
+    .contains("reason_json", [{ playbook_run_id: playbookRunId }])
+    .limit(1)
+    .maybeSingle();
+  if (existing) return;
   await createRow(admin, "operational_recommendations", orgId, {
     recommendation_type: "v6_playbook_follow_up",
     target_ref_type: "organization",

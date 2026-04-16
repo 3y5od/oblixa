@@ -27,7 +27,10 @@ export async function GET() {
   );
 
   const { data, error } = await listControlPolicies(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/control-policies] GET error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   return NextResponse.json({ policies: data ?? [] });
 }
 
@@ -63,7 +66,10 @@ export async function POST(request: Request) {
     scope: body.scope,
   });
 
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    console.error("[api/control-policies] POST error:", result.error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_control_policies_create_total", 1).catch(
     () => undefined
   );

@@ -51,15 +51,24 @@ export async function POST(
       .eq("status", "pending");
   }
 
+  const { count: processedCount } = await ctx.admin
+    .from("maintenance_campaign_rows")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", ctx.orgId)
+    .eq("campaign_id", id)
+    .eq("status", "processed");
+
+  const actualProcessed = processedCount ?? 0;
+
   await ctx.admin
     .from("maintenance_campaigns")
     .update({
       status: "completed",
       completed_at: new Date().toISOString(),
-      summary_json: { processed: rows?.length ?? 0 },
+      summary_json: { processed: actualProcessed },
     })
     .eq("organization_id", ctx.orgId)
     .eq("id", id);
 
-  return NextResponse.json({ ok: true, processed: rows?.length ?? 0 });
+  return NextResponse.json({ ok: true, processed: actualProcessed });
 }

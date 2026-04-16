@@ -79,7 +79,7 @@ export async function seedDemoWorkspace() {
     if (cErr || !contract) continue;
 
     for (const f of s.fields) {
-      await admin.from("extracted_fields").insert({
+      const { error: fieldErr } = await admin.from("extracted_fields").insert({
         contract_id: contract.id,
         field_name: f.field_name,
         field_value: f.field_value,
@@ -88,6 +88,9 @@ export async function seedDemoWorkspace() {
         source: f.source,
         status: f.status,
       });
+      if (fieldErr) {
+        console.error("[demo] extracted_fields insert:", fieldErr.message);
+      }
     }
 
     await admin.from("audit_events").insert({

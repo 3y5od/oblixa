@@ -45,6 +45,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!prior) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
 
   const wasClosed = prior.status === "closed";
+
+  if (wasClosed) {
+    const { data: existingData } = await ctx.admin
+      .from("decision_workspaces")
+      .select("id, status, final_disposition_json, post_decision_actions_json, updated_at")
+      .eq("organization_id", ctx.orgId)
+      .eq("id", id)
+      .maybeSingle();
+    return NextResponse.json({ decision: existingData, postActionResult: null });
+  }
+
   const bodyPost = Array.isArray(body.postActions) ? body.postActions : [];
   const postActions =
     bodyPost.length > 0

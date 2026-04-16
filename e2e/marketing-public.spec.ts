@@ -1,21 +1,14 @@
-import { test, expect } from "@playwright/test";
-
-const PUBLIC_MARKETING_PATHS = [
-  "/",
-  "/privacy",
-  "/terms",
-  "/security",
-  "/accessibility",
-  "/cookies",
-  "/login",
-  "/signup",
-];
+import { test, expect } from "./fixtures/app-fixture";
+import { GENERATED_PUBLIC_ROUTES } from "./generated/public-routes";
+import { PublicMarketingPO } from "./page-objects/PublicMarketingPO";
 
 test.describe("public marketing surfaces", () => {
   test("unauthenticated pages return 200", async ({ page }) => {
-    for (const path of PUBLIC_MARKETING_PATHS) {
-      const res = await page.goto(path, { waitUntil: "domcontentloaded" });
-      expect(res?.ok(), `${path} status`).toBeTruthy();
+    const marketing = new PublicMarketingPO(page);
+    for (const route of GENERATED_PUBLIC_ROUTES) {
+      const res = await page.goto(route.visitPath, { waitUntil: "domcontentloaded" });
+      expect(res?.ok(), `${route.route} status`).toBeTruthy();
+      await marketing.expectLoaded();
     }
   });
 

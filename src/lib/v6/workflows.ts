@@ -110,11 +110,14 @@ export async function workflowPolicyBreachRemediation(admin: AdminClient, orgId:
   });
 
   if (campaign.data?.id && run.data?.id) {
-    await admin
+    const { error: updateErr } = await admin
       .from("change_simulation_runs")
       .update({ promoted_campaign_id: campaign.data.id })
       .eq("organization_id", orgId)
       .eq("id", run.data.id);
+    if (updateErr) {
+      console.error("[v6:workflows] change_simulation_runs update failed", updateErr);
+    }
   }
 
   return { run: run.data, campaign: campaign.data, simulation: simulation.data, errors: [simulation.error, run.error, campaign.error].filter(Boolean) };

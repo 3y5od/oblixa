@@ -125,7 +125,7 @@ export async function executePostDecisionActions(params: {
           .maybeSingle();
         if (existing) continue;
 
-        await admin.from("contract_tasks").insert({
+        const { error: insertError } = await admin.from("contract_tasks").insert({
           contract_id: contractId,
           organization_id: organizationId,
           created_by: userId,
@@ -137,6 +137,10 @@ export async function executePostDecisionActions(params: {
           created_via: "manual",
           team_key: teamKey,
         });
+        if (insertError) {
+          errors.push(`create_task[${i}]: insert failed: ${insertError.message}`);
+          continue;
+        }
         tasksCreated += 1;
       } else if (type === "link_exception") {
         const exceptionId = typeof raw.exceptionId === "string" ? raw.exceptionId : "";

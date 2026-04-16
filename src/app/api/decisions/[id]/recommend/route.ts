@@ -33,6 +33,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!recommendationText) {
     return NextResponse.json({ error: "recommendationText is required" }, { status: 400 });
   }
+  const { data: workspace } = await ctx.admin
+    .from("decision_workspaces")
+    .select("id")
+    .eq("id", id)
+    .eq("organization_id", ctx.orgId)
+    .maybeSingle();
+  if (!workspace) return NextResponse.json({ error: "Decision workspace not found" }, { status: 404 });
+
   const reasons = Array.isArray(body.reasons) ? body.reasons : [];
   const sourceObjectRefs = Array.isArray(body.sourceObjectRefs) ? body.sourceObjectRefs : [];
   if (reasons.length === 0) {

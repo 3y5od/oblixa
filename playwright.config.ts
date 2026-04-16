@@ -7,6 +7,9 @@ const onboardingDeep =
 const multiBrowser =
   process.env.PLAYWRIGHT_MULTI_BROWSER === "1" || process.env.PLAYWRIGHT_MULTI_BROWSER === "true";
 
+const visualMode =
+  process.env.PLAYWRIGHT_VISUAL === "1" || process.env.PLAYWRIGHT_VISUAL === "true";
+
 export default defineConfig({
   testDir: "./e2e",
   // Local: serialized for stability. CI: parallelize against a production `next start` server.
@@ -17,7 +20,14 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000",
     trace: "on-first-retry",
+    screenshot: visualMode ? "on" : "off",
   },
+  reporter: process.env.CI
+    ? [
+        ["list"],
+        ["json", { outputFile: process.env.PLAYWRIGHT_JSON_REPORT ?? "test-results/playwright-report.json" }],
+      ]
+    : [["list"]],
   projects: onboardingDeep || multiBrowser
     ? [
         { name: "chromium", use: { ...devices["Desktop Chrome"] } },

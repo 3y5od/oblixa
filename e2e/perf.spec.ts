@@ -1,51 +1,25 @@
 import { test, expect } from "@playwright/test";
 import { loginWithCredentials } from "./login-test-user";
+import { GENERATED_PUBLIC_A11Y_PATHS } from "@/lib/qa/generated-route-matrices";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=perf_checks_require_optional_auth_fixtures
 
 test.describe("performance smoke", () => {
-  test("home page loads within threshold", async ({ page }) => {
-    const start = Date.now();
-    await page.goto("/");
-    await expect(page.locator("h1")).toBeVisible();
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
-
-  test("login page loads within threshold", async ({ page }) => {
-    const start = Date.now();
-    await page.goto("/login");
-    await expect(page.locator("h1")).toBeVisible();
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
+  for (const path of GENERATED_PUBLIC_A11Y_PATHS.filter((value) =>
+    ["/", "/login", "/privacy", "/terms", "/cookies"].includes(value)
+  )) {
+    test(`${path} loads within threshold`, async ({ page }) => {
+      const start = Date.now();
+      await page.goto(path);
+      await expect(page.locator("h1")).toBeVisible();
+      const elapsed = Date.now() - start;
+      expect(elapsed).toBeLessThan(5000);
+    });
+  }
 
   test("dashboard redirect path responds within threshold", async ({ page }) => {
     const start = Date.now();
     await page.goto("/dashboard");
     await page.waitForURL(/\/login/);
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
-
-  test("privacy page loads within threshold", async ({ page }) => {
-    const start = Date.now();
-    await page.goto("/privacy");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
-
-  test("terms page loads within threshold", async ({ page }) => {
-    const start = Date.now();
-    await page.goto("/terms");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
-
-  test("cookies page loads within threshold", async ({ page }) => {
-    const start = Date.now();
-    await page.goto("/cookies");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     const elapsed = Date.now() - start;
     expect(elapsed).toBeLessThan(5000);
   });

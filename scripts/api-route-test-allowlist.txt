@@ -3,16 +3,17 @@
 # One path per line (use forward slashes).
 
 # campaigns/[id]/lifecycle-routes.test.ts
-campaigns/[id]/close/route.ts
+# meta: owner=@api-surface expiry=2027-12-31 reason=bundled lifecycle route tests cover pause/resume/start/preview mutations.
 campaigns/[id]/pause/route.ts
 campaigns/[id]/preview/route.ts
 campaigns/[id]/resume/route.ts
-campaigns/[id]/start/route.ts
 
 # security-org-scope-queries.test.ts
+# meta: owner=@security expiry=2027-12-31 reason=org-scope integration suite covers campaign record route behaviors.
 campaigns/[id]/route.ts
 
 # cron/v5/v5-crons-feature-skip.test.ts
+# meta: owner=@cron expiry=2027-12-31 reason=cron-v5 suite covers feature-gated cron handlers as a bundle.
 cron/v5/capacity-forecast-refresh/route.ts
 cron/v5/external-followup/route.ts
 cron/v5/portfolio-risk-recompute/route.ts
@@ -20,6 +21,7 @@ cron/v5/recommendation-refresh/route.ts
 cron/v5/simulation-snapshots/route.ts
 
 # intelligence/v5-intelligence-routes.test.ts
+# meta: owner=@v5-intelligence expiry=2027-12-31 reason=intelligence bundle test exercises v5 portfolio and decision intelligence endpoints.
 intelligence/decision-queue/route.ts
 intelligence/portfolio-by-counterparty/route.ts
 intelligence/portfolio-by-program/route.ts
@@ -27,16 +29,11 @@ intelligence/portfolio-signals/route.ts
 intelligence/recommendations/route.ts
 
 # v6-api-feature-gate.test.ts + security-org-scope-queries.test.ts (findings GET also needs Request URL in callers)
+# meta: owner=@v6-assurance expiry=2027-12-31 reason=v6 assurance integration tests assert auth, mode gates, and org scope across grouped handlers.
 assurance/findings/route.ts
-assurance/findings/[id]/resolve/route.ts
-assurance/checks/run/route.ts
 assurance/scorecards/route.ts
 assurance/analytics/summary/route.ts
-assurance/check-runs/[id]/route.ts
-assurance/check-runs/route.ts
-assurance/scorecards/[id]/snapshots/route.ts
 control-policies/route.ts
-control-policies/[id]/publish/route.ts
 control-policies/[id]/simulate/route.ts
 control-policies/[id]/assign/route.ts
 playbooks/route.ts
@@ -44,29 +41,27 @@ playbooks/[id]/preview/route.ts
 playbooks/[id]/run/route.ts
 playbooks/runs/[id]/route.ts
 autopilot/rules/route.ts
-autopilot/rules/[id]/dry-run/route.ts
 autopilot/rules/[id]/enable/route.ts
 autopilot/rules/[id]/route.ts
 autopilot/runs/route.ts
-autopilot/run-logs/[id]/revert/route.ts
 review-boards/route.ts
-review-boards/[id]/generate-run/route.ts
 review-boards/[id]/runs/route.ts
 review-boards/runs/[id]/route.ts
 assurance/external-links/[id]/response-pack/route.ts
 program-evolution/experiments/[id]/advance-rollout/route.ts
 segments/route.ts
 segments/[id]/recompute/route.ts
-external-actions/[token]/workflow-step/route.ts
 
 # workspace v6 org settings
 
 # program evolution (v6AssuranceCore)
+# meta: owner=@v6-program-evolution expiry=2027-12-31 reason=program evolution coverage is centralized in v6 assurance/core bundle tests.
 program-evolution/experiments/route.ts
 program-evolution/experiments/[id]/simulate/route.ts
 program-evolution/experiments/[id]/results/route.ts
 
 # cron/v6/v6-crons-feature-skip.test.ts
+# meta: owner=@cron expiry=2027-12-31 reason=cron-v6 suite validates auth + feature gate behavior for v6 cron surfaces.
 cron/v6/assurance-checks/route.ts
 cron/v6/finding-refresh/route.ts
 cron/v6/autopilot-dry-run/route.ts

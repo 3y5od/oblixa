@@ -5,6 +5,7 @@
 import { test, expect } from "@playwright/test";
 import { REFINEMENT_S10_4_UTILITY_PATHS } from "./authenticated-a11y-paths";
 import { loginWithCredentials } from "./login-test-user";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=optional_multi_workspace_fixtures
 
 const ADV_EMAIL = process.env.E2E_ADVANCED_EMAIL;
 const ADV_PASSWORD = process.env.E2E_ADVANCED_PASSWORD;
@@ -32,6 +33,22 @@ test.describe("optional Advanced workspace fixture", () => {
     expect(decisions + campaigns + programs, "Expected Decisions, Campaigns, or Programs in primary nav").toBeGreaterThan(
       0
     );
+  });
+
+  test("V8 §14.4 Advanced workspace does not surface Assurance-only primary nav", async ({ page }) => {
+    await loginWithCredentials(page, ADV_EMAIL!, ADV_PASSWORD!);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    const primary = page.getByTestId("primary-nav");
+    await expect(primary.getByRole("link", { name: /^Assurance$/ })).toHaveCount(0);
+
+    const mod = process.platform === "darwin" ? "Meta" : "Control";
+    await page.keyboard.press(`${mod}+KeyK`);
+    const dlg = page.getByRole("dialog", { name: /command palette/i });
+    await expect(dlg).toBeVisible();
+    await expect(dlg.getByRole("link", { name: /^Assurance$/ })).toHaveCount(0);
+    await page.keyboard.press("Escape");
   });
 
   test("§14 contextual smoke: renewals may surface decision CTA when Advanced module is visible", async ({

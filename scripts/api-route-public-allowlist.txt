@@ -1,0 +1,2 @@
+# meta: owner=security-team expiry=2027-01-01 reason=Intentional post-sign-out redirect endpoint
+auth/post-sign-out/route.ts

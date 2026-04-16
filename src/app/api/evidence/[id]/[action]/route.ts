@@ -38,16 +38,18 @@ export async function POST(
     .maybeSingle();
 
   if (action === "approve") {
-    await ctx.admin
+    const { error } = await ctx.admin
       .from("evidence_submissions")
       .update({ status: "approved", reviewer_id: ctx.userId, reviewed_at: new Date().toISOString() })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    await ctx.admin
+    if (error) return NextResponse.json({ error: "Failed to update submission" }, { status: 500 });
+    const { error: reqError } = await ctx.admin
       .from("evidence_requirements")
       .update({ status: "approved" })
       .eq("id", submission.requirement_id)
       .eq("organization_id", ctx.orgId);
+    if (reqError) return NextResponse.json({ error: "Failed to update requirement" }, { status: 500 });
     const cid = requirementRow?.contract_id as string | null;
     if (cid) {
       await appendCasefileEvent({
@@ -77,7 +79,8 @@ export async function POST(
 
   if (action === "reject") {
     const body = (await request.json().catch(() => ({}))) as { reason?: string };
-    await ctx.admin
+    if (body.reason && body.reason.length > 4000) return NextResponse.json({ error: "Reason is too long" }, { status: 400 });
+    const { error } = await ctx.admin
       .from("evidence_submissions")
       .update({
         status: "rejected",
@@ -87,11 +90,13 @@ export async function POST(
       })
       .eq("id", id)
       .eq("organization_id", ctx.orgId);
-    await ctx.admin
+    if (error) return NextResponse.json({ error: "Failed to update submission" }, { status: 500 });
+    const { error: reqError } = await ctx.admin
       .from("evidence_requirements")
       .update({ status: "rejected" })
       .eq("id", submission.requirement_id)
       .eq("organization_id", ctx.orgId);
+    if (reqError) return NextResponse.json({ error: "Failed to update requirement" }, { status: 500 });
     return NextResponse.json({ ok: true });
   }
 

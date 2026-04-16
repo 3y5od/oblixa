@@ -5,6 +5,16 @@ import { SEARCH_INDEX_CLASSES, workspaceModeAtLeast } from "@/lib/product-surfac
 import { getCmdkSearchJumpItems } from "@/lib/product-surface/cmdk-search-jumps";
 
 const noFlags = {} as Record<FeatureFlagKey, boolean>;
+const allFlagsOn = {
+  v5DecisionFoundation: true,
+  v5PortfolioCampaigns: true,
+  v5RelationshipLayer: true,
+  v6AssuranceCore: true,
+  v6ControlPolicies: true,
+  v6AdaptivePlaybooks: true,
+  v6ReviewBoards: true,
+  v6Segments: true,
+} as Record<FeatureFlagKey, boolean>;
 
 function surface(over: Partial<NavSurfaceInput>): NavSurfaceInput {
   return {
@@ -34,10 +44,22 @@ describe("getCmdkSearchJumpItems", () => {
 
   it("includes decisions when advanced and module not hidden", () => {
     const items = getCmdkSearchJumpItems(
-      surface({ mode: "advanced", seesAdvancedPrimaryNav: true }),
+      surface({
+        mode: "advanced",
+        seesAdvancedPrimaryNav: true,
+        featureFlags: allFlagsOn,
+      }),
       ""
     );
     expect(items.some((i) => i.href === "/decisions")).toBe(true);
+  });
+
+  it("omits decisions when advanced mode role cannot see advanced primary nav", () => {
+    const items = getCmdkSearchJumpItems(
+      surface({ mode: "advanced", seesAdvancedPrimaryNav: false }),
+      ""
+    );
+    expect(items.some((i) => i.href === "/decisions")).toBe(false);
   });
 
   it("omits decisions when advanced module hidden", () => {
@@ -46,6 +68,7 @@ describe("getCmdkSearchJumpItems", () => {
         mode: "advanced",
         seesAdvancedPrimaryNav: true,
         advancedModulesHidden: ["decisions"],
+        featureFlags: allFlagsOn,
       }),
       ""
     );
@@ -72,6 +95,7 @@ describe("getCmdkSearchJumpItems", () => {
         mode: "advanced",
         seesAdvancedPrimaryNav: true,
         advancedModulesHidden: ["campaigns"],
+        featureFlags: allFlagsOn,
       }),
       ""
     );
@@ -85,10 +109,23 @@ describe("getCmdkSearchJumpItems", () => {
         seesAdvancedPrimaryNav: true,
         seesAssuranceNav: true,
         assuranceModulesHidden: ["findings"],
+        featureFlags: allFlagsOn,
       }),
       ""
     );
     expect(items.some((i) => i.href === "/assurance/findings")).toBe(false);
+  });
+
+  it("omits assurance search jumps when assurance nav is not visible", () => {
+    const items = getCmdkSearchJumpItems(
+      surface({
+        mode: "assurance",
+        seesAdvancedPrimaryNav: true,
+        seesAssuranceNav: false,
+      }),
+      ""
+    );
+    expect(items.some((i) => i.href.startsWith("/assurance/"))).toBe(false);
   });
 
   it("Core mode exposes exactly the globalSearch index classes at core floor (V7 §11.2)", () => {
@@ -112,6 +149,7 @@ describe("getCmdkSearchJumpItems", () => {
         role: "admin",
         seesAdvancedPrimaryNav: true,
         seesAssuranceNav: true,
+        featureFlags: allFlagsOn,
       }),
       ""
     );
@@ -127,6 +165,7 @@ describe("getCmdkSearchJumpItems", () => {
         role: "admin",
         seesAdvancedPrimaryNav: true,
         seesAssuranceNav: true,
+        featureFlags: allFlagsOn,
       }),
       ""
     );

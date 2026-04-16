@@ -98,7 +98,8 @@ export async function getContractIdsForNoticeDeadlineWindow(
     .eq("contracts.organization_id", orgId)
     .eq("status", "approved")
     .in("field_name", ["renewal_date", "notice_window"])
-    .not("field_value", "is", null);
+    .not("field_value", "is", null)
+    .limit(5000);
 
   const byContract = new Map<string, { renewal?: string; notice?: string }>();
   for (const row of data ?? []) {
@@ -159,7 +160,8 @@ export async function getContractIdsForDeadlinePreset(
     .eq("contracts.organization_id", orgId)
     .eq("status", "approved")
     .eq("field_name", cfg.field)
-    .not("field_value", "is", null);
+    .not("field_value", "is", null)
+    .limit(5000);
 
   const today = startOfDay(new Date());
   const windowEnd = addDays(today, cfg.days);
@@ -187,7 +189,8 @@ export async function getContractIdsMatchingFieldSearch(
     .select("contract_id, contracts!inner(organization_id)")
     .eq("contracts.organization_id", orgId)
     .neq("status", "rejected")
-    .ilike("field_value", pattern);
+    .ilike("field_value", pattern)
+    .limit(5000);
 
   const ids = new Set<string>();
   for (const row of data ?? []) {

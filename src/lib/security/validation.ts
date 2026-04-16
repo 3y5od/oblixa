@@ -14,6 +14,7 @@ export function isContractStoragePathSafe(path: string | null | undefined): bool
   if (path == null || typeof path !== "string") return false;
   const p = path.trim();
   if (p.length === 0 || p.length > 1024) return false;
+  if (p.includes("%")) return false;
   if (p.includes("..") || p.includes("\\") || p.includes("\0")) return false;
   const parts = p.split("/");
   if (parts.length !== 3) return false;

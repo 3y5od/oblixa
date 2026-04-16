@@ -53,7 +53,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     )
     .eq("token", token)
     .maybeSingle();
-  if (linkError) return NextResponse.json({ error: linkError.message }, { status: 400 });
+  if (linkError) {
+    console.error("[api/external-actions/submit] link query error:", linkError.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
 
   if (link.requires_reauth) {
@@ -84,7 +87,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       .eq("organization_id", link.organization_id);
     return NextResponse.json({ error: "External action link expired" }, { status: 410 });
   }
-  if (link.one_time && link.status === "submitted") {
+  if (link.status === "submitted") {
     return NextResponse.json({ error: "External action already submitted" }, { status: 409 });
   }
 
@@ -127,9 +130,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     })
     .eq("id", link.id)
     .eq("organization_id", link.organization_id)
+    .neq("status", "submitted")
     .select("id, status, submitted_at")
-    .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    .maybeSingle();
+  if (error) {
+    console.error("[api/external-actions/submit] update error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "External action already submitted" }, { status: 409 });
+  }
 
   await admin.from("external_action_events").insert({
     organization_id: link.organization_id,

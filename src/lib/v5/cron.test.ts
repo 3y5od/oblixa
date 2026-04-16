@@ -24,11 +24,19 @@ describe("v5/cron helpers", () => {
   });
 
   it("listOrganizationIds maps organization rows", async () => {
+    const range = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: [{ id: "org-1" }, { id: "org-2" }],
+      })
+      .mockResolvedValueOnce({
+        data: [],
+      });
     const admin = {
       from: vi.fn(() => ({
         select: vi.fn(() => ({
-          limit: vi.fn(async () => ({
-            data: [{ id: "org-1" }, { id: "org-2" }],
+          order: vi.fn(() => ({
+            range,
           })),
         })),
       })),

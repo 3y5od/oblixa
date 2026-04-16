@@ -123,7 +123,11 @@ export async function autoAttachProgramsForContract(input: {
 
   const candidates = (programs ?? [])
     .filter((p) => programMatchesContract(contract, p.default_routing_json))
-    .sort((a, b) => rulePriority(b.default_routing_json) - rulePriority(a.default_routing_json));
+    .sort((a, b) => {
+      const diff = rulePriority(b.default_routing_json) - rulePriority(a.default_routing_json);
+      if (diff !== 0) return diff;
+      return String(a.id).localeCompare(String(b.id));
+    });
 
   for (const program of candidates) {
     const programId = String(program.id);
@@ -236,7 +240,7 @@ export async function backfillAutoAttachPrograms(input: {
       "id, organization_id, contract_type, source_system, counterparty, region, intake_source, owner_id, created_by"
     )
     .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false })
+    .order("id")
     .limit(400);
 
   let scanned = 0;

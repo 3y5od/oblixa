@@ -4,7 +4,12 @@ import { nowIso } from "@/lib/v5/api";
 import { deliverReviewBoardRunNotifications } from "@/lib/v6/review-board-notifications";
 
 export async function assembleReviewBoardPacket(admin: AdminClient, orgId: string, boardId: string) {
-  const [{ data: findings }, { data: scorecards }, { data: campaigns }, { data: decisions }] = await Promise.all([
+  const [
+    { data: findings, error: findingsErr },
+    { data: scorecards, error: scorecardsErr },
+    { data: campaigns, error: campaignsErr },
+    { data: decisions, error: decisionsErr },
+  ] = await Promise.all([
     admin
       .from("assurance_findings")
       .select("id, title, severity, status, finding_type, updated_at")
@@ -33,6 +38,10 @@ export async function assembleReviewBoardPacket(admin: AdminClient, orgId: strin
       .order("due_at", { ascending: true })
       .limit(15),
   ]);
+  if (findingsErr) console.error("assembleReviewBoardPacket: findings query failed", findingsErr.message);
+  if (scorecardsErr) console.error("assembleReviewBoardPacket: scorecards query failed", scorecardsErr.message);
+  if (campaignsErr) console.error("assembleReviewBoardPacket: campaigns query failed", campaignsErr.message);
+  if (decisionsErr) console.error("assembleReviewBoardPacket: decisions query failed", decisionsErr.message);
 
   const agenda_json = {
     generated_at: nowIso(),
@@ -138,12 +147,16 @@ export function createReviewBoard(
 }
 
 export async function generateReviewBoardRun(admin: AdminClient, orgId: string, boardId: string, userId: string) {
-  const { data: board } = await admin
+  const { data: board, error: boardErr } = await admin
     .from("review_boards")
     .select("id, name, subscriptions_json")
     .eq("organization_id", orgId)
     .eq("id", boardId)
     .maybeSingle();
+
+  if (boardErr || !board) {
+    return { data: null, error: boardErr ?? { message: "board_not_found" } };
+  }
 
   const assembled = await assembleReviewBoardPacket(admin, orgId, boardId);
 

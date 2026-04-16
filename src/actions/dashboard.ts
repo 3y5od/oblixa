@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
+import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { hasRoleCapability } from "@/lib/access-control";
 
 const VALID_KEYS = new Set(["now", "next", "risk"]);
@@ -8,17 +8,17 @@ const VALID_KEYS = new Set(["now", "next", "risk"]);
 export async function setDashboardQueuePinForm(formData: FormData) {
   const queueKey = String(formData.get("queueKey") ?? "").trim();
   const pinned = String(formData.get("pinned") ?? "") === "1";
-  if (!VALID_KEYS.has(queueKey)) return;
+  if (!VALID_KEYS.has(queueKey)) return { error: "Invalid queue key" };
 
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) return { error: "Not authenticated" };
 
-  const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return;
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership) return { error: "No membership found" };
 
   const { data: workflowSettings } = await admin
     .from("organization_workflow_settings")
@@ -30,7 +30,7 @@ export async function setDashboardQueuePinForm(formData: FormData) {
     capability: "settings_manage",
     rolePolicyJson: (workflowSettings?.role_policy_json as Record<string, unknown> | null) ?? null,
   });
-  if (!canManageSettings) return;
+  if (!canManageSettings) return { error: "Access denied" };
 
   const { data: existing } = await admin
     .from("organization_workflow_settings")
@@ -42,7 +42,7 @@ export async function setDashboardQueuePinForm(formData: FormData) {
     boolean
   >;
   pins[queueKey] = pinned;
-  await admin.from("organization_workflow_settings").upsert(
+  const { error } = await admin.from("organization_workflow_settings").upsert(
     {
       organization_id: membership.organization_id,
       dashboard_pins_json: pins,
@@ -50,4 +50,9 @@ export async function setDashboardQueuePinForm(formData: FormData) {
     },
     { onConflict: "organization_id", ignoreDuplicates: false }
   );
+  if (error) {
+    console.error("[dashboard] upsert workflow settings:", error.message);
+    return { error: "Failed to update dashboard pins" };
+  }
+  return { success: true };
 }

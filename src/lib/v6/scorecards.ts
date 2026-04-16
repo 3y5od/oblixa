@@ -101,7 +101,7 @@ async function countOpenFindingsTouchingContractIds(
     .select("linked_entities_json")
     .eq("organization_id", orgId)
     .in("status", ["open", "in_review"])
-    .limit(250);
+    .limit(1000);
   let n = 0;
   for (const row of data ?? []) {
     const le = (row as { linked_entities_json?: unknown }).linked_entities_json;
@@ -354,5 +354,11 @@ export async function recomputeScorecards(admin: AdminClient, orgId: string) {
   }
 
   const errs = results.map((r) => (r as { error?: { message?: string } }).error).filter(Boolean);
-  return { data: results, error: errs[0] ?? null };
+  return {
+    data: results,
+    errors: errs,
+    error: errs.length > 0
+      ? { message: errs.map((e) => e?.message).filter(Boolean).join("; ") }
+      : null,
+  };
 }

@@ -90,10 +90,22 @@ export function isUnauthorizedStatus(status: number): boolean {
  * Network failures throw (callers should catch and show a message + optional Sentry).
  */
 export async function fetchJson(input: RequestInfo | URL, init?: RequestInit): Promise<ReadJsonResult> {
+  const timeoutMs = 20_000;
   const nextInit: RequestInit = {
     credentials: "same-origin",
     ...init,
   };
-  const res = await fetch(input, nextInit);
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let res: Response;
+  if (nextInit.signal) {
+    res = await fetch(input, nextInit);
+  } else {
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    res = await fetch(input, { ...nextInit, signal: controller.signal });
+  }
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
   return readResponseJson(res);
 }

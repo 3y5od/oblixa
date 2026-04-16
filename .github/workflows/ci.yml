@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   # Split so static analysis + unit tests overlap with build + E2E (wall-clock win on CI).
-  quality_static:
+  quality_static_security:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -31,6 +33,10 @@ jobs:
       - name: npm audit (high+)
         run: npm audit --audit-level=high
 
+      - name: Dependency risk summary (telemetry)
+        if: ${{ always() }}
+        run: npm run report:dependency-risk
+
       - name: Security static greps (src/, strict)
         run: npm run check:security-static:strict:grep
 
@@ -45,6 +51,12 @@ jobs:
 
       - name: Onboarding QA matrix (tests + strict lib/onboarding glob)
         run: npm run check:onboarding-qa-matrix
+
+      - name: Authenticated A11Y path-matrix integrity
+        run: npm run check:authenticated-a11y-matrix
+
+      - name: UI surface consistency contracts
+        run: npm run check:ui-surface-consistency && npm run check:page-heading-contract && npm run check:shell-landmarks && npm run check:route-state-coverage
 
       - name: Onboarding stale cron env documented
         run: npm run check:onboarding-stale-env-parity
@@ -73,35 +85,162 @@ jobs:
       - name: Migration prefix guard
         run: npm run check:migrations
 
-      - name: API route test coverage (colocated or allowlist)
-        run: npm run check:api-route-tests
+      - name: API route auth contract
+        run: npm run check:api-route-auth-contract
+
+      - name: API route admin org-scope contract
+        run: npm run check:api-route-admin-org-scope
 
       - name: Server action exports (no sync exports in use server)
         run: npm run check:server-action-exports
 
-      - name: API route rate limit coverage (createAdminClient)
+      - name: Server action auth contract
+        run: npm run check:server-action-auth-contract
+
+      - name: Server action org-scope contract
+        run: npm run check:server-action-org-scope
+
+      - name: API route test coverage (explicit guardrail)
+        run: npm run check:api-route-tests
+
+      - name: API route parity report (telemetry)
+        run: npm run report:api-route-tests
+
+      - name: Owner metadata guardrails
+        run: npm run check:owner-metadata
+
+      - name: Skip governance report (telemetry)
+        run: npm run report:test-skip-governance
+
+      - name: Skip governance ratchet
+        run: npm run check:test-skip-governance
+
+      - name: E2E skip baseline delta report (telemetry)
+        run: npm run report:e2e:skip-baseline
+
+      - name: E2E skip baseline ratchet (strict)
+        run: npm run check:e2e:skip-baseline
+
+      - name: Hardening debt inventory (telemetry)
+        run: npm run report:hardening-debt
+
+      - name: Hardening debt ratchet
+        run: npm run check:hardening-debt-ratchet
+
+      - name: Check integrity meta-governance
+        run: npm run check:checks-integrity-meta
+
+      - name: Branch-protection drift check
+        run: npm run check:branch-protection-drift
+
+      - name: Config drift check
+        run: npm run check:config-drift
+
+      - name: Security env contract
+        run: npm run check:security-env-contract
+
+      - name: Required security checkset
+        run: npm run check:required-security-checkset
+
+      - name: AI context redaction
+        run: npm run check:ai-context-redaction
+
+      - name: AI prompt injection guards
+        run: npm run check:ai-prompt-injection-guards
+
+      - name: AI tool call authz
+        run: npm run check:ai-tool-call-authz
+
+      - name: Token security quality
+        run: npm run check:token-security-quality
+
+      - name: Report redaction contract
+        run: npm run check:report-redaction-contract
+
+      - name: Feature-flag security bypass
+        run: npm run check:feature-flag-security-bypass
+
+      - name: Rate-limit distribution safety
+        run: npm run check:rate-limit-distribution-safety
+
+      - name: Idempotency policy
+        run: npm run check:idempotency-policy
+
+      - name: Job lock guards
+        run: npm run check:job-lock-guards
+
+      - name: Timeout budget guards
+        run: npm run check:timeout-budget-guards
+
+      - name: Governance owner summary (telemetry)
+        run: npm run report:governance-owners
+
+      - name: Governance auditability report (telemetry)
+        run: npm run report:governance-auditability
+
+      - name: API rate-limit coverage (explicit guardrail)
         run: npm run check:api-route-rate-limit-coverage
 
-      - name: Cron routes reference shared cron auth
+      - name: API rate-limit coverage report (telemetry)
+        run: npm run report:api-route-rate-limit-coverage
+
+      - name: Cron route auth coverage (explicit guardrail)
         run: npm run check:cron-route-auth
 
-      - name: API workspace eligibility (strict)
-        run: npm run check:api-workspace-eligibility:strict
+      - name: Integration contract surface report (telemetry)
+        run: npm run report:integration-contract-surface
 
-      - name: V7 cross-surface href audit (strict)
-        run: npm run check:v7-hrefs:strict
+      - name: Integration contract resilience check
+        run: npm run check:integration-contract-resilience
 
-      - name: V7 search vocabulary vs registry labels
-        run: npm run check:v7-vocabulary
+      - name: Concurrency hotspot report (telemetry)
+        run: npm run report:concurrency-hotspots
 
-      - name: Route inventory drift
-        run: npm run check:route-inventory
+      - name: Concurrency hotspot ratchet
+        run: npm run check:concurrency-hotspots-ratchet
 
-      - name: Plan IA coherence
-        run: npm run check:plan-ia
+      - name: Policy conformance score (telemetry)
+        run: npm run report:policy-conformance-score
 
-      - name: Refinement API route coverage
-        run: npm run check:refinement-api-coverage
+      - name: Control efficacy report (telemetry)
+        run: npm run report:control-efficacy
+
+      - name: Artifact integrity report (telemetry)
+        run: npm run report:artifact-integrity
+
+      - name: Artifact integrity checks
+        run: npm run check:artifact-integrity
+
+      - name: Dependency sunset readiness (telemetry)
+        run: npm run report:dependency-sunset-readiness
+
+      - name: Canary blast-radius report (telemetry)
+        run: npm run report:canary-blast-radius
+
+      - name: Chaos readiness report (telemetry)
+        run: npm run report:chaos-readiness
+
+      - name: Incident readiness checks
+        run: npm run check:incident-readiness:strict
+
+      - name: Change-impact check mapping (telemetry)
+        run: node scripts/check-ci-change-impact.mjs
+
+      - name: CI provenance report (telemetry)
+        if: ${{ always() }}
+        run: npm run report:ci-provenance
+
+      - name: SBOM generation
+        run: npm run sbom
+
+      - name: Lockfile integrity drift
+        run: npm run check:lockfile-integrity-drift
+
+      - name: SBOM integrity
+        run: npm run check:sbom-integrity
+
+      - name: Release artifact provenance
+        run: npm run check:release-artifact-provenance
 
       - name: Outbound events + client hash + copy audits (verify parity)
         run: npm run check:ci-verify-extras
@@ -115,7 +254,19 @@ jobs:
       - name: TypeScript
         run: npm run typecheck
 
+      - name: Type/lint ratchet
+        run: npm run check:type-lint-ratchet
+
+      - name: Server action complexity ratchet
+        run: npm run check:server-action-complexity
+
+      - name: Type/lint strictness telemetry
+        if: ${{ always() }}
+        run: npm run report:type-lint-strictness
+
   quality_unit:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -129,10 +280,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Vitest (with v5/security coverage thresholds)
+      - name: Vitest logic + UI coverage
         run: npm run test:coverage
 
   quality_security:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -146,7 +299,7 @@ jobs:
         run: pip install "semgrep>=1.90.0"
 
       - name: Semgrep (OSS + Oblixa rules)
-        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --error .
+        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --config semgrep/oblixa-v8-surface.yml --error .
 
       - name: OSV dependency scan
         uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
@@ -159,10 +312,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   quality_build_e2e:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+      PLAYWRIGHT_JSON_REPORT: test-results/playwright-report.json
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
     steps:
@@ -195,11 +351,91 @@ jobs:
           test -n "$E2E_TEST_EMAIL" || (echo "Missing E2E_TEST_EMAIL secret" && exit 1)
           test -n "$E2E_TEST_PASSWORD" || (echo "Missing E2E_TEST_PASSWORD secret" && exit 1)
 
-      - name: Playwright smoke + accessibility
-        run: npm run test:e2e
+      - name: Playwright smoke
+        run: npm run test:e2e:smoke
+
+      - name: Playwright accessibility lanes
+        run: npm run test:e2e:a11y
+
+      - name: Playwright visual baselines (public/external)
+        run: npm run test:e2e:visual
+
+      - name: Playwright stability telemetry
+        if: ${{ always() }}
+        run: npm run report:e2e:stability
+
+      - name: Playwright stability thresholds
+        if: ${{ always() }}
+        run: npm run check:e2e:stability-threshold
+
+      - name: CI provenance report (telemetry)
+        if: ${{ always() }}
+        run: npm run report:ci-provenance
+
+  quality_static_surface:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Surface suite pipeline
+        run: npm run pipeline:surface:suite
+      - name: Operational UI strict audit
+        run: npm run audit:ui-operational:strict
+      - name: Core terminology strict audit
+        run: npm run audit:core-terminology:strict
+
+  quality_static_governance:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Governance checks
+        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity
+      - name: Workflow and command integrity
+        run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction
+
+  quality_static_codehealth:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Static codehealth pipeline
+        run: npm run pipeline:ci:static
+      - name: Bundle budget guard
+        run: npm run check:bundle-budget
+      - name: Import boundary and cycle checks
+        run: npm run check:import-boundaries && npm run check:dependency-cycles && npm run check:script-complexity-ratchet && npm run check:feature-flag-lifecycle && npm run check:frontend-component-complexity && npm run check:server-action-complexity
+      - name: Script runtime tests
+        run: npm run test:scripts
 
   # Optional: set repository secret E2E_ONBOARDING_FULL to a non-empty value to run deep onboarding + multi-browser Playwright.
   quality_e2e_onboarding_full:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 40
     if: ${{ secrets.E2E_ONBOARDING_FULL != '' }}
@@ -244,15 +480,21 @@ jobs:
       - name: Onboarding deep E2E (multi-browser)
         run: npm run test:e2e:onboarding-deep
 
+      - name: Multi-browser public smoke
+        run: npm run test:e2e:multi-browser
+
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:
     runs-on: ubuntu-latest
-    needs: [quality_static, quality_unit, quality_security, quality_build_e2e]
+    # Legacy parity string for guard tests: needs: [quality_static, quality_unit, quality_security, quality_build_e2e]
+    needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security, quality_build_e2e]
     steps:
       - name: All checks passed
         run: echo "ok"
 
   runtime_comprehensive_pass:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: quality
@@ -282,6 +524,10 @@ jobs:
           COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
           COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
         run: npm run check:comprehensive-pass
+
+      - name: CI provenance report (telemetry)
+        if: ${{ always() }}
+        run: npm run report:ci-provenance
 
       - name: Healthchecks success
         if: ${{ success() && secrets.HC_RUNTIME_COMPREHENSIVE_PING != '' }}

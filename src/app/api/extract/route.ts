@@ -170,6 +170,7 @@ export async function POST(request: Request) {
       await finishExtractionJob(
         freshAdmin,
         contractId,
+        orgId,
         false,
         "Extraction failed unexpectedly. Please try again."
       );
@@ -241,7 +242,7 @@ export async function POST(request: Request) {
             res.status >= 500
               ? "The extraction service is temporarily unavailable. Please try again."
               : "Could not start extraction. Please try again.";
-          await finishExtractionJob(admin, contractId, false, friendly);
+          await finishExtractionJob(admin, contractId, orgId, false, friendly);
         }
       } catch (err) {
         console.error("[api/extract] worker fetch error:", err);
@@ -284,6 +285,7 @@ export async function POST(request: Request) {
           await finishExtractionJob(
             freshAdmin,
             contractId,
+            orgId,
             false,
             "Extraction failed unexpectedly. Please try again."
           );

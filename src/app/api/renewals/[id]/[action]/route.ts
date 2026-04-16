@@ -109,7 +109,7 @@ export async function POST(
     const packetId = String(body.packetId ?? "").trim();
     if (!packetId) return NextResponse.json({ error: "packetId is required" }, { status: 400 });
 
-    const { error } = await ctx.admin
+    const { data: updatedPacket, error } = await ctx.admin
       .from("renewal_decision_packets")
       .update({
         recommendation: body.recommendation ?? null,
@@ -117,8 +117,11 @@ export async function POST(
         status: "recommended",
       })
       .eq("id", packetId)
-      .eq("organization_id", ctx.orgId);
+      .eq("organization_id", ctx.orgId)
+      .eq("checkpoint_id", checkpoint.id)
+      .select("id");
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!updatedPacket || updatedPacket.length === 0) return NextResponse.json({ error: "Decision packet not found" }, { status: 404 });
 
     await ctx.admin
       .from("contract_renewal_checkpoints")

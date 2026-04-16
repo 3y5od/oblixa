@@ -35,6 +35,8 @@ type ProgramDefinition = {
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
+const MAX_BUNDLES = 200;
+
 function addDaysIso(days: number): string {
   return new Date(Date.now() + Math.max(0, days) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
@@ -176,7 +178,12 @@ export async function applyProgramToContract(input: {
   const firstObligations: string[] = [];
   const firstRenewals: string[] = [];
 
-  for (const task of definition.taskBundles ?? []) {
+  const cappedTaskBundles = (definition.taskBundles ?? []).slice(0, MAX_BUNDLES);
+  const cappedObligationBundles = (definition.obligationBundles ?? []).slice(0, MAX_BUNDLES);
+  const cappedApprovalSequences = (definition.approvalSequences ?? []).slice(0, MAX_BUNDLES);
+  const cappedRenewalCheckpoints = (definition.renewalCheckpoints ?? []).slice(0, MAX_BUNDLES);
+
+  for (const task of cappedTaskBundles) {
     const assigneeId = resolveAssigneeByTeam({
       teamKey: task.teamKey,
       overrideJson,
@@ -208,7 +215,7 @@ export async function applyProgramToContract(input: {
     }
   }
 
-  for (const obligation of definition.obligationBundles ?? []) {
+  for (const obligation of cappedObligationBundles) {
     const ownerId = resolveAssigneeByTeam({
       teamKey: "obligations",
       overrideJson,
@@ -236,7 +243,7 @@ export async function applyProgramToContract(input: {
       firstObligations.push(String(row.id));
       generated.obligations += 1;
       if (evidenceTemplateRow) {
-        const dueAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+        const dueAt = new Date(Date.now() + (obligation.dueOffsetDays ?? 14) * 24 * 60 * 60 * 1000).toISOString();
         const { data: reqRow } = await input.admin
           .from("evidence_requirements")
           .insert({
@@ -265,7 +272,7 @@ export async function applyProgramToContract(input: {
     }
   }
 
-  for (const approval of definition.approvalSequences ?? []) {
+  for (const approval of cappedApprovalSequences) {
     const approvalAssignee =
       String(overrideJson.approver_id ?? "").trim() ||
       String(defaultRoutingJson.default_approver_id ?? "").trim() ||
@@ -293,7 +300,7 @@ export async function applyProgramToContract(input: {
     }
   }
 
-  for (const checkpoint of definition.renewalCheckpoints ?? []) {
+  for (const checkpoint of cappedRenewalCheckpoints) {
     const { data: row } = await input.admin
       .from("contract_renewal_checkpoints")
       .insert({

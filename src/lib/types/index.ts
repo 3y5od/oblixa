@@ -137,7 +137,7 @@ export interface ContractObligation {
   updated_at: string;
 }
 
-export type RenewalCheckpointStatus = "pending" | "completed" | "skipped";
+export type RenewalCheckpointStatus = "pending" | "in_progress" | "completed" | "skipped";
 
 export interface ContractRenewalCheckpoint {
   id: string;

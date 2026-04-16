@@ -5,6 +5,7 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
+const enforceIdempotency = vi.fn(async () => null as Response | null);
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -19,6 +20,10 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
 
 describe("POST /api/decisions/[id]/approve", () => {
@@ -26,6 +31,7 @@ describe("POST /api/decisions/[id]/approve", () => {
     vi.clearAllMocks();
     mockedV5Guard.mockReturnValue(null);
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
   });
 
   it("returns 403 when decision foundation is disabled", async () => {
@@ -102,6 +108,28 @@ describe("POST /api/decisions/[id]/approve", () => {
     expect(res.status).toBe(409);
   });
 
+  it("returns idempotency duplicate response", async () => {
+    getApiAuthContext.mockResolvedValue({
+      admin: { from: vi.fn() },
+      userId: "u1",
+      orgId: "o1",
+      role: "admin",
+    });
+    enforceIdempotency.mockResolvedValueOnce(
+      NextResponse.json({ error: "Duplicate request blocked by idempotency key" }, { status: 409 })
+    );
+    const { POST } = await import("@/app/api/decisions/[id]/approve/route");
+    const res = await POST(
+      new Request("http://localhost/api/decisions/dec-1/approve", {
+        method: "POST",
+        headers: { "x-idempotency-key": "dup-key-1234", "content-type": "application/json" },
+        body: "{}",
+      }),
+      { params: Promise.resolve({ id: "dec-1" }) }
+    );
+    expect(res.status).toBe(409);
+  });
+
   it("approves open decision and records event", async () => {
     const insert = vi.fn(async () => ({ error: null }));
     const updated = { id: "dec-1", status: "approved", updated_at: "2026-01-02T00:00:00Z" };
@@ -123,8 +151,10 @@ describe("POST /api/decisions/[id]/approve", () => {
               update: vi.fn(() => ({
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    select: vi.fn(() => ({
-                      maybeSingle: vi.fn(async () => ({ data: updated, error: null })),
+                    neq: vi.fn(() => ({
+                      select: vi.fn(() => ({
+                        maybeSingle: vi.fn(async () => ({ data: updated, error: null })),
+                      })),
                     })),
                   })),
                 })),

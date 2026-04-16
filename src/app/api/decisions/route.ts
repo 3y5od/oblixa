@@ -30,7 +30,10 @@ export async function GET() {
     .eq("organization_id", ctx.orgId)
     .order("updated_at", { ascending: false })
     .limit(200);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/decisions] GET error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
   return NextResponse.json({ decisions: data ?? [] });
 }
 
@@ -87,7 +90,10 @@ export async function POST(request: Request) {
     })
     .select("id, title, decision_type, status, due_at, required_inputs_json")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[api/decisions] POST error:", error.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+  }
 
   await ctx.admin.from("decision_workspace_events").insert({
     organization_id: ctx.orgId,

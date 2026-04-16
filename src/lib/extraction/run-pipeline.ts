@@ -73,7 +73,7 @@ export async function runExtractionPipeline(params: {
 
   const fail = async (message: string) => {
     const safe = mapExtractionFailureMessage(message);
-    await finishExtractionJob(admin, contractId, false, safe);
+    await finishExtractionJob(admin, contractId, organizationId, false, safe);
   };
 
   try {
@@ -277,9 +277,15 @@ export async function runExtractionPipeline(params: {
       const raw =
         err instanceof Error ? err.message : "AI extraction request failed";
       console.error("OpenAI extraction error:", err);
-      captureServerException(err, { extra: { contractId, rawMessage: raw } });
+      captureServerException(err, {
+        extra: {
+          contractId,
+          failureStage: "openai",
+          mappedMessage: mapAiExtractionError(raw),
+        },
+      });
       const friendly = mapAiExtractionError(raw);
-      await finishExtractionJob(admin, contractId, false, friendly);
+      await finishExtractionJob(admin, contractId, organizationId, false, friendly);
       console.info(
         JSON.stringify({
           event: "extraction.failed",
@@ -436,7 +442,7 @@ export async function runExtractionPipeline(params: {
       },
     });
 
-    await finishExtractionJob(admin, contractId, true);
+    await finishExtractionJob(admin, contractId, organizationId, true);
 
     console.info(
       JSON.stringify({
@@ -465,11 +471,17 @@ export async function runExtractionPipeline(params: {
         contractId,
         userId,
         durationMs: Date.now() - pipelineStartedAt,
-        message: raw,
+        reason: "pipeline",
       })
     );
-    captureServerException(err, { extra: { contractId } });
+    captureServerException(err, {
+      extra: {
+        contractId,
+        failureStage: "pipeline",
+        mappedMessage: mapExtractionFailureMessage(raw),
+      },
+    });
     const safe = mapExtractionFailureMessage(raw);
-    await finishExtractionJob(admin, contractId, false, safe);
+    await finishExtractionJob(admin, contractId, organizationId, false, safe);
   }
 }

@@ -10,6 +10,7 @@ import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 interface ContractTableProps {
   contracts: Contract[];
@@ -44,9 +45,9 @@ export function ContractTable({ contracts, reviewStats, showContinuityLinks, foo
   return (
     <div className="ui-table-shell">
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse text-[14px]">
+        <table data-testid={surfaceTestIds.contractsTable} className="min-w-full border-collapse text-[14px]">
           <thead className="sticky top-0 z-[1] bg-surface">
-            <tr className="border-b border-zinc-200/80">
+            <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)]">
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5 first:pl-6 lg:pl-8">
                 Contract
               </th>
@@ -68,18 +69,18 @@ export function ContractTable({ contracts, reviewStats, showContinuityLinks, foo
               return (
                 <tr
                   key={contract.id}
-                  className="ui-table-row border-b border-[var(--border-subtle)]/90 odd:bg-surface even:bg-zinc-50/20 last:border-0"
+                  className="ui-table-row odd:bg-[color:color-mix(in_oklab,var(--surface)_82%,transparent)] even:bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] last:border-0"
                 >
                   <td className="whitespace-nowrap px-5 py-3.5 first:pl-6 lg:pl-8">
                     <Link
                       href={`/contracts/${contract.id}`}
-                      className="block max-w-[22rem] truncate text-[14px] font-semibold text-zinc-900 transition-colors hover:text-[var(--accent)]"
+                      className="block max-w-[22rem] truncate text-[14px] font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)]"
                       title={contract.title}
                     >
                       {contract.title}
                     </Link>
                     {contract.contract_type && (
-                      <p className="mt-0.5 text-[12px] font-medium text-zinc-400">
+                      <p className="mt-0.5 text-[12px] font-medium text-[var(--text-tertiary)]">
                         {contract.contract_type}
                       </p>
                     )}
@@ -87,7 +88,7 @@ export function ContractTable({ contracts, reviewStats, showContinuityLinks, foo
                       <ContractContinuityLinks contractId={contract.id} />
                     ) : null}
                   </td>
-                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] text-zinc-600">
+                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] text-[var(--text-secondary)]">
                     {contract.counterparty || "—"}
                   </td>
                   <td className="whitespace-nowrap px-5 py-3.5">
@@ -102,33 +103,33 @@ export function ContractTable({ contracts, reviewStats, showContinuityLinks, foo
                           <span
                             className={
                               stats.pending > 0
-                                ? "font-semibold text-amber-800"
-                                : "font-medium text-emerald-800"
+                                ? "font-semibold text-[var(--warning-ink)]"
+                                : "font-medium text-[var(--success-ink)]"
                             }
                           >
                             {stats.pending > 0
                               ? `${stats.pending} pending`
                               : "Complete"}
                           </span>
-                          <span className="text-[12px] text-zinc-400">
+                          <span className="text-[12px] text-[var(--text-tertiary)]">
                             {stats.approved}/{stats.total} fields
                           </span>
                         </div>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-[var(--text-tertiary)]">—</span>
                       )}
                     </td>
                   )}
-                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] text-zinc-600">
+                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] text-[var(--text-secondary)]">
                     {contract.owner?.full_name || contract.owner?.email || "—"}
                   </td>
-                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] tabular-nums text-zinc-500">
+                  <td className="whitespace-nowrap px-5 py-3.5 text-[13px] tabular-nums text-[var(--text-tertiary)]">
                     {format(new Date(contract.created_at), "MMM d, yyyy")}
                   </td>
                   <td className="whitespace-nowrap px-5 py-3.5 pr-6 text-right lg:pr-8">
                     <Link
                       href={`/contracts/${contract.id}`}
-                      className="inline-flex rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                      className="inline-flex rounded-[0.9rem] p-2 text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] hover:text-[var(--text-primary)]"
                       aria-label={`Open ${contract.title}`}
                     >
                       <ChevronRight size={18} strokeWidth={1.75} aria-hidden />

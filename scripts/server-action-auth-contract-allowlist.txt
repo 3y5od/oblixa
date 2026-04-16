@@ -1,0 +1,6 @@
+# meta: owner=@ai expiry=2026-12-31 reason=auth_and_membership_handled_via_product_surface_context_helpers
+src/actions/product-surface-settings.ts
+# meta: owner=@ai expiry=2026-12-31 reason=auth_and_membership_handled_via_product_surface_context_helpers
+src/actions/onboarding-calibration.ts
+# meta: owner=@ai expiry=2026-12-31 reason=auth_and_membership_handled_via_product_surface_context_helpers
+src/actions/demo.ts

@@ -138,11 +138,13 @@ export default async function AssurancePage() {
         <div>
           <p className="ui-eyebrow">Assurance command center</p>
           <h1 className="ui-display-title mt-2">Continuous assurance</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">Detect drift, route interventions, and measure effect.</p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Detect drift, route interventions, and measure operational effect across the governed assurance surface.
+          </p>
         </div>
       </header>
       {v6Core && analytics ? (
-        <section className="space-y-4">
+        <section className="ui-page-shell space-y-4">
           <div>
             <p className="ui-eyebrow">Activity</p>
             <h2 className="ui-section-title mt-2 text-xl">Assurance metrics</h2>
@@ -211,7 +213,7 @@ export default async function AssurancePage() {
               ) : null}
             </div>
           ) : (
-            <p className="text-xs text-zinc-500">No assurance check runs recorded yet.</p>
+            <p className="text-xs text-[var(--text-secondary)]">No assurance check runs recorded yet.</p>
           )}
           <p className="flex flex-wrap gap-2 text-xs">
             <Link className="ui-link" href="/assurance/findings">
@@ -234,8 +236,8 @@ export default async function AssurancePage() {
               </>
             ) : null}
           </p>
-          <details className="ui-soft-details text-xs text-zinc-600">
-            <summary className="cursor-pointer font-semibold text-zinc-800">Diagnostics</summary>
+          <details className="ui-soft-details text-xs text-[var(--text-secondary)]">
+            <summary className="cursor-pointer font-semibold text-[var(--text-primary)]">Diagnostics</summary>
             <ul className="ui-compact-list mt-2">
               <li className="ui-compact-list-item">
                 Incremental runs (30d):{" "}

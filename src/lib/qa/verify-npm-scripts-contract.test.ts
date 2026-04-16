@@ -16,6 +16,25 @@ function scriptNamesFromChain(chain: string): string[] {
 }
 
 describe("package.json composite scripts reference defined npm scripts", () => {
+  it("defines the UI QA contract scripts", () => {
+    const scripts = loadPackageScripts();
+    for (const name of [
+      "test:logic",
+      "test:logic:watch",
+      "test:logic:coverage",
+      "test:ui",
+      "test:ui:watch",
+      "test:ui:a11y",
+      "test:ui:coverage",
+      "check:ui-surface-consistency",
+      "check:page-heading-contract",
+      "check:shell-landmarks",
+      "check:route-state-coverage",
+    ] as const) {
+      expect(scripts[name], `Missing script ${name}`).toBeDefined();
+    }
+  });
+
   it("verify chain", () => {
     const scripts = loadPackageScripts();
     const names = scriptNamesFromChain(scripts.verify ?? "");

@@ -29,6 +29,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "action must be accept or dismiss" }, { status: 400 });
   }
 
+  const { data: prior } = await ctx.admin
+    .from("operational_recommendations")
+    .select("accepted, dismissed")
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .maybeSingle();
+
   const patch =
     action === "accept"
       ? { accepted: true, dismissed: false }
@@ -44,6 +51,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!data) return NextResponse.json({ error: "Recommendation not found" }, { status: 404 });
 
+  const alreadyInDesiredState =
+    action === "accept" ? prior?.accepted === true : prior?.dismissed === true;
+
   await ctx.admin.from("audit_events").insert({
     organization_id: ctx.orgId,
     user_id: ctx.userId,
@@ -55,12 +65,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     },
   });
 
-  await incrementOrgV5SignalQuality({
-    admin: ctx.admin,
-    organizationId: ctx.orgId,
-    increments:
-      action === "accept" ? { v5_recommendation_accepted: 1 } : { v5_recommendation_dismissed: 1 },
-  });
+  if (!alreadyInDesiredState) {
+    await incrementOrgV5SignalQuality({
+      admin: ctx.admin,
+      organizationId: ctx.orgId,
+      increments:
+        action === "accept" ? { v5_recommendation_accepted: 1 } : { v5_recommendation_dismissed: 1 },
+    });
+  }
 
   return NextResponse.json({ recommendation: data });
 }

@@ -115,7 +115,8 @@ export async function GET(request: Request) {
 
   const { data, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[api/events] query error:", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   const v6 = await getV6OrgSettingsJson(admin, organizationId);

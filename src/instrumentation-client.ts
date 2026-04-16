@@ -4,13 +4,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { getSentryRelease } from "@/lib/observability/sentry-release";
 import { scrubSentryEvent } from "@/lib/observability/sentry-scrub";
-
-function numEnv(key: string, fallback: number): number {
-  const raw = process.env[key]?.trim();
-  if (raw == null || raw === "") return fallback;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : fallback;
-}
+import { parseSampleRate } from "@/lib/observability/sentry-sampling";
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN?.trim();
 
@@ -21,21 +15,15 @@ if (dsn) {
     dsn,
     release: getSentryRelease(),
     beforeSend: scrubSentryEvent,
-    tracesSampleRate: numEnv(
-      "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
-      isProd ? 0.1 : 1
-    ),
+    tracesSampleRate: parseSampleRate(process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE, isProd ? 0.1 : 1),
     enableLogs: !isProd,
     sendDefaultPii: false,
     integrations: [Sentry.replayIntegration()],
-    replaysSessionSampleRate: numEnv(
-      "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
+    replaysSessionSampleRate: parseSampleRate(
+      process.env.NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE,
       isProd ? 0.05 : 0.1
     ),
-    replaysOnErrorSampleRate: numEnv(
-      "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
-      1
-    ),
+    replaysOnErrorSampleRate: parseSampleRate(process.env.NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE, 1),
   });
 }
 

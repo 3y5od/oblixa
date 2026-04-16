@@ -24,6 +24,7 @@ import { CheckCircle2, Eye, Files } from "lucide-react";
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 function buildFilterUrl(params: Record<string, string | undefined>) {
   const search = new URLSearchParams();
@@ -258,14 +259,23 @@ export default async function ContractsPage(props: {
 
   const pagePendingReview = contracts.filter((c) => c.status === "pending_review").length;
   const pageActive = contracts.filter((c) => c.status === "active").length;
+  const activeFilters = [
+    searchParams.search ? `Search: ${searchParams.search}` : null,
+    searchParams.status ? `Status: ${searchParams.status}` : null,
+    searchParams.owner ? `Owner: filtered` : null,
+    searchParams.region ? `Region: ${searchParams.region}` : null,
+    searchParams.deadline ? `Date: ${searchParams.deadline}` : null,
+  ].filter((value): value is string => value != null);
 
   return (
     <div className="ui-page-stack">
       <header className="ui-page-header">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Contracts</h1>
-          <p className="ui-muted-tight mt-2 max-w-xl">Contract records, queue states, and ownership filters.</p>
+          <p className="ui-muted-tight mt-2 max-w-2xl">
+            Contract records, queue states, ownership filters, and saved operating views.
+          </p>
         </div>
         <div className="ui-page-actions">
           <Link href="/contracts/new" className="ui-btn-primary px-5 py-2.5">
@@ -285,7 +295,7 @@ export default async function ContractsPage(props: {
               <summary className="ui-btn-secondary cursor-pointer list-none px-4 py-2.5 text-[13px] [&::-webkit-details-marker]:hidden">
                 More actions
               </summary>
-              <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 w-64 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)]">
+              <div className="absolute left-0 top-[calc(100%+0.4rem)] z-20 w-64 max-w-[calc(100vw-3rem)] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)] sm:left-auto sm:right-0">
                 <ul className="divide-y divide-[var(--border-subtle)] text-sm">
                   {visibleMoreActionLinks.map((row) => (
                     <li key={row.href}>
@@ -301,10 +311,13 @@ export default async function ContractsPage(props: {
         </div>
       </header>
 
-      <section className="space-y-3">
+      <section data-testid={surfaceTestIds.contractsPageSnapshot} className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Table</p>
           <h2 className="ui-section-title mt-2 text-xl">Page snapshot</h2>
+          <p className="ui-muted-tight mt-1 text-[12px]">
+            Filtered portfolio volume, review pressure, and live agreements on the current page.
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <OperationalSummaryCard
@@ -340,9 +353,9 @@ export default async function ContractsPage(props: {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-[20rem_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
         <aside className="space-y-6 xl:sticky xl:top-6 xl:h-fit">
-          <div className="ui-card p-4 md:p-5">
+          <div className="ui-page-shell p-4 md:p-5">
             <form className="space-y-3.5 md:space-y-4" action="/contracts" method="get">
               <div>
                 <label htmlFor="contract-search" className="ui-label-caps">
@@ -390,7 +403,7 @@ export default async function ContractsPage(props: {
               </button>
             </form>
 
-            <div className="mt-4 border-t border-zinc-100 pt-3.5 md:mt-5 md:pt-4">
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
               <p className="ui-label-caps mb-2">Status</p>
               <div className="flex flex-wrap gap-1.5">
                 {statuses.map((s) => (
@@ -412,7 +425,7 @@ export default async function ContractsPage(props: {
               </div>
             </div>
 
-            <div className="mt-4 border-t border-zinc-100 pt-3.5 md:mt-5 md:pt-4">
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
               <p className="ui-label-caps mb-2">Region</p>
               <div className="flex flex-wrap gap-1.5">
                 {["", "NA", "EMEA", "APAC", "LATAM"].map((region) => (
@@ -438,7 +451,7 @@ export default async function ContractsPage(props: {
             </div>
 
             {members.length > 1 && (
-              <div className="mt-4 border-t border-zinc-100 pt-3.5 md:mt-5 md:pt-4">
+              <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
                 <p className="ui-label-caps mb-2">Owner</p>
                 <div className="flex flex-wrap gap-1.5">
                   <Link
@@ -480,7 +493,7 @@ export default async function ContractsPage(props: {
             )}
           </div>
 
-          <div className="ui-card p-4 md:p-5">
+          <div className="ui-page-shell p-4 md:p-5">
             <form action={createContractsSavedView} className="space-y-3">
               <input type="hidden" name="organizationId" value={orgId} />
               <input type="hidden" name="search" value={searchParams.search || ""} />
@@ -506,43 +519,43 @@ export default async function ContractsPage(props: {
               </button>
             </form>
             {savedViews.length > 0 && (
-              <div className="mt-4 space-y-2 border-t border-zinc-100 pt-3.5 md:pt-4">
+              <div className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3.5 md:pt-4">
                 {savedViews.map((view) => (
-                  <div key={view.id} className="rounded-xl border border-zinc-200/80 bg-zinc-50/60 p-2.5">
+                  <div key={view.id} className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] p-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <Link href={view.href} className="truncate text-[12px] font-semibold text-zinc-800 hover:text-zinc-950">
+                      <Link href={view.href} className="truncate text-[12px] font-semibold text-[var(--text-primary)] hover:text-[var(--accent-strong)]">
                         {view.name}
                       </Link>
-                      <form action={deleteSavedView.bind(null, view.id)}>
+                      <form action={deleteSavedView.bind(null, view.id) as never}>
                         <button
                           type="submit"
                           aria-label={`Delete saved view ${view.name}`}
-                          className="rounded-full px-1.5 py-0.5 text-[11px] text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-800"
+                          className="rounded-full px-1.5 py-0.5 text-[11px] text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
                         >
                           x
                         </button>
                       </form>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive)}>
+                      <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive) as never}>
                         <button
                           type="submit"
                           className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
                             view.weeklyActive
-                              ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                              : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                              ? "bg-[var(--success-soft)] text-[var(--success-ink)] hover:brightness-95"
+                              : "bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
                           }`}
                         >
                           {view.weeklyActive ? "Weekly on" : "Weekly off"}
                         </button>
                       </form>
-                      <form action={setSavedViewMonthlySummary.bind(null, view.id, !view.monthlyActive)}>
+                      <form action={setSavedViewMonthlySummary.bind(null, view.id, !view.monthlyActive) as never}>
                         <button
                           type="submit"
                           className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
                             view.monthlyActive
-                              ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                              : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                              ? "bg-[var(--info-soft)] text-[var(--info-ink)] hover:brightness-95"
+                              : "bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
                           }`}
                         >
                           {view.monthlyActive ? "Monthly on" : "Monthly off"}
@@ -550,14 +563,14 @@ export default async function ContractsPage(props: {
                       </form>
                     </div>
                     {(view.weeklyActive || view.monthlyActive) && (
-                      <form action={setSavedViewWeeklyRecipients.bind(null, view.id)} className="mt-2 flex gap-1.5">
+                      <form action={setSavedViewWeeklyRecipients.bind(null, view.id) as never} className="mt-2 flex gap-1.5">
                         <input
                           name="recipientsCsv"
                           defaultValue={view.recipientsCsv}
                           placeholder="extra@company.com"
                           className="ui-input-compact h-7 text-[11px]"
                         />
-                        <button type="submit" className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-700">
+                        <button type="submit" className="ui-btn-secondary rounded-full px-2 py-0.5 text-[11px]">
                           Save
                         </button>
                       </form>
@@ -570,13 +583,24 @@ export default async function ContractsPage(props: {
         </aside>
 
         <section className="space-y-3.5 md:space-y-4">
-          <div className="ui-card p-3.5 md:p-4">
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-600 md:gap-2 md:text-[12px]">
+          <div className="ui-toolbar p-3.5 md:p-4">
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] md:gap-2 md:text-[12px]">
               <span className="ui-chip">Rows: {contractTotal}</span>
               <span className="ui-chip">Page {page}</span>
               {searchParams.status ? <span className="ui-chip">Status: {searchParams.status}</span> : null}
               {searchParams.deadline ? <span className="ui-chip">Date: {searchParams.deadline}</span> : null}
-              <Link href="/contracts/review" className="ui-link ml-auto text-[11px] md:text-[12px]">
+              {activeFilters.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {activeFilters.map((filter) => (
+                    <span key={filter} className="ui-chip">
+                      {filter}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="ui-chip">No active filters</span>
+              )}
+              <Link href="/contracts/review" className="ui-link text-[11px] md:ml-auto md:text-[12px]">
                 Open review queue
               </Link>
             </div>

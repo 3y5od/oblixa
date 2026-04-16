@@ -18,6 +18,10 @@ function getResendClient(): Resend | null {
   return resend;
 }
 
+function sanitizeSubject(s: string): string {
+  return s.replace(/[\r\n]+/g, " ").trim();
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -67,7 +71,7 @@ export async function sendReminderEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject: `${urgency}: ${label} for "${contractTitle}" in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`,
+    subject: sanitizeSubject(`${urgency}: ${label} for "${contractTitle}" in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`),
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
         <h2 style="color: #111827; font-size: 18px;">Contract deadline approaching</h2>
@@ -120,7 +124,7 @@ export async function sendReviewBoardPacketEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject,
+    subject: sanitizeSubject(subject),
     html: htmlBody,
   });
   return { error };
@@ -185,7 +189,7 @@ export async function sendSavedViewSummaryEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject: `Weekly summary: ${viewNameForEmail} (${itemCount})`,
+    subject: sanitizeSubject(`Weekly summary: ${viewNameForEmail} (${itemCount})`),
     html: `
       <div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
         <h2 style="color:#111827;font-size:18px;margin-bottom:8px;">Oblixa weekly summary</h2>
@@ -272,7 +276,7 @@ export async function sendReportPackDigestEmail({
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
-    subject: `Report pack: ${packNameForEmail}`,
+    subject: sanitizeSubject(`Report pack: ${packNameForEmail}`),
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
         <h2 style="color:#111827;font-size:18px;">${safeName}</h2>

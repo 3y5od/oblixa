@@ -49,13 +49,15 @@ export async function createFindingEvent(
   actorUserId: string,
   payloadJson: Record<string, unknown> = {}
 ) {
-  await admin.from("assurance_finding_events").insert({
+  const { error } = await admin.from("assurance_finding_events").insert({
     organization_id: orgId,
     finding_id: findingId,
     event_type: eventType,
     actor_user_id: actorUserId,
     payload_json: { ...payloadJson, at: nowIso() },
   });
+  if (error) console.error("createFindingEvent insert failed:", error);
+  return { error };
 }
 
 export async function runAssuranceChecks(admin: AdminClient, orgId: string, actorUserId: string | null) {

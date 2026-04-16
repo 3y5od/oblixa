@@ -24,6 +24,7 @@ import {
   faqItems,
 } from "@/components/landing/landing-content";
 import { MarketingSiteFooter, MarketingSiteHeader } from "@/components/landing/marketing-site-chrome";
+import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 
 const features = [
   {
@@ -104,7 +105,7 @@ const valuePoints = [
 ] as const;
 
 const landingSectionNavClassName =
-  "inline-flex min-h-9 items-center rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 no-underline transition-colors first:pl-0 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:min-h-10 sm:px-2.5";
+  "inline-flex min-h-9 items-center rounded-full px-2.5 py-1.5 text-sm font-medium text-[var(--text-secondary)] no-underline transition-colors first:pl-0 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_66%,transparent)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:min-h-10 sm:px-3";
 
 export function LandingPage() {
   return (
@@ -131,20 +132,20 @@ export function LandingPage() {
         }
       />
 
-      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <section
           id="hero"
-          className="border-b border-[var(--border-subtle)] bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.09),transparent)] px-4 py-16 sm:px-6 sm:py-24 scroll-mt-36"
+          className="border-b border-[var(--border-subtle)] bg-[radial-gradient(circle_at_top,var(--canvas-glow),transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--surface)_88%,white),transparent)] px-4 py-16 sm:px-6 sm:py-24 scroll-mt-36"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-600">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
                 {heroEyebrow}
               </p>
-              <h1 className="mx-auto mt-5 max-w-4xl text-balance text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl md:text-[2.9rem] md:leading-[1.1]">
+              <h1 className="mx-auto mt-5 max-w-4xl text-balance text-4xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-5xl md:text-[4.15rem] md:leading-[1.02]">
                 {heroTitle}
               </h1>
-              <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-zinc-600 sm:text-lg">
+              <p className="mx-auto mt-5 max-w-3xl text-pretty text-base text-[var(--text-secondary)] sm:text-lg">
                 {heroSubcopy}
               </p>
             </div>
@@ -160,19 +161,19 @@ export function LandingPage() {
                 {ctaSecondaryLabel}
               </Link>
             </div>
-            <p className="mt-4 text-center text-xs text-zinc-600">{riskReducerLine}</p>
-            <div className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
+            <p className="mt-4 text-center text-xs text-[var(--text-secondary)]">{riskReducerLine}</p>
+            <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
               {valuePoints.map(({ icon: Icon, title, description }) => (
-                <div key={title} className="ui-card-quiet px-4 py-4 text-left">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-surface text-zinc-700">
+                <div key={title} className="ui-card-quiet px-5 py-5 text-left shadow-[var(--shadow-1)]">
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_82%,white)] text-[var(--accent-strong)]">
                     <Icon size={16} aria-hidden />
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-zinc-900">{title}</p>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-600">{description}</p>
+                  <p className="mt-4 text-sm font-semibold text-[var(--text-primary)]">{title}</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">{description}</p>
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-center text-xs text-zinc-600">
+            <p className="mt-6 text-center text-xs text-[var(--text-secondary)]">
               Upload -&gt; extract -&gt; review -&gt; approve -&gt; automate with confidence.
             </p>
           </div>
@@ -183,27 +184,27 @@ export function LandingPage() {
           className="scroll-mt-36 px-4 py-16 sm:px-6 sm:py-20"
           aria-labelledby="capabilities-heading"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h2
               id="capabilities-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
             >
               Purpose-built capabilities for contract operations
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600 sm:text-base">
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--text-secondary)] sm:text-base">
               Focused scope, high accountability: the critical workflows teams run weekly.
             </p>
             <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {features.map(({ icon: Icon, title, description }) => (
                 <li
                   key={title}
-                  className="ui-card group p-6 transition-[border-color] motion-safe:duration-[var(--ui-duration)] motion-safe:ease-[var(--ui-ease-out)] hover:border-zinc-300/90"
+                  className="ui-card ui-card-hover group p-6"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-zinc-50/90 text-zinc-700 transition-colors motion-safe:duration-[var(--ui-duration)] group-hover:border-indigo-200/60 group-hover:bg-indigo-50/40">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_82%,white)] text-[var(--accent-strong)] transition-colors motion-safe:duration-[var(--ui-duration)]">
                     <Icon size={20} strokeWidth={1.75} aria-hidden />
                   </div>
-                  <h3 className="mt-4 text-sm font-semibold text-zinc-900">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{description}</p>
+                  <h3 className="mt-4 text-sm font-semibold text-[var(--text-primary)]">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{description}</p>
                 </li>
               ))}
             </ul>
@@ -215,21 +216,21 @@ export function LandingPage() {
           className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-16 sm:px-6 sm:py-20"
           aria-labelledby="how-heading"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h2
               id="how-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
             >
               How it works
             </h2>
             <ol className="mt-12 grid gap-8 sm:grid-cols-3">
               {steps.map((s) => (
-                <li key={s.n} className="relative text-center">
-                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-surface text-sm font-bold text-zinc-900">
+                <li key={s.n} className="ui-card text-center p-6">
+                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_44%,transparent)] text-sm font-bold text-[var(--accent-strong)]">
                     {s.n}
                   </span>
-                  <h3 className="mt-4 text-sm font-semibold text-zinc-900">{s.title}</h3>
-                  <p className="mt-2 text-sm text-zinc-600">{s.body}</p>
+                  <h3 className="mt-4 text-sm font-semibold text-[var(--text-primary)]">{s.title}</h3>
+                  <p className="mt-2 text-sm text-[var(--text-secondary)]">{s.body}</p>
                 </li>
               ))}
             </ol>
@@ -241,21 +242,21 @@ export function LandingPage() {
           className="scroll-mt-36 px-4 py-16 sm:px-6 sm:py-20"
           aria-labelledby="use-cases-heading"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h2
               id="use-cases-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
             >
               Use cases teams run every week
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600 sm:text-base">
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--text-secondary)] sm:text-base">
               Start narrow, expand once ownership and data quality are steady.
             </p>
             <ul className="mt-10 grid gap-6 sm:grid-cols-3">
               {useCaseItems.map((u) => (
                 <li key={u.title} className="ui-card-quiet p-5">
-                  <h3 className="text-sm font-semibold text-zinc-900">{u.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{u.body}</p>
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">{u.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{u.body}</p>
                 </li>
               ))}
             </ul>
@@ -267,35 +268,35 @@ export function LandingPage() {
           className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-14 sm:px-6 sm:py-16"
           aria-labelledby="objections-heading"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h2
               id="objections-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl"
+              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
             >
               Practical answers to common concerns
             </h2>
             <ul className="mt-10 grid gap-6 sm:grid-cols-3">
               {objectionBullets.map((o) => (
-                <li key={o.title} className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-5">
-                  <h3 className="text-sm font-semibold text-zinc-900">{o.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{o.body}</p>
+                <li key={o.title} className="ui-card p-5">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">{o.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{o.body}</p>
                 </li>
               ))}
             </ul>
-            <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-zinc-600">{antiGoalSummary}</p>
+            <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-[var(--text-secondary)]">{antiGoalSummary}</p>
           </div>
         </section>
 
         <section className="px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="cta-mid-heading">
-          <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-10 sm:px-8">
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <div className="ui-card-hero px-6 py-10 sm:px-8">
               <h2
                 id="cta-mid-heading"
-                className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl"
+                className="text-xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-2xl"
               >
                 Move your next renewal cycle into a controlled workflow
               </h2>
-              <p className="mt-3 text-sm text-zinc-600 sm:text-base">
+              <p className="mt-3 text-sm text-[var(--text-secondary)] sm:text-base">
                 Start with a narrow rollout: ingest active agreements, validate key fields, and assign
                 ownership for upcoming milestones.
               </p>
@@ -307,9 +308,9 @@ export function LandingPage() {
                 <span className="ui-chip">Calendar exports</span>
               </div>
             </div>
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-10 text-center sm:px-8 lg:text-left">
-              <h3 className="text-lg font-semibold tracking-tight text-zinc-950">Ready to get started?</h3>
-              <p className="mt-2 text-sm text-zinc-600">
+            <div className="ui-card px-6 py-10 text-center sm:px-8 lg:text-left">
+              <h3 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">Ready to get started?</h3>
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">
                 Create your workspace and upload the first contract in minutes.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col">
@@ -329,16 +330,16 @@ export function LandingPage() {
           className="scroll-mt-36 border-t border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-10 sm:px-6"
           aria-labelledby="trust-heading"
         >
-          <div className="mx-auto max-w-5xl rounded-2xl border border-[var(--border-subtle)] bg-surface px-6 py-6 sm:px-8">
-            <h2 id="trust-heading" className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-600">
+          <div className="mx-auto max-w-6xl rounded-[1.75rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-6 py-6 shadow-[var(--shadow-1)] sm:px-8">
+            <h2 id="trust-heading" className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
               Trust and controls
             </h2>
-            <p className="mt-3 text-sm text-zinc-600 sm:text-base">{trustSummary}</p>
+            <p className="mt-3 text-sm text-[var(--text-secondary)] sm:text-base">{trustSummary}</p>
             <p className="mt-4 text-sm">
-              <Link href="/security" className="ui-link font-medium text-zinc-800">
+              <Link href="/security" className="ui-link font-medium">
                 Read the security overview
               </Link>{" "}
-              <span className="text-zinc-600">for how we approach access, integrations, and reporting issues.</span>
+              <span className="text-[var(--text-secondary)]">for how we approach access, integrations, and reporting issues.</span>
             </p>
           </div>
         </section>
@@ -349,25 +350,25 @@ export function LandingPage() {
           aria-labelledby="faq-heading"
         >
           <div className="mx-auto max-w-3xl">
-            <h2 id="faq-heading" className="text-center text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">
+            <h2 id="faq-heading" className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
               Frequently asked questions
             </h2>
-            <p className="mx-auto mt-3 text-center text-sm text-zinc-600">
+            <p className="mx-auto mt-3 text-center text-sm text-[var(--text-secondary)]">
               Straightforward answers about scope, AI, and how teams use Oblixa.
             </p>
             <div className="mt-10 space-y-3">
               {faqItems.map((item) => (
                 <details
                   key={item.question}
-                  className="group rounded-xl border border-[var(--border-subtle)] bg-surface px-4 py-3 sm:px-5"
+                  className="group rounded-[1.25rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] px-4 py-3 shadow-[var(--shadow-1)] sm:px-5"
                 >
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-[var(--text-primary)] [&::-webkit-details-marker]:hidden">
                     <span className="flex items-center justify-between gap-3">
                       {item.question}
-                      <span className="text-zinc-400 motion-safe:transition-transform group-open:rotate-180">▼</span>
+                      <span className="text-[var(--text-tertiary)] motion-safe:transition-transform group-open:rotate-180">▼</span>
                     </span>
                   </summary>
-                  <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-sm leading-relaxed text-zinc-600">
+                  <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
                     {item.answer}
                   </p>
                 </details>
@@ -377,14 +378,14 @@ export function LandingPage() {
         </section>
 
         <section
-          className="border-t border-[var(--border-subtle)] bg-[radial-gradient(ellipse_100%_80%_at_50%_-30%,rgba(30,58,95,0.06),transparent)] px-4 py-14 sm:px-6 sm:py-16"
+          className="border-t border-[var(--border-subtle)] bg-[radial-gradient(circle_at_top,var(--canvas-glow),transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--surface)_84%,white),transparent)] px-4 py-14 sm:px-6 sm:py-16"
           aria-labelledby="cta-final-heading"
         >
           <div className="mx-auto max-w-2xl text-center">
-            <h2 id="cta-final-heading" className="text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+            <h2 id="cta-final-heading" className="text-xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-2xl">
               Start with one workspace and prove the workflow
             </h2>
-            <p className="mt-3 text-sm text-zinc-600 sm:text-base">
+            <p className="mt-3 text-sm text-[var(--text-secondary)] sm:text-base">
               Upload a contract, validate the fields that matter, and assign owners for the next milestones.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

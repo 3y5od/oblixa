@@ -9,7 +9,7 @@ function matchNumField(spec: string, value: number): boolean {
     return s.split(",").some((part) => matchNumField(part.trim(), value));
   }
   if (/^\d+$/.test(s)) return Number(s) === value;
-  return true;
+  return false;
 }
 
 /** day-of-week: 0-6 Sun-Sat, also accepts 7 as Sunday */

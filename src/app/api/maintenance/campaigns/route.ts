@@ -39,16 +39,22 @@ export async function POST(request: Request) {
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-  const seedRows =
-    Array.isArray(body.seedContractIds) && body.seedContractIds.length > 0
-      ? body.seedContractIds.map((contractId) => ({
-          organization_id: ctx.orgId,
-          campaign_id: campaign.id,
-          contract_id: contractId,
-          status: "pending",
-        }))
-      : [];
-  if (seedRows.length > 0) {
+  let validSeedIds: string[] = [];
+  if (Array.isArray(body.seedContractIds) && body.seedContractIds.length > 0) {
+    const { data: validContracts } = await ctx.admin
+      .from("contracts")
+      .select("id")
+      .in("id", body.seedContractIds)
+      .eq("organization_id", ctx.orgId);
+    validSeedIds = (validContracts ?? []).map((c) => c.id);
+  }
+  if (validSeedIds.length > 0) {
+    const seedRows = validSeedIds.map((contractId) => ({
+      organization_id: ctx.orgId,
+      campaign_id: campaign.id,
+      contract_id: contractId,
+      status: "pending",
+    }));
     await ctx.admin.from("maintenance_campaign_rows").insert(seedRows);
   }
 

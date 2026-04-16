@@ -99,7 +99,7 @@ export async function buildRelationshipKeyMetrics(
       .select("id")
       .eq("organization_id", organizationId)
       .in("status", ["active", "paused"])
-      .limit(500),
+      .limit(2000),
     admin
       .from("contract_renewal_checkpoints")
       .select("id", { count: "exact", head: true })

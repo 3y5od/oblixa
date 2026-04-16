@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format, isValid } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
 import type { Contract, ExtractedField } from "@/lib/types";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface UpcomingAction {
   contract: Pick<Contract, "id" | "title">;
@@ -38,24 +39,22 @@ function rationaleForField(fieldName: string): string {
 export function UpcomingActions({ actions }: UpcomingActionsProps) {
   if (actions.length === 0) {
     return (
-      <section className="ui-card flex min-h-[220px] flex-col justify-center px-6 py-8 text-center md:min-h-[240px] md:px-8 md:py-10">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-          Calendar
-        </p>
-        <h2 className="mt-2 ui-section-title text-base">No upcoming deadlines</h2>
-        <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-zinc-500 md:text-sm">
-          When notice, renewal, or end dates are approved, they appear here with
-          a clear countdown.
-        </p>
+      <section>
+        <EmptyState
+          eyebrow="Calendar"
+          title="No upcoming deadlines"
+          copy="When notice, renewal, or end dates are approved, they appear here with a clear countdown."
+          className="min-h-[220px] md:min-h-[240px]"
+        />
       </section>
     );
   }
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-[var(--border-subtle)] bg-zinc-50/30 px-4 py-3.5 md:px-6 md:py-4">
+      <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-6 md:py-4">
         <h2 className="ui-section-title">Upcoming actions</h2>
-        <p className="mt-1 text-[11px] text-zinc-500 md:text-[12px]">
+        <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
           Approved operational dates in the next 90 days
         </p>
       </div>
@@ -64,24 +63,24 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
           <li key={action.field.id}>
             <Link
               href={`/contracts/${action.contract.id}#field-${action.field.id}`}
-              className="ui-transition-surface group flex items-start gap-3.5 px-4 py-3.5 hover:bg-zinc-50/70 md:gap-4 md:px-6 md:py-4"
+              className="ui-transition-surface group flex items-start gap-3.5 px-4 py-3.5 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] md:gap-4 md:px-6 md:py-4"
             >
               <span
                 className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${urgencyRing(action.daysUntil)}`}
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold leading-snug text-zinc-900 group-hover:text-[var(--accent)] md:text-[15px]">
+                <p className="text-[14px] font-semibold leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-strong)] md:text-[15px]">
                   {action.contract.title}
                 </p>
-                <p className="mt-0.5 text-[13px] text-zinc-500">
-                  <span className="text-zinc-700">
+                <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
+                  <span className="text-[var(--text-primary)]">
                     {action.field.field_name.replace(/_/g, " ")}
                   </span>
-                  <span className="text-zinc-300"> · </span>
+                  <span className="text-[var(--text-tertiary)]"> · </span>
                   {formatFieldDateLabel(action.field.field_value)}
                 </p>
-                <p className="mt-1 text-[11px] text-zinc-400">
+                <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
                   {rationaleForField(action.field.field_name)}
                 </p>
               </div>
@@ -92,7 +91,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                       ? "text-rose-700"
                       : action.daysUntil <= 30
                         ? "text-amber-800"
-                        : "text-zinc-500"
+                        : "text-[var(--text-secondary)]"
                   }`}
                 >
                   {action.daysUntil === 0
@@ -103,7 +102,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                 </span>
                 <ArrowUpRight
                   size={16}
-                  className="text-zinc-300 transition-colors group-hover:text-[var(--accent)]"
+                  className="text-[var(--text-tertiary)] transition-colors group-hover:text-[var(--accent-strong)]"
                   strokeWidth={1.75}
                   aria-hidden
                 />

@@ -95,18 +95,24 @@ export async function POST(request: Request) {
   if (body.action === "approve_evidence") {
     const submissionId = String(body.id ?? "").trim();
     if (!submissionId) return NextResponse.json({ error: "id is required" }, { status: 400 });
-    await admin
+    const { data: submission, error } = await admin
       .from("evidence_submissions")
       .update({ status: "approved", reviewed_at: new Date().toISOString() })
       .eq("id", submissionId)
-      .eq("organization_id", organizationId);
+      .eq("organization_id", organizationId)
+      .select("id")
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!submission) {
+      return NextResponse.json({ error: "Evidence submission not found for organization" }, { status: 404 });
+    }
     return NextResponse.json({ ok: true, submissionId });
   }
 
   if (body.action === "reject_evidence") {
     const submissionId = String(body.id ?? "").trim();
     if (!submissionId) return NextResponse.json({ error: "id is required" }, { status: 400 });
-    await admin
+    const { data: submission, error } = await admin
       .from("evidence_submissions")
       .update({
         status: "rejected",
@@ -114,7 +120,13 @@ export async function POST(request: Request) {
         rejection_reason: String(body.reason ?? "").trim() || "Rejected via integration callback",
       })
       .eq("id", submissionId)
-      .eq("organization_id", organizationId);
+      .eq("organization_id", organizationId)
+      .select("id")
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!submission) {
+      return NextResponse.json({ error: "Evidence submission not found for organization" }, { status: 404 });
+    }
     return NextResponse.json({ ok: true, submissionId });
   }
 
@@ -124,7 +136,7 @@ export async function POST(request: Request) {
     if (!approvalId || !delegateUserId) {
       return NextResponse.json({ error: "id and delegateUserId are required" }, { status: 400 });
     }
-    await admin
+    const { data: approval, error } = await admin
       .from("contract_approvals")
       .update({
         approver_id: delegateUserId,
@@ -132,14 +144,20 @@ export async function POST(request: Request) {
         escalation_at: null,
       })
       .eq("id", approvalId)
-      .eq("organization_id", organizationId);
+      .eq("organization_id", organizationId)
+      .select("id")
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!approval) {
+      return NextResponse.json({ error: "Approval not found for organization" }, { status: 404 });
+    }
     return NextResponse.json({ ok: true, approvalId, delegateUserId });
   }
 
   if (body.action === "resolve_exception") {
     const exceptionId = String(body.id ?? "").trim();
     if (!exceptionId) return NextResponse.json({ error: "id is required" }, { status: 400 });
-    await admin
+    const { data: exception, error } = await admin
       .from("exceptions")
       .update({
         status: "resolved",
@@ -147,7 +165,13 @@ export async function POST(request: Request) {
         resolved_at: new Date().toISOString(),
       })
       .eq("id", exceptionId)
-      .eq("organization_id", organizationId);
+      .eq("organization_id", organizationId)
+      .select("id")
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!exception) {
+      return NextResponse.json({ error: "Exception not found for organization" }, { status: 404 });
+    }
     return NextResponse.json({ ok: true, exceptionId });
   }
 

@@ -79,6 +79,17 @@ describe("POST /api/decisions/[id]/stakeholders", () => {
               })),
             };
           }
+          if (table === "organization_members") {
+            return {
+              select: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  eq: vi.fn(() => ({
+                    maybeSingle: vi.fn(async () => ({ data: { id: "m1" }, error: null })),
+                  })),
+                })),
+              })),
+            };
+          }
           if (table === "decision_workspace_stakeholders") {
             return {
               insert: vi.fn(() => ({

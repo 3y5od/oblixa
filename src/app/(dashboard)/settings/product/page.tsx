@@ -196,7 +196,7 @@ export default async function WorkspaceProductSettingsPage() {
       <section className="ui-card p-6 md:p-8">
         <form
           id="workspace-product-settings-form"
-          action={updateWorkspaceProductSurfaceForm}
+          action={updateWorkspaceProductSurfaceForm as never}
           className="space-y-6"
         >
           <div>
@@ -489,7 +489,7 @@ export default async function WorkspaceProductSettingsPage() {
             Save product settings
           </button>
         </form>
-        <form action={resetWorkspaceProductSurfaceDefaultsForm} className="mt-4">
+        <form action={resetWorkspaceProductSurfaceDefaultsForm as never} className="mt-4">
           <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
             Reset to workspace defaults
           </button>
@@ -517,7 +517,7 @@ export default async function WorkspaceProductSettingsPage() {
           reminders map to operational due work; weekly summaries cover saved-view digests; automation rules
           cover channel hooks that often accompany Advanced workflows.
         </p>
-        <form action={updateProductEmailNotificationCategoriesForm} className="mt-4 space-y-3">
+        <form action={updateProductEmailNotificationCategoriesForm as never} className="mt-4 space-y-3">
           {(
             [
               { key: "reminder_due", label: "Contract field reminders" },

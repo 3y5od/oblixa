@@ -175,16 +175,21 @@ export async function startExtractionJob(
 export async function finishExtractionJob(
   admin: Admin,
   contractId: string,
+  organizationId: string,
   success: boolean,
   errorMessage?: string
 ) {
   const now = new Date().toISOString();
-  await admin
+  const { error } = await admin
     .from("contract_extraction_jobs")
     .update({
       status: success ? "succeeded" : "failed",
       last_error: success ? null : (errorMessage ?? "Extraction failed"),
       completed_at: now,
     })
-    .eq("contract_id", contractId);
+    .eq("contract_id", contractId)
+    .eq("organization_id", organizationId);
+  if (error) {
+    console.error("[extraction-job] finishExtractionJob update failed:", error.message);
+  }
 }

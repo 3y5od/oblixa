@@ -29,11 +29,17 @@ export async function POST(
 
   const { data: reqRow } = await ctx.admin
     .from("attestation_requests")
-    .select("id")
+    .select("id, status")
     .eq("id", id)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
   if (!reqRow) return NextResponse.json({ error: "Attestation request not found" }, { status: 404 });
+  if (!["open", "overdue"].includes(reqRow.status)) {
+    return NextResponse.json(
+      { error: `Cannot respond to an attestation request with status "${reqRow.status}"` },
+      { status: 409 }
+    );
+  }
 
   const { error } = await ctx.admin.from("attestation_responses").insert({
     organization_id: ctx.orgId,

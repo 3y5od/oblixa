@@ -54,7 +54,6 @@ export async function upsertDetectedExceptions(input: {
     title: row.title,
     details: row.details ?? null,
     severity: row.severity,
-    status: "open",
     fingerprint: buildExceptionFingerprint({
       organizationId: row.organizationId,
       contractId: row.contractId,

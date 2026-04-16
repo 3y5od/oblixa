@@ -26,6 +26,23 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
+  const { data: currentCamp } = await ctx.admin
+    .from("portfolio_campaigns")
+    .select("id, status, progress_summary_json, updated_at")
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .maybeSingle();
+  if (!currentCamp) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (currentCamp.status === "closed") {
+    return NextResponse.json({ campaign: currentCamp });
+  }
+  if (!["active", "paused"].includes(currentCamp.status)) {
+    return NextResponse.json(
+      { error: `Cannot close a campaign with status "${currentCamp.status}"` },
+      { status: 409 }
+    );
+  }
+
   const [{ count: pending }, { count: inProgress }, { count: processed }, { count: failed }] =
     await Promise.all([
       ctx.admin

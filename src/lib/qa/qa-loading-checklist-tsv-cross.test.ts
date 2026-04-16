@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GENERATED_LOADING_ROUTE_PATHS } from "@/lib/qa/generated-route-matrices";
 
 function loadLoadingChecklistRoutes(): string[] {
   const p = path.join(process.cwd(), "scripts", "qa-loading-routes-checklist.txt");
@@ -49,6 +50,13 @@ describe("qa-loading-routes-checklist vs TSV loading_checked", () => {
       const v = tsv.get(route);
       expect(v, `TSV missing route ${route}`).toBeDefined();
       expect(v, `Route ${route} should have loading_checked=y in TSV (or add allowlist)`).toBe("y");
+    }
+  });
+
+  it("each checklist route is present in the generated loading route-state matrix", () => {
+    const generated = new Set<string>(GENERATED_LOADING_ROUTE_PATHS);
+    for (const route of loadLoadingChecklistRoutes()) {
+      expect(generated.has(route), `Missing generated loading route for ${route}`).toBe(true);
     }
   });
 });

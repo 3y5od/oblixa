@@ -91,7 +91,13 @@ export async function mergeV6OrgSettingsJson(
   const next: V6OrgSettingsJson = { ...prev, ...patchRest };
   if (patch.workspace_mode != null) {
     const s = sanitizeWorkspaceMode(patch.workspace_mode);
-    if (s) next.workspace_mode = s;
+    if (s) {
+      next.workspace_mode = s;
+    } else if (prev.workspace_mode) {
+      next.workspace_mode = prev.workspace_mode;
+    } else {
+      delete next.workspace_mode;
+    }
   }
   if (Object.prototype.hasOwnProperty.call(patch, "default_landing_path")) {
     const raw = patch.default_landing_path;
@@ -187,8 +193,9 @@ export async function mergeV6OrgSettingsJson(
     }
   }
   if (patch.review_board_notification_emails != null) {
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     next.review_board_notification_emails = patch.review_board_notification_emails.filter(
-      (e) => typeof e === "string" && e.includes("@")
+      (e) => typeof e === "string" && e.length <= 320 && emailRe.test(e)
     );
   }
   if (patch.notification_suppressed_event_types != null) {

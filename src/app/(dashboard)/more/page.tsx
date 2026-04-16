@@ -33,6 +33,7 @@ import {
 } from "@/lib/product-surface/nav-visibility";
 import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 import { isCmdkHrefAllowed } from "@/lib/product-surface/resolver";
+import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 const JUMP_LINK_ICONS: Record<(typeof MORE_PAGE_JUMP_LINKS)[number]["href"], LucideIcon> = {
   "/contracts/programs": LayoutGrid,
@@ -97,20 +98,26 @@ export default async function MoreToolsPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Utilities</p>
-        <h1 className="ui-display-title mt-2">Tools index</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Secondary destinations and workspace tools. Primary work lives under Home, Contracts,
-          Review, Work, and Reports.
-        </p>
-        <form action="/more" method="get" className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <header className="ui-page-header">
+        <div className="min-w-0 flex-1">
+          <p className="ui-eyebrow">Utilities</p>
+          <h1 className="ui-display-title mt-2">Tools index</h1>
+          <p className="ui-muted-tight mt-3 max-w-2xl text-[15px]">
+            Secondary destinations and workspace tools. Primary work lives under Home, Contracts, Review,
+            Work, and Reports.
+          </p>
+        </div>
+        <form
+          action="/more"
+          method="get"
+          className="flex w-full flex-col gap-3 sm:max-w-xl sm:flex-row sm:flex-wrap sm:items-center"
+        >
           <input
             type="search"
             name="q"
             defaultValue={params.q ?? ""}
             placeholder="Search tools, pages, and workflows"
-            className="ui-input-compact w-full sm:max-w-xl"
+            className="ui-input-compact w-full sm:min-w-[16rem] sm:flex-1"
           />
           <select name="section" defaultValue={selectedSection} className="ui-input-compact sm:w-52">
             <option value="">All sections</option>
@@ -132,9 +139,9 @@ export default async function MoreToolsPage(props: {
       </header>
 
       {v6Any && jumpLinks.length > 0 ? (
-        <section className="ui-card p-5">
+        <section data-testid={surfaceTestIds.moreJumpPoints} className="ui-page-shell p-5">
           <p className="ui-eyebrow">Shortcuts</p>
-          <h2 className="ui-section-title mt-1 text-base">Jump points</h2>
+          <h2 className="ui-section-title mt-1 text-xl">Jump points</h2>
           <p className="ui-muted-tight mt-1 max-w-3xl text-[13px]">
             Contextual shortcuts for your workspace mode.
           </p>
@@ -164,7 +171,7 @@ export default async function MoreToolsPage(props: {
         <div className="grid gap-6 xl:grid-cols-3">
           {groups.map((group) => (
             <section key={group.key} className="ui-card overflow-hidden">
-              <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-4">
+              <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4">
                 <h2 className="ui-section-title">{group.label}</h2>
               </div>
               <ul className="divide-y divide-[var(--border-subtle)]">
@@ -172,10 +179,10 @@ export default async function MoreToolsPage(props: {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="block px-5 py-4 transition-colors hover:bg-zinc-50/70"
+                      className="block px-5 py-4 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
                     >
-                      <p className="text-sm font-semibold text-zinc-900">{item.name}</p>
-                      <p className="mt-1 text-xs text-zinc-500">{item.description}</p>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
+                      <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.description}</p>
                     </Link>
                   </li>
                 ))}

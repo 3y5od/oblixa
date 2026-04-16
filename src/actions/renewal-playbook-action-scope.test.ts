@@ -21,7 +21,8 @@ describe("seedRenewalPlaybook", () => {
     const { createAdminClient } = await import("@/lib/supabase/server");
     vi.mocked(createAdminClient).mockResolvedValue({ from: adminFrom } as never);
     const { seedRenewalPlaybook } = await import("@/actions/renewal-playbook");
-    await seedRenewalPlaybook("550e8400-e29b-41d4-a716-446655440000");
+    const result = await seedRenewalPlaybook("550e8400-e29b-41d4-a716-446655440000");
+    expect(result).toEqual({ error: "Not authenticated" });
     expect(adminFrom).not.toHaveBeenCalled();
   });
 
@@ -31,7 +32,8 @@ describe("seedRenewalPlaybook", () => {
     const { createAdminClient } = await import("@/lib/supabase/server");
     vi.mocked(createAdminClient).mockResolvedValue({ from: adminFrom } as never);
     const { seedRenewalPlaybook } = await import("@/actions/renewal-playbook");
-    await seedRenewalPlaybook("x");
+    const result = await seedRenewalPlaybook("x");
+    expect(result).toEqual({ error: "Invalid contract" });
     expect(adminFrom).not.toHaveBeenCalled();
   });
 });

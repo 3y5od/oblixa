@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getAuthContext = vi.fn();
 const mergeV6OrgSettingsJson = vi.fn();
 const getV6OrgSettingsJson = vi.fn();
+const requireServerActionEligibility = vi.fn();
+const applyWorkspaceProductTransitionSideEffects = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   getAuthContext: (...args: unknown[]) => getAuthContext(...args),
@@ -17,25 +19,47 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/product-surface/server-action-guard", () => ({
+  requireServerActionEligibility: (...args: unknown[]) => requireServerActionEligibility(...args),
+}));
+
+vi.mock("@/lib/product-surface/workspace-transition", () => ({
+  applyWorkspaceProductTransitionSideEffects: (...args: unknown[]) =>
+    applyWorkspaceProductTransitionSideEffects(...args),
+}));
+
+vi.mock("@/lib/product-surface/landing-eligibility", () => ({
+  isValidDefaultLandingPath: (path: string, mode: string) =>
+    !(mode === "core" && ["/decisions", "/campaigns"].includes(path)),
+}));
+
 describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   beforeEach(() => {
     getAuthContext.mockReset();
     mergeV6OrgSettingsJson.mockReset();
     getV6OrgSettingsJson.mockReset();
+    requireServerActionEligibility.mockReset();
+    applyWorkspaceProductTransitionSideEffects.mockReset();
     getV6OrgSettingsJson.mockResolvedValue({});
     mergeV6OrgSettingsJson.mockResolvedValue({ error: null });
+    requireServerActionEligibility.mockResolvedValue({ ok: true });
+    applyWorkspaceProductTransitionSideEffects.mockResolvedValue({
+      autoBlockedNotificationTypes: [],
+      suppressedSubscriptionCount: 0,
+    });
   });
 
-  it("no-ops when unauthenticated", async () => {
+  it("returns error when unauthenticated", async () => {
     getAuthContext.mockResolvedValue(null);
     const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
     const fd = new FormData();
     fd.set("workspace_mode", "advanced");
-    await updateWorkspaceProductSurfaceForm(fd);
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ error: "Unauthorized" });
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
-  it("no-ops when caller is not admin", async () => {
+  it("returns error when caller is not admin", async () => {
     getAuthContext.mockResolvedValue({
       admin: {},
       orgId: "org-1",
@@ -45,27 +69,14 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
     const fd = new FormData();
     fd.set("workspace_mode", "assurance");
-    await updateWorkspaceProductSurfaceForm(fd);
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ error: "Unauthorized" });
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
-  it("clears default_landing_path when invalid for selected workspace mode", async () => {
-    const insert = vi.fn(() => Promise.resolve({ error: null }));
-    const from = vi.fn(() => ({
-      insert,
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: null })),
-        })),
-        in: vi.fn(async () => ({ data: [] })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(async () => ({ error: null })),
-        in: vi.fn(async () => ({ error: null })),
-      })),
-    }));
+  it("rejects default_landing_path when invalid for selected workspace mode", async () => {
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: { from: vi.fn() },
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -74,14 +85,9 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "core");
     fd.set("default_landing_path", "/decisions");
-    await updateWorkspaceProductSurfaceForm(fd);
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
-      { from },
-      "org-1",
-      expect.objectContaining({
-        default_landing_path: "",
-      })
-    );
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ error: "Invalid landing path" });
+    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("merges settings scoped to authenticated org for admin", async () => {
@@ -181,47 +187,13 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
       data: { workspace_mode: "core" },
       error: null,
     });
+    applyWorkspaceProductTransitionSideEffects.mockResolvedValueOnce({
+      autoBlockedNotificationTypes: ["campaign_digest"],
+      suppressedSubscriptionCount: 1,
+    });
 
     const inserts: Array<Record<string, unknown>> = [];
     const from = vi.fn((table: string) => {
-      if (table === "organization_workflow_settings") {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              maybeSingle: vi.fn(async () => ({
-                data: { notification_policy_json: { email: { blocked_types: ["reminder_due"] } } },
-              })),
-            })),
-          })),
-          update: vi.fn(() => ({
-            eq: vi.fn(async () => ({ error: null })),
-          })),
-          upsert: vi.fn(async () => ({ error: null })),
-        };
-      }
-      if (table === "report_pack_subscriptions") {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              eq: vi.fn(async () => ({ data: [{ id: "sub-1", report_pack_id: "pack-1" }] })),
-            })),
-          })),
-          update: vi.fn(() => ({
-            in: vi.fn(() => ({
-              eq: vi.fn(async () => ({ error: null })),
-            })),
-          })),
-        };
-      }
-      if (table === "report_packs") {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              in: vi.fn(async () => ({ data: [{ id: "pack-1", report_type: "campaign_progress_summary" }] })),
-            })),
-          })),
-        };
-      }
       if (table === "audit_events") {
         return {
           insert: vi.fn(async (row: Record<string, unknown>) => {
@@ -248,7 +220,8 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
     const fd = new FormData();
     fd.set("workspace_mode", "core");
-    await updateWorkspaceProductSurfaceForm(fd);
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ success: true });
 
     const surfaceAudit = inserts.find((row) => row.action === "workspace.product_surface_updated") as
       | { details?: Record<string, unknown> }
@@ -263,9 +236,11 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
 describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)", () => {
   beforeEach(() => {
     getAuthContext.mockReset();
+    requireServerActionEligibility.mockReset();
+    requireServerActionEligibility.mockResolvedValue({ ok: true });
   });
 
-  it("no-ops when caller is not admin", async () => {
+  it("returns error when caller is not admin", async () => {
     const from = vi.fn();
     getAuthContext.mockResolvedValue({
       admin: { from },
@@ -274,14 +249,16 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
       user: { id: "u1" },
     });
     const { updateProductEmailNotificationCategoriesForm } = await import("@/actions/product-surface-settings");
-    await updateProductEmailNotificationCategoriesForm(new FormData());
+    const result = await updateProductEmailNotificationCategoriesForm(new FormData());
+    expect(result).toEqual({ error: "Unauthorized" });
     expect(from).not.toHaveBeenCalled();
   });
 
-  it("no-ops when unauthenticated", async () => {
+  it("returns error when unauthenticated", async () => {
     getAuthContext.mockResolvedValue(null);
     const { updateProductEmailNotificationCategoriesForm } = await import("@/actions/product-surface-settings");
-    await updateProductEmailNotificationCategoriesForm(new FormData());
+    const result = await updateProductEmailNotificationCategoriesForm(new FormData());
+    expect(result).toEqual({ error: "Unauthorized" });
     expect(getAuthContext).toHaveBeenCalled();
   });
 

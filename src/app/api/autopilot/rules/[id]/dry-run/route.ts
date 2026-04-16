@@ -6,8 +6,9 @@ import { dryRunAutopilotRule } from "@/lib/v6/autopilot";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
+import { enforceIdempotency } from "@/lib/idempotency";
 
-export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6Autopilot");
   if (disabled) return disabled;
 
@@ -24,6 +25,11 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
   const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId, "dry_run");
   if (modeBlock) return modeBlock;
+  const duplicate = await enforceIdempotency(request, {
+    scope: "autopilot.dry-run",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const ruleId = toSafeString((await params).id);
   const result = await dryRunAutopilotRule(ctx.admin, ctx.orgId, ruleId, ctx.userId);

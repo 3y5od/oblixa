@@ -45,17 +45,17 @@ export function ContractPagination({
   const showFirstLast = totalPages > 2;
 
   const linkClass =
-    "rounded-xl border border-zinc-200/90 bg-surface px-3 py-2 text-[13px] font-semibold text-zinc-700 shadow-sm transition-[background-color,border-color] hover:border-zinc-300 hover:bg-zinc-50/90";
+    "ui-btn-secondary rounded-[1rem] px-3 py-2 text-[13px]";
   const disabledClass =
-    "rounded-xl border border-transparent px-3 py-2 text-[13px] text-zinc-300";
+    "rounded-[1rem] border border-transparent px-3 py-2 text-[13px] text-[var(--text-tertiary)]";
 
   return (
-    <div className="flex flex-col gap-4 border-t border-zinc-100/90 bg-zinc-50/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
-      <p className="text-[13px] text-zinc-500">
-        <span className="font-semibold tabular-nums text-zinc-800">
+    <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <p className="text-[13px] text-[var(--text-secondary)]">
+        <span className="font-semibold tabular-nums text-[var(--text-primary)]">
           {from}–{to}
         </span>
-        <span className="text-zinc-300"> · </span>
+        <span className="text-[var(--text-tertiary)]"> · </span>
         <span className="tabular-nums">{total} total</span>
       </p>
       <nav
@@ -77,7 +77,7 @@ export function ContractPagination({
         ) : (
           <span className={disabledClass}>Previous</span>
         )}
-        <span className="px-2 text-[13px] font-medium tabular-nums text-zinc-500">
+        <span className="rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] px-3 py-1 text-[13px] font-medium tabular-nums text-[var(--text-secondary)] shadow-[var(--shadow-1)]">
           {safePage} / {totalPages}
         </span>
         {next != null ? (

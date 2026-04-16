@@ -5,7 +5,8 @@ import {
   createAdminClient,
   createClient,
   ensureUserOrg,
-  getDeterministicMembership,
+  getOrEnsureDeterministicMembership,
+  resolveDefaultOrganizationNameForUser,
 } from "@/lib/supabase/server";
 import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 import { resolveAppBaseUrl } from "@/lib/app-url";
@@ -15,6 +16,22 @@ import {
   rateLimitCheck,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+
+async function resolvePostAuthRedirectForUser(user: {
+  id: string;
+  user_metadata?: {
+    full_name?: unknown;
+  } | null;
+}) {
+  const admin = await createAdminClient();
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
+    admin,
+    userId: user.id,
+    orgId: membership?.organization_id ?? null,
+  });
+  return calibrationPath ?? "/dashboard";
+}
 
 export async function signUp(formData: FormData) {
   const ip = await getClientIpFromHeaders();
@@ -28,6 +45,10 @@ export async function signUp(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const fullName = formData.get("fullName") as string;
+
+  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
+  if (!password || password.length < 8 || password.length > 128) return { error: "Password must be between 8 and 128 characters." };
+  if (fullName && fullName.length > 200) return { error: "Name is too long." };
 
   const appUrl = await resolveAppBaseUrl();
 
@@ -49,10 +70,12 @@ export async function signUp(formData: FormData) {
   }
 
   if (data.user) {
-    await ensureUserOrg(
-      data.user.id,
-      fullName ? `${fullName}'s Organization` : "My Organization"
-    );
+    try {
+      await ensureUserOrg(data.user.id, resolveDefaultOrganizationNameForUser(data.user));
+    } catch (e) {
+      console.error("[auth] ensureUserOrg failed", e);
+      return { error: "Account setup failed. Please try again." };
+    }
   }
 
   // Client navigation (not `redirect()`): `useActionState` forms expect a serializable
@@ -72,6 +95,8 @@ export async function signIn(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
+  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
+
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
@@ -82,15 +107,7 @@ export async function signIn(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    const admin = await createAdminClient();
-    const membership = await getDeterministicMembership(admin, user.id);
-    const orgId = membership?.organization_id ?? null;
-    const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
-      admin,
-      userId: user.id,
-      orgId,
-    });
-    return { redirectTo: calibrationPath ?? "/dashboard" };
+    return { redirectTo: await resolvePostAuthRedirectForUser(user) };
   }
 
   return { redirectTo: "/dashboard" };
@@ -112,6 +129,8 @@ export async function forgotPassword(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
 
+  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
+
   const appUrl = await resolveAppBaseUrl();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -129,11 +148,19 @@ export async function resetPassword(formData: FormData) {
   const supabase = await createClient();
   const password = formData.get("password") as string;
 
+  if (!password || password.length < 8 || password.length > 128) return { error: "Password must be between 8 and 128 characters." };
+
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
     return { error: mapAuthError(error.message) };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    return { redirectTo: await resolvePostAuthRedirectForUser(user) };
+  }
   return { redirectTo: "/dashboard" };
 }

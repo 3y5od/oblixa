@@ -7,7 +7,12 @@ import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notificati
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
 function escapeSlackMrkdwn(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\*/g, "\u200b*")
+    .replace(/_/g, "\u200b_");
 }
 
 /** Plain URL + optional Block Kit section with a single actionable link. */

@@ -67,8 +67,11 @@ export function isFeatureEnabled(key: FeatureFlagKey): boolean {
   return parseFlag(process.env[envMap[key]]);
 }
 
-export function getFeatureFlags(): Record<FeatureFlagKey, boolean> {
-  return {
+let cachedFlags: Record<FeatureFlagKey, boolean> | null = null;
+
+function readFlagsOnce(): Record<FeatureFlagKey, boolean> {
+  if (cachedFlags) return cachedFlags;
+  cachedFlags = {
     v3TasksEngine: isFeatureEnabled("v3TasksEngine"),
     v3ObligationsExecution: isFeatureEnabled("v3ObligationsExecution"),
     v3ApprovalsSla: isFeatureEnabled("v3ApprovalsSla"),
@@ -92,4 +95,9 @@ export function getFeatureFlags(): Record<FeatureFlagKey, boolean> {
     v6Segments: isFeatureEnabled("v6Segments"),
     v6AutopilotAllowExecution: isFeatureEnabled("v6AutopilotAllowExecution"),
   };
+  return cachedFlags;
+}
+
+export function getFeatureFlags(): Record<FeatureFlagKey, boolean> {
+  return { ...readFlagsOnce() };
 }

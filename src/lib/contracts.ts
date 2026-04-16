@@ -41,10 +41,11 @@ export async function attachOwnerProfiles<T extends { owner_id: string | null }>
     return contracts.map((c) => ({ ...c }));
   }
 
-  const { data: profiles } = await admin
+  const { data: profiles, error } = await admin
     .from("profiles")
     .select("id, full_name, email")
     .in("id", ownerIds);
+  if (error) console.error("Failed to load owner profiles:", error);
 
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 

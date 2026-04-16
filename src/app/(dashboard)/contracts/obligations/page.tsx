@@ -170,7 +170,7 @@ export default async function ContractObligationsPage(props: {
           </button>
         </form>
         <div className="mt-5 border-t border-zinc-100 pt-5">
-          <form action={createSavedView} className="flex flex-wrap items-end gap-3">
+          <form action={createSavedView as never} className="flex flex-wrap items-end gap-3">
             <input type="hidden" name="organizationId" value={orgId} />
             <input type="hidden" name="viewType" value="obligations" />
             <input type="hidden" name="status" value={status} />
@@ -195,12 +195,12 @@ export default async function ContractObligationsPage(props: {
                   <Link href={view.href} className="px-2 py-0.5 text-[12px] font-semibold text-zinc-700">
                     {view.name}
                   </Link>
-                  <form action={deleteSavedView.bind(null, view.id)}>
+                  <form action={deleteSavedView.bind(null, view.id) as never}>
                     <button type="submit" className="rounded-full px-1.5 py-0.5 text-[11px] text-zinc-500">
                       ×
                     </button>
                   </form>
-                  <form action={setSavedViewPinned.bind(null, view.id, !view.pinned)}>
+                  <form action={setSavedViewPinned.bind(null, view.id, !view.pinned) as never}>
                     <button
                       type="submit"
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
@@ -210,7 +210,7 @@ export default async function ContractObligationsPage(props: {
                       {view.pinned ? "Pinned" : "Pin"}
                     </button>
                   </form>
-                  <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive)}>
+                  <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive) as never}>
                     <button
                       type="submit"
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
@@ -305,7 +305,7 @@ export default async function ContractObligationsPage(props: {
                     {format(new Date(ob.updatedAt), "MMM d")}
                   </td>
                   <td className="px-5 py-4">
-                    <form action={createObligationClarificationTaskForm} className="space-y-1">
+                    <form action={createObligationClarificationTaskForm as never} className="space-y-1">
                       <input type="hidden" name="contractId" value={ob.contractId} />
                       <input type="hidden" name="obligationId" value={ob.id} />
                       <input

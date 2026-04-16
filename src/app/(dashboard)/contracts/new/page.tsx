@@ -54,44 +54,72 @@ export default async function NewContractPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 md:space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
+    <div className="ui-page-stack mx-auto max-w-6xl">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">New record</p>
           <h1 className="ui-display-title mt-2">Upload contract</h1>
-          <p className="ui-muted-tight mt-3 max-w-xl">
-            Add files and metadata. After saving, run AI extraction from the contract
-            detail page.
+          <p className="ui-muted-tight mt-3 max-w-2xl">
+            Start a new operational record with files and core metadata. After saving, run AI extraction from
+            the contract detail page and move into review.
           </p>
+        </div>
+        <div className="ui-page-actions">
+          <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
+            Back to contracts
+          </Link>
         </div>
       </header>
 
-      <div className="rounded-2xl border border-indigo-200/55 bg-gradient-to-br from-indigo-50/50 to-white p-5 text-[13px] leading-relaxed text-zinc-700 sm:p-6">
-        <p className="font-semibold text-zinc-900">From email</p>
-        <p className="mt-2 text-zinc-600">
-          Save PDF or DOCX attachments locally, then upload here. No inbox integration
-          in this version — keeping the trust loop explicit.
-        </p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_minmax(0,0.9fr)]">
+        <section className="space-y-6">
+          <div className="ui-card-hero p-6 sm:p-8">
+            <p className="ui-eyebrow">Input workflow</p>
+            <h2 className="mt-3 text-[1.55rem] font-semibold tracking-tight text-[var(--text-primary)]">
+              Create a reliable operational record from the start
+            </h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                "Upload signed PDFs or DOCX files",
+                "Capture counterparty and type metadata",
+                "Run extraction and review from the detail view",
+              ].map((item, index) => (
+                <div key={item} className="ui-card-quiet p-4">
+                  <p className="ui-kicker">Step {index + 1}</p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <RecentUploads files={recentFiles} />
+          <div className="ui-card p-6 md:p-8">
+            <UploadForm
+              organizationId={ctx.orgId}
+              disabled={!!disabledReason}
+              disabledReason={disabledReason}
+            />
+            {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
+              <p className="mt-4 text-center text-sm">
+                <Link href="/settings/billing" className="ui-link">
+                  Go to Billing
+                </Link>
+              </p>
+            )}
+          </div>
+        </section>
 
-      <div className="ui-card p-6 md:p-8">
-        <UploadForm
-          organizationId={ctx.orgId}
-          disabled={!!disabledReason}
-          disabledReason={disabledReason}
-        />
-        {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
-          <p className="mt-4 text-center text-sm">
-            <Link
-              href="/settings/billing"
-              className="ui-link"
-            >
-              Go to Billing
-            </Link>
-          </p>
-        )}
+        <aside className="space-y-6">
+          <div className="ui-card p-5">
+            <p className="ui-eyebrow">From email</p>
+            <h2 className="ui-section-title mt-2 text-xl">Bring in signed files deliberately</h2>
+            <p className="ui-muted-tight mt-2">
+              Save PDF or DOCX attachments locally, then upload here. No inbox integration in this version, which
+              keeps the trust loop explicit and review-friendly.
+            </p>
+          </div>
+
+          <RecentUploads files={recentFiles} />
+        </aside>
       </div>
     </div>
   );

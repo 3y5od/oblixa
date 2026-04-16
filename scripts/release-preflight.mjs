@@ -20,6 +20,17 @@ const required = [
 ];
 
 const missing = required.filter((key) => !process.env[key]?.trim());
+console.log(
+  JSON.stringify(
+    {
+      requiredCount: required.length,
+      missingCount: missing.length,
+      missing,
+    },
+    null,
+    2
+  )
+);
 if (missing.length > 0) {
   console.error("Missing required env vars:");
   for (const key of missing) console.error(`- ${key}`);
@@ -33,6 +44,10 @@ const cwd = path.join(__dirname, "..");
 execSync("npm run check:onboarding-qa-matrix", { stdio: "inherit", cwd });
 execSync("npm run check:onboarding-stale-env-parity", { stdio: "inherit", cwd });
 execSync("npm run check:performance-static:strict", { stdio: "inherit", cwd });
+execSync("npm run check:bundle-budget", { stdio: "inherit", cwd });
+execSync("npm run check:incident-readiness:strict", { stdio: "inherit", cwd });
+execSync("npm run check:artifact-integrity", { stdio: "inherit", cwd });
+execSync("npm run report:ci-provenance", { stdio: "inherit", cwd });
 
-console.log("Optional (V7 product-surface): npm run check:v7-suite before shipping nav, cmd-K, or API guard changes.");
+console.log("Optional (surface contract): npm run check:v8-suite before shipping nav, cmd-K, or API guard changes.");
 

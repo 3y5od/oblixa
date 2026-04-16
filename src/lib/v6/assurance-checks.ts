@@ -39,7 +39,7 @@ async function findOpenPolicyFindingIdForUnit(
     .eq("finding_type", "policy_compliance")
     .in("status", ["open", "in_review"])
     .order("updated_at", { ascending: false })
-    .limit(60);
+    .limit(500);
   const row = (data ?? []).find((r) => {
     const sj = (r as { scope_json?: { evaluation_unit_key?: string } }).scope_json;
     return sj?.evaluation_unit_key === evaluationUnitKey;
@@ -249,7 +249,7 @@ export async function runModularAssuranceChecks(
   const run = await createRow(admin, "assurance_check_runs", orgId, {
     check_type: "portfolio_assurance",
     trigger_type: triggerType,
-    status: "completed",
+    status: "running",
     summary_json: {
       metrics,
       segment_rollups,
@@ -265,7 +265,6 @@ export async function runModularAssuranceChecks(
     watch_signals_json: watchSignals,
     recommended_interventions_json: recommended,
     started_at: nowIso(),
-    completed_at: nowIso(),
     created_by: actorUserId,
   });
 
@@ -512,6 +511,17 @@ export async function runModularAssuranceChecks(
     policy_breaches: policyBreaches.length,
   }).catch(() => undefined);
 
+  if (run.data?.id) {
+    await admin
+      .from("assurance_check_runs")
+      .update({
+        status: errors.length > 0 ? "failed" : "completed",
+        completed_at: nowIso(),
+      })
+      .eq("organization_id", orgId)
+      .eq("id", run.data.id);
+  }
+
   return {
     checkRun: run.data,
     findings: findingsCreated,
@@ -570,7 +580,7 @@ export async function runIncrementalAssuranceChecks(
   const run = await createRow(admin, "assurance_check_runs", orgId, {
     check_type: "incremental_assurance",
     trigger_type: "event",
-    status: "completed",
+    status: "running",
     summary_json: {
       metrics,
       mode: "policy_breach_focus",
@@ -589,7 +599,6 @@ export async function runIncrementalAssuranceChecks(
     watch_signals_json: watchSignals,
     recommended_interventions_json: recommended,
     started_at: nowIso(),
-    completed_at: nowIso(),
     created_by: actorUserId,
   });
 
@@ -632,6 +641,17 @@ export async function runIncrementalAssuranceChecks(
     policy_breaches: policyBreaches.length,
     incremental_assurance: true,
   }).catch(() => undefined);
+
+  if (run.data?.id) {
+    await admin
+      .from("assurance_check_runs")
+      .update({
+        status: errors.length > 0 ? "failed" : "completed",
+        completed_at: nowIso(),
+      })
+      .eq("organization_id", orgId)
+      .eq("id", run.data.id);
+  }
 
   return {
     checkRun: run.data,

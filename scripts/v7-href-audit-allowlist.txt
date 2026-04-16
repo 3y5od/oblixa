@@ -1,2 +1,8 @@
 # One path prefix (relative to repo root) or filename suffix match per line.
 # Example: src/app/(dashboard)/decisions/page.tsx
+
+# Advanced control room cards: eligibility enforced where the strip is composed (dashboard route / mode).
+src/lib/v5/control-room-dashboard.ts
+
+# Assurance review-board email deep links: recipients are assurance workflow participants; URLs are org-scoped server-built.
+src/lib/v6/review-board-notifications.ts

@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { getContractAccessContext } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
@@ -23,15 +24,13 @@ async function getUserContextForContract(
   userId: string,
   contractId: string
 ) {
-  const { data: contract } = await admin
-    .from("contracts")
-    .select("id, organization_id")
-    .eq("id", contractId)
-    .maybeSingle();
-  if (!contract) return null;
-  const role = await getOrgMemberRole(admin, userId, contract.organization_id);
-  if (!role) return null;
-  return { contractId: contract.id, orgId: contract.organization_id, role };
+  const access = await getContractAccessContext(admin, userId, contractId);
+  if (!access.ok) return null;
+  return {
+    contractId,
+    orgId: access.ctx.orgId,
+    role: access.ctx.role,
+  };
 }
 
 export async function createContractNote(input: {

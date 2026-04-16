@@ -13,9 +13,10 @@ type Channel = "email" | "slack";
 
 function isWithinQuietHours(now: Date, start: number, end: number): boolean {
   const hour = now.getUTCHours();
-  if (start === end) return false;
-  if (start < end) return hour >= start && hour < end;
-  return hour >= start || hour < end;
+  const effectiveEnd = end === 0 ? 24 : end;
+  if (start === effectiveEnd) return false;
+  if (start < effectiveEnd) return hour >= start && hour < effectiveEnd;
+  return hour >= start || hour < effectiveEnd;
 }
 
 export function evaluateNotificationPolicy(

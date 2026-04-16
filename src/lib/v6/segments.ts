@@ -48,20 +48,23 @@ export function normalizeMembershipEntityTypes(criteria: SegmentCriteriaJson): s
 }
 
 export async function recomputeSegmentMemberships(admin: AdminClient, orgId: string, segmentId: string) {
-  await admin
+  const { error: delErr } = await admin
     .from("segment_memberships")
     .delete()
     .eq("organization_id", orgId)
     .eq("segment_definition_id", segmentId);
+  if (delErr) return { count: 0, error: delErr };
 
-  const { data: seg } = await admin
+  const { data: seg, error: segErr } = await admin
     .from("segment_definitions")
     .select("criteria_json")
     .eq("organization_id", orgId)
     .eq("id", segmentId)
     .maybeSingle();
+  if (segErr) return { count: 0, error: segErr };
+  if (!seg) return { count: 0, error: { message: "segment_not_found" } };
 
-  const criteria = (seg?.criteria_json ?? {}) as SegmentCriteriaJson;
+  const criteria = (seg.criteria_json ?? {}) as SegmentCriteriaJson;
 
   let q = admin
     .from("contracts")
@@ -78,7 +81,8 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     q = q.eq("contract_type", criteria.contract_type_equals.trim());
   }
 
-  const { data: contracts } = await q.limit(500);
+  const { data: contracts, error: contractsErr } = await q.limit(500);
+  if (contractsErr) return { count: 0, error: contractsErr };
 
   const tagNeedle = (criteria.tags_any ?? [])
     .map((t) => String(t).trim().toLowerCase())

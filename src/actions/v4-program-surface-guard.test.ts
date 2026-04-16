@@ -5,6 +5,12 @@ import { describe, expect, it } from "vitest";
 const V4_ACTIONS = join(process.cwd(), "src/actions/v4.ts");
 
 describe("v4 program actions surface guard tripwire", () => {
+  it("ties auth + org membership to source (§13.3 smoke)", () => {
+    const raw = readFileSync(V4_ACTIONS, "utf8");
+    expect(raw).toContain("getUser(");
+    expect(raw).toContain("organization_id");
+  });
+
   it("routes all program mutations through ensureProgramsSurfaceAccess", () => {
     const raw = readFileSync(V4_ACTIONS, "utf8");
     const guardedFns = [

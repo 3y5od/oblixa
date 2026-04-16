@@ -16,11 +16,11 @@ export function decisionQueueSlaFields(dueAt: string | null): {
   }
   const now = new Date();
   const msPerDay = 24 * 60 * 60 * 1000;
-  const diffDays = Math.ceil((due.getTime() - now.getTime()) / msPerDay);
-
-  if (diffDays < 0) {
+  if (due.getTime() < now.getTime()) {
+    const diffDays = Math.ceil((due.getTime() - now.getTime()) / msPerDay);
     return { sla_status: "overdue", days_until_due: diffDays, priority: "high" };
   }
+  const diffDays = Math.ceil((due.getTime() - now.getTime()) / msPerDay);
   if (diffDays <= 3) {
     return { sla_status: "due_soon", days_until_due: diffDays, priority: "high" };
   }

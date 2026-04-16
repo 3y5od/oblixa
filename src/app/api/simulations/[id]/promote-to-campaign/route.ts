@@ -41,7 +41,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  const input = (simRow?.input_json ?? {}) as Record<string, unknown>;
+  if (!simRow) return NextResponse.json({ error: "Simulation not found" }, { status: 404 });
+  const input = (simRow.input_json ?? {}) as Record<string, unknown>;
   const eligibilityJson: Record<string, unknown> = {
     source: "simulation",
     simulation_id: id,

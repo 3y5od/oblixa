@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
     return NextResponse.json(
-      { error: "Server misconfigured: CRON_SECRET is not set" },
+      { error: "Service unavailable" },
       { status: 500 }
     );
   }
@@ -65,7 +65,8 @@ export async function GET(request: Request) {
       "id, field_id, recipient_id, reminder_type, reminder_date, contracts!inner(id, title, organization_id), extracted_fields:field_id(field_name, field_value, source_snippet)"
     )
     .lte("reminder_date", today)
-    .is("sent_at", null);
+    .is("sent_at", null)
+    .limit(500);
 
   if (error) {
     console.error("[reminders/cron] query error:", error.message);

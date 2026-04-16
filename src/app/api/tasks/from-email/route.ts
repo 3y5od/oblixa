@@ -59,6 +59,21 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const orgRate = await rateLimitCheck(
+    `tasks-email:org:${payload.organizationId}`,
+    RATE_LIMITS.tasksFromEmailInbound
+  );
+  if (!orgRate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests for this organization" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil(orgRate.retryAfterMs / 1000))),
+        },
+      }
+    );
+  }
   const orgBlocked = inboundOrgNotAllowedResponse(payload.organizationId);
   if (orgBlocked) return orgBlocked;
   if (payload.subject.trim().length > 240) {
@@ -116,7 +131,7 @@ export async function POST(request: Request) {
       .eq("contract_id", payload.contractId)
       .eq("created_via", "integration")
       .eq("team_key", "email")
-      .ilike("details", `%external_message_id:${payload.externalMessageId.trim()}%`)
+      .ilike("details", `%external_message_id:${payload.externalMessageId.trim().replace(/[_%]/g, "\\$&")}%`)
       .limit(1)
       .maybeSingle();
     if (existing.data) {

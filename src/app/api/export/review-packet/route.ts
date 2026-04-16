@@ -46,6 +46,7 @@ export async function GET() {
   const ninetyDaysOut = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);
+  const MAX_REVIEW_PACKET_ROWS = 5000;
 
   const [exceptions, approvalsRes, renewalsRes] = await Promise.all([
     getContractsMissingCriticalFields(admin, orgId),
@@ -53,14 +54,16 @@ export async function GET() {
       .from("contract_approvals")
       .select("id, contract_id, approval_type, status, contracts!inner(id, title, organization_id)")
       .eq("organization_id", orgId)
-      .eq("status", "pending"),
+      .eq("status", "pending")
+      .limit(MAX_REVIEW_PACKET_ROWS),
     admin
       .from("contract_renewal_checkpoints")
       .select("id, contract_id, label, due_date, contracts!inner(id, title, organization_id)")
       .eq("organization_id", orgId)
       .eq("status", "pending")
       .gte("due_date", today)
-      .lte("due_date", ninetyDaysOut),
+      .lte("due_date", ninetyDaysOut)
+      .limit(MAX_REVIEW_PACKET_ROWS),
   ]);
 
   if (approvalsRes.error) {

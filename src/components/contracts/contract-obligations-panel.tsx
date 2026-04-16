@@ -301,7 +301,7 @@ export function ContractObligationsPanel({
         </form>
       )}
       {canEdit && (
-        <form action={applyObligationTemplatesToContractForm.bind(null, contractId)}>
+        <form action={applyObligationTemplatesToContractForm.bind(null, contractId) as never}>
           <button type="submit" disabled={isPending} className="ui-btn-secondary px-4 py-2 text-[13px]">
             Apply templates for this contract type
           </button>

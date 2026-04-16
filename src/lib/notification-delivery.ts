@@ -7,6 +7,7 @@ type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 const DELIVERY_LEASE_MS = 5 * 60 * 1000;
 const MAX_METADATA_BYTES = 12_000;
 const MAX_RETRY_ROWS = 8;
+const RETRY_PROCESS_CONCURRENCY = 5;
 
 function limitString(value: string | null | undefined, maxLen: number): string {
   return String(value ?? "").slice(0, maxLen);
@@ -201,7 +202,12 @@ async function attemptDelivery(
   admin: AdminClient,
   deliveryId: string,
   opts?: { send?: () => Promise<{ error: Error | null | undefined }>; maxAttemptsFallback?: number }
-): Promise<{ delivered: boolean; error: string | null; skipped?: boolean }> {
+): Promise<{
+  delivered: boolean;
+  error: string | null;
+  skipped?: boolean;
+  finalStatus?: "delivered" | "failed" | "retrying";
+}> {
   const nowIso = new Date().toISOString();
   const leaseUntilIso = new Date(Date.now() + DELIVERY_LEASE_MS).toISOString();
   const { data: row } = await admin
@@ -226,13 +232,19 @@ async function attemptDelivery(
     sendResult = await opts.send();
   } else {
     const retryPayload = parseRetryPayload(metadata);
-    sendResult = retryPayload
-      ? await runRetryPayload(retryPayload)
-      : { error: new Error("missing_retry_payload") };
+    const validKinds: string[] = ["reminder_due", "saved_view_summary", "review_board_packet", "slack_workflow"];
+    if (retryPayload && !validKinds.includes(retryPayload.kind)) {
+      console.error(`[notification-delivery] invalid retry_payload kind: ${String(retryPayload.kind)}`);
+      sendResult = { error: new Error("invalid_retry_payload_kind") };
+    } else {
+      sendResult = retryPayload
+        ? await runRetryPayload(retryPayload)
+        : { error: new Error("missing_retry_payload") };
+    }
   }
 
   if (!sendResult.error) {
-    await admin
+    const { error: updateErr } = await admin
       .from("notification_deliveries")
       .update({
         status: "delivered",
@@ -242,13 +254,14 @@ async function attemptDelivery(
         next_attempt_at: null,
       })
       .eq("id", deliveryId);
-    return { delivered: true, error: null };
+    if (updateErr) console.error("[notification-delivery] post-send delivered update failed:", updateErr.message);
+    return { delivered: true, error: null, finalStatus: "delivered" };
   }
 
   const terminal = isTerminalDeliveryError(sendResult.error.message);
   const isFinal = terminal || nextAttempt >= maxAttempts;
   const backoffSeconds = Math.min(3600, Math.pow(2, nextAttempt) * 30);
-  await admin
+  const { error: failUpdateErr } = await admin
     .from("notification_deliveries")
     .update({
       status: isFinal ? "failed" : "retrying",
@@ -259,7 +272,12 @@ async function attemptDelivery(
         : new Date(Date.now() + backoffSeconds * 1000).toISOString(),
     })
     .eq("id", deliveryId);
-  return { delivered: false, error: sendResult.error.message };
+  if (failUpdateErr) console.error("[notification-delivery] post-send failure update failed:", failUpdateErr.message);
+  return {
+    delivered: false,
+    error: sendResult.error.message,
+    finalStatus: isFinal ? "failed" : "retrying",
+  };
 }
 
 export async function deliverWithRetries(
@@ -359,23 +377,30 @@ export async function processNotificationDeliveryRetries(
   const organizationIds = Array.from(
     new Set((rows ?? []).map((row) => String((row as { organization_id?: string }).organization_id ?? "")))
   ).filter(Boolean);
-  for (const row of rows ?? []) {
-    const res = await attemptDelivery(admin, row.id);
-    if (res.skipped) {
-      skipped++;
-      continue;
-    }
-    if (res.delivered) {
-      delivered++;
-    } else {
-      const { data: updated } = await admin
-        .from("notification_deliveries")
-        .select("status")
-        .eq("id", row.id)
-        .maybeSingle();
-      if (updated?.status === "failed") failed++;
-      else retried++;
+  const queue = [...(rows ?? [])];
+  let idx = 0;
+  async function worker(): Promise<void> {
+    while (idx < queue.length) {
+      const row = queue[idx++];
+      const res = await attemptDelivery(admin, row.id);
+      if (res.skipped) {
+        skipped++;
+        continue;
+      }
+      if (res.delivered) {
+        delivered++;
+      } else if (res.finalStatus === "failed") {
+        failed++;
+      } else {
+        retried++;
+      }
     }
   }
+  await Promise.all(
+    Array.from(
+      { length: Math.min(RETRY_PROCESS_CONCURRENCY, queue.length) },
+      () => worker()
+    )
+  );
   return { scanned: rows?.length ?? 0, delivered, failed, retried, skipped, organizationIds };
 }
