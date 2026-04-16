@@ -14,36 +14,61 @@ jobs:
   canary:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ env.STAGING_BASE_URL != '' && env.CRON_SECRET != '' }}
     steps:
+      - name: Gate required secrets
+        id: gate
+        run: |
+          if [ -n "$STAGING_BASE_URL" ] && [ -n "$CRON_SECRET" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip cron canary (missing required secrets)
+        if: ${{ steps.gate.outputs.run != 'true' }}
+        run: echo "Skipping cron canary because required secrets are not configured."
+
       # Pinned SHAs (tags: checkout@v4, setup-node@v4)
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        if: ${{ steps.gate.outputs.run == 'true' }}
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        if: ${{ steps.gate.outputs.run == 'true' }}
         with:
           node-version-file: ".nvmrc"
           cache: npm
 
       - name: Install dependencies
+        if: ${{ steps.gate.outputs.run == 'true' }}
         run: npm ci
 
       - name: Healthchecks start
-        if: ${{ env.HC_CRON_CANARY_PING != '' }}
+        if: ${{ steps.gate.outputs.run == 'true' }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}/start"
+        run: |
+          if [ -n "$HC_CRON_CANARY_PING" ]; then
+            curl -fsS -m 10 "$HC_CRON_CANARY_PING/start"
+          fi
 
       - name: Run cron canary checks
+        if: ${{ steps.gate.outputs.run == 'true' }}
         env:
           COMPREHENSIVE_PASS_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: npm run check:cron-canary
 
       - name: Healthchecks success
-        if: ${{ success() && env.HC_CRON_CANARY_PING != '' }}
+        if: ${{ steps.gate.outputs.run == 'true' && success() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}"
+        run: |
+          if [ -n "$HC_CRON_CANARY_PING" ]; then
+            curl -fsS -m 10 "$HC_CRON_CANARY_PING"
+          fi
 
       - name: Healthchecks fail
-        if: ${{ failure() && env.HC_CRON_CANARY_PING != '' }}
+        if: ${{ steps.gate.outputs.run == 'true' && failure() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}/fail"
+        run: |
+          if [ -n "$HC_CRON_CANARY_PING" ]; then
+            curl -fsS -m 10 "$HC_CRON_CANARY_PING/fail"
+          fi

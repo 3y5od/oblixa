@@ -14,35 +14,52 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ env.NEXT_PUBLIC_SUPABASE_URL != '' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.HC_SLO_MONITOR_PING != '' }}
     steps:
+      - name: Gate required secrets
+        id: gate
+        run: |
+          if [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ] && [ -n "$HC_SLO_MONITOR_PING" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip SLO monitor (missing required secrets)
+        if: ${{ steps.gate.outputs.run != 'true' }}
+        run: echo "Skipping SLO monitor because required secrets are not configured."
+
       # Pinned SHAs (tags: checkout@v4, setup-node@v4)
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        if: ${{ steps.gate.outputs.run == 'true' }}
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        if: ${{ steps.gate.outputs.run == 'true' }}
         with:
           node-version-file: ".nvmrc"
           cache: npm
 
       - name: Install dependencies
+        if: ${{ steps.gate.outputs.run == 'true' }}
         run: npm ci
 
       - name: Healthchecks start
+        if: ${{ steps.gate.outputs.run == 'true' }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}/start"
+        run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING/start"
 
       - name: Run SLO monitor
+        if: ${{ steps.gate.outputs.run == 'true' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/slo-monitor.mjs
 
       - name: Healthchecks success
-        if: ${{ success() }}
+        if: ${{ steps.gate.outputs.run == 'true' && success() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}"
+        run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING"
 
       - name: Healthchecks fail
-        if: ${{ failure() }}
+        if: ${{ steps.gate.outputs.run == 'true' && failure() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}/fail"
+        run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING/fail"
