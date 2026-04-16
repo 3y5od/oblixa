@@ -1,5 +1,9 @@
 # docs/refinement.md §4.1 / §23 — nudge reviewers when API routes or migrations are deleted.
 name: Refinement deletion notice
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:

@@ -28,7 +28,7 @@ jobs:
         if: ${{ steps.gate.outputs.run != 'true' }}
         run: echo "Skipping SLO monitor because required secrets are not configured."
 
-      # Pinned SHAs (tags: checkout@v4, setup-node@v4)
+      # Pinned SHAs (actions/checkout + actions/setup-node pins; not floating @v4/@v6 tags).
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         if: ${{ steps.gate.outputs.run == 'true' }}
 

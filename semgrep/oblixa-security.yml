@@ -74,7 +74,7 @@ rules:
     languages: [typescript, javascript]
     severity: INFO
     message: Review use of __proto__/constructor/prototype string keys near JSON or user input (prototype pollution).
-    pattern-regex: ["'](?:__proto__|constructor|prototype)["']
+    pattern-regex: "[\"'](?:__proto__|constructor|prototype)[\"']"
     paths:
       exclude:
         - "**/*.test.ts"

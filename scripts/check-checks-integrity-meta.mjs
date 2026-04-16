@@ -36,6 +36,7 @@ const requiredFiles = [
   "scripts/report-control-efficacy.mjs",
   "scripts/report-release-readiness.mjs",
   ".github/workflows/ci.yml",
+  "scripts/pipelines/pipeline-ci-parity.mjs",
 ];
 
 for (const rel of requiredFiles) {

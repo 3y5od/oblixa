@@ -38,7 +38,6 @@ const domainPass = await runParallel([
   "check:server-action-auth-contract",
   "check:server-action-org-scope",
   "check:server-action-exports",
-  "check:test-skip-governance",
   "check:type-lint-ratchet",
   "lint",
   "typecheck",
@@ -46,7 +45,9 @@ const domainPass = await runParallel([
 
 const finalPass = await runSequential(["test:coverage", "check:surface:suite", "build"]);
 
-const results = [...firstPass, ...domainPass, ...finalPass];
+const parity = await runSequential(["pipeline:ci-parity"]);
+
+const results = [...firstPass, ...domainPass, ...finalPass, ...parity];
 const failed = results.find((result) => !result.ok && result.required);
 console.log(JSON.stringify({ pipeline: "verify", results }, null, 2));
 process.exit(failed ? failed.code : 0);

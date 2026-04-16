@@ -303,10 +303,12 @@
     "codemod:script-inject-run-check": "node scripts/codemods/inject-run-check-command.mjs",
     "codemod:rename-script-command": "node scripts/codemods/rename-script-command.mjs",
     "pipeline:verify": "node scripts/pipelines/pipeline-verify.mjs",
+    "pipeline:ci-parity": "node scripts/pipelines/pipeline-ci-parity.mjs",
     "pipeline:security:comprehensive": "node scripts/pipelines/pipeline-security-comprehensive.mjs",
     "pipeline:surface:suite": "node scripts/pipelines/pipeline-surface-suite.mjs",
     "pipeline:ci:static": "node scripts/pipelines/pipeline-ci-static.mjs",
     "pipeline:release:checklist": "node scripts/pipelines/pipeline-release-checklist.mjs",
+    "report:ratchet-snapshot": "node scripts/report-ratchet-snapshot.mjs",
     "report:api-route-auth-and-scope-coverage": "node scripts/report-api-route-auth-and-scope-coverage.mjs",
     "report:db-privilege-surface": "node scripts/report-db-privilege-surface.mjs"
   },
@@ -348,6 +350,7 @@
     "jsdom": "^29.0.2",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "yaml": "^2.8.3"
   }
 }
