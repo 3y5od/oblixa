@@ -12,6 +12,17 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  E2E_ONBOARDING_FULL: ${{ secrets.E2E_ONBOARDING_FULL }}
+  STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
+  COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
+  HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
+
 jobs:
   # Split so static analysis + unit tests overlap with build + E2E (wall-clock win on CI).
   quality_static_security:
@@ -438,7 +449,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    if: ${{ secrets.E2E_ONBOARDING_FULL != '' }}
+    if: ${{ env.E2E_ONBOARDING_FULL != '' }}
     env:
       PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
@@ -498,7 +509,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: quality
-    if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' && secrets.COMPREHENSIVE_PASS_EMAIL != '' && secrets.COMPREHENSIVE_PASS_PASSWORD != '' }}
+    if: ${{ env.STAGING_BASE_URL != '' && env.CRON_SECRET != '' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != '' && env.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' && env.COMPREHENSIVE_PASS_EMAIL != '' && env.COMPREHENSIVE_PASS_PASSWORD != '' }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
@@ -511,8 +522,8 @@ jobs:
         run: npm ci
 
       - name: Healthchecks start
-        if: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
-        run: curl -fsS -m 10 "${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}/start"
+        if: ${{ env.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
+        run: curl -fsS -m 10 "${{ env.HC_RUNTIME_COMPREHENSIVE_PING }}/start"
 
       - name: Runtime comprehensive pass (staging)
         env:
@@ -530,9 +541,9 @@ jobs:
         run: npm run report:ci-provenance
 
       - name: Healthchecks success
-        if: ${{ success() && secrets.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
-        run: curl -fsS -m 10 "${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}"
+        if: ${{ success() && env.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
+        run: curl -fsS -m 10 "${{ env.HC_RUNTIME_COMPREHENSIVE_PING }}"
 
       - name: Healthchecks fail
-        if: ${{ failure() && secrets.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
-        run: curl -fsS -m 10 "${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}/fail"
+        if: ${{ failure() && env.HC_RUNTIME_COMPREHENSIVE_PING != '' }}
+        run: curl -fsS -m 10 "${{ env.HC_RUNTIME_COMPREHENSIVE_PING }}/fail"

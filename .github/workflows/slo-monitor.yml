@@ -5,11 +5,16 @@ on:
     - cron: "*/15 * * * *"
   workflow_dispatch:
 
+env:
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' && secrets.HC_SLO_MONITOR_PING != '' }}
+    if: ${{ env.NEXT_PUBLIC_SUPABASE_URL != '' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.HC_SLO_MONITOR_PING != '' }}
     steps:
       # Pinned SHAs (tags: checkout@v4, setup-node@v4)
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -24,7 +29,7 @@ jobs:
 
       - name: Healthchecks start
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}/start"
+        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}/start"
 
       - name: Run SLO monitor
         env:
@@ -35,9 +40,9 @@ jobs:
       - name: Healthchecks success
         if: ${{ success() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}"
+        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}"
 
       - name: Healthchecks fail
         if: ${{ failure() }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_SLO_MONITOR_PING }}/fail"
+        run: curl -fsS -m 10 "${{ env.HC_SLO_MONITOR_PING }}/fail"

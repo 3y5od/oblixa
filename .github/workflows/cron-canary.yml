@@ -5,11 +5,16 @@ on:
     - cron: "*/30 * * * *"
   workflow_dispatch:
 
+env:
+  STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+  HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
+
 jobs:
   canary:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ secrets.STAGING_BASE_URL != '' && secrets.CRON_SECRET != '' }}
+    if: ${{ env.STAGING_BASE_URL != '' && env.CRON_SECRET != '' }}
     steps:
       # Pinned SHAs (tags: checkout@v4, setup-node@v4)
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -23,9 +28,9 @@ jobs:
         run: npm ci
 
       - name: Healthchecks start
-        if: ${{ secrets.HC_CRON_CANARY_PING != '' }}
+        if: ${{ env.HC_CRON_CANARY_PING != '' }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/start"
+        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}/start"
 
       - name: Run cron canary checks
         env:
@@ -34,11 +39,11 @@ jobs:
         run: npm run check:cron-canary
 
       - name: Healthchecks success
-        if: ${{ success() && secrets.HC_CRON_CANARY_PING != '' }}
+        if: ${{ success() && env.HC_CRON_CANARY_PING != '' }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}"
+        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}"
 
       - name: Healthchecks fail
-        if: ${{ failure() && secrets.HC_CRON_CANARY_PING != '' }}
+        if: ${{ failure() && env.HC_CRON_CANARY_PING != '' }}
         continue-on-error: true
-        run: curl -fsS -m 10 "${{ secrets.HC_CRON_CANARY_PING }}/fail"
+        run: curl -fsS -m 10 "${{ env.HC_CRON_CANARY_PING }}/fail"
