@@ -10,7 +10,7 @@ function pkgScripts(): Record<string, string> {
 }
 
 /**
- * Maps docs/v8.md §24.1–§24.8 to enforced scripts/tests (grepable in CI output).
+ * Maps V8 acceptance criteria to enforced scripts/tests (grepable in CI output).
  */
 describe("V8 §24 acceptance criteria (machine checks)", () => {
   describe("§24.1 governed surfaces mapped or exempt", () => {

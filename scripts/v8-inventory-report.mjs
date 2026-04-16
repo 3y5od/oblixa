@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Human-readable V8 inventory summary (docs/v8.md §21.3).
+ * Human-readable V8 inventory summary.
  */
 import fs from "node:fs";
 import path from "node:path";
