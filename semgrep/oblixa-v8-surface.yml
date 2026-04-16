@@ -2,7 +2,7 @@
 # Keep Semgrep pack narrow/low-noise and reserve richer policy for deterministic scripts/tests.
 rules:
   - id: oblixa-v8-api-create-admin-needs-workspace-gate
-    languages: [typescript, tsx]
+    languages: [typescript]
     message: >
       API routes using createAdminClient should also invoke requireApiWorkspaceEligibility unless explicitly exempt.
     severity: WARNING
@@ -41,7 +41,7 @@ rules:
         - src/actions/demo.ts
 
   - id: oblixa-v8-dashboard-layout-must-enforce-page-eligibility
-    languages: [typescript, tsx]
+    languages: [typescript]
     message: >
       Dashboard layout must enforce page-surface eligibility via assertPagePathEligibleOrNotFound.
     severity: WARNING

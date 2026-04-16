@@ -129,6 +129,7 @@
     "check:page-heading-contract": "node scripts/check-page-heading-contract.mjs",
     "check:shell-landmarks": "node scripts/check-shell-landmarks.mjs",
     "check:route-state-coverage": "node scripts/check-route-state-coverage.mjs",
+    "generate:qa-route-matrices": "node scripts/generate-public-route-matrix.mjs && node scripts/generate-authenticated-route-matrix.mjs && node scripts/generate-route-state-matrix.mjs && node scripts/generate-visual-route-matrix.mjs",
     "report:type-lint-strictness": "node scripts/report-type-lint-strictness.mjs",
     "check:type-lint-ratchet": "node scripts/check-type-lint-ratchet.mjs --strict",
     "security:sweep:quarterly": "npm run report:security-docs && npm run check:security-static:grep",

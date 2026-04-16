@@ -1,6 +1,6 @@
 rules:
   - id: oblixa-perf-supabase-select-star
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: WARNING
     message:
       Prefer explicit Supabase .select columns over select("*") to reduce payload size and
@@ -14,7 +14,7 @@ rules:
         - "**/e2e/**"
         - "src/lib/v6/service.ts"
   - id: oblixa-perf-supabase-large-limit
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: WARNING
     message:
       Large Supabase .limit without pagination — prefer .range paging or forEachSupabaseRangePage

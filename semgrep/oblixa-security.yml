@@ -1,6 +1,6 @@
 rules:
   - id: oblixa-createadminclient-in-use-client
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: ERROR
     message:
       createAdminClient (service-role Supabase client) must not be used in a "use client" module.
@@ -13,7 +13,7 @@ rules:
       - pattern: createAdminClient
 
   - id: oblixa-supabase-server-import-in-use-client
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: ERROR
     message: Import from @/lib/supabase/server must not appear in a "use client" module (server-only).
     patterns:
@@ -23,7 +23,7 @@ rules:
       - pattern-regex: from\s+["']@/lib/supabase/server["']
 
   - id: oblixa-service-role-key-in-components
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: ERROR
     message: SUPABASE_SERVICE_ROLE_KEY must not appear under src/components (client bundle risk if ever referenced).
     pattern: SUPABASE_SERVICE_ROLE_KEY
@@ -32,13 +32,13 @@ rules:
         - "src/components/**"
 
   - id: oblixa-dangerously-set-inner-html
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: WARNING
     message: Review dangerouslySetInnerHTML; ensure HTML is trusted or sanitized.
     pattern: dangerouslySetInnerHTML
 
   - id: oblixa-cleartext-http-string
-    languages: [tsx, typescript, javascript]
+    languages: [typescript, javascript]
     severity: WARNING
     message:
       Cleartext http:// URL literal in application code; prefer https for production endpoints
@@ -54,7 +54,7 @@ rules:
         - "src/lib/app-url.ts"
 
   - id: oblixa-dynamic-import-variable-specifier
-    languages: [typescript, tsx]
+    languages: [typescript]
     severity: INFO
     message:
       Dynamic import() with a non-literal specifier risks module path injection if user input
@@ -71,7 +71,7 @@ rules:
         - "**/instrumentation.ts"
 
   - id: oblixa-prototype-pollution-key-string
-    languages: [typescript, tsx, javascript]
+    languages: [typescript, javascript]
     severity: INFO
     message: Review use of __proto__/constructor/prototype string keys near JSON or user input (prototype pollution).
     pattern-regex: ["'](?:__proto__|constructor|prototype)["']
@@ -93,7 +93,7 @@ rules:
         - "supabase/migrations/**"
 
   - id: oblixa-stripe-secret-in-components
-    languages: [tsx, typescript]
+    languages: [typescript]
     severity: ERROR
     message: STRIPE_SECRET_KEY must not appear under src/components (client bundle risk).
     pattern: STRIPE_SECRET_KEY
@@ -102,7 +102,7 @@ rules:
         - "src/components/**"
 
   - id: oblixa-logs-authorization-or-bearer
-    languages: [typescript, tsx, javascript]
+    languages: [typescript, javascript]
     severity: ERROR
     message:
       Avoid logging authorization headers, bearer tokens, or webhook signatures.
@@ -116,7 +116,7 @@ rules:
         - "**/*.spec.ts"
 
   - id: oblixa-api-raw-error-leak
-    languages: [typescript, tsx]
+    languages: [typescript]
     severity: ERROR
     message:
       Avoid returning raw Error objects or stack traces in API responses.

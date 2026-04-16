@@ -3,7 +3,7 @@
 # extend only with rules that produce near-zero false positives across the full contracts tree.
 rules:
   - id: oblixa-v7-surface-placeholder
-    languages: [typescript, tsx]
+    languages: [typescript]
     message: >
       Semgrep V7 pack reserved — use the Node href audit for cross-surface link enforcement.
     severity: INFO
