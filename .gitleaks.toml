@@ -9,9 +9,10 @@ useDefault = true
 # Vitest and Playwright use intentional fake credentials (Stripe test mode, cron placeholders, etc.).
 # Prefer fixing accidental real secrets in tests rather than expanding this list.
 [allowlist]
-description = "E2E and unit test fixtures"
+description = "E2E fixtures and known false positives"
 paths = [
   '''^e2e/''',
   '''.*\.test\.ts$''',
   '''.*\.test\.tsx$''',
+  '''^scripts/check-hardening-debt-ratchet\.mjs$''',
 ]
