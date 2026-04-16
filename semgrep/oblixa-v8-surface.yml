@@ -13,12 +13,12 @@ rules:
           await requireApiWorkspaceEligibility(...)
     paths:
       include:
-        - src/app/api/**/route.ts
+        - /src/app/api/**/route.ts
       exclude:
-        - src/app/api/cron/**/route.ts
-        - src/app/api/stripe/**/route.ts
-        - src/app/api/tracking/**/route.ts
-        - src/app/api/health/**/route.ts
+        - /src/app/api/cron/**/route.ts
+        - /src/app/api/stripe/**/route.ts
+        - /src/app/api/tracking/**/route.ts
+        - /src/app/api/health/**/route.ts
 
   - id: oblixa-v8-server-action-needs-eligibility-or-org-scope
     languages: [typescript]
@@ -35,10 +35,10 @@ rules:
           await getOrgMemberRole(...)
     paths:
       include:
-        - src/actions/**/*.ts
+        - /src/actions/**/*.ts
       exclude:
-        - src/actions/auth.ts
-        - src/actions/demo.ts
+        - /src/actions/auth.ts
+        - /src/actions/demo.ts
 
   - id: oblixa-v8-dashboard-layout-must-enforce-page-eligibility
     languages: [typescript]
@@ -54,4 +54,4 @@ rules:
           assertPagePathEligibleOrNotFound(...)
     paths:
       include:
-        - src/app/(dashboard)/layout.tsx
+        - /src/app/(dashboard)/layout.tsx

@@ -10,4 +10,4 @@ rules:
     pattern: oblixaV7SemgrepPlaceholderNeverUsed()
     paths:
       include:
-        - src/app/(dashboard)/contracts/**/*.tsx
+        - /src/app/(dashboard)/contracts/**/*.tsx

@@ -12,7 +12,7 @@ rules:
         - "**/*.test.tsx"
         - "**/*.spec.ts"
         - "**/e2e/**"
-        - "src/lib/v6/service.ts"
+        - "/src/lib/v6/service.ts"
   - id: oblixa-perf-supabase-large-limit
     languages: [typescript]
     severity: WARNING

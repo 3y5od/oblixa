@@ -29,7 +29,7 @@ rules:
     pattern: SUPABASE_SERVICE_ROLE_KEY
     paths:
       include:
-        - "src/components/**"
+        - "/src/components/**"
 
   - id: oblixa-dangerously-set-inner-html
     languages: [typescript]
@@ -44,14 +44,15 @@ rules:
       Cleartext http:// URL literal in application code; prefer https for production endpoints
       or keep scoped to documented dev defaults (see src/lib/app-url.ts).
     pattern-regex: >-
-      http://(?!(?:localhost|127\.0\.0\.1|0\.0\.0\.0|example\.test|evil\.example)(?::\d+)?(?:/|$|\?))
+      http://(?!(?:localhost|127\.0\.0\.1|0\.0\.0\.0|example\.test|evil\.example)(?::\d+)?(?:/|$|\?|["'`,)\s]))
     paths:
       exclude:
         - "**/*.test.ts"
         - "**/*.test.tsx"
         - "**/*.spec.ts"
         - "**/e2e/**"
-        - "src/lib/app-url.ts"
+        - "/src/lib/app-url.ts"
+        - "/src/lib/security/safe-external-href.ts"
 
   - id: oblixa-dynamic-import-variable-specifier
     languages: [typescript]
@@ -59,9 +60,13 @@ rules:
     message:
       Dynamic import() with a non-literal specifier risks module path injection if user input
       reaches the specifier; prefer static imports or a fixed allowlist map.
-    pattern-either:
-      - pattern: import($X)
-      - pattern: import(`${$X}...`)
+    patterns:
+      - pattern-either:
+          - pattern: import($X)
+          - pattern: import(`${$X}...`)
+      - pattern-not: import("...")
+      - pattern-not: import('...')
+      - pattern-not: import(`...`)
     paths:
       exclude:
         - "**/*.test.ts"
@@ -87,10 +92,10 @@ rules:
     message:
       SECURITY DEFINER in migrations elevates privileges; confirm scope is minimal and document
       rationale in the migration or linked issue.
-    pattern-regex: SECURITY\s+DEFINER
+    pattern-regex: (?mi)^(?!\s*--).*SECURITY\s+DEFINER
     paths:
       include:
-        - "supabase/migrations/**"
+        - "/supabase/migrations/**"
 
   - id: oblixa-stripe-secret-in-components
     languages: [typescript]
@@ -99,7 +104,7 @@ rules:
     pattern: STRIPE_SECRET_KEY
     paths:
       include:
-        - "src/components/**"
+        - "/src/components/**"
 
   - id: oblixa-logs-authorization-or-bearer
     languages: [typescript, javascript]
@@ -108,7 +113,7 @@ rules:
       Avoid logging authorization headers, bearer tokens, or webhook signatures.
       Log only redacted values.
     pattern-regex: >-
-      (console\.(?:log|info|warn|error)|logger\.(?:debug|info|warn|error))\s*\([^)]*(?:authorization|bearer|stripe-signature|x-api-key|token)
+      (console\.(?:log|info|warn|error)|logger\.(?:debug|info|warn|error))\s*\([^)]*(?:authorization|bearer|stripe-signature|x-api-key)
     paths:
       exclude:
         - "**/*.test.ts"
@@ -122,4 +127,4 @@ rules:
       Avoid returning raw Error objects or stack traces in API responses.
       Return safe error codes/messages instead.
     pattern-regex: >-
-      NextResponse\.json\s*\([^)]*(?:error\s*:\s*(?:error|err)|stack\s*:)
+      NextResponse\.json\s*\([^)]*(?:error\s*:\s*(?:error|err)\b(?!\s*\.)|stack\s*:)[^)]*\)

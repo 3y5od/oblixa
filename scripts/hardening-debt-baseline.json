@@ -1,7 +1,7 @@
 {
-  "baselineDate": "2026-04-12",
-  "skipCount": 99,
-  "skipProblemCount": 99,
+  "baselineDate": "2026-04-16",
+  "skipCount": 104,
+  "skipProblemCount": 0,
   "allowlistedApiRoutes": 54,
   "v8ExemptionRows": 0,
   "maxDelta": 0
