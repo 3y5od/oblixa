@@ -332,7 +332,7 @@
     "codemod:zinc-sweep-tokens": "node scripts/zinc-sweep-tokens.mjs"
   },
   "dependencies": {
-    "@react-pdf/renderer": "^4.4.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@sentry/nextjs": "^10.47.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
