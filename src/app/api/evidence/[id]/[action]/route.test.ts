@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const revalidatePath = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -19,6 +20,10 @@ vi.mock("@/lib/integrations/events", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath,
 }));
 
 function adminEvidence(submission: { id: string; requirement_id: string } | null) {
@@ -126,6 +131,20 @@ describe("POST /api/evidence/[id]/[action]", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/evidence/sub-1/approve", { method: "POST" }),
       { params: Promise.resolve({ id: "sub-1", action: "approve" }) }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
+
+  it("reject succeeds with reviewer feedback", async () => {
+    const { POST } = await import("@/app/api/evidence/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/evidence/sub-1/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Please upload the current certificate period." }),
+      }),
+      { params: Promise.resolve({ id: "sub-1", action: "reject" }) }
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });

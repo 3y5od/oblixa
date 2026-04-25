@@ -2,7 +2,7 @@ import type { NotificationProductTier } from "@/lib/product-surface/types";
 import { notificationTierForType } from "@/lib/notification-product-tier";
 
 /**
- * Tier for `outbound_events.event_type` (docs/refinement.md §18).
+ * Tier for `outbound_events.event_type` (product-surface policy §18).
  * Unknown types default to core so operational telemetry is not dropped by mode gates.
  */
 const OUTBOUND_EVENT_TYPE_TIER: Record<string, NotificationProductTier> = {

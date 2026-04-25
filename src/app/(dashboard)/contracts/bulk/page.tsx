@@ -6,7 +6,14 @@ import {
   OperationalSurfaceLinkCard,
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
+import { ImportJobRetryButton } from "@/components/contracts/import-job-retry-button";
 import { canEditContracts } from "@/lib/permissions";
+import {
+  getImportJobDetail,
+  getImportJobHeadline,
+  getImportJobTone,
+  importJobCanRetry,
+} from "@/lib/import-job-visibility";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -18,7 +25,7 @@ export default async function BulkImportPage() {
   if (!ctx) {
     return (
       <div className="py-20 text-center">
-        <p className="text-sm text-zinc-500">No organization found.</p>
+        <p className="text-sm text-[var(--text-tertiary)]">No organization found.</p>
       </div>
     );
   }
@@ -38,7 +45,9 @@ export default async function BulkImportPage() {
 
   const { data: recentJobs } = await ctx.admin
     .from("contract_import_jobs")
-    .select("id, status, total_rows, inserted_rows, error_rows, created_at")
+    .select(
+      "id, status, total_rows, inserted_rows, error_rows, failure_reason, retry_of_job_id, superseded_by_job_id, created_at, updated_at, completed_at"
+    )
     .eq("organization_id", ctx.orgId)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -59,22 +68,23 @@ export default async function BulkImportPage() {
 
   const recentCount = recentJobs?.length ?? 0;
   const lastStatus = recentJobs?.[0]?.status ?? null;
+  const latestJobTone = recentJobs?.[0] ? getImportJobTone(recentJobs[0]) : "healthy";
 
   return (
     <div className="ui-page-stack mx-auto max-w-2xl">
       <div className="flex items-center gap-4">
         <Link
           href="/contracts"
-          className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+          className="rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] hover:text-[var(--text-secondary)]"
         >
           ← Back
         </Link>
       </div>
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="border-b border-[var(--border-subtle)] pb-8">
         <div>
           <p className="ui-eyebrow">Scale ingest</p>
           <h1 className="ui-display-title mt-2">Bulk import</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
+          <p className="ui-page-lead mt-3 max-w-2xl">
             Upload many PDF or DOCX files at once. Each file becomes a separate contract for review and extraction.
           </p>
         </div>
@@ -83,12 +93,22 @@ export default async function BulkImportPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         <OperationalSummaryCard
           eyebrow="History"
-          headline="Recent jobs (sample)"
-          tone={recentCount > 0 ? "neutral" : "healthy"}
+          headline="Recent import posture"
+          tone={recentCount > 0 ? latestJobTone : "healthy"}
           icon={History}
           primaryValue={recentCount}
           primaryUnit="last 5 in workspace"
-          breakdown={lastStatus ? [{ label: "Latest status", value: String(lastStatus) }] : []}
+          breakdown={
+            lastStatus
+              ? [
+                  { label: "Latest status", value: String(lastStatus) },
+                  {
+                    label: "Latest outcome",
+                    value: recentJobs?.[0] ? getImportJobHeadline(recentJobs[0]) : String(lastStatus),
+                  },
+                ]
+              : []
+          }
           action={{ href: "/contracts/bulk", label: "Refresh" }}
           variant="compact"
         />
@@ -116,7 +136,7 @@ export default async function BulkImportPage() {
         ) : null}
       </div>
 
-      <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-6 shadow-[var(--shadow-1)]">
+      <div className="ui-page-shell p-6">
         <BulkUploadForm
           organizationId={ctx.orgId}
           disabled={!!disabledReason}
@@ -133,18 +153,32 @@ export default async function BulkImportPage() {
           </p>
         )}
         {(recentJobs?.length ?? 0) > 0 && (
-          <div className="mt-6 border-t border-zinc-100 pt-4">
+          <div id="recent-imports" className="mt-6 border-t border-[var(--border-subtle)] pt-4">
             <p className="ui-eyebrow">Imports</p>
             <p className="ui-section-title mt-1 text-base">Recent import jobs</p>
-            <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
+            <p className="ui-support-copy mt-1">Use recent jobs as the recovery surface for failed imports, retries, and handoff into the contracts list.</p>
+            <ul className="mt-3 space-y-3 text-xs text-[var(--text-secondary)]">
               {recentJobs?.map((job) => (
-                <li key={job.id}>
-                  {job.status} · rows {job.inserted_rows}/{job.total_rows}
-                  {job.error_rows ? ` · errors ${job.error_rows}` : ""}
-                  {" · "}
-                  <a className="ui-link" href={`/api/import/contracts/${job.id}`}>
-                    details
-                  </a>
+                <li key={job.id} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/70 p-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                        {getImportJobHeadline(job)}
+                      </p>
+                      <p className="text-[12px] text-[var(--text-secondary)]">{getImportJobDetail(job)}</p>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">
+                        Created {new Date(job.created_at).toISOString()}
+                        {job.retry_of_job_id ? " · retry attempt" : ""}
+                        {job.completed_at ? ` · completed ${new Date(job.completed_at).toISOString()}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <a className="ui-link text-[11px]" href={`/api/import/contracts/${job.id}`}>
+                        Job details JSON
+                      </a>
+                      {importJobCanRetry(job) ? <ImportJobRetryButton jobId={job.id} /> : null}
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -158,10 +192,10 @@ export default async function BulkImportPage() {
           </div>
         )}
         {showMaintenanceSurfaces ? (
-          <div className="mt-6 border-t border-zinc-100 pt-4">
+          <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
             <p className="ui-eyebrow">Remediation</p>
             <p className="ui-section-title mt-1 text-base">Bulk correction and backfill</p>
-            <p className="ui-muted-tight mt-1 text-[13px]">
+            <p className="ui-support-copy mt-1 text-[13px]">
               Run normalization campaigns and date backfills from the maintenance workspace.
             </p>
             <Link href="/contracts/maintenance" className="ui-link mt-2 inline-block text-xs">

@@ -1,5 +1,5 @@
 /**
- * Product surface resolution (docs/refinement.md §5–§6, §13, §17.3).
+ * Product surface resolution (product-surface policy §5–§6, §13, §17.3).
  *
  * **§5 layers → flags**
  * - **Layer 1 (Core)** — Always the default narrative: primary nav for Contracts, Review, Work, Renewals,
@@ -26,6 +26,11 @@ import type {
   WorkspaceProductMode,
 } from "@/lib/product-surface/types";
 import { resolveEffectiveLandingPath } from "@/lib/product-surface/landing-eligibility";
+import {
+  isAdvancedNavModuleKey,
+  isAssuranceNavModuleKey,
+  isUtilityModuleKey,
+} from "@/lib/product-surface/workspace-module-keys";
 
 export type ProductSurfaceContext = {
   orgId: string;
@@ -76,47 +81,15 @@ export function buildProductSurfaceContext(input: {
 }): ProductSurfaceContext {
   const mode = parseWorkspaceMode(input.v6);
   const hidden = Array.isArray(input.v6.advanced_modules_hidden)
-    ? input.v6.advanced_modules_hidden.filter(
-        (k): k is AdvancedNavModuleKey =>
-          k === "decisions" ||
-          k === "campaigns" ||
-          k === "programs" ||
-          k === "relationships" ||
-          k === "analytics" ||
-          k === "maintenance" ||
-          k === "collaboration" ||
-          k === "compare_views"
-      )
+    ? input.v6.advanced_modules_hidden.filter(isAdvancedNavModuleKey)
     : [];
   const advancedModulesHidden = new Set(hidden);
   const assuranceHidden = Array.isArray(input.v6.assurance_modules_hidden)
-    ? input.v6.assurance_modules_hidden.filter(
-        (k): k is AssuranceNavModuleKey =>
-          k === "findings" ||
-          k === "control_policies" ||
-          k === "scorecards" ||
-          k === "playbooks" ||
-          k === "autopilot" ||
-          k === "review_boards" ||
-          k === "segments" ||
-          k === "program_evolution" ||
-          k === "health_graph" ||
-          k === "outcome_intelligence"
-      )
+    ? input.v6.assurance_modules_hidden.filter(isAssuranceNavModuleKey)
     : [];
   const assuranceModulesHidden = new Set(assuranceHidden);
   const utilityHidden = Array.isArray(input.v6.utility_modules_hidden)
-    ? input.v6.utility_modules_hidden.filter(
-        (k): k is UtilityModuleKey =>
-          k === "intake" ||
-          k === "data_quality" ||
-          k === "review_cadence" ||
-          k === "watchlists" ||
-          k === "execution_graph" ||
-          k === "approval_workload" ||
-          k === "approval_sla_simulator" ||
-          k === "more_tools"
-      )
+    ? input.v6.utility_modules_hidden.filter(isUtilityModuleKey)
     : [];
   const utilityModulesHidden = new Set(utilityHidden);
 

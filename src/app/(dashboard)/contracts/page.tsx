@@ -1,18 +1,22 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { isHrefEligibleForProductSurface, loadProductSurfaceContext } from "@/lib/product-surface";
+import {
+  isHrefEligibleForProductSurface,
+  loadProductSurfaceContext,
+  resolveWorkflowDestination,
+} from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
-import { attachOwnerProfiles } from "@/lib/contracts";
+import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
 import {
-  createContractsSavedView,
   deleteSavedView,
   setSavedViewMonthlySummary,
   setSavedViewWeeklyRecipients,
   setSavedViewWeeklySummary,
 } from "@/actions/saved-views";
+import { ContractsSavedViewCreateForm } from "@/components/contracts/contracts-saved-view-create-form";
 import {
   getContractIdsForDeadlinePreset,
   getContractIdsMatchingFieldSearch,
@@ -20,24 +24,26 @@ import {
   DEADLINE_PRESET_VALUES,
 } from "@/lib/contract-filters";
 import Link from "next/link";
-import { CheckCircle2, Eye, Files } from "lucide-react";
+import { CheckCircle2, Download, Eye, Files } from "lucide-react";
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
+import {
+  combineContractListIntersectIds,
+  parseContractListSort,
+  resolveAuxiliaryContractListIntersectIds,
+} from "@/lib/contract-list-id-filters";
+import { getContractListRowSignalsMap } from "@/lib/contract-list-row-signals";
+import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
+import type { OrgRole } from "@/lib/types";
+import { getExportJobDetail, getExportJobHeadline, getExportJobTone } from "@/lib/export-job-visibility";
+import {
+  buildContractsListHref,
+  normalizeContractsSearchQuery,
+} from "@/lib/contracts-search-url";
 
-function buildFilterUrl(params: Record<string, string | undefined>) {
-  const search = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) {
-    if (v) search.set(k, v);
-  }
-  const qs = search.toString();
-  return qs ? `/contracts?${qs}` : "/contracts";
-}
-
-function sanitizeSearch(raw: string): string {
-  return raw.replace(/[%_\\()"',.*]/g, "").trim();
-}
+export const metadata = { title: "Contracts" };
 
 const DEADLINE_OPTIONS: { value: DeadlinePreset; label: string }[] = [
   { value: "", label: "Any date" },
@@ -71,6 +77,30 @@ function isDeadlinePreset(v: string | undefined): v is DeadlinePreset {
   return DEADLINE_PRESET_VALUES.includes(v as DeadlinePreset);
 }
 
+function parseExceptionsFilter(v: string | undefined): "" | "open" {
+  return v === "open" ? "open" : "";
+}
+
+function parseReviewFilter(v: string | undefined): "" | "pending" {
+  return v === "pending" ? "pending" : "";
+}
+
+function parseDataQualityFilter(v: string | undefined): "" | "missing_critical" {
+  return v === "missing_critical" ? "missing_critical" : "";
+}
+
+function parseEvidenceFilter(v: string | undefined): "" | "outstanding" {
+  return v === "outstanding" ? "outstanding" : "";
+}
+
+const FILTER_PILL_IDLE_CLASS = "ui-filter-pill";
+const FILTER_PILL_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
+const SAVED_VIEW_TOGGLE_IDLE_CLASS = "ui-filter-pill";
+const SAVED_VIEW_TOGGLE_WEEKLY_ACTIVE_CLASS =
+  "ui-filter-pill bg-[var(--success-soft)] text-[var(--success-ink)] hover:brightness-95";
+const SAVED_VIEW_TOGGLE_MONTHLY_ACTIVE_CLASS =
+  "ui-filter-pill bg-[var(--info-soft)] text-[var(--info-ink)] hover:brightness-95";
+
 export default async function ContractsPage(props: {
   searchParams: Promise<{
     status?: string;
@@ -78,16 +108,23 @@ export default async function ContractsPage(props: {
     owner?: string;
     region?: string;
     deadline?: string;
+    sort?: string;
+    exceptions?: string;
+    review?: string;
+    data_quality?: string;
+    evidence?: string;
     page?: string;
   }>;
 }) {
-  // docs/refinement.md §20.3 — this `search` query filters the contracts table only (not cmd-K / global discovery).
+  // product-surface policy §20.3 — this `search` query filters the contracts table only (not cmd-K / global discovery).
   const searchParams = await props.searchParams;
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
 
   const { orgId, admin } = ctx;
   const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
+  const contractsDestination = resolveWorkflowDestination(productSurface, "contracts");
+  const contractsCopy = contractsDestination?.visible ? contractsDestination.copy : null;
   const moreActionLinks: { href: string; label: string }[] = [
     { href: "/api/export/calendar/feed", label: "Calendar feed token" },
     { href: "/contracts/intake", label: "Intake" },
@@ -112,17 +149,31 @@ export default async function ContractsPage(props: {
   const deadline: DeadlinePreset =
     deadlineParam && isDeadlinePreset(deadlineParam) ? deadlineParam : "";
   const sanitizedSearch = searchParams.search
-    ? sanitizeSearch(searchParams.search)
+    ? normalizeContractsSearchQuery(searchParams.search)
     : "";
 
-  const [deadlineIds, fieldSearchIds] = await Promise.all([
+  const exceptionsFilter = parseExceptionsFilter(searchParams.exceptions);
+  const reviewFilter = parseReviewFilter(searchParams.review);
+  const dataQualityFilter = parseDataQualityFilter(searchParams.data_quality);
+  const evidenceFilter = parseEvidenceFilter(searchParams.evidence);
+  const sortKey = parseContractListSort(searchParams.sort);
+
+  const [deadlineIds, fieldSearchIds, auxIntersect] = await Promise.all([
     deadline
       ? getContractIdsForDeadlinePreset(admin, orgId, deadline)
       : Promise.resolve<string[] | null>(null),
     sanitizedSearch
       ? getContractIdsMatchingFieldSearch(admin, orgId, sanitizedSearch)
       : Promise.resolve<string[]>([]),
+    resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+      exceptions: exceptionsFilter || undefined,
+      review: reviewFilter || undefined,
+      data_quality: dataQualityFilter || undefined,
+      evidence: evidenceFilter || undefined,
+    }),
   ]);
+
+  const intersectIds = combineContractListIntersectIds([deadlineIds, auxIntersect]);
 
   const membersPromise = admin
     .from("organization_members")
@@ -136,6 +187,12 @@ export default async function ContractsPage(props: {
     .eq("user_id", ctx.user.id)
     .eq("view_type", "contracts")
     .order("created_at", { ascending: true });
+  const exportJobsPromise = admin
+    .from("contract_export_jobs")
+    .select("id, status, selected_contract_count, exported_rows, truncated, error_message, created_at")
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: false })
+    .limit(3);
   const contractsPagePromise = fetchContractsPage(
     admin,
     {
@@ -143,31 +200,49 @@ export default async function ContractsPage(props: {
       status: searchParams.status,
       owner: searchParams.owner,
       region: searchParams.region,
-      deadlineIds,
+      intersectIds,
       sanitizedSearch,
       fieldSearchIds,
+      sort: sortKey === "created" ? "created" : "activity",
     },
     page
   );
   const [
     { data: membersData },
     { data: savedViewsData },
+    { data: exportJobsData },
     { contracts: contractsData, total: contractTotal },
-  ] = await Promise.all([membersPromise, savedViewsPromise, contractsPagePromise]);
+    role,
+  ] = await Promise.all([
+    membersPromise,
+    savedViewsPromise,
+    exportJobsPromise,
+    contractsPagePromise,
+    getOrgMemberRole(admin, ctx.user.id, orgId),
+  ]);
+
+  const canEdit = canEditContracts(role as OrgRole);
 
   const listTotalPages =
     contractTotal > 0
       ? Math.max(1, Math.ceil(contractTotal / CONTRACTS_PAGE_SIZE))
       : 1;
   if (page > listTotalPages && contractTotal > 0) {
-    const next = new URLSearchParams();
-    if (searchParams.search) next.set("search", searchParams.search);
-    if (searchParams.status) next.set("status", searchParams.status);
-    if (searchParams.owner) next.set("owner", searchParams.owner);
-    if (searchParams.region) next.set("region", searchParams.region);
-    if (searchParams.deadline) next.set("deadline", searchParams.deadline);
-    next.set("page", String(listTotalPages));
-    redirect(`/contracts?${next.toString()}`);
+    redirect(
+      buildContractsListHref({
+        search: searchParams.search,
+        status: searchParams.status,
+        owner: searchParams.owner,
+        region: searchParams.region,
+        deadline: searchParams.deadline,
+        sort: searchParams.sort,
+        exceptions: searchParams.exceptions,
+        review: searchParams.review,
+        data_quality: searchParams.data_quality,
+        evidence: searchParams.evidence,
+        page: String(listTotalPages),
+      })
+    );
   }
 
   const savedViewIds = (savedViewsData ?? []).map((v) => v.id);
@@ -208,27 +283,36 @@ export default async function ContractsPage(props: {
     };
   });
 
-  const [contracts, reviewStats] = await Promise.all([
+  const [contracts, reviewStats, rowSignals] = await Promise.all([
     attachOwnerProfiles(admin, contractsData),
     getReviewStatsForContractIds(
       admin,
+      contractsData.map((c) => c.id)
+    ),
+    getContractListRowSignalsMap(
+      admin,
+      orgId,
       contractsData.map((c) => c.id)
     ),
   ]);
 
   const savedViews = (savedViewsData ?? []).map((v) => {
     const q = (v.query_json ?? {}) as Record<string, string | null | undefined>;
-    const viewParams = new URLSearchParams();
-    if (q.search) viewParams.set("search", q.search);
-    if (q.status) viewParams.set("status", q.status);
-    if (q.owner) viewParams.set("owner", q.owner);
-    if (q.region) viewParams.set("region", q.region);
-    if (q.deadline) viewParams.set("deadline", q.deadline);
-    const qs = viewParams.toString();
     return {
       id: v.id,
       name: v.name,
-      href: qs ? `/contracts?${qs}` : "/contracts",
+      href: buildContractsListHref({
+        search: q.search,
+        status: q.status,
+        owner: q.owner,
+        region: q.region,
+        deadline: q.deadline,
+        sort: q.sort,
+        exceptions: q.exceptions,
+        review: q.review,
+        data_quality: q.data_quality,
+        evidence: q.evidence,
+      }),
       weeklyActive: weeklyByViewId.get(v.id) ?? false,
       monthlyActive: monthlyByViewId.get(v.id) ?? false,
       recipientsCsv: recipientsByViewId.get(v.id) ?? "",
@@ -237,18 +321,27 @@ export default async function ContractsPage(props: {
 
   const statuses = [
     { value: "", label: "All" },
-    { value: "pending_review", label: "Pending Review" },
-    { value: "active", label: "Active" },
-    { value: "expired", label: "Expired" },
-    { value: "terminated", label: "Terminated" },
-    { value: "draft", label: "Draft" },
+    { value: "pending_review", label: STATUS_LABELS.pending_review },
+    { value: "active", label: STATUS_LABELS.active },
+    { value: "expired", label: STATUS_LABELS.expired },
+    { value: "terminated", label: STATUS_LABELS.terminated },
+    { value: "draft", label: STATUS_LABELS.draft },
   ];
+  const activeStatusLabel = searchParams.status
+    ? (STATUS_LABELS[searchParams.status as keyof typeof STATUS_LABELS] ??
+      searchParams.status.replace(/_/g, " "))
+    : null;
 
   const baseParams = {
     search: searchParams.search,
     owner: searchParams.owner,
     region: searchParams.region,
     deadline: searchParams.deadline,
+    sort: searchParams.sort,
+    exceptions: searchParams.exceptions,
+    review: searchParams.review,
+    data_quality: searchParams.data_quality,
+    evidence: searchParams.evidence,
   };
 
   const paginationQuery: Record<string, string | undefined> = {
@@ -257,25 +350,59 @@ export default async function ContractsPage(props: {
     region: searchParams.region,
   };
 
+  const filterFingerprint = JSON.stringify({
+    status: searchParams.status ?? "",
+    owner: searchParams.owner ?? "",
+    region: searchParams.region ?? "",
+    deadline: searchParams.deadline ?? "",
+    search: searchParams.search ?? "",
+    sort: searchParams.sort ?? "",
+    exceptions: searchParams.exceptions ?? "",
+    review: searchParams.review ?? "",
+    data_quality: searchParams.data_quality ?? "",
+    evidence: searchParams.evidence ?? "",
+  });
+
   const pagePendingReview = contracts.filter((c) => c.status === "pending_review").length;
   const pageActive = contracts.filter((c) => c.status === "active").length;
+  const latestExportJob = exportJobsData?.[0] ?? null;
+  const latestExportTone = latestExportJob ? getExportJobTone(latestExportJob) : "neutral";
   const activeFilters = [
     searchParams.search ? `Search: ${searchParams.search}` : null,
-    searchParams.status ? `Status: ${searchParams.status}` : null,
+    activeStatusLabel ? `Status: ${activeStatusLabel}` : null,
     searchParams.owner ? `Owner: filtered` : null,
     searchParams.region ? `Region: ${searchParams.region}` : null,
     searchParams.deadline ? `Date: ${searchParams.deadline}` : null,
+    searchParams.sort === "created" ? "Sort: created" : null,
+    searchParams.exceptions ? `Exceptions: ${searchParams.exceptions}` : null,
+    searchParams.review ? `Review: ${searchParams.review}` : null,
+    searchParams.data_quality ? `Data: ${searchParams.data_quality}` : null,
+    searchParams.evidence ? `Evidence: ${searchParams.evidence}` : null,
   ].filter((value): value is string => value != null);
 
   return (
     <div className="ui-page-stack">
       <header className="ui-page-header">
         <div className="min-w-0 flex-1">
-          <p className="ui-eyebrow">Records</p>
-          <h1 className="ui-display-title mt-2">Contracts</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">
-            Contract records, queue states, ownership filters, and saved operating views.
+          <h1 className="ui-display-title">Contracts</h1>
+          <p className="ui-page-lead mt-2">
+            {contractsCopy?.headerLead ??
+              "Contract records, queue states, ownership filters, and saved operating views."}
           </p>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            <div className="ui-metric-chip grid min-w-[8rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
+              <span className="ui-meta leading-none">In scope</span>
+              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{contractTotal}</span>
+            </div>
+            <div className="ui-metric-chip grid min-w-[10.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
+              <span className="ui-meta leading-none">Pending review</span>
+              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{pagePendingReview}</span>
+            </div>
+            <div className="ui-metric-chip grid min-w-[7rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
+              <span className="ui-meta leading-none">Active</span>
+              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{pageActive}</span>
+            </div>
+          </div>
         </div>
         <div className="ui-page-actions">
           <Link href="/contracts/new" className="ui-btn-primary px-5 py-2.5">
@@ -284,7 +411,10 @@ export default async function ContractsPage(props: {
           <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Bulk import
           </Link>
-          <a href="/api/export/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
+          <a
+            href={`/api/export/contracts?orgId=${encodeURIComponent(orgId)}`}
+            className="ui-btn-secondary px-4 py-2.5 text-[13px]"
+          >
             Export CSV
           </a>
           <a href="/api/export/calendar" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
@@ -299,7 +429,7 @@ export default async function ContractsPage(props: {
                 <ul className="divide-y divide-[var(--border-subtle)] text-sm">
                   {visibleMoreActionLinks.map((row) => (
                     <li key={row.href}>
-                      <Link href={row.href} className="block px-4 py-2.5 hover:bg-zinc-50">
+                      <Link href={row.href} className="block px-4 py-2.5 hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]">
                         {row.label}
                       </Link>
                     </li>
@@ -311,24 +441,25 @@ export default async function ContractsPage(props: {
         </div>
       </header>
 
-      <section data-testid={surfaceTestIds.contractsPageSnapshot} className="ui-page-shell space-y-3">
+      <section data-testid={surfaceTestIds.contractsPageSnapshot} className="ui-page-shell space-y-4">
         <div>
           <p className="ui-eyebrow">Table</p>
-          <h2 className="ui-section-title mt-2 text-xl">Page snapshot</h2>
-          <p className="ui-muted-tight mt-1 text-[12px]">
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Page snapshot</h2>
+          <p className="ui-section-lead mt-2">
             Filtered portfolio volume, review pressure, and live agreements on the current page.
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-8">
           <OperationalSummaryCard
             eyebrow="Filtered"
             headline="In scope"
             tone="neutral"
             icon={Files}
             primaryValue={contractTotal}
-            primaryUnit="rows this page"
+            primaryUnit="on this page"
             action={{ href: "/contracts", label: "Refresh filters" }}
             variant="compact"
+            className="lg:col-span-2"
           />
           <OperationalSummaryCard
             eyebrow="Inbox"
@@ -339,6 +470,7 @@ export default async function ContractsPage(props: {
             primaryUnit="on this page"
             action={{ href: "/contracts?status=pending_review", label: "View pending" }}
             variant="compact"
+            className="lg:col-span-2"
           />
           <OperationalSummaryCard
             eyebrow="Live"
@@ -349,6 +481,26 @@ export default async function ContractsPage(props: {
             primaryUnit="on this page"
             action={{ href: "/contracts?status=active", label: "View active" }}
             variant="compact"
+            className="lg:col-span-2"
+          />
+          <OperationalSummaryCard
+            eyebrow="Exports"
+            headline="Latest export"
+            tone={latestExportTone}
+            icon={Download}
+            primaryValue={latestExportJob ? latestExportJob.exported_rows ?? 0 : null}
+            primaryFallback="None"
+            primaryUnit={
+              latestExportJob ? getExportJobHeadline(latestExportJob).replace(/^Export /, "") : "recent export jobs"
+            }
+            secondaryLine={latestExportJob ? getExportJobDetail(latestExportJob) : "No recent exports in this workspace."}
+            action={{
+              href: latestExportJob ? `/api/export/contracts/${latestExportJob.id}` : `/api/export/contracts?orgId=${encodeURIComponent(orgId)}`,
+              label: latestExportJob ? "View export status" : "Run export",
+              external: !latestExportJob,
+            }}
+            variant="compact"
+            className="lg:col-span-2"
           />
         </div>
       </section>
@@ -356,6 +508,11 @@ export default async function ContractsPage(props: {
       <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
         <aside className="space-y-6 xl:sticky xl:top-6 xl:h-fit">
           <div className="ui-page-shell p-4 md:p-5">
+            <div className="mb-4 space-y-1.5">
+              <p className="ui-eyebrow">Filters</p>
+              <h2 className="ui-section-title">Refine the list</h2>
+              <p className="ui-support-copy">Search by contract context, then narrow the visible queue with date, owner, region, and operational flags.</p>
+            </div>
             <form className="space-y-3.5 md:space-y-4" action="/contracts" method="get">
               <div>
                 <label htmlFor="contract-search" className="ui-label-caps">
@@ -388,6 +545,20 @@ export default async function ContractsPage(props: {
                   ))}
                 </select>
               </div>
+              <div>
+                <label htmlFor="contract-sort" className="ui-label-caps">
+                  Sort
+                </label>
+                <select
+                  id="contract-sort"
+                  name="sort"
+                  defaultValue={searchParams.sort === "created" ? "created" : "activity"}
+                  className="ui-input-compact w-full"
+                >
+                  <option value="activity">Recent activity</option>
+                  <option value="created">Recently created</option>
+                </select>
+              </div>
               {searchParams.status && (
                 <input type="hidden" name="status" value={searchParams.status} />
               )}
@@ -397,6 +568,18 @@ export default async function ContractsPage(props: {
               {searchParams.region && (
                 <input type="hidden" name="region" value={searchParams.region} />
               )}
+              {searchParams.exceptions ? (
+                <input type="hidden" name="exceptions" value={searchParams.exceptions} />
+              ) : null}
+              {searchParams.review ? (
+                <input type="hidden" name="review" value={searchParams.review} />
+              ) : null}
+              {searchParams.data_quality ? (
+                <input type="hidden" name="data_quality" value={searchParams.data_quality} />
+              ) : null}
+              {searchParams.evidence ? (
+                <input type="hidden" name="evidence" value={searchParams.evidence} />
+              ) : null}
               <input type="hidden" name="page" value="1" />
               <button type="submit" className="ui-btn-primary w-full">
                 Apply filters
@@ -409,15 +592,11 @@ export default async function ContractsPage(props: {
                 {statuses.map((s) => (
                   <Link
                     key={s.value}
-                    href={buildFilterUrl({
+                    href={buildContractsListHref({
                       ...baseParams,
                       status: s.value || undefined,
                     })}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      (searchParams.status || "") === s.value
-                        ? "bg-[var(--accent)] text-[var(--accent-fg)]"
-                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900"
-                    }`}
+                    className={(searchParams.status || "") === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                   >
                     {s.label}
                   </Link>
@@ -431,18 +610,12 @@ export default async function ContractsPage(props: {
                 {["", "NA", "EMEA", "APAC", "LATAM"].map((region) => (
                   <Link
                     key={region || "all"}
-                    href={buildFilterUrl({
+                    href={buildContractsListHref({
+                      ...baseParams,
                       status: searchParams.status,
-                      search: searchParams.search,
-                      owner: searchParams.owner,
-                      deadline: searchParams.deadline,
                       region: region || undefined,
                     })}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      (searchParams.region || "") === region
-                        ? "bg-[var(--accent)] text-[var(--accent-fg)]"
-                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900"
-                    }`}
+                    className={(searchParams.region || "") === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                   >
                     {region || "All"}
                   </Link>
@@ -455,35 +628,23 @@ export default async function ContractsPage(props: {
                 <p className="ui-label-caps mb-2">Owner</p>
                 <div className="flex flex-wrap gap-1.5">
                   <Link
-                    href={buildFilterUrl({
+                    href={buildContractsListHref({
+                      ...baseParams,
                       status: searchParams.status,
-                      search: searchParams.search,
-                      region: searchParams.region,
-                      deadline: searchParams.deadline,
                     })}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      !searchParams.owner
-                        ? "bg-[var(--accent)] text-[var(--accent-fg)]"
-                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900"
-                    }`}
+                    className={!searchParams.owner ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                   >
                     All
                   </Link>
                   {members.map((m) => (
                     <Link
                       key={m.id}
-                      href={buildFilterUrl({
+                      href={buildContractsListHref({
+                        ...baseParams,
                         status: searchParams.status,
-                        search: searchParams.search,
-                        region: searchParams.region,
-                        deadline: searchParams.deadline,
                         owner: m.id,
                       })}
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                        searchParams.owner === m.id
-                          ? "bg-[var(--accent)] text-[var(--accent-fg)]"
-                          : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900"
-                      }`}
+                      className={searchParams.owner === m.id ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                     >
                       {m.label}
                     </Link>
@@ -491,37 +652,81 @@ export default async function ContractsPage(props: {
                 </div>
               </div>
             )}
+
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
+              <p className="ui-label-caps mb-2">Operational filters</p>
+              <div className="flex flex-wrap gap-1.5">
+                <Link
+                  href={buildContractsListHref({
+                    ...baseParams,
+                    status: searchParams.status,
+                    exceptions: exceptionsFilter === "open" ? undefined : "open",
+                  })}
+                  className={exceptionsFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                >
+                  Open exceptions
+                </Link>
+                <Link
+                  href={buildContractsListHref({
+                    ...baseParams,
+                    status: searchParams.status,
+                    review: reviewFilter === "pending" ? undefined : "pending",
+                  })}
+                  className={reviewFilter === "pending" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                >
+                  Needs review
+                </Link>
+                <Link
+                  href={buildContractsListHref({
+                    ...baseParams,
+                    status: searchParams.status,
+                    data_quality:
+                      dataQualityFilter === "missing_critical" ? undefined : "missing_critical",
+                  })}
+                  className={dataQualityFilter === "missing_critical" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                >
+                  Missing critical dates
+                </Link>
+                <Link
+                  href={buildContractsListHref({
+                    ...baseParams,
+                    status: searchParams.status,
+                    evidence: evidenceFilter === "outstanding" ? undefined : "outstanding",
+                  })}
+                  className={evidenceFilter === "outstanding" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                >
+                  Evidence outstanding
+                </Link>
+              </div>
+            </div>
           </div>
 
           <div className="ui-page-shell p-4 md:p-5">
-            <form action={createContractsSavedView} className="space-y-3">
-              <input type="hidden" name="organizationId" value={orgId} />
-              <input type="hidden" name="search" value={searchParams.search || ""} />
-              <input type="hidden" name="status" value={searchParams.status || ""} />
-              <input type="hidden" name="owner" value={searchParams.owner || ""} />
-              <input type="hidden" name="region" value={searchParams.region || ""} />
-              <input type="hidden" name="deadline" value={searchParams.deadline || ""} />
-              <div>
-                <label htmlFor="saved-view-name" className="ui-label-caps">
-                  Save current view
-                </label>
-                <input
-                  id="saved-view-name"
-                  name="name"
-                  required
-                  maxLength={80}
-                  placeholder="Q4 renewals by owner"
-                  className="ui-input-compact w-full"
-                />
-              </div>
-              <button type="submit" className="ui-btn-secondary w-full">
-                Save view
-              </button>
-            </form>
+            <div className="mb-4 space-y-1.5">
+              <p className="ui-eyebrow">Saved views</p>
+              <h2 className="ui-section-title">Repeatable queue cuts</h2>
+              <p className="ui-support-copy">Capture the current filter state, then turn on weekly or monthly summaries for the views you revisit.</p>
+            </div>
+            <ContractsSavedViewCreateForm
+              organizationId={orgId}
+              canEdit={canEdit}
+              defaults={{
+                search: searchParams.search || "",
+                status: searchParams.status || "",
+                owner: searchParams.owner || "",
+                region: searchParams.region || "",
+                deadline: searchParams.deadline || "",
+                sort: searchParams.sort || "",
+                exceptions: searchParams.exceptions || "",
+                review: searchParams.review || "",
+                data_quality: searchParams.data_quality || "",
+                evidence: searchParams.evidence || "",
+              }}
+            />
             {savedViews.length > 0 && (
               <div className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3.5 md:pt-4">
                 {savedViews.map((view) => (
-                  <div key={view.id} className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] p-2.5">
+                  <div key={view.id} className="ui-soft-details p-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <Link href={view.href} className="truncate text-[12px] font-semibold text-[var(--text-primary)] hover:text-[var(--accent-strong)]">
                         {view.name}
@@ -530,7 +735,7 @@ export default async function ContractsPage(props: {
                         <button
                           type="submit"
                           aria-label={`Delete saved view ${view.name}`}
-                          className="rounded-full px-1.5 py-0.5 text-[11px] text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
+                          className="ui-icon-button min-h-7 min-w-7 rounded-full px-1.5 py-0.5 text-[11px]"
                         >
                           x
                         </button>
@@ -540,11 +745,9 @@ export default async function ContractsPage(props: {
                       <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive) as never}>
                         <button
                           type="submit"
-                          className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
-                            view.weeklyActive
-                              ? "bg-[var(--success-soft)] text-[var(--success-ink)] hover:brightness-95"
-                              : "bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
-                          }`}
+                          className={
+                            view.weeklyActive ? SAVED_VIEW_TOGGLE_WEEKLY_ACTIVE_CLASS : SAVED_VIEW_TOGGLE_IDLE_CLASS
+                          }
                         >
                           {view.weeklyActive ? "Weekly on" : "Weekly off"}
                         </button>
@@ -552,11 +755,9 @@ export default async function ContractsPage(props: {
                       <form action={setSavedViewMonthlySummary.bind(null, view.id, !view.monthlyActive) as never}>
                         <button
                           type="submit"
-                          className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
-                            view.monthlyActive
-                              ? "bg-[var(--info-soft)] text-[var(--info-ink)] hover:brightness-95"
-                              : "bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
-                          }`}
+                          className={
+                            view.monthlyActive ? SAVED_VIEW_TOGGLE_MONTHLY_ACTIVE_CLASS : SAVED_VIEW_TOGGLE_IDLE_CLASS
+                          }
                         >
                           {view.monthlyActive ? "Monthly on" : "Monthly off"}
                         </button>
@@ -583,11 +784,11 @@ export default async function ContractsPage(props: {
         </aside>
 
         <section className="space-y-3.5 md:space-y-4">
-          <div className="ui-toolbar p-3.5 md:p-4">
+          <div className="ui-toolbar-strong p-3.5 md:p-4">
             <div className="flex flex-wrap items-center gap-1.5 text-[11px] md:gap-2 md:text-[12px]">
               <span className="ui-chip">Rows: {contractTotal}</span>
               <span className="ui-chip">Page {page}</span>
-              {searchParams.status ? <span className="ui-chip">Status: {searchParams.status}</span> : null}
+              {activeStatusLabel ? <span className="ui-chip">Status: {activeStatusLabel}</span> : null}
               {searchParams.deadline ? <span className="ui-chip">Date: {searchParams.deadline}</span> : null}
               {activeFilters.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -608,6 +809,13 @@ export default async function ContractsPage(props: {
           <ContractTable
             contracts={contracts}
             reviewStats={reviewStats}
+            rowSignals={rowSignals}
+            filterFingerprint={filterFingerprint}
+            bulkActions={{
+              canEdit,
+              orgId,
+              members,
+            }}
             footer={
               <ContractPagination
                 total={contractTotal}

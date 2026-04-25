@@ -72,7 +72,7 @@ export default async function AssurancePlaybooksPage() {
   const playbookName = new Map((data ?? []).map((p) => [String((p as { id: string }).id), String((p as { name: string }).name)]));
 
   return (
-    <div className="space-y-6">
+    <div className="ui-page-stack">
       <AssuranceListCard
         title="Adaptive playbooks"
         subtitle="Assurance"
@@ -97,9 +97,9 @@ export default async function AssurancePlaybooksPage() {
         ) : (
           <ul className="space-y-2 text-sm">
             {(data ?? []).map((row) => (
-              <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-                <p className="font-medium text-zinc-900">{row.name}</p>
-                <p className="mt-1 text-xs text-zinc-600">
+              <li key={row.id} className="ui-operational-card p-4">
+                <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
+                <p className="ui-support-copy mt-1">
                   {row.playbook_type} · approval {row.approval_mode} · {row.active ? "active" : "inactive"}
                 </p>
               </li>
@@ -119,11 +119,11 @@ export default async function AssurancePlaybooksPage() {
             const pid = String((run as { adaptive_playbook_id: string }).adaptive_playbook_id);
             const steps = stepsByRun.get(rid) ?? [];
             return (
-              <li key={rid} className="rounded-lg border border-zinc-100 p-3">
-                <p className="font-medium text-zinc-900">
+              <li key={rid} className="ui-operational-card p-4">
+                <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
                   {playbookName.get(pid) ?? "Playbook"} · {(run as { status: string }).status}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="ui-support-copy mt-1">
                   Run <span className="font-mono">{rid.slice(0, 8)}…</span> · {String((run as { created_at: string }).created_at)}
                   {(run as { source_finding_id?: string | null }).source_finding_id ? (
                     <>
@@ -147,26 +147,26 @@ export default async function AssurancePlaybooksPage() {
                   </Link>
                 </p>
                 {steps.length > 0 ? (
-                  <ol className="mt-2 space-y-1 border-l-2 border-zinc-200 pl-3 text-xs text-zinc-600">
+                  <ol className="mt-3 space-y-1 border-l-2 border-[var(--border-subtle)] pl-3 text-xs text-[var(--text-secondary)]">
                     {steps.map((step) => (
                       <li key={`${rid}-${step.step_key}`}>
-                        <span className="font-medium text-zinc-800">{step.stage}</span> · {step.step_key} ·{" "}
+                        <span className="font-medium text-[var(--text-primary)]">{step.stage}</span> · {step.step_key} ·{" "}
                         {step.status}
                         {step.completed_at ? ` · ${step.completed_at}` : ""}
                       </li>
                     ))}
                   </ol>
                 ) : (
-                  <p className="mt-2 text-xs text-zinc-500">No step rows stored for this run yet.</p>
+                  <p className="mt-2 text-xs text-[var(--text-tertiary)]">No step rows stored for this run yet.</p>
                 )}
                 {(run as { success_assessment_json?: unknown }).success_assessment_json != null &&
                 typeof (run as { success_assessment_json?: unknown }).success_assessment_json === "object" &&
                 Object.keys((run as { success_assessment_json: object }).success_assessment_json).length > 0 ? (
-                  <div className="mt-2 rounded border border-emerald-100 bg-emerald-50/40 p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-900">
+                  <div className="ui-alert-success mt-3 p-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">
                       Success / assessment (post-run)
                     </p>
-                    <pre className="mt-1 max-h-24 overflow-auto text-[10px] text-zinc-700">
+                    <pre className="mt-1 max-h-24 overflow-auto text-[10px] text-[var(--text-secondary)]">
                       {JSON.stringify((run as { success_assessment_json: unknown }).success_assessment_json, null, 2)}
                     </pre>
                   </div>
@@ -174,9 +174,9 @@ export default async function AssurancePlaybooksPage() {
               </li>
             );
           })}
-          {(recentRuns ?? []).length === 0 ? <li className="text-zinc-500">No runs yet.</li> : null}
+          {(recentRuns ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
-        <p className="mt-4 text-xs text-zinc-600">
+        <p className="mt-4 text-xs text-[var(--text-secondary)]">
           <Link className="ui-link" href="/api/playbooks" target="_blank">
             Playbooks JSON
           </Link>
@@ -198,23 +198,23 @@ export default async function AssurancePlaybooksPage() {
       >
         <ul className="space-y-3 text-sm">
           {(pendingRuns ?? []).map((run) => (
-            <li key={run.id} className="rounded-lg border border-amber-100 bg-amber-50/40 p-3">
-              <p className="font-medium text-zinc-900">Run {String(run.id).slice(0, 8)}…</p>
-              <p className="mt-1 text-xs text-zinc-600">
+            <li key={run.id} className="ui-alert-warning p-4">
+              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Run {String(run.id).slice(0, 8)}…</p>
+              <p className="ui-support-copy mt-1">
                 Playbook {String(run.adaptive_playbook_id).slice(0, 8)}… · {String(run.created_at)}
               </p>
               {canApprove ? <PlaybookApproveButton runId={String(run.id)} /> : null}
               {!canApprove ? (
-                <p className="mt-2 text-xs text-zinc-500">Your role cannot approve playbook runs.</p>
+                <p className="mt-2 text-xs text-[var(--text-tertiary)]">Your role cannot approve playbook runs.</p>
               ) : null}
             </li>
           ))}
-          {(pendingRuns ?? []).length === 0 ? <li className="text-zinc-500">No runs waiting for approval.</li> : null}
+          {(pendingRuns ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs waiting for approval.</li> : null}
         </ul>
       </AssuranceListCard>
 
       {v6Outcomes ? (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--text-tertiary)]">
           Completed runs feed outcome intelligence analyses.{" "}
           <Link className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0" target="_blank">
             Interventions JSON

@@ -154,6 +154,7 @@ function inferFeatureFamilyFromActionIdentifier(
     "renewal-playbook": "renewals",
     "onboarding-calibration": "settings",
     "product-surface-settings": "settings",
+    exceptions: "exceptions",
   };
   if (byFileName[base]) return byFileName[base];
 
@@ -169,6 +170,7 @@ function inferFeatureFamilyFromActionIdentifier(
   if (normalized.includes("workflow-config")) return "settings";
   if (normalized.includes("onboarding-calibration")) return "settings";
   if (normalized.includes("renewal")) return "renewals";
+  if (normalized.includes("exceptions")) return "exceptions";
   if (normalized.includes("dashboard")) return "reports";
   if (normalized.includes("automation")) return "autopilot";
   if (normalized.includes("v4")) return "work";

@@ -12,7 +12,7 @@ export function assertAnyV6PageFeature(flags: FeatureFlagKey[]): void {
 
 export function v6ApiForbidden() {
   return NextResponse.json(
-    { error: "This V6 feature is disabled for your workspace." },
+    { error: "This assurance feature is disabled for your workspace." },
     { status: 403 }
   );
 }

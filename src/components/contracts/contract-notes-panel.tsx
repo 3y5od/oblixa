@@ -8,6 +8,7 @@ import {
   deleteContractNote,
   toggleContractNotePin,
 } from "@/actions/notes";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractNote } from "@/lib/types";
 
 type ContractNoteItem = Pick<
@@ -44,7 +45,7 @@ export function ContractNotesPanel({
       const pinned = canEdit && formData.get("pinned") === "on";
       const res = await createContractNote({ contractId, note, pinned });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -57,7 +58,7 @@ export function ContractNotesPanel({
     startTransition(async () => {
       const res = await toggleContractNotePin(noteId, nextPinned);
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -70,7 +71,7 @@ export function ContractNotesPanel({
     startTransition(async () => {
       const res = await deleteContractNote(noteId);
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -79,7 +80,7 @@ export function ContractNotesPanel({
 
   return (
     <div className="space-y-4">
-      <form action={onCreate} className="grid gap-3 rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-4">
+      <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
         <div>
           <label className="ui-label-caps">Add note</label>
           <textarea
@@ -93,12 +94,12 @@ export function ContractNotesPanel({
         </div>
         <div className="flex items-center justify-between gap-3">
           {canEdit ? (
-            <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
-              <input name="pinned" type="checkbox" className="h-4 w-4 rounded border-zinc-300" />
+            <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+              <input name="pinned" type="checkbox" className="h-4 w-4 rounded border-[var(--border-strong)]" />
               Pin this note
             </label>
           ) : (
-            <span className="text-xs text-zinc-500">Pinned notes require editor/admin access.</span>
+            <span className="text-xs text-[var(--text-tertiary)]">Pinned notes require editor/admin access.</span>
           )}
           <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
             {isPending ? "Saving..." : "Save note"}
@@ -109,20 +110,20 @@ export function ContractNotesPanel({
       {error && <p className="text-sm text-rose-700">{error}</p>}
 
       {notes.length === 0 ? (
-        <p className="text-sm text-zinc-500">No notes yet.</p>
+        <p className="text-sm text-[var(--text-tertiary)]">No notes yet.</p>
       ) : (
         <ul className="space-y-3">
           {notes.map((note) => {
             const isAuthor = note.author_id === currentUserId;
             const canDelete = isAuthor || canEdit;
             return (
-              <li key={note.id} className="rounded-xl border border-zinc-200/80 bg-surface p-4">
+              <li key={note.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="whitespace-pre-wrap text-sm text-zinc-800">{note.note}</p>
-                    <p className="mt-2 text-xs text-zinc-500">
+                    <p className="whitespace-pre-wrap text-sm text-[var(--text-primary)]">{note.note}</p>
+                    <p className="mt-2 text-xs text-[var(--text-tertiary)]">
                       {note.author_id ? labelById.get(note.author_id) ?? "Member" : "Unknown"}
-                      <span className="text-zinc-300"> · </span>
+                      <span className="text-[var(--text-tertiary)]"> · </span>
                       {format(new Date(note.created_at), "MMM d, yyyy h:mm a")}
                     </p>
                   </div>

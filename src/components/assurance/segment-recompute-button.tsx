@@ -31,7 +31,7 @@ export function SegmentRecomputeButton({ segmentId }: { segmentId: string }) {
       <button
         type="button"
         disabled={pending}
-        className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-800 disabled:opacity-50"
+        className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
         onClick={() => void onRecompute()}
       >
         {pending ? "Recomputing…" : "Recompute memberships"}

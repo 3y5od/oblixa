@@ -95,9 +95,9 @@ export function DashboardV6AssuranceSnapshotSection(props: {
           <p className="ui-eyebrow">Assurance</p>
           <h2 className="ui-section-title mt-2 text-xl">Portfolio assurance snapshot</h2>
         </div>
-        <p className="text-[12px] font-medium text-zinc-500">
+        <p className="text-[12px] font-medium text-[var(--text-tertiary)]">
           Avg scorecard{" "}
-          <span className="font-semibold tabular-nums text-zinc-800">
+          <span className="font-semibold tabular-nums text-[var(--text-primary)]">
             {v6Snapshot.avgScore !== null ? v6Snapshot.avgScore : "—"}
           </span>
         </p>
@@ -210,8 +210,8 @@ export function DashboardV6AssuranceSnapshotSection(props: {
         ) : null}
       </div>
 
-      <details className="ui-soft-details text-xs text-zinc-600">
-        <summary className="cursor-pointer font-semibold text-zinc-800">Run deltas and diagnostics</summary>
+      <details className="ui-soft-details text-xs text-[var(--text-secondary)]">
+        <summary className="cursor-pointer font-semibold text-[var(--text-primary)]">Run deltas and diagnostics</summary>
         <p className="mt-2">
           {v6PriorAssuranceRun && v6LastAssuranceRun ? (
             <>
@@ -291,14 +291,14 @@ export function DashboardOutcomeIntelligenceSection(props: {
           {recentRows.slice(0, 4).map((row) => (
             <li
               key={row.id}
-              className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-zinc-200/90 bg-surface/80 px-2.5 py-1 text-[11px] dark:bg-zinc-900/25"
+              className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-surface/80 px-2.5 py-1 text-[11px] dark:bg-[var(--text-primary)]/25"
             >
-              <span className="font-medium text-zinc-500">
+              <span className="font-medium text-[var(--text-tertiary)]">
                 {row.intervention_type.replace(/_/g, " ")}
               </span>
-              <span className="font-semibold tabular-nums text-zinc-900">{row.effectiveness_score}</span>
+              <span className="font-semibold tabular-nums text-[var(--text-primary)]">{row.effectiveness_score}</span>
               {row.recurrence_delta !== 0 ? (
-                <span className="tabular-nums text-zinc-600">Δ {row.recurrence_delta}</span>
+                <span className="tabular-nums text-[var(--text-secondary)]">Δ {row.recurrence_delta}</span>
               ) : null}
             </li>
           ))}
@@ -384,8 +384,8 @@ export function DashboardAssuranceSignalsSection(props: {
           />
         ) : null}
       </div>
-      <details className="ui-soft-details text-xs text-zinc-600">
-        <summary className="cursor-pointer font-semibold text-zinc-800">Full assurance diagnostics</summary>
+      <details className="ui-soft-details text-xs text-[var(--text-secondary)]">
+        <summary className="cursor-pointer font-semibold text-[var(--text-primary)]">Full assurance diagnostics</summary>
         <ul className="ui-compact-list mt-2">
           <li className="ui-compact-list-item">
             Recurrence clusters: <span className="tabular-nums">{a.finding_recurrence_clusters}</span>

@@ -6,6 +6,7 @@ export function buildContentSecurityPolicy(isProd: boolean): string {
   return [
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+    "worker-src 'self' blob:",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
     "font-src 'self' data:",
@@ -21,6 +22,7 @@ export function buildStrictCspReportOnly(isProd: boolean): string {
   return [
     "default-src 'self'",
     `script-src 'self'${isProd ? "" : " 'unsafe-eval'"}`,
+    "worker-src 'self' blob:",
     "style-src 'self'",
     "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://*.sentry-cdn.com",
     "font-src 'self' data:",

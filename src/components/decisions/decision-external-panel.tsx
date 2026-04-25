@@ -80,7 +80,7 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
         </p>
       )}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
-        <label className="flex-1 text-xs font-medium text-zinc-600">
+        <label className="flex-1 text-xs font-medium text-[var(--text-secondary)]">
           Action type
           <select
             className="ui-input-compact mt-1 w-full"
@@ -95,7 +95,7 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
             ))}
           </select>
         </label>
-        <label className="w-full text-xs font-medium text-zinc-600 sm:w-32">
+        <label className="w-full text-xs font-medium text-[var(--text-secondary)] sm:w-32">
           Expires (h)
           <input
             type="number"
@@ -121,24 +121,24 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
           Share submit URL: <span className="font-mono">{createdUrl}</span>
         </p>
       )}
-      <div className="mt-4 border-t border-zinc-100 pt-4">
-        <p className="text-xs font-semibold text-zinc-600">Recent links for this decision</p>
-        <ul className="mt-2 space-y-2 text-xs text-zinc-700">
+      <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+        <p className="text-xs font-semibold text-[var(--text-secondary)]">Recent links for this decision</p>
+        <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
           {initialLinks.length === 0 ? (
-            <li className="text-zinc-500">None yet.</li>
+            <li className="text-[var(--text-tertiary)]">None yet.</li>
           ) : (
             initialLinks.map((l) => (
-              <li key={l.id} className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-2 py-2 font-mono">
-                <span className="text-zinc-800">{l.action_type}</span> · {l.status} · exp{" "}
+              <li key={l.id} className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-2 py-2 font-mono">
+                <span className="text-[var(--text-primary)]">{l.action_type}</span> · {l.status} · exp{" "}
                 {new Date(l.expires_at).toLocaleString()}
-                <div className="mt-1 break-all text-[11px] text-zinc-500">
+                <div className="mt-1 break-all text-[11px] text-[var(--text-tertiary)]">
                   Page:{" "}
                   {appOrigin
                     ? `${appOrigin.replace(/\/$/, "")}/external/${l.token}`
                     : `/external/${l.token}`}
                 </div>
                 {(l.workflowStepCount ?? 0) > 0 || l.workflowDeadlineIso ? (
-                  <p className="mt-1 text-[11px] text-zinc-600">
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                     Workflow: {l.workflowStepCount ?? 0} step(s)
                     {l.lastWorkflowStepType ? ` · last: ${l.lastWorkflowStepType}` : ""}
                     {l.workflowDeadlineIso

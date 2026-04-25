@@ -40,10 +40,10 @@ export function AutopilotRulePatchForm({
   }
 
   return (
-    <div className="mt-2 space-y-2 border-t border-zinc-100 pt-2 text-xs">
-      <p className="font-medium text-zinc-700">Allowlist (IDs, one per line)</p>
+    <div className="mt-2 space-y-2 border-t border-[var(--border-subtle)] pt-2 text-xs">
+      <p className="font-medium text-[var(--text-secondary)]">Allowlist (IDs, one per line)</p>
       <textarea
-        className="w-full rounded border border-zinc-200 px-2 py-1 font-mono text-[11px]"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]"
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -51,7 +51,7 @@ export function AutopilotRulePatchForm({
       <button
         type="button"
         disabled={pending}
-        className="rounded bg-zinc-900 px-2 py-1 text-[11px] font-medium text-white disabled:opacity-50"
+        className="rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] font-medium text-white disabled:opacity-50"
         onClick={() => void onSave()}
       >
         {pending ? "Saving…" : "Save allowlist"}
@@ -79,7 +79,7 @@ export function AutopilotDisableButton({ ruleId }: { ruleId: string }) {
     <button
       type="button"
       disabled={pending}
-      className="mt-2 text-[11px] text-zinc-600 underline disabled:opacity-50"
+      className="mt-2 text-[11px] text-[var(--text-secondary)] underline disabled:opacity-50"
       onClick={() => void onDisable()}
     >
       {pending ? "…" : "Disable (override)"}

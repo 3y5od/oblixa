@@ -74,16 +74,16 @@ export default async function ReviewCadencePage() {
   };
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <p className="ui-eyebrow">Management ritual</p>
         <h1 className="ui-display-title">Weekly and monthly review mode</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
+        <p className="ui-page-lead max-w-2xl">
           Centralized cadence view for intake movement, unresolved exceptions, near-term renewals, and pending decisions.
         </p>
       </header>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="ui-toolbar w-fit flex-wrap gap-3">
         <a href="/api/export/review-packet" className="ui-btn-secondary px-4 py-2 text-[13px]">
           Export review packet
         </a>
@@ -91,7 +91,7 @@ export default async function ReviewCadencePage() {
           Open analytics
         </Link>
       </div>
-      <p className="max-w-2xl text-[13px] text-zinc-500">
+      <p className="ui-support-copy max-w-2xl text-[13px]">
         The CSV summarizes pending approvals, renewal checkpoints, and data gaps for cadence reviews.
       </p>
 
@@ -145,7 +145,7 @@ export default async function ReviewCadencePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
           <p className="ui-eyebrow">Agenda</p>
           <h2 className="ui-section-title mt-1 text-base">Weekly intake and decisions</h2>
         </div>
@@ -155,7 +155,7 @@ export default async function ReviewCadencePage() {
               <Link href={`/contracts/${row.id}`} className="ui-link">
                 {row.title}
               </Link>
-              <span className="text-zinc-500"> · {row.intake_status}</span>
+              <span className="text-[var(--text-tertiary)]"> · {row.intake_status}</span>
             </li>
           ))}
           {(pendingDecisions ?? []).slice(0, 10).map((row) => {
@@ -167,7 +167,7 @@ export default async function ReviewCadencePage() {
                 <Link href={`/contracts/${contract?.id ?? row.contract_id}`} className="ui-link">
                   {contract?.title ?? "Contract"}
                 </Link>
-                <span className="text-zinc-500"> · pending {row.approval_type.replace(/_/g, " ")}</span>
+                <span className="text-[var(--text-tertiary)]"> · pending {row.approval_type.replace(/_/g, " ")}</span>
               </li>
             );
           })}

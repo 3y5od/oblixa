@@ -77,14 +77,14 @@ export async function executeAutopilotAction(
 
   if (!isFeatureEnabled("v6AutopilotAllowExecution")) {
     output.blocked = "autopilot_execution_master_disabled";
-    output.hint = "Set ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION=true to allow mutating autopilot actions.";
+    output.hint = "Enable the global autopilot execution gate to allow mutating autopilot actions.";
     return { output, wouldExecute: false };
   }
 
   const orgAllows = await isOrgAutopilotExecutionAllowed(admin, orgId);
   if (!orgAllows) {
     output.blocked = "autopilot_org_disabled";
-    output.hint = "This organization has disabled mutating autopilot in workspace V6 settings.";
+    output.hint = "This organization has disabled mutating autopilot in assurance settings.";
     return { output, wouldExecute: false };
   }
 

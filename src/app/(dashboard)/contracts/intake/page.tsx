@@ -71,18 +71,20 @@ export default async function IntakeQueuePage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Intake workflow</p>
-        <h1 className="ui-display-title">Intake queue</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
-          Track received contracts from review to operationally active with required next steps.
-        </p>
+      <header className="ui-page-header">
+        <div>
+          <p className="ui-eyebrow">Intake workflow</p>
+          <h1 className="ui-display-title">Intake queue</h1>
+          <p className="ui-page-lead mt-2">
+            Track received contracts from review to operationally active with required next steps.
+          </p>
+        </div>
       </header>
 
       <section className="space-y-3">
         <div>
           <p className="ui-eyebrow">Throughput</p>
-          <h2 className="ui-section-title mt-2 text-xl">Intake signals</h2>
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Intake signals</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <OperationalSummaryCard
@@ -132,32 +134,32 @@ export default async function IntakeQueuePage() {
         {STATUS_ORDER.map((status) => {
           const rows = grouped.get(status) ?? [];
           return (
-            <section key={status} className="ui-card overflow-hidden">
-              <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+            <section key={status} className="ui-page-shell overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
                 <p className="ui-eyebrow">Stage</p>
                 <h2 className="ui-section-title mt-1 text-base">
                   {status.replace(/_/g, " ")} ({rows.length})
                 </h2>
               </div>
               {rows.length === 0 ? (
-                <p className="px-5 py-4 text-sm text-zinc-500">No contracts in this stage.</p>
+                <p className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No contracts in this stage.</p>
               ) : (
                 <ul className="divide-y divide-[var(--border-subtle)]">
                   {rows.slice(0, 15).map((row) => (
                     <li key={String(row.id)} className="px-5 py-3">
                       <Link
                         href={`/contracts/${row.id}`}
-                        className="block transition-colors hover:bg-zinc-50/70"
+                        className="block transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]/70"
                       >
-                        <p className="text-sm font-semibold text-zinc-900">{String(row.title)}</p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">{String(row.title)}</p>
+                        <p className="text-xs text-[var(--text-tertiary)]">
                           {(row.counterparty as string | null) || "No counterparty"} · health{" "}
                           {(row.health_status as string) || "unknown"}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-500">
+                        <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                           Next step: {(row.required_next_step as string | null) || "None"}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-500">
+                        <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                           Intake owner:{" "}
                           {(row.intake_owner_id as string | null)
                             ? memberById.get(row.intake_owner_id as string) ?? "Member"
@@ -167,7 +169,7 @@ export default async function IntakeQueuePage() {
                             ? `${Math.round(row.intake_completeness_score as number)}%`
                             : "n/a"}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-500">
+                        <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                           Ingestion: {(((row.contract_files as unknown[]) ?? []).length > 0 ? "files_attached" : "metadata_only")} ·
                           extraction{" "}
                           {(() => {

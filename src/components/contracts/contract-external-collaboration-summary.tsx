@@ -34,14 +34,14 @@ export async function ContractExternalCollaborationSummary({
   if (scoped.length === 0) return null;
 
   return (
-    <div className="mt-6 border-t border-zinc-100 pt-5">
+    <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
       <p className="ui-eyebrow">Collaboration</p>
-      <h2 className="ui-section-title mt-1 text-base">External collaboration (V6)</h2>
+      <h2 className="ui-section-title mt-1 text-base">External collaboration</h2>
       <p className="ui-muted-tight mt-1">
-        Open counterparty links scoped to this contract. Include <code className="rounded bg-zinc-100 px-1">contractId</code>{" "}
+        Open counterparty links scoped to this contract. Include <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">contractId</code>{" "}
         in the link scope when creating requests.
       </p>
-      <ul className="mt-2 space-y-2 text-xs text-zinc-700">
+      <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
         {scoped.map((r) => {
           const row = r as { id: string; token: string; action_type: string; expires_at: string; scope_json?: unknown };
           const scope = row.scope_json as Record<string, unknown> | undefined;
@@ -50,23 +50,23 @@ export async function ContractExternalCollaborationSummary({
           const deadline = scope?.workflow_deadline_iso;
           const ack = scope?.workflow_ack_required === true;
           return (
-            <li key={row.id} className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2">
-              <span className="font-medium text-zinc-900">{row.action_type.replace(/_/g, " ")}</span>
-              <span className="text-zinc-500"> · expires {new Date(row.expires_at).toLocaleString()}</span>
+            <li key={row.id} className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2">
+              <span className="font-medium text-[var(--text-primary)]">{row.action_type.replace(/_/g, " ")}</span>
+              <span className="text-[var(--text-tertiary)]"> · expires {new Date(row.expires_at).toLocaleString()}</span>
               {deadline ? (
-                <p className="mt-1 text-[11px] text-zinc-600">
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                   Workflow deadline: {String(deadline)}
                   {ack ? " · acknowledgement required" : ""}
                 </p>
               ) : ack ? (
-                <p className="mt-1 text-[11px] text-zinc-600">Acknowledgement required on external workflow.</p>
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">Acknowledgement required on external workflow.</p>
               ) : null}
               {stepTypes.length > 0 ? (
-                <p className="mt-1 text-[11px] text-zinc-600">
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                   Chained steps ({chain.length}): {stepTypes.join(" → ")}
                 </p>
               ) : chain.length > 0 ? (
-                <p className="mt-1 text-[11px] text-zinc-600">Workflow steps recorded: {chain.length}</p>
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">Workflow steps recorded: {chain.length}</p>
               ) : null}
               <div className="mt-1">
                 <Link className="ui-link font-mono text-[11px]" href={`/external/${row.token}`} target="_blank">

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 export async function POST(
   request: Request,
@@ -74,6 +76,15 @@ export async function POST(
         title: requirementRow?.title,
       },
     });
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.userId,
+      contractId: cid,
+      action: "product.v9.evidence_review_decision_recorded",
+      details: { decision: "approve", requirementId: String(submission.requirement_id) },
+    });
+    revalidatePath("/contracts/evidence-studio");
+    if (cid) revalidatePath(`/contracts/${cid}`);
     return NextResponse.json({ ok: true });
   }
 
@@ -97,6 +108,23 @@ export async function POST(
       .eq("id", submission.requirement_id)
       .eq("organization_id", ctx.orgId);
     if (reqError) return NextResponse.json({ error: "Failed to update requirement" }, { status: 500 });
+    const cid = requirementRow?.contract_id as string | null;
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.userId,
+      contractId: cid,
+      action: "product.v9.evidence_review_decision_recorded",
+      details: { decision: "reject", requirementId: String(submission.requirement_id) },
+    });
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.userId,
+      contractId: cid,
+      action: "product.v9.evidence_rejected",
+      details: { requirementId: String(submission.requirement_id) },
+    });
+    revalidatePath("/contracts/evidence-studio");
+    if (cid) revalidatePath(`/contracts/${cid}`);
     return NextResponse.json({ ok: true });
   }
 

@@ -49,7 +49,6 @@ export default async function ContractProgramsPage() {
     !isAssuranceModuleHidden(productSurface, "program_evolution");
 
   // Wall clock for rolling apply windows; acceptable in async server component request scope.
-  // eslint-disable-next-line react-hooks/purity -- snapshot time for analytics cutoffs
   const now = Date.now();
   const cutoff30Iso = new Date(now - 30 * 86400000).toISOString();
   const cutoff90Iso = new Date(now - 90 * 86400000).toISOString();
@@ -150,7 +149,8 @@ export default async function ContractProgramsPage() {
     "use server";
     const result = await createProgramAction(formData);
     if (result && "error" in result && result.error) {
-      console.error("[v4] createProgramAction", result.error);
+      const { formatUnknownForServerLog } = await import("@/lib/observability/log-redaction");
+      console.error("[v4] createProgramAction", formatUnknownForServerLog(result.error));
     }
   }
 
@@ -177,16 +177,16 @@ export default async function ContractProgramsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Programs</p>
           <h1 className="ui-display-title mt-2">Contract Programs</h1>
-          <p className="ui-muted mt-3">
+          <p className="ui-page-lead mt-3">
             Reusable execution blueprints that generate tasks, obligations, approvals, and checkpoints.
           </p>
           {showProgramEvolutionCta ? (
-            <p className="mt-3 text-sm text-zinc-700">
+            <p className="mt-3 text-sm text-[var(--text-secondary)]">
               <Link href="/assurance/program-evolution" prefetch={false} className="ui-link font-medium">
                 Open program evolution
               </Link>{" "}
@@ -196,8 +196,9 @@ export default async function ContractProgramsPage() {
         </div>
       </header>
 
-      <section className="ui-card p-5">
+      <section className="ui-page-shell">
         <p className="ui-label-caps">Create program</p>
+        <p className="ui-support-copy mt-1">Start a reusable execution blueprint here, then publish versions and route them into the right contracts.</p>
         <form action={createProgramFormAction} className="mt-3 grid gap-3 md:grid-cols-2">
           <input name="name" required placeholder="Customer MSA Program" className="ui-input" />
           <input name="description" placeholder="Quarterly attestations + renewal prep" className="ui-input" />
@@ -207,54 +208,54 @@ export default async function ContractProgramsPage() {
         </form>
       </section>
 
-      <section className="ui-card p-5">
+      <section className="ui-page-shell">
         <p className="ui-label-caps">Program analytics</p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="ui-support-copy mt-1">
           Apply counts come from casefile events <code className="text-[10px]">program.applied</code> (manual apply +
           auto-attach), rolling windows by event time.
         </p>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Programs</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{programs?.length ?? 0}</dd>
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">Programs</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{programs?.length ?? 0}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Active assignments</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{assignments?.filter((a) => a.status === "active").length ?? 0}</dd>
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">Active assignments</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{assignments?.filter((a) => a.status === "active").length ?? 0}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Contracts with a program</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{contractsWithAnyProgram.size}</dd>
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">Contracts with a program</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{contractsWithAnyProgram.size}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Program applies (30d)</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{orgApplies30}</dd>
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">Program applies (30d)</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{orgApplies30}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">Program applies (90d)</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{orgApplies90}</dd>
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">Program applies (90d)</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{orgApplies90}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">
+          <div className="ui-card-quiet px-3 py-2">
+            <dt className="text-xs text-[var(--text-tertiary)]">
               Program applies (all time{programApplyEventsTruncated ? ", truncated at fetch cap" : ""})
             </dt>
-            <dd className="text-lg font-semibold text-zinc-900">{orgAppliesAll}</dd>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{orgAppliesAll}</dd>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 sm:col-span-3">
-            <dt className="text-xs text-zinc-500">Portfolio contracts (for coverage)</dt>
-            <dd className="text-lg font-semibold text-zinc-900">{portfolioContractCount ?? 0}</dd>
+          <div className="ui-card-quiet px-3 py-2 sm:col-span-3">
+            <dt className="text-xs text-[var(--text-tertiary)]">Portfolio contracts (for coverage)</dt>
+            <dd className="text-lg font-semibold text-[var(--text-primary)]">{portfolioContractCount ?? 0}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="ui-card p-5">
+      <section className="ui-page-shell">
         <div className="flex items-center justify-between">
           <p className="ui-label-caps">Program catalog</p>
-          <p className="text-xs text-zinc-500">Usage + version visibility</p>
+          <p className="text-xs text-[var(--text-tertiary)]">Usage + version visibility</p>
         </div>
         <ul className="mt-3 space-y-2 text-sm">
           {(programs ?? []).length === 0 ? (
-            <li className="text-zinc-500">No programs yet.</li>
+            <li className="text-[var(--text-tertiary)]">No programs yet.</li>
           ) : (
             (programs ?? []).map((program) => {
               const latest = latestVersionByProgram.get(program.id);
@@ -266,11 +267,11 @@ export default async function ContractProgramsPage() {
               };
               const applies = applyStatsByProgram.get(program.id);
               return (
-                <li key={program.id} className="rounded-lg border border-zinc-200 px-3 py-2">
-                  <p className="font-medium text-zinc-900">
-                    {program.name} <span className="text-xs text-zinc-500">({program.state})</span>
+                <li key={program.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                  <p className="font-medium text-[var(--text-primary)]">
+                    {program.name} <span className="text-xs text-[var(--text-tertiary)]">({program.state})</span>
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                     v{latest?.version_number ?? 1} · active assignments {usageByProgram.get(program.id) ?? 0}
                     {applies ? (
                       <>
@@ -282,7 +283,7 @@ export default async function ContractProgramsPage() {
                     )}
                   </p>
                   {program.description ? (
-                    <p className="mt-1 text-xs text-zinc-600">{program.description}</p>
+                    <p className="mt-1 text-xs text-[var(--text-secondary)]">{program.description}</p>
                   ) : null}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <ProgramImpactPreviewButton programId={program.id} />
@@ -293,8 +294,8 @@ export default async function ContractProgramsPage() {
                       </button>
                     </form>
                   </div>
-                  <details className="mt-3 rounded border border-zinc-200 bg-zinc-50/50 p-2 text-xs">
-                    <summary className="cursor-pointer font-medium text-zinc-700">
+                  <details className="mt-3 rounded border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-2 text-xs">
+                    <summary className="cursor-pointer font-medium text-[var(--text-secondary)]">
                       Version definition (JSON) + changelog
                     </summary>
                     <form action={saveVersionFormAction} className="mt-2 space-y-2">
@@ -316,25 +317,25 @@ export default async function ContractProgramsPage() {
                       </button>
                     </form>
                   </details>
-                  <details className="mt-2 rounded border border-zinc-200 bg-zinc-50/50 p-2 text-xs">
-                    <summary className="cursor-pointer font-medium text-zinc-700">
+                  <details className="mt-2 rounded border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-2 text-xs">
+                    <summary className="cursor-pointer font-medium text-[var(--text-secondary)]">
                       Auto-assignment & default routing (JSON)
                     </summary>
                     <form action={saveRoutingFormAction} className="mt-2 space-y-2">
                       <input type="hidden" name="programId" value={program.id} />
-                      <label className="block text-[11px] font-medium text-zinc-600">autoAssignmentRulesJson</label>
+                      <label className="block text-[11px] font-medium text-[var(--text-secondary)]">autoAssignmentRulesJson</label>
                       <textarea
                         name="autoAssignmentRulesJson"
                         rows={5}
                         defaultValue={JSON.stringify(progRow.auto_assignment_rules ?? [], null, 2)}
                         className="ui-input font-mono text-[11px]"
                       />
-                      <label className="block text-[11px] font-medium text-zinc-600">defaultRoutingJson</label>
-                      <p className="text-[10px] text-zinc-500">
+                      <label className="block text-[11px] font-medium text-[var(--text-secondary)]">defaultRoutingJson</label>
+                      <p className="text-[10px] text-[var(--text-tertiary)]">
                         Optional{" "}
-                        <code className="rounded bg-zinc-100 px-0.5">auto_attach_rules</code>: array of{" "}
-                        <code className="rounded bg-zinc-100 px-0.5">{`{ "match": { "contract_type", "source_system", "intake_source", "region", "counterparty_contains" }, "priority"?: number }`}</code>
-                        . Empty <code className="rounded bg-zinc-100 px-0.5">match</code> matches any contract. When the program is{" "}
+                        <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">auto_attach_rules</code>: array of{" "}
+                        <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{ "match": { "contract_type", "source_system", "intake_source", "region", "counterparty_contains" }, "priority"?: number }`}</code>
+                        . Empty <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">match</code> matches any contract. When the program is{" "}
                         <strong>published</strong>, matching contracts get work on create/import (and via reconcile cron).
                       </p>
                       <textarea
@@ -348,8 +349,8 @@ export default async function ContractProgramsPage() {
                       </button>
                     </form>
                   </details>
-                  <details className="mt-3 rounded border border-zinc-200 bg-zinc-50/50 p-2 text-xs">
-                    <summary className="cursor-pointer font-medium text-zinc-700">
+                  <details className="mt-3 rounded border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-2 text-xs">
+                    <summary className="cursor-pointer font-medium text-[var(--text-secondary)]">
                       Apply program to contracts
                     </summary>
                     <form action={applyProgramFormAction} className="mt-2 space-y-2">

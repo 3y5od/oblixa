@@ -1,4 +1,4 @@
-# docs/refinement.md §4.1 / §23 — nudge reviewers when API routes or migrations are deleted.
+# Product-surface deletion guard — nudge reviewers when API routes or migrations are deleted.
 name: Refinement deletion notice
 
 permissions:
@@ -26,6 +26,6 @@ jobs:
           base=$(git merge-base HEAD "origin/${BASE}" 2>/dev/null || echo "HEAD~1")
           deleted=$(git diff --name-only --diff-filter=D "${base}"...HEAD | grep -E '^(src/app/api/.+/route\.ts|supabase/migrations/)' || true)
           if [ -n "${deleted}" ]; then
-            echo "::notice title=Refinement §4.1/§23::Destructive deletes under src/app/api or supabase/migrations — confirm this is not IA-only cleanup; prefer hide/gate per docs/refinement.md."
+            echo "::notice title=Product-surface deletion guard::Destructive deletes under src/app/api or supabase/migrations — confirm this is not IA-only cleanup; prefer hide/gate."
             echo "${deleted}"
           fi

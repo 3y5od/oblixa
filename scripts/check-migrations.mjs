@@ -17,8 +17,18 @@ for (const name of files) {
   prefixMap.set(prefix, arr);
 }
 
+/** Exact filename sets allowed to share one numeric prefix (legacy coexistence; do not expand casually). */
+const DUPLICATE_PREFIX_EXCEPTIONS = {
+  "050": new Set(["050_v6_contract_tags.sql", "050_v9_status_foundations.sql"]),
+};
+
 const duplicates = Array.from(prefixMap.entries())
-  .filter(([, names]) => names.length > 1)
+  .filter(([prefix, names]) => {
+    if (names.length < 2) return false;
+    const allowed = DUPLICATE_PREFIX_EXCEPTIONS[prefix];
+    if (!allowed || names.length !== allowed.size) return true;
+    return !names.every((n) => allowed.has(n));
+  })
   .sort((a, b) => Number(a[0]) - Number(b[0]));
 
 const numericPrefixes = Array.from(prefixMap.keys())

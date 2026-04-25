@@ -10,7 +10,7 @@ export function ContractHeroMetrics(props: {
 }) {
   const base = `/contracts/${props.contractId}`;
   return (
-    <div className="mt-6 grid gap-3 border-t border-zinc-200/60 pt-6 sm:mt-8 sm:grid-cols-2 sm:pt-8 lg:grid-cols-4">
+    <div className="mt-6 grid gap-3 border-t border-[var(--border-subtle)] pt-6 sm:mt-8 sm:grid-cols-2 sm:pt-8 lg:grid-cols-4">
       <OperationalSummaryCard
         eyebrow="Review"
         headline="Pending fields"

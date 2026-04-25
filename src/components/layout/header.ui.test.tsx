@@ -34,7 +34,7 @@ describe("Header", () => {
     );
 
     expect(screen.getByText("Home · Execution workspace")).toBeTruthy();
-    expect(screen.getByText("Tools index")).toBeTruthy();
+    expect(screen.getAllByText("Tools").length).toBeGreaterThan(0);
     expect(screen.getByText("Taylor Test")).toBeTruthy();
   });
 

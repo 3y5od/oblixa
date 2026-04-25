@@ -55,14 +55,14 @@ export default async function DecisionsPage({
         <div>
           <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Decision Queue</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">
+          <p className="ui-page-lead mt-2 max-w-2xl">
             Decision records by type, status, due date, and next action across the governed advanced workspace.
             {typeFilter || queueActiveOnly ? (
               <span className="mt-2 block text-xs text-[var(--text-secondary)]">
                 {queueActiveOnly ? <>Showing open and in-review decisions only. </> : null}
                 {typeFilter ? (
                   <>
-                    Filtered by type <code className="rounded bg-zinc-100 px-1">{typeFilter}</code>.{" "}
+                    Filtered by type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
                   </>
                 ) : null}
                 <Link href="/decisions" className="ui-link">
@@ -80,8 +80,8 @@ export default async function DecisionsPage({
       <section className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Queue</p>
-          <h2 className="ui-section-title mt-2 text-xl">Decision metrics</h2>
-          <p className="ui-muted-tight mt-1 text-[12px]">
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Decision metrics</h2>
+          <p className="ui-section-lead mt-2">
             Open workspaces, review pressure, and blocked decision paths.
           </p>
         </div>
@@ -123,15 +123,20 @@ export default async function DecisionsPage({
         </div>
       </section>
 
-      <section className="ui-card-hero p-5">
+      <section className="ui-page-shell space-y-4 p-5">
         <p className="ui-kicker">New decision</p>
-        <p className="ui-muted-tight mt-1">Create a workspace with required decision type and linked scope.</p>
-        <div className="mt-4 border-t border-zinc-100 pt-4">
+        <p className="ui-support-copy mt-1">Create a workspace with required decision type and linked scope.</p>
+        <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
           <CreateDecisionForm />
         </div>
       </section>
 
-      <div className="ui-card overflow-hidden">
+      <div className="ui-table-shell">
+        <div className="ui-surface-tint px-5 py-4">
+          <p className="ui-eyebrow">Rows</p>
+          <h2 className="ui-section-title mt-1 text-[1.05rem]">Decision ledger</h2>
+          <p className="ui-support-copy mt-1">Keep type, status, due date, and next action visible as the queue contracts or expands.</p>
+        </div>
         <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
           <thead className="ui-table-header">
             <tr>

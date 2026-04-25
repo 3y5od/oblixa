@@ -9,9 +9,18 @@ import type {
   WorkspaceProductMode,
 } from "@/lib/product-surface/types";
 import type { OnboardingCalibrationState } from "@/lib/onboarding/calibration-types";
+import {
+  ALL_ADVANCED_NAV_MODULE_KEYS,
+  ALL_ASSURANCE_NAV_MODULE_KEYS,
+  ALL_UTILITY_MODULE_KEYS,
+  isAdvancedNavModuleKey,
+  isAssuranceNavModuleKey,
+  isUtilityModuleKey,
+  isWorkspaceNavRole,
+} from "@/lib/product-surface/workspace-module-keys";
 
 export type V6OrgSettingsJson = {
-  /** Product surface mode (docs/refinement.md). Default: core when unset. */
+  /** Product surface mode (product-surface policy). Default: core when unset. */
   workspace_mode?: WorkspaceProductMode;
   /** Post-login landing path (must start with `/`). */
   default_landing_path?: string;
@@ -41,6 +50,110 @@ export type V6OrgSettingsJson = {
   onboarding_calibration?: OnboardingCalibrationState;
 };
 
+function sanitizeWorkspaceMode(v: unknown): WorkspaceProductMode | undefined {
+  if (v === "core" || v === "advanced" || v === "assurance") return v;
+  return undefined;
+}
+
+function normalizeStringList(value: unknown, maxLength: number): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value
+    .filter((v): v is string => typeof v === "string" && v.length > 0 && v.length < maxLength);
+}
+
+export function normalizeV6OrgSettingsJson(raw: V6OrgSettingsJson): V6OrgSettingsJson {
+  const next: V6OrgSettingsJson = { ...raw };
+  const mode = sanitizeWorkspaceMode(raw.workspace_mode);
+  if (mode) {
+    next.workspace_mode = mode;
+  } else {
+    delete next.workspace_mode;
+  }
+
+  if (Array.isArray(raw.advanced_modules_hidden)) {
+    next.advanced_modules_hidden = raw.advanced_modules_hidden.filter(isAdvancedNavModuleKey);
+  } else {
+    delete next.advanced_modules_hidden;
+  }
+  if (Array.isArray(raw.assurance_modules_hidden)) {
+    next.assurance_modules_hidden = raw.assurance_modules_hidden.filter(isAssuranceNavModuleKey);
+  } else {
+    delete next.assurance_modules_hidden;
+  }
+  if (Array.isArray(raw.utility_modules_hidden)) {
+    next.utility_modules_hidden = raw.utility_modules_hidden.filter(isUtilityModuleKey);
+  } else {
+    delete next.utility_modules_hidden;
+  }
+
+  if (Array.isArray(raw.advanced_nav_roles)) {
+    next.advanced_nav_roles = raw.advanced_nav_roles.filter(isWorkspaceNavRole);
+  } else {
+    delete next.advanced_nav_roles;
+  }
+  if (Array.isArray(raw.assurance_nav_roles)) {
+    next.assurance_nav_roles = raw.assurance_nav_roles.filter(isWorkspaceNavRole);
+  } else {
+    delete next.assurance_nav_roles;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(raw, "assurance_nav_admin_testing")) {
+    next.assurance_nav_admin_testing = raw.assurance_nav_admin_testing === true;
+  } else {
+    delete next.assurance_nav_admin_testing;
+  }
+  if (Object.prototype.hasOwnProperty.call(raw, "autopilot_allow_execution")) {
+    next.autopilot_allow_execution = raw.autopilot_allow_execution === true;
+  } else {
+    delete next.autopilot_allow_execution;
+  }
+  if (Object.prototype.hasOwnProperty.call(raw, "search_scope")) {
+    next.search_scope = raw.search_scope === "core_only" ? "core_only" : "match_mode";
+  } else {
+    delete next.search_scope;
+  }
+
+  const emails = normalizeStringList(raw.review_board_notification_emails, 321);
+  if (emails) {
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    next.review_board_notification_emails = emails.filter((e) => emailRe.test(e));
+  } else {
+    delete next.review_board_notification_emails;
+  }
+
+  const suppressed = normalizeStringList(raw.notification_suppressed_event_types, 200);
+  if (suppressed) {
+    next.notification_suppressed_event_types = suppressed;
+  } else {
+    delete next.notification_suppressed_event_types;
+  }
+
+  const hiddenHome = normalizeStringList(raw.home_hidden_sections, 120);
+  if (hiddenHome) {
+    next.home_hidden_sections = hiddenHome;
+  } else {
+    delete next.home_hidden_sections;
+  }
+
+  if (typeof raw.default_landing_path === "string") {
+    const p = raw.default_landing_path.trim();
+    const effectiveMode = mode ?? "core";
+    if (p.startsWith("/") && isValidDefaultLandingPath(p, effectiveMode)) {
+      next.default_landing_path = p;
+    } else {
+      delete next.default_landing_path;
+    }
+  } else {
+    delete next.default_landing_path;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(raw, "onboarding_calibration")) {
+    next.onboarding_calibration = raw.onboarding_calibration;
+  }
+
+  return next;
+}
+
 export async function getV6OrgSettingsJson(
   admin: AdminClient,
   orgId: string
@@ -53,12 +166,7 @@ export async function getV6OrgSettingsJson(
   if (error || !data) return {};
   const raw = (data as { v6_org_settings_json?: unknown }).v6_org_settings_json;
   if (!raw || typeof raw !== "object") return {};
-  return raw as V6OrgSettingsJson;
-}
-
-function sanitizeWorkspaceMode(v: unknown): WorkspaceProductMode | undefined {
-  if (v === "core" || v === "advanced" || v === "assurance") return v;
-  return undefined;
+  return normalizeV6OrgSettingsJson(raw as V6OrgSettingsJson);
 }
 
 export type V6OrgSettingsMergePatch = Omit<
@@ -118,78 +226,32 @@ export async function mergeV6OrgSettingsJson(
     }
   }
   if (patch.advanced_modules_hidden != null) {
-    const allowed: AdvancedNavModuleKey[] = [
-      "decisions",
-      "campaigns",
-      "programs",
-      "relationships",
-      "analytics",
-      "maintenance",
-      "collaboration",
-      "compare_views",
-    ];
-    next.advanced_modules_hidden = patch.advanced_modules_hidden.filter((k) => allowed.includes(k));
+    next.advanced_modules_hidden = patch.advanced_modules_hidden.filter((k) =>
+      ALL_ADVANCED_NAV_MODULE_KEYS.includes(k)
+    );
   }
   if (patch.assurance_modules_hidden != null) {
-    const allowed: AssuranceNavModuleKey[] = [
-      "findings",
-      "control_policies",
-      "scorecards",
-      "playbooks",
-      "autopilot",
-      "review_boards",
-      "segments",
-      "program_evolution",
-      "health_graph",
-      "outcome_intelligence",
-    ];
     next.assurance_modules_hidden = patch.assurance_modules_hidden.filter((k) =>
-      allowed.includes(k)
+      ALL_ASSURANCE_NAV_MODULE_KEYS.includes(k)
     );
   }
   if (patch.utility_modules_hidden != null) {
-    const allowed: UtilityModuleKey[] = [
-      "intake",
-      "data_quality",
-      "review_cadence",
-      "watchlists",
-      "execution_graph",
-      "approval_workload",
-      "approval_sla_simulator",
-      "more_tools",
-    ];
-    next.utility_modules_hidden = patch.utility_modules_hidden.filter((k) => allowed.includes(k));
+    next.utility_modules_hidden = patch.utility_modules_hidden.filter((k) =>
+      ALL_UTILITY_MODULE_KEYS.includes(k)
+    );
   }
   if (Object.prototype.hasOwnProperty.call(patch, "advanced_nav_roles")) {
     if (patch.advanced_nav_roles == null) {
       delete next.advanced_nav_roles;
     } else {
-      const roles = new Set([
-        "admin",
-        "editor",
-        "viewer",
-        "ops_manager",
-        "legal_reviewer",
-        "finance_reviewer",
-        "manager",
-      ]);
-      next.advanced_nav_roles = patch.advanced_nav_roles.filter((r) => roles.has(r));
+      next.advanced_nav_roles = patch.advanced_nav_roles.filter(isWorkspaceNavRole);
     }
   }
   if (Object.prototype.hasOwnProperty.call(patch, "assurance_nav_roles")) {
     if (patch.assurance_nav_roles == null) {
       delete next.assurance_nav_roles;
     } else {
-      const roles = new Set([
-        "admin",
-        "editor",
-        "viewer",
-        "ops_manager",
-        "legal_reviewer",
-        "finance_reviewer",
-        "manager",
-      ]);
-      next.assurance_nav_roles = patch.assurance_nav_roles.filter((r) => roles.has(r));
+      next.assurance_nav_roles = patch.assurance_nav_roles.filter(isWorkspaceNavRole);
     }
   }
   if (patch.review_board_notification_emails != null) {
@@ -226,10 +288,13 @@ export async function mergeV6OrgSettingsJson(
     .maybeSingle();
   if (error) return { data: null, error };
   const raw = (data as { v6_org_settings_json?: unknown } | null)?.v6_org_settings_json;
-  return { data: (raw && typeof raw === "object" ? raw : next) as V6OrgSettingsJson, error: null };
+  return {
+    data: raw && typeof raw === "object" ? normalizeV6OrgSettingsJson(raw as V6OrgSettingsJson) : next,
+    error: null,
+  };
 }
 
-/** Mutating autopilot only in assurance mode with explicit org opt-in (docs/refinement.md §17.2). */
+/** Mutating autopilot only in assurance mode with explicit org opt-in (product-surface policy §17.2). */
 export async function isOrgAutopilotExecutionAllowed(admin: AdminClient, orgId: string): Promise<boolean> {
   const s = await getV6OrgSettingsJson(admin, orgId);
   const mode = s.workspace_mode;

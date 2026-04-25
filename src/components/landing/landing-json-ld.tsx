@@ -12,7 +12,7 @@ export function LandingJsonLd() {
     url: base,
     logo: {
       "@type": "ImageObject",
-      url: `${base}/icon`,
+      url: `${base}/apple-icon`,
     },
     description:
       "Contract execution platform for post-signature operations: renewals, approvals, obligations, and audit-ready evidence.",
@@ -23,6 +23,8 @@ export function LandingJsonLd() {
     "@type": "WebSite",
     name: "Oblixa",
     url: base,
+    description:
+      "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
   };
 
   const faqPage = {
@@ -42,6 +44,8 @@ export function LandingJsonLd() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Oblixa",
+    description:
+      "Contract execution platform for post-signature operations: renewals, approvals, obligations, and audit-ready evidence.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     featureList: [...softwareFeatureList],

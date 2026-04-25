@@ -14,9 +14,9 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
-      <h3 className="text-sm font-semibold text-zinc-900">Invite teammate</h3>
-      <p className="mt-1 text-xs text-zinc-600">
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-4">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Invite teammate</h3>
+      <p className="mt-1 text-xs text-[var(--text-secondary)]">
         Sends a secure email invite. They join this workspace after signing up or signing in
         with the same email. Invites expire after seven days.
       </p>

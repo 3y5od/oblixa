@@ -72,7 +72,7 @@ export default async function DecisionsManagerReviewPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="border-b border-[var(--border-subtle)] pb-8">
         <div>
           <p className="ui-eyebrow">Manager review</p>
           <h1 className="ui-display-title mt-2">Open decision queue</h1>
@@ -125,8 +125,8 @@ export default async function DecisionsManagerReviewPage() {
       </section>
 
       <div className="ui-table-shell">
-        <table className="min-w-full text-left text-sm text-zinc-800">
-          <thead className="border-b border-zinc-200 bg-zinc-50/80 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+        <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
+          <thead className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
             <tr>
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3">Type</th>
@@ -144,8 +144,8 @@ export default async function DecisionsManagerReviewPage() {
                     title="Queue is clear"
                     copy="No open or in-review decision workspaces right now."
                     icon={
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-200/80 bg-zinc-50/80">
-                        <Layers className="h-7 w-7 text-zinc-400" strokeWidth={1.25} aria-hidden />
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]">
+                        <Layers className="h-7 w-7 text-[var(--text-tertiary)]" strokeWidth={1.25} aria-hidden />
                       </div>
                     }
                     action={
@@ -164,13 +164,13 @@ export default async function DecisionsManagerReviewPage() {
                       {r.title}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-zinc-600">{r.typeLabel}</td>
-                  <td className="px-4 py-3 text-zinc-600">{r.status}</td>
-                  <td className="px-4 py-3 text-zinc-600">
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{r.typeLabel}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{r.status}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">
                     {r.due_at ? new Date(r.due_at).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs tabular-nums text-zinc-700">
+                    <span className="rounded-full bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-2 py-0.5 text-xs tabular-nums text-[var(--text-secondary)]">
                       {r.sla_status}
                       {r.days_until_due !== null ? ` · ${r.days_until_due}d` : ""}
                     </span>
@@ -212,13 +212,13 @@ export default async function DecisionsManagerReviewPage() {
       </div>
 
       <nav
-        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-zinc-500"
+        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-[var(--text-tertiary)]"
         aria-label="Decision shortcuts"
       >
         <Link href="/decisions" className="ui-link">
           Back to decisions
         </Link>
-        <span className="text-zinc-300" aria-hidden>
+        <span className="text-[var(--text-tertiary)]" aria-hidden>
           ·
         </span>
         <Link href="/decisions/compare" className="ui-link">

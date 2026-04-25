@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sparkles, Loader2 } from "lucide-react";
 import { runExtraction } from "@/actions/contracts";
 import { isExtractionActivelyBlocking } from "@/lib/extraction/constants";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractExtractionJob } from "@/lib/types";
 
 interface ExtractButtonProps {
@@ -41,7 +42,7 @@ export function ExtractButton({
       try {
         const res = await runExtraction(contractId);
         if ("error" in res && res.error) {
-          setResult({ message: res.error, type: "error" });
+          setResult({ message: describeRecoverableMutationError(res.error), type: "error" });
         } else if ("success" in res && res.success) {
           if ("async" in res && res.async) {
             setResult({

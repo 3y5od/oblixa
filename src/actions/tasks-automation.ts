@@ -31,6 +31,8 @@ export async function autoTransitionTasksForApproval(input: {
   approvalDueAt?: string | null;
 }) {
   const { admin, organizationId, contractId, actorId, approvalStatus, approvalDueAt } = input;
+  let blockedCount = 0;
+  let reopenedCount = 0;
   const { data: tasks } = await admin
     .from("contract_tasks")
     .select("id, status, title, details")
@@ -41,7 +43,7 @@ export async function autoTransitionTasksForApproval(input: {
     const text = `${task.title ?? ""} ${task.details ?? ""}`.toLowerCase();
     return text.includes("approval");
   });
-  if (approvalLinked.length === 0) return;
+  if (approvalLinked.length === 0) return { blockedCount, reopenedCount };
 
   if (approvalStatus === "pending") {
     const dueDate =
@@ -50,7 +52,7 @@ export async function autoTransitionTasksForApproval(input: {
         : null;
     for (const task of approvalLinked) {
       if (task.status === "blocked") continue;
-      await admin
+      const { data: updatedRows } = await admin
         .from("contract_tasks")
         .update({
           status: "blocked",
@@ -58,7 +60,9 @@ export async function autoTransitionTasksForApproval(input: {
           due_date: dueDate ?? undefined,
           last_auto_transition_at: new Date().toISOString(),
         })
-        .eq("id", task.id);
+        .eq("id", task.id)
+        .select("id");
+      if ((updatedRows?.length ?? 0) > 0) blockedCount += updatedRows?.length ?? 0;
       await appendTaskEvent(admin, {
         organizationId,
         contractId,
@@ -68,12 +72,12 @@ export async function autoTransitionTasksForApproval(input: {
         details: { status: "blocked", reason: "approval_pending_sync" },
       });
     }
-    return;
+    return { blockedCount, reopenedCount };
   }
 
   for (const task of approvalLinked) {
     if (task.status !== "blocked") continue;
-    await admin
+    const { data: updatedRows } = await admin
       .from("contract_tasks")
       .update({
         status: "open",
@@ -81,7 +85,9 @@ export async function autoTransitionTasksForApproval(input: {
         blocked_by_task_id: null,
         last_auto_transition_at: new Date().toISOString(),
       })
-      .eq("id", task.id);
+      .eq("id", task.id)
+      .select("id");
+    if ((updatedRows?.length ?? 0) > 0) reopenedCount += updatedRows?.length ?? 0;
     await appendTaskEvent(admin, {
       organizationId,
       contractId,
@@ -91,6 +97,7 @@ export async function autoTransitionTasksForApproval(input: {
       details: { status: "open", reason: `approval_${approvalStatus}_sync` },
     });
   }
+  return { blockedCount, reopenedCount };
 }
 
 export async function autoTransitionTasksForField(input: {

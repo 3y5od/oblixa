@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { addManualField } from "@/actions/contracts";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { FIELD_NAMES } from "@/lib/types";
 
 interface AddFieldFormProps {
@@ -35,7 +36,7 @@ export function AddFieldForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-50/50 hover:text-zinc-700"
+        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] hover:text-[var(--text-secondary)]"
       >
         <Plus size={14} />
         Add field manually
@@ -49,7 +50,7 @@ export function AddFieldForm({
     startTransition(async () => {
       const result = await addManualField(contractId, fieldName, fieldValue.trim());
       if (result && "error" in result && result.error) {
-        setError(result.error);
+        setError(describeRecoverableMutationError(result.error));
       } else {
         setFieldName("");
         setFieldValue("");
@@ -60,7 +61,7 @@ export function AddFieldForm({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200/90 bg-zinc-50/30 p-4">
+    <div className="space-y-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/30 p-4">
       {error && (
         <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-2 text-sm text-red-800">
           {error}
@@ -68,7 +69,7 @@ export function AddFieldForm({
       )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="min-w-0">
-          <label className="block text-xs font-medium text-zinc-600 mb-1">Field</label>
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Field</label>
           <select
             value={fieldName}
             onChange={(e) => setFieldName(e.target.value)}
@@ -83,7 +84,7 @@ export function AddFieldForm({
           </select>
         </div>
         <div className="min-w-0">
-          <label className="block text-xs font-medium text-zinc-600 mb-1">Value</label>
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Value</label>
           <input
             type="text"
             value={fieldValue}

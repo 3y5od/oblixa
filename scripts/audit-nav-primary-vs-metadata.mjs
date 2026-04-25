@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §11.3 — Workspace primary links vs page titles (heuristic).
+ * product-surface policy §11.3 — Workspace primary links vs page titles (heuristic).
  */
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";

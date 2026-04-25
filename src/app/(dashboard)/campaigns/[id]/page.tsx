@@ -78,7 +78,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+      <header className="ui-page-header flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="ui-eyebrow">Campaign detail</p>
           <h1 className="ui-display-title mt-2">{campaign.name}</h1>
@@ -100,7 +100,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         <>
           <section className="ui-card p-5">
             <p className="ui-label-caps">Relationship context</p>
-            <ul className="mt-2 space-y-2 text-sm text-zinc-700">
+            <ul className="mt-2 space-y-2 text-sm text-[var(--text-secondary)]">
               {eligAccount ? (
                 <li>
                   Account:{" "}
@@ -146,25 +146,25 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         />
         <article className="ui-card p-5">
           <p className="ui-label-caps">Eligibility</p>
-          <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-2 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(campaign.eligibility_json ?? {}, null, 2)}
           </pre>
         </article>
         <article className="ui-card p-5">
           <p className="ui-label-caps">Preview summary</p>
-          <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-2 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(campaign.preview_summary_json ?? {}, null, 2)}
           </pre>
           <p className="ui-label-caps mt-4">Progress summary</p>
-          <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-2 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(campaign.progress_summary_json ?? {}, null, 2)}
           </pre>
           {segmentBreakdown && Object.keys(segmentBreakdown).length > 0 ? (
-            <div className="mt-4 border-t border-zinc-100 pt-4">
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
               <p className="ui-label-caps">Segment / cohort breakdown</p>
-              <div className="mt-2 overflow-x-auto rounded-xl border border-zinc-100">
-                <table className="min-w-full text-left text-xs text-zinc-700">
-                  <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+              <div className="mt-2 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
+                <table className="min-w-full text-left text-xs text-[var(--text-secondary)]">
+                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     <tr>
                       <th className="px-3 py-2">Segment</th>
                       <th className="px-3 py-2">Pending</th>
@@ -177,7 +177,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                   <tbody className="divide-y divide-[var(--border-subtle)]">
                     {Object.entries(segmentBreakdown).map(([seg, counts]) => (
                       <tr key={seg}>
-                        <td className="px-3 py-2 font-medium text-zinc-800">{seg}</td>
+                        <td className="px-3 py-2 font-medium text-[var(--text-primary)]">{seg}</td>
                         <td className="px-3 py-2">{counts.pending ?? 0}</td>
                         <td className="px-3 py-2">{counts.in_progress ?? 0}</td>
                         <td className="px-3 py-2">{counts.processed ?? 0}</td>
@@ -191,11 +191,11 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
             </div>
           ) : null}
           {teamBreakdown && Object.keys(teamBreakdown).length > 0 ? (
-            <div className="mt-4 border-t border-zinc-100 pt-4">
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
               <p className="ui-label-caps">Assigned team cohort breakdown</p>
-              <div className="mt-2 overflow-x-auto rounded-xl border border-zinc-100">
-                <table className="min-w-full text-left text-xs text-zinc-700">
-                  <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+              <div className="mt-2 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
+                <table className="min-w-full text-left text-xs text-[var(--text-secondary)]">
+                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     <tr>
                       <th className="px-3 py-2">Team</th>
                       <th className="px-3 py-2">Pending</th>
@@ -208,7 +208,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                   <tbody className="divide-y divide-[var(--border-subtle)]">
                     {Object.entries(teamBreakdown).map(([team, counts]) => (
                       <tr key={team}>
-                        <td className="px-3 py-2 font-medium text-zinc-800">{team}</td>
+                        <td className="px-3 py-2 font-medium text-[var(--text-primary)]">{team}</td>
                         <td className="px-3 py-2">{counts.pending ?? 0}</td>
                         <td className="px-3 py-2">{counts.in_progress ?? 0}</td>
                         <td className="px-3 py-2">{counts.processed ?? 0}</td>

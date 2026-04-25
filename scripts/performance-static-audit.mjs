@@ -60,6 +60,15 @@ const reSelectStar = /\.select\s*\(\s*['"]\*['"]\s*\)/;
 /** WARN: very large .limit( — 5000+ or 5+ digit number */
 const reLargeLimit = /\.limit\s*\(\s*(?:5000|[6-9]\d{3}|\d{5,})\s*\)/;
 
+const serverOnlyPackages = [
+  "@react-pdf/renderer",
+  "mammoth",
+  "openai",
+  "pdf-parse",
+  "resend",
+  "stripe",
+];
+
 function isTestPath(rel) {
   return (
     /\.test\.tsx?$/.test(rel) ||
@@ -127,6 +136,22 @@ function run() {
     }
     if (hasClientTimer(content, rel)) {
       console.warn(`WARN setInterval/setTimeout in client component ${rel} — check cleanup and rerenders`);
+      warnCount += 1;
+    }
+    if (isUseClientSource(content)) {
+      const leakedServerPackage = serverOnlyPackages.find((pkg) =>
+        new RegExp(`from\\s+["']${pkg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(content)
+      );
+      if (leakedServerPackage) {
+        console.warn(`WARN Server-only package ${leakedServerPackage} imported by client component ${rel}`);
+        warnCount += 1;
+      }
+    }
+    if (
+      rel === "src/app/(dashboard)/layout.tsx" &&
+      /fetchNavBadgeCounts|attachOwnerProfiles|\.from\s*\(\s*["']contracts["']/.test(content)
+    ) {
+      console.warn(`WARN Dashboard layout preloads non-critical shell data in ${rel}`);
       warnCount += 1;
     }
     if (

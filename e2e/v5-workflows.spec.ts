@@ -74,7 +74,7 @@ test.describe("V5 workflow smoke", () => {
 
   test("decision API lifecycle: create, recommend, close", async ({ page }) => {
     await loginAsTestUser(page);
-    const title = `E2E V5 lifecycle ${Date.now()}`;
+    const title = `E2E lifecycle ${Date.now()}`;
     const createRes = await page.request.post("/api/decisions", {
       data: { title, decisionType: "renewal" },
     });

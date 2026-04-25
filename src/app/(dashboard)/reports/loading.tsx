@@ -1,8 +1,10 @@
 export default function ReportsSegmentLoading() {
   return (
     <>
-      <span className="sr-only">Loading reports</span>
-      <div className="ui-page-stack" aria-hidden>
+      <div className="sr-only" role="status" aria-live="polite">
+        Loading reports. Operational summaries and export status will appear shortly.
+      </div>
+      <div className="ui-page-stack" aria-hidden aria-busy="true">
         <div className="space-y-3">
           <div className="ui-skeleton h-4 w-40 rounded" />
           <div className="ui-skeleton h-10 w-72 rounded" />

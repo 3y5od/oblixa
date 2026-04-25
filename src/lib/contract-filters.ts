@@ -19,6 +19,11 @@ export const DEADLINE_PRESET_VALUES = [
 
 export type DeadlinePreset = (typeof DEADLINE_PRESET_VALUES)[number];
 
+/** Single source for parity tests: every non-empty `deadline=` / renewals `horizon=` token. */
+export function listNonEmptyDeadlinePresets(): Exclude<DeadlinePreset, "">[] {
+  return DEADLINE_PRESET_VALUES.filter((v): v is Exclude<DeadlinePreset, ""> => v !== "");
+}
+
 type CalendarDeadlinePreset = Exclude<
   DeadlinePreset,
   ""

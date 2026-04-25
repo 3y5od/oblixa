@@ -1,5 +1,5 @@
 /**
- * Refinement spec (docs/refinement.md) — automated traceability
+ * Product-surface policy — automated traceability
  *
  * §1 — “Refinement not roadmap”: simplify visible surfaces without removing capabilities (hide/gate only; §4.1).
  * §2 — Primary story: post-signature execution (intake/review, tasks, obligations, approvals, renewals, exceptions,
@@ -275,7 +275,7 @@ test.describe("authenticated smoke", () => {
   });
 });
 
-test.describe("refinement route visibility (docs/refinement.md §10, Core fixture)", () => {
+test.describe("refinement route visibility (product-surface policy §10, Core fixture)", () => {
   test.skip(
     !E2E_EMAIL || !E2E_PASSWORD,
     "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke."

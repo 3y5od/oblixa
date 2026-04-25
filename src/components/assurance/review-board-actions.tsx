@@ -33,17 +33,17 @@ export function ReviewBoardCreateForm() {
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className="mt-3 space-y-2 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-700">Create board</p>
+    <form onSubmit={(e) => void onSubmit(e)} className="mt-3 space-y-2 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-secondary)]">Create board</p>
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Board name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
       />
       <select
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         value={boardType}
         onChange={(e) => setBoardType(e.target.value)}
       >
@@ -57,7 +57,7 @@ export function ReviewBoardCreateForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
       >
         {pending ? "Saving…" : "Create"}
       </button>
@@ -117,13 +117,13 @@ export function ReviewBoardRunLifecycle({
   const canLifecycle = status === "generated" || status === "reviewed";
 
   return (
-    <div className="mt-2 space-y-2 border-t border-zinc-100 pt-2">
+    <div className="mt-2 space-y-2 border-t border-[var(--border-subtle)] pt-2">
       <div className="flex flex-wrap gap-2">
         {status === "generated" ? (
           <button
             type="button"
             disabled={pending}
-            className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-800 disabled:opacity-50"
+            className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
             onClick={() => void patch({ status: "reviewed" })}
           >
             {pending ? "Saving…" : "Mark reviewed"}
@@ -133,7 +133,7 @@ export function ReviewBoardRunLifecycle({
           <button
             type="button"
             disabled={pending}
-            className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-800 disabled:opacity-50"
+            className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
             onClick={() => void patch({ status: "closed" })}
           >
             Close run
@@ -142,19 +142,19 @@ export function ReviewBoardRunLifecycle({
         <button
           type="button"
           disabled={!packetJson || Object.keys(packetJson).length === 0}
-          className="rounded border border-zinc-200 px-2 py-1 text-xs text-zinc-600 disabled:opacity-50"
+          className="rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)] disabled:opacity-50"
           onClick={() => downloadPacket()}
         >
           Download packet (JSON)
         </button>
         <a
-          className="inline-flex items-center rounded border border-zinc-200 px-2 py-1 text-xs text-zinc-700"
+          className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]"
           href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=json`}
         >
           Export full run (JSON)
         </a>
         <a
-          className="inline-flex items-center rounded border border-zinc-200 px-2 py-1 text-xs text-zinc-700"
+          className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]"
           href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=csv`}
         >
           Export summary (CSV)
@@ -162,10 +162,10 @@ export function ReviewBoardRunLifecycle({
       </div>
       {canLifecycle ? (
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-zinc-600">
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">
             Log an action (appends to action capture)
             <input
-              className="mt-0.5 w-full rounded border border-zinc-200 px-2 py-1 text-xs"
+              className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-xs"
               value={actionNote}
               onChange={(e) => setActionNote(e.target.value)}
               placeholder="e.g. Follow up with owner on finding F-12"
@@ -174,7 +174,7 @@ export function ReviewBoardRunLifecycle({
           <button
             type="button"
             disabled={pending || !actionNote.trim()}
-            className="self-start rounded bg-zinc-800 px-2 py-1 text-[11px] text-white disabled:opacity-50"
+            className="self-start rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50"
             onClick={() => void patch({ actionCapture: { note: actionNote.trim() } })}
           >
             Append action
@@ -182,17 +182,17 @@ export function ReviewBoardRunLifecycle({
         </div>
       ) : null}
       {canLifecycle ? (
-        <div className="flex flex-col gap-1 border-t border-zinc-100 pt-2">
-          <label className="text-[11px] font-medium text-zinc-600">
+        <div className="flex flex-col gap-1 border-t border-[var(--border-subtle)] pt-2">
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">
             Log a board decision (appends to decision log)
             <input
-              className="mt-0.5 w-full rounded border border-zinc-200 px-2 py-1 text-xs"
+              className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-xs"
               value={decisionType}
               onChange={(e) => setDecisionType(e.target.value)}
               placeholder="decision type"
             />
             <textarea
-              className="mt-1 w-full rounded border border-zinc-200 px-2 py-1 text-xs"
+              className="mt-1 w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-xs"
               rows={2}
               value={decisionNote}
               onChange={(e) => setDecisionNote(e.target.value)}
@@ -202,7 +202,7 @@ export function ReviewBoardRunLifecycle({
           <button
             type="button"
             disabled={pending || !decisionNote.trim()}
-            className="self-start rounded border border-zinc-800 px-2 py-1 text-[11px] text-zinc-900 disabled:opacity-50"
+            className="self-start rounded border border-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
             onClick={() =>
               void patch({
                 decisionLog: { decision_type: decisionType.trim() || "board_decision", summary: decisionNote.trim() },
@@ -288,33 +288,33 @@ export function ReviewBoardPatchPanel({
   return (
     <form
       onSubmit={(e) => void onSave(e)}
-      className="mt-3 space-y-2 rounded-lg border border-dashed border-zinc-200 bg-surface/90 p-3 text-xs"
+      className="mt-3 space-y-2 rounded-lg border border-dashed border-[var(--border-subtle)] bg-surface/90 p-3 text-xs"
     >
-      <p className="font-semibold text-zinc-800">Board settings (subscriptions and agenda)</p>
-      <p className="text-[11px] text-zinc-500">
+      <p className="font-semibold text-[var(--text-primary)]">Board settings (subscriptions and agenda)</p>
+      <p className="text-[11px] text-[var(--text-tertiary)]">
         When a packet run is generated, email and Slack inbound webhooks listed here receive a short summary.
         Exports still use the full run payload in the app.
       </p>
       <label className="block">
-        <span className="text-[11px] font-medium text-zinc-600">Subscriptions JSON (array)</span>
-        <span className="mt-0.5 block text-[10px] text-zinc-400">
+        <span className="text-[11px] font-medium text-[var(--text-secondary)]">Subscriptions JSON (array)</span>
+        <span className="mt-0.5 block text-[10px] text-[var(--text-tertiary)]">
           Email:{" "}
-          <code className="rounded bg-zinc-100 px-0.5">{`{"email":"ops@example.com","channel":"email"}`}</code>
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{"email":"ops@example.com","channel":"email"}`}</code>
           {" · "}
           Slack:{" "}
-          <code className="rounded bg-zinc-100 px-0.5">{`{"channel":"slack","webhookUrl":"https://hooks.slack.com/..."}`}</code>
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{"channel":"slack","webhookUrl":"https://hooks.slack.com/..."}`}</code>
         </span>
         <textarea
-          className="mt-0.5 w-full rounded border border-zinc-200 px-2 py-1 font-mono text-[11px]"
+          className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]"
           rows={4}
           value={subsJson}
           onChange={(e) => setSubsJson(e.target.value)}
         />
       </label>
       <label className="block">
-        <span className="text-[11px] font-medium text-zinc-600">Agenda template JSON (object)</span>
+        <span className="text-[11px] font-medium text-[var(--text-secondary)]">Agenda template JSON (object)</span>
         <textarea
-          className="mt-0.5 w-full rounded border border-zinc-200 px-2 py-1 font-mono text-[11px]"
+          className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]"
           rows={3}
           value={agendaJson}
           onChange={(e) => setAgendaJson(e.target.value)}
@@ -328,7 +328,7 @@ export function ReviewBoardPatchPanel({
         <label className="flex items-center gap-1 text-[11px]">
           Cadence
           <select
-            className="rounded border border-zinc-200 px-1 py-0.5"
+            className="rounded border border-[var(--border-subtle)] px-1 py-0.5"
             value={cadence}
             onChange={(e) => setCadence(e.target.value)}
           >
@@ -342,7 +342,7 @@ export function ReviewBoardPatchPanel({
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-zinc-800 px-2 py-1 text-[11px] text-white disabled:opacity-50"
+        className="rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save board settings"}
       </button>
@@ -379,7 +379,7 @@ export function ReviewBoardGenerateButton({ boardId }: { boardId: string }) {
       <button
         type="button"
         disabled={pending}
-        className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-800 disabled:opacity-50"
+        className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
         onClick={() => void onGen()}
       >
         {pending ? "Generating…" : "Generate run"}

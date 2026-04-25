@@ -23,6 +23,7 @@ const steps = [
   "check:api-route-rate-limit-coverage",
   "check:server-lib-admin",
   "check:cron-route-auth",
+  "check:v9-suite",
 ];
 
 const results = await runSequential(steps);

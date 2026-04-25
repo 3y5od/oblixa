@@ -1,12 +1,15 @@
 # src/lib paths (relative to repo root) allowed to reference createAdminClient.
 # One path per line; sync with `node scripts/check-server-lib-admin.mjs --print-hits` when adding callers.
 src/lib/contract-filters.ts
+src/lib/contract-list-id-filters.ts
+src/lib/contract-list-row-signals.ts
 src/lib/contract-list.ts
 src/lib/contract-review-stats.ts
 src/lib/contracts.ts
 src/lib/dashboard-data.ts
 src/lib/data-quality.ts
 src/lib/extraction-job.ts
+src/lib/import-jobs.ts
 src/lib/extraction/run-pipeline.ts
 src/lib/integrations/calendar.ts
 src/lib/integrations/events.ts
@@ -16,6 +19,7 @@ src/lib/notification-delivery.ts
 src/lib/notification-policy.ts
 src/lib/permissions.ts
 src/lib/plan.ts
+src/lib/product-telemetry.ts
 src/lib/actions/access.ts
 src/lib/actions/contracts-access.ts
 src/lib/supabase/server.ts

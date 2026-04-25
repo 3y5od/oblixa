@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { LoadingCard } from "@/components/ui/segment-loading";
 import { readResponseJson } from "@/lib/http/client-json";
 import { captureClientException } from "@/lib/observability/sentry";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
@@ -202,33 +203,45 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (done) {
     return (
-      <div className="ui-alert-success p-8 text-center">
-        <p className="text-lg font-semibold text-emerald-900">Thank you</p>
-        <p className="mt-2 text-sm text-emerald-800/90">Your response was recorded. You can close this page.</p>
+      <div className="ui-status-panel ui-status-panel-success mx-auto max-w-lg px-6 py-8 text-center">
+        <p className="ui-section-title">Thank you</p>
+        <p className="ui-support-copy mt-2 text-sm">Your response was recorded. You can close this page.</p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
-        Loading request…
+      <div className="mx-auto w-full max-w-lg">
+        <LoadingCard className="space-y-4 p-6 sm:p-8">
+          <div className="space-y-2">
+            <div className="ui-skeleton h-3 w-28 rounded" />
+            <div className="ui-skeleton h-8 w-2/3 rounded" />
+            <div className="ui-skeleton h-4 w-full rounded" />
+          </div>
+          <div className="ui-skeleton h-10 w-full rounded-lg" />
+          <div className="ui-skeleton h-24 w-full rounded-lg" />
+          <div className="ui-skeleton h-12 w-full rounded-lg" />
+        </LoadingCard>
       </div>
     );
   }
 
   if (loadError || !status) {
     return (
-      <div className="ui-card mx-auto max-w-md p-8 text-center">
-        <h1 className="text-xl font-semibold text-zinc-900">External response</h1>
-        <p className="ui-alert-error mt-3">{loadError || "Unable to load this link."}</p>
+      <div className="ui-page-shell mx-auto max-w-lg p-6 text-center sm:p-8">
+        <p className="ui-eyebrow">External workflow</p>
+        <h1 className="ui-page-title mt-2 text-[1.7rem]">External response</h1>
+        <p className="ui-alert-error mt-3" data-testid={surfaceTestIds.externalSubmitLoadError}>
+          {loadError || "Unable to load this link."}
+        </p>
       </div>
     );
   }
 
   if (status.expired || status.status === "expired") {
     return (
-      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
+      <div className="ui-page-shell mx-auto max-w-lg p-6 text-center text-sm text-[var(--text-secondary)] sm:p-8">
         This link has expired. Contact your Oblixa administrator for a new request.
       </div>
     );
@@ -236,7 +249,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
   if (status.status !== "open") {
     return (
-      <div className="ui-card mx-auto max-w-md p-8 text-center text-sm text-zinc-600">
+      <div className="ui-page-shell mx-auto max-w-lg p-6 text-center text-sm text-[var(--text-secondary)] sm:p-8">
         This request is no longer open (status: {status.status}).
       </div>
     );
@@ -248,13 +261,13 @@ export function ExternalSubmitForm({ token }: Props) {
     <form
       onSubmit={onSubmit}
       data-testid={surfaceTestIds.externalSubmitForm}
-      className="ui-card mx-auto max-w-md space-y-4 p-8"
+      className="ui-page-shell mx-auto max-w-lg space-y-5 p-6 sm:p-8"
     >
       <div>
-        <p className="ui-kicker">External workflow</p>
-        <h1 className="text-xl font-semibold text-zinc-900">External response</h1>
-        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Action: {actionLabel}</p>
-        <p className="mt-2 text-sm text-zinc-600">Complete the request, then submit once.</p>
+        <p className="ui-eyebrow">External workflow</p>
+        <h1 className="ui-page-title mt-2 text-[1.7rem]">External response</h1>
+        <p className="ui-meta mt-1">Action: {actionLabel}</p>
+        <p className="ui-section-lead mt-2">Complete the request, then submit once.</p>
         {status.reauth_instructions ? (
           <p className="ui-alert-warning mt-2">
             {status.reauth_instructions}
@@ -269,21 +282,21 @@ export function ExternalSubmitForm({ token }: Props) {
         {(status.workflow_chain?.length ?? 0) > 0 ||
         status.workflow_deadline_iso ||
         status.workflow_ack_required ? (
-          <div className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 text-xs text-zinc-700">
-            <p className="font-semibold text-zinc-800">Workflow progress</p>
+          <div className="ui-soft-details mt-3 text-xs text-[var(--text-secondary)]">
+            <p className="font-semibold text-[var(--text-primary)]">Workflow progress</p>
             {status.workflow_deadline_iso ? (
-              <p className="mt-1 text-zinc-600">
+              <p className="mt-1 text-[var(--text-secondary)]">
                 Acknowledge by: {new Date(status.workflow_deadline_iso).toLocaleString()}
               </p>
             ) : null}
             {status.workflow_ack_required ? (
               <p className="mt-1 text-amber-800">Acknowledgement is required for this chain.</p>
             ) : null}
-            <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-zinc-600">
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-[var(--text-secondary)]">
               {(status.workflow_chain ?? []).map((step, i) => (
                 <li key={`${step.at ?? i}-${i}`}>
-                  <span className="font-medium text-zinc-800">{String(step.type ?? "step")}</span>
-                  {step.at ? <span className="text-zinc-500"> · {step.at}</span> : null}
+                  <span className="font-medium text-[var(--text-primary)]">{String(step.type ?? "step")}</span>
+                  {step.at ? <span className="text-[var(--text-tertiary)]"> · {step.at}</span> : null}
                 </li>
               ))}
             </ol>
@@ -296,7 +309,7 @@ export function ExternalSubmitForm({ token }: Props) {
         </p>
       ) : null}
 
-      <label className="block text-xs font-medium text-zinc-700">
+      <label className="block text-xs font-medium text-[var(--text-secondary)]">
         Passcode {status.requires_passcode ? "(required)" : "(if required)"}
         <input
           type="password"
@@ -310,7 +323,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "submit_evidence" ? (
         <>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Message or notes
             <textarea
               className="ui-input mt-1 min-h-[100px] w-full resize-y"
@@ -318,7 +331,7 @@ export function ExternalSubmitForm({ token }: Props) {
               onChange={(ev) => setMessage(ev.target.value)}
             />
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Evidence reference (optional)
             <input
               className="ui-input mt-1 w-full"
@@ -331,11 +344,11 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "acknowledge_receipt" ? (
         <>
-          <label className="flex items-center gap-2 text-sm text-zinc-800">
+          <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
             <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
             I acknowledge receipt
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Reference (optional)
             <input className="ui-input mt-1 w-full" value={reference} onChange={(e) => setReference(e.target.value)} />
           </label>
@@ -343,7 +356,7 @@ export function ExternalSubmitForm({ token }: Props) {
       ) : null}
 
       {status.action_type === "structured_request_response" ? (
-        <label className="block text-xs font-medium text-zinc-700">
+        <label className="block text-xs font-medium text-[var(--text-secondary)]">
           Your response
           <textarea
             className="ui-input mt-1 min-h-[120px] w-full resize-y"
@@ -356,11 +369,11 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "confirm_renewal_input" ? (
         <>
-          <label className="flex items-center gap-2 text-sm text-zinc-800">
+          <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
             I confirm the renewal input is accurate
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Notes (optional)
             <textarea className="ui-input mt-1 w-full resize-y" value={renewalNote} onChange={(e) => setRenewalNote(e.target.value)} />
           </label>
@@ -369,7 +382,7 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "upload_requested_document" ? (
         <>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Document description
             <textarea
               className="ui-input mt-1 w-full resize-y"
@@ -377,7 +390,7 @@ export function ExternalSubmitForm({ token }: Props) {
               onChange={(e) => setDocumentDescription(e.target.value)}
             />
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             File name (if applicable)
             <input className="ui-input mt-1 w-full" value={fileName} onChange={(e) => setFileName(e.target.value)} />
           </label>
@@ -386,11 +399,11 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "confirm_notice_delivery" ? (
         <>
-          <label className="flex items-center gap-2 text-sm text-zinc-800">
+          <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
             <input type="checkbox" checked={delivered} onChange={(e) => setDelivered(e.target.checked)} />
             I confirm delivery
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Reference (optional)
             <input className="ui-input mt-1 w-full" value={reference} onChange={(e) => setReference(e.target.value)} />
           </label>
@@ -398,7 +411,7 @@ export function ExternalSubmitForm({ token }: Props) {
       ) : null}
 
       {status.action_type === "amendment_intake_response" ? (
-        <label className="block text-xs font-medium text-zinc-700">
+        <label className="block text-xs font-medium text-[var(--text-secondary)]">
           Summary
           <textarea
             className="ui-input mt-1 min-h-[120px] w-full resize-y"
@@ -411,11 +424,11 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "complete_attestation" ? (
         <>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Statement
             <textarea className="ui-input mt-1 w-full resize-y" value={statement} onChange={(e) => setStatement(e.target.value)} />
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Reference (optional)
             <input
               className="ui-input mt-1 w-full"
@@ -428,18 +441,18 @@ export function ExternalSubmitForm({ token }: Props) {
 
       {status.action_type === "review_decision_packet" ? (
         <>
-          <label className="flex items-center gap-2 text-sm text-zinc-800">
+          <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
             <input type="checkbox" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />
             I have reviewed the decision packet
           </label>
-          <label className="block text-xs font-medium text-zinc-700">
+          <label className="block text-xs font-medium text-[var(--text-secondary)]">
             Comments (optional)
             <textarea className="ui-input mt-1 w-full resize-y" value={comments} onChange={(e) => setComments(e.target.value)} />
           </label>
         </>
       ) : null}
 
-      <button type="submit" className="ui-btn-primary w-full" disabled={busy}>
+      <button type="submit" className="ui-btn-primary min-h-12 w-full text-[15px]" disabled={busy}>
         {busy ? "Submitting…" : "Submit"}
       </button>
     </form>

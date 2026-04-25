@@ -61,13 +61,13 @@ export function CampaignAssignmentPanel({
   return (
     <section className="ui-card p-5">
       <p className="ui-eyebrow">Routing</p>
-      <h2 className="ui-section-title mt-1 text-base">Assignment rules (V5)</h2>
+      <h2 className="ui-section-title mt-1 text-base">Assignment rules</h2>
       <p className="ui-muted-tight mt-2">
-        <code className="rounded bg-zinc-100 px-1">defaultTeamKey</code> and optional{" "}
-        <code className="rounded bg-zinc-100 px-1">bySegment</code> set task routing when the campaign starts.
+        <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">defaultTeamKey</code> and optional{" "}
+        <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">bySegment</code> set task routing when the campaign starts.
         Per-row overrides below win over these defaults.
       </p>
-      <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-[11px] text-zinc-600">
+      <pre className="mt-2 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-[11px] text-[var(--text-secondary)]">
         {`{
   "defaultTeamKey": "legal",
   "defaultAssigneeId": "optional-uuid",
@@ -101,12 +101,12 @@ export function CampaignAssignmentPanel({
           </button>
         </>
       ) : (
-        <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+        <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
           {jsonText}
         </pre>
       )}
 
-      <div className="mt-6 border-t border-zinc-100 pt-4">
+      <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
         <p className="ui-eyebrow">Overrides</p>
         <h3 className="ui-section-title mt-1 text-base">Per-contract row routing</h3>
         <p className="ui-muted-tight mt-1">
@@ -115,7 +115,7 @@ export function CampaignAssignmentPanel({
         </p>
         <ul className="mt-3 space-y-3">
           {contracts.length === 0 ? (
-            <li className="text-sm text-zinc-500">No contract rows yet.</li>
+            <li className="text-sm text-[var(--text-tertiary)]">No contract rows yet.</li>
           ) : (
             contracts.map((row) => (
               <CampaignContractRowForm
@@ -173,8 +173,8 @@ function CampaignContractRowForm({
   }
 
   return (
-    <li className="rounded-xl border border-zinc-100 px-3 py-3 text-sm">
-      <p className="font-medium text-zinc-800">
+    <li className="rounded-xl border border-[var(--border-subtle)] px-3 py-3 text-sm">
+      <p className="font-medium text-[var(--text-primary)]">
         <Link href={`/contracts/${row.contract_id}`} className="ui-link">
           Contract {row.contract_id}
         </Link>{" "}
@@ -214,7 +214,7 @@ function CampaignContractRowForm({
           </button>
         </div>
       ) : (
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-[var(--text-tertiary)]">
           Team: {row.assigned_team || "—"} · Segment: {row.segment_key || "—"}
         </p>
       )}

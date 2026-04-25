@@ -20,6 +20,7 @@ export type V8EligibilityDenialClass =
   | "unauthenticated"
   | "unauthorized_role"
   | "insufficient_workspace_mode"
+  | "feature_flag_disabled"
   | "hidden_by_module_config"
   | "retired_feature"
   | "experimental_deep_link_only_suppression"
@@ -77,6 +78,18 @@ function isAdvancedModuleRowHidden(ctx: ProductSurfaceContext, def: ProductFeatu
 function isAssuranceModuleRowHidden(ctx: ProductSurfaceContext, def: ProductFeatureDef): boolean {
   if (!def.assuranceModuleKey) return false;
   return ctx.assuranceModulesHidden.has(def.assuranceModuleKey);
+}
+
+function isFeatureFlagRequirementSatisfied(
+  ctx: ProductSurfaceContext,
+  def: ProductFeatureDef
+): boolean {
+  if (!def.featureFlagsAnyOf?.length) return true;
+  const knownFlags = def.featureFlagsAnyOf.filter((key) =>
+    Object.prototype.hasOwnProperty.call(ctx.featureFlags, key)
+  );
+  if (knownFlags.length === 0) return true;
+  return knownFlags.some((key) => ctx.featureFlags[key]);
 }
 
 export function evaluateFeatureEligibility(
@@ -216,6 +229,18 @@ export function evaluateFeatureEligibility(
       discoverability: "suppressed",
       reason: "disabled_or_retired_hidden",
       denialClass: "retired_feature",
+      resolvedDiscoverability: "hidden",
+      telemetry,
+      definition: def,
+    };
+  }
+
+  if (!isFeatureFlagRequirementSatisfied(ctx, def)) {
+    return {
+      allowed: false,
+      discoverability: "suppressed",
+      reason: "feature_flag_disabled",
+      denialClass: "feature_flag_disabled",
       resolvedDiscoverability: "hidden",
       telemetry,
       definition: def,

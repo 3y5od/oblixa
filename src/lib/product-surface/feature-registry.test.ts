@@ -90,4 +90,9 @@ describe("product feature registry", () => {
   it("maps token calendar feed API paths to reports family for workspace eligibility (V7 §14)", () => {
     expect(featureFamilyForApiPath("/api/export/calendar/feed/abc")).toBe("reports");
   });
+
+  it("maps contracts analytics to the advanced analytics family", () => {
+    expect(featureFamilyForPath("/contracts/analytics")).toBe("advanced_analytics");
+    expect(minWorkspaceModeForPath("/contracts/analytics")).toBe("advanced");
+  });
 });

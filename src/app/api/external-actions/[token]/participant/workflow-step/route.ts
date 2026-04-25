@@ -19,7 +19,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
   if (!isFeatureEnabled("v6AssuranceCore")) {
-    return NextResponse.json({ error: "V6 assurance is disabled" }, { status: 403 });
+    return NextResponse.json({ error: "Assurance workflows are disabled" }, { status: 403 });
   }
 
   const ip = getClientIpFromRequest(request);

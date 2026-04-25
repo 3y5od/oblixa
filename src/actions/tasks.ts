@@ -11,6 +11,11 @@ import type {
   OrgRole,
 } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
+import {
+  emitProductTelemetryIfFirstForOrgUser,
+  emitVisibleMutationErrorTelemetry,
+  emitWorkActionTelemetry,
+} from "@/lib/product-telemetry";
 
 const TASK_STATUSES: ContractTaskStatus[] = ["open", "in_progress", "blocked", "done"];
 const TASK_PRIORITIES: ContractTaskPriority[] = ["low", "medium", "high"];
@@ -291,6 +296,16 @@ export async function createContractTask(input: {
   });
   await recomputeContractSignals(admin, input.contractId);
 
+  if (assigneeId === user.id) {
+    await emitProductTelemetryIfFirstForOrgUser(admin, {
+      organizationId: membership.ctx.orgId,
+      userId: user.id,
+      contractId: input.contractId,
+      action: "product.v9.first_visible_work_item",
+      details: { surface: "work", taskId: task.id },
+    });
+  }
+
   return { success: true as const, taskId: task.id };
 }
 
@@ -373,18 +388,46 @@ export async function createCheckpointClarificationTaskForm(formData: FormData) 
   const requesterNote = String(formData.get("requesterNote") ?? "");
   const assigneeId = String(formData.get("assigneeId") ?? "").trim();
   const dueDate = String(formData.get("dueDate") ?? "").trim();
-  const res = await createClarificationTask({
+  return createCheckpointClarificationTask({
     contractId,
-    checkpointId: checkpointId || null,
+    checkpointId,
     requesterNote,
     assigneeId: assigneeId || null,
     dueDate: dueDate || null,
+  });
+}
+
+export async function createCheckpointClarificationTask(input: {
+  contractId: string;
+  checkpointId: string;
+  requesterNote: string;
+  assigneeId?: string | null;
+  dueDate?: string | null;
+}) {
+  const contractId = input.contractId.trim();
+  const checkpointId = input.checkpointId.trim();
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+  if (!isUuid(checkpointId)) return { error: "Invalid checkpoint" };
+
+  const res = await createClarificationTask({
+    contractId,
+    checkpointId,
+    requesterNote: input.requesterNote,
+    assigneeId: input.assigneeId?.trim() || null,
+    dueDate: input.dueDate?.trim() || null,
     teamKey: "renewals",
   });
   if (res && "error" in res && res.error) {
     return { error: res.error };
   }
-  return { success: true as const };
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/contracts/renewals");
+  revalidatePath(`/contracts/${contractId}`);
+  revalidatePath("/work");
+  return {
+    success: true as const,
+    taskId: "taskId" in res ? (res.taskId as string) : undefined,
+  };
 }
 
 export async function createRuleGeneratedTask(input: {
@@ -432,6 +475,18 @@ export async function updateContractTaskStatus(
     return { error: `Cannot transition from "${currentStatus}" to "${status}".` };
   }
 
+  await emitWorkActionTelemetry(
+    admin,
+    {
+      organizationId: task.organization_id,
+      userId: user.id,
+      contractId: task.contract_id,
+    },
+    "task",
+    "update_status",
+    "attempted"
+  );
+
   const completedAt = status === "done" ? new Date().toISOString() : null;
   const { error } = await admin
     .from("contract_tasks")
@@ -443,7 +498,28 @@ export async function updateContractTaskStatus(
     })
     .eq("id", taskId);
 
-  if (error) return { error: mapDataSourceError(error.message) };
+  if (error) {
+    await emitWorkActionTelemetry(
+      admin,
+      {
+        organizationId: task.organization_id,
+        userId: user.id,
+        contractId: task.contract_id,
+      },
+      "task",
+      "update_status",
+      "failed"
+    );
+    await emitVisibleMutationErrorTelemetry(admin, {
+      organizationId: task.organization_id,
+      userId: user.id,
+      contractId: task.contract_id,
+      surface: "work",
+      mutation: "updateContractTaskStatus",
+      code: mapDataSourceError(error.message),
+    });
+    return { error: mapDataSourceError(error.message) };
+  }
 
   await admin.from("audit_events").insert({
     organization_id: task.organization_id,
@@ -460,6 +536,9 @@ export async function updateContractTaskStatus(
     eventType: "status_changed",
     details: { status },
   });
+
+  let reopenedDependencyCount = 0;
+  let generatedRecurringTask = false;
 
   if (status === "done") {
     const { data: dependentLinks } = await admin
@@ -484,7 +563,7 @@ export async function updateContractTaskStatus(
           .neq("status", "done")
           .limit(1);
         if ((unresolved?.length ?? 0) === 0) {
-          await admin
+          const { data: reopenedRows } = await admin
             .from("contract_tasks")
             .update({
               status: "open",
@@ -493,7 +572,9 @@ export async function updateContractTaskStatus(
               last_auto_transition_at: new Date().toISOString(),
             })
             .eq("id", dependentTaskId)
-            .eq("status", "blocked");
+            .eq("status", "blocked")
+            .select("id");
+          reopenedDependencyCount += reopenedRows?.length ?? 0;
           await appendTaskEvent(admin, {
             organizationId: task.organization_id,
             contractId: task.contract_id,
@@ -536,6 +617,7 @@ export async function updateContractTaskStatus(
           .select("id")
           .single();
         if (!recurrenceError && nextTask?.id) {
+          generatedRecurringTask = true;
           await appendTaskEvent(admin, {
             organizationId: task.organization_id,
             contractId: task.contract_id,
@@ -550,7 +632,32 @@ export async function updateContractTaskStatus(
   }
   await recomputeContractSignals(admin, task.contract_id);
 
-  return { success: true as const };
+  await emitWorkActionTelemetry(
+    admin,
+    {
+      organizationId: task.organization_id,
+      userId: user.id,
+      contractId: task.contract_id,
+    },
+    "task",
+    "update_status",
+    "succeeded"
+  );
+  if (task.assignee_id === user.id) {
+    await emitProductTelemetryIfFirstForOrgUser(admin, {
+      organizationId: task.organization_id,
+      userId: user.id,
+      contractId: task.contract_id,
+      action: "product.v9.first_visible_work_item",
+      details: { surface: "work", taskId },
+    });
+  }
+
+  return {
+    success: true as const,
+    reopenedDependencyCount,
+    generatedRecurringTask,
+  };
 }
 
 export async function addContractTaskComment(input: {

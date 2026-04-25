@@ -70,7 +70,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
       <OperationalSectionHeader
         eyebrow="Assurance"
         title="Assurance analytics"
-        description="Native V6 rates: policy pass, playbook throughput, autopilot posture, and finding mix."
+        description="Native assurance rates: policy pass, playbook throughput, autopilot posture, and finding mix."
       />
 
       {props.canViewAssuranceOps ? (
@@ -129,7 +129,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
           </div>
 
           <details className="ui-soft-details">
-            <summary className="cursor-pointer text-sm font-semibold text-zinc-800">
+            <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">
               Advanced assurance diagnostics
             </summary>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -277,14 +277,14 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
 
             {a.latest_segment_rollup_top.length > 0 ? (
               <Panel className="mt-3 sm:col-span-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                   Latest run — top segments
                 </p>
-                <ul className="mt-2 space-y-1 text-xs text-zinc-700">
+                <ul className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
                   {a.latest_segment_rollup_top.map((s) => (
                     <li key={s.key} className="flex justify-between gap-4">
                       <span>
-                        {s.name} <span className="font-mono text-[10px] text-zinc-400">({s.key})</span>
+                        {s.name} <span className="font-mono text-[10px] text-[var(--text-tertiary)]">({s.key})</span>
                       </span>
                       <span className="tabular-nums font-medium">{s.member_count} members</span>
                     </li>
@@ -294,7 +294,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             ) : null}
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Adoption (30d)
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -309,26 +309,26 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             </Panel>
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Quality counters (30d rollup)
               </p>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                 Summed across daily org_behavior_metrics rows (API reads, response packs, labels, notifications).
               </p>
               {Object.keys(a.v6_quality_counters_30d).length === 0 ? (
-                <p className="mt-2 text-sm text-zinc-500">No counters in this window.</p>
+                <p className="mt-2 text-sm text-[var(--text-tertiary)]">No counters in this window.</p>
               ) : (
-                <ul className="mt-3 max-h-48 space-y-1 overflow-y-auto text-xs text-zinc-700">
+                <ul className="mt-3 max-h-48 space-y-1 overflow-y-auto text-xs text-[var(--text-secondary)]">
                   {Object.entries(a.v6_quality_counters_30d)
                     .filter(([, n]) => n > 0)
                     .sort((x, y) => y[1] - x[1])
                     .map(([k, n]) => (
                       <li
                         key={k}
-                        className="flex justify-between gap-4 rounded border border-zinc-100 bg-surface/70 px-2 py-1 dark:bg-zinc-900/20"
+                        className="flex justify-between gap-4 rounded border border-[var(--border-subtle)] bg-surface/70 px-2 py-1 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]"
                       >
-                        <span className="font-mono text-[11px] text-zinc-600">{k}</span>
-                        <span className="tabular-nums font-semibold text-zinc-900">{n}</span>
+                        <span className="font-mono text-[11px] text-[var(--text-secondary)]">{k}</span>
+                        <span className="tabular-nums font-semibold text-[var(--text-primary)]">{n}</span>
                       </li>
                     ))}
                 </ul>
@@ -336,7 +336,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             </Panel>
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Finding calibration (30d)
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -445,20 +445,20 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             />
 
             <Panel className="mt-3 sm:col-span-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Policy pass rate by scope
               </p>
-              <p className="mt-1 text-xs text-zinc-500">Per evaluation unit before averaging.</p>
+              <p className="mt-1 text-xs text-[var(--text-tertiary)]">Per evaluation unit before averaging.</p>
               {Object.keys(a.policy_pass_rate_by_scope_label).length === 0 ? (
-                <p className="mt-2 text-sm text-zinc-500">No published policy evaluations.</p>
+                <p className="mt-2 text-sm text-[var(--text-tertiary)]">No published policy evaluations.</p>
               ) : (
-                <ul className="mt-3 max-h-40 space-y-1 overflow-y-auto text-xs text-zinc-700">
+                <ul className="mt-3 max-h-40 space-y-1 overflow-y-auto text-xs text-[var(--text-secondary)]">
                   {Object.entries(a.policy_pass_rate_by_scope_label)
                     .sort((x, y) => x[0].localeCompare(y[0]))
                     .map(([scope, rate]) => (
                       <li
                         key={scope}
-                        className="flex justify-between gap-4 rounded border border-zinc-100 bg-surface/70 px-2 py-1"
+                        className="flex justify-between gap-4 rounded border border-[var(--border-subtle)] bg-surface/70 px-2 py-1"
                       >
                         <span className="truncate" title={scope}>
                           {scope}
@@ -473,7 +473,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
 
           {Object.keys(a.open_findings_by_type).length > 0 ? (
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Open findings by type
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -489,7 +489,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
           </Link>
         </>
       ) : (
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-[var(--text-secondary)]">
           Detailed assurance analytics are limited to workspace operators. Open the{" "}
           <Link className="ui-link" href="/assurance" prefetch={false}>
             Assurance hub

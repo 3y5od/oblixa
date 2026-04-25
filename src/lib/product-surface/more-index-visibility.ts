@@ -1,7 +1,8 @@
 import { NAV_ITEMS, getWorkflowAreaForNavItem } from "@/lib/navigation";
 import { MORE_PAGE_JUMP_LINKS, MORE_TOOLS_GROUP_ORDER } from "@/lib/navigation/more-tools-model";
 import { isNavItemVisibleForSurface, type NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import { isPathAllowedForWorkspaceMode } from "@/lib/product-surface/routes";
+import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
+import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibility";
 
 /**
  * Whether `/more` would list at least one destination (ungrouped search) or show jump shortcuts.
@@ -14,9 +15,12 @@ export function moreToolsIndexHasVisibleEntries(
   if (!input) return true;
 
   if (v6Any) {
-    const jumpAllowed = MORE_PAGE_JUMP_LINKS.filter((link) =>
-      isPathAllowedForWorkspaceMode(link.href.split("#")[0] ?? link.href, input.mode)
-    );
+    const jumpAllowed = MORE_PAGE_JUMP_LINKS.filter((link) => {
+      const path = link.href.split("#")[0] ?? link.href;
+      if (!isPathAllowedForWorkspaceMode(path, input.mode)) return false;
+      if (input.searchScope === "core_only" && minWorkspaceModeForPath(path) !== "core") return false;
+      return isHrefEligibleForNavSurface(input, link.href);
+    });
     if (jumpAllowed.length > 0) return true;
   }
 
@@ -25,7 +29,8 @@ export function moreToolsIndexHasVisibleEntries(
       (item) =>
         getWorkflowAreaForNavItem(item) === group &&
         item.href !== "/more" &&
-        isNavItemVisibleForSurface(item, input)
+        isNavItemVisibleForSurface(item, input) &&
+        isHrefEligibleForNavSurface(input, item.href)
     );
     if (items.length > 0) return true;
   }

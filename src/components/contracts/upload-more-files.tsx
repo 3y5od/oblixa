@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Loader2 } from "lucide-react";
 import { uploadAdditionalFiles } from "@/actions/contracts";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 
 interface UploadMoreFilesProps {
   contractId: string;
@@ -30,7 +31,7 @@ export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesP
     startTransition(async () => {
       const res = await uploadAdditionalFiles(contractId, formData);
       if (res && "error" in res && res.error) {
-        setResult({ message: res.error, type: "error" });
+        setResult({ message: describeRecoverableMutationError(res.error), type: "error" });
       } else if (res && "uploaded" in res) {
         setResult({
           message: `Uploaded ${res.uploaded} file${res.uploaded === 1 ? "" : "s"}.`,
@@ -48,7 +49,7 @@ export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesP
       <button
         onClick={() => inputRef.current?.click()}
         disabled={isPending}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-50/50 hover:text-zinc-700 disabled:opacity-50"
+        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] hover:text-[var(--text-secondary)] disabled:opacity-50"
       >
         {isPending ? (
           <>

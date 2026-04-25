@@ -77,7 +77,7 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
   const modeHelp = ENFORCEMENT_HELP[String(policy.enforcement_mode)] ?? "Custom enforcement mode.";
 
   return (
-    <div className="space-y-6">
+    <div className="ui-page-stack">
       <Link href="/assurance/control-policies" className="ui-link text-xs">
         ← All control policies
       </Link>
@@ -91,23 +91,23 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
           </p>
         }
       >
-        <p className="text-sm text-zinc-700">{policy.objective}</p>
-        <p className="mt-2 text-xs text-zinc-500">
-          Status {policy.status} · Enforcement <code className="rounded bg-zinc-100 px-1">{policy.enforcement_mode}</code>
+        <p className="text-sm text-[var(--text-secondary)]">{policy.objective}</p>
+        <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+          Status {policy.status} · Enforcement <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{policy.enforcement_mode}</code>
         </p>
         {remId ? (
-          <p className="mt-2 text-sm text-zinc-700">
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">
             Remediation playbook:{" "}
             {remediationPb?.name ? (
               <Link className="ui-link font-medium" href="/assurance/playbooks">
                 {remediationPb.name}
               </Link>
             ) : (
-              <span className="font-mono text-xs text-zinc-500">{remId}</span>
+              <span className="font-mono text-xs text-[var(--text-tertiary)]">{remId}</span>
             )}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-zinc-500">No remediation playbook linked on this policy yet.</p>
+          <p className="mt-2 text-xs text-[var(--text-tertiary)]">No remediation playbook linked on this policy yet.</p>
         )}
         <ControlPolicyRemediationPlaybookPanel policyId={policyId} currentRemediationPlaybookId={remId ?? null} />
         <div className="mt-4">
@@ -125,20 +125,20 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
             </p>
           }
         >
-          <ul className="space-y-2 text-xs text-zinc-700">
+          <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
             {versionDiff.slice(0, 40).map((d) => (
-              <li key={d.key} className="rounded border border-zinc-100 px-2 py-1.5">
-                <span className="font-semibold text-zinc-900">{d.key}</span>{" "}
-                <span className="text-zinc-500">({d.change})</span>
+              <li key={d.key} className="ui-soft-details px-2 py-1.5">
+                <span className="font-semibold text-[var(--text-primary)]">{d.key}</span>{" "}
+                <span className="text-[var(--text-tertiary)]">({d.change})</span>
                 {d.change === "changed" ? (
-                  <pre className="mt-1 max-h-24 overflow-auto rounded bg-amber-50/50 p-1 font-mono text-[10px]">
+                  <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-1 font-mono text-[10px]">
                     {JSON.stringify({ before: d.before, after: d.after }, null, 2)}
                   </pre>
                 ) : null}
               </li>
             ))}
             {versionDiff.length > 40 ? (
-              <li className="text-zinc-500">…and {versionDiff.length - 40} more keys</li>
+              <li className="text-[var(--text-tertiary)]">…and {versionDiff.length - 40} more keys</li>
             ) : null}
           </ul>
         </AssuranceListCard>
@@ -150,16 +150,16 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
             const pj = (v as { policy_json?: Record<string, unknown> }).policy_json ?? {};
             const keys = Object.keys(pj).filter((k) => k !== "schema" && k !== "published_by" && k !== "published_at");
             return (
-              <li key={String(v.id)} className="rounded-lg border border-zinc-100 p-3">
-                <p className="font-medium text-zinc-900">
+              <li key={String(v.id)} className="ui-support-panel p-3">
+                <p className="font-medium text-[var(--text-primary)]">
                   Version {(v as { version: number }).version}
                   {(v as { published?: boolean }).published ? " · published" : ""}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   {(v as { published_at?: string }).published_at ?? (v as { created_at?: string }).created_at}
                 </p>
                 {keys.length > 0 ? (
-                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zinc-50 p-2 text-[11px] text-zinc-700">
+                  <pre className="ui-soft-details mt-2 max-h-40 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                     {JSON.stringify(
                       keys.reduce<Record<string, unknown>>((acc, k) => {
                         acc[k] = pj[k];
@@ -173,7 +173,7 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
               </li>
             );
           })}
-          {(versions ?? []).length === 0 ? <li className="text-zinc-500">No versions yet — publish to create v1.</li> : null}
+          {(versions ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No versions yet — publish to create v1.</li> : null}
         </ul>
       </AssuranceListCard>
 
@@ -188,21 +188,21 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
         />
         <ul className="mt-4 space-y-2 text-sm">
           {(assignments ?? []).map((a) => (
-            <li key={String((a as { id: string }).id)} className="rounded border border-zinc-100 px-3 py-2">
+            <li key={String((a as { id: string }).id)} className="ui-support-panel px-3 py-2">
               <span className="font-medium">{(a as { assignment_type: string }).assignment_type}</span>
               {(a as { active: boolean }).active ? "" : " (inactive)"}
               {(a as { segment_id?: string | null }).segment_id ? (
-                <span className="ml-2 text-xs text-zinc-500">segment {(a as { segment_id: string }).segment_id}</span>
+                <span className="ml-2 text-xs text-[var(--text-tertiary)]">segment {(a as { segment_id: string }).segment_id}</span>
               ) : null}
               {(a as { target_ref_type?: string | null }).target_ref_type ? (
-                <span className="ml-2 text-xs text-zinc-500">
+                <span className="ml-2 text-xs text-[var(--text-tertiary)]">
                   {(a as { target_ref_type: string }).target_ref_type}: {(a as { target_ref_id?: string }).target_ref_id}
                 </span>
               ) : null}
             </li>
           ))}
           {(assignments ?? []).length === 0 ? (
-            <li className="text-zinc-500">No assignments — evaluation uses organization-wide rollup.</li>
+            <li className="text-[var(--text-tertiary)]">No assignments — evaluation uses organization-wide rollup.</li>
           ) : null}
         </ul>
       </AssuranceListCard>

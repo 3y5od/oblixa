@@ -73,29 +73,29 @@ export default async function ExecutionGraphPage(props: {
         <div>
           <p className="ui-eyebrow">Execution graph</p>
           <h1 className="ui-display-title mt-2">Dependency and Blocker View</h1>
-          <p className="ui-muted mt-3">
+          <p className="ui-page-lead mt-3">
             Cross-work dependency graph across tasks, approvals, obligations, and renewal checkpoints.
           </p>
         </div>
       </header>
 
-      <section className="ui-card p-5">
+      <section className="ui-page-shell p-5">
         <p className="ui-label-caps">Portfolio blocker summary</p>
-        <p className="mt-2 text-sm text-zinc-700">
-          Active dependency edges: <span className="font-semibold text-zinc-900">{blockerCount}</span>
+        <p className="ui-support-copy mt-2">
+          Active dependency edges: <span className="font-semibold text-[var(--text-primary)]">{blockerCount}</span>
         </p>
         {topBlockedContracts.length > 0 ? (
           <div className="mt-4">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
               Contracts with the most active dependencies
             </p>
-            <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-700">
+            <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
               {topBlockedContracts.map(([cid, n]) => (
                 <li key={cid}>
                   <Link href={`/contracts/execution-graph?contractId=${cid}`} className="ui-link font-medium">
                     {titleByContract.get(cid) ?? cid.slice(0, 8)}
                   </Link>
-                  <span className="text-zinc-500"> · {n} edges</span>
+                  <span className="text-[var(--text-tertiary)]"> · {n} edges</span>
                 </li>
               ))}
             </ol>
@@ -103,7 +103,7 @@ export default async function ExecutionGraphPage(props: {
         ) : null}
         {contractIds.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            <p className="w-full text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            <p className="w-full text-[11px] font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
               Contracts with edges
             </p>
             {contractIds.map((cid) => (
@@ -112,8 +112,8 @@ export default async function ExecutionGraphPage(props: {
                 href={`/contracts/execution-graph?contractId=${cid}`}
                 className={`rounded-full border px-3 py-1 text-xs ${
                   cid === selectedContractId
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-200 text-zinc-700 hover:border-zinc-400"
+                    ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white"
+                    : "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-contrast)]"
                 }`}
               >
                 {titleByContract.get(cid) ?? cid.slice(0, 8)}
@@ -124,9 +124,9 @@ export default async function ExecutionGraphPage(props: {
       </section>
 
       {selectedContractId ? (
-        <section className="ui-card p-5">
+        <section className="ui-page-shell p-5">
           <p className="ui-label-caps">Visual dependency graph</p>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">
             {titleByContract.get(selectedContractId) ?? selectedContractId}
           </p>
           <div className="mt-4">
@@ -137,25 +137,25 @@ export default async function ExecutionGraphPage(props: {
         </section>
       ) : null}
 
-      <section className="ui-card p-5">
+      <section className="ui-page-shell p-5">
         <p className="ui-label-caps">Recent dependencies</p>
         <ul className="mt-3 space-y-2 text-sm">
           {(edges ?? []).length === 0 ? (
-            <li className="text-zinc-500">No execution graph edges yet. Apply a program to generate work links.</li>
+            <li className="text-[var(--text-tertiary)]">No execution graph edges yet. Apply a program to generate work links.</li>
           ) : (
             (edges ?? []).map((edge) => (
-              <li key={edge.id} className="rounded-lg border border-zinc-200 px-3 py-2">
-                <p className="font-medium text-zinc-900">
+              <li key={edge.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                <p className="font-medium text-[var(--text-primary)]">
                   {edge.from_entity_type} {edge.relation_type} {edge.to_entity_type}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--text-tertiary)]">
                   {titleByContract.get(edge.contract_id) ?? edge.contract_id} · status {edge.status}
                 </p>
                 <div className="mt-1 flex gap-2 text-[11px]">
-                  <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-zinc-700">
+                  <span className="rounded-full border border-[var(--border-strong)] px-2 py-0.5 text-[var(--text-secondary)]">
                     blocked by {blockedByCount.get(`${edge.to_entity_type}:${edge.to_entity_id}`) ?? 0}
                   </span>
-                  <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-zinc-700">
+                  <span className="rounded-full border border-[var(--border-strong)] px-2 py-0.5 text-[var(--text-secondary)]">
                     unblocks {unblocksCount.get(`${edge.from_entity_type}:${edge.from_entity_id}`) ?? 0}
                   </span>
                 </div>
@@ -164,25 +164,25 @@ export default async function ExecutionGraphPage(props: {
           )}
         </ul>
       </section>
-      <section className="ui-card p-5">
+      <section className="ui-page-shell p-5">
         <p className="ui-label-caps">Execution timeline (selected contract)</p>
         {!selectedContractId ? (
-          <p className="mt-2 text-sm text-zinc-500">No contract selected.</p>
+          <p className="mt-2 text-sm text-[var(--text-tertiary)]">No contract selected.</p>
         ) : (
           <>
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-[var(--text-tertiary)]">
               {titleByContract.get(selectedContractId) ?? selectedContractId}
             </p>
             <ul className="mt-3 space-y-2 text-sm">
               {timeline.length === 0 ? (
-                <li className="text-zinc-500">No timeline entries yet.</li>
+                <li className="text-[var(--text-tertiary)]">No timeline entries yet.</li>
               ) : (
                 timeline.map((entry) => (
-                  <li key={`${entry.domain}:${entry.id}`} className="rounded border border-zinc-200 px-3 py-2">
-                    <p className="font-medium text-zinc-900">
+                  <li key={`${entry.domain}:${entry.id}`} className="rounded border border-[var(--border-subtle)] px-3 py-2">
+                    <p className="font-medium text-[var(--text-primary)]">
                       {entry.domain} · {entry.title}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[var(--text-tertiary)]">
                       {entry.status} · {new Date(entry.created_at).toLocaleString()}
                     </p>
                   </li>

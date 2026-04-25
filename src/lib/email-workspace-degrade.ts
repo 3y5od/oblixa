@@ -1,7 +1,7 @@
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 
 /**
- * docs/refinement.md §18 — Core outbound email must not foreground Advanced/Assurance-only module names.
+ * product-surface policy §18 — Core outbound email must not foreground Advanced/Assurance-only module names.
  * Advanced/Assurance workspaces may use full product vocabulary in digests.
  */
 export function emailCopyUsesCoreSurface(mode: WorkspaceProductMode | undefined): boolean {

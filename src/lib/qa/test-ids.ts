@@ -1,8 +1,11 @@
 export const MAIN_CONTENT_ID = "main-content";
 
 export const shellTestIds = {
+  sidebarDesktop: "sidebar-desktop",
+  sidebarCollapseToggle: "sidebar-collapse-toggle",
   sidebarMobileOpen: "sidebar-mobile-open",
   sidebarMobileDrawer: "sidebar-mobile-drawer",
+  sidebarSignOut: "sidebar-sign-out",
   primaryNav: "primary-nav",
   headerSearch: "workspace-header-search",
   commandPaletteTrigger: "command-palette-trigger",
@@ -18,5 +21,7 @@ export const surfaceTestIds = {
   workPageSummary: "work-page-summary",
   moreJumpPoints: "more-jump-points",
   externalSubmitForm: "external-submit-form",
+  /** Error state when `/api/external-actions/.../status` fails */
+  externalSubmitLoadError: "external-submit-load-error",
 } as const;
 

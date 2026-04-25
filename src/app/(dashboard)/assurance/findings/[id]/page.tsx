@@ -83,7 +83,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         <p>Linked entities, controls, source checks, and the event trail tie this finding back to rules and objects.</p>
       }
     >
-      <p className="text-xs text-zinc-600">
+      <p className="text-xs text-[var(--text-secondary)]">
         Triage: address higher severity and <span className="font-medium">open</span> items first; use the queue filters
         or{" "}
         <Link className="ui-link" href="/api/assurance/findings?status=open" target="_blank">
@@ -97,7 +97,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         <OperationalMetricChip label="Confidence" value={String(finding.confidence)} />
         <OperationalMetricChip label="Status" value={String(finding.status)} />
       </div>
-      {finding.summary ? <p className="mt-3 text-sm text-zinc-700">{finding.summary}</p> : null}
+      {finding.summary ? <p className="mt-3 text-sm text-[var(--text-secondary)]">{finding.summary}</p> : null}
       {scopePolicyId ? (
         <FindingPolicyActions
           policyId={scopePolicyId}
@@ -105,28 +105,28 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         />
       ) : null}
       {finding.analyst_note ? (
-        <p className="mt-2 text-sm text-zinc-600">
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
           <span className="font-medium">Analyst note:</span> {finding.analyst_note}
         </p>
       ) : null}
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <div className="rounded-lg border border-zinc-100 p-3">
-          <p className="text-xs font-semibold text-zinc-500">Scope</p>
-          <pre className="mt-2 max-h-40 overflow-auto text-[11px] text-zinc-700">
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="ui-support-panel p-3">
+          <p className="text-xs font-semibold text-[var(--text-tertiary)]">Scope</p>
+          <pre className="ui-soft-details mt-2 max-h-40 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
             {JSON.stringify(finding.scope_json ?? {}, null, 2)}
           </pre>
         </div>
-        <div className="rounded-lg border border-zinc-100 p-3">
-          <p className="text-xs font-semibold text-zinc-500">Linked controls</p>
-          <pre className="mt-2 max-h-40 overflow-auto text-[11px] text-zinc-700">
+        <div className="ui-support-panel p-3">
+          <p className="text-xs font-semibold text-[var(--text-tertiary)]">Linked controls</p>
+          <pre className="ui-soft-details mt-2 max-h-40 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
             {JSON.stringify(finding.linked_controls_json ?? [], null, 2)}
           </pre>
         </div>
       </div>
       {Array.isArray(finding.linked_entities_json) && (finding.linked_entities_json as unknown[]).length > 0 ? (
-        <div className="mt-4 rounded-lg border border-zinc-100 p-3">
-          <p className="text-xs font-semibold text-zinc-500">Linked entities (drill-down)</p>
-          <ul className="mt-2 space-y-1.5 text-xs text-zinc-700">
+        <div className="ui-support-panel mt-4 p-3">
+          <p className="text-xs font-semibold text-[var(--text-tertiary)]">Linked entities (drill-down)</p>
+          <ul className="mt-2 space-y-1.5 text-xs text-[var(--text-secondary)]">
             {(finding.linked_entities_json as { type?: string; id?: string }[]).map((ent, i) => {
               const t = String(ent?.type ?? "unknown");
               const eid = ent?.id ? String(ent.id) : "";
@@ -136,7 +136,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
               else if (t === "decision_workspace" && eid) href = `/decisions/${encodeURIComponent(eid)}`;
               return (
                 <li key={`${t}-${eid}-${i}`} className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[11px] text-zinc-600">{label}</span>
+                  <span className="font-mono text-[11px] text-[var(--text-secondary)]">{label}</span>
                   {href ? (
                     <Link className="ui-link text-[11px]" href={href}>
                       Open
@@ -149,7 +149,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         </div>
       ) : null}
       {finding.source_check_run_id ? (
-        <p className="mt-2 text-xs text-zinc-600">
+        <p className="mt-2 text-xs text-[var(--text-secondary)]">
           Source check run:{" "}
           <span className="font-mono text-[11px]">{String(finding.source_check_run_id)}</span>
           {" · "}
@@ -163,11 +163,11 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         </p>
       ) : null}
       {finding.recommended_playbook_id ? (
-        <div className="mt-3 rounded-lg border border-amber-100 bg-amber-50/50 p-3 text-xs text-zinc-700">
-          <p className="font-semibold text-zinc-900">Recommended playbook</p>
+        <div className="ui-alert-warning mt-3 p-3 text-xs text-[var(--text-secondary)]">
+          <p className="font-semibold text-[var(--text-primary)]">Recommended playbook</p>
           <p className="mt-1">
             {recommendedPlaybookName ?? "Linked playbook"}{" "}
-            <span className="text-zinc-500">({String(finding.recommended_playbook_id)})</span>
+            <span className="text-[var(--text-tertiary)]">({String(finding.recommended_playbook_id)})</span>
           </p>
           <p className="mt-2">
             <Link className="ui-link" href="/assurance/playbooks">
@@ -187,7 +187,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         <FindingActions findingId={id} />
       ) : null}
       <p className="ui-label-caps mt-6">Audit trail (finding events)</p>
-      <p className="mt-1 text-xs text-zinc-500">Up to 100 recent rows from assurance_finding_events.</p>
+      <p className="mt-1 text-xs text-[var(--text-tertiary)]">Up to 100 recent rows from assurance_finding_events.</p>
       <ul className="mt-2 space-y-2 text-sm">
         {(events ?? []).map((ev) => {
           const row = ev as {
@@ -199,21 +199,21 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
           };
           const actor = row.actor_user_id ? actorLabel.get(row.actor_user_id) : null;
           return (
-            <li key={row.id} className="rounded border border-zinc-100 p-2 text-xs">
+            <li key={row.id} className="ui-soft-details p-2 text-xs">
               <span className="font-medium">{row.event_type}</span> · {String(row.created_at)}
               {actor ? (
-                <span className="text-zinc-600">
+                <span className="text-[var(--text-secondary)]">
                   {" "}
-                  · actor <span className="font-medium text-zinc-800">{actor}</span>
+                  · actor <span className="font-medium text-[var(--text-primary)]">{actor}</span>
                 </span>
               ) : row.actor_user_id ? (
-                <span className="font-mono text-[10px] text-zinc-400"> · {row.actor_user_id.slice(0, 8)}…</span>
+                <span className="font-mono text-[10px] text-[var(--text-tertiary)]"> · {row.actor_user_id.slice(0, 8)}…</span>
               ) : null}
-              <pre className="mt-1 text-[10px] text-zinc-500">{JSON.stringify(row.payload_json, null, 2)}</pre>
+              <pre className="ui-soft-details mt-1 p-1.5 text-[10px] text-[var(--text-tertiary)]">{JSON.stringify(row.payload_json, null, 2)}</pre>
             </li>
           );
         })}
-        {(events ?? []).length === 0 ? <li className="text-zinc-500">No events yet.</li> : null}
+        {(events ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No events yet.</li> : null}
       </ul>
       <p className="mt-4 text-xs">
         <Link

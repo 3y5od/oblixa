@@ -11,7 +11,7 @@ export default async function ContractDataQualityPage() {
       <div className="ui-card px-6 py-8">
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Data quality is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-zinc-500">
+        <p className="mt-3 max-w-xl text-sm text-[var(--text-tertiary)]">
           Data quality is tied to the same toggle as reporting history. It is off when{" "}
           <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> is explicitly false, 0, no, or off.
         </p>
@@ -108,13 +108,13 @@ export default async function ContractDataQualityPage() {
       </section>
 
       <section id="gap-leaders" className="ui-card scroll-mt-8 overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
           <p className="ui-eyebrow">Portfolio</p>
           <h2 className="ui-section-title mt-1 text-base">Contracts with largest data gaps</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {topGaps.length === 0 ? (
-            <li className="px-5 py-4 text-sm text-zinc-500">No snapshot data yet.</li>
+            <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No snapshot data yet.</li>
           ) : (
             topGaps.map((row) => {
               const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
@@ -123,10 +123,10 @@ export default async function ContractDataQualityPage() {
               if (!contract?.id) return null;
               return (
                 <li key={row.contract_id} className="flex items-center justify-between gap-3 px-5 py-3">
-                  <Link href={`/contracts/${contract.id}`} className="text-sm text-zinc-700 hover:text-zinc-900">
+                  <Link href={`/contracts/${contract.id}`} className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                     {contract.title ?? "Untitled contract"}
                   </Link>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     score {Number(row.completeness_score ?? 0).toFixed(1)}% · missing{" "}
                     {Number(row.missing_critical_count ?? 0)} · stale {Number(row.stale_field_count ?? 0)}
                   </p>
@@ -138,13 +138,13 @@ export default async function ContractDataQualityPage() {
       </section>
 
       <section id="weak-lineage" className="ui-card scroll-mt-8 overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
           <p className="ui-eyebrow">Fields</p>
           <h2 className="ui-section-title mt-1 text-base">Weak lineage / low-confidence fields</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {weakLineage.length === 0 ? (
-            <li className="px-5 py-4 text-sm text-zinc-500">No weak lineage signals found.</li>
+            <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No weak lineage signals found.</li>
           ) : (
             weakLineage.map((row) => {
               const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
@@ -153,7 +153,7 @@ export default async function ContractDataQualityPage() {
               return (
                 <li key={row.id} className="px-5 py-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm text-zinc-700">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       <span className="font-medium">{row.field_name}</span> on{" "}
                       {contract?.id ? (
                         <Link className="ui-link" href={`/contracts/${contract.id}`}>
@@ -163,11 +163,11 @@ export default async function ContractDataQualityPage() {
                         "Unknown contract"
                       )}
                     </p>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-[var(--text-tertiary)]">
                       {row.source} · confidence {Math.round(Number(row.confidence ?? 0) * 100)}%
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                     {row.source_snippet ? row.source_snippet : "Missing source snippet (lineage gap)."}
                   </p>
                 </li>

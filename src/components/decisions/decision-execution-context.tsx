@@ -19,29 +19,29 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 md:grid-cols-6">
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.openTasks}</p>
-          <p className="text-[11px] text-zinc-500">Open tasks</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openTasks}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Open tasks</p>
         </div>
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.pendingApprovals}</p>
-          <p className="text-[11px] text-zinc-500">Pending approvals</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.pendingApprovals}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Pending approvals</p>
         </div>
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.openObligations}</p>
-          <p className="text-[11px] text-zinc-500">Open obligations</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openObligations}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Open obligations</p>
         </div>
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.openExceptions}</p>
-          <p className="text-[11px] text-zinc-500">Open exceptions</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openExceptions}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Open exceptions</p>
         </div>
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.requiredEvidence}</p>
-          <p className="text-[11px] text-zinc-500">Evidence required</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.requiredEvidence}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Evidence required</p>
         </div>
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-center">
-          <p className="text-lg font-semibold text-zinc-900">{counts.openAttestations}</p>
-          <p className="text-[11px] text-zinc-500">Open attestations</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openAttestations}</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Open attestations</p>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
         />
       </div>
 
-      <p className="mt-4 text-xs text-zinc-500">
+      <p className="mt-4 text-xs text-[var(--text-tertiary)]">
         <Link href={`/api/decisions/${decisionId}/context`} className="ui-link font-mono text-[11px]" target="_blank">
           GET /api/decisions/…/context (JSON)
         </Link>
@@ -124,16 +124,16 @@ function ContextList(props: {
 }) {
   return (
     <div>
-      <p className="text-xs font-semibold text-zinc-700">{props.title}</p>
+      <p className="text-xs font-semibold text-[var(--text-secondary)]">{props.title}</p>
       {props.rows.length === 0 ? (
-        <p className="mt-1 text-sm text-zinc-500">{props.empty}</p>
+        <p className="mt-1 text-sm text-[var(--text-tertiary)]">{props.empty}</p>
       ) : (
         <ul className="mt-2 divide-y divide-[var(--border-subtle)] text-sm">
           {props.rows.map((r) => (
             <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 py-2">
               <div>
-                <p className="font-medium text-zinc-800">{r.line1}</p>
-                <p className="text-xs text-zinc-500">{r.line2}</p>
+                <p className="font-medium text-[var(--text-primary)]">{r.line1}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{r.line2}</p>
               </div>
               {r.contractId ? (
                 <Link href={`/contracts/${r.contractId}`} className="ui-link shrink-0 text-xs">

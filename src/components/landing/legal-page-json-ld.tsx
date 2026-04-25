@@ -17,6 +17,16 @@ export function LegalPageJsonLd({ path, title, description }: LegalJsonLdProps) 
     name: title,
     description,
     url,
+    inLanguage: "en-US",
+    publisher: {
+      "@type": "Organization",
+      name: "Oblixa",
+      url: base,
+      logo: {
+        "@type": "ImageObject",
+        url: `${base}/apple-icon`,
+      },
+    },
     isPartOf: {
       "@type": "WebSite",
       name: "Oblixa",

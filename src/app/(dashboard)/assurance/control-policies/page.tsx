@@ -49,19 +49,26 @@ export default async function AssuranceControlPoliciesPage() {
           variant="compact"
         />
       </div>
+      <p className="ui-support-copy mb-4">
+        Review the policy catalog as a layered control surface: published policies are the active guardrail set, while draft
+        and simulated entries remain visible for governance and rollout planning.
+      </p>
       <ul className="space-y-2 text-sm">
         {(data ?? []).map((row) => (
-          <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-            <Link href={`/assurance/control-policies/${row.id}`} className="font-medium text-zinc-900 hover:underline">
+          <li key={row.id} className="ui-operational-card p-4">
+            <Link href={`/assurance/control-policies/${row.id}`} className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)] hover:underline">
               {row.name}
             </Link>
-            <p className="mt-1 text-xs text-zinc-600">{row.objective}</p>
-            <p className="mt-1 text-xs text-zinc-500">Mode {row.enforcement_mode} · {row.status}</p>
+            <p className="ui-support-copy mt-1">{row.objective}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="ui-metric-chip">Mode {row.enforcement_mode}</span>
+              <span className="ui-metric-chip">{row.status}</span>
+            </div>
           </li>
         ))}
-        {(data ?? []).length === 0 ? <li className="text-zinc-500">No control policies yet.</li> : null}
+        {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No control policies yet.</li> : null}
       </ul>
-      <p className="mt-4 text-xs text-zinc-600">
+      <p className="mt-4 text-xs text-[var(--text-secondary)]">
         <Link className="ui-link" href="/api/control-policies" target="_blank">
           Policies JSON
         </Link>

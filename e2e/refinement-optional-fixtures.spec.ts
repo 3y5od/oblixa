@@ -1,5 +1,5 @@
 /**
- * Optional multi-workspace E2E (docs/refinement.md §12 / §14 / §10.4).
+ * Optional multi-workspace E2E (product-surface policy §12 / §14 / §10.4).
  * Skips when env is unset so default CI stays unchanged.
  */
 import { test, expect } from "@playwright/test";

@@ -12,7 +12,7 @@ export default async function NewContractPage() {
   if (!ctx) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-zinc-500">No organization found.</p>
+        <p className="text-sm text-[var(--text-tertiary)]">No organization found.</p>
       </div>
     );
   }

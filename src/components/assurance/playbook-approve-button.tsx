@@ -30,7 +30,7 @@ export function PlaybookApproveButton({ runId }: { runId: string }) {
     <div className="mt-2 flex flex-wrap items-center gap-2">
       <button
         type="button"
-        className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
         disabled={pending}
         onClick={() => void onApprove()}
       >

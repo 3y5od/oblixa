@@ -61,6 +61,14 @@ describe("moreToolsIndexHasVisibleEntries (Appendix B)", () => {
   it("treats missing surface as show link (pre-auth / transitional layout)", () => {
     expect(moreToolsIndexHasVisibleEntries(null, false)).toBe(true);
   });
+
+  it("does not depend on the /more self-link to consider the index non-empty", () => {
+    const s = {
+      ...surface("core"),
+      utilityModulesHidden: ["more_tools"] as const,
+    };
+    expect(moreToolsIndexHasVisibleEntries(s, false)).toBe(true);
+  });
 });
 
 describe("isNavChildVisibleForSurface — reports anchors", () => {

@@ -56,7 +56,7 @@ describe("/api/workspace/v6-settings", () => {
 
   it("GET returns 403 when V6 API feature guard fails closed", async () => {
     requireV6ApiFeature.mockReturnValueOnce(
-      NextResponse.json({ error: "This V6 feature is disabled for your workspace." }, { status: 403 })
+      NextResponse.json({ error: "This assurance feature is disabled for your workspace." }, { status: 403 })
     );
     const { GET } = await import("@/app/api/workspace/v6-settings/route");
     const res = await GET();

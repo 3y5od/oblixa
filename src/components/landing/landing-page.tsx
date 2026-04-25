@@ -139,13 +139,13 @@ export function LandingPage() {
         >
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+              <p className="ui-eyebrow text-[var(--accent-strong)]">
                 {heroEyebrow}
               </p>
-              <h1 className="mx-auto mt-5 max-w-4xl text-balance text-4xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-5xl md:text-[4.15rem] md:leading-[1.02]">
+              <h1 className="ui-display-hero mx-auto mt-5 max-w-4xl text-balance">
                 {heroTitle}
               </h1>
-              <p className="mx-auto mt-5 max-w-3xl text-pretty text-base text-[var(--text-secondary)] sm:text-lg">
+              <p className="ui-page-lead mx-auto mt-5 max-w-3xl text-pretty">
                 {heroSubcopy}
               </p>
             </div>
@@ -164,7 +164,7 @@ export function LandingPage() {
             <p className="mt-4 text-center text-xs text-[var(--text-secondary)]">{riskReducerLine}</p>
             <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
               {valuePoints.map(({ icon: Icon, title, description }) => (
-                <div key={title} className="ui-card-quiet px-5 py-5 text-left shadow-[var(--shadow-1)]">
+                <div key={title} className="ui-card-hero px-5 py-5 text-left shadow-[var(--shadow-1)]">
                   <div className="inline-flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_82%,white)] text-[var(--accent-strong)]">
                     <Icon size={16} aria-hidden />
                   </div>
@@ -185,13 +185,10 @@ export function LandingPage() {
           aria-labelledby="capabilities-heading"
         >
           <div className="mx-auto max-w-6xl">
-            <h2
-              id="capabilities-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
-            >
+            <h2 id="capabilities-heading" className="ui-display-title text-center text-2xl sm:text-3xl">
               Purpose-built capabilities for contract operations
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--text-secondary)] sm:text-base">
+            <p className="ui-section-lead mx-auto mt-3 max-w-2xl text-center">
               Focused scope, high accountability: the critical workflows teams run weekly.
             </p>
             <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -213,13 +210,13 @@ export function LandingPage() {
 
         <section
           id="how-it-works"
-          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-16 sm:px-6 sm:py-20"
+          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-16 sm:px-6 sm:py-20"
           aria-labelledby="how-heading"
         >
           <div className="mx-auto max-w-6xl">
             <h2
               id="how-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
+              className="ui-display-title text-center text-2xl sm:text-3xl"
             >
               How it works
             </h2>
@@ -245,11 +242,11 @@ export function LandingPage() {
           <div className="mx-auto max-w-6xl">
             <h2
               id="use-cases-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
+              className="ui-display-title text-center text-2xl sm:text-3xl"
             >
               Use cases teams run every week
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--text-secondary)] sm:text-base">
+            <p className="ui-section-lead mx-auto mt-3 max-w-2xl text-center sm:text-base">
               Start narrow, expand once ownership and data quality are steady.
             </p>
             <ul className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -265,13 +262,13 @@ export function LandingPage() {
 
         <section
           id="objections"
-          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-14 sm:px-6 sm:py-16"
+          className="scroll-mt-36 border-y border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-14 sm:px-6 sm:py-16"
           aria-labelledby="objections-heading"
         >
           <div className="mx-auto max-w-6xl">
             <h2
               id="objections-heading"
-              className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl"
+              className="ui-display-title text-center text-2xl sm:text-3xl"
             >
               Practical answers to common concerns
             </h2>
@@ -327,7 +324,7 @@ export function LandingPage() {
 
         <section
           id="trust"
-          className="scroll-mt-36 border-t border-[var(--border-subtle)] bg-zinc-50/40 px-4 py-10 sm:px-6"
+          className="scroll-mt-36 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-10 sm:px-6"
           aria-labelledby="trust-heading"
         >
           <div className="mx-auto max-w-6xl rounded-[1.75rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-6 py-6 shadow-[var(--shadow-1)] sm:px-8">
@@ -350,10 +347,10 @@ export function LandingPage() {
           aria-labelledby="faq-heading"
         >
           <div className="mx-auto max-w-3xl">
-            <h2 id="faq-heading" className="text-center text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
+            <h2 id="faq-heading" className="ui-display-title text-center text-2xl sm:text-3xl">
               Frequently asked questions
             </h2>
-            <p className="mx-auto mt-3 text-center text-sm text-[var(--text-secondary)]">
+            <p className="ui-section-lead mx-auto mt-3 text-center">
               Straightforward answers about scope, AI, and how teams use Oblixa.
             </p>
             <div className="mt-10 space-y-3">

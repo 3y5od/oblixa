@@ -1,6 +1,11 @@
 import Link from "next/link";
+import {
+  resolveWorkflowDestination,
+  type WorkflowDestinationKey,
+  type WorkflowDestinationSurface,
+} from "@/lib/product-surface/workflow-destinations";
 
-/** docs/refinement.md §16.3 — cross-object continuity when a row is tied to a contract. */
+/** product-surface policy §16.3 — cross-object continuity when a row is tied to a contract. */
 export type ContinuityPage =
   | "contract"
   | "work"
@@ -15,24 +20,33 @@ export function ContractContinuityLinks(props: {
   /** Omit links for the surface the user is already viewing. */
   omit?: ContinuityPage[];
   className?: string;
+  surface?: WorkflowDestinationSurface;
 }) {
   const omit = new Set(props.omit ?? []);
   const id = props.contractId;
+  const surface = props.surface ?? { mode: "core" as const };
+  const destinationPages: { page: ContinuityPage; key: WorkflowDestinationKey }[] = [
+    { page: "work", key: "work" },
+    { page: "tasks", key: "tasks" },
+    { page: "obligations", key: "obligations" },
+    { page: "renewals", key: "renewals" },
+    { page: "exceptions", key: "exceptions" },
+    { page: "evidence", key: "evidence" },
+  ];
   const links: { page: ContinuityPage; href: string; label: string }[] = [
     { page: "contract", href: `/contracts/${id}`, label: "Contract" },
-    { page: "work", href: "/work", label: "Work" },
-    { page: "tasks", href: "/contracts/tasks", label: "Tasks" },
-    { page: "obligations", href: "/contracts/obligations", label: "Obligations" },
-    { page: "renewals", href: "/contracts/renewals", label: "Renewals" },
-    { page: "exceptions", href: "/contracts/exceptions", label: "Exceptions" },
-    { page: "evidence", href: "/contracts/evidence-studio", label: "Evidence" },
+    ...destinationPages.flatMap(({ page, key }) => {
+      const destination = resolveWorkflowDestination(surface, key);
+      if (!destination?.visible) return [];
+      return [{ page, href: destination.href, label: destination.copy.shortLabel ?? destination.copy.label }];
+    }),
   ];
   const visible = links.filter((l) => !omit.has(l.page));
   if (visible.length === 0) return null;
-  const shell = props.className ?? "mt-1 text-[11px] text-zinc-500";
+  const shell = props.className ?? "mt-1 text-[11px] text-[var(--text-tertiary)]";
   return (
     <p className={shell}>
-      <span className="font-medium text-zinc-600">Open in:</span>{" "}
+      <span className="font-medium text-[var(--text-secondary)]">Open in:</span>{" "}
       {visible.map((l, i) => (
         <span key={l.page}>
           {i > 0 ? <span aria-hidden> · </span> : null}

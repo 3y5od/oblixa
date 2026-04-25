@@ -30,7 +30,7 @@ export default async function OnboardingCalibrationPage({
   if (!blocking && !inProgress) {
     return (
       <div className="ui-page-stack mx-auto max-w-2xl px-4">
-        <div className="ui-card-hero p-6">
+        <div className="ui-page-shell">
           <p className="ui-eyebrow">Calibration</p>
           <h1 className="mt-3 text-lg font-semibold text-[var(--text-primary)]">Workspace calibration</h1>
           <p className="ui-muted-tight mt-2 text-sm">
@@ -49,7 +49,7 @@ export default async function OnboardingCalibrationPage({
   const initialStep = clampCalibrationWizardStep(parseCalibrationStepQuery(q.step), initialRequired);
 
   return (
-    <div className="px-4 py-2">
+    <div className="ui-page-stack px-4 py-2">
       <CalibrationWizard
         initialRequired={initialRequired}
         initialOptional={cal?.answers_optional ?? {}}

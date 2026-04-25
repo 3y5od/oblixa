@@ -20,7 +20,7 @@ const coreRoutes = [
   ["/settings/operations", "settings", "Workflow configuration", ["smoke", "a11y"]],
   ["/settings/product", "settings", "Product experience", ["smoke", "a11y"]],
   ["/settings/health", "settings", "System health", ["smoke", "a11y"]],
-  ["/settings/policy", "settings", "Policy registry", ["smoke", "a11y"]],
+  ["/settings/policy", "settings", "Policy registry & simulation", ["smoke", "a11y"]],
   ["/more", "utilities", "Tools index", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/onboarding/calibration", "dashboard", "Workspace calibration", ["smoke", "a11y"]],
 ];
@@ -28,30 +28,30 @@ const coreRoutes = [
 const advancedRoutes = [
   ["/campaigns", "advanced", "Campaign Queue", ["smoke", "a11y", "visual"]],
   ["/campaigns/[id]", "advanced", null, ["smoke"]],
-  ["/campaigns/compare", "advanced", null, ["smoke"]],
+  ["/campaigns/compare", "advanced", "Campaign and simulation compare", ["smoke"]],
   ["/decisions", "advanced", "Decision Queue", ["smoke", "a11y", "visual"]],
   ["/decisions/[id]", "advanced", null, ["smoke"]],
-  ["/decisions/compare", "advanced", null, ["smoke"]],
-  ["/decisions/review", "advanced", null, ["smoke"]],
-  ["/contracts/programs", "advanced", null, ["smoke", "a11y"]],
-  ["/relationship-workspaces", "advanced", null, ["smoke", "a11y"]],
+  ["/decisions/compare", "advanced", "Decision compare", ["smoke"]],
+  ["/decisions/review", "advanced", "Open decision queue", ["smoke"]],
+  ["/contracts/programs", "advanced", "Contract Programs", ["smoke", "a11y"]],
+  ["/relationship-workspaces", "advanced", "Relationship workspaces", ["smoke", "a11y"]],
   ["/accounts/[key]", "advanced", null, ["smoke"]],
   ["/counterparties/[key]", "advanced", null, ["smoke"]],
 ];
 
 const assuranceRoutes = [
   ["/assurance", "assurance", "Continuous assurance", ["smoke", "a11y", "visual"]],
-  ["/assurance/findings", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/findings", "assurance", "Findings queue", ["smoke", "a11y"]],
   ["/assurance/findings/[id]", "assurance", null, ["smoke"]],
-  ["/assurance/control-policies", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/control-policies", "assurance", "Control policies", ["smoke", "a11y"]],
   ["/assurance/control-policies/[id]", "assurance", null, ["smoke"]],
   ["/assurance/scorecards", "assurance", null, ["smoke", "a11y"]],
-  ["/assurance/playbooks", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/playbooks", "assurance", "Adaptive playbooks", ["smoke", "a11y"]],
   ["/assurance/review-boards", "assurance", null, ["smoke", "a11y"]],
-  ["/assurance/autopilot", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/autopilot", "assurance", "Safe autopilot", ["smoke", "a11y"]],
   ["/assurance/segments", "assurance", null, ["smoke", "a11y"]],
-  ["/assurance/program-evolution", "assurance", null, ["smoke", "a11y"]],
-  ["/assurance/health-graph", "assurance", null, ["smoke", "a11y"]],
+  ["/assurance/program-evolution", "assurance", "Program evolution studio", ["smoke", "a11y"]],
+  ["/assurance/health-graph", "assurance", "Portfolio health graph", ["smoke", "a11y"]],
 ];
 
 const utilityRoutes = [

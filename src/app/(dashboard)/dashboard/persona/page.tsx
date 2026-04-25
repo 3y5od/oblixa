@@ -419,11 +419,11 @@ export default async function PersonaDashboardPage(props: {
           : "Focus on high-priority and blocked execution items.";
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <p className="ui-eyebrow">Role-based views</p>
         <h1 className="ui-display-title mt-2">Persona dashboard</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-[var(--text-secondary)]">
+        <p className="ui-page-lead mt-3 max-w-2xl">
           A focused view tuned for different operating roles.
         </p>
       </header>
@@ -444,7 +444,7 @@ export default async function PersonaDashboardPage(props: {
           Switch view
         </button>
       </form>
-      <section className="ui-page-shell p-5">
+      <section className="ui-page-shell">
         <p className="ui-eyebrow">Shortcuts</p>
         <h2 className="ui-section-title mt-1 text-xl">Preset command views</h2>
         <p className="ui-muted-tight mt-1 text-[13px]">
@@ -455,10 +455,10 @@ export default async function PersonaDashboardPage(props: {
             <Link
               key={preset.id}
               href={preset.href}
-              className={`rounded-[1rem] border px-4 py-3 text-sm transition-colors ${
+              className={`ui-card-quiet px-4 py-3 text-sm transition-colors ${
                 preset.persona === persona
-                  ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
-                  : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
+                  ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)] shadow-[var(--shadow-1)]"
+                  : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
               }`}
             >
               <p className="font-semibold">{preset.label}</p>

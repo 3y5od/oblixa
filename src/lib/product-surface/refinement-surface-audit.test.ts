@@ -1,5 +1,5 @@
 /**
- * docs/refinement.md §4.3 — visible product surface is narrower than implemented route footprint.
+ * product-surface policy §4.3 — visible product surface is narrower than implemented route footprint.
  */
 import { describe, expect, it } from "vitest";
 import { NAV_ITEMS } from "@/lib/navigation";

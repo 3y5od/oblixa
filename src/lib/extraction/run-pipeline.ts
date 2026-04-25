@@ -19,6 +19,7 @@ import {
   captureServerException,
   captureServerMessage,
 } from "@/lib/observability/sentry";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 const FILE_PARSE_CONCURRENCY = 4;
@@ -74,6 +75,15 @@ export async function runExtractionPipeline(params: {
   const fail = async (message: string) => {
     const safe = mapExtractionFailureMessage(message);
     await finishExtractionJob(admin, contractId, organizationId, false, safe);
+    await emitProductTelemetryEvent(admin, {
+      organizationId,
+      userId,
+      contractId,
+      action: "product.v9.extraction_failed",
+      details: {
+        reason: safe.slice(0, 120),
+      },
+    });
   };
 
   try {
@@ -148,6 +158,15 @@ export async function runExtractionPipeline(params: {
     }
 
     const resolvedOrganizationId = contract.organization_id as string;
+    await emitProductTelemetryEvent(admin, {
+      organizationId: resolvedOrganizationId,
+      userId,
+      contractId,
+      action: "product.v9.extraction_started",
+      details: {
+        source: "contract_files",
+      },
+    });
 
     const { data: filesRaw } = await admin
       .from("contract_files")
@@ -443,6 +462,18 @@ export async function runExtractionPipeline(params: {
     });
 
     await finishExtractionJob(admin, contractId, organizationId, true);
+    await emitProductTelemetryEvent(admin, {
+      organizationId: resolvedOrganizationId,
+      userId,
+      contractId,
+      action: "product.v9.extraction_succeeded",
+      details: {
+        fields_returned: extraction.fields.length,
+        fields_inserted: inserted,
+        fields_updated: updated,
+        duration_ms: Date.now() - pipelineStartedAt,
+      },
+    });
 
     console.info(
       JSON.stringify({
@@ -483,5 +514,14 @@ export async function runExtractionPipeline(params: {
     });
     const safe = mapExtractionFailureMessage(raw);
     await finishExtractionJob(admin, contractId, organizationId, false, safe);
+    await emitProductTelemetryEvent(admin, {
+      organizationId,
+      userId,
+      contractId,
+      action: "product.v9.extraction_failed",
+      details: {
+        reason: safe.slice(0, 120),
+      },
+    });
   }
 }

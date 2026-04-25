@@ -7,12 +7,12 @@ export type AutopilotAssuranceGuardKind = "dry_run" | "api";
 
 const MESSAGES: Record<AutopilotAssuranceGuardKind, string> = {
   dry_run:
-    "Autopilot dry-run requires Assurance workspace mode (docs/refinement.md §17.2).",
-  api: "Autopilot API requires Assurance workspace mode (docs/refinement.md §17.2).",
+    "Autopilot dry-run requires Assurance workspace mode (product-surface policy §17.2).",
+  api: "Autopilot API requires Assurance workspace mode (product-surface policy §17.2).",
 };
 
 /**
- * Autopilot rules/runs APIs are Assurance-surface only (docs/refinement.md §17.2).
+ * Autopilot rules/runs APIs are Assurance-surface only (product-surface policy §17.2).
  * Returns a 403 JSON response when the org is not in Assurance mode, else null.
  */
 export async function requireAssuranceWorkspaceForAutopilotApi(

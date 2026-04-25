@@ -15,7 +15,7 @@ export class ExternalSurfacePO {
     await expect(this.page.getByText(/loading request/i)).toBeHidden({ timeout: 15_000 });
     await expect(
       this.page.getByText(/could not load|not found|unable to load|external action not found/i)
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
   }
 
   form() {

@@ -42,4 +42,12 @@ describe("v8 surface mapping", () => {
       expect(mapping.featureFamily).toBe("work");
     }
   });
+
+  it("maps exception actions to the exceptions family", () => {
+    const mapping = resolveFeatureMappingForAction("src/actions/exceptions.ts:createExceptionRequest");
+    expect(mapping.status).toBe("mapped");
+    if (mapping.status === "mapped") {
+      expect(mapping.featureFamily).toBe("exceptions");
+    }
+  });
 });

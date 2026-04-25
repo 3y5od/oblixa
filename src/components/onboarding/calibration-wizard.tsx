@@ -560,7 +560,7 @@ export function CalibrationWizard(props: {
         )}
       </section>
 
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-center text-xs text-[var(--text-tertiary)]">
         <Link href="/settings/product" className="ui-link">
           Product settings
         </Link>

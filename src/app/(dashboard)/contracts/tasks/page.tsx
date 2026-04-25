@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { format } from "date-fns";
+import { AlertTriangle, CheckCircle2, ClipboardList, Timer } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
   createSavedView,
@@ -10,6 +11,7 @@ import {
 } from "@/actions/saved-views";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 type TaskStatusFilter = "" | "open" | "in_progress" | "blocked" | "done";
 const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
@@ -24,7 +26,7 @@ function statusTone(status: string): string {
   if (status === "done") return "text-emerald-700";
   if (status === "blocked") return "text-rose-700";
   if (status === "in_progress") return "text-blue-700";
-  return "text-zinc-700";
+  return "text-[var(--text-secondary)]";
 }
 
 export default async function ContractTasksPage(props: {
@@ -124,6 +126,16 @@ export default async function ContractTasksPage(props: {
       pinned: q.pinned === "1" || q.pinned === true || q.pinned === "true",
     };
   }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
+  const openTasks = tasks.filter((task) => task.status === "open").length;
+  const blockedTasks = tasks.filter((task) => task.status === "blocked").length;
+  const doneTasks = tasks.filter((task) => task.status === "done").length;
+  const dueSoonTasks = tasks.filter((task) => {
+    if (!task.dueDate) return false;
+    const due = new Date(`${task.dueDate}T12:00:00`);
+    const now = new Date();
+    const diff = due.getTime() - now.getTime();
+    return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+  }).length;
 
   return (
     <div className="ui-page-stack">
@@ -131,14 +143,62 @@ export default async function ContractTasksPage(props: {
         <div>
           <p className="ui-eyebrow">Execution</p>
           <h1 className="ui-display-title mt-2">Task queue</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">Team follow-up with ownership, urgency, and status.</p>
+          <p className="ui-page-lead mt-2">Team follow-up with ownership, urgency, and status.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           Contract index
         </Link>
       </header>
 
-      <div className="ui-panel md:p-6">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <OperationalSummaryCard
+          eyebrow="Backlog"
+          headline="Open tasks"
+          tone={openTasks > 0 ? "attention" : "healthy"}
+          icon={ClipboardList}
+          primaryValue={openTasks}
+          primaryUnit="ready to move"
+          action={{ href: "/contracts/tasks?status=open", label: "Open task slice" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Pressure"
+          headline="Due soon"
+          tone={dueSoonTasks > 0 ? "attention" : "healthy"}
+          icon={Timer}
+          primaryValue={dueSoonTasks}
+          primaryUnit="within 7 days"
+          action={{ href: "/contracts/tasks?status=open", label: "Review due work" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Recovery"
+          headline="Blocked"
+          tone={blockedTasks > 0 ? "risk" : "healthy"}
+          icon={AlertTriangle}
+          primaryValue={blockedTasks}
+          primaryUnit="need unblock path"
+          action={{ href: "/contracts/tasks?status=blocked", label: "Open blocked" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Complete"
+          headline="Done"
+          tone="healthy"
+          icon={CheckCircle2}
+          primaryValue={doneTasks}
+          primaryUnit="complete in this slice"
+          action={{ href: "/contracts/tasks?status=done", label: "Review completed" }}
+          variant="compact"
+        />
+      </section>
+
+      <div className="ui-page-shell md:p-6">
+        <div className="mb-4 space-y-1.5">
+          <p className="ui-eyebrow">Filters</p>
+          <h2 className="ui-section-title">Shape the queue</h2>
+          <p className="ui-support-copy">Use status, assignee, and team filters to isolate the work slice you want to run or report on.</p>
+        </div>
         <form className="flex flex-wrap items-end gap-4" action="/contracts/tasks" method="get">
           <div>
             <label htmlFor="task-status" className="ui-label-caps">Status</label>
@@ -153,13 +213,13 @@ export default async function ContractTasksPage(props: {
           <div>
             <span className="ui-label-caps">Assignee</span>
             <div className="flex min-h-10 items-center">
-              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-zinc-700">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
                 <input
                   type="checkbox"
                   name="mine"
                   value="1"
                   defaultChecked={onlyMine}
-                  className="h-4 w-4 rounded border-zinc-300"
+                  className="h-4 w-4 rounded border-[var(--border-strong)]"
                 />
                 Assigned to me
               </label>
@@ -179,7 +239,11 @@ export default async function ContractTasksPage(props: {
             Apply
           </button>
         </form>
-        <div className="mt-5 border-t border-zinc-100 pt-5">
+        <div className="mt-5 border-t border-[var(--border-subtle)] pt-5">
+          <div className="mb-3 space-y-1">
+            <p className="ui-eyebrow">Saved views</p>
+            <p className="ui-support-copy">Pin common task cuts and turn on weekly rollups for the ones you review repeatedly.</p>
+          </div>
           <form action={createSavedView as never} className="flex flex-wrap items-end gap-3">
             <input type="hidden" name="organizationId" value={orgId} />
             <input type="hidden" name="viewType" value="tasks" />
@@ -201,13 +265,13 @@ export default async function ContractTasksPage(props: {
               {savedViews.map((view) => (
                 <div
                   key={view.id}
-                  className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-1"
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-2 py-1"
                 >
-                  <Link href={view.href} className="px-2 py-0.5 text-[12px] font-semibold text-zinc-700">
+                  <Link href={view.href} className="px-2 py-0.5 text-[12px] font-semibold text-[var(--text-secondary)]">
                     {view.name}
                   </Link>
                   <form action={deleteSavedView.bind(null, view.id) as never}>
-                    <button type="submit" className="rounded-full px-1.5 py-0.5 text-[11px] text-zinc-500">
+                    <button type="submit" className="rounded-full px-1.5 py-0.5 text-[11px] text-[var(--text-tertiary)]">
                       ×
                     </button>
                   </form>
@@ -215,7 +279,7 @@ export default async function ContractTasksPage(props: {
                     <button
                       type="submit"
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
-                        view.pinned ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                        view.pinned ? "bg-[var(--text-primary)] text-white" : "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]"
                       }`}
                     >
                       {view.pinned ? "Pinned" : "Pin"}
@@ -227,7 +291,7 @@ export default async function ContractTasksPage(props: {
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
                         view.weeklyActive
                           ? "bg-emerald-100 text-emerald-700"
-                          : "bg-zinc-100 text-zinc-600"
+                          : "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]"
                       }`}
                     >
                       {view.weeklyActive ? "Weekly on" : "Weekly off"}
@@ -247,7 +311,13 @@ export default async function ContractTasksPage(props: {
         />
       ) : (
         <div className="ui-table-shell">
-          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
+          <div className="ui-surface-tint px-5 py-4">
+            <p className="ui-eyebrow">Rows</p>
+            <h2 className="ui-section-title mt-1 text-[1.05rem]">Task ledger</h2>
+            <p className="ui-support-copy mt-1">Scan ownership, due state, and source without losing contract context.</p>
+          </div>
+          <div className="overflow-x-auto">
+          <table aria-label="Tasks in this queue" className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Task</th>
@@ -264,18 +334,18 @@ export default async function ContractTasksPage(props: {
               {tasks.map((task) => (
                 <tr key={task.id} className="ui-table-row align-top">
                   <td className="px-5 py-4">
-                    <p className="font-semibold text-zinc-900">{task.title}</p>
+                    <p className="font-semibold text-[var(--text-primary)]">{task.title}</p>
                     {task.details && (
-                      <p className="mt-1 line-clamp-2 max-w-xl text-zinc-500">{task.details}</p>
+                      <p className="mt-1 line-clamp-2 max-w-xl text-[var(--text-tertiary)]">{task.details}</p>
                     )}
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       Priority: <span className="font-medium">{task.priority}</span>
                     </p>
                     {task.blockedReason && task.status === "blocked" && (
                       <p className="mt-1 text-xs text-rose-700">Blocked: {task.blockedReason}</p>
                     )}
                     {task.recurrenceIntervalDays && task.recurrenceIntervalDays > 0 && (
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                         Recurs every {task.recurrenceIntervalDays} day
                         {task.recurrenceIntervalDays === 1 ? "" : "s"}
                       </p>
@@ -287,31 +357,32 @@ export default async function ContractTasksPage(props: {
                     </Link>
                     <ContractContinuityLinks contractId={task.contractId} omit={["tasks"]} />
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {task.assigneeId ? memberById.get(task.assigneeId) ?? "Member" : "Unassigned"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {task.createdVia ?? "manual"}
                     {task.teamKey ? ` · ${task.teamKey}` : ""}
                   </td>
                   <td className={`px-5 py-4 font-semibold ${statusTone(task.status)}`}>
                     {task.status.replace("_", " ")}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {task.dueDate
                       ? format(new Date(`${task.dueDate}T12:00:00`), "MMM d, yyyy")
                       : "—"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {task.slaDueAt ? format(new Date(task.slaDueAt), "MMM d, yyyy") : "—"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-500">
+                  <td className="px-5 py-4 text-[var(--text-tertiary)]">
                     {format(new Date(task.updatedAt), "MMM d")}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

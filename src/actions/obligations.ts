@@ -6,6 +6,7 @@ import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import type { ContractObligationStatus } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
+import { emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
 
 const OBLIGATION_STATUSES: ContractObligationStatus[] = [
   "open",
@@ -361,11 +362,48 @@ export async function updateContractObligation(input: {
 
   if (Object.keys(patch).length === 0) return { success: true as const };
 
+  if (input.status !== undefined) {
+    await emitWorkActionTelemetry(
+      admin,
+      {
+        organizationId: obligation.organization_id,
+        userId: user.id,
+        contractId: obligation.contract_id,
+      },
+      "obligation",
+      "update_status",
+      "attempted"
+    );
+  }
+
   const { error } = await admin
     .from("contract_obligations")
     .update(patch)
     .eq("id", input.obligationId);
-  if (error) return { error: mapDataSourceError(error.message) };
+  if (error) {
+    await emitVisibleMutationErrorTelemetry(admin, {
+      organizationId: obligation.organization_id,
+      userId: user.id,
+      contractId: obligation.contract_id,
+      surface: "work",
+      mutation: "updateContractObligation",
+      code: mapDataSourceError(error.message),
+    });
+    if (input.status !== undefined) {
+      await emitWorkActionTelemetry(
+        admin,
+        {
+          organizationId: obligation.organization_id,
+          userId: user.id,
+          contractId: obligation.contract_id,
+        },
+        "obligation",
+        "update_status",
+        "failed"
+      );
+    }
+    return { error: mapDataSourceError(error.message) };
+  }
 
   await admin.from("audit_events").insert({
     organization_id: obligation.organization_id,
@@ -387,6 +425,8 @@ export async function updateContractObligation(input: {
           : "updated",
     details: patch,
   });
+  let generatedRecurringObligation = false;
+
   if (input.status === "done") {
     const recurrenceType =
       (patch.recurrence_type as ObligationRecurrenceType | undefined) ??
@@ -428,6 +468,7 @@ export async function updateContractObligation(input: {
       if (generationError) {
         console.error("[obligations] recurrence insert failed", generationError.message);
       } else if (generated?.id) {
+        generatedRecurringObligation = true;
         await appendObligationEvent(admin, {
           organizationId: obligation.organization_id,
           contractId: obligation.contract_id,
@@ -441,7 +482,21 @@ export async function updateContractObligation(input: {
   }
   await recomputeContractSignals(admin, obligation.contract_id);
 
-  return { success: true as const };
+  if (input.status !== undefined) {
+    await emitWorkActionTelemetry(
+      admin,
+      {
+        organizationId: obligation.organization_id,
+        userId: user.id,
+        contractId: obligation.contract_id,
+      },
+      "obligation",
+      "update_status",
+      "succeeded"
+    );
+  }
+
+  return { success: true as const, generatedRecurringObligation };
 }
 
 export async function deleteContractObligation(obligationId: string) {

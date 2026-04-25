@@ -46,7 +46,7 @@ export async function POST() {
   return NextResponse.json({
     ok: true,
     documentation:
-      "Runs five V6 strategy-doc reference workflows once (seed/demo). Not a substitute for scheduled assurance checks or user-driven playbook runs.",
+      "Runs five assurance reference workflows once (seed/demo). Not a substitute for scheduled assurance checks or user-driven playbook runs.",
     workflows: {
       findingToIntervention: w1,
       policyBreachRemediation: w2,

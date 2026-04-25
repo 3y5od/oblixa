@@ -208,14 +208,20 @@ export default async function ContractAnalyticsPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Trends</p>
-        <h1 className="ui-display-title">Advanced analytics</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
+      <header className="ui-page-header">
+        <div>
+          <p className="ui-eyebrow">Trends</p>
+          <h1 className="ui-display-title">Advanced analytics</h1>
+          <p className="ui-page-lead mt-2">
           Contract velocity, task execution trendlines, and upcoming renewal concentration.
-        </p>
+          </p>
+        </div>
       </header>
-      <section className="ui-card p-4">
+      <section className="ui-page-shell p-4">
+        <div className="mb-3 space-y-1">
+          <p className="ui-eyebrow">Scope</p>
+          <p className="ui-support-copy">Narrow the analytics slice by owner, region, or contract type before comparing workflow pressure and delivery behavior.</p>
+        </div>
         <form action="/contracts/analytics" method="get" className="grid gap-2 sm:grid-cols-3">
           <select name="owner" defaultValue={ownerFilter} className="ui-input">
             <option value="all">Owner: all</option>
@@ -250,7 +256,7 @@ export default async function ContractAnalyticsPage(props: {
       <section className="space-y-3">
         <div>
           <p className="ui-eyebrow">Execution</p>
-          <h2 className="ui-section-title mt-2 text-xl">Workflow pressure</h2>
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Workflow pressure</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <OperationalSummaryCard
@@ -405,18 +411,18 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Velocity</p>
             <h2 className="ui-section-title mt-1 text-base">Contracts created by month</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {contractRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
             ) : (
               contractRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
@@ -424,18 +430,18 @@ export default async function ContractAnalyticsPage(props: {
         </section>
 
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Execution</p>
             <h2 className="ui-section-title mt-1 text-base">Task completions by month</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {taskRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
             ) : (
               taskRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
@@ -443,18 +449,18 @@ export default async function ContractAnalyticsPage(props: {
         </section>
 
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Horizon</p>
             <h2 className="ui-section-title mt-1 text-base">Renewal concentration (next 6m)</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {renewalRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No upcoming renewals.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No upcoming renewals.</li>
             ) : (
               renewalRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
@@ -464,54 +470,54 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Owner ({topOwner ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {ownerTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
             ) : (
               ownerTrendRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Region ({topRegion ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {regionTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
             ) : (
               regionTrendRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Scoped trend</p>
             <h2 className="ui-section-title mt-1 text-base">Contract type ({topType ?? "none"})</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {typeTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No trend data.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
             ) : (
               typeTrendRows.map(([month, count]) => (
                 <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-zinc-600">{month}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="text-[var(--text-secondary)]">{month}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
@@ -521,54 +527,54 @@ export default async function ContractAnalyticsPage(props: {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by owner</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {ownerRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
             ) : (
               ownerRows.map(([owner, count]) => (
                 <li key={owner} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-zinc-600">{owner}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="truncate text-[var(--text-secondary)]">{owner}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by region</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {regionRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
             ) : (
               regionRows.map(([region, count]) => (
                 <li key={region} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-zinc-600">{region}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="truncate text-[var(--text-secondary)]">{region}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Mix</p>
             <h2 className="ui-section-title mt-1 text-base">Portfolio by contract type</h2>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {typeRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No data yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
             ) : (
               typeRows.map(([type, count]) => (
                 <li key={type} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-zinc-600">{type}</span>
-                  <span className="font-semibold text-zinc-900">{count}</span>
+                  <span className="truncate text-[var(--text-secondary)]">{type}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
                 </li>
               ))
             )}

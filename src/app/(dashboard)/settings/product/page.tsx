@@ -25,13 +25,15 @@ const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
 const ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS;
 const UTILITY_MODULE_OPTIONS = WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS;
 
+export const metadata = { title: "Product experience" };
+
 export default async function WorkspaceProductSettingsPage() {
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   if (ctx.role !== "admin") {
     return (
       <div className="ui-page-stack mx-auto max-w-2xl">
-        <p className="text-sm text-zinc-600">Only workspace admins can change product mode.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Only workspace admins can change product mode.</p>
         <Link href="/settings" className="ui-link mt-3 inline-block text-sm">
           Back to settings
         </Link>
@@ -69,18 +71,20 @@ export default async function WorkspaceProductSettingsPage() {
 
   return (
     <div className="ui-page-stack mx-auto max-w-2xl">
-      <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Workspace</p>
-        <h1 className="ui-display-title mt-2">Product experience</h1>
-        <p className="ui-muted-tight mt-3 max-w-2xl">
-          Control how much of the platform appears in navigation and the home dashboard for this
-          workspace (see docs/refinement.md).
-        </p>
-        <details className="mt-4 max-w-2xl rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-zinc-900">
-            What each mode changes (§13.2–13.3, §21.2)
+      <header className="ui-page-header">
+        <div>
+          <p className="ui-eyebrow">Workspace</p>
+          <h1 className="ui-display-title mt-2">Product experience</h1>
+          <p className="ui-page-lead mt-3 max-w-2xl">
+            Control how much of the platform appears in navigation and the home dashboard for this
+            workspace.
+          </p>
+        </div>
+        <details className="mt-4 max-w-2xl rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">
+            What each mode changes
           </summary>
-          <div className="ui-muted-tight mt-3 space-y-3 text-[13px] text-zinc-700">
+          <div className="ui-muted-tight mt-3 space-y-3 text-[13px] text-[var(--text-secondary)]">
             <p>
               <strong>Advanced</strong> adds primary navigation and contextual entry for programs,
               decisions, campaigns, and relationships; home may show portfolio-style strips when not
@@ -92,12 +96,12 @@ export default async function WorkspaceProductSettingsPage() {
               reports anchors, and assurance-oriented notifications when enabled.
             </p>
             <p>
-              <strong>Checklist</strong> — this page covers §21.2: workspace mode, per-module hides,
+              <strong>Checklist</strong> — this page covers workspace mode, per-module hides,
               optional advanced-nav roles, default landing path, admin testing flag for Assurance nav,
               autopilot execution gate, home block hides, and email category mutes.
             </p>
             <p>
-              <strong>§21.1 mapping</strong> — feature visibility by mode and advanced module reveal: workspace
+              <strong>Feature mapping</strong> — feature visibility by mode and advanced module reveal: workspace
               mode + hide checkboxes. Home composition: “Home dashboard blocks”. Notification categories: “Email
               notification categories”. Linked workspace workflow knobs live under{" "}
               <Link href="/settings/operations" className="ui-link">
@@ -120,13 +124,13 @@ export default async function WorkspaceProductSettingsPage() {
         </Link>
       </header>
 
-      <section className="ui-card bg-surface p-6 md:p-8">
+      <section className="ui-page-shell bg-surface p-6 md:p-8">
         <p className="ui-label-caps">Workspace setup questionnaire</p>
-        <p className="ui-muted-tight mt-2 text-[13px] text-zinc-700">
+        <p className="ui-support-copy mt-2">
           {onboardingCal ? (
             <>
               Calibrated:{" "}
-              <span className="font-medium text-zinc-900">
+              <span className="font-medium text-[var(--text-primary)]">
                 {onboardingCal.last_applied || onboardingCal.status === "completed"
                   ? "Yes"
                   : onboardingCal.status === "skipped"
@@ -162,7 +166,7 @@ export default async function WorkspaceProductSettingsPage() {
             Run calibration again
           </button>
         </form>
-        <p className="ui-muted-tight mt-2 text-[12px]">
+        <p className="ui-support-copy mt-2 text-[12px]">
           Opens the setup flow without blocking navigation. Workspace mode and module visibility below
           remain the source of truth until you apply a new recommendation.
         </p>
@@ -175,11 +179,11 @@ export default async function WorkspaceProductSettingsPage() {
         {onboardingCal &&
           onboardingCal.answers_required &&
           Object.keys(onboardingCal.answers_required).length > 0 && (
-            <details className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-zinc-50/30 p-3">
-              <summary className="cursor-pointer text-sm font-medium text-zinc-900">
+            <details className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/30 p-3">
+              <summary className="cursor-pointer text-sm font-medium text-[var(--text-primary)]">
                 Last questionnaire answers (read-only)
               </summary>
-              <pre className="ui-muted-tight mt-3 max-h-52 overflow-auto rounded-md bg-surface p-3 text-[11px] leading-relaxed text-zinc-800">
+              <pre className="ui-muted-tight mt-3 max-h-52 overflow-auto rounded-md bg-surface p-3 text-[11px] leading-relaxed text-[var(--text-primary)]">
                 {JSON.stringify(
                   {
                     answers_required: onboardingCal.answers_required,
@@ -193,7 +197,7 @@ export default async function WorkspaceProductSettingsPage() {
           )}
       </section>
 
-      <section className="ui-card p-6 md:p-8">
+      <section className="ui-page-shell p-6 md:p-8">
         <form
           id="workspace-product-settings-form"
           action={updateWorkspaceProductSurfaceForm as never}
@@ -233,9 +237,9 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_${key}`}
                     type="checkbox"
                     defaultChecked={hidden.has(key)}
-                    className="h-4 w-4 rounded border-zinc-300"
+                    className="h-4 w-4 rounded border-[var(--border-strong)]"
                   />
-                  <label htmlFor={`hide_${key}`} className="text-sm text-zinc-800">
+                  <label htmlFor={`hide_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
                   </label>
                 </li>
@@ -250,12 +254,12 @@ export default async function WorkspaceProductSettingsPage() {
                 name="customize_advanced_nav_roles"
                 type="checkbox"
                 defaultChecked={advancedNavCustom}
-                className="mt-1 h-4 w-4 rounded border-zinc-300"
+                className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
               />
               <div>
                 <label
                   htmlFor="customize_advanced_nav_roles"
-                  className="text-sm font-medium text-zinc-900"
+                  className="text-sm font-medium text-[var(--text-primary)]"
                 >
                   Customize which roles see advanced primary navigation
                 </label>
@@ -274,9 +278,9 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`adv_nav_${role}`}
                     type="checkbox"
                     defaultChecked={!advancedNavCustom || advancedNavSet.has(role)}
-                    className="h-4 w-4 rounded border-zinc-300"
+                    className="h-4 w-4 rounded border-[var(--border-strong)]"
                   />
-                  <label htmlFor={`adv_nav_${role}`} className="text-sm text-zinc-800">
+                  <label htmlFor={`adv_nav_${role}`} className="text-sm text-[var(--text-primary)]">
                     {label}
                   </label>
                 </li>
@@ -296,12 +300,12 @@ export default async function WorkspaceProductSettingsPage() {
                   name="customize_assurance_nav_roles"
                   type="checkbox"
                   defaultChecked={assuranceNavCustom}
-                  className="mt-1 h-4 w-4 rounded border-zinc-300"
+                  className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
                 />
                 <div>
                   <label
                     htmlFor="customize_assurance_nav_roles"
-                    className="text-sm font-medium text-zinc-900"
+                    className="text-sm font-medium text-[var(--text-primary)]"
                   >
                     Customize which roles see the Assurance navigation section
                   </label>
@@ -319,9 +323,9 @@ export default async function WorkspaceProductSettingsPage() {
                       name={`asm_nav_${role}`}
                       type="checkbox"
                       defaultChecked={!assuranceNavCustom || assuranceNavSet.has(role)}
-                      className="h-4 w-4 rounded border-zinc-300"
+                      className="h-4 w-4 rounded border-[var(--border-strong)]"
                     />
-                    <label htmlFor={`asm_nav_${role}`} className="text-sm text-zinc-800">
+                    <label htmlFor={`asm_nav_${role}`} className="text-sm text-[var(--text-primary)]">
                       {label}
                     </label>
                   </li>
@@ -334,9 +338,9 @@ export default async function WorkspaceProductSettingsPage() {
           ) : null}
 
           <div>
-            <p className="ui-label-caps">Hide utility modules</p>
+            <p className="ui-label-caps">Hide tool modules</p>
             <p className="ui-muted-tight mt-1 text-[13px]">
-              Hide utility entry points from contextual nav and utilities index.
+              Hide tool entry points from contextual nav and the tools index.
             </p>
             <ul className="mt-3 space-y-2">
               {UTILITY_MODULE_OPTIONS.map(({ key, label }) => (
@@ -346,9 +350,9 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_utility_${key}`}
                     type="checkbox"
                     defaultChecked={utilityHidden.has(key)}
-                    className="h-4 w-4 rounded border-zinc-300"
+                    className="h-4 w-4 rounded border-[var(--border-strong)]"
                   />
-                  <label htmlFor={`hide_utility_${key}`} className="text-sm text-zinc-800">
+                  <label htmlFor={`hide_utility_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
                   </label>
                 </li>
@@ -370,9 +374,9 @@ export default async function WorkspaceProductSettingsPage() {
                       name={`hide_assurance_${key}`}
                       type="checkbox"
                       defaultChecked={assuranceHidden.has(key)}
-                      className="h-4 w-4 rounded border-zinc-300"
+                      className="h-4 w-4 rounded border-[var(--border-strong)]"
                     />
-                    <label htmlFor={`hide_assurance_${key}`} className="text-sm text-zinc-800">
+                    <label htmlFor={`hide_assurance_${key}`} className="text-sm text-[var(--text-primary)]">
                       Hide {label}
                     </label>
                   </li>
@@ -414,7 +418,7 @@ export default async function WorkspaceProductSettingsPage() {
             />
             <p className="ui-muted-tight mt-2 text-[13px]">
               Must start with <code className="text-xs">/</code>, match the workspace mode (Core cannot use Advanced
-              or Assurance routes or §10.4 utility shortcuts as the org default), and stay open-redirect safe. Leave
+              or Assurance routes or command-palette shortcuts as the org default), and stay open-redirect safe. Leave
               blank to keep the default.
             </p>
           </div>
@@ -425,10 +429,10 @@ export default async function WorkspaceProductSettingsPage() {
               name="assurance_nav_admin_testing"
               type="checkbox"
               defaultChecked={v6.assurance_nav_admin_testing === true}
-              className="mt-1 h-4 w-4 rounded border-zinc-300"
+              className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
             />
             <div>
-              <label htmlFor="assurance_nav_admin_testing" className="text-sm font-medium text-zinc-900">
+              <label htmlFor="assurance_nav_admin_testing" className="text-sm font-medium text-[var(--text-primary)]">
                 Admin testing: show Assurance navigation outside Assurance mode
               </label>
               <p className="ui-muted-tight mt-1 text-[13px]">
@@ -443,10 +447,10 @@ export default async function WorkspaceProductSettingsPage() {
               name="autopilot_allow_execution"
               type="checkbox"
               defaultChecked={v6.autopilot_allow_execution === true}
-              className="mt-1 h-4 w-4 rounded border-zinc-300"
+              className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
             />
             <div>
-              <label htmlFor="autopilot_allow_execution" className="text-sm font-medium text-zinc-900">
+              <label htmlFor="autopilot_allow_execution" className="text-sm font-medium text-[var(--text-primary)]">
                 Allow mutating autopilot execution (Assurance workspaces only)
               </label>
               <p className="ui-muted-tight mt-1 text-[13px]">
@@ -475,9 +479,9 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_home_${key}`}
                     type="checkbox"
                     defaultChecked={homeHidden.has(key)}
-                    className="h-4 w-4 rounded border-zinc-300"
+                    className="h-4 w-4 rounded border-[var(--border-strong)]"
                   />
-                  <label htmlFor={`hide_home_${key}`} className="text-sm text-zinc-800">
+                  <label htmlFor={`hide_home_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
                   </label>
                 </li>
@@ -512,10 +516,21 @@ export default async function WorkspaceProductSettingsPage() {
           <code className="text-xs">notification_policy_json.email.blocked_types</code>).
         </p>
         <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
-          docs/refinement.md §18.1 (Core) covers due work, overdue work, pending approvals, renewal horizon,
+          Core notification policy covers due work, overdue work, pending approvals, renewal horizon,
           evidence requests, and exception assignment. Delivery is grouped into the toggles below: field
           reminders map to operational due work; weekly summaries cover saved-view digests; automation rules
           cover channel hooks that often accompany Advanced workflows.
+        </p>
+        <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
+          Currently muted:{" "}
+          <span className="font-medium text-[var(--text-primary)]">
+            {emailBlocked.size === 0 ? "none" : [...emailBlocked].join(", ")}
+          </span>
+          . Check{" "}
+          <Link href="/settings/health" className="ui-link">
+            Health
+          </Link>{" "}
+          if deliveries look delayed or suppressed after changing these categories.
         </p>
         <form action={updateProductEmailNotificationCategoriesForm as never} className="mt-4 space-y-3">
           {(
@@ -531,9 +546,9 @@ export default async function WorkspaceProductSettingsPage() {
                 name={`mute_email_${key}`}
                 type="checkbox"
                 defaultChecked={emailBlocked.has(key)}
-                className="h-4 w-4 rounded border-zinc-300"
+                className="h-4 w-4 rounded border-[var(--border-strong)]"
               />
-              <label htmlFor={`mute_email_${key}`} className="text-sm text-zinc-800">
+              <label htmlFor={`mute_email_${key}`} className="text-sm text-[var(--text-primary)]">
                 Mute {label}
               </label>
             </div>

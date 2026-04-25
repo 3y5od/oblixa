@@ -33,14 +33,14 @@ export function RecommendationRowActions({ recommendationId, accepted, dismissed
   }
 
   if (accepted || dismissed) {
-    return <span className="text-zinc-400">—</span>;
+    return <span className="text-[var(--text-tertiary)]">—</span>;
   }
 
   return (
     <span className="flex gap-1">
       <button
         type="button"
-        className="rounded-md border border-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+        className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
         disabled={busy}
         onClick={() => void patch("accept")}
       >
@@ -48,7 +48,7 @@ export function RecommendationRowActions({ recommendationId, accepted, dismissed
       </button>
       <button
         type="button"
-        className="rounded-md border border-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+        className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
         disabled={busy}
         onClick={() => void patch("dismiss")}
       >

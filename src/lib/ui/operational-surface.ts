@@ -2,20 +2,20 @@
  * Shared semantic tones for operational summary surfaces (dashboard signals,
  * metric strips, queue cards). Keeps control-room data and UI aligned.
  *
- * docs/refinement.md §15.4 — queue/state chrome: map operational facts to `OperationalTone`, then to shells/chips
+ * product-surface policy §15.4 — queue/state chrome: map operational facts to `OperationalTone`, then to shells/chips
  * (`semanticStatusToOperationalTone` in `operational-summary-card.tsx` bridges `SemanticStatus` → tone).
  */
 export type OperationalTone = "healthy" | "neutral" | "attention" | "risk";
 
 export const OPERATIONAL_SHELL_BY_TONE: Record<OperationalTone, string> = {
   healthy:
-    "border-l-[0.35rem] border-l-[color:var(--success-ink)] bg-[color:color-mix(in_oklab,var(--success-soft)_76%,transparent)] shadow-[var(--shadow-1)]",
+    "border-l-[0.35rem] border-l-[color:var(--success-ink)] bg-[color:color-mix(in_oklab,var(--success-soft)_78%,transparent)]",
   neutral:
-    "border-l-[0.35rem] border-l-[color:color-mix(in_oklab,var(--border-contrast)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] shadow-[var(--shadow-1)]",
+    "border-l-[0.35rem] border-l-[color:color-mix(in_oklab,var(--border-contrast)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)]",
   attention:
-    "border-l-[0.35rem] border-l-[color:var(--warning-ink)] bg-[color:color-mix(in_oklab,var(--warning-soft)_76%,transparent)] shadow-[var(--shadow-1)]",
+    "border-l-[0.35rem] border-l-[color:var(--warning-ink)] bg-[color:color-mix(in_oklab,var(--warning-soft)_78%,transparent)]",
   risk:
-    "border-l-[0.35rem] border-l-[color:var(--danger-ink)] bg-[color:color-mix(in_oklab,var(--danger-soft)_74%,transparent)] shadow-[var(--shadow-1)]",
+    "border-l-[0.35rem] border-l-[color:var(--danger-ink)] bg-[color:color-mix(in_oklab,var(--danger-soft)_76%,transparent)]",
 };
 
 export const OPERATIONAL_ICON_WRAP_BY_TONE: Record<OperationalTone, string> = {

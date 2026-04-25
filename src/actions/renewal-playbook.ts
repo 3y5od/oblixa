@@ -6,6 +6,7 @@ import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import type { RenewalCheckpointStatus } from "@/lib/types";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 const CHECKPOINT_STATUSES: RenewalCheckpointStatus[] = [
   "pending",
@@ -82,7 +83,16 @@ export async function seedRenewalPlaybook(contractId: string) {
   if (!contract) return { error: "Access denied" };
 
   const renewalDate = await getRenewalDate(admin, contractId);
-  if (!renewalDate) return { error: "No renewal date found" };
+  if (!renewalDate) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId,
+      action: "product.v9.renewal_blocker_encountered",
+      details: { reason: "no_renewal_date" },
+    });
+    return { error: "No renewal date found" };
+  }
 
   const { data: templates } = await admin
     .from("renewal_playbook_templates")
@@ -100,7 +110,16 @@ export async function seedRenewalPlaybook(contractId: string) {
     offsetDays: t.offset_days,
     label: t.label,
   }));
-  if (templateRows.length === 0) return { error: "No playbook templates found" };
+  if (templateRows.length === 0) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId,
+      action: "product.v9.renewal_blocker_encountered",
+      details: { reason: "no_playbook_templates" },
+    });
+    return { error: "No playbook templates found" };
+  }
   const { data: scenarioRow } = await admin
     .from("contract_renewal_scenarios")
     .select("id")
@@ -131,6 +150,14 @@ export async function seedRenewalPlaybook(contractId: string) {
     user_id: user.id,
     action: "renewal.playbook_seeded",
     details: { checkpoint_count: rows.length },
+  });
+
+  await emitProductTelemetryEvent(admin, {
+    organizationId: contract.organization_id,
+    userId: user.id,
+    contractId,
+    action: "product.v9.renewal_action_taken",
+    details: { action: "playbook_seeded", checkpoint_count: rows.length },
   });
 
   await revalidateRenewalPaths(contractId);
@@ -187,6 +214,14 @@ export async function updateRenewalCheckpointStatus(input: {
     user_id: user.id,
     action: "renewal.checkpoint_updated",
     details: { checkpoint_id: input.checkpointId, status: input.status },
+  });
+
+  await emitProductTelemetryEvent(admin, {
+    organizationId: checkpoint.organization_id,
+    userId: user.id,
+    contractId: checkpoint.contract_id,
+    action: "product.v9.renewal_action_taken",
+    details: { action: "checkpoint_updated", checkpoint_id: input.checkpointId, status: input.status },
   });
 
   await revalidateRenewalPaths(checkpoint.contract_id);

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/refinement.md §18.2–18.4 — scheduled send paths must respect org notification policy
+ * product-surface policy §18.2–18.4 — scheduled send paths must respect org notification policy
  * or pass workspace mode into copy degradation (regression tripwire if a route is refactored away).
  */
 const ROOT = join(process.cwd(), "src", "app", "api");

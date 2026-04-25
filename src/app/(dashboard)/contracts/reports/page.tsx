@@ -24,7 +24,7 @@ export default async function ReportsHistoryPage(props: {
       <div className="ui-card px-6 py-8">
         <p className="ui-eyebrow">Feature flag</p>
         <h1 className="ui-display-title mt-2">Reports history is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-zinc-500">
+        <p className="mt-3 max-w-xl text-sm text-[var(--text-tertiary)]">
           This surface is off because the server has disabled it (set{" "}
           <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> to false, 0, no, or off). Remove or unset that
           variable to turn reporting history back on.
@@ -115,12 +115,14 @@ export default async function ReportsHistoryPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
-        <p className="ui-eyebrow">Reporting</p>
-        <h1 className="ui-display-title mt-2">Digest run history</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-zinc-500">
-          Review report runs and recipient delivery/open/click engagement.
-        </p>
+      <header className="ui-page-header">
+        <div>
+          <p className="ui-eyebrow">Reporting</p>
+          <h1 className="ui-display-title mt-2">Digest run history</h1>
+          <p className="ui-page-lead mt-2">
+            Review report runs and recipient delivery/open/click engagement.
+          </p>
+        </div>
       </header>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <OperationalSummaryCard
@@ -138,7 +140,7 @@ export default async function ReportsHistoryPage(props: {
         />
         <OperationalSummaryCard
           eyebrow="Catalog"
-          headline="V4 report packs"
+          headline="Report packs"
           tone={visibleReportPacks.length > 0 ? "neutral" : "attention"}
           icon={Package}
           primaryValue={visibleReportPacks.length}
@@ -173,10 +175,11 @@ export default async function ReportsHistoryPage(props: {
         />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <section id="report-packs" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <section id="report-packs" className="ui-page-shell scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Configure</p>
-            <h2 className="ui-section-title mt-1 text-base">Create V4 report pack</h2>
+            <h2 className="ui-section-title mt-1 text-base">Create report pack</h2>
+            <p className="ui-support-copy mt-1">Create, annotate, and schedule report packs from the same control surface that shows downstream run history and delivery state.</p>
           </div>
           <form action={createReportPackFormAction} className="grid gap-2 border-b border-[var(--border-subtle)] px-5 py-4 md:grid-cols-2">
             <input name="name" required placeholder="Weekly execution health" className="ui-input" />
@@ -192,28 +195,28 @@ export default async function ReportsHistoryPage(props: {
               ))}
             </select>
             <input name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
-            <label className="flex items-center gap-2 text-xs text-zinc-600 md:col-span-2">
-              <input type="checkbox" name="emitWebhooks" className="rounded border-zinc-300" />
+            <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)] md:col-span-2">
+              <input type="checkbox" name="emitWebhooks" className="rounded border-[var(--border-strong)]" />
               Emit <code className="text-[10px]">report_pack.generated</code> webhook when a run is recorded
             </label>
             <button type="submit" className="ui-btn-secondary px-4 py-2 text-xs">
               Create report pack
             </button>
           </form>
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Library</p>
-            <h2 className="ui-section-title mt-1 text-base">V4 report packs</h2>
+            <h2 className="ui-section-title mt-1 text-base">Report packs</h2>
           </div>
           {visibleReportPacks.length === 0 ? (
-            <p className="px-5 py-4 text-sm text-zinc-500">
+            <p className="px-5 py-4 text-sm text-[var(--text-tertiary)]">
               No report packs yet. Create one using `POST /api/report-packs`.
             </p>
           ) : (
             <ul className="divide-y divide-[var(--border-subtle)]">
               {visibleReportPacks.map((pack) => (
-                <li key={pack.id} className="space-y-2 px-5 py-3 text-sm text-zinc-700">
-                  <p className="font-semibold text-zinc-900">{pack.name}</p>
-                  <p className="text-xs text-zinc-500">
+                <li key={pack.id} className="space-y-2 px-5 py-3 text-sm text-[var(--text-secondary)]">
+                  <p className="font-semibold text-[var(--text-primary)]">{pack.name}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     {pack.report_type} · {pack.active ? "active" : "inactive"}
                     {pack.schedule ? ` · schedule ${pack.schedule}` : ""}
                   </p>
@@ -246,9 +249,9 @@ export default async function ReportsHistoryPage(props: {
                       PDF-ready (same HTML)
                     </a>
                   </div>
-                  <form action={saveAnnotationsFormAction} className="space-y-1 border-t border-zinc-100 pt-2">
+                  <form action={saveAnnotationsFormAction} className="space-y-1 border-t border-[var(--border-subtle)] pt-2">
                     <input type="hidden" name="reportPackId" value={pack.id} />
-                    <label className="text-[11px] font-medium text-zinc-600">Annotations (JSON array)</label>
+                    <label className="text-[11px] font-medium text-[var(--text-secondary)]">Annotations (JSON array)</label>
                     <textarea
                       name="annotationsJson"
                       rows={3}
@@ -263,9 +266,9 @@ export default async function ReportsHistoryPage(props: {
                       Save annotations
                     </button>
                   </form>
-                  <form action={createSubscriptionFormAction} className="space-y-1 border-t border-zinc-100 pt-2">
+                  <form action={createSubscriptionFormAction} className="space-y-1 border-t border-[var(--border-subtle)] pt-2">
                     <input type="hidden" name="reportPackId" value={pack.id} />
-                    <p className="text-[11px] font-medium text-zinc-600">New subscription</p>
+                    <p className="text-[11px] font-medium text-[var(--text-secondary)]">New subscription</p>
                     <input name="audienceLabel" placeholder="Audience label" className="ui-input text-[11px]" />
                     <input name="scheduleCron" placeholder="Cron e.g. 0 9 * * MON" className="ui-input text-[11px]" />
                     <input
@@ -282,20 +285,21 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section id="subscriptions" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <section id="subscriptions" className="ui-page-shell scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Routing</p>
             <h2 className="ui-section-title mt-1 text-base">Report pack subscriptions</h2>
+            <p className="ui-support-copy mt-1">Keep recipient routing and cadence visible beside the pack catalog so delivery setup does not drift from report design.</p>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">
             {reportPackSubscriptions.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-zinc-500">No subscriptions yet.</li>
+              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No subscriptions yet.</li>
             ) : (
               reportPackSubscriptions.map((sub) => (
-                <li key={sub.id} className="px-5 py-3 text-xs text-zinc-700">
-                  <span className="font-medium text-zinc-900">{sub.audience_label}</span> · pack{" "}
+                <li key={sub.id} className="px-5 py-3 text-xs text-[var(--text-secondary)]">
+                  <span className="font-medium text-[var(--text-primary)]">{sub.audience_label}</span> · pack{" "}
                   {sub.report_pack_id}
-                  <span className="text-zinc-500">
+                  <span className="text-[var(--text-tertiary)]">
                     {" "}
                     · {(sub.recipient_emails as string[] | null)?.join(", ") || "no emails"}
                     {sub.schedule_cron ? ` · ${sub.schedule_cron}` : ""}
@@ -305,21 +309,22 @@ export default async function ReportsHistoryPage(props: {
             )}
           </ul>
         </section>
-        <section id="pack-runs" className="ui-card scroll-mt-8 overflow-hidden lg:col-span-2">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <section id="pack-runs" className="ui-page-shell scroll-mt-8 overflow-hidden lg:col-span-2">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Executions</p>
-            <h2 className="ui-section-title mt-1 text-base">V4 report pack run history</h2>
+            <h2 className="ui-section-title mt-1 text-base">Report pack run history</h2>
+            <p className="ui-support-copy mt-1">Use run history as the diagnostic layer for failed packs, generated outputs, and delivery coverage.</p>
           </div>
           {(reportPackRuns ?? []).length === 0 ? (
-            <p className="px-5 py-4 text-sm text-zinc-500">No V4 report pack runs yet.</p>
+            <p className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No report pack runs yet.</p>
           ) : (
             <ul className="divide-y divide-[var(--border-subtle)]">
               {(reportPackRuns ?? []).map((run) => (
                 <li key={run.id} className="px-5 py-3 text-sm">
-                  <p className="font-semibold text-zinc-900">
+                  <p className="font-semibold text-[var(--text-primary)]">
                     {run.report_pack_id} · {run.status}
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     {new Date(run.created_at).toLocaleString()}
                     {run.completed_at ? ` · completed ${new Date(run.completed_at).toLocaleString()}` : ""}
                   </p>
@@ -347,7 +352,7 @@ export default async function ReportsHistoryPage(props: {
           )}
         </section>
         <section id="digest-runs" className="ui-card scroll-mt-8 overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Timeline</p>
             <h2 className="ui-section-title mt-1 text-base">Digest runs</h2>
           </div>
@@ -358,14 +363,14 @@ export default async function ReportsHistoryPage(props: {
                   href={`/contracts/reports?runId=${run.id}`}
                   className={`block rounded-lg border px-3 py-2 ${
                     selectedRunId === run.id
-                      ? "border-zinc-900 bg-zinc-900 text-white"
-                      : "border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                      ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white"
+                      : "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
                   }`}
                 >
                   <p className="font-semibold">
                     {run.report_mode} · {run.status}
                   </p>
-                  <p className={`text-xs ${selectedRunId === run.id ? "text-zinc-300" : "text-zinc-500"}`}>
+                  <p className={`text-xs ${selectedRunId === run.id ? "text-[var(--text-tertiary)]" : "text-[var(--text-tertiary)]"}`}>
                     {new Date(run.started_at).toLocaleString()}
                   </p>
                 </Link>
@@ -374,16 +379,16 @@ export default async function ReportsHistoryPage(props: {
           </ul>
         </section>
         <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Engagement</p>
             <h2 className="ui-section-title mt-1 text-base">Recipients</h2>
           </div>
           {selectedRunId ? (
             <ul className="divide-y divide-[var(--border-subtle)]">
               {(recipients ?? []).map((recipient) => (
-                <li key={String(recipient.id)} className="px-5 py-3 text-sm text-zinc-700">
+                <li key={String(recipient.id)} className="px-5 py-3 text-sm text-[var(--text-secondary)]">
                   <p className="font-semibold">{String(recipient.recipient_email)}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--text-tertiary)]">
                     {String(recipient.delivery_status)}
                     {(recipient.delivered_at as string | null)
                       ? ` · delivered ${new Date(String(recipient.delivered_at)).toLocaleString()}`
@@ -402,7 +407,7 @@ export default async function ReportsHistoryPage(props: {
               ))}
             </ul>
           ) : (
-            <p className="px-5 py-4 text-sm text-zinc-500">No runs yet.</p>
+            <p className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No runs yet.</p>
           )}
         </section>
       </div>

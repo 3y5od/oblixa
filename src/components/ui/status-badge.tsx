@@ -33,7 +33,8 @@ export function StatusBadge({
   className?: string;
 }) {
   return (
-    <span className={`ui-status-badge ${STATUS_CLASS_MAP[status]} ${className}`.trim()}>
+    <span className={`ui-status-badge gap-1.5 align-middle ${STATUS_CLASS_MAP[status]} ${className}`.trim()}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current/75" aria-hidden />
       {children}
     </span>
   );

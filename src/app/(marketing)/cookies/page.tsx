@@ -21,8 +21,8 @@ export default function CookiesPage() {
       <MarketingLegalShell>
         <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
           <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">Cookies</h1>
-            <div className="mt-8 max-w-none space-y-4 text-sm leading-relaxed text-zinc-700">
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">Cookies</h1>
+            <div className="mt-8 max-w-none space-y-4 text-sm leading-relaxed text-[var(--text-secondary)]">
               <p>
                 Like most web applications, Oblixa uses cookies and similar storage to keep you signed in,
                 protect sessions, and operate core security controls. Marketing pages on this site do not
@@ -32,7 +32,7 @@ export default function CookiesPage() {
                 If your organization introduces additional analytics or marketing scripts, update this page
                 and your consent approach to match what is actually deployed.
               </p>
-              <h2 className="mt-10 text-base font-semibold text-zinc-900">Managing cookies</h2>
+              <h2 className="mt-10 text-base font-semibold text-[var(--text-primary)]">Managing cookies</h2>
               <p>
                 You can control cookies through browser settings. Clearing cookies may sign you out of the
                 product until you authenticate again.

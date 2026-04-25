@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import type { ContractTask } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
+import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
 
 type TaskRow = Pick<ContractTask, "id" | "title" | "status" | "priority" | "due_date"> & {
   contracts: { id: string; title: string };
 };
 
 function priorityTone(priority: ContractTask["priority"]) {
-  if (priority === "high") return "text-rose-700";
-  if (priority === "low") return "text-zinc-500";
-  return "text-amber-700";
+  if (priority === "high") return "text-[var(--danger-ink)]";
+  if (priority === "low") return "text-[var(--text-tertiary)]";
+  return "text-[var(--warning-ink)]";
 }
 
 export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
@@ -29,7 +29,7 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-6 md:py-4">
+      <div className="ui-surface-tint px-4 py-3.5 md:px-6 md:py-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="ui-section-title">My open tasks</h2>
@@ -61,7 +61,7 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
                   <>
                     <span className="text-[var(--text-tertiary)]"> · </span>
                     <span className="text-[var(--text-secondary)]">
-                      Due {format(new Date(`${task.due_date}T12:00:00`), "MMM d, yyyy")}
+                      Due {formatBusinessDateAtNoon(task.due_date)}
                     </span>
                   </>
                 )}

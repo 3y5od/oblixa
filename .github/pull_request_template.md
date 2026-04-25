@@ -10,7 +10,7 @@
 
 ## Refinement
 
-PRs that touch **dashboard layout, primary navigation, command palette, workspace product mode, or home composition** should align with [docs/refinement.md](../docs/refinement.md):
+PRs that touch **dashboard layout, primary navigation, command palette, workspace product mode, or home composition** should align with product-surface policy:
 
 - Prefer hide/gate over deleting schemas, API routes, migrations, or advanced code paths.
 - Keep nav, command palette, dashboard composition, and outbound surfaces workspace-mode aware.

@@ -25,6 +25,20 @@ export async function createContractsSavedView(formData: FormData) {
   await createSavedView(formData, "contracts");
 }
 
+/** `useActionState` wrapper — returns structured feedback without silent failure (§21–22). */
+export type SavedViewCreateFeedbackState = { error?: string; ok?: boolean };
+
+export async function createContractsSavedViewWithFeedback(
+  _prev: SavedViewCreateFeedbackState | undefined,
+  formData: FormData
+): Promise<SavedViewCreateFeedbackState> {
+  const result = await createSavedView(formData, "contracts");
+  if (result && "error" in result && result.error) {
+    return { error: result.error };
+  }
+  return { ok: true };
+}
+
 export async function createSavedView(formData: FormData, fallbackType?: SavedViewType) {
   const supabase = await createClient();
   const admin = await createAdminClient();
@@ -40,6 +54,11 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
   const owner = trimOrNull(formData.get("owner"));
   const region = trimOrNull(formData.get("region"));
   const deadline = trimOrNull(formData.get("deadline"));
+  const sort = trimOrNull(formData.get("sort"));
+  const exceptions = trimOrNull(formData.get("exceptions"));
+  const review = trimOrNull(formData.get("review"));
+  const data_quality = trimOrNull(formData.get("data_quality"));
+  const evidence = trimOrNull(formData.get("evidence"));
   const mine = trimOrNull(formData.get("mine"));
   const team = trimOrNull(formData.get("team"));
   const viewTypeRaw = trimOrNull(formData.get("viewType"));
@@ -74,6 +93,11 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
         owner,
         region,
         deadline,
+        sort,
+        exceptions,
+        review,
+        data_quality,
+        evidence,
         mine,
         team,
         pinned,

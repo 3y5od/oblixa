@@ -4,3 +4,6 @@
 # JSON-LD only: serialized with serializeJsonLdForInlineScript (no raw user HTML).
 src/components/landing/landing-json-ld.tsx
 src/components/landing/legal-page-json-ld.tsx
+# V9 static tests: intentionally scan source for the string "dangerouslySetInnerHTML" (forbidden-API guard).
+src/lib/v9-dashboard-no-dangerous-html.v9.test.ts
+src/lib/v9-user-generated-content-surfaces.v9.test.ts

@@ -44,7 +44,7 @@ export function OwnerAssignmentForm({
 
   return (
     <div className="mt-3">
-      <label className="block text-xs font-medium text-zinc-500 mb-1">Reassign owner</label>
+      <label className="block text-xs font-medium text-[var(--text-tertiary)] mb-1">Reassign owner</label>
       <select
         defaultValue={currentOwnerId ?? ""}
         disabled={isPending || members.length === 0}
@@ -58,7 +58,7 @@ export function OwnerAssignmentForm({
           </option>
         ))}
       </select>
-      <label className="mt-3 block text-xs font-medium text-zinc-500 mb-1">
+      <label className="mt-3 block text-xs font-medium text-[var(--text-tertiary)] mb-1">
         Secondary stakeholder
       </label>
       <select
@@ -75,7 +75,7 @@ export function OwnerAssignmentForm({
         ))}
       </select>
       {isPending && (
-        <p className="mt-1 text-xs text-zinc-500">Updating…</p>
+        <p className="mt-1 text-xs text-[var(--text-tertiary)]">Updating…</p>
       )}
     </div>
   );

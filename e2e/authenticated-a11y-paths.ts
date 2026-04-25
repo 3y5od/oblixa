@@ -39,7 +39,7 @@ export function getAuthenticatedA11yAndViewportPaths(): string[] {
   return paths;
 }
 
-/** docs/refinement.md §10.4 — admin-deep utility surfaces (Axe matrix may skip 403). */
+/** product-surface policy §10.4 — admin-deep utility surfaces (Axe matrix may skip 403). */
 export const REFINEMENT_S10_4_UTILITY_PATHS = [...GENERATED_AUTHENTICATED_UTILITY_A11Y_PATHS] as const;
 
 /** Excluded from 390×844 document-width check — wide client-only graph may scroll inside shell. */

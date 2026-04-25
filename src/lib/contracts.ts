@@ -20,11 +20,12 @@ export const STATUS_LABELS: Record<ContractStatus, string> = {
 
 /** Tailwind utility fragments for contract header `ui-badge` chips */
 export const STATUS_STYLES: Record<ContractStatus, string> = {
-  draft: "bg-zinc-100 text-zinc-700",
+  draft: "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]",
   pending_review: "bg-amber-100 text-amber-900",
   active: "bg-emerald-100 text-emerald-900",
   expired: "bg-rose-100 text-rose-900",
-  terminated: "bg-zinc-200/90 text-zinc-600",
+  terminated:
+    "bg-[color:color-mix(in_oklab,var(--surface-inset)_88%,var(--canvas))] text-[var(--text-tertiary)]",
 };
 
 /**

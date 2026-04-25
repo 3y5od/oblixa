@@ -14,7 +14,11 @@ function MetricCardSkeleton() {
 
 export default function ContractDetailLoading() {
   return (
-    <div className="ui-page-stack" aria-hidden>
+    <>
+      <div className="sr-only" role="status" aria-live="polite">
+        Loading contract. Summary, dates, and review panels will appear shortly.
+      </div>
+      <div className="ui-page-stack" aria-hidden aria-busy="true">
       <div className="flex items-center gap-4">
         <div className="ui-skeleton h-8 w-8 rounded-lg" />
         <div className="min-w-0 flex-1 space-y-2">
@@ -28,7 +32,7 @@ export default function ContractDetailLoading() {
         ))}
       </div>
       <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
-        <div className="border-b border-zinc-200/80 bg-zinc-50/60 px-4 py-3">
+        <div className="ui-surface-tint border-b border-[var(--border-subtle)] px-4 py-3">
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="ui-skeleton h-8 w-20 rounded-full" />
@@ -40,7 +44,7 @@ export default function ContractDetailLoading() {
       <div className="grid grid-cols-1 gap-7 md:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
-            <div className="border-b border-zinc-200/80 bg-zinc-50/60 px-6 py-4">
+            <div className="ui-surface-tint border-b border-[var(--border-subtle)] px-6 py-4">
               <div className="ui-skeleton h-5 w-40 rounded" />
             </div>
             <div className="space-y-4 p-6">
@@ -64,5 +68,6 @@ export default function ContractDetailLoading() {
         </div>
       </div>
     </div>
+    </>
   );
 }

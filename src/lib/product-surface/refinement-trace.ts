@@ -1,10 +1,10 @@
 /**
- * Traceability for docs/refinement.md — maps major spec sections to implementation anchors.
+ * Traceability for product-surface policy — maps major spec sections to implementation anchors.
  * Keep in sync when moving product-surface entry points; E2E header in e2e/authenticated.spec.ts mirrors §22.
  */
 
 /**
- * docs/refinement.md §4.2 — every mechanism is implemented somewhere in the tree below.
+ * product-surface policy §4.2 — every mechanism is implemented somewhere in the tree below.
  * - Nav/cmd-K: `nav-visibility.ts`, `resolver.ts`, sidebar, command palette
  * - Advanced mode: `routes.ts`, segment `layout.tsx` + `assertWorkspaceModeAtLeast`
  * - Role: `navigation.ts` `canAccessItem`, `advanced_nav_roles`, optional `assurance_nav_roles` in org JSON
@@ -17,7 +17,7 @@ export const REFINEMENT_CONTAINMENT_MECHANISMS = [
   "contextual_entry_ctas",
 ] as const;
 
-/** docs/refinement.md §3 — release PR checklist when touching dashboard or nav. */
+/** product-surface policy §3 — release PR checklist when touching dashboard or nav. */
 export const REFINEMENT_OBJECTIVES = [
   "Clearer primary surface",
   "Progressive disclosure",
@@ -39,7 +39,7 @@ export const REFINEMENT_V7_TRACE_STRINGS = [
   "Audit + diagnostics coverage for product-surface changes",
 ] as const;
 
-/** docs/refinement.md §5 Layer 2 — Advanced operations (mode + flags + optional module hides). */
+/** product-surface policy §5 Layer 2 — Advanced operations (mode + flags + optional module hides). */
 export const REFINEMENT_LAYER2_ANCHORS = [
   "src/lib/navigation.ts (Decisions, Campaigns, Programs, Relationship Workspaces)",
   "src/app/(dashboard)/decisions/",
@@ -57,7 +57,7 @@ export const REFINEMENT_LAYER2_ANCHORS = [
   "src/app/(dashboard)/campaigns/compare/page.tsx",
 ] as const;
 
-/** docs/refinement.md §5 Layer 3 — Assurance (Assurance mode + flags) + outcome intelligence. */
+/** product-surface policy §5 Layer 3 — Assurance (Assurance mode + flags) + outcome intelligence. */
 export const REFINEMENT_LAYER3_ANCHORS = [
   "src/app/(dashboard)/assurance/",
   "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
@@ -67,7 +67,7 @@ export const REFINEMENT_LAYER3_ANCHORS = [
 ] as const;
 
 /**
- * docs/refinement.md §14 — contextual entry (advanced flows reachable from Core objects).
+ * product-surface policy §14 — contextual entry (advanced flows reachable from Core objects).
  * Each line: example → primary implementation file(s).
  */
 export const REFINEMENT_CONTEXTUAL_ENTRY_ANCHORS = [
@@ -80,13 +80,13 @@ export const REFINEMENT_CONTEXTUAL_ENTRY_ANCHORS = [
 ] as const;
 
 export const REFINEMENT_TRACE = {
-  "§1": ["docs/refinement.md", "src/lib/product-surface/refinement-trace.ts"],
+  "§1": ["src/lib/product-surface/refinement-trace.ts"],
   "§2": [
     "src/components/landing/",
     "src/app/(dashboard)/dashboard/page.tsx",
     "scripts/audit-marketing-identity.mjs",
   ],
-  "§3": ["docs/refinement.md", "src/lib/navigation.ts"],
+  "§3": ["src/lib/navigation.ts"],
   "§4-6": ["src/lib/product-surface/context.ts", "src/lib/product-surface/routes.ts"],
   "§7-9": ["src/lib/navigation.ts", "src/components/layout/sidebar.tsx"],
   "§8": [
@@ -118,10 +118,13 @@ export const REFINEMENT_TRACE = {
   "§19": ["src/proxy.ts", "src/app/api/**/route.ts"],
   "§20": [
     "src/components/layout/command-palette.tsx",
+    "src/components/layout/header.tsx",
     "src/lib/product-surface/resolver.ts",
     "src/app/(dashboard)/contracts/page.tsx",
+    "e2e/authenticated.spec.ts",
+    "e2e/v9-core-smoke.spec.ts",
     "scripts/audit-nav-primary-vs-metadata.mjs (nav label vs page title heuristic)",
-    "Global / header search: not implemented — add mode-gated results + E2E when shipped (AGENTS.md)",
+    "Global / header search dispatches into the command palette bridge with mode-gated results",
   ],
   "§21": [
     "src/app/(dashboard)/settings/product/page.tsx",

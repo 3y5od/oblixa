@@ -33,6 +33,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           <label htmlFor="fullName" className="ui-label">
             Full name
           </label>
+          <p className="ui-support-copy mb-2 mt-1 text-xs">Used across workspace views, mentions, and ownership labels.</p>
           <input
             id="fullName"
             name="fullName"
@@ -47,6 +48,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           <label htmlFor="profile-email-readonly" className="ui-label">
             Email
           </label>
+          <p className="ui-support-copy mb-2 mt-1 text-xs">Workspace login identity. This value is read-only here.</p>
           <input
             id="profile-email-readonly"
             type="email"
@@ -54,7 +56,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             value={email}
             autoComplete="email"
             aria-readonly="true"
-            className="ui-input mt-1 w-full min-w-0 cursor-default border-zinc-200 bg-zinc-50 text-zinc-500"
+            className="ui-input mt-1 w-full min-w-0 cursor-default border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-tertiary)]"
           />
         </div>
       </div>

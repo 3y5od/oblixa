@@ -88,27 +88,23 @@ export default async function CampaignsPage({
         <div>
           <p className="ui-eyebrow">Records</p>
           <h1 className="ui-display-title mt-2">Campaign Queue</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">
+          <p className="ui-page-lead mt-2 max-w-2xl">
             Campaign state, processed volume, simulation readiness, and next action.
             {statusFilter || typeFilter ? (
               <span className="mt-2 block text-xs text-[var(--text-secondary)]">
                 {statusFilter && statusOk ? (
                   <>
-                    Status <code className="rounded bg-zinc-100 px-1">{statusFilter}</code>
+                    Status <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{statusFilter}</code>
                     {!typeFilter ? ". " : " · "}
                   </>
                 ) : null}
-                {statusFilter && !statusOk ? (
-                  <span className="text-rose-700">Unknown status filter (ignored). </span>
-                ) : null}
+                {statusFilter && !statusOk ? <span className="text-[var(--danger-ink)]">Unknown status filter (ignored). </span> : null}
                 {typeFilter && typeOk ? (
                   <>
-                    Type <code className="rounded bg-zinc-100 px-1">{typeFilter}</code>.{" "}
+                    Type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
                   </>
                 ) : null}
-                {typeFilter && !typeOk ? (
-                  <span className="text-rose-700">Unknown campaign type filter (ignored). </span>
-                ) : null}
+                {typeFilter && !typeOk ? <span className="text-[var(--danger-ink)]">Unknown campaign type filter (ignored). </span> : null}
                 <Link href="/campaigns" className="ui-link">
                   Clear filters
                 </Link>
@@ -129,8 +125,8 @@ export default async function CampaignsPage({
       <section className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Rollout</p>
-          <h2 className="ui-section-title mt-2 text-xl">Campaign metrics</h2>
-          <p className="ui-muted-tight mt-1 text-[12px]">
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Campaign metrics</h2>
+          <p className="ui-section-lead mt-2">
             Active rollout state, paused work, and contracts processed under the current filters.
           </p>
         </div>
@@ -172,21 +168,21 @@ export default async function CampaignsPage({
         <section id="simulations" className="scroll-mt-8 ui-page-shell space-y-6">
           <div>
             <p className="ui-eyebrow">Simulation</p>
-            <h2 className="ui-section-title mt-1 text-xl">Simulation Studio</h2>
-            <p className="ui-muted-tight mt-1 text-[13px]">Recent simulation runs and promotion readiness.</p>
+            <h2 className="ui-page-title mt-1 text-[1.8rem]">Simulation studio</h2>
+            <p className="ui-section-lead mt-2">Recent simulation runs and promotion readiness.</p>
           </div>
           <details className="ui-soft-details text-sm text-[var(--text-secondary)]">
             <summary className="cursor-pointer font-medium text-[var(--text-primary)]">Simulation types</summary>
             <ul className="mt-3 space-y-2 text-xs">
               {(Object.keys(SIMULATION_TYPE_FOCUS) as SimulationType[]).map((k) => (
                 <li key={k}>
-                  <code className="rounded bg-zinc-100 px-1">{k}</code> — {SIMULATION_TYPE_FOCUS[k]}
+                  <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{k}</code> — {SIMULATION_TYPE_FOCUS[k]}
                 </li>
               ))}
             </ul>
           </details>
           <div className="grid gap-4 lg:grid-cols-2">
-            <article className="ui-card p-5">
+            <article className="ui-page-shell p-5">
               <p className="ui-label-caps">Saved simulations</p>
               <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-[var(--text-secondary)]">
                 {(simulations ?? []).length === 0 ? (
@@ -209,7 +205,7 @@ export default async function CampaignsPage({
                 )}
               </ul>
             </article>
-            <article className="ui-card p-5">
+            <article className="ui-page-shell p-5">
               <p className="ui-label-caps">Recent runs</p>
               <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm text-[var(--text-secondary)]">
                 {(simRuns ?? []).length === 0 ? (
@@ -257,13 +253,13 @@ export default async function CampaignsPage({
         <section id="simulations" className="scroll-mt-8">
           <h2 className="ui-section-title text-lg">Simulations</h2>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Enable <code className="rounded bg-zinc-100 px-1">ENABLE_V5_SIMULATION_AND_INTELLIGENCE</code> to use the
-            change simulation studio and promotion tools.
+            Change simulation studio and promotion tools are disabled for this workspace. Ask an administrator to
+            enable simulation and intelligence features.
           </p>
         </section>
       )}
 
-      <div className="ui-card overflow-hidden">
+      <div className="ui-table-shell">
         <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
           <thead className="ui-table-header">
             <tr>

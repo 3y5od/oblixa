@@ -130,8 +130,8 @@ export function DecisionWorkspacePanel({
 
       <div className="mt-4 space-y-4">
         <div className="border-b border-[var(--border-subtle)] pb-4">
-          <p className="text-xs font-semibold text-zinc-600">Workspace details</p>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Workspace details</p>
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Decision type
             <select
               className="ui-input-compact mt-1 w-full text-xs"
@@ -146,7 +146,7 @@ export function DecisionWorkspacePanel({
               ))}
             </select>
           </label>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Owner user id
             <input
               className="ui-input-compact mt-1 w-full font-mono text-xs"
@@ -155,7 +155,7 @@ export function DecisionWorkspacePanel({
               disabled={closed || busy !== null}
             />
           </label>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Due date
             <input
               type="datetime-local"
@@ -165,7 +165,7 @@ export function DecisionWorkspacePanel({
               disabled={closed || busy !== null}
             />
           </label>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Rationale (markdown)
             <textarea
               className="ui-input-compact mt-1 min-h-[64px] w-full text-xs"
@@ -174,7 +174,7 @@ export function DecisionWorkspacePanel({
               disabled={closed || busy !== null}
             />
           </label>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Required inputs (JSON object)
             <textarea
               className="ui-input-compact mt-1 min-h-[56px] w-full font-mono text-[11px]"
@@ -183,7 +183,7 @@ export function DecisionWorkspacePanel({
               disabled={closed || busy !== null}
             />
           </label>
-          <label className="mt-2 block text-[11px] font-medium text-zinc-500">
+          <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Approval path (JSON array)
             <textarea
               className="ui-input-compact mt-1 min-h-[56px] w-full font-mono text-[11px]"
@@ -249,7 +249,7 @@ export function DecisionWorkspacePanel({
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-zinc-600">Add recommendation</p>
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Add recommendation</p>
           <textarea
             className="ui-input-compact mt-2 min-h-[72px] w-full"
             placeholder="Recommendation text (required)"
@@ -277,8 +277,8 @@ export function DecisionWorkspacePanel({
           </button>
         </div>
 
-        <div className="border-t border-zinc-100 pt-4">
-          <p className="text-xs font-semibold text-zinc-600">Add stakeholder (user id)</p>
+        <div className="border-t border-[var(--border-subtle)] pt-4">
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Add stakeholder (user id)</p>
           <input
             className="ui-input-compact mt-2 w-full"
             placeholder="UUID of workspace member"
@@ -305,7 +305,7 @@ export function DecisionWorkspacePanel({
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-zinc-100 pt-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
           <button
             type="button"
             className="ui-btn-secondary px-3 py-2 text-xs"
@@ -336,10 +336,10 @@ export function DecisionWorkspacePanel({
             {busy === "close" ? "…" : "Close decision"}
           </button>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 text-xs text-zinc-600">
+            <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
               <span className="whitespace-nowrap">Packet type</span>
               <select
-                className="rounded-lg border border-zinc-200 bg-surface px-2 py-1.5 text-zinc-800"
+                className="rounded-lg border border-[var(--border-subtle)] bg-surface px-2 py-1.5 text-[var(--text-primary)]"
                 value={exportPacketType}
                 disabled={closed || busy !== null}
                 onChange={(e) => {

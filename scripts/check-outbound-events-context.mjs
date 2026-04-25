@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §18 — callers of enqueueOutboundEvent must either enforce tier in-file
+ * product-surface policy §18 — callers of enqueueOutboundEvent must either enforce tier in-file
  * or route through `src/lib/integrations/events.ts` (getV6OrgSettingsJson + workspace tiers).
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";

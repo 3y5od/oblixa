@@ -1,4 +1,4 @@
-docs/refinement.md §22 — manual acceptance (record pass/fail + date in release notes)
+product-surface policy §22 — manual acceptance (record pass/fail + date in release notes)
 
 22.1 Product identity
   - Ask a first-time tester (or internal volunteer) to describe the product in one sentence after 10 minutes on Core.
@@ -21,7 +21,7 @@ docs/refinement.md §22 — manual acceptance (record pass/fail + date in releas
   - Run: npm run check:v8-suite (href audit, vocabulary, route-inventory drift, plan IA, refinement API coverage).
 
 22.7 Quality / polish
-  - Walk Core routes in docs/refinement.md §7.1 order; npm run audit:ui-operational:strict
+  - Walk Core routes in product-surface policy §7.1 order; npm run audit:ui-operational:strict
 
 Optional CI-deep E2E (pre-release)
   - Set in .env.local (see .env.example): E2E_ADVANCED_EMAIL/PASSWORD, E2E_ASSURANCE_EMAIL/PASSWORD, E2E_CORE_NON_ADMIN_EMAIL/PASSWORD.

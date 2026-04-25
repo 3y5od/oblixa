@@ -91,7 +91,7 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-zinc-600">Contract</label>
+        <label className="block text-xs font-medium text-[var(--text-secondary)]">Contract</label>
         <select
           className="ui-input text-sm"
           value={contractId}
@@ -106,7 +106,7 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-zinc-600">Optional draft registry JSON</label>
+        <label className="block text-xs font-medium text-[var(--text-secondary)]">Optional draft registry JSON</label>
         <textarea
           value={draftJson}
           onChange={(e) => setDraftJson(e.target.value)}
@@ -115,10 +115,10 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
           className="ui-input font-mono text-[11px]"
         />
         {localDraftCheck?.kind === "error" ? (
-          <p className="text-xs text-rose-600">{localDraftCheck.message}</p>
+          <p className="ui-alert-error text-xs">{localDraftCheck.message}</p>
         ) : null}
         {localDraftCheck?.kind === "ok" && localDraftCheck.warnings.length > 0 ? (
-          <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3 text-xs text-amber-950">
+          <div className="ui-alert-warning p-3 text-xs">
             <p className="font-semibold">Draft warnings (before run)</p>
             <ul className="mt-1 list-inside list-disc space-y-0.5">
               {localDraftCheck.warnings.map((w) => (
@@ -140,8 +140,8 @@ export function PolicySimulationPanel({ contracts }: { contracts: PolicySimulati
 
       {responseText ? (
         <div className="space-y-1">
-          <p className="text-xs font-medium text-zinc-600">Response</p>
-          <pre className="max-h-80 overflow-auto rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-[11px] text-zinc-800">
+          <p className="text-xs font-medium text-[var(--text-secondary)]">Response</p>
+          <pre className="ui-soft-details max-h-80 overflow-auto p-3 text-[11px] text-[var(--text-primary)]">
             {responseText}
           </pre>
         </div>

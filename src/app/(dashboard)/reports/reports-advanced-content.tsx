@@ -165,7 +165,7 @@ export async function ReportsAdvancedContent(props: {
         <div>
           <p className="ui-eyebrow">Control-room reports</p>
           <h1 className="ui-display-title mt-2">Operations reports</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">Risk, capacity, and intervention effectiveness.</p>
+          <p className="ui-page-lead mt-2 max-w-2xl">Risk, capacity, and intervention effectiveness.</p>
         </div>
         <Link href="/contracts/reports" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           View report packs
@@ -176,8 +176,8 @@ export async function ReportsAdvancedContent(props: {
         <section id="portfolio-signals" className="scroll-mt-8 space-y-3">
           <div>
             <p className="ui-eyebrow">Portfolio</p>
-            <h2 className="ui-section-title mt-2 text-xl">Execution signals</h2>
-            <p className="ui-muted-tight mt-1 text-[13px]">Grounded counts from live execution data.</p>
+            <h2 className="ui-page-title mt-2 text-[1.8rem]">Execution signals</h2>
+            <p className="ui-section-lead mt-2">Grounded counts from live execution data.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {signalSummary.map((s) => (
@@ -197,7 +197,7 @@ export async function ReportsAdvancedContent(props: {
           </div>
         </section>
       ) : (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-[var(--text-tertiary)]">
           Portfolio analytics are hidden for this workspace configuration.
         </p>
       )}
@@ -238,7 +238,6 @@ export async function ReportsAdvancedContent(props: {
         <ReportsV5SignalQualitySection
           metricsDate={signalQualityDebug.metrics_date}
           rows={signalQualityRows}
-          rawJson={signalQualityDebug.v5_signal_quality_json}
         />
       ) : null}
 

@@ -41,19 +41,19 @@ export function FindingActions({ findingId }: { findingId: string }) {
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-800">Analyst note</p>
+    <div className="mt-4 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-primary)]">Analyst note</p>
       <textarea
-        className="mt-2 w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="mt-2 w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         rows={2}
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Optional resolution note"
       />
-      <label className="mt-2 block text-xs text-zinc-600">
+      <label className="mt-2 block text-xs text-[var(--text-secondary)]">
         Signal quality (optional — used for calibration and reporting)
         <select
-          className="mt-1 block w-full max-w-md rounded border border-zinc-200 px-2 py-1 text-sm"
+          className="mt-1 block w-full max-w-md rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
           value={signalFeedback}
           onChange={(e) => setSignalFeedback(e.target.value)}
         >
@@ -67,7 +67,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           onClick={() => void submit("resolve")}
         >
           {pending ? "Working…" : "Mark resolved"}
@@ -75,7 +75,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-800 disabled:opacity-50"
+          className="rounded-lg border border-[var(--border-strong)] px-3 py-1.5 text-xs text-[var(--text-primary)] disabled:opacity-50"
           onClick={() => void submit("dismiss")}
         >
           Dismiss

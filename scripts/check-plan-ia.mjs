@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §4.4 — plan billing must not drive IA (navigation / mode / landing).
+ * product-surface policy §4.4 — plan billing must not drive IA (navigation / mode / landing).
  * Fails if orgHasActivePlan or isPlanEnforcementEnabled appears in product-surface or navigation.
  */
 import { execSync } from "node:child_process";

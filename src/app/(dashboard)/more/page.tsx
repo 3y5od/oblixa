@@ -20,11 +20,10 @@ import {
   type WorkflowArea,
   type WorkspaceRole,
 } from "@/lib/navigation";
-import { MORE_PAGE_JUMP_LINKS, MORE_TOOLS_GROUP_ORDER } from "@/lib/navigation/more-tools-model";
+import { MORE_TOOLS_GROUP_ORDER } from "@/lib/navigation/more-tools-model";
 import { EmptyState } from "@/components/ui/empty-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
-import { isFeatureEnabled } from "@/lib/feature-flags";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import { isHrefEligibleForProductSurface } from "@/lib/product-surface/href-eligibility";
 import {
@@ -33,19 +32,26 @@ import {
 } from "@/lib/product-surface/nav-visibility";
 import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 import { isCmdkHrefAllowed } from "@/lib/product-surface/resolver";
+import {
+  listMoreJumpDestinations,
+  resolveMorePageChrome,
+  resolveWorkflowDestination,
+  workflowDestinationForHref,
+  type WorkflowDestinationKey,
+} from "@/lib/product-surface/workflow-destinations";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 
-const JUMP_LINK_ICONS: Record<(typeof MORE_PAGE_JUMP_LINKS)[number]["href"], LucideIcon> = {
-  "/contracts/programs": LayoutGrid,
-  "/relationship-workspaces": GitBranch,
-  "/contracts/maintenance": Wrench,
-  "/settings": Settings,
-  "/settings/health": HeartPulse,
-  "/assurance": Shield,
-  "/assurance/program-evolution": Sparkles,
-  "/assurance/control-policies": ShieldCheck,
-  "/reports#outcome-intelligence": TrendingUp,
-  "/reports#assurance-analytics": BarChart3,
+const JUMP_LINK_ICONS: Partial<Record<WorkflowDestinationKey, LucideIcon>> = {
+  programs: LayoutGrid,
+  relationships: GitBranch,
+  advanced_analytics: BarChart3,
+  maintenance: Wrench,
+  system_health: HeartPulse,
+  assurance: Shield,
+  program_evolution: Sparkles,
+  control_policies: ShieldCheck,
+  outcome_intelligence: TrendingUp,
+  assurance_analytics: BarChart3,
 };
 
 export default async function MoreToolsPage(props: {
@@ -53,23 +59,19 @@ export default async function MoreToolsPage(props: {
 }) {
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
-  const v6Any =
-    isFeatureEnabled("v6AssuranceCore") ||
-    isFeatureEnabled("v6ControlPolicies") ||
-    isFeatureEnabled("v6AdaptivePlaybooks") ||
-    isFeatureEnabled("v6ReviewBoards") ||
-    isFeatureEnabled("v6Autopilot") ||
-    isFeatureEnabled("v6Segments");
   const role = (ctx.role as WorkspaceRole | undefined) ?? "viewer";
   const productSurface = await loadProductSurfaceContext(ctx.admin, ctx.orgId, role);
   const navInput = toNavSurfaceInput(productSurface);
+  const pageChrome = resolveMorePageChrome(productSurface);
   const params = await props.searchParams;
   const query = String(params.q ?? "").trim().toLowerCase();
   const selectedSection = (params.section ?? "").trim() as WorkflowArea | "";
 
-  const jumpLinks = MORE_PAGE_JUMP_LINKS.filter((link) =>
-    isPathAllowedForWorkspaceMode(link.href.split("#")[0] ?? link.href, productSurface.mode)
-  )
+  const jumpLinks = listMoreJumpDestinations(productSurface)
+    .filter((link) => {
+      const path = link.href.split("#")[0] ?? link.href;
+      return isPathAllowedForWorkspaceMode(path, productSurface.mode);
+    })
     .filter((link) => {
       const path = link.href.split("#")[0] ?? link.href;
       if (navInput.searchScope !== "core_only") return true;
@@ -81,6 +83,7 @@ export default async function MoreToolsPage(props: {
     const items = NAV_ITEMS.filter(
       (item) =>
         getWorkflowAreaForNavItem(item) === group &&
+        item.href !== "/more" &&
         isNavItemVisibleForSurface(item, navInput) &&
         isCmdkHrefAllowed(item.href, navInput)
     ).filter((item) => {
@@ -88,6 +91,15 @@ export default async function MoreToolsPage(props: {
       if (!query) return true;
       const haystack = `${item.name} ${item.description} ${item.href}`.toLowerCase();
       return haystack.includes(query);
+    }).map((item) => {
+      const def = workflowDestinationForHref(item.href);
+      const destination = def ? resolveWorkflowDestination(productSurface, def.key) : null;
+      if (!destination?.visible) return item;
+      return {
+        ...item,
+        name: destination.copy.label,
+        description: destination.copy.description,
+      };
     });
     return {
       key: group,
@@ -97,26 +109,25 @@ export default async function MoreToolsPage(props: {
   }).filter((group) => group.items.length > 0);
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <div className="min-w-0 flex-1">
-          <p className="ui-eyebrow">Utilities</p>
-          <h1 className="ui-display-title mt-2">Tools index</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl text-[15px]">
-            Secondary destinations and workspace tools. Primary work lives under Home, Contracts, Review,
-            Work, and Reports.
+          <p className="ui-eyebrow">{pageChrome.eyebrow}</p>
+          <h1 className="ui-display-title mt-2">{pageChrome.title}</h1>
+          <p className="ui-page-lead mt-3 max-w-2xl">
+            {pageChrome.lead}
           </p>
         </div>
         <form
           action="/more"
           method="get"
-          className="flex w-full flex-col gap-3 sm:max-w-xl sm:flex-row sm:flex-wrap sm:items-center"
+          className="ui-page-actions flex w-full flex-col gap-3 sm:max-w-xl sm:flex-row sm:flex-wrap sm:items-center"
         >
           <input
             type="search"
             name="q"
             defaultValue={params.q ?? ""}
-            placeholder="Search tools, pages, and workflows"
+            placeholder={pageChrome.searchPlaceholder}
             className="ui-input-compact w-full sm:min-w-[16rem] sm:flex-1"
           />
           <select name="section" defaultValue={selectedSection} className="ui-input-compact sm:w-52">
@@ -128,21 +139,21 @@ export default async function MoreToolsPage(props: {
             <option value="workspace">Workspace</option>
           </select>
           <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-            Apply
+            Apply filters
           </button>
           {(query || selectedSection) && (
             <Link href="/more" className="ui-btn-ghost px-3 py-2 text-[12px]">
-              Clear
+              Clear filters
             </Link>
           )}
         </form>
       </header>
 
-      {v6Any && jumpLinks.length > 0 ? (
-        <section data-testid={surfaceTestIds.moreJumpPoints} className="ui-page-shell p-5">
+      {jumpLinks.length > 0 ? (
+        <section data-testid={surfaceTestIds.moreJumpPoints} className="ui-page-shell">
           <p className="ui-eyebrow">Shortcuts</p>
-          <h2 className="ui-section-title mt-1 text-xl">Jump points</h2>
-          <p className="ui-muted-tight mt-1 max-w-3xl text-[13px]">
+          <h2 className="ui-page-title mt-1 text-[1.8rem]">{pageChrome.shortcutHeading}</h2>
+          <p className="ui-section-lead mt-2 max-w-3xl">
             Contextual shortcuts for your workspace mode.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -151,10 +162,9 @@ export default async function MoreToolsPage(props: {
                 key={item.href}
                 href={item.href}
                 eyebrow="Shortcut"
-                title={item.title}
-                hint={item.hint}
-                actionLabel={item.actionLabel}
-                icon={JUMP_LINK_ICONS[item.href]}
+                title={item.copy.label}
+                hint={item.copy.description}
+                icon={JUMP_LINK_ICONS[item.key] ?? Settings}
                 tone="neutral"
               />
             ))}
@@ -170,8 +180,8 @@ export default async function MoreToolsPage(props: {
       ) : (
         <div className="grid gap-6 xl:grid-cols-3">
           {groups.map((group) => (
-            <section key={group.key} className="ui-card overflow-hidden">
-              <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4">
+            <section key={group.key} className="ui-page-shell overflow-hidden">
+              <div className="ui-surface-tint px-5 py-4">
                 <h2 className="ui-section-title">{group.label}</h2>
               </div>
               <ul className="divide-y divide-[var(--border-subtle)]">

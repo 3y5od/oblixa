@@ -20,6 +20,8 @@ function firstLinkedContractId(linked: unknown): string | null {
   return null;
 }
 const STATUSES = ["open", "in_review", "resolved", "dismissed"] as const;
+const FILTER_IDLE_CLASS = "ui-filter-pill";
+const FILTER_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
 
 export default async function AssuranceFindingsPage(props: {
   searchParams: Promise<{ severity?: string; status?: string; findingType?: string; segmentId?: string }>;
@@ -166,14 +168,15 @@ export default async function AssuranceFindingsPage(props: {
           variant="compact"
         />
       </div>
-      <p className="ui-muted-tight mt-1 text-[12px]">
+      <p className="ui-support-copy mt-1">
         This view loads at most {rowCap} findings (most recently updated first). Narrow filters may hide older rows; use
         exports or API for full history.
       </p>
       {lastRun ? (
-        <div className="mb-4 rounded-2xl border border-[var(--border-subtle)] bg-zinc-50/90 p-4 shadow-[var(--shadow-1)]">
+        <div className="ui-surface-tint mb-4 rounded-[var(--radius-2xl)] p-4">
           <p className="ui-eyebrow">Latest run</p>
           <p className="ui-section-title mt-1 text-base">Assurance check</p>
+          <p className="ui-support-copy mt-1">Use the latest run as the context layer for why the current queue is elevated, which signals are firing, and which interventions are being suggested.</p>
           <div className="mt-2 flex flex-wrap gap-2" role="list">
             <OperationalMetricChip
               label="Type"
@@ -225,17 +228,17 @@ export default async function AssuranceFindingsPage(props: {
           )}
         </div>
       ) : (
-        <p className="mb-4 text-xs text-zinc-500">
+        <p className="mb-4 text-xs text-[var(--text-tertiary)]">
           <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
             Browse assurance check runs
           </Link>
         </p>
       )}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-zinc-600">Segment (contracts in segment)</p>
+        <p className="text-xs font-medium text-[var(--text-secondary)]">Segment (contracts in segment)</p>
         <div className="flex flex-wrap gap-2 text-xs">
           <Link
-            className={`rounded-full border px-3 py-1 ${!segmentId ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+            className={!segmentId ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
             href={filterHref({ segmentId: null })}
           >
             Any segment
@@ -245,7 +248,7 @@ export default async function AssuranceFindingsPage(props: {
             return (
               <Link
                 key={id}
-                className={`rounded-full border px-3 py-1 ${segmentId === id ? "border-violet-800 bg-violet-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+                className={segmentId === id ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
                 href={filterHref({ segmentId: id })}
               >
                 {(seg as { name: string }).name}
@@ -253,10 +256,10 @@ export default async function AssuranceFindingsPage(props: {
             );
           })}
         </div>
-        <p className="text-xs font-medium text-zinc-600">Severity / status</p>
+        <p className="text-xs font-medium text-[var(--text-secondary)]">Severity / status</p>
         <div className="flex flex-wrap gap-2 text-xs">
           <Link
-            className={`rounded-full border px-3 py-1 ${!severity && !status && !findingType && !segmentId ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+            className={!severity && !status && !findingType && !segmentId ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
             href={base}
           >
             All
@@ -264,7 +267,7 @@ export default async function AssuranceFindingsPage(props: {
           {SEVERITIES.map((s) => (
             <Link
               key={s}
-              className={`rounded-full border px-3 py-1 ${severity === s ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+              className={severity === s ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
               href={filterHref({ severity: s })}
             >
               {s}
@@ -273,17 +276,17 @@ export default async function AssuranceFindingsPage(props: {
           {STATUSES.map((s) => (
             <Link
               key={s}
-              className={`rounded-full border px-3 py-1 ${status === s ? "border-amber-800 bg-amber-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+              className={status === s ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
               href={filterHref({ status: s })}
             >
               {s}
             </Link>
           ))}
         </div>
-        <p className="text-xs font-medium text-zinc-600">Finding type</p>
+        <p className="text-xs font-medium text-[var(--text-secondary)]">Finding type</p>
         <div className="flex flex-wrap gap-2 text-xs">
           <Link
-            className={`rounded-full border px-3 py-1 ${!findingType ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+            className={!findingType ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
             href={filterHref({ findingType: null })}
           >
             Any type
@@ -298,7 +301,7 @@ export default async function AssuranceFindingsPage(props: {
           ].map((t) => (
             <Link
               key={t}
-              className={`rounded-full border px-3 py-1 ${findingType === t ? "border-sky-800 bg-sky-900 text-white" : "border-zinc-200 text-zinc-700"}`}
+              className={findingType === t ? FILTER_ACTIVE_CLASS : FILTER_IDLE_CLASS}
               href={filterHref({ findingType: t })}
             >
               {t.replace(/_/g, " ")}
@@ -306,7 +309,7 @@ export default async function AssuranceFindingsPage(props: {
           ))}
         </div>
       </div>
-      <p className="mt-3 text-xs text-zinc-600">
+      <p className="mt-3 text-xs text-[var(--text-secondary)]">
         <Link className="ui-link" href={apiFindingsJsonHref} target="_blank">
           Matching findings (JSON)
         </Link>
@@ -323,11 +326,11 @@ export default async function AssuranceFindingsPage(props: {
         {(data ?? []).map((row) => {
           const cid = firstLinkedContractId(row.linked_entities_json);
           return (
-            <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-              <Link className="font-medium text-zinc-900 hover:underline" href={`/assurance/findings/${row.id}`}>
+            <li key={row.id} className="ui-support-panel p-3">
+              <Link className="font-medium text-[var(--text-primary)] hover:underline" href={`/assurance/findings/${row.id}`}>
                 {row.title}
               </Link>
-              <p className="mt-1 text-xs text-zinc-600">
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
                 {row.finding_type} · Severity {row.severity} · Confidence {row.confidence} · Status {row.status}
                 {cid ? (
                   <>
@@ -341,7 +344,7 @@ export default async function AssuranceFindingsPage(props: {
             </li>
           );
         })}
-        {(data ?? []).length === 0 ? <li className="text-zinc-500">No findings match.</li> : null}
+        {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No findings match.</li> : null}
       </ul>
     </AssuranceListCard>
   );

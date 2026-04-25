@@ -9,6 +9,7 @@ import {
   updateRenewalCheckpointRenewalStateFormAction,
   updateRenewalCheckpointWorkspaceFormAction,
 } from "@/actions/v4";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractRenewalCheckpoint, RenewalCheckpointStatus } from "@/lib/types";
 
 type CheckpointRow = Pick<
@@ -68,7 +69,7 @@ const STATUS_OPTIONS: { value: RenewalCheckpointStatus; label: string }[] = [
 
 function statusTone(status: RenewalCheckpointStatus): string {
   if (status === "completed") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "skipped") return "border-zinc-200 bg-zinc-100 text-zinc-700";
+  if (status === "skipped") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
@@ -154,12 +155,12 @@ function StructuredWorkspaceForm({
   }
 
   return (
-    <div className="mt-3 space-y-4 border-t border-zinc-100 pt-3">
-      <p className="text-[11px] font-medium text-zinc-600">Renewal workspace (structured)</p>
+    <div className="mt-3 space-y-4 border-t border-[var(--border-subtle)] pt-3">
+      <p className="text-[11px] font-medium text-[var(--text-secondary)]">Renewal workspace (structured)</p>
       <div className="space-y-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Stakeholder checklist</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Stakeholder checklist</p>
         {ws.stakeholder_checklist.map((row, i) => (
-          <div key={i} className="flex flex-wrap items-center gap-2 rounded border border-zinc-100 px-2 py-1.5">
+          <div key={i} className="flex flex-wrap items-center gap-2 rounded border border-[var(--border-subtle)] px-2 py-1.5">
             <input
               className="ui-input w-24 text-[11px]"
               value={row.role}
@@ -172,7 +173,7 @@ function StructuredWorkspaceForm({
               onChange={(e) => setChecklist(i, { item: e.target.value })}
               aria-label={`Stakeholder item ${i + 1}`}
             />
-            <label className="flex items-center gap-1 text-[11px] text-zinc-600">
+            <label className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
               <input type="checkbox" checked={row.done} onChange={(e) => setChecklist(i, { done: e.target.checked })} />
               Done
             </label>
@@ -180,7 +181,7 @@ function StructuredWorkspaceForm({
         ))}
       </div>
       <div className="space-y-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Scenario comparison</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Scenario comparison</p>
         {ws.scenario_comparison.map((row, i) => (
           <div key={i} className="grid gap-1 sm:grid-cols-2">
             <input
@@ -199,7 +200,7 @@ function StructuredWorkspaceForm({
         ))}
       </div>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Commercial notes</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Commercial notes</p>
         <textarea
           className="ui-input mt-1 min-h-[60px] w-full text-[11px]"
           value={ws.commercial_notes}
@@ -207,7 +208,7 @@ function StructuredWorkspaceForm({
         />
       </div>
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Meeting agenda</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Meeting agenda</p>
         {ws.meeting_agenda.map((line, i) => (
           <input
             key={i}
@@ -226,9 +227,9 @@ function StructuredWorkspaceForm({
       >
         Save workspace
       </button>
-      <details className="text-[10px] text-zinc-500">
-        <summary className="cursor-pointer text-zinc-600">Advanced JSON</summary>
-        <pre className="mt-1 max-h-32 overflow-auto rounded bg-zinc-50 p-2 font-mono">{JSON.stringify(ws, null, 2)}</pre>
+      <details className="text-[10px] text-[var(--text-tertiary)]">
+        <summary className="cursor-pointer text-[var(--text-secondary)]">Advanced JSON</summary>
+        <pre className="mt-1 max-h-32 overflow-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 font-mono">{JSON.stringify(ws, null, 2)}</pre>
       </details>
     </div>
   );
@@ -251,7 +252,7 @@ export function RenewalCheckpointsPanel({
     startTransition(async () => {
       const res = await updateRenewalCheckpointStatus({ checkpointId, status });
       if (res && "error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -259,7 +260,7 @@ export function RenewalCheckpointsPanel({
   }
 
   if (checkpoints.length === 0) {
-    return <p className="text-sm text-zinc-500">No playbook checkpoints seeded yet.</p>;
+    return <p className="text-sm text-[var(--text-tertiary)]">No playbook checkpoints seeded yet.</p>;
   }
 
   return (
@@ -267,13 +268,13 @@ export function RenewalCheckpointsPanel({
       {error && <p className="text-sm text-rose-700">{error}</p>}
       <ul className="space-y-3">
         {checkpoints.map((cp) => (
-          <li key={cp.id} className="rounded-xl border border-zinc-200/80 bg-surface p-4">
+          <li key={cp.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-900">{cp.label}</p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">{cp.label}</p>
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   Due {format(new Date(`${cp.due_date}T12:00:00`), "MMM d, yyyy")}
-                  <span className="text-zinc-300"> · </span>
+                  <span className="text-[var(--text-tertiary)]"> · </span>
                   {cp.offset_days}d before renewal
                 </p>
                 {cp.completed_at && (
@@ -305,7 +306,7 @@ export function RenewalCheckpointsPanel({
             {canEdit ? (
               <form action={updateRenewalCheckpointRenewalStateFormAction} className="mt-3 flex flex-wrap items-center gap-2">
                 <input type="hidden" name="checkpointId" value={cp.id} />
-                <label className="text-[11px] text-zinc-600">Renewal state</label>
+                <label className="text-[11px] text-[var(--text-secondary)]">Renewal state</label>
                 <select
                   name="renewalState"
                   defaultValue={cp.renewal_state ?? "not_started"}
@@ -333,9 +334,9 @@ export function RenewalCheckpointsPanel({
               />
             ) : null}
             {canEdit ? (
-              <form action={generateRenewalDecisionPacketFormAction} className="mt-4 space-y-2 border-t border-zinc-100 pt-3">
+              <form action={generateRenewalDecisionPacketFormAction} className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3">
                 <input type="hidden" name="checkpointId" value={cp.id} />
-                <p className="text-[11px] font-medium text-zinc-600">Decision packet</p>
+                <p className="text-[11px] font-medium text-[var(--text-secondary)]">Decision packet</p>
                 <input
                   name="packetSummary"
                   placeholder="Optional summary for the packet"

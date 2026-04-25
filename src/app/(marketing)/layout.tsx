@@ -6,7 +6,7 @@ export const revalidate = 86400;
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-full flex-col bg-[radial-gradient(circle_at_top,var(--canvas-glow),transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--canvas)_94%,white),var(--canvas-strong))]">
+    <div className="ui-public-shell flex min-h-full flex-col">
       <MarketingSiteHeader />
       <div className="flex-1">{children}</div>
       <MarketingSiteFooter />

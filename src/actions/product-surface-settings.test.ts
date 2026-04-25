@@ -55,7 +55,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "advanced");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({ error: "Unauthorized" });
+    expect(result).toEqual({ error: "Only workspace admins can change product experience settings." });
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
@@ -70,7 +70,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "assurance");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({ error: "Unauthorized" });
+    expect(result).toEqual({ error: "Only workspace admins can change product experience settings." });
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
@@ -86,7 +86,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "core");
     fd.set("default_landing_path", "/decisions");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({ error: "Invalid landing path" });
+    expect(result).toEqual({ error: "That default landing path is not available in the selected workspace mode." });
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 

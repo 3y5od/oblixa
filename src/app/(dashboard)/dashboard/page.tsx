@@ -1,5 +1,5 @@
 /**
- * docs/refinement.md §8 — Home layout intent (viewport order is a best-effort match to DOM):
+ * product-surface policy §8 — Home layout intent (viewport order is a best-effort match to DOM):
  * §8.1 six questions: (1) action now → stats + command shortcuts (DashboardUpper); (2) due soon → upcoming dates;
  * (3) blocked → tasks/obligations with blockers; (4) missing → missing fields; (5) changed recently → recent contracts;
  * (6) owned work → My tasks/obligations. Portfolio/Advanced strips above Suspense are mode-gated (§8.3).
@@ -14,7 +14,6 @@ import { DashboardUpper } from "@/components/dashboard/dashboard-upper";
 import { DashboardLower } from "@/components/dashboard/dashboard-lower";
 import { V5ControlRoomStrip } from "@/components/dashboard/v5-control-room-strip";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { isFeatureEnabled } from "@/lib/feature-flags";
 import { fetchControlRoomDashboardData } from "@/lib/v5/control-room-dashboard";
 import { V5TelemetryCompact } from "@/components/dashboard/v5-telemetry-compact";
 import { parseV5SignalQualityForDisplay } from "@/lib/v5/v5-signal-quality-labels";
@@ -27,9 +26,10 @@ import {
 } from "@/components/dashboard/dashboard-v6-operational-blocks";
 import {
   isAssuranceAutomationModuleHidden,
-  isAssuranceModuleHidden,
   loadProductSurfaceContext,
 } from "@/lib/product-surface/context";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
+import type { FeatureFamilyKey } from "@/lib/product-surface/feature-registry";
 import { isHomeBlockAllowed } from "@/lib/product-surface/resolver";
 
 export const metadata = { title: "Dashboard" };
@@ -80,26 +80,29 @@ export default async function DashboardPage(props: {
   const workspaceRole = role as WorkspaceRole;
   const productSurface = await loadProductSurfaceContext(admin, orgId, workspaceRole);
   const isCoreHome = productSurface.mode === "core";
-  const findingsVisible = !isAssuranceModuleHidden(productSurface, "findings");
-  const controlPoliciesVisible = !isAssuranceModuleHidden(productSurface, "control_policies");
-  const scorecardsVisible = !isAssuranceModuleHidden(productSurface, "scorecards");
-  const playbooksVisible = !isAssuranceModuleHidden(productSurface, "playbooks");
-  const automationOpsVisible = !isAssuranceAutomationModuleHidden(productSurface);
-  const reviewBoardsVisible = !isAssuranceModuleHidden(productSurface, "review_boards");
-  const programEvolutionVisible = !isAssuranceModuleHidden(productSurface, "program_evolution");
-  const healthGraphVisible = !isAssuranceModuleHidden(productSurface, "health_graph");
-  const outcomeIntelligenceVisible = !isAssuranceModuleHidden(
-    productSurface,
-    "outcome_intelligence"
-  );
+  const featureAllowed = (featureFamily: FeatureFamilyKey) =>
+    evaluateFeatureEligibility(productSurface, featureFamily, {
+      surfaceType: "page",
+      surfaceIdentifier: featureFamily,
+    }).allowed;
+  const findingsVisible = featureAllowed("findings");
+  const controlPoliciesVisible = featureAllowed("control_policies");
+  const scorecardsVisible = featureAllowed("scorecards");
+  const playbooksVisible = featureAllowed("playbooks");
+  const automationOpsVisible =
+    featureAllowed("autopilot") && !isAssuranceAutomationModuleHidden(productSurface);
+  const reviewBoardsVisible = featureAllowed("review_boards");
+  const programEvolutionVisible = featureAllowed("program_evolution");
+  const healthGraphVisible = featureAllowed("health_graph");
+  const outcomeIntelligenceVisible = featureAllowed("outcome_intelligence");
   const v6 = productSurface.v6;
   const showPortfolioIntel =
     !isCoreHome && (productSurface.mode === "advanced" || productSurface.mode === "assurance");
 
-  const showControlRoomStrip = showPortfolioIntel && isFeatureEnabled("v5ControlRoomUx");
-  const v6AssuranceOn = isFeatureEnabled("v6AssuranceCore");
-  const v6OutcomeOn = isFeatureEnabled("v6OutcomeIntelligence");
-  const intelligenceOn = isFeatureEnabled("v5SimulationAndIntelligence");
+  const showControlRoomStrip = showPortfolioIntel && productSurface.featureFlags.v5ControlRoomUx;
+  const v6AssuranceOn = productSurface.featureFlags.v6AssuranceCore;
+  const v6OutcomeOn = productSurface.featureFlags.v6OutcomeIntelligence;
+  const intelligenceOn = productSurface.featureFlags.v5SimulationAndIntelligence;
 
   const canViewV5Telemetry =
     workspaceRole === "admin" ||

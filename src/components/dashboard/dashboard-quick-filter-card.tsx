@@ -20,17 +20,13 @@ export function DashboardQuickFilterCard(props: {
 
   return (
     <section className="ui-toolbar px-4 py-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="ui-segmented flex flex-wrap items-center gap-2">
         <p className="ui-kicker">Quick filters</p>
         {options.map((option) => (
           <Link
             key={option.id}
             href={option.href}
-            className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
-              quickFilter === option.id
-                ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
-                : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_80%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
-            }`}
+            className={`ui-segmented-item ${quickFilter === option.id ? "ui-segmented-item-active" : ""}`.trim()}
           >
             {option.label}
           </Link>

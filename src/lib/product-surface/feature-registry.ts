@@ -4,6 +4,7 @@ import type {
   WorkspaceProductMode,
 } from "@/lib/product-surface/types";
 import type { WorkspaceRole } from "@/lib/navigation";
+import type { FeatureFlagKey } from "@/lib/feature-flags";
 
 export type FeatureState = "primary" | "secondary" | "hidden" | "admin_only" | "disabled";
 export type FeatureLifecycle =
@@ -76,6 +77,7 @@ export type ProductFeatureDef = {
   owningActionIds?: string[];
   commandVocabulary?: string[];
   searchVocabulary?: string[];
+  featureFlagsAnyOf?: FeatureFlagKey[];
   advancedModuleKey?: AdvancedNavModuleKey;
   assuranceModuleKey?: AssuranceNavModuleKey;
   routePrefixes: string[];
@@ -217,16 +219,17 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     apiPrefixes: ["/workspace", "/policy", "/events", "/integrations", "/command-centers", "/templates"],
   },
 
-  { key: "programs", label: "Programs", ...ADV_DEF, advancedModuleKey: "programs", routePrefixes: ["/contracts/programs"], apiPrefixes: ["/programs"] },
-  { key: "decisions", label: "Decisions", ...ADV_DEF, advancedModuleKey: "decisions", routePrefixes: ["/decisions"], apiPrefixes: ["/decisions"] },
-  { key: "campaigns", label: "Campaigns", ...ADV_DEF, advancedModuleKey: "campaigns", routePrefixes: ["/campaigns"], apiPrefixes: ["/campaigns"] },
-  { key: "relationship_workspaces", label: "Relationship Workspaces", ...ADV_DEF, advancedModuleKey: "relationships", routePrefixes: ["/relationship-workspaces", "/accounts", "/counterparties"], apiPrefixes: ["/accounts", "/counterparties"] },
+  { key: "programs", label: "Programs", ...ADV_DEF, advancedModuleKey: "programs", featureFlagsAnyOf: ["v5PortfolioCampaigns"], routePrefixes: ["/contracts/programs"], apiPrefixes: ["/programs"] },
+  { key: "decisions", label: "Decisions", ...ADV_DEF, advancedModuleKey: "decisions", featureFlagsAnyOf: ["v5DecisionFoundation"], routePrefixes: ["/decisions"], apiPrefixes: ["/decisions"] },
+  { key: "campaigns", label: "Campaigns", ...ADV_DEF, advancedModuleKey: "campaigns", featureFlagsAnyOf: ["v5PortfolioCampaigns"], routePrefixes: ["/campaigns"], apiPrefixes: ["/campaigns"] },
+  { key: "relationship_workspaces", label: "Relationship workspaces", ...ADV_DEF, advancedModuleKey: "relationships", featureFlagsAnyOf: ["v5RelationshipLayer"], routePrefixes: ["/relationship-workspaces", "/accounts", "/counterparties"], apiPrefixes: ["/accounts", "/counterparties"] },
   {
     key: "advanced_analytics",
     label: "Advanced Analytics",
     ...ADV_DEF,
     advancedModuleKey: "analytics",
-    routePrefixes: [],
+    featureFlagsAnyOf: ["v5SimulationAndIntelligence"],
+    routePrefixes: ["/contracts/analytics"],
     apiPrefixes: ["/intelligence", "/capacity", "/simulations"],
   },
   {
@@ -242,6 +245,7 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     label: "Collaboration",
     ...ADV_DEF,
     advancedModuleKey: "collaboration",
+    featureFlagsAnyOf: ["v5ExternalCollaboration"],
     routePrefixes: ["/contracts/collaboration"],
     apiPrefixes: ["/external-actions"],
   },
@@ -250,23 +254,25 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     label: "Compare Views",
     ...ADV_DEF,
     advancedModuleKey: "compare_views",
+    featureFlagsAnyOf: ["v5SimulationAndIntelligence", "v5ControlRoomUx"],
     routePrefixes: ["/decisions/compare", "/campaigns/compare"],
     apiPrefixes: [],
   },
 
-  { key: "control_policies", label: "Control Policies", ...ASM_DEF, assuranceModuleKey: "control_policies", routePrefixes: ["/assurance/control-policies"], apiPrefixes: ["/control-policies"] },
-  { key: "findings", label: "Findings", ...ASM_DEF, assuranceModuleKey: "findings", routePrefixes: ["/assurance", "/assurance/findings"], apiPrefixes: ["/assurance/findings"] },
-  { key: "scorecards", label: "Scorecards", ...ASM_DEF, assuranceModuleKey: "scorecards", routePrefixes: ["/assurance/scorecards"], apiPrefixes: ["/assurance/scorecards"] },
-  { key: "playbooks", label: "Playbooks", ...ASM_DEF, assuranceModuleKey: "playbooks", routePrefixes: ["/assurance/playbooks"], apiPrefixes: ["/playbooks"] },
-  { key: "autopilot", label: "Autopilot", ...ASM_DEF, assuranceModuleKey: "autopilot", routePrefixes: ["/assurance/autopilot"], apiPrefixes: ["/autopilot"] },
-  { key: "review_boards", label: "Review Boards", ...ASM_DEF, assuranceModuleKey: "review_boards", routePrefixes: ["/assurance/review-boards"], apiPrefixes: ["/review-boards"] },
-  { key: "segments", label: "Segments", ...ASM_DEF, assuranceModuleKey: "segments", routePrefixes: ["/assurance/segments"], apiPrefixes: ["/segments"] },
-  { key: "program_evolution", label: "Program Evolution", ...ASM_DEF, assuranceModuleKey: "program_evolution", routePrefixes: ["/assurance/program-evolution"], apiPrefixes: ["/program-evolution"] },
+  { key: "control_policies", label: "Control Policies", ...ASM_DEF, assuranceModuleKey: "control_policies", featureFlagsAnyOf: ["v6ControlPolicies"], routePrefixes: ["/assurance/control-policies"], apiPrefixes: ["/control-policies"] },
+  { key: "findings", label: "Findings", ...ASM_DEF, assuranceModuleKey: "findings", featureFlagsAnyOf: ["v6AssuranceCore"], routePrefixes: ["/assurance", "/assurance/findings"], apiPrefixes: ["/assurance/findings"] },
+  { key: "scorecards", label: "Scorecards", ...ASM_DEF, assuranceModuleKey: "scorecards", featureFlagsAnyOf: ["v6AssuranceCore"], routePrefixes: ["/assurance/scorecards"], apiPrefixes: ["/assurance/scorecards"] },
+  { key: "playbooks", label: "Playbooks", ...ASM_DEF, assuranceModuleKey: "playbooks", featureFlagsAnyOf: ["v6AdaptivePlaybooks"], routePrefixes: ["/assurance/playbooks"], apiPrefixes: ["/playbooks"] },
+  { key: "autopilot", label: "Autopilot", ...ASM_DEF, assuranceModuleKey: "autopilot", featureFlagsAnyOf: ["v6Autopilot"], routePrefixes: ["/assurance/autopilot"], apiPrefixes: ["/autopilot"] },
+  { key: "review_boards", label: "Review Boards", ...ASM_DEF, assuranceModuleKey: "review_boards", featureFlagsAnyOf: ["v6ReviewBoards"], routePrefixes: ["/assurance/review-boards"], apiPrefixes: ["/review-boards"] },
+  { key: "segments", label: "Segments", ...ASM_DEF, assuranceModuleKey: "segments", featureFlagsAnyOf: ["v6Segments"], routePrefixes: ["/assurance/segments"], apiPrefixes: ["/segments"] },
+  { key: "program_evolution", label: "Program Evolution", ...ASM_DEF, assuranceModuleKey: "program_evolution", featureFlagsAnyOf: ["v6AssuranceCore"], routePrefixes: ["/assurance/program-evolution"], apiPrefixes: ["/program-evolution"] },
   {
     key: "health_graph",
     label: "Health Graph",
     ...ASM_DEF,
     assuranceModuleKey: "health_graph",
+    featureFlagsAnyOf: ["v6AssuranceCore"],
     routePrefixes: ["/assurance/health-graph"],
     apiPrefixes: ["/assurance/health-graph"],
   },
@@ -275,18 +281,19 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     label: "Outcome Intelligence",
     ...ASM_DEF,
     assuranceModuleKey: "outcome_intelligence",
+    featureFlagsAnyOf: ["v6OutcomeIntelligence"],
     routePrefixes: [],
     apiPrefixes: ["/outcomes"],
   },
 
   { key: "intake", label: "Intake", ...UTL_DEF, routePrefixes: ["/contracts/intake"], apiPrefixes: ["/import"] },
-  { key: "data_quality", label: "Data Quality", ...UTL_DEF, routePrefixes: ["/contracts/data-quality", "/contracts/analytics"], apiPrefixes: ["/extract"] },
+  { key: "data_quality", label: "Data Quality", ...UTL_DEF, routePrefixes: ["/contracts/data-quality"], apiPrefixes: ["/extract"] },
   { key: "review_cadence", label: "Review Cadence", ...UTL_DEF, routePrefixes: ["/contracts/review-cadence"], apiPrefixes: [] },
   { key: "watchlists", label: "Watchlists", ...UTL_DEF, routePrefixes: ["/contracts/watchlists"], apiPrefixes: [] },
   { key: "execution_graph", label: "Execution Graph", ...UTL_DEF, routePrefixes: ["/contracts/execution-graph"], apiPrefixes: [] },
   { key: "approval_workload", label: "Approval Workload", ...UTL_DEF, routePrefixes: ["/contracts/approvals/workload"], apiPrefixes: [] },
   { key: "approval_sla_simulator", label: "Approval SLA Simulator", ...UTL_DEF, routePrefixes: ["/contracts/approvals/sla-simulator"], apiPrefixes: ["/approvals/sla-metrics"] },
-  { key: "more_tools", label: "More Tools", ...UTL_DEF, routePrefixes: ["/more"], apiPrefixes: [] },
+  { key: "more_tools", label: "Tools", ...UTL_DEF, routePrefixes: ["/more"], apiPrefixes: [] },
 ];
 
 export const SEARCH_INDEX_CLASSES: SearchIndexClassDef[] = [
@@ -301,7 +308,7 @@ export const SEARCH_INDEX_CLASSES: SearchIndexClassDef[] = [
   { key: "decisions", label: "Decisions", featureFamily: "decisions", minWorkspaceMode: "advanced", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
   { key: "campaigns", label: "Campaigns", featureFamily: "campaigns", minWorkspaceMode: "advanced", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
   { key: "programs", label: "Programs", featureFamily: "programs", minWorkspaceMode: "advanced", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
-  { key: "relationship_workspaces", label: "Relationship Workspaces", featureFamily: "relationship_workspaces", minWorkspaceMode: "advanced", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
+  { key: "relationship_workspaces", label: "Relationship workspaces", featureFamily: "relationship_workspaces", minWorkspaceMode: "advanced", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
   { key: "findings", label: "Findings", featureFamily: "findings", minWorkspaceMode: "assurance", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
   { key: "control_policies", label: "Control Policies", featureFamily: "control_policies", minWorkspaceMode: "assurance", minRole: "viewer", globalSearch: true, domainOnlySearch: false },
   { key: "scorecards", label: "Scorecards", featureFamily: "scorecards", minWorkspaceMode: "assurance", minRole: "viewer", globalSearch: true, domainOnlySearch: false },

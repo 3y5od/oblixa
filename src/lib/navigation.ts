@@ -1,5 +1,7 @@
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 
+/** V9 §4 / §5 — Primary nav stays Core-first; new top-level entries need product-surface + refinement gates. */
+
 export type WorkspaceRole =
   | "admin"
   | "editor"
@@ -19,6 +21,15 @@ export type NavItem = {
     | "review"
     | "contracts"
     | "tasks"
+    | "renewals"
+    | "exceptions"
+    | "evidence"
+    | "reports"
+    | "decisions"
+    | "campaigns"
+    | "assurance"
+    | "relationships"
+    | "programs"
     | "settings"
     | "billing"
     | "more";
@@ -68,7 +79,7 @@ export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
   },
   { label: "Advanced", hrefs: ["/decisions", "/campaigns", "/contracts/programs", "/relationship-workspaces"] },
   { label: "Assurance", hrefs: ["/assurance"] },
-  { label: "Utilities", hrefs: ["/more"] },
+  { label: "Tools", hrefs: ["/more"] },
 ];
 
 export const NAV_ITEMS: NavItem[] = [
@@ -122,27 +133,28 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/contracts/renewals",
     description: "Renewal horizon and structured renewal workspaces.",
     section: "primary",
-    icon: "contracts",
+    icon: "renewals",
   },
   {
     name: "Exceptions",
     href: "/contracts/exceptions",
     description: "Open exceptions and policy-risk items.",
     section: "primary",
-    icon: "tasks",
+    icon: "exceptions",
   },
   {
     name: "Evidence",
     href: "/contracts/evidence-studio",
     description: "Evidence requests, templates, and export guidance.",
     section: "primary",
-    icon: "review",
+    icon: "evidence",
   },
   {
     name: "Decisions",
     href: "/decisions",
     description: "Decision workspaces and queue.",
     section: "primary",
+    icon: "decisions",
     v5FlagsAnyOf: ["v5DecisionFoundation"],
     navChildren: [
       { name: "Decision queue", href: "/decisions?queue=active" },
@@ -167,6 +179,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/campaigns",
     description: "Change campaigns with preview and progress.",
     section: "primary",
+    icon: "campaigns",
     v5FlagsAnyOf: ["v5PortfolioCampaigns"],
     navChildren: [
       { name: "Active", href: "/campaigns?status=active" },
@@ -181,6 +194,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/assurance",
     description: "Findings, controls, scorecards, and playbooks.",
     section: "primary",
+    icon: "assurance",
     v5FlagsAnyOf: [
       "v6AssuranceCore",
       "v6ControlPolicies",
@@ -189,7 +203,7 @@ export const NAV_ITEMS: NavItem[] = [
       "v6Autopilot",
       "v6Segments",
     ],
-    /** Order follows docs/refinement.md §7.3 */
+    /** Order follows product-surface policy §7.3 */
     navChildren: [
       { name: "Findings", href: "/assurance/findings", v5FlagsAnyOf: ["v6AssuranceCore"] },
       { name: "Control policies", href: "/assurance/control-policies", v5FlagsAnyOf: ["v6ControlPolicies"] },
@@ -211,6 +225,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/relationship-workspaces",
     description: "Account and counterparty summaries by stable keys.",
     section: "primary",
+    icon: "relationships",
     v5FlagsAnyOf: ["v5RelationshipLayer"],
   },
   {
@@ -218,6 +233,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/reports",
     description: "Operational and portfolio reports.",
     section: "primary",
+    icon: "reports",
     navChildren: [
       { name: "Contract report packs", href: "/contracts/reports" },
       { name: "Portfolio signals", href: "/reports#portfolio-signals" },
@@ -237,7 +253,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    name: "Utilities",
+    name: "Tools",
     href: "/more",
     description: "Secondary tools, maintenance, and admin-only destinations.",
     section: "primary",
@@ -274,6 +290,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/contracts/programs",
     description: "Manage contract program catalog and versions.",
     section: "primary",
+    icon: "programs",
   },
   {
     name: "Execution graph",
@@ -347,9 +364,9 @@ export const NAV_ITEMS: NavItem[] = [
     minRole: "admin",
   },
   {
-    name: "Policy registry",
+    name: "Policy registry & simulation",
     href: "/settings/policy",
-    description: "V4 policy registry JSON and governance notes.",
+    description: "Policy registry JSON and governance notes.",
     section: "workspace",
     minRole: "admin",
   },
@@ -406,8 +423,7 @@ export function isV5NavChildVisible(
 export function getWorkflowAreaForNavItem(item: NavItem): WorkflowArea {
   if (
     item.href === "/dashboard" ||
-    item.href === "/dashboard/persona" ||
-    item.href === "/work"
+    item.href === "/dashboard/persona"
   ) {
     return "monitor";
   }

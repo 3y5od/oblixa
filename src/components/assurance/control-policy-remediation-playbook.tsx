@@ -56,14 +56,14 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-700">Remediation playbook (control policies)</p>
-      <p className="mt-1 text-xs text-zinc-500">
+    <div className="mt-4 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-secondary)]">Remediation playbook (control policies)</p>
+      <p className="mt-1 text-xs text-[var(--text-tertiary)]">
         Linked playbooks appear on new policy breach findings as the recommended intervention.
       </p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <select
-          className="w-full rounded border border-zinc-200 px-2 py-1.5 text-sm sm:max-w-md"
+          className="w-full rounded border border-[var(--border-subtle)] px-2 py-1.5 text-sm sm:max-w-md"
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
         >
@@ -77,7 +77,7 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
         <button
           type="button"
           disabled={pending}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           onClick={() => void save()}
         >
           {pending ? "Saving…" : "Save link"}

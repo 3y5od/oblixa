@@ -26,20 +26,21 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
   if (invites.length === 0) return null;
 
   return (
-    <div className="mt-6 rounded-lg border border-zinc-200 bg-surface p-4">
-      <h4 className="text-sm font-semibold text-zinc-900">Pending invites</h4>
-      <p className="mt-1 text-xs text-zinc-600">
+    <div className="ui-page-shell mt-6 p-4">
+      <p className="ui-eyebrow">Access</p>
+      <h4 className="ui-section-title mt-1 text-base">Pending invites</h4>
+      <p className="ui-support-copy mt-1">
         Invites that have not been accepted yet. Resend to refresh the email; revoke to cancel.
       </p>
-      <ul className="mt-3 divide-y divide-zinc-200/90">
+      <ul className="mt-3 divide-y divide-[var(--border-subtle)]/90">
         {invites.map((inv) => (
           <li
             key={inv.id}
             className="flex flex-col gap-2 py-3 first:pt-0 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <p className="text-sm font-medium text-zinc-900">{inv.email}</p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-sm font-semibold tracking-tight text-[var(--text-primary)]">{inv.email}</p>
+              <p className="ui-support-copy text-xs">
                 {roleLabels[inv.role] || inv.role} · expires{" "}
                 {format(new Date(inv.expires_at), "MMM d, yyyy")}
               </p>
@@ -58,7 +59,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                     router.refresh();
                   });
                 }}
-                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-800 transition-colors hover:bg-zinc-100 disabled:opacity-50"
+                className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] disabled:opacity-50"
               >
                 Resend
               </button>

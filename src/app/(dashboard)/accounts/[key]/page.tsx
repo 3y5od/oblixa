@@ -73,11 +73,11 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Account workspace</p>
           <h1 className="ui-display-title mt-2">{workspace.display_name}</h1>
-          <p className="ui-muted-tight mt-2 text-[13px]">Key: {workspace.account_key}</p>
+          <p className="ui-page-lead mt-2 text-[13px]">Key: {workspace.account_key}</p>
           <Link
             href={`/api/accounts/${encodeURIComponent(key)}/summary`}
             className="ui-link mt-3 inline-block text-xs"
@@ -118,35 +118,35 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
       </div>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <article className="ui-card p-5">
+        <article className="ui-page-shell p-5">
           <p className="ui-eyebrow">Records</p>
           <p className="ui-section-title mt-1 text-base">Contracts</p>
           <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm">
             {(contracts ?? []).length === 0 ? (
-              <li className="py-2 text-zinc-500">No contracts with this account key.</li>
+              <li className="py-2 text-[var(--text-tertiary)]">No contracts with this account key.</li>
             ) : (
               (contracts ?? []).map((c) => (
                 <li key={c.id} className="py-2">
                   <Link href={`/contracts/${c.id}`} className="ui-link font-medium">
                     {c.title || "Untitled"}
                   </Link>
-                  <p className="text-xs text-zinc-500">{c.status}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{c.status}</p>
                 </li>
               ))
             )}
           </ul>
         </article>
-        <article className="ui-card p-5">
+        <article className="ui-page-shell p-5">
           <p className="ui-eyebrow">Events</p>
           <p className="ui-section-title mt-1 text-base">Relationship timeline</p>
           <ul className="mt-3 space-y-2 text-sm">
             {timelineEvents.length === 0 ? (
-              <li className="text-zinc-500">No timeline events yet.</li>
+              <li className="text-[var(--text-tertiary)]">No timeline events yet.</li>
             ) : (
               timelineEvents.map((e) => (
-                <li key={e.id} className="rounded-lg border border-zinc-100 px-3 py-2">
-                  <p className="font-medium text-zinc-800">{e.event_type}</p>
-                  <p className="text-xs text-zinc-500">{new Date(e.event_at).toLocaleString()}</p>
+                <li key={e.id} className="ui-operational-card p-3">
+                  <p className="font-medium text-[var(--text-primary)]">{e.event_type}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{new Date(e.event_at).toLocaleString()}</p>
                 </li>
               ))
             )}

@@ -38,6 +38,7 @@ import {
   applyBlockingCalibrationMinimalSkip,
   safeSuppressNotificationTypesForModeDowngradeCalibration,
 } from "@/lib/onboarding/calibration-blocking-minimal";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 /**
  * docs/onboarding.md §17.3 / §19 — after V6 or workflow policy changes, invalidate the same surfaces as
@@ -215,6 +216,12 @@ export async function saveQuestionnaireProgress(input: unknown): Promise<Calibra
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
+  await emitProductTelemetryEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    userId: ctx.user.id,
+    action: "product.v9.onboarding_progressed",
+    details: { surface: "questionnaire", step: "save_progress" },
+  });
   revalidateCalibrationSurfaces();
   return { ok: true };
 }
@@ -252,6 +259,12 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
     details: { source: "settings" },
   });
   if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  await emitProductTelemetryEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    userId: ctx.user.id,
+    action: "product.v9.onboarding_progressed",
+    details: { surface: "recalibration" },
+  });
   revalidateCalibrationSurfaces();
   return { ok: true };
 }
@@ -458,7 +471,19 @@ export async function completeQuestionnaireAcceptRecommendation(
       },
     ]);
     if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.user.id,
+      action: "product.v9.onboarding_completed",
+      details: { path: "accept_recommendation" },
+    });
   } catch {
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.user.id,
+      action: "product.v9.onboarding_failed",
+      details: { phase: "accept_recommendation" },
+    });
     Sentry.captureMessage("onboarding.calibration_apply_failed", {
       level: "error",
       extra: { orgId: ctx.orgId, answers_hash: answerHash },
@@ -497,6 +522,12 @@ export async function completeQuestionnaireAcceptRecommendation(
       details: { phase: "accept_recommendation", answers_hash: answerHash },
     });
     if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    await emitProductTelemetryEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      userId: ctx.user.id,
+      action: "product.v9.onboarding_recovered",
+      details: { path: "accept_recommendation_fallback_core" },
+    });
     revalidateCalibrationSurfaces();
     return { ok: true, fallback: true as const };
   }
@@ -545,6 +576,12 @@ async function completeMinimalPath(
     choice,
   });
   if (!applied.ok) return applied;
+  await emitProductTelemetryEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    userId: ctx.user.id,
+    action: "product.v9.onboarding_completed",
+    details: { path: choice === "simpler" ? "minimal_simpler" : "minimal_skip" },
+  });
   revalidateCalibrationSurfaces();
   return { ok: true };
 }
@@ -608,6 +645,12 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
     },
   ]);
   if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  await emitProductTelemetryEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    userId: ctx.user.id,
+    action: "product.v9.onboarding_completed",
+    details: { path: "open_advanced_settings" },
+  });
   revalidateCalibrationSurfaces();
   return { ok: true };
 }

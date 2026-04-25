@@ -69,7 +69,7 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
         </button>
         <button
           type="button"
-          className="rounded-lg bg-zinc-900 px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-[var(--text-primary)] px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
           disabled={busy !== null}
           onClick={() => void runPublish()}
         >
@@ -78,17 +78,17 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
       </div>
       {err ? <p className="text-xs text-red-600">{err}</p> : null}
       {simResult && simResult.length > 0 ? (
-        <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 p-3 text-xs">
-          <p className="font-semibold text-zinc-800">Latest simulation</p>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs">
+          <p className="font-semibold text-[var(--text-primary)]">Latest simulation</p>
           <ul className="mt-2 space-y-2">
             {simResult.map((e) => (
-              <li key={e.evaluation_unit_key} className="border-t border-zinc-200/80 pt-2 first:border-t-0 first:pt-0">
+              <li key={e.evaluation_unit_key} className="border-t border-[var(--border-subtle)] pt-2 first:border-t-0 first:pt-0">
                 <span className={e.pass ? "text-emerald-700" : "text-amber-800"}>
                   {e.pass ? "Pass" : "Breach"} · {e.scope_label}
                 </span>
-                <span className="ml-2 text-zinc-500">({e.enforcement_mode})</span>
+                <span className="ml-2 text-[var(--text-tertiary)]">({e.enforcement_mode})</span>
                 {!e.pass && e.breach_details.length > 0 ? (
-                  <ul className="mt-1 list-disc pl-4 text-zinc-600">
+                  <ul className="mt-1 list-disc pl-4 text-[var(--text-secondary)]">
                     {e.breach_details.slice(0, 4).map((d, i) => (
                       <li key={i}>{d}</li>
                     ))}

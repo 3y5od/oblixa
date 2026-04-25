@@ -68,9 +68,9 @@ export function ControlPolicyAssignPanel({
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className="mt-3 space-y-2 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-800">Add assignment</p>
-      <label className="block text-xs text-zinc-600">
+    <form onSubmit={(e) => void onSubmit(e)} className="mt-3 space-y-2 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-primary)]">Add assignment</p>
+      <label className="block text-xs text-[var(--text-secondary)]">
         Scope type
         <select
           className="ui-input mt-1 w-full text-sm"
@@ -86,7 +86,7 @@ export function ControlPolicyAssignPanel({
         </select>
       </label>
       {assignmentType === "segment" ? (
-        <label className="block text-xs text-zinc-600">
+        <label className="block text-xs text-[var(--text-secondary)]">
           Segment
           <select
             className="ui-input mt-1 w-full text-sm"
@@ -105,7 +105,7 @@ export function ControlPolicyAssignPanel({
       ) : null}
       {assignmentType !== "global" && assignmentType !== "segment" ? (
         <>
-          <label className="block text-xs text-zinc-600">
+          <label className="block text-xs text-[var(--text-secondary)]">
             Target ref type (optional override)
             <input
               className="ui-input mt-1 w-full text-sm"
@@ -114,7 +114,7 @@ export function ControlPolicyAssignPanel({
               placeholder="e.g. account"
             />
           </label>
-          <label className="block text-xs text-zinc-600">
+          <label className="block text-xs text-[var(--text-secondary)]">
             Target ref id
             <input
               className="ui-input mt-1 w-full font-mono text-xs"
@@ -129,7 +129,7 @@ export function ControlPolicyAssignPanel({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
       >
         {pending ? "Saving…" : "Create assignment"}
       </button>

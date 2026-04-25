@@ -8,25 +8,18 @@ import {
 import type { OrgRole } from "@/lib/types";
 import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
 import { ONBOARDING_CALIBRATION_JSON_VERSION } from "@/lib/onboarding/calibration-types";
+import {
+  ALL_ADVANCED_NAV_MODULE_KEYS,
+  ALL_ASSURANCE_NAV_MODULE_KEYS,
+} from "@/lib/product-surface/workspace-module-keys";
 
-/** docs/refinement.md §13.1 / §17.1 — persisted on first org creation via `ensureUserOrg`. */
+/** product-surface policy §13.1 / §17.1 — persisted on first org creation via `ensureUserOrg`. */
 export const NEW_WORKSPACE_V6_ORG_SETTINGS_JSON: V6OrgSettingsJson = {
   workspace_mode: "core",
   autopilot_allow_execution: false,
   search_scope: "match_mode",
-  advanced_modules_hidden: ["decisions", "campaigns", "programs", "relationships"],
-  assurance_modules_hidden: [
-    "findings",
-    "control_policies",
-    "scorecards",
-    "playbooks",
-    "autopilot",
-    "review_boards",
-    "segments",
-    "program_evolution",
-    "health_graph",
-    "outcome_intelligence",
-  ],
+  advanced_modules_hidden: [...ALL_ADVANCED_NAV_MODULE_KEYS],
+  assurance_modules_hidden: [...ALL_ASSURANCE_NAV_MODULE_KEYS],
   onboarding_calibration: {
     version: ONBOARDING_CALIBRATION_JSON_VERSION,
     blocking_required: true,
@@ -206,7 +199,7 @@ export async function ensureUserOrg(
     return;
   }
 
-  // docs/refinement.md §13.1 + §17.1 — new workspaces start in Core with no mutating autopilot execution.
+  // product-surface policy §13.1 + §17.1 — new workspaces start in Core with no mutating autopilot execution.
   await admin
     .from("organizations")
     .update({

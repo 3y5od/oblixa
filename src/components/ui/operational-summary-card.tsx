@@ -25,15 +25,15 @@ export function OperationalSectionHeader(props: {
 }) {
   return (
     <div className={`flex flex-wrap items-start justify-between gap-4 ${props.className ?? ""}`.trim()}>
-      <div className="min-w-0 space-y-1">
+      <div className="min-w-0 space-y-1.5">
         <p className="ui-eyebrow">{props.eyebrow}</p>
-        <h2 className="ui-section-title text-xl sm:text-[1.4rem]">{props.title}</h2>
+        <h2 className="ui-page-title text-[1.6rem] sm:text-[2.2rem]">{props.title}</h2>
         {props.description ? (
-          <p className="ui-muted-tight max-w-2xl text-[13px] sm:text-[13.5px]">{props.description}</p>
+          <p className="ui-page-lead">{props.description}</p>
         ) : null}
       </div>
       {props.actions ? (
-        <div className="ui-toolbar shrink-0 gap-2">{props.actions}</div>
+        <div className="ui-toolbar-strong shrink-0 gap-2">{props.actions}</div>
       ) : null}
     </div>
   );
@@ -53,22 +53,26 @@ export function OperationalQueueRow(props: {
   tone?: OperationalTone;
 }) {
   const tone = props.tone ?? "neutral";
-  const wrapClass = `ui-operational-focusable ui-transition-surface block rounded-[1.15rem] border border-[var(--border-subtle)] px-3.5 py-3 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim();
+  const wrapClass = `ui-operational-focusable ui-operational-card-compact flex h-full min-h-0 flex-col px-3.5 py-3 ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim();
   const inner = (
     <>
-      {props.eyebrow ? (
-        <p className="ui-kicker">{props.eyebrow}</p>
-      ) : null}
-      <p className={`font-semibold tracking-tight text-[var(--text-primary)] ${props.eyebrow ? "mt-1" : ""}`}>{props.title}</p>
-      {props.hint ? <p className="mt-1 text-[12px] leading-snug text-[var(--text-secondary)]">{props.hint}</p> : null}
-      {props.chips && props.chips.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-1.5" role="list">
-          {props.chips.map((c) => (
-            <OperationalMetricChip key={c.label} {...c} />
-          ))}
-        </div>
-      ) : null}
-      <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--accent-strong)]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {props.eyebrow ? (
+          <p className="ui-kicker">{props.eyebrow}</p>
+        ) : null}
+        <p className={`font-semibold tracking-tight text-[15px] text-[var(--text-primary)] ${props.eyebrow ? "mt-1.5" : ""}`}>
+          {props.title}
+        </p>
+        {props.hint ? <p className="ui-support-copy mt-1.5">{props.hint}</p> : null}
+        {props.chips && props.chips.length > 0 ? (
+          <div className="mt-2.5 flex flex-wrap gap-1.5" role="list">
+            {props.chips.map((c) => (
+              <OperationalMetricChip key={c.label} {...c} />
+            ))}
+          </div>
+        ) : null}
+      </div>
+      <span className="ui-operational-action mt-3.5 shrink-0 text-[11px]">
         {props.actionLabel}
         <span aria-hidden>→</span>
       </span>
@@ -126,7 +130,7 @@ export function OperationalMetricChip({ label, value }: OperationalBreakdownItem
       role="listitem"
       className="ui-metric-chip"
     >
-      <span className="font-medium text-[var(--text-tertiary)]">{label}</span>
+      <span className="ui-metric-label">{label}</span>
       <span className="font-semibold tabular-nums text-[var(--text-primary)]">{value}</span>
     </div>
   );
@@ -151,7 +155,7 @@ export function OperationalSummaryCard(props: {
   breakdown?: OperationalBreakdownItem[];
   action: { href: string; label: string; external?: boolean };
   /** Smaller type and padding for dense strips (e.g. portfolio metrics). */
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "hero";
   showStatusBadge?: boolean;
   className?: string;
   footerExtra?: ReactNode;
@@ -179,80 +183,90 @@ export function OperationalSummaryCard(props: {
   const primaryDisplay =
     primaryValue !== null && primaryValue !== undefined ? String(primaryValue) : (primaryFallback ?? "—");
   const compact = variant === "compact";
+  const hero = variant === "hero";
   const metricClass = compact
     ? "text-[1.55rem] font-semibold leading-none tabular-nums tracking-tight text-[var(--text-primary)] sm:text-[1.7rem]"
-    : "text-[2.3rem] font-semibold leading-none tabular-nums tracking-tight text-[var(--text-primary)] sm:text-[2.7rem]";
-  const pad = compact ? "py-3.5 pl-3.5 pr-3.5" : "py-4.5 pl-4.5 pr-4.5";
-  const iconBox = compact ? "h-10 w-10" : "h-11 w-11";
-  const iconSz = compact ? "h-4 w-4" : "h-5 w-5";
+    : hero
+      ? "text-[2.75rem] font-semibold leading-none tabular-nums tracking-tight text-[var(--text-primary)] sm:text-[3.35rem]"
+      : "text-[2.3rem] font-semibold leading-none tabular-nums tracking-tight text-[var(--text-primary)] sm:text-[2.7rem]";
+  const pad = compact ? "py-3.5 pl-3.5 pr-3.5" : hero ? "py-5 px-5 sm:px-6 sm:py-6" : "py-4.5 pl-4.5 pr-4.5";
+  const iconBox = compact ? "h-10 w-10" : hero ? "h-12 w-12 sm:h-14 sm:w-14" : "h-11 w-11";
+  const iconSz = compact ? "h-4 w-4" : hero ? "h-5 w-5 sm:h-6 sm:w-6" : "h-5 w-5";
   const badgeClass = compact
     ? "shrink-0 whitespace-nowrap text-[10px] sm:text-[11px]"
-    : "shrink-0 whitespace-nowrap";
+    : hero
+      ? "shrink-0 whitespace-nowrap text-[11px]"
+      : "shrink-0 whitespace-nowrap";
   const footerClass = compact
-    ? "mt-3 flex flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3"
-    : "mt-3 flex flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3";
+    ? "mt-3 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3"
+    : hero
+      ? "mt-4 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-4"
+      : "mt-3 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3";
+  const shellClass = hero ? "ui-card-hero" : "ui-summary-card";
 
   return (
     <article
       id={id}
-      className={`ui-summary-card ui-transition-surface ${pad} ${OPERATIONAL_SHELL_BY_TONE[tone]} hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${className}`.trim()}
+      className={`${shellClass} ui-transition-surface flex h-full min-h-0 min-w-0 flex-col ${pad} ${OPERATIONAL_SHELL_BY_TONE[tone]} hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${className}`.trim()}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <span
-            className={`flex shrink-0 items-center justify-center rounded-xl ${iconBox} ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`}
-          >
-            <Icon className={iconSz} strokeWidth={1.75} aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1 pr-1">
-            <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
-              <p className="ui-kicker">{eyebrow}</p>
-              {showStatusBadge ? (
-                <StatusBadge status={badge.status} className={`sm:hidden ${badgeClass}`.trim()}>
-                  {badge.label}
-                </StatusBadge>
-              ) : null}
-            </div>
-            <h3
-              className={`mt-1 break-words font-semibold tracking-tight text-[var(--text-primary)] ${
-                compact ? "text-sm leading-snug" : "text-[15px] leading-snug"
-              }`}
+      <div className="min-h-0 flex-1">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <span
+              className={`ui-icon-tile${compact ? "-compact" : ""} shrink-0 ${iconBox} ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`.trim()}
             >
-              {headline}
-            </h3>
+              <Icon className={iconSz} strokeWidth={1.75} aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1 pr-1">
+              <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
+                <p className={hero ? "ui-eyebrow" : "ui-kicker"}>{eyebrow}</p>
+                {showStatusBadge ? (
+                  <StatusBadge status={badge.status} className={`sm:hidden ${badgeClass}`.trim()}>
+                    {badge.label}
+                  </StatusBadge>
+                ) : null}
+              </div>
+              <h3
+                className={`mt-1.5 break-words font-semibold tracking-tight text-[var(--text-primary)] ${
+                  compact ? "text-sm leading-snug" : hero ? "text-[1.2rem] leading-[1.15] sm:text-[1.35rem]" : "text-[15px] leading-snug"
+                }`}
+              >
+                {headline}
+              </h3>
+            </div>
           </div>
+          {showStatusBadge ? (
+            <StatusBadge status={badge.status} className={`hidden sm:inline-flex ${badgeClass}`.trim()}>
+              {badge.label}
+            </StatusBadge>
+          ) : null}
         </div>
-        {showStatusBadge ? (
-          <StatusBadge status={badge.status} className={`hidden sm:inline-flex ${badgeClass}`.trim()}>
-            {badge.label}
-          </StatusBadge>
+        <div className={hero ? "mt-4" : "mt-3"}>
+          <p className={metricClass}>{primaryDisplay}</p>
+          {primaryUnit ? (
+            <p className={`mt-1.5 font-medium text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[13px]" : "text-[12px]"}`}>
+              {primaryUnit}
+            </p>
+          ) : null}
+          {secondaryLine && (primaryValue === null || primaryValue === undefined) ? (
+            <p className={`mt-1.5 text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[13px]" : "text-[12px]"}`}>
+              {secondaryLine}
+            </p>
+          ) : null}
+        </div>
+
+        {breakdown.length > 0 ? (
+          <div className={`${hero ? "mt-4" : "mt-3"} flex flex-wrap gap-2`} role="list">
+            {breakdown.map((row) => (
+              <OperationalMetricChip key={row.label} {...row} />
+            ))}
+          </div>
         ) : null}
       </div>
-
-      <div className="mt-3">
-        <p className={metricClass}>{primaryDisplay}</p>
-        {primaryUnit ? (
-          <p className={`mt-1 font-medium text-[var(--text-secondary)] ${compact ? "text-[11px]" : "text-[12px]"}`}>{primaryUnit}</p>
-        ) : null}
-        {secondaryLine && (primaryValue === null || primaryValue === undefined) ? (
-          <p className={`mt-1 text-[var(--text-secondary)] ${compact ? "text-[11px]" : "text-[12px]"}`}>{secondaryLine}</p>
-        ) : null}
-      </div>
-
-      {breakdown.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2" role="list">
-          {breakdown.map((row) => (
-            <OperationalMetricChip key={row.label} {...row} />
-          ))}
-        </div>
-      ) : null}
 
       <div className={footerClass}>
         {action.href.startsWith("#") ? (
-          <a
-            href={action.href}
-            className="ui-operational-focusable inline-flex min-w-0 max-w-full items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)] hover:text-[var(--text-primary)]"
-          >
+          <a href={action.href} className="ui-operational-focusable ui-operational-action">
             <span className="truncate">{action.label}</span>
             <span aria-hidden>→</span>
           </a>
@@ -261,7 +275,7 @@ export function OperationalSummaryCard(props: {
             href={action.href}
             target={action.external ? "_blank" : undefined}
             rel={action.external ? "noopener noreferrer" : undefined}
-            className="ui-operational-focusable inline-flex min-w-0 max-w-full items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)] hover:text-[var(--text-primary)]"
+            className="ui-operational-focusable ui-operational-action"
           >
             <span className="truncate">{action.label}</span>
             <span aria-hidden>→</span>
@@ -284,46 +298,58 @@ export function OperationalSurfaceLinkCard(props: {
   tone?: OperationalTone;
   icon: ComponentType<IconProps>;
   chips?: OperationalBreakdownItem[];
-  actionLabel: string;
+  /** CTA on the link line; defaults to `Open {title} →` to match the card heading. */
+  actionLabel?: string;
   hint?: string;
+  variant?: "default" | "hero";
+  className?: string;
 }) {
   const tone = props.tone ?? "neutral";
+  const hero = props.variant === "hero";
   const badge = badgeForTone(tone);
   const Icon = props.icon;
-  const wrapClass = `ui-operational-focusable ui-transition-surface block rounded-[1.5rem] border border-[var(--border-subtle)] py-3.5 pl-3.5 pr-3.5 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${OPERATIONAL_SHELL_BY_TONE[tone]}`.trim();
+  const cta =
+    typeof props.actionLabel === "string" && props.actionLabel.trim() !== ""
+      ? props.actionLabel
+      : `Open ${props.title}`;
+  const wrapClass = `ui-operational-focusable ${hero ? "ui-card-hero px-5 py-5 sm:px-6 sm:py-6" : "ui-operational-card py-4 pl-4 pr-4"} flex h-full min-h-0 flex-col ${OPERATIONAL_SHELL_BY_TONE[tone]} ${props.className ?? ""}`.trim();
   const inner = (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex min-w-0 flex-1 items-start gap-2.5">
-          <span
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`}
-          >
-            <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
-              <p className="ui-kicker">{props.eyebrow}</p>
-              <StatusBadge status={badge.status} className="shrink-0 whitespace-nowrap sm:hidden">
-                {badge.label}
-              </StatusBadge>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-start gap-2.5">
+            <span className={`${hero ? "ui-icon-tile h-11 w-11 sm:h-12 sm:w-12" : "ui-icon-tile-compact h-9 w-9"} shrink-0 ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`.trim()}>
+              <Icon className={hero ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.75} aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
+                <p className={hero ? "ui-eyebrow" : "ui-kicker"}>{props.eyebrow}</p>
+                <StatusBadge status={badge.status} className="shrink-0 whitespace-nowrap sm:hidden">
+                  {badge.label}
+                </StatusBadge>
+              </div>
+              <p className={`mt-1.5 break-words font-semibold tracking-tight text-[var(--text-primary)] ${hero ? "text-[1.15rem] leading-[1.15] sm:text-[1.3rem]" : "text-sm leading-snug"}`}>
+                {props.title}
+              </p>
+              {props.hint ? (
+                <p className={`ui-support-copy mt-1.5 ${hero ? "line-clamp-3 text-[13px]" : "line-clamp-2"}`}>{props.hint}</p>
+              ) : null}
             </div>
-            <p className="mt-1 break-words text-sm font-semibold tracking-tight leading-snug text-[var(--text-primary)]">{props.title}</p>
-            {props.hint ? <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-[var(--text-secondary)]">{props.hint}</p> : null}
           </div>
+          <StatusBadge status={badge.status} className="hidden shrink-0 whitespace-nowrap sm:inline-flex">
+            {badge.label}
+          </StatusBadge>
         </div>
-        <StatusBadge status={badge.status} className="hidden shrink-0 whitespace-nowrap sm:inline-flex">
-          {badge.label}
-        </StatusBadge>
+        {props.chips && props.chips.length > 0 ? (
+          <div className={`${hero ? "mt-3" : "mt-2"} flex flex-wrap gap-1.5`} role="list">
+            {props.chips.map((c) => (
+              <OperationalMetricChip key={c.label} {...c} />
+            ))}
+          </div>
+        ) : null}
       </div>
-      {props.chips && props.chips.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-1.5" role="list">
-          {props.chips.map((c) => (
-            <OperationalMetricChip key={c.label} {...c} />
-          ))}
-        </div>
-      ) : null}
-      <span className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)]">
-        {props.actionLabel}
+      <span className={`ui-operational-action shrink-0 ${hero ? "mt-4 text-[12px]" : "mt-3"}`}>
+        {cta}
         <span aria-hidden>→</span>
       </span>
     </>

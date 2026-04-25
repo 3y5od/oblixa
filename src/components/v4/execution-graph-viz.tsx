@@ -14,7 +14,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
   const active = edges.filter((e) => e.status === "active");
   if (active.length === 0) {
     return (
-      <p className="text-sm text-zinc-500">No active dependency edges for this contract.</p>
+      <p className="text-sm text-[var(--text-tertiary)]">No active dependency edges for this contract.</p>
     );
   }
 
@@ -38,8 +38,8 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
   const height = Math.max(200, (Math.ceil(nodeList.length / cols) || 1) * rowGap + 80);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-surface">
-      <svg width={width} height={height} className="text-zinc-800" aria-label="Execution dependency graph">
+    <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-surface">
+      <svg width={width} height={height} className="text-[var(--text-primary)]" aria-label="Execution dependency graph">
         <defs>
           <marker
             id="arrowhead"
@@ -50,7 +50,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L8,4 L0,8 z" fill="currentColor" className="text-zinc-400" />
+            <path d="M0,0 L8,4 L0,8 z" fill="currentColor" className="text-[var(--text-tertiary)]" />
           </marker>
         </defs>
         {active.map((e, idx) => {
@@ -68,7 +68,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
               y2={b.y}
               stroke="currentColor"
               strokeWidth={1.25}
-              className="text-zinc-300"
+              className="text-[var(--text-tertiary)]"
               markerEnd="url(#arrowhead)"
             />
           );
@@ -81,7 +81,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
           const id = sep === -1 ? "" : key.slice(sep + 1);
           return (
             <g key={key} transform={`translate(${p.x - 70},${p.y - 14})`}>
-              <rect width={140} height={28} rx={6} className="fill-zinc-50 stroke-zinc-200" strokeWidth={1} />
+              <rect width={140} height={28} rx={6} className="fill-[var(--surface-muted)] stroke-[var(--border-subtle)]" strokeWidth={1} />
               <text
                 x={70}
                 y={18}
@@ -95,7 +95,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
           );
         })}
       </svg>
-      <p className="border-t border-zinc-100 px-3 py-2 text-[11px] text-zinc-500">
+      <p className="border-t border-[var(--border-subtle)] px-3 py-2 text-[11px] text-[var(--text-tertiary)]">
         Arrows follow stored edges (from → to). Relation: {active[0]?.relation_type ?? "depends_on"}.
       </p>
     </div>

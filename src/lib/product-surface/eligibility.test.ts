@@ -101,6 +101,19 @@ describe("evaluateFeatureEligibility", () => {
     expect(out.reason).toBe("module_hidden");
   });
 
+  it("suppresses feature families when their known feature flag is disabled", () => {
+    const ctx = buildProductSurfaceContext({
+      orgId: "o1",
+      role: "editor",
+      v6: { workspace_mode: "advanced" },
+      featureFlags: { v5DecisionFoundation: false } as Record<FeatureFlagKey, boolean>,
+    });
+    const out = evaluateFeatureEligibility(ctx, "decisions");
+    expect(out.allowed).toBe(false);
+    expect(out.reason).toBe("feature_flag_disabled");
+    expect(out.denialClass).toBe("feature_flag_disabled");
+  });
+
   it("returns unauthenticated denial class when auth state indicates no session", () => {
     const ctx = buildProductSurfaceContext({
       orgId: "o1",

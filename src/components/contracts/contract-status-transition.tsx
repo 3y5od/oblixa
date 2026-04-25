@@ -22,7 +22,7 @@ const buttonStyles: Record<string, string> = {
   pending_review:
     "border border-amber-200/80 bg-amber-50 text-amber-900 hover:border-amber-300 hover:bg-amber-100/70",
   expired:
-    "border border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-300 hover:bg-zinc-100/80",
+    "border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-primary)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_65%,var(--canvas))]",
   terminated:
     "border border-red-200/80 bg-red-50 text-red-900 hover:border-red-300 hover:bg-red-100/70",
 };
@@ -46,7 +46,7 @@ export function ContractStatusTransition({
 
   if (!canEdit) {
     return (
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-[var(--text-tertiary)]">
         Only editors and admins can change contract status.
       </p>
     );
@@ -71,7 +71,7 @@ export function ContractStatusTransition({
           disabled={isPending}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
             buttonStyles[target] ||
-            "border border-zinc-200 bg-surface text-zinc-800 hover:bg-zinc-50"
+            "border border-[var(--border-subtle)] bg-surface text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
           }`}
         >
           {isPending ? "Updating..." : label}

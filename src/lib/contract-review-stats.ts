@@ -54,18 +54,20 @@ export interface ReviewQueuePageResult {
   pageSize: number;
 }
 
-/**
- * Contracts that need human attention: pending_review status or any pending extracted field.
- * Sorted by pending_review first, then pending field count (desc), then oldest created first.
- */
-export async function fetchReviewQueuePage(
-  admin: Admin,
-  orgId: string,
-  page: number
-): Promise<ReviewQueuePageResult> {
-  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
-  const pageSize = CONTRACTS_PAGE_SIZE;
+export interface ReviewQueueContinuity {
+  total: number;
+  position: number;
+  currentPendingCount: number;
+  previousContractId: string | null;
+  nextContractId: string | null;
+  nextPendingCount: number;
+}
 
+async function loadRankedReviewQueueContracts(
+  admin: Admin,
+  orgId: string
+): Promise<{ list: Contract[]; pendingCountByContractId: Record<string, number> }> {
+  const empty = { list: [] as Contract[], pendingCountByContractId: {} as Record<string, number> };
   const [pendingReviewResult, pendingFieldResult] = await Promise.all([
     admin.from("contracts").select("id").eq("organization_id", orgId).eq("status", "pending_review"),
     admin
@@ -82,22 +84,15 @@ export async function fetchReviewQueuePage(
     console.error("[contract-review-stats] pendingFields query error:", pendingFieldResult.error.message);
   }
 
-  const pendingReviewRows = pendingReviewResult.data;
-  const pendingFieldRows = pendingFieldResult.data;
-
-  const pendingReviewIds = new Set((pendingReviewRows ?? []).map((r) => r.id as string));
+  const pendingReviewIds = new Set((pendingReviewResult.data ?? []).map((row) => row.id as string));
   const pendingCountByContractId: Record<string, number> = {};
-
-  for (const row of pendingFieldRows ?? []) {
-    const cid = row.contract_id as string;
-    pendingCountByContractId[cid] = (pendingCountByContractId[cid] ?? 0) + 1;
+  for (const row of pendingFieldResult.data ?? []) {
+    const contractId = row.contract_id as string;
+    pendingCountByContractId[contractId] = (pendingCountByContractId[contractId] ?? 0) + 1;
   }
 
   const unionIds = new Set<string>([...pendingReviewIds, ...Object.keys(pendingCountByContractId)]);
-
-  if (unionIds.size === 0) {
-    return { contracts: [], total: 0, page: safePage, pageSize };
-  }
+  if (unionIds.size === 0) return empty;
 
   const { data: contractRows, error } = await admin
     .from("contracts")
@@ -108,11 +103,10 @@ export async function fetchReviewQueuePage(
 
   if (error) {
     console.error("fetchReviewQueuePage", error);
-    return { contracts: [], total: 0, page: safePage, pageSize };
+    return empty;
   }
 
   const list = (contractRows ?? []) as Contract[];
-
   list.sort((a, b) => {
     const ar = a.status === "pending_review" ? 1 : 0;
     const br = b.status === "pending_review" ? 1 : 0;
@@ -120,9 +114,29 @@ export async function fetchReviewQueuePage(
     const pa = pendingCountByContractId[a.id] ?? 0;
     const pb = pendingCountByContractId[b.id] ?? 0;
     if (pb !== pa) return pb - pa;
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    const tc = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    if (tc !== 0) return tc;
+    return a.id.localeCompare(b.id);
   });
 
+  return { list, pendingCountByContractId };
+}
+
+/**
+ * Contracts that need human attention: pending_review status or any pending extracted field.
+ * Sorted by pending_review first, then pending field count (desc), then oldest created first.
+ */
+export async function fetchReviewQueuePage(
+  admin: Admin,
+  orgId: string,
+  page: number
+): Promise<ReviewQueuePageResult> {
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const pageSize = CONTRACTS_PAGE_SIZE;
+  const { list } = await loadRankedReviewQueueContracts(admin, orgId);
+  if (list.length === 0) {
+    return { contracts: [], total: 0, page: safePage, pageSize };
+  }
   const total = list.length;
   const from = (safePage - 1) * pageSize;
   const pageSlice = list.slice(from, from + pageSize);
@@ -132,5 +146,25 @@ export async function fetchReviewQueuePage(
     total,
     page: safePage,
     pageSize,
+  };
+}
+
+export async function fetchReviewQueueContinuity(
+  admin: Admin,
+  orgId: string,
+  contractId: string
+): Promise<ReviewQueueContinuity | null> {
+  const { list, pendingCountByContractId } = await loadRankedReviewQueueContracts(admin, orgId);
+  const index = list.findIndex((contract) => contract.id === contractId);
+  if (index === -1) return null;
+  const previous = list[index - 1] ?? null;
+  const next = list[index + 1] ?? null;
+  return {
+    total: list.length,
+    position: index + 1,
+    currentPendingCount: pendingCountByContractId[contractId] ?? 0,
+    previousContractId: previous?.id ?? null,
+    nextContractId: next?.id ?? null,
+    nextPendingCount: next ? (pendingCountByContractId[next.id] ?? 0) : 0,
   };
 }

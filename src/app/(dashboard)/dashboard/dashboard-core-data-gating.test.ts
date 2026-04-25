@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/refinement.md §8 / §21.1 — Core home must not execute assurance portfolio data fetches;
+ * product-surface policy §8 / §21.1 — Core home must not execute assurance portfolio data fetches;
  * heavy queries stay under `productSurface.mode === "assurance"` branches.
  */
 const DASHBOARD_PAGE = join(process.cwd(), "src/app/(dashboard)/dashboard/page.tsx");

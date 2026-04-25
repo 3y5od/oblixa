@@ -37,6 +37,44 @@ describe("getCmdkSearchJumpItems", () => {
     expect(items.some((i) => i.href.startsWith("/contracts"))).toBe(true);
   });
 
+  it("keeps contracts search jump copy aligned with the sanitized destination query", () => {
+    const item = getCmdkSearchJumpItems(surface({}), '  Acme%_"Legal"  ').find(
+      (row) => row.id === "search-jump:contracts"
+    );
+    expect(item?.href).toBe("/contracts?search=AcmeLegal");
+    expect(item?.name).toBe("Search contracts: AcmeLegal");
+    expect(item?.description).toContain('"AcmeLegal"');
+    expect(item?.meta).toContain("/contracts");
+  });
+
+  it("exposes disambiguating name + description on every Core jump (§16.2)", () => {
+    const items = getCmdkSearchJumpItems(surface({}), "");
+    expect(items.length).toBeGreaterThan(4);
+    for (const row of items) {
+      expect(row.name.trim().length, row.id).toBeGreaterThan(0);
+      expect(row.description.trim().length, row.id).toBeGreaterThan(0);
+      expect(row.meta.trim().length, row.id).toBeGreaterThan(0);
+      expect(row.href.startsWith("/"), row.id).toBe(true);
+    }
+  });
+
+  it("routes core queue jumps to the exact actionable destinations", () => {
+    const items = getCmdkSearchJumpItems(surface({}), "");
+    expect(items.find((i) => i.id === "search-jump:tasks")?.href).toBe("/work#tasks");
+    expect(items.find((i) => i.id === "search-jump:tasks")?.meta).toBe("Work queue · tasks lens");
+    expect(items.find((i) => i.id === "search-jump:approvals")?.href).toBe("/work#approvals");
+    expect(items.find((i) => i.id === "search-jump:obligations")?.href).toBe("/work#obligations");
+    expect(items.find((i) => i.id === "search-jump:exceptions")?.href).toBe(
+      "/contracts/exceptions?status=open"
+    );
+    expect(items.find((i) => i.id === "search-jump:evidence")?.href).toBe(
+      "/contracts/evidence-studio#live-request-queue"
+    );
+    expect(items.find((i) => i.id === "search-jump:renewals")?.href).toBe(
+      "/contracts/renewals?horizon=renewal_90"
+    );
+  });
+
   it("omits decisions for core mode", () => {
     const items = getCmdkSearchJumpItems(surface({ mode: "core" }), "");
     expect(items.some((i) => i.href.startsWith("/decisions"))).toBe(false);

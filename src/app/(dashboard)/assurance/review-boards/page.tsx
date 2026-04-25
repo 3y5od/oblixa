@@ -37,28 +37,28 @@ export default async function AssuranceReviewBoardsPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="ui-page-stack">
       <AssuranceListCard
         title="Review boards"
         subtitle="Assurance"
         explainer={
           <p>
             Boards use agenda templates and packet assembly from live findings, scorecards, campaigns, and decisions.
-            Generate runs via <code className="rounded bg-zinc-100 px-1">POST /api/review-boards/&#123;id&#125;/generate-run</code>.
+            Generate runs via <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">POST /api/review-boards/&#123;id&#125;/generate-run</code>.
             Optional notification emails are stored under{" "}
             <Link className="ui-link" href="/assurance/autopilot">
               Assurance → Autopilot
             </Link>{" "}
-            (org V6 settings; delivery wiring can follow).
+            (organization assurance settings; delivery wiring can follow).
           </p>
         }
       >
         <ReviewBoardCreateForm />
         <ul className="mt-4 space-y-2 text-sm">
           {(boards ?? []).map((row) => (
-            <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-              <p className="font-medium text-zinc-900">{row.name}</p>
-              <p className="mt-1 text-xs text-zinc-600">
+            <li key={row.id} className="ui-operational-card p-4">
+              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
+              <p className="ui-support-copy mt-1">
                 {row.board_type} · {row.cadence} · {row.active ? "active" : "inactive"}
               </p>
               {row.active ? <ReviewBoardGenerateButton boardId={String(row.id)} /> : null}
@@ -72,25 +72,25 @@ export default async function AssuranceReviewBoardsPage() {
                 />
               ) : null}
               {row.agenda_template_json && Object.keys(row.agenda_template_json as object).length > 0 ? (
-                <pre className="mt-2 max-h-24 overflow-auto rounded bg-zinc-50 p-2 text-[10px] text-zinc-600">
+                <pre className="ui-soft-details mt-2 max-h-24 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.agenda_template_json, null, 2)}
                 </pre>
               ) : null}
             </li>
           ))}
-          {(boards ?? []).length === 0 ? <li className="text-zinc-500">No review boards yet.</li> : null}
+          {(boards ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No review boards yet.</li> : null}
         </ul>
       </AssuranceListCard>
 
       <AssuranceListCard title="Recent board runs" subtitle="Assurance" explainer={<p>Latest generated packets.</p>}>
         <ul className="space-y-2 text-sm">
           {(runs ?? []).map((row) => (
-            <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-              <p className="font-medium text-zinc-900">
+            <li key={row.id} className="ui-operational-card p-4">
+              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
                 {row.status} · {String(row.generated_at)}
-                {row.reviewed_at ? <span className="text-zinc-500"> · reviewed {String(row.reviewed_at)}</span> : null}
+                {row.reviewed_at ? <span className="text-[var(--text-tertiary)]"> · reviewed {String(row.reviewed_at)}</span> : null}
               </p>
-              <p className="mt-1 text-xs text-zinc-500">Board {String(row.review_board_id)}</p>
+              <p className="ui-support-copy mt-1">Board {String(row.review_board_id)}</p>
               <ReviewBoardRunLifecycle
                 runId={String(row.id)}
                 status={String(row.status)}
@@ -109,7 +109,7 @@ export default async function AssuranceReviewBoardsPage() {
                 >
                   Export JSON
                 </a>
-                <span className="text-zinc-300">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <a
                   className="ui-link"
                   href={`/api/review-boards/runs/${encodeURIComponent(String(row.id))}?format=csv`}
@@ -118,21 +118,21 @@ export default async function AssuranceReviewBoardsPage() {
                 >
                   Export CSV
                 </a>
-                <span className="text-zinc-300">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <Link className="ui-link" href={`/api/review-boards/${encodeURIComponent(String(row.review_board_id))}/runs`} target="_blank">
                   Runs JSON
                 </Link>
               </p>
               {row.packet_json && typeof row.packet_json === "object" ? (
-                <pre className="mt-2 max-h-32 overflow-auto rounded bg-zinc-50 p-2 text-[10px] text-zinc-600">
+                <pre className="ui-soft-details mt-2 max-h-32 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.packet_json, null, 2)}
                 </pre>
               ) : null}
             </li>
           ))}
-          {(runs ?? []).length === 0 ? <li className="text-zinc-500">No runs yet.</li> : null}
+          {(runs ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
-        <p className="mt-4 text-xs text-zinc-600">
+        <p className="mt-4 text-xs text-[var(--text-secondary)]">
           <Link className="ui-link" href="/api/review-boards" target="_blank">
             Boards JSON
           </Link>

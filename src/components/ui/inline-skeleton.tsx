@@ -7,7 +7,7 @@ export function InlineSkeleton(props: {
   return (
     <span
       className={[
-        "ui-skeleton inline-block",
+        "ui-skeleton inline-block align-middle",
         props.widthClass ?? "w-24",
         props.heightClass ?? "h-4",
         props.roundedClass ?? "rounded",

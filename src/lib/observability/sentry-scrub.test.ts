@@ -113,4 +113,39 @@ describe("scrubSentryEvent", () => {
       mappedMessage: "AI extraction failed",
     });
   });
+
+  it("redacts email-like substrings in nested extras and user payloads", () => {
+    const out = scrubSentryEvent({
+      request: { headers: {}, url: "https://app.test/contracts?owner=user%40corp.test" },
+      user: { email: "leak@corp.test", id: "u1" },
+      extra: {
+        note: "contact ops@corp.test first",
+        nested: { cc: "copy@corp.test" },
+      },
+    });
+    const extra = (out as { extra?: Record<string, unknown> }).extra;
+    expect(JSON.stringify(extra)).not.toContain("@corp.test");
+    expect(JSON.stringify(extra)).toContain("[redacted]");
+    const user = (out as { user?: Record<string, unknown> }).user;
+    expect(user?.email).toBe("[redacted]");
+    const url = (out as { request?: { url?: string } }).request?.url ?? "";
+    expect(url).not.toContain("@");
+  });
+
+  it("redacts email-like strings in breadcrumb data", () => {
+    const out = scrubSentryEvent({
+      request: { headers: {} },
+      breadcrumbs: [
+        {
+          type: "default",
+          category: "ui",
+          message: "opened user@corp.test",
+          data: { path: "/u/user@corp.test/profile" },
+        },
+      ],
+    });
+    const crumbs = (out as { breadcrumbs?: Array<{ message?: string; data?: unknown }> }).breadcrumbs;
+    expect(crumbs?.[0]?.message).not.toContain("@corp.test");
+    expect(JSON.stringify(crumbs?.[0]?.data)).not.toContain("@corp.test");
+  });
 });

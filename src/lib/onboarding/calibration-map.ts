@@ -8,42 +8,17 @@
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { HOME_SECTION_IDS } from "@/lib/product-surface/resolver";
 import { isValidDefaultLandingPath } from "@/lib/product-surface/landing-eligibility";
-import type {
-  AdvancedNavModuleKey,
-  AssuranceNavModuleKey,
-  UtilityModuleKey,
-  WorkspaceProductMode,
-} from "@/lib/product-surface/types";
+import type { AdvancedNavModuleKey, AssuranceNavModuleKey, UtilityModuleKey, WorkspaceProductMode } from "@/lib/product-surface/types";
+import {
+  ALL_ADVANCED_NAV_MODULE_KEYS,
+  ALL_ASSURANCE_NAV_MODULE_KEYS,
+} from "@/lib/product-surface/workspace-module-keys";
 import type { V6OrgSettingsMergePatch } from "@/lib/v6/org-settings";
 import type {
   CalibrationAnswersOptional,
   CalibrationAnswersRequired,
   CalibrationRecommendation,
 } from "@/lib/onboarding/calibration-types";
-
-const ALL_ADVANCED: AdvancedNavModuleKey[] = [
-  "decisions",
-  "campaigns",
-  "programs",
-  "relationships",
-  "analytics",
-  "maintenance",
-  "collaboration",
-  "compare_views",
-];
-
-const ALL_ASSURANCE: AssuranceNavModuleKey[] = [
-  "findings",
-  "control_policies",
-  "scorecards",
-  "playbooks",
-  "autopilot",
-  "review_boards",
-  "segments",
-  "program_evolution",
-  "health_graph",
-  "outcome_intelligence",
-];
 
 export function scoreAdvancedSignals(a: CalibrationAnswersRequired): number {
   let s = 0;
@@ -161,10 +136,10 @@ function advancedHiddenForMode(
   flags: Record<FeatureFlagKey, boolean>
 ): AdvancedNavModuleKey[] {
   if (mode === "core") {
-    return [...ALL_ADVANCED];
+    return [...ALL_ADVANCED_NAV_MODULE_KEYS];
   }
 
-  const hidden = new Set<AdvancedNavModuleKey>(ALL_ADVANCED);
+  const hidden = new Set<AdvancedNavModuleKey>(ALL_ADVANCED_NAV_MODULE_KEYS);
   hidden.delete("decisions");
 
   const strongCoordination =
@@ -202,16 +177,16 @@ function advancedHiddenForMode(
   }
   if (!flags.v5RelationshipLayer) hidden.add("relationships");
 
-  return ALL_ADVANCED.filter((k) => hidden.has(k));
+  return ALL_ADVANCED_NAV_MODULE_KEYS.filter((k) => hidden.has(k));
 }
 
 function assuranceHiddenForMode(mode: WorkspaceProductMode, a: CalibrationAnswersRequired): AssuranceNavModuleKey[] {
   if (mode !== "assurance") {
-    return [...ALL_ASSURANCE];
+    return [...ALL_ASSURANCE_NAV_MODULE_KEYS];
   }
   const visible = new Set<AssuranceNavModuleKey>(["findings", "control_policies"]);
   if (a.main_pain === "risk_drift_control") visible.add("scorecards");
-  return ALL_ASSURANCE.filter((k) => !visible.has(k));
+  return ALL_ASSURANCE_NAV_MODULE_KEYS.filter((k) => !visible.has(k));
 }
 
 export function utilityHiddenForAnswers(a: CalibrationAnswersRequired): UtilityModuleKey[] {
@@ -301,14 +276,14 @@ export function finalizeRecommendation(
   const utilHidden = utilityHiddenForAnswers(a);
 
   const advancedEnabled = clampAdvancedFamiliesToFeatureFlags(
-    ALL_ADVANCED.filter((k) => !advHidden.includes(k)),
+    ALL_ADVANCED_NAV_MODULE_KEYS.filter((k) => !advHidden.includes(k)),
     flags
   );
 
   return {
     recommended_workspace_mode: mode,
     recommended_advanced_families_enabled: advancedEnabled,
-    recommended_assurance_families_enabled: ALL_ASSURANCE.filter((k) => !asmHidden.includes(k)),
+    recommended_assurance_families_enabled: ALL_ASSURANCE_NAV_MODULE_KEYS.filter((k) => !asmHidden.includes(k)),
     recommended_default_landing_path: path,
     recommended_dashboard_profile: mode === "core" ? "core" : mode === "advanced" ? "advanced" : "assurance_lite",
     recommended_search_scope: mode === "core" ? "core_only" : "match_mode",
@@ -345,8 +320,8 @@ const CORE_FALLBACK_ANSWERS: CalibrationAnswersRequired = {
  */
 export function recommendationToV6Patch(rec: CalibrationRecommendation): V6OrgSettingsMergePatch {
   const mode = rec.recommended_workspace_mode;
-  const advHidden = ALL_ADVANCED.filter((k) => !rec.recommended_advanced_families_enabled.includes(k));
-  const asmHidden = ALL_ASSURANCE.filter((k) => !rec.recommended_assurance_families_enabled.includes(k));
+  const advHidden = ALL_ADVANCED_NAV_MODULE_KEYS.filter((k) => !rec.recommended_advanced_families_enabled.includes(k));
+  const asmHidden = ALL_ASSURANCE_NAV_MODULE_KEYS.filter((k) => !rec.recommended_assurance_families_enabled.includes(k));
 
   let path = rec.recommended_default_landing_path;
   if (!isValidDefaultLandingPath(path, mode)) path = "/dashboard";
@@ -370,8 +345,8 @@ export function recommendationToV6Patch(rec: CalibrationRecommendation): V6OrgSe
 export function coreFallbackV6Patch(): V6OrgSettingsMergePatch {
   return {
     workspace_mode: "core",
-    advanced_modules_hidden: [...ALL_ADVANCED],
-    assurance_modules_hidden: [...ALL_ASSURANCE],
+    advanced_modules_hidden: [...ALL_ADVANCED_NAV_MODULE_KEYS],
+    assurance_modules_hidden: [...ALL_ASSURANCE_NAV_MODULE_KEYS],
     utility_modules_hidden: utilityHiddenForAnswers(CORE_FALLBACK_ANSWERS),
     home_hidden_sections: [...HOME_SECTION_IDS],
     search_scope: "core_only",

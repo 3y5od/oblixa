@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §2 + §22.1 — execution identity must not foreground assurance/campaign/autopilot
+ * product-surface policy §2 + §22.1 — execution identity must not foreground assurance/campaign/autopilot
  * as the primary product story on marketing, auth, external, and root entry surfaces.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";

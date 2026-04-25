@@ -1,35 +1,137 @@
 {
-  "generatedAt": "2026-04-16T00:00:00.000Z",
+  "generatedAt": "2026-04-23T00:19:41.212Z",
   "offenders": [
-    { "file": "src/components/assurance/review-board-actions.tsx", "lines": 391 },
-    { "file": "src/components/contracts/contract-obligations-panel.tsx", "lines": 536 },
-    { "file": "src/components/contracts/contract-tasks-panel.tsx", "lines": 807 },
-    { "file": "src/components/contracts/field-review.tsx", "lines": 357 },
-    { "file": "src/components/contracts/renewal-checkpoints-panel.tsx", "lines": 355 },
-    { "file": "src/components/dashboard/dashboard-lower.tsx", "lines": 430 },
-    { "file": "src/components/dashboard/dashboard-upper.tsx", "lines": 480 },
-    { "file": "src/components/dashboard/dashboard-v6-operational-blocks.tsx", "lines": 422 },
-    { "file": "src/components/decisions/decision-workspace-panel.tsx", "lines": 377 },
-    { "file": "src/components/external/external-submit-form.tsx", "lines": 448 },
-    { "file": "src/components/landing/landing-page.tsx", "lines": 407 },
-    { "file": "src/components/layout/command-palette.tsx", "lines": 390 },
-    { "file": "src/components/layout/sidebar.tsx", "lines": 526 },
-    { "file": "src/components/onboarding/calibration-wizard.tsx", "lines": 571 },
-    { "file": "src/components/reports/reports-control-room-more.tsx", "lines": 599 },
-    { "file": "src/components/reports/reports-v6-assurance-section.tsx", "lines": 503 },
-    { "file": "src/app/(dashboard)/contracts/[id]/page.tsx", "lines": 1552 },
-    { "file": "src/app/(dashboard)/contracts/analytics/page.tsx", "lines": 581 },
-    { "file": "src/app/(dashboard)/contracts/maintenance/page.tsx", "lines": 528 },
-    { "file": "src/app/(dashboard)/contracts/page.tsx", "lines": 626 },
-    { "file": "src/app/(dashboard)/contracts/programs/page.tsx", "lines": 377 },
-    { "file": "src/app/(dashboard)/contracts/renewals/page.tsx", "lines": 480 },
-    { "file": "src/app/(dashboard)/contracts/reports/page.tsx", "lines": 412 },
-    { "file": "src/app/(dashboard)/dashboard/page.tsx", "lines": 385 },
-    { "file": "src/app/(dashboard)/dashboard/persona/page.tsx", "lines": 525 },
-    { "file": "src/app/(dashboard)/decisions/[id]/page.tsx", "lines": 371 },
-    { "file": "src/app/(dashboard)/settings/health/page.tsx", "lines": 352 },
-    { "file": "src/app/(dashboard)/settings/operations/page.tsx", "lines": 801 },
-    { "file": "src/app/(dashboard)/settings/product/page.tsx", "lines": 549 },
-    { "file": "src/app/(dashboard)/work/page.tsx", "lines": 368 }
+    {
+      "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "lines": 1926
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "lines": 581
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "lines": 528
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/page.tsx",
+      "lines": 828
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "lines": 377
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "lines": 572
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "lines": 412
+    },
+    {
+      "file": "src/app/(dashboard)/dashboard/page.tsx",
+      "lines": 385
+    },
+    {
+      "file": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "lines": 525
+    },
+    {
+      "file": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "lines": 371
+    },
+    {
+      "file": "src/app/(dashboard)/settings/health/page.tsx",
+      "lines": 719
+    },
+    {
+      "file": "src/app/(dashboard)/settings/operations/page.tsx",
+      "lines": 831
+    },
+    {
+      "file": "src/app/(dashboard)/settings/product/page.tsx",
+      "lines": 562
+    },
+    {
+      "file": "src/app/(dashboard)/work/page.tsx",
+      "lines": 801
+    },
+    {
+      "file": "src/components/assurance/review-board-actions.tsx",
+      "lines": 391
+    },
+    {
+      "file": "src/components/contracts/contract-obligations-panel.tsx",
+      "lines": 537
+    },
+    {
+      "file": "src/components/contracts/contract-table.tsx",
+      "lines": 466
+    },
+    {
+      "file": "src/components/contracts/contract-tasks-panel.tsx",
+      "lines": 808
+    },
+    {
+      "file": "src/components/contracts/field-review.tsx",
+      "lines": 439
+    },
+    {
+      "file": "src/components/contracts/renewal-checkpoints-panel.tsx",
+      "lines": 356
+    },
+    {
+      "file": "src/components/contracts/upload-form.tsx",
+      "lines": 613
+    },
+    {
+      "file": "src/components/dashboard/dashboard-lower.tsx",
+      "lines": 442
+    },
+    {
+      "file": "src/components/dashboard/dashboard-upper.tsx",
+      "lines": 684
+    },
+    {
+      "file": "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
+      "lines": 422
+    },
+    {
+      "file": "src/components/dashboard/onboarding-banner.tsx",
+      "lines": 387
+    },
+    {
+      "file": "src/components/decisions/decision-workspace-panel.tsx",
+      "lines": 377
+    },
+    {
+      "file": "src/components/external/external-submit-form.tsx",
+      "lines": 448
+    },
+    {
+      "file": "src/components/landing/landing-page.tsx",
+      "lines": 407
+    },
+    {
+      "file": "src/components/layout/command-palette.tsx",
+      "lines": 526
+    },
+    {
+      "file": "src/components/layout/sidebar.tsx",
+      "lines": 526
+    },
+    {
+      "file": "src/components/onboarding/calibration-wizard.tsx",
+      "lines": 571
+    },
+    {
+      "file": "src/components/reports/reports-control-room-more.tsx",
+      "lines": 599
+    },
+    {
+      "file": "src/components/reports/reports-v6-assurance-section.tsx",
+      "lines": 503
+    }
   ]
 }

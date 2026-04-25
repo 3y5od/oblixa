@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { STATUS_LABELS } from "@/lib/contracts";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 export default async function ContractWatchlistsPage() {
@@ -36,11 +37,11 @@ export default async function ContractWatchlistsPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header border-b border-zinc-200/60 pb-8">
+      <header className="ui-page-header border-b border-[var(--border-subtle)] pb-8">
         <div>
           <p className="ui-eyebrow">Priority monitoring</p>
           <h1 className="ui-display-title mt-2">My watchlist</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl text-[15px]">
+          <p className="ui-page-lead mt-3 max-w-2xl">
             Contracts you flagged for heightened operational attention.
           </p>
         </div>
@@ -61,14 +62,20 @@ export default async function ContractWatchlistsPage() {
       {rows.length === 0 ? (
         <div className="ui-card px-8 py-14 text-center">
           <h2 className="ui-section-title text-base">No watchlisted contracts</h2>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="ui-support-copy mt-2">
             Open a contract and use Add to watchlist to track escalations.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-1)]">
-          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
-            <thead className="bg-zinc-50/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <div className="ui-table-shell">
+          <div className="ui-surface-tint px-5 py-4">
+            <p className="ui-eyebrow">Rows</p>
+            <h2 className="ui-section-title mt-1 text-[1.05rem]">Watchlist ledger</h2>
+            <p className="ui-support-copy mt-1">Keep status, team routing, and your monitoring note visible in one compact queue.</p>
+          </div>
+          <div className="overflow-x-auto">
+          <table aria-label="Contracts on your watchlist" className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
+            <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/70 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
               <tr>
                 <th className="px-5 py-3">Contract</th>
                 <th className="px-5 py-3">Status</th>
@@ -80,21 +87,24 @@ export default async function ContractWatchlistsPage() {
             <tbody className="divide-y divide-[var(--border-subtle)]">
               {rows.map((row) => (
                 <tr key={row.id}>
-                  <td className="px-5 py-4 font-semibold text-zinc-900">
+                  <td className="px-5 py-4 font-semibold text-[var(--text-primary)]">
                     <Link href={`/contracts/${row.contractId}`} className="ui-link">
                       {row.title}
                     </Link>
                   </td>
-                  <td className="px-5 py-4 text-zinc-700">{row.status}</td>
-                  <td className="px-5 py-4 text-zinc-700">{row.teamKey ?? "—"}</td>
-                  <td className="px-5 py-4 text-zinc-600">{row.note ?? "—"}</td>
-                  <td className="px-5 py-4 text-zinc-700">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
+                    {STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status.replace(/_/g, " ")}
+                  </td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">{row.teamKey ?? "—"}</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">{row.note ?? "—"}</td>
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {row.annualValue == null ? "—" : `$${row.annualValue.toLocaleString()}`}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

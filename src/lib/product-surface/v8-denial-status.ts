@@ -4,6 +4,7 @@ const DENIAL_STATUS_MAP: Record<V8EligibilityDenialClass, 401 | 403 | 404> = {
   unauthenticated: 401,
   unauthorized_role: 403,
   insufficient_workspace_mode: 404,
+  feature_flag_disabled: 404,
   hidden_by_module_config: 404,
   retired_feature: 404,
   experimental_deep_link_only_suppression: 404,

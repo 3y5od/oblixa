@@ -76,7 +76,7 @@ export function DeleteContractButton({
 
   return (
     <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
-      <p className="mb-2 text-xs font-medium uppercase text-zinc-500">Danger zone</p>
+      <p className="mb-2 text-xs font-medium uppercase text-[var(--text-tertiary)]">Danger zone</p>
       <button
         ref={triggerRef}
         type="button"
@@ -110,12 +110,12 @@ export function DeleteContractButton({
           >
             <h2
               id="delete-contract-dialog-title"
-              className="text-lg font-semibold text-zinc-900"
+              className="text-lg font-semibold text-[var(--text-primary)]"
             >
               Delete contract?
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-              <span className="font-medium text-zinc-900">&ldquo;{label}&rdquo;</span>{" "}
+            <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+              <span className="font-medium text-[var(--text-primary)]">&ldquo;{label}&rdquo;</span>{" "}
               will be removed along with uploaded files, extracted fields, and reminders.
               This cannot be undone.
             </p>

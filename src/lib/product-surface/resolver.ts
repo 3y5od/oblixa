@@ -73,7 +73,7 @@ export function isCmdkHrefAllowed(href: string, surface: NavSurfaceInput): boole
   return false;
 }
 
-/** docs/refinement.md §20.3 — drop recent cmd-K targets hidden for the current surface. */
+/** product-surface policy §20.3 — drop recent cmd-K targets hidden for the current surface. */
 export function cmdkFilterRecentHrefsForSurface(hrefs: string[], surface: NavSurfaceInput): string[] {
   const filtered = hrefs.filter((href) => isCmdkHrefAllowed(href, surface));
   if (filtered.length < hrefs.length) {
@@ -86,7 +86,7 @@ export function cmdkFilterRecentHrefsForSurface(hrefs: string[], surface: NavSur
 }
 
 /**
- * docs/refinement.md §20.1 — lower sort values appear earlier for cmd-K static results.
+ * product-surface policy §20.1 — lower sort values appear earlier for cmd-K static results.
  */
 export function cmdkResultSortKey(href: string): number {
   const p = href.split("?")[0] ?? href;

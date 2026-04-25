@@ -49,7 +49,7 @@ describe("autopilot API auth (§17.2 / §19)", () => {
     });
     hoisted.requireAssuranceWorkspaceForAutopilotApi.mockResolvedValue(
       NextResponse.json(
-        { error: "Autopilot API requires Assurance workspace mode (docs/refinement.md §17.2)." },
+        { error: "Autopilot API requires Assurance workspace mode (product-surface policy §17.2)." },
         { status: 403 }
       )
     );

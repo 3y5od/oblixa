@@ -74,13 +74,13 @@ export default async function ProgramEvolutionPage() {
             Compare program versions, run simulations, stage rollout to a segment, and record health impact. Use the
             API to create experiments and record results.
           </p>
-          <p className="text-xs text-zinc-600">
-            <strong className="font-medium text-zinc-800">Guided flow:</strong> simulate on a narrow segment → start an
+          <p className="text-xs text-[var(--text-secondary)]">
+            <strong className="font-medium text-[var(--text-primary)]">Guided flow:</strong> simulate on a narrow segment → start an
             experiment run → record periodic results while watching assurance scorecards and findings → expand rollout in{" "}
-            <code className="rounded bg-zinc-100 px-1">rollout_plan_json</code> when health impact stays positive. Past
+            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">rollout_plan_json</code> when health impact stays positive. Past
             performance by version is visible via linked program IDs and stored{" "}
-            <code className="rounded bg-zinc-100 px-1">health_impact_json</code> /{" "}
-            <code className="rounded bg-zinc-100 px-1">scorecard_delta_json</code> on each result row.
+            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">health_impact_json</code> /{" "}
+            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">scorecard_delta_json</code> on each result row.
           </p>
         </div>
       }
@@ -92,7 +92,7 @@ export default async function ProgramEvolutionPage() {
         to pick baseline and candidate versions for experiments.
       </p>
       <ProgramEvolutionCreateForm />
-      <p className="mt-4 text-xs text-zinc-500">
+      <p className="mt-4 text-xs text-[var(--text-tertiary)]">
         <Link className="ui-link" href="/api/program-evolution/experiments" target="_blank">
           GET experiments (JSON)
         </Link>
@@ -107,9 +107,9 @@ export default async function ProgramEvolutionPage() {
       </p>
       <ul className="mt-4 space-y-2 text-sm">
         {(data ?? []).map((row) => (
-          <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-            <p className="font-medium text-zinc-900">{row.hypothesis ?? "Experiment"}</p>
-            <p className="mt-1 text-xs text-zinc-600">
+          <li key={row.id} className="ui-support-panel p-3">
+            <p className="font-medium text-[var(--text-primary)]">{row.hypothesis ?? "Experiment"}</p>
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Status {row.status} · Updated {String(row.updated_at)}
             </p>
             {row.status === "draft" ? <ProgramEvolutionSimulateButton experimentId={String(row.id)} /> : null}
@@ -120,15 +120,15 @@ export default async function ProgramEvolutionPage() {
               <ProgramEvolutionRecordResultButton experimentId={String(row.id)} />
             ) : null}
             {(resultsByExperiment.get(String(row.id)) ?? []).length > 0 ? (
-              <ul className="mt-2 space-y-1 text-[11px] text-zinc-600">
+              <ul className="mt-2 space-y-1 text-[11px] text-[var(--text-secondary)]">
                 {(resultsByExperiment.get(String(row.id)) ?? []).slice(0, 5).map((res) => (
-                  <li key={res.id} className="rounded border border-zinc-100 bg-surface px-2 py-1">
+                  <li key={res.id} className="ui-soft-details px-2 py-1">
                     {String(res.created_at)}
                     {res.period_start ? ` · period ${res.period_start}` : ""}
                     {res.health_impact_json &&
                     typeof res.health_impact_json === "object" &&
                     Object.keys(res.health_impact_json as object).length > 0 ? (
-                      <pre className="mt-1 max-h-20 overflow-auto font-mono text-[10px] text-zinc-500">
+                      <pre className="mt-1 max-h-20 overflow-auto font-mono text-[10px] text-[var(--text-tertiary)]">
                         {JSON.stringify(res.health_impact_json, null, 2)}
                       </pre>
                     ) : null}
@@ -138,23 +138,23 @@ export default async function ProgramEvolutionPage() {
             ) : null}
             {row.simulation_summary_json && Object.keys(row.simulation_summary_json as object).length > 0 ? (
               <div className="mt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Simulation summary</p>
-                <pre className="mt-1 max-h-36 overflow-auto rounded bg-zinc-50 p-2 text-[10px] text-zinc-600">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Simulation summary</p>
+                <pre className="ui-soft-details mt-1 max-h-36 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.simulation_summary_json, null, 2)}
                 </pre>
               </div>
             ) : null}
             {row.rollout_plan_json && Object.keys(row.rollout_plan_json as object).length > 0 ? (
               <div className="mt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Rollout plan</p>
-                <pre className="mt-1 max-h-24 overflow-auto rounded bg-amber-50/50 p-2 text-[10px] text-zinc-600">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Rollout plan</p>
+                <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.rollout_plan_json, null, 2)}
                 </pre>
               </div>
             ) : null}
           </li>
         ))}
-        {(data ?? []).length === 0 ? <li className="text-zinc-500">No experiments yet.</li> : null}
+        {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No experiments yet.</li> : null}
       </ul>
     </AssuranceListCard>
   );

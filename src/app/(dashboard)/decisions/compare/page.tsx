@@ -78,7 +78,7 @@ export default async function DecisionsComparePage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="border-b border-[var(--border-subtle)] pb-8">
         <div>
           <p className="ui-eyebrow">Compare view</p>
           <h1 className="ui-display-title mt-2">Decision compare</h1>
@@ -130,7 +130,7 @@ export default async function DecisionsComparePage(props: {
               </select>
             </div>
           </div>
-          <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-100 pt-4">
+          <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border-subtle)] pt-4">
             <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
               Apply
             </button>
@@ -145,13 +145,13 @@ export default async function DecisionsComparePage(props: {
             <dl className="mt-4 space-y-3 text-sm">
               {left.lines.map((line) => (
                 <div key={line.k}>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{line.k}</dt>
-                  <dd className="mt-1 whitespace-pre-wrap break-words text-zinc-800">{line.v}</dd>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">{line.k}</dt>
+                  <dd className="mt-1 whitespace-pre-wrap break-words text-[var(--text-primary)]">{line.v}</dd>
                 </div>
               ))}
             </dl>
           ) : (
-            <p className="mt-4 text-sm text-zinc-500">Select decision A above.</p>
+            <p className="mt-4 text-sm text-[var(--text-tertiary)]">Select decision A above.</p>
           )}
           {one.data?.id ? (
             <Link href={`/decisions/${one.data.id}`} className="ui-link mt-4 inline-block text-xs">
@@ -165,13 +165,13 @@ export default async function DecisionsComparePage(props: {
             <dl className="mt-4 space-y-3 text-sm">
               {right.lines.map((line) => (
                 <div key={line.k}>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{line.k}</dt>
-                  <dd className="mt-1 whitespace-pre-wrap break-words text-zinc-800">{line.v}</dd>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">{line.k}</dt>
+                  <dd className="mt-1 whitespace-pre-wrap break-words text-[var(--text-primary)]">{line.v}</dd>
                 </div>
               ))}
             </dl>
           ) : (
-            <p className="mt-4 text-sm text-zinc-500">Select decision B above.</p>
+            <p className="mt-4 text-sm text-[var(--text-tertiary)]">Select decision B above.</p>
           )}
           {two.data?.id ? (
             <Link href={`/decisions/${two.data.id}`} className="ui-link mt-4 inline-block text-xs">
@@ -182,13 +182,13 @@ export default async function DecisionsComparePage(props: {
       </section>
 
       <nav
-        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-zinc-500"
+        className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-sm text-[var(--text-tertiary)]"
         aria-label="Decision shortcuts"
       >
         <Link href="/decisions" className="ui-link">
           Back to decisions
         </Link>
-        <span className="text-zinc-300" aria-hidden>
+        <span className="text-[var(--text-tertiary)]" aria-hidden>
           ·
         </span>
         <Link href="/decisions/review" className="ui-link">

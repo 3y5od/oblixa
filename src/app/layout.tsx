@@ -31,9 +31,17 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Oblixa",
     locale: "en_US",
+    title: "Oblixa — Contract Execution Platform",
+    description:
+      "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Contract execution for post-signature teams" }],
   },
   twitter: {
     card: "summary_large_image",
+    title: "Oblixa — Contract Execution Platform",
+    description:
+      "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+    images: ["/twitter-image"],
   },
   formatDetection: {
     email: false,
@@ -43,12 +51,16 @@ export const metadata: Metadata = {
   ...(siteVerification ? { verification: { google: siteVerification } } : {}),
   icons: {
     icon: [{ url: "/icon", type: "image/png" }],
+    shortcut: [{ url: "/icon", type: "image/png" }],
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fafaf9",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f8fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#161a23" },
+  ],
 };
 
 export default function RootLayout({
@@ -61,7 +73,7 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="relative flex min-h-full flex-col font-sans">
+      <body className="relative flex min-h-full flex-col font-sans text-[var(--text-secondary)]">
         <SkipLink />
         {children}
       </body>

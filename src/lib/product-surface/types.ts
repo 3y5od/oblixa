@@ -1,4 +1,4 @@
-/** Stored in `organizations.v6_org_settings_json` (refinement / docs/refinement.md). */
+/** Stored in `organizations.v6_org_settings_json` (refinement / product-surface policy). */
 export type WorkspaceProductMode = "core" | "advanced" | "assurance";
 
 export type AdvancedNavModuleKey =

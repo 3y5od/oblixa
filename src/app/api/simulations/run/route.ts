@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     policy_registry_valid: prValid.ok,
     metric_matrix,
     notes:
-      "Estimates derive from matched contracts (status/accountKey/counterpartyKey filters) with optional numeric overrides in input. Obligation and policy-registry figures are org-wide execution signals (same sources as V4 policy simulation).",
+      "Estimates derive from matched contracts (status/accountKey/counterpartyKey filters) with optional numeric overrides in input. Obligation and policy-registry figures are org-wide execution signals.",
   };
 
   const { data: run, error: runError } = await ctx.admin

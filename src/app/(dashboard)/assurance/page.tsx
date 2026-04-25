@@ -102,32 +102,32 @@ export default async function AssurancePage() {
 
   const v6Core = isFeatureEnabled("v6AssuranceCore");
   const v6Outcomes = isFeatureEnabled("v6OutcomeIntelligence");
-  const [{ count: openFindings }, { data: lastRun }, analytics] = await Promise.all([
+  const [{ data: hubSnapshot }, analytics] = await Promise.all([
     v6Core
-      ? ctx.admin
-          .from("assurance_findings")
-          .select("id", { count: "exact", head: true })
-          .eq("organization_id", ctx.orgId)
-          .in("status", ["open", "in_review"])
-      : Promise.resolve({ count: 0 }),
-    v6Core
-      ? ctx.admin
-          .from("assurance_check_runs")
-          .select("id, check_type, trigger_type, completed_at, watch_signals_json, recommended_interventions_json")
-          .eq("organization_id", ctx.orgId)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle()
+      ? ctx.admin.rpc("assurance_hub_snapshot", { p_org_id: ctx.orgId })
       : Promise.resolve({ data: null }),
     v6Core ? buildAssuranceAnalyticsSummary(ctx.admin, ctx.orgId) : Promise.resolve(null),
   ]);
+  const snapshot = hubSnapshot && typeof hubSnapshot === "object"
+    ? hubSnapshot as Record<string, unknown>
+    : {};
+  const openFindings = Number(snapshot.openFindings) || 0;
+  const lastRun = snapshot.lastRun && typeof snapshot.lastRun === "object"
+    ? snapshot.lastRun as {
+        check_type?: unknown;
+        trigger_type?: unknown;
+        completed_at?: unknown;
+        watch_signals_json?: unknown;
+        recommended_interventions_json?: unknown;
+      }
+    : null;
 
   const watch = Array.isArray(lastRun?.watch_signals_json) ? (lastRun!.watch_signals_json as string[]) : [];
   const rec = Array.isArray(lastRun?.recommended_interventions_json)
     ? (lastRun!.recommended_interventions_json as string[])
     : [];
 
-  const open = openFindings ?? 0;
+  const open = openFindings;
   const findingsTone: OperationalTone = open > 0 ? "attention" : "healthy";
   const playbookTone: OperationalTone =
     analytics && analytics.playbook_runs_last_30d.failed > 0 ? "attention" : "healthy";
@@ -138,7 +138,7 @@ export default async function AssurancePage() {
         <div>
           <p className="ui-eyebrow">Assurance command center</p>
           <h1 className="ui-display-title mt-2">Continuous assurance</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">
+          <p className="ui-page-lead mt-2 max-w-2xl">
             Detect drift, route interventions, and measure operational effect across the governed assurance surface.
           </p>
         </div>
@@ -147,7 +147,8 @@ export default async function AssurancePage() {
         <section className="ui-page-shell space-y-4">
           <div>
             <p className="ui-eyebrow">Activity</p>
-            <h2 className="ui-section-title mt-2 text-xl">Assurance metrics</h2>
+            <h2 className="ui-page-title mt-2 text-[1.8rem]">Assurance metrics</h2>
+            <p className="ui-section-lead mt-2">Keep finding pressure, policy pass rate, automation performance, and the latest assurance run visible before you dive into detailed diagnostics.</p>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             <OperationalSummaryCard
@@ -187,26 +188,26 @@ export default async function AssurancePage() {
             />
           </div>
           {lastRun ? (
-            <div className="flex flex-wrap gap-2 text-[12px] text-zinc-600">
-              <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-zinc-200/90 bg-surface/90 px-2.5 py-1 dark:bg-zinc-900/25">
-                <span className="font-medium text-zinc-500">Last check</span>
-                <span className="font-semibold text-zinc-900">
+            <div className="flex flex-wrap gap-2 text-[12px] text-[var(--text-secondary)]">
+              <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-surface/90 px-2.5 py-1 dark:bg-[var(--text-primary)]/25">
+                <span className="font-medium text-[var(--text-tertiary)]">Last check</span>
+                <span className="font-semibold text-[var(--text-primary)]">
                   {String(lastRun.check_type)} · {String(lastRun.trigger_type)}
                   {lastRun.completed_at ? ` · ${String(lastRun.completed_at).slice(0, 10)}` : ""}
                 </span>
               </span>
               {watch.length ? (
-                <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-zinc-200/90 bg-surface/90 px-2.5 py-1 dark:bg-zinc-900/25">
-                  <span className="font-medium text-zinc-500">Signals</span>
-                  <span className="max-w-[14rem] truncate font-semibold text-zinc-900">
+                <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-surface/90 px-2.5 py-1 dark:bg-[var(--text-primary)]/25">
+                  <span className="font-medium text-[var(--text-tertiary)]">Signals</span>
+                  <span className="max-w-[14rem] truncate font-semibold text-[var(--text-primary)]">
                     {watch.slice(0, 3).join(", ")}
                   </span>
                 </span>
               ) : null}
               {rec.length ? (
-                <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-zinc-200/90 bg-surface/90 px-2.5 py-1 dark:bg-zinc-900/25">
-                  <span className="font-medium text-zinc-500">Next</span>
-                  <span className="max-w-[14rem] truncate font-semibold text-zinc-900">
+                <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-surface/90 px-2.5 py-1 dark:bg-[var(--text-primary)]/25">
+                  <span className="font-medium text-[var(--text-tertiary)]">Next</span>
+                  <span className="max-w-[14rem] truncate font-semibold text-[var(--text-primary)]">
                     {rec.slice(0, 2).join(", ")}
                   </span>
                 </span>
@@ -268,7 +269,7 @@ export default async function AssurancePage() {
       ) : null}
       <div>
         <p className="ui-eyebrow">Navigate</p>
-        <h2 className="ui-section-title mt-2 text-xl">Assurance areas</h2>
+        <h2 className="ui-page-title mt-2 text-[1.8rem]">Assurance areas</h2>
         <div className="ui-summary-grid mt-3">
           {hubItems.map((item) => (
             <OperationalSurfaceLinkCard

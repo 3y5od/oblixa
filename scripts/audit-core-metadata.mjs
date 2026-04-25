@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §11.1 — spot-check `metadata.title` / first visible title on Core pages.
+ * product-surface policy §11.1 — spot-check `metadata.title` / first visible title on Core pages.
  * Usage: node scripts/audit-core-metadata.mjs [--strict]
  */
 import { readFileSync, statSync } from "node:fs";

@@ -55,9 +55,9 @@ export default async function AssuranceAutopilotPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="ui-page-stack">
       {!mutatingExecutionEnabled ? (
-        <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 px-4 py-3 text-sm text-amber-950">
+        <div className="ui-status-panel ui-status-panel-warning text-sm">
           <p className="font-semibold">Dry-run posture</p>
           <p className="mt-1 text-[13px] leading-relaxed">
             Mutating autopilot execution is off for this workspace. Rules may still evaluate and log dry-runs; turn on
@@ -71,12 +71,11 @@ export default async function AssuranceAutopilotPage() {
         explainer={
           <p>
             Rules are bounded by allowlists, approval gates, and dry-run history. When control policies use{" "}
-            <code className="rounded bg-zinc-100 px-1">trigger_autopilot_action</code>, enforcement prefers a rule
-            whose <code className="rounded bg-zinc-100 px-1">guardrails_json.policy_id</code> matches the breached
-            policy; otherwise the newest enabled rule is used. Org-wide execution can be disabled with{" "}
-            <code className="rounded bg-zinc-100 px-1">ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION=false</code> (dry-runs still
-            run) or per-org below. Manage rules via{" "}
-            <code className="rounded bg-zinc-100 px-1">GET/POST /api/autopilot/rules</code>.
+            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">trigger_autopilot_action</code>, enforcement prefers a rule
+            whose <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">guardrails_json.policy_id</code> matches the breached
+            policy; otherwise the newest enabled rule is used. Execution can be disabled globally (dry-runs still
+            run) or per organization below. Manage rules via{" "}
+            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">GET/POST /api/autopilot/rules</code>.
           </p>
         }
       >
@@ -87,17 +86,17 @@ export default async function AssuranceAutopilotPage() {
         />
         <ul className="space-y-2 text-sm">
           {(rules ?? []).map((row) => (
-            <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-              <p className="font-medium text-zinc-900">{row.name}</p>
-              <p className="mt-1 text-xs text-zinc-600">
+            <li key={row.id} className="ui-support-panel p-3">
+              <p className="font-medium text-[var(--text-primary)]">{row.name}</p>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
                 {row.action_type} · {row.enabled ? "enabled" : "disabled"} · dry-runs {row.dry_run_count}
                 {row.guardrails_json &&
                 typeof row.guardrails_json === "object" &&
                 row.guardrails_json !== null &&
                 "policy_id" in row.guardrails_json ? (
-                  <span className="ml-1 text-zinc-500">
+                  <span className="ml-1 text-[var(--text-tertiary)]">
                     · policy{" "}
-                    <code className="rounded bg-zinc-100 px-0.5">
+                    <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">
                       {String((row.guardrails_json as { policy_id?: string }).policy_id ?? "")}
                     </code>
                   </span>
@@ -118,7 +117,7 @@ export default async function AssuranceAutopilotPage() {
               ) : null}
             </li>
           ))}
-          {(rules ?? []).length === 0 ? <li className="text-zinc-500">No autopilot rules yet.</li> : null}
+          {(rules ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No autopilot rules yet.</li> : null}
         </ul>
       </AssuranceListCard>
 
@@ -128,26 +127,25 @@ export default async function AssuranceAutopilotPage() {
         explainer={
           <p>
             Audit trail for dry-runs, blocked actions, executions, and reverts. Blocked rows often indicate allowlist
-            mismatch, org disablement, or master execution flag — use this as an override / trust signal (see v6.md
-            autopilot section).
+            mismatch, organization disablement, or the global execution gate. Use this as an override and trust signal.
           </p>
         }
       >
-        <div className="mb-3 grid gap-2 rounded-lg border border-zinc-100 bg-zinc-50/60 p-3 text-xs text-zinc-700 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="ui-soft-details mb-3 grid gap-2 p-3 text-xs text-[var(--text-secondary)] sm:grid-cols-3 lg:grid-cols-5">
           <p>
-            <span className="font-semibold text-zinc-900">{logStats.dry_run}</span> dry-run
+            <span className="font-semibold text-[var(--text-primary)]">{logStats.dry_run}</span> dry-run
           </p>
           <p>
-            <span className="font-semibold text-zinc-900">{logStats.executed}</span> executed
+            <span className="font-semibold text-[var(--text-primary)]">{logStats.executed}</span> executed
           </p>
           <p>
-            <span className="font-semibold text-amber-800">{logStats.blocked}</span> blocked
+            <span className="font-semibold text-[var(--warning-ink)]">{logStats.blocked}</span> blocked
           </p>
           <p>
-            <span className="font-semibold text-rose-800">{logStats.failed}</span> failed
+            <span className="font-semibold text-[var(--danger-ink)]">{logStats.failed}</span> failed
           </p>
           <p>
-            <span className="font-semibold text-zinc-900">{logStats.reverted}</span> reverted
+            <span className="font-semibold text-[var(--text-primary)]">{logStats.reverted}</span> reverted
           </p>
         </div>
         <ul className="space-y-2 text-sm">
@@ -159,14 +157,14 @@ export default async function AssuranceAutopilotPage() {
               row.status === "executed" &&
               Boolean(hint?.table && hint?.id);
             return (
-              <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-                <p className="font-medium text-zinc-900">
+              <li key={row.id} className="ui-support-panel p-3">
+                <p className="font-medium text-[var(--text-primary)]">
                   {row.status} · {row.action_type}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">{row.reason ?? "—"}</p>
-                <p className="mt-1 text-xs text-zinc-400">{String(row.created_at)}</p>
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">{row.reason ?? "—"}</p>
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">{String(row.created_at)}</p>
                 {Object.keys(out).length > 0 ? (
-                  <pre className="mt-2 max-h-28 overflow-auto rounded bg-zinc-50 p-2 text-[10px] text-zinc-600">
+                  <pre className="ui-soft-details mt-2 max-h-28 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
                     {JSON.stringify(out, null, 2)}
                   </pre>
                 ) : null}
@@ -174,9 +172,9 @@ export default async function AssuranceAutopilotPage() {
               </li>
             );
           })}
-          {(logs ?? []).length === 0 ? <li className="text-zinc-500">No runs yet.</li> : null}
+          {(logs ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
-        <p className="mt-4 text-xs text-zinc-600">
+        <p className="mt-4 text-xs text-[var(--text-secondary)]">
           <Link className="ui-link" href="/api/autopilot/rules" target="_blank">
             Rules JSON
           </Link>

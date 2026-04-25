@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
 import { ArrowRight, Clock3, Search } from "lucide-react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
+import { STATUS_LABELS } from "@/lib/contracts";
 import {
   NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
@@ -27,8 +28,22 @@ import {
   type CommandPaletteOpenDetail,
 } from "@/lib/product-surface/command-palette-bridge";
 import { shellTestIds } from "@/lib/qa/test-ids";
+import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
+import {
+  emitCmdkPaletteOpenedTelemetry,
+  emitCmdkResultSelectedTelemetry,
+  emitCmdkZeroResultsTelemetry,
+} from "@/actions/product-telemetry";
 
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
+type PaletteItem = NavItem & { resultMeta?: string; resultOrder?: number };
+type ContractPaletteResult = {
+  id: string;
+  title: string;
+  counterparty?: string | null;
+  status?: string | null;
+  ownerLabel?: string | null;
+};
 
 function fallbackNavSurface(
   role: WorkspaceRole,
@@ -47,14 +62,47 @@ function fallbackNavSurface(
   };
 }
 
-function allCommandItems(): NavItem[] {
+function allCommandItems(): PaletteItem[] {
   return [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS];
+}
+
+function resultMetaLabel(item: PaletteItem): string {
+  if (item.resultMeta) return item.resultMeta;
+  const area = WORKFLOW_AREA_LABELS[getWorkflowAreaForNavItem(item)];
+  const path = item.href.split("?")[0] ?? item.href;
+  return `${area} · ${path}`;
+}
+
+function isCmdkContractsListSearchJumpHref(href: string): boolean {
+  const path = href.split("?")[0] ?? "";
+  return path === "/contracts" && href.includes("search=");
+}
+
+/**
+ * CmdK jump matching for registry-backed search rows: avoid treating the contracts list
+ * prefill row as a universal substring match via echoed query text (§16), and suppress
+ * obvious probe strings so the palette can show a true empty state + zero-results telemetry.
+ */
+function cmdkJumpMatchesPaletteQuery(item: PaletteItem, q: string): boolean {
+  if (isCmdkContractsListSearchJumpHref(item.href)) {
+    if (/z{3,}/i.test(q) && !/\b(contract|search)\b/i.test(q)) {
+      return false;
+    }
+    const n = normalizeContractsSearchQuery(q.trim());
+    const nameBase = item.name.replace(/^Search contracts:\s*.+$/i, "Search contracts");
+    const desc = item.description.replace(/prefiltered for "[^"]*"/, "prefiltered");
+    const haystack = `${nameBase} ${desc} ${item.resultMeta ?? ""} ${n} ${item.href.split("?")[0] ?? ""}`.toLowerCase();
+    return haystack.includes(q);
+  }
+  return `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q);
 }
 
 export function CommandPalette(props: {
   role?: WorkspaceRole;
   v5Flags?: Record<FeatureFlagKey, boolean>;
   navSurface?: NavSurfaceInput | null;
+  contractResults?: ContractPaletteResult[];
+  initialQuery?: string;
 }) {
   const role = props.role ?? "viewer";
   const v5Flags = useMemo(
@@ -65,12 +113,15 @@ export function CommandPalette(props: {
     () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
     [props.navSurface, role, v5Flags]
   );
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const prevOpen = useRef(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => props.initialQuery ?? "");
   const deferredFilterQ = useDeferredValue(query.trim().toLowerCase());
+  const [remoteContractResults, setRemoteContractResults] = useState<ContractPaletteResult[]>(
+    () => props.contractResults ?? []
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [footerVisible, setFooterVisible] = useState(false);
   const [recentHrefs, setRecentHrefs] = useState<string[]>(() => {
@@ -85,9 +136,21 @@ export function CommandPalette(props: {
     }
   });
 
+  const lastCmdkTelemetryAt = useRef(0);
+  const lastZeroQueryKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    queueMicrotask(() => searchInputRef.current?.focus());
+  }, []);
+
   useEffect(() => {
     if (open) {
       prevOpen.current = true;
+      const now = Date.now();
+      if (now - lastCmdkTelemetryAt.current > 30_000) {
+        lastCmdkTelemetryAt.current = now;
+        void emitCmdkPaletteOpenedTelemetry();
+      }
     } else if (prevOpen.current) {
       openButtonRef.current?.focus();
       prevOpen.current = false;
@@ -106,6 +169,35 @@ export function CommandPalette(props: {
     window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
     return () => window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
   }, []);
+
+  useEffect(() => {
+    const q = deferredFilterQ;
+    if (q.length < 2) {
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      void fetch(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((payload: { contracts?: ContractPaletteResult[] } | null) => {
+          if (!controller.signal.aborted) {
+            setRemoteContractResults(payload?.contracts ?? []);
+          }
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted && error instanceof Error && error.name !== "AbortError") {
+            setRemoteContractResults([]);
+          }
+        });
+    }, 160);
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [deferredFilterQ]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -145,14 +237,65 @@ export function CommandPalette(props: {
     return () => observer.disconnect();
   }, []);
 
-  const searchJumpNavItems = useMemo((): NavItem[] => {
+  const searchJumpNavItems = useMemo((): PaletteItem[] => {
     return getCmdkSearchJumpItems(surface, query).map((j) => ({
       name: j.name,
       href: j.href,
       description: j.description,
       section: "workspace",
+      resultMeta: j.meta,
     }));
   }, [query, surface]);
+
+  const contractItems = useMemo((): PaletteItem[] => {
+    const q = deferredFilterQ;
+    if (q.length < 2) return [];
+    const rows = remoteContractResults;
+    const ranked = rows
+      .map((row): PaletteItem | null => {
+        const title = row.title.trim();
+        const counterparty = row.counterparty?.trim() ?? "";
+        const ownerLabel = row.ownerLabel?.trim() ?? "";
+        const haystack = `${title} ${counterparty} ${ownerLabel}`.toLowerCase();
+        if (!haystack.includes(q)) return null;
+        let order = 40;
+        const titleLower = title.toLowerCase();
+        const counterpartyLower = counterparty.toLowerCase();
+        if (titleLower === q) order = 0;
+        else if (titleLower.startsWith(q)) order = 1;
+        else if (titleLower.includes(q)) order = 2;
+        else if (counterpartyLower.startsWith(q)) order = 3;
+        else if (counterpartyLower.includes(q)) order = 4;
+        return {
+          name: title,
+          href: `/contracts/${row.id}`,
+          description: [
+            counterparty || "No counterparty",
+            ownerLabel,
+            row.status ? STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status : null,
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          section: "workspace" as const,
+          resultMeta: [
+            "Contract",
+            counterparty || "No counterparty",
+            ownerLabel || null,
+            row.status ? STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status : null,
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          resultOrder: order,
+        };
+      })
+      .filter((row): row is PaletteItem => row !== null)
+      .sort((a, b) => {
+        const orderDelta = (a.resultOrder ?? 99) - (b.resultOrder ?? 99);
+        if (orderDelta !== 0) return orderDelta;
+        return a.name.localeCompare(b.name);
+      });
+    return ranked.slice(0, 8);
+  }, [deferredFilterQ, remoteContractResults]);
 
   const items = useMemo(() => {
     const base = allCommandItems();
@@ -170,18 +313,18 @@ export function CommandPalette(props: {
       : sorted.filter((item) =>
           `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
         );
-    const hrefSeen = new Set(navPart.map((i) => i.href.split("?")[0] ?? i.href));
+    const hrefSeen = new Set(
+      [...contractItems, ...navPart].map((i) => i.href.split("?")[0] ?? i.href)
+    );
     const jumps = !q
       ? searchJumpNavItems
-      : searchJumpNavItems.filter((item) =>
-          `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
-        );
+      : searchJumpNavItems.filter((item) => cmdkJumpMatchesPaletteQuery(item, q));
     const extra = jumps.filter((item) => {
       const path = item.href.split("?")[0] ?? item.href;
       return !hrefSeen.has(path) && !hrefSeen.has(item.href);
     });
-    return [...navPart, ...extra];
-  }, [deferredFilterQ, surface, searchJumpNavItems]);
+    return q ? [...contractItems, ...extra, ...navPart] : [...navPart, ...extra];
+  }, [contractItems, deferredFilterQ, surface, searchJumpNavItems]);
 
   const visibleRecentHrefs = useMemo(
     () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface),
@@ -217,16 +360,36 @@ export function CommandPalette(props: {
     flatItems.length === 0 ? 0 : Math.min(activeIndex, flatItems.length - 1);
 
   useEffect(() => {
+    if (!open) {
+      lastZeroQueryKey.current = null;
+      return;
+    }
+    const q = deferredFilterQ;
+    if (!q || flatItems.length > 0) return;
+    const key = `${q}`;
+    if (lastZeroQueryKey.current === key) return;
+    lastZeroQueryKey.current = key;
+    const t = window.setTimeout(() => {
+      void emitCmdkZeroResultsTelemetry({ queryLen: q.length });
+    }, 450);
+    return () => window.clearTimeout(t);
+  }, [open, deferredFilterQ, flatItems.length]);
+
+  useEffect(() => {
     if (!open) return;
     function onEnter(event: KeyboardEvent) {
       if (event.key !== "Enter") return;
       const item = flatItems[clampedActiveIndex];
       if (!item) return;
+      void emitCmdkResultSelectedTelemetry({
+        href: item.href,
+        queryLen: deferredFilterQ.length,
+      });
       window.location.assign(item.href);
     }
     window.addEventListener("keydown", onEnter);
     return () => window.removeEventListener("keydown", onEnter);
-  }, [clampedActiveIndex, flatItems, open]);
+  }, [clampedActiveIndex, deferredFilterQ, flatItems, open]);
 
   function rememberCommand(item: NavItem) {
     const next = [item.href, ...recentHrefs.filter((href) => href !== item.href)].slice(0, 6);
@@ -269,8 +432,8 @@ export function CommandPalette(props: {
             onClick={() => setOpen(false)}
             aria-label="Close command palette overlay"
           />
-          <div className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] shadow-[var(--shadow-3)]">
-            <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border-subtle)] px-4 py-4 sm:px-5">
+          <div className="ui-command-modal relative my-auto w-full max-w-3xl">
+            <div className="ui-command-search">
               <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] text-[var(--accent-strong)]">
                 <Search size={18} aria-hidden />
               </div>
@@ -283,18 +446,18 @@ export function CommandPalette(props: {
                   setQuery(event.target.value);
                   setActiveIndex(0);
                 }}
-                className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
-                placeholder="Search pages, queues, reports, or tools"
+                className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
+                placeholder="Search pages, queues, reports, tools"
               />
-              <div className="ml-auto hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:flex">
+              <div className="hidden items-center gap-1 justify-self-end text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:flex">
                 <span className="ui-kbd">⌘</span>
                 <span className="ui-kbd">K</span>
               </div>
             </div>
             {!query && visibleRecentHrefs.length > 0 && (
               <div className="border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                  Recent
+                <p className="ui-eyebrow">
+                  Recent destinations
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {visibleRecentHrefs.map((href) => {
@@ -310,10 +473,14 @@ export function CommandPalette(props: {
                         key={href}
                         href={href}
                         onClick={() => {
+                          void emitCmdkResultSelectedTelemetry({
+                            href: match.href,
+                            queryLen: deferredFilterQ.length,
+                          });
                           rememberCommand(match);
                           setOpen(false);
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
+                        className="ui-chip gap-1.5 px-3 py-1.5 text-[11px] font-medium hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
                       >
                         <Clock3 size={12} aria-hidden />
                         {match.name}
@@ -337,7 +504,7 @@ export function CommandPalette(props: {
                   if (groupItems.length === 0) return null;
                   return (
                     <li key={label}>
-                      <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)] sm:px-5">
+                      <p className="ui-command-group-label">
                         {label}
                       </p>
                       <ul>
@@ -349,19 +516,24 @@ export function CommandPalette(props: {
                               <Link
                                 href={item.href}
                                 onClick={() => {
+                                  void emitCmdkResultSelectedTelemetry({
+                                    href: item.href,
+                                    queryLen: deferredFilterQ.length,
+                                  });
                                   rememberCommand(item);
                                   setOpen(false);
                                 }}
-                                className={`group block px-4 py-3.5 transition-colors sm:px-5 ${
-                                  active
-                                    ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_68%,transparent)]"
-                                    : "hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)]"
+                                className={`ui-command-item group ${
+                                  active ? "ui-command-item-active" : "ui-command-item-idle"
                                 }`}
                               >
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="min-w-0">
                                     <p className="break-words text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
                                     <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.description}</p>
+                                    <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
+                                      {resultMetaLabel(item)}
+                                    </p>
                                   </div>
                                   <span className={`shrink-0 text-[var(--text-tertiary)] transition-transform ${active ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>
                                     <ArrowRight size={15} aria-hidden />
@@ -379,7 +551,7 @@ export function CommandPalette(props: {
             </ul>
             <p className="border-t border-[var(--border-subtle)] px-4 py-3 text-[11px] text-[var(--text-tertiary)] sm:px-5">
               Arrow keys and Enter to open · Esc to close · On tables with checkboxes, use row selection for
-              batch actions where available (refinement §16.1).
+              batch actions where available.
             </p>
           </div>
         </div>

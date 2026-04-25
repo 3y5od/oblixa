@@ -88,11 +88,11 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
   return (
     <div className="mt-4 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-zinc-500">View:</span>
+        <span className="text-xs text-[var(--text-tertiary)]">View:</span>
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "ring" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-surface text-zinc-700"
+            view === "ring" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("ring");
@@ -104,7 +104,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "top_edges" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-surface text-zinc-700"
+            view === "top_edges" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("top_edges");
@@ -116,7 +116,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "by_type" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-surface text-zinc-700"
+            view === "by_type" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("by_type");
@@ -127,30 +127,30 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         </button>
       </div>
       {view === "ring" ? (
-        <p className="text-xs text-zinc-600">
+        <p className="text-xs text-[var(--text-secondary)]">
           Select a node to highlight propagation paths. Showing top {displayNodes.length} nodes by risk.
         </p>
       ) : view === "top_edges" ? (
-        <p className="text-xs text-zinc-600">
+        <p className="text-xs text-[var(--text-secondary)]">
           Edges ranked by propagation risk (full graph). Use this to spot the strongest dependency paths.
         </p>
       ) : (
-        <p className="text-xs text-zinc-600">
-          Count and peak risk by <code className="rounded bg-zinc-100 px-1">node_type</code> across the full snapshot
+        <p className="text-xs text-[var(--text-secondary)]">
+          Count and peak risk by <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">node_type</code> across the full snapshot
           (heatmap-style bars).
         </p>
       )}
       {view === "by_type" ? (
-        <div className="max-h-[380px] space-y-2 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50/80 p-3">
+        <div className="max-h-[380px] space-y-2 overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3">
           {byNodeType.length === 0 ? (
-            <p className="text-xs text-zinc-500">No nodes in this snapshot.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">No nodes in this snapshot.</p>
           ) : (
             byNodeType.map(([type, stats]) => {
               const wPct = Math.max(8, Math.round((stats.count / maxTypeCount) * 100));
               return (
                 <div key={type}>
-                  <div className="flex justify-between gap-2 text-[11px] text-zinc-600">
-                    <span className="truncate font-medium text-zinc-800" title={type}>
+                  <div className="flex justify-between gap-2 text-[11px] text-[var(--text-secondary)]">
+                    <span className="truncate font-medium text-[var(--text-primary)]" title={type}>
                       {type}
                     </span>
                     <span className="shrink-0 tabular-nums">
@@ -158,7 +158,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
                       {stats.maxConc.toFixed(1)}
                     </span>
                   </div>
-                  <div className="mt-1 h-2 w-full rounded-full bg-zinc-200/80">
+                  <div className="mt-1 h-2 w-full rounded-full bg-[color:color-mix(in_oklab,var(--surface-muted)_75%,var(--canvas))]">
                     <div
                       className="h-2 rounded-full bg-amber-500/90"
                       style={{ width: `${wPct}%` }}
@@ -174,7 +174,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <svg
         width={w}
         height={h}
-        className="rounded-xl border border-zinc-200 bg-zinc-50/80"
+        className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]"
         role="img"
         aria-label="Health graph concentration"
       >
@@ -217,7 +217,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
                 x={p.x}
                 y={p.y + r + 12}
                 textAnchor="middle"
-                className="fill-zinc-600"
+                className="fill-[var(--text-secondary)]"
                 style={{ fontSize: 9 }}
               >
                 {(node.label ?? node.node_ref_id).slice(0, 18)}
@@ -227,16 +227,16 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         })}
       </svg>
       ) : view === "top_edges" ? (
-        <ol className="max-h-[380px] space-y-1.5 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 text-xs text-zinc-700">
-          {topEdges.length === 0 ? <li className="text-zinc-500">No edges in this snapshot.</li> : null}
+        <ol className="max-h-[380px] space-y-1.5 overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
+          {topEdges.length === 0 ? <li className="text-[var(--text-tertiary)]">No edges in this snapshot.</li> : null}
           {topEdges.map((e, i) => (
-            <li key={e.id} className="rounded border border-zinc-100 bg-surface px-2 py-1.5">
-              <span className="font-medium tabular-nums text-zinc-900">#{i + 1}</span>
+            <li key={e.id} className="rounded border border-[var(--border-subtle)] bg-surface px-2 py-1.5">
+              <span className="font-medium tabular-nums text-[var(--text-primary)]">#{i + 1}</span>
               {" · "}
-              <span className="text-zinc-600">{e.relationship_type}</span>
+              <span className="text-[var(--text-secondary)]">{e.relationship_type}</span>
               {" · propagation "}
               <span className="tabular-nums font-medium">{Number(e.propagation_risk).toFixed(1)}</span>
-              <span className="mt-0.5 block text-[11px] text-zinc-500">
+              <span className="mt-0.5 block text-[11px] text-[var(--text-tertiary)]">
                 {labelById.get(e.source_node_id) ?? e.source_node_id.slice(0, 8)}
                 {" → "}
                 {labelById.get(e.target_node_id) ?? e.target_node_id.slice(0, 8)}
@@ -246,8 +246,8 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         </ol>
       ) : null}
       {view === "ring" && selected ? (
-        <div className="rounded-lg border border-zinc-100 bg-surface p-3 text-xs text-zinc-700">
-          <p className="font-semibold text-zinc-900">
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-surface p-3 text-xs text-[var(--text-secondary)]">
+          <p className="font-semibold text-[var(--text-primary)]">
             {selected.node_type} · {selected.label ?? selected.node_ref_id}
           </p>
           <p className="mt-1">
@@ -256,13 +256,13 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
           </p>
           <p className="ui-eyebrow mt-2">Edges</p>
           <p className="ui-section-title mt-1 text-sm">Connected edges</p>
-          <ul className="mt-1 list-inside list-disc text-zinc-600">
+          <ul className="mt-1 list-inside list-disc text-[var(--text-secondary)]">
             {connectedEdges.length === 0 ? <li>None within the visible subgraph.</li> : null}
             {connectedEdges.map((e) => (
               <li key={e.id}>
                 {e.relationship_type} (propagation {Number(e.propagation_risk).toFixed(1)})
                 {e.explainability_json && typeof e.explainability_json.rule === "string" ? (
-                  <span className="block text-zinc-500">Rule: {e.explainability_json.rule}</span>
+                  <span className="block text-[var(--text-tertiary)]">Rule: {e.explainability_json.rule}</span>
                 ) : null}
               </li>
             ))}

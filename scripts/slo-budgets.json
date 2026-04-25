@@ -1,0 +1,5 @@
+{
+  "p95Ms": 5000,
+  "errorRate": 0.01,
+  "note": "Tier 68 — compare against synthetic/HTTP smoke JSON in CI (optional, strict with SLO_BUDGETS_STRICT=1)"
+}

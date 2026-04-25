@@ -1,7 +1,7 @@
 import type { OrgRole } from "@/lib/types";
 
 /**
- * Capability checks for mutations (separate from product nav visibility; docs/refinement.md §12.4).
+ * Capability checks for mutations (separate from product nav visibility; product-surface policy §12.4).
  * §12.3 — Admin/assurance-style controls map to these capabilities + API `canManageCapability`; optional per-org
  * overrides live in `organization_workflow_settings.role_policy_json` (see settings operations + `v4/api-auth`).
  */

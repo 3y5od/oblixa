@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { format, isValid } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
 import type { Contract, ExtractedField } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
+import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
 
 interface UpcomingAction {
   contract: Pick<Contract, "id" | "title">;
@@ -15,15 +15,13 @@ interface UpcomingActionsProps {
 }
 
 function formatFieldDateLabel(iso: string | null | undefined): string {
-  if (!iso) return "Unknown";
-  const d = new Date(iso);
-  return isValid(d) ? format(d, "MMM d, yyyy") : "Invalid date";
+  return formatBusinessDateAtNoon(iso, "Unknown");
 }
 
 function urgencyRing(days: number): string {
-  if (days <= 7) return "bg-rose-500";
-  if (days <= 30) return "bg-amber-400";
-  return "bg-zinc-300";
+  if (days <= 7) return "bg-[var(--danger-ink)]";
+  if (days <= 30) return "bg-[var(--warning-ink)]";
+  return "bg-[var(--border-strong)]";
 }
 
 function rationaleForField(fieldName: string): string {
@@ -52,7 +50,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-6 md:py-4">
+      <div className="ui-surface-tint px-4 py-3.5 md:px-6 md:py-4">
         <h2 className="ui-section-title">Upcoming actions</h2>
         <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
           Approved operational dates in the next 90 days
@@ -88,9 +86,9 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                 <span
                   className={`text-right text-[13px] font-semibold tabular-nums ${
                     action.daysUntil <= 7
-                      ? "text-rose-700"
+                      ? "text-[var(--danger-ink)]"
                       : action.daysUntil <= 30
-                        ? "text-amber-800"
+                        ? "text-[var(--warning-ink)]"
                         : "text-[var(--text-secondary)]"
                   }`}
                 >

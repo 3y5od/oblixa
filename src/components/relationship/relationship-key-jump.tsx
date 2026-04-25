@@ -32,9 +32,9 @@ export function RelationshipKeyJump() {
         <p className="ui-eyebrow">Account</p>
         <h2 className="ui-section-title mt-1 text-base">Account workspace</h2>
         <p className="ui-muted-tight mt-1">
-          Use the same <code className="rounded bg-zinc-200/60 px-1">account_key</code> stored on contracts.
+          Use the same <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-1">account_key</code> stored on contracts.
         </p>
-        <label className="mt-3 block text-xs font-medium text-zinc-600">
+        <label className="mt-3 block text-xs font-medium text-[var(--text-secondary)]">
           Account key
           <input
             className="ui-input mt-1 w-full"
@@ -55,9 +55,9 @@ export function RelationshipKeyJump() {
         <p className="ui-eyebrow">Counterparty</p>
         <h2 className="ui-section-title mt-1 text-base">Counterparty workspace</h2>
         <p className="ui-muted-tight mt-1">
-          Use <code className="rounded bg-zinc-200/60 px-1">counterparty_key</code> from contract records.
+          Use <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-1">counterparty_key</code> from contract records.
         </p>
-        <label className="mt-3 block text-xs font-medium text-zinc-600">
+        <label className="mt-3 block text-xs font-medium text-[var(--text-secondary)]">
           Counterparty key
           <input
             className="ui-input mt-1 w-full"

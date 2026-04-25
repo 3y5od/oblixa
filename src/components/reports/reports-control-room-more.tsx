@@ -49,9 +49,9 @@ export function ReportsPortfolioAnalyticsSection(props: {
           <p className="ui-eyebrow">Programs</p>
           <h3 className="ui-section-title mt-1 text-base">Contracts by program</h3>
           <p className="ui-muted-tight mt-1">Active assignment row counts per program.</p>
-          <div className="mt-3 overflow-x-auto rounded-xl border border-zinc-100">
-            <table className="min-w-full text-left text-sm text-zinc-700">
-              <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+          <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
+            <table className="min-w-full text-left text-sm text-[var(--text-secondary)]">
+              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                 <tr>
                   <th className="px-3 py-2">Program</th>
                   <th className="px-3 py-2">Active assignments</th>
@@ -60,7 +60,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
               <tbody className="divide-y divide-[var(--border-subtle)]">
                 {(portfolioByProgram.programs ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-3 py-4 text-zinc-500">
+                    <td colSpan={2} className="px-3 py-4 text-[var(--text-tertiary)]">
                       No active program assignments.
                     </td>
                   </tr>
@@ -83,9 +83,9 @@ export function ReportsPortfolioAnalyticsSection(props: {
           <p className="ui-eyebrow">Counterparties</p>
           <h3 className="ui-section-title mt-1 text-base">Open exceptions by counterparty</h3>
           <p className="ui-muted-tight mt-1">Contracts with exceptions, grouped by counterparty key.</p>
-          <div className="mt-3 overflow-x-auto rounded-xl border border-zinc-100">
-            <table className="min-w-full text-left text-sm text-zinc-700">
-              <thead className="bg-zinc-50/80 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+          <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
+            <table className="min-w-full text-left text-sm text-[var(--text-secondary)]">
+              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                 <tr>
                   <th className="px-3 py-2">Counterparty</th>
                   <th className="px-3 py-2">Open / in progress</th>
@@ -94,7 +94,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
               <tbody className="divide-y divide-[var(--border-subtle)]">
                 {(portfolioByCounterparty.counterparties ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-3 py-4 text-zinc-500">
+                    <td colSpan={2} className="px-3 py-4 text-[var(--text-tertiary)]">
                       No matching exceptions.
                     </td>
                   </tr>
@@ -130,9 +130,9 @@ export function ReportsPortfolioAnalyticsSection(props: {
           </Link>
         </article>
       </div>
-      <details className="rounded-xl border border-zinc-200 bg-zinc-50/40 p-4 text-xs text-zinc-600">
-        <summary className="cursor-pointer font-medium text-zinc-800">Raw analytics payloads</summary>
-        <pre className="mt-3 max-h-64 overflow-auto rounded-lg bg-surface p-3 font-mono text-[11px] text-zinc-700">
+      <details className="ui-soft-details p-4 text-xs text-[var(--text-secondary)]">
+        <summary className="cursor-pointer font-medium text-[var(--text-primary)]">Raw analytics payloads</summary>
+        <pre className="ui-soft-details mt-3 max-h-64 overflow-auto p-3 font-mono text-[11px] text-[var(--text-secondary)]">
           {JSON.stringify(
             {
               programs: portfolioByProgram.programs,
@@ -216,7 +216,7 @@ export function ReportsCapacityCampaignsSection(props: {
         }
         variant="compact"
         footerExtra={
-          <div className="mt-3 space-y-2 text-[11px] text-zinc-600">
+          <div className="mt-3 space-y-2 text-[11px] text-[var(--text-secondary)]">
             {simOn && showAnalyticsLinks ? (
               <p>
                 Tie to{" "}
@@ -226,14 +226,14 @@ export function ReportsCapacityCampaignsSection(props: {
                 before rebalancing ownership.
               </p>
             ) : null}
-            <ul className="space-y-1.5 text-zinc-700">
+            <ul className="space-y-1.5 text-[var(--text-secondary)]">
               {(forecasts ?? []).map((f) => {
                 const fj = f.forecast_json as Record<string, unknown> | null;
                 return (
                   <li key={f.id}>
                     Horizon {f.forecast_horizon_days}d · {new Date(f.generated_at).toLocaleString()}
                     {fj && typeof fj[CAPACITY_FORECAST_JSON_KEYS.open_tasks] === "number" ? (
-                      <span className="ml-1 text-zinc-500">
+                      <span className="ml-1 text-[var(--text-tertiary)]">
                         (tasks {String(fj[CAPACITY_FORECAST_JSON_KEYS.open_tasks])}, approvals{" "}
                         {String(fj[CAPACITY_FORECAST_JSON_KEYS.pending_approvals] ?? "—")}, decisions{" "}
                         {String(fj[CAPACITY_FORECAST_JSON_KEYS.open_decisions] ?? "—")}
@@ -246,13 +246,13 @@ export function ReportsCapacityCampaignsSection(props: {
                   </li>
                 );
               })}
-              {(forecasts ?? []).length === 0 ? <li className="text-zinc-500">No forecasts available.</li> : null}
+              {(forecasts ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No forecasts available.</li> : null}
             </ul>
           </div>
         }
       />
 
-      <article className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-4 shadow-[var(--shadow-1)]">
+      <article className="ui-card p-4">
         <OperationalSectionHeader
           eyebrow="Planning"
           title="Reassignment planner"
@@ -268,11 +268,11 @@ export function ReportsCapacityCampaignsSection(props: {
           method="post"
           target="_blank"
         >
-          <label className="text-xs text-zinc-600">
+          <label className="text-xs text-[var(--text-secondary)]">
             Team key
             <input name="teamKey" className="ui-input-compact mt-1 w-full" defaultValue="ops" required />
           </label>
-          <label className="text-xs text-zinc-600">
+          <label className="text-xs text-[var(--text-secondary)]">
             Current load
             <input
               name="currentLoad"
@@ -282,7 +282,7 @@ export function ReportsCapacityCampaignsSection(props: {
               required
             />
           </label>
-          <label className="text-xs text-zinc-600">
+          <label className="text-xs text-[var(--text-secondary)]">
             Target load
             <input
               name="targetLoad"
@@ -297,18 +297,18 @@ export function ReportsCapacityCampaignsSection(props: {
               Generate reassignment plan
             </button>
           ) : (
-            <p className="mt-2 text-xs text-zinc-500">Reassignment planner is hidden for this workspace.</p>
+            <p className="mt-2 text-xs text-[var(--text-tertiary)]">Reassignment planner is hidden for this workspace.</p>
           )}
         </form>
       </article>
 
-      <article className="rounded-2xl border border-[var(--border-subtle)] bg-surface p-4 shadow-[var(--shadow-1)]">
+      <article className="ui-card p-4">
         <OperationalSectionHeader
           eyebrow="Workflow"
           title="Recommendations"
           description="Accept or dismiss grounded recommendations."
         />
-        <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm text-zinc-700">
+        <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm text-[var(--text-secondary)]">
           {(recommendations ?? []).map((r) => (
             <li key={r.id} className="flex flex-col gap-2 py-3 first:pt-0">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -326,7 +326,7 @@ export function ReportsCapacityCampaignsSection(props: {
               </div>
             </li>
           ))}
-          {(recommendations ?? []).length === 0 ? <li className="py-2 text-zinc-500">No recommendations.</li> : null}
+          {(recommendations ?? []).length === 0 ? <li className="py-2 text-[var(--text-tertiary)]">No recommendations.</li> : null}
         </ul>
         {showAnalyticsLinks ? (
           <Link
@@ -352,16 +352,16 @@ export function ReportsCapacityCampaignsSection(props: {
           variant="compact"
           id="campaign-drift"
           footerExtra={
-            <ul className="mt-3 space-y-2 text-sm text-zinc-700">
+            <ul className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
               {(activeCampaigns ?? []).map((c) => (
                 <li key={c.id}>
                   <Link href={`/campaigns/${c.id}`} prefetch={false} className="ui-link">
                     {c.name}
                   </Link>{" "}
-                  <span className="text-zinc-500">· {c.status}</span>
+                  <span className="text-[var(--text-tertiary)]">· {c.status}</span>
                 </li>
               ))}
-              {(activeCampaigns ?? []).length === 0 ? <li className="text-zinc-500">No active campaigns.</li> : null}
+              {(activeCampaigns ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No active campaigns.</li> : null}
             </ul>
           }
         />
@@ -373,15 +373,14 @@ export function ReportsCapacityCampaignsSection(props: {
 export function ReportsV5SignalQualitySection(props: {
   metricsDate: string;
   rows: SignalQualityRow[];
-  rawJson: unknown;
 }) {
   return (
-    <section className="ui-card scroll-mt-8 p-5" id="v5-success-metrics">
+    <section className="ui-card scroll-mt-8 p-5" id="success-metrics">
       <OperationalSectionHeader
         eyebrow="Telemetry"
-        title="V5 success metrics"
-        description="Counters merged into org_behavior_metrics.v5_signal_quality_json."
-        actions={<span className="text-xs text-zinc-600">As of {props.metricsDate}</span>}
+        title="Success metrics"
+        description="Operational counters that show completed work, recommendation activity, and automation throughput."
+        actions={<span className="text-xs text-[var(--text-secondary)]">As of {props.metricsDate}</span>}
       />
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {props.rows.map((row) => (
@@ -393,20 +392,13 @@ export function ReportsV5SignalQualitySection(props: {
             icon={Activity}
             primaryValue={row.value}
             primaryUnit="count"
-            breakdown={[{ label: "Key", value: row.key }]}
             showStatusBadge={false}
-            action={{ href: "/reports#v5-success-metrics", label: "View on page" }}
+            action={{ href: "/reports#success-metrics", label: "View on page" }}
             variant="compact"
           />
         ))}
       </div>
-      {props.rows.length === 0 ? <p className="mt-3 text-sm text-zinc-500">No numeric counters recorded yet.</p> : null}
-      <details className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50/40 p-3 text-xs text-zinc-600">
-        <summary className="cursor-pointer font-medium text-zinc-800">Raw JSON</summary>
-        <pre className="mt-3 max-h-56 overflow-auto rounded-lg bg-surface p-3 font-mono text-[11px] text-zinc-700">
-          {JSON.stringify(props.rawJson ?? {}, null, 2)}
-        </pre>
-      </details>
+      {props.rows.length === 0 ? <p className="mt-3 text-sm text-[var(--text-tertiary)]">No numeric counters recorded yet.</p> : null}
     </section>
   );
 }
@@ -458,15 +450,15 @@ export function ReportsOutcomeIntelligenceSection(props: {
               />
             </>
           ) : (
-            <p className="col-span-full text-sm text-zinc-500">
+            <p className="col-span-full text-sm text-[var(--text-tertiary)]">
               Operator-only breakdowns are hidden for your role.
             </p>
           )}
         </div>
       ) : null}
       {outcomeIntel && !outcomeIntel.error && outcomeIntel.summary ? (
-        <div className="mt-4 rounded-2xl border border-zinc-200/90 bg-surface/90 p-4 text-sm text-zinc-700 dark:bg-zinc-900/20">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Portfolio summary</p>
+        <div className="ui-support-panel mt-4 p-4 text-sm text-[var(--text-secondary)] dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Portfolio summary</p>
           <div className="mt-2 flex flex-wrap gap-2" role="list">
             <OperationalMetricChip
               label="Avg effectiveness"
@@ -482,26 +474,26 @@ export function ReportsOutcomeIntelligenceSection(props: {
         </div>
       ) : null}
       {outcomeIntel && !outcomeIntel.error && (outcomeIntel.weeklyEffectiveness?.length ?? 0) > 0 ? (
-        <div className="mt-4 rounded-2xl border border-zinc-200/90 bg-surface/90 p-4 dark:bg-zinc-900/20">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <div className="ui-support-panel mt-4 p-4 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
             Effectiveness by month
           </p>
-          <ul className="mt-2 space-y-1 text-xs text-zinc-600">
+          <ul className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
             {(outcomeIntel.weeklyEffectiveness ?? []).map((row) => (
               <li key={row.week}>
                 {row.week}: avg {row.avgScore}{" "}
-                <span className="text-zinc-500">({row.count} records)</span>
+                <span className="text-[var(--text-tertiary)]">({row.count} records)</span>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
       {outcomeDrilldown && outcomeDrilldown.rows.length > 0 ? (
-        <div className="mt-4 rounded-2xl border border-zinc-200/90 bg-surface/90 p-4 dark:bg-zinc-900/20">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Recent analyses</p>
-          <ul className="mt-2 space-y-2 text-xs text-zinc-700">
+        <div className="ui-support-panel mt-4 p-4 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Recent analyses</p>
+          <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
             {outcomeDrilldown.rows.map((row: OutcomeInterventionRow) => (
-              <li key={row.id} className="rounded-lg border border-zinc-100 bg-zinc-50/50 px-2 py-1.5 dark:bg-zinc-900/30">
+              <li key={row.id} className="ui-soft-details px-2 py-1.5 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
                 <span className="font-medium">{row.intervention_type.replace(/_/g, " ")}</span>
                 <div className="mt-1 flex flex-wrap gap-2" role="list">
                   <OperationalMetricChip label="Effectiveness" value={String(row.effectiveness_score)} />
@@ -512,7 +504,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
                     <OperationalMetricChip label="Time-to-close (h)" value={String(row.time_to_stability_hours)} />
                   ) : null}
                 </div>
-                <span className="mt-1 block text-[11px] text-zinc-500">
+                <span className="mt-1 block text-[11px] text-[var(--text-tertiary)]">
                   {visibility.playbooks && row.source_playbook_run_id ? (
                     <Link className="ui-link" href="/assurance/playbooks" prefetch={false}>
                       Playbook run {row.source_playbook_run_id.slice(0, 8)}…
@@ -545,7 +537,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11px] text-zinc-500">
+          <p className="mt-2 text-[11px] text-[var(--text-tertiary)]">
             <Link className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0" target="_blank" rel="noreferrer">
               Paginated API
             </Link>
@@ -553,7 +545,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
         </div>
       ) : null}
       {(!outcomeIntel || outcomeIntel.error) && (
-        <p className="mt-3 text-sm text-zinc-500">Loading outcome data failed or feature is off.</p>
+        <p className="mt-3 text-sm text-[var(--text-tertiary)]">Loading outcome data failed or feature is off.</p>
       )}
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <OperationalSummaryCard

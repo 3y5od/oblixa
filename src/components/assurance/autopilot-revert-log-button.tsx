@@ -33,7 +33,7 @@ export function AutopilotRevertLogButton(props: { logId: string; canRevert: bool
       <button
         type="button"
         disabled={pending}
-        className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-800 disabled:opacity-50"
+        className="rounded border border-[var(--border-strong)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
         onClick={() => void revert()}
       >
         {pending ? "Reverting…" : "Revert (best effort)"}

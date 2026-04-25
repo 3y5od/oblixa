@@ -7,10 +7,10 @@ import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathnam
  * V8 §11.1 — dashboard shell must enforce page eligibility using the same pathname header the edge proxy sets.
  */
 describe("v8 dashboard layout contract", () => {
-  it("reads OBLIXA_PATHNAME_HEADER and calls assertPagePathEligibleOrNotFound", () => {
+  it("reads OBLIXA_PATHNAME_HEADER and calls the context-aware eligibility guard", () => {
     const layoutPath = join(process.cwd(), "src/app/(dashboard)/layout.tsx");
     const raw = readFileSync(layoutPath, "utf8");
-    expect(raw).toContain("assertPagePathEligibleOrNotFound");
+    expect(raw).toContain("assertPagePathEligibleForContextOrNotFound");
     expect(raw).toContain("OBLIXA_PATHNAME_HEADER");
     expect(raw).toContain("headers(");
     expect(raw).toContain("notFound(");

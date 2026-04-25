@@ -74,14 +74,14 @@ export default async function AssuranceScorecardsPage() {
       }
     >
       {priorSnapshot && data?.[0] ? (
-        <p className="mb-3 text-xs text-zinc-600">
+        <p className="mb-3 text-xs text-[var(--text-secondary)]">
           Top scorecard vs prior snapshot:{" "}
-          <span className="font-medium tabular-nums text-zinc-900">
+          <span className="font-medium tabular-nums text-[var(--text-primary)]">
             {Number(data[0].overall_score).toFixed(1)}
           </span>{" "}
           vs{" "}
           <span className="tabular-nums">{Number(priorSnapshot.overall_score).toFixed(1)}</span>{" "}
-          <span className="text-zinc-400">({priorSnapshot.snapshot_at})</span>
+          <span className="text-[var(--text-tertiary)]">({priorSnapshot.snapshot_at})</span>
         </p>
       ) : null}
       <ul className="space-y-2 text-sm">
@@ -92,28 +92,28 @@ export default async function AssuranceScorecardsPage() {
             : [];
           const snapshotTrail = snapshotTrailByScorecard.get(String(row.id));
           return (
-            <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-              <p className="font-medium text-zinc-900">
+            <li key={row.id} className="ui-support-panel p-3">
+              <p className="font-medium text-[var(--text-primary)]">
                 {row.scorecard_type}: {row.entity_ref_id}
               </p>
-              <p className="mt-1 text-xs text-zinc-600">
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
                 Overall <span className="font-semibold tabular-nums">{row.overall_score}</span>
               </p>
               {snapshotTrail ? (
-                <p className="mt-1 text-[11px] text-zinc-500">
+                <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
                   Recent snapshot scores (oldest → newest):{" "}
-                  <span className="font-medium tabular-nums text-zinc-700">{snapshotTrail}</span>
+                  <span className="font-medium tabular-nums text-[var(--text-secondary)]">{snapshotTrail}</span>
                 </p>
               ) : null}
               {dims && Object.keys(dims).length > 0 ? (
                 <div className="mt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Dimensions</p>
-                  <ul className="mt-1 space-y-0.5 text-xs text-zinc-700">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Dimensions</p>
+                  <ul className="mt-1 space-y-0.5 text-xs text-[var(--text-secondary)]">
                     {Object.entries(dims)
                       .slice(0, 12)
                       .map(([k, v]) => (
                         <li key={k} className="flex justify-between gap-2">
-                          <span className="text-zinc-600">{k}</span>
+                          <span className="text-[var(--text-secondary)]">{k}</span>
                           <span className="tabular-nums font-medium">{typeof v === "number" ? v.toFixed(1) : String(v)}</span>
                         </li>
                       ))}
@@ -122,14 +122,14 @@ export default async function AssuranceScorecardsPage() {
               ) : null}
               {drivers.length > 0 ? (
                 <div className="mt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Drivers</p>
-                  <ul className="mt-1 space-y-1 text-xs text-zinc-700">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Drivers</p>
+                  <ul className="mt-1 space-y-1 text-xs text-[var(--text-secondary)]">
                     {drivers.slice(0, 8).map((d, i) => (
-                      <li key={i} className="rounded border border-zinc-100 bg-zinc-50/80 px-2 py-1">
+                      <li key={i} className="ui-card-quiet px-2 py-1">
                         <span className="font-medium">{d.label ?? "driver"}</span>
-                        {d.direction ? <span className="text-zinc-500"> · {d.direction}</span> : null}
+                        {d.direction ? <span className="text-[var(--text-tertiary)]"> · {d.direction}</span> : null}
                         {d.weight != null ? (
-                          <span className="tabular-nums text-zinc-600"> · weight {d.weight}</span>
+                          <span className="tabular-nums text-[var(--text-secondary)]"> · weight {d.weight}</span>
                         ) : null}
                       </li>
                     ))}
@@ -140,13 +140,13 @@ export default async function AssuranceScorecardsPage() {
                 <Link className="ui-link" href="/assurance/findings?status=open">
                   Open findings
                 </Link>
-                <span className="text-zinc-300">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <Link className="ui-link" href="/assurance/health-graph">
                   Health graph
                 </Link>
                 {row.scorecard_type === "contract" && isLikelyContractId(row.entity_ref_id) ? (
                   <>
-                    <span className="text-zinc-300">·</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
                     <Link className="ui-link" href={`/contracts/${row.entity_ref_id}`}>
                       Contract record
                     </Link>
@@ -154,7 +154,7 @@ export default async function AssuranceScorecardsPage() {
                 ) : null}
                 {row.scorecard_type === "program" ? (
                   <>
-                    <span className="text-zinc-300">·</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
                     <Link className="ui-link" href="/contracts/programs">
                       Programs directory
                     </Link>
@@ -162,13 +162,13 @@ export default async function AssuranceScorecardsPage() {
                 ) : null}
                 {row.scorecard_type === "counterparty" ? (
                   <>
-                    <span className="text-zinc-300">·</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
                     <Link className="ui-link" href="/contracts">
                       Contracts (search counterparty)
                     </Link>
                   </>
                 ) : null}
-                <span className="text-zinc-300">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <Link
                   className="ui-link"
                   href={`/api/assurance/scorecards/${encodeURIComponent(String(row.id))}/snapshots`}
@@ -176,7 +176,7 @@ export default async function AssuranceScorecardsPage() {
                 >
                   Snapshots JSON
                 </Link>
-                <span className="text-zinc-300">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <Link className="ui-link" href="/api/assurance/scorecards" target="_blank">
                   Scorecards API
                 </Link>
@@ -184,9 +184,9 @@ export default async function AssuranceScorecardsPage() {
             </li>
           );
         })}
-        {(data ?? []).length === 0 ? <li className="text-zinc-500">No scorecards yet.</li> : null}
+        {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No scorecards yet.</li> : null}
       </ul>
-      <p className="mt-4 text-xs text-zinc-600">
+      <p className="mt-4 text-xs text-[var(--text-secondary)]">
         <Link className="ui-link" href="/api/assurance/scorecards" target="_blank">
           Scorecards JSON
         </Link>

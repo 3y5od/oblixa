@@ -1,5 +1,5 @@
 /**
- * docs/refinement.md §21.2 — org default landing must match workspace mode and not be a §10.4 utility on Core.
+ * product-surface policy §21.2 — org default landing must match workspace mode and not be a §10.4 utility on Core.
  */
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { isRefinementCoreUtilityPath } from "@/lib/product-surface/core-utility-paths";

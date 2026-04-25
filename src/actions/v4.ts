@@ -7,6 +7,7 @@ import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { applyProgramToContract } from "@/lib/v4/execution-engine";
 import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
 import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-packet";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import {
   ensureProgramsSurfaceAccess,
   ensureReportPackReportTypeAllowed,
@@ -423,7 +424,7 @@ export async function submitEvidenceNoteAction(formData: FormData) {
 
   const { data: requirement } = await ctx.admin
     .from("evidence_requirements")
-    .select("id, contract_id")
+    .select("id, contract_id, status")
     .eq("id", requirementId)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
@@ -445,9 +446,24 @@ export async function submitEvidenceNoteAction(formData: FormData) {
     .eq("organization_id", ctx.orgId);
 
   const cid = requirement.contract_id as string | null;
+  await emitProductTelemetryEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    userId: ctx.userId,
+    contractId: cid,
+    action:
+      requirement.status === "rejected"
+        ? "product.v9.evidence_resubmitted"
+        : "product.v9.evidence_submitted",
+    details: { requirementId },
+  });
   revalidatePath("/contracts");
   if (cid) revalidatePath(`/contracts/${cid}`);
-  return { success: true as const };
+  return {
+    success:
+      requirement.status === "rejected"
+        ? "Evidence resubmitted. Reviewer guidance stays visible until the new submission is reviewed."
+        : "Evidence submitted. Reviewers can now confirm whether the linked work item can clear.",
+  } as const;
 }
 
 export async function createEvidenceTemplateAction(formData: FormData) {

@@ -19,6 +19,7 @@ import {
   updateContractTaskComment,
   updateContractTaskStatus,
 } from "@/actions/tasks";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractTask, ContractTaskPriority, ContractTaskStatus } from "@/lib/types";
 import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
@@ -59,7 +60,7 @@ const PRIORITY_OPTIONS: { value: ContractTaskPriority; label: string }[] = [
 
 function priorityBadge(priority: ContractTaskPriority): string {
   if (priority === "high") return "border-rose-200 bg-rose-50 text-rose-700";
-  if (priority === "low") return "border-zinc-200 bg-zinc-50 text-zinc-600";
+  if (priority === "low") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-secondary)]";
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
 
@@ -67,7 +68,7 @@ function statusBadge(status: ContractTaskStatus): string {
   if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "blocked") return "border-rose-200 bg-rose-50 text-rose-700";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
-  return "border-zinc-200 bg-zinc-50 text-zinc-700";
+  return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-secondary)]";
 }
 
 export function ContractTasksPanel({
@@ -176,7 +177,7 @@ export function ContractTasksPanel({
         slaDueAt,
       });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -189,7 +190,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await updateContractTaskStatus(taskId, status);
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -202,7 +203,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await deleteContractTask(taskId);
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -217,7 +218,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await addContractTaskChecklistItem({ taskId, label });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -230,7 +231,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await toggleContractTaskChecklistItem({ checklistItemId, done });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -246,7 +247,7 @@ export function ContractTasksPanel({
       const parentCommentId = String(formData.get("parentCommentId") ?? "").trim() || null;
       const res = await addContractTaskComment({ taskId, body, parentCommentId });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -261,7 +262,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await updateContractTaskComment({ commentId, body });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -274,7 +275,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await deleteContractTaskComment({ commentId });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -289,7 +290,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await addContractTaskDependency({ taskId, dependsOnTaskId });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -304,7 +305,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await updateContractTaskChecklistItem({ checklistItemId, label });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -317,7 +318,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await deleteContractTaskChecklistItem({ checklistItemId });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -330,7 +331,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await reorderContractTaskChecklistItem({ checklistItemId, direction });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -346,7 +347,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await addContractTaskArtifact({ taskId, label, url });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -359,7 +360,7 @@ export function ContractTasksPanel({
     startTransition(async () => {
       const res = await deleteContractTaskArtifact({ artifactId });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -369,7 +370,7 @@ export function ContractTasksPanel({
   return (
     <div className="space-y-5">
       {canEdit && (
-        <form action={onCreate} className="grid gap-3 rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-4">
+        <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
           <div>
             <label className="ui-label-caps">Task title</label>
             <input
@@ -453,7 +454,7 @@ export function ContractTasksPanel({
             />
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-xs text-zinc-500">Tasks attach execution work to this contract.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Tasks attach execution work to this contract.</p>
             <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
               {isPending ? "Saving..." : "Add task"}
             </button>
@@ -464,18 +465,18 @@ export function ContractTasksPanel({
       {error && <p className="text-sm text-rose-700">{error}</p>}
 
       {tasks.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-[var(--text-tertiary)]">
           No tasks yet. Add one to track ownership, follow-up, and renewal prep work.
         </p>
       ) : (
         <ul className="space-y-3">
           {tasks.map((task) => (
-            <li key={task.id} className="rounded-xl border border-zinc-200/80 bg-surface p-4">
+            <li key={task.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-900">{task.title}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{task.title}</p>
                   {task.details && (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-600">{task.details}</p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--text-secondary)]">{task.details}</p>
                   )}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                     <span className={`rounded-full border px-2 py-0.5 font-medium ${priorityBadge(task.priority)}`}>
@@ -485,12 +486,12 @@ export function ContractTasksPanel({
                       {task.status.replace("_", " ")}
                     </span>
                     {task.assignee_id && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Assigned to {memberById.get(task.assignee_id) ?? "Member"}
                       </span>
                     )}
                     {task.due_date && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Due {format(new Date(`${task.due_date}T12:00:00`), "MMM d, yyyy")}
                       </span>
                     )}
@@ -500,7 +501,7 @@ export function ContractTasksPanel({
                       </span>
                     )}
                     {task.created_via && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Source: {task.created_via}
                         {task.team_key ? ` · queue ${task.team_key}` : ""}
                       </span>
@@ -509,13 +510,13 @@ export function ContractTasksPanel({
                       <span className="text-rose-700">Blocked: {task.blocked_reason}</span>
                     )}
                     {task.recurrence_interval_days && task.recurrence_interval_days > 0 && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Recurs every {task.recurrence_interval_days} day
                         {task.recurrence_interval_days === 1 ? "" : "s"}
                       </span>
                     )}
                     {task.sla_due_at && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         SLA {format(new Date(task.sla_due_at), "MMM d, yyyy")}
                       </span>
                     )}
@@ -554,7 +555,7 @@ export function ContractTasksPanel({
                       .filter((e) => e.task_id === task.id)
                       .slice(0, 3)
                       .map((event) => (
-                        <li key={event.id} className="text-[11px] text-zinc-500">
+                        <li key={event.id} className="text-[11px] text-[var(--text-tertiary)]">
                           {event.event_type.replace(/_/g, " ")} ·{" "}
                           {format(new Date(event.created_at), "MMM d, h:mm a")}
                           {(event.details?.reason as string | undefined)
@@ -565,7 +566,7 @@ export function ContractTasksPanel({
                   </ul>
                 )}
                 {taskDependencies.some((dep) => dep.task_id === task.id) && (
-                  <div className="mt-2 text-[11px] text-zinc-500">
+                  <div className="mt-2 text-[11px] text-[var(--text-tertiary)]">
                     Depends on:{" "}
                     {taskDependencies
                       .filter((dep) => dep.task_id === task.id)
@@ -573,8 +574,8 @@ export function ContractTasksPanel({
                       .join(", ")}
                   </div>
                 )}
-                <div className="mt-3 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                <div className="mt-3 space-y-2 rounded-lg border border-[var(--border-subtle)]/70 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
                     Checklist
                   </p>
                   <ul className="space-y-1">
@@ -588,9 +589,9 @@ export function ContractTasksPanel({
                             checked={item.is_done}
                             disabled={isPending || !canEdit}
                             onChange={(e) => onToggleChecklistItem(item.id, e.target.checked)}
-                            className="h-3.5 w-3.5 rounded border-zinc-300"
+                            className="h-3.5 w-3.5 rounded border-[var(--border-strong)]"
                           />
-                          <span className={item.is_done ? "text-zinc-400 line-through" : "text-zinc-700"}>
+                          <span className={item.is_done ? "text-[var(--text-tertiary)] line-through" : "text-[var(--text-secondary)]"}>
                             {item.label}
                           </span>
                           {canEdit && (
@@ -647,8 +648,8 @@ export function ContractTasksPanel({
                     </form>
                   )}
                 </div>
-                <div className="mt-2 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                <div className="mt-2 space-y-2 rounded-lg border border-[var(--border-subtle)]/70 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
                     Comments
                   </p>
                   <ul className="space-y-1">
@@ -659,12 +660,12 @@ export function ContractTasksPanel({
                       .map((comment) => (
                         <li
                           key={comment.id}
-                          className={`text-xs text-zinc-600 ${
-                            comment.parent_comment_id ? "ml-4 border-l border-zinc-200 pl-2" : ""
+                          className={`text-xs text-[var(--text-secondary)] ${
+                            comment.parent_comment_id ? "ml-4 border-l border-[var(--border-subtle)] pl-2" : ""
                           }`}
                         >
                           <p>{comment.body}</p>
-                          {comment.edited_at && <p className="text-[10px] text-zinc-400">edited</p>}
+                          {comment.edited_at && <p className="text-[10px] text-[var(--text-tertiary)]">edited</p>}
                           <div className="mt-1 flex items-center gap-1">
                             <form action={onUpdateComment.bind(null, comment.id)} className="flex items-center gap-1">
                               <input
@@ -710,8 +711,8 @@ export function ContractTasksPanel({
                     </button>
                   </form>
                 </div>
-                <div className="mt-2 space-y-2 rounded-lg border border-zinc-200/70 bg-zinc-50/50 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                <div className="mt-2 space-y-2 rounded-lg border border-[var(--border-subtle)]/70 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
                     Artifacts
                   </p>
                   <ul className="space-y-1">

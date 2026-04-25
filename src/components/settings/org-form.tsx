@@ -22,7 +22,8 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
     return (
       <div className="min-w-0">
         <label className="ui-label mb-0">Organization name</label>
-        <p className="mt-1 w-full text-sm text-zinc-900">{name}</p>
+        <p className="ui-support-copy mb-2 mt-1 text-xs">This workspace-wide label is managed by admins.</p>
+        <p className="mt-1 w-full text-sm text-[var(--text-primary)]">{name}</p>
       </div>
     );
   }
@@ -43,6 +44,7 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
         <label htmlFor="orgName" className="ui-label">
           Organization name
         </label>
+        <p className="ui-support-copy mb-2 mt-1 text-xs">Appears across navigation, invites, exports, and billing context.</p>
         <input
           id="orgName"
           name="name"

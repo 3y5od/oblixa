@@ -1,13 +1,18 @@
 import { notFound, redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import {
+  loadProductSurfaceContext,
+  type ProductSurfaceContext,
+} from "@/lib/product-surface/context";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { featureFamilyForPath } from "@/lib/product-surface/feature-registry";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { roleMayBypassProductRoute } from "@/lib/product-surface/nav-visibility";
 import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
+
+type AuthContext = NonNullable<Awaited<ReturnType<typeof getAuthContext>>>;
 
 function modeRank(mode: WorkspaceProductMode): number {
   if (mode === "assurance") return 2;
@@ -60,14 +65,16 @@ export async function assertCoreUtilitySurfaceOrRedirect(): Promise<void> {
  * V8 page-level guard: map page path to feature family and enforce canonical eligibility.
  * Exempt paths are allowed. Unmapped governed paths fail closed.
  */
-export async function assertPagePathEligibleOrNotFound(pathname: string): Promise<void> {
+export async function assertPagePathEligibleForContextOrNotFound(
+  pathname: string,
+  ctx: AuthContext | null
+): Promise<ProductSurfaceContext | null> {
   const mapping = resolveFeatureMappingForPagePath(pathname);
-  if (mapping.status === "exempt") return;
+  if (mapping.status === "exempt") return null;
 
-  const ctx = await getAuthContext();
   if (!ctx) {
     notFound();
-    return;
+    return null;
   }
 
   if (mapping.status === "unmapped") {
@@ -76,17 +83,25 @@ export async function assertPagePathEligibleOrNotFound(pathname: string): Promis
       pathname,
     });
     notFound();
-    return;
+    return null;
   }
 
-  if (roleMayBypassProductRoute(ctx.role as WorkspaceRole)) return;
+  const role = ctx.role as WorkspaceRole;
+  const surface = await loadProductSurfaceContext(ctx.admin, ctx.orgId, role);
+
+  if (roleMayBypassProductRoute(role)) return surface;
 
   const featureFamily = featureFamilyForPath(pathname) ?? mapping.featureFamily;
-  const surface = await loadProductSurfaceContext(ctx.admin, ctx.orgId, ctx.role as WorkspaceRole);
   const eligibility = evaluateFeatureEligibility(surface, featureFamily, {
     surfaceType: "page",
     surfaceIdentifier: pathname,
   });
-  if (eligibility.allowed) return;
+  if (eligibility.allowed) return surface;
   notFound();
+  return null;
+}
+
+export async function assertPagePathEligibleOrNotFound(pathname: string): Promise<void> {
+  const ctx = await getAuthContext();
+  await assertPagePathEligibleForContextOrNotFound(pathname, ctx);
 }

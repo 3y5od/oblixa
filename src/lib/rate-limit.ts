@@ -119,6 +119,8 @@ export const RATE_LIMITS = {
   remindersSendCron: { max: 30, windowMs: 60_000 },
   reportsCaptureMetricsCron: { max: 30, windowMs: 60_000 },
   exportContractsCsv: { max: 30, windowMs: 60_000 },
+  /** Poll GET /api/export/contracts/[jobId] for job status (mirrors import job poll ceiling). */
+  exportContractsJob: { max: 40, windowMs: 60_000 },
   exportCalendar: { max: 30, windowMs: 60_000 },
   exportReviewPacket: { max: 15, windowMs: 60_000 },
   importContractsJob: { max: 40, windowMs: 60_000 },
@@ -141,6 +143,8 @@ export const RATE_LIMITS = {
   onboardingCalibrationGateAdmin: { max: 180, windowMs: 60_000 },
   /** V6 stale calibration cron — same ceiling as v6CronDefault; dedicated key prefix in route. */
   v6OnboardingCalibrationStaleCron: { max: 60, windowMs: 60_000 },
+  /** V9 product telemetry server actions (CmdK, page load, review save-next) — user+IP keyed. */
+  productV9Telemetry: { max: 240, windowMs: 60_000 },
 } as const;
 
 export function getClientIpFromRequest(request: Request): string {

@@ -21,8 +21,9 @@ export default function AccessibilityPage() {
       <MarketingLegalShell>
         <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
           <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">Accessibility</h1>
-            <div className="mt-8 max-w-none space-y-4 text-sm leading-relaxed text-zinc-700">
+            <p className="ui-eyebrow">Public commitments</p>
+            <h1 className="ui-display-title mt-3 text-2xl sm:text-3xl">Accessibility</h1>
+            <div className="mt-8 max-w-none space-y-4 text-sm leading-relaxed text-[var(--text-secondary)]">
               <p>
                 We aim to keep primary flows keyboard accessible, preserve visible focus, and use semantic
                 structure on public marketing pages. The authenticated product is exercised in CI with

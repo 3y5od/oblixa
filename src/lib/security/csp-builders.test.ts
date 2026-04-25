@@ -17,6 +17,24 @@ describe("csp-builders", () => {
     expect(csp).toContain("https://api.stripe.com");
   });
 
+  it("CSP allows workers from same origin and blob URLs", () => {
+    for (const isProd of [true, false]) {
+      const csp = buildContentSecurityPolicy(isProd);
+      expect(csp, `prod=${isProd}`).toMatch(/worker-src[^;]*'self'[^;]*blob:/);
+    }
+  });
+
+  it("report-only CSP uses the same worker-src as enforcing policy", () => {
+    for (const isProd of [true, false]) {
+      const enforcing = buildContentSecurityPolicy(isProd);
+      const ro = buildStrictCspReportOnly(isProd);
+      const workerEnf = /worker-src ([^;]+)/.exec(enforcing)?.[1];
+      const workerRo = /worker-src ([^;]+)/.exec(ro)?.[1];
+      expect(workerEnf, `prod=${isProd}`).toBeTruthy();
+      expect(workerRo, `prod=${isProd}`).toBe(workerEnf);
+    }
+  });
+
   it("report-only omits unsafe-inline on styles in prod-like strict block", () => {
     const strict = buildStrictCspReportOnly(true);
     expect(strict).toContain("style-src 'self'");

@@ -8,6 +8,7 @@ import type { ApprovalStatus, ApprovalType, RenewalScenario } from "@/lib/types"
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { autoTransitionTasksForApproval } from "@/actions/tasks";
 import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
+import { emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
 
 const APPROVAL_TYPES: ApprovalType[] = [
   "renewal_decision",
@@ -306,6 +307,18 @@ export async function updateContractApprovalStatus(input: {
     approval.approver_id === user.id;
   if (!canResolve) return { error: "Access denied" };
 
+  await emitWorkActionTelemetry(
+    admin,
+    {
+      organizationId: approval.organization_id,
+      userId: user.id,
+      contractId: approval.contract_id,
+    },
+    "approval",
+    "update_status",
+    "attempted"
+  );
+
   const { error } = await admin
     .from("contract_approvals")
     .update({
@@ -314,7 +327,28 @@ export async function updateContractApprovalStatus(input: {
       resolved_at: input.status === "pending" ? null : new Date().toISOString(),
     })
     .eq("id", input.approvalId);
-  if (error) return { error: mapDataSourceError(error.message) };
+  if (error) {
+    await emitWorkActionTelemetry(
+      admin,
+      {
+        organizationId: approval.organization_id,
+        userId: user.id,
+        contractId: approval.contract_id,
+      },
+      "approval",
+      "update_status",
+      "failed"
+    );
+    await emitVisibleMutationErrorTelemetry(admin, {
+      organizationId: approval.organization_id,
+      userId: user.id,
+      contractId: approval.contract_id,
+      surface: "work",
+      mutation: "updateContractApprovalStatus",
+      code: mapDataSourceError(error.message),
+    });
+    return { error: mapDataSourceError(error.message) };
+  }
 
   await admin.from("audit_events").insert({
     organization_id: approval.organization_id,
@@ -347,7 +381,7 @@ export async function updateContractApprovalStatus(input: {
     payload: { contract_id: approval.contract_id, status: input.status },
     schemaVersion: "v1",
   });
-  await autoTransitionTasksForApproval({
+  const taskTransitionSummary = await autoTransitionTasksForApproval({
     admin,
     organizationId: approval.organization_id,
     contractId: approval.contract_id,
@@ -356,7 +390,23 @@ export async function updateContractApprovalStatus(input: {
     approvalDueAt: null,
   });
 
-  return { success: true as const };
+  await emitWorkActionTelemetry(
+    admin,
+    {
+      organizationId: approval.organization_id,
+      userId: user.id,
+      contractId: approval.contract_id,
+    },
+    "approval",
+    "update_status",
+    "succeeded"
+  );
+
+  return {
+    success: true as const,
+    reopenedTaskCount: taskTransitionSummary?.reopenedCount ?? 0,
+    blockedTaskCount: taskTransitionSummary?.blockedCount ?? 0,
+  };
 }
 
 export async function updateContractApprovalStatusForm(formData: FormData) {

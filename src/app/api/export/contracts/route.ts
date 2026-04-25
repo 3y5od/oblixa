@@ -6,26 +6,21 @@ import {
 } from "@/lib/rate-limit";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { FIELD_NAMES } from "@/lib/types";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getExportCsvExtractedFieldNamesForWorkspaceMode } from "@/lib/export-contract-csv-field-policy";
 import { isUuid } from "@/lib/security/validation";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 
-function csvEscape(value: string | null | undefined): string {
-  if (value == null || value === "") return "";
-  let t = String(value);
-  // CSV / spreadsheet formula injection (OWASP)
-  if (/^[=+\-@\t\r]/.test(t)) {
-    t = `'${t}`;
-  }
-  if (/[",\n\r]/.test(t)) {
-    return `"${t.replace(/"/g, '""')}"`;
-  }
-  return t;
-}
+type ExportCsvOptions = {
+  /** Shallow-merged into contract_export_jobs.filter_json after contract_ids (client cannot override contract_ids). */
+  filterJsonExtension?: Record<string, unknown>;
+};
 
-export async function GET(request: Request) {
+async function runExportContractsCsv(request: Request, options?: ExportCsvOptions): Promise<Response> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -90,47 +85,162 @@ export async function GET(request: Request) {
   });
   if (modeGate) return modeGate;
 
+  const v6Settings = await getV6OrgSettingsJson(admin, orgId);
+  const csvFieldNames = getExportCsvExtractedFieldNamesForWorkspaceMode(v6Settings.workspace_mode);
+
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`export-contracts:${user.id}:${ip}`, RATE_LIMITS.exportContractsCsv);
   if (!rl.ok) {
+    const retryAfterSec = Math.max(1, Math.ceil(rl.retryAfterMs / 1000));
     return NextResponse.json(
-      { error: "Too many requests" },
+      {
+        error: "Too many export requests — please wait before retrying.",
+        kind: "rate_limited",
+        retryAfterSec,
+      },
       {
         status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+        headers: { "Retry-After": String(retryAfterSec) },
       }
     );
   }
+
+  const contractIdsParam = new URL(request.url).searchParams.get("contractIds")?.trim() ?? "";
+  const selectedIds = contractIdsParam
+    ? contractIdsParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter((id) => isUuid(id))
+        .slice(0, 200)
+    : [];
+  const exportScope = selectedIds.length > 0 ? "selected" : "workspace";
+  let exportJobId: string | null = null;
+
+  try {
+    const { data: exportJob } = await admin
+      .from("contract_export_jobs")
+      .insert({
+        organization_id: orgId,
+        created_by: user.id,
+        scope: exportScope,
+        status: "processing",
+        export_format: "csv",
+        selected_contract_count: selectedIds.length,
+        filter_json: {
+          ...(options?.filterJsonExtension ?? {}),
+          contract_ids: selectedIds,
+        },
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .maybeSingle();
+    exportJobId = exportJob?.id ?? null;
+  } catch (error) {
+    console.error("[export-contracts] could not create export job:", error);
+  }
+
+  await emitProductTelemetryEvent(admin, {
+    organizationId: orgId,
+    userId: user.id,
+    action: "product.v9.export_started",
+    details: {
+      scope: exportScope,
+      selected_contract_count: selectedIds.length,
+      export_job_created: Boolean(exportJobId),
+    },
+  });
 
   const {
     rows: contracts,
     error,
     truncated,
-  } = await collectSupabaseRangePages(
-    (from, to) =>
-      admin
-        .from("contracts")
-        .select(
-          "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
-        )
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .range(from, to),
-    {
-      pageSize: 500,
-      maxRows: 20_000,
-    }
-  );
+  } =
+    selectedIds.length > 0
+      ? await (async () => {
+          const { data, error: selErr } = await admin
+            .from("contracts")
+            .select(
+              "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
+            )
+            .eq("organization_id", orgId)
+            .in("id", selectedIds)
+            .order("created_at", { ascending: false });
+          return {
+            rows: data ?? [],
+            error: selErr,
+            truncated: false as const,
+          };
+        })()
+      : await collectSupabaseRangePages(
+          (from, to) =>
+            admin
+              .from("contracts")
+              .select(
+                "id, title, counterparty, contract_type, status, region, created_at, owner_id, extracted_fields(field_name, field_value, status)"
+              )
+              .eq("organization_id", orgId)
+              .order("created_at", { ascending: false })
+              .range(from, to),
+          {
+            pageSize: 500,
+            maxRows: 20_000,
+          }
+        );
 
   if (error) {
+    if (exportJobId) {
+      await admin
+        .from("contract_export_jobs")
+        .update({
+          status: "failed",
+          error_message: "Could not load contracts for export.",
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", exportJobId);
+    }
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_failed",
+      details: {
+        scope: exportScope,
+        reason: "contracts_query_failed",
+      },
+    });
     return NextResponse.json(
       { error: mapDataSourceError(error.message) },
       { status: 500 }
     );
   }
   if (truncated) {
+    const partialError = "Export exceeds row budget; narrow scope and retry.";
+    if (exportJobId) {
+      await admin
+        .from("contract_export_jobs")
+        .update({
+          status: "partial",
+          truncated: true,
+          error_message: partialError,
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", exportJobId);
+    }
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_partially_completed",
+      details: {
+        scope: exportScope,
+        reason: "row_budget_exceeded",
+        export_job_id: exportJobId,
+      },
+    });
     return NextResponse.json(
-      { error: "Export exceeds row budget; narrow scope and retry." },
+      {
+        error: partialError,
+        kind: "row_budget_exceeded",
+        partial: true,
+      },
       { status: 413 }
     );
   }
@@ -163,8 +273,8 @@ export async function GET(request: Request) {
     "region",
     "owner_email",
     "created_at",
-    ...FIELD_NAMES.map((f) => `field_${f}`),
-    ...FIELD_NAMES.map((f) => `field_${f}_status`),
+    ...csvFieldNames.map((f) => `field_${f}`),
+    ...csvFieldNames.map((f) => `field_${f}_status`),
   ];
 
   const lines = [header.join(",")];
@@ -190,13 +300,13 @@ export async function GET(request: Request) {
       row.region ?? "",
       ownerEmail,
       row.created_at,
-    ].map(csvEscape);
+    ].map(escapeCsvCellForSpreadsheet);
 
-    const values = FIELD_NAMES.map((name) =>
-      csvEscape(byName.get(name)?.field_value ?? "")
+    const values = csvFieldNames.map((name) =>
+      escapeCsvCellForSpreadsheet(byName.get(name)?.field_value ?? "")
     );
-    const statuses = FIELD_NAMES.map((name) =>
-      csvEscape(byName.get(name)?.status ?? "")
+    const statuses = csvFieldNames.map((name) =>
+      escapeCsvCellForSpreadsheet(byName.get(name)?.status ?? "")
     );
 
     lines.push([...base, ...values, ...statuses].join(","));
@@ -205,11 +315,110 @@ export async function GET(request: Request) {
   const csv = lines.join("\r\n");
   const filename = `contracts-export-${new Date().toISOString().slice(0, 10)}.csv`;
 
+  if (exportJobId) {
+    await admin
+      .from("contract_export_jobs")
+      .update({
+        status: "completed",
+        exported_rows: contracts?.length ?? 0,
+        truncated: false,
+        error_message: null,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", exportJobId);
+  }
+
+  await emitProductTelemetryEvent(admin, {
+    organizationId: orgId,
+    userId: user.id,
+    action: "product.v9.export_completed",
+    details: {
+      scope: exportScope,
+      row_count: contracts?.length ?? 0,
+    },
+  });
+
   return new NextResponse(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"`,
+      ...(exportJobId ? { "X-Export-Job-Id": exportJobId } : {}),
     },
   });
+}
+
+export async function GET(request: Request) {
+  return runExportContractsCsv(request);
+}
+
+/**
+ * JSON alternative to GET /api/export/contracts?orgId=&contractIds= for clients that send filter metadata.
+ * Malformed JSON or non-object `filter_json` returns 400 (never 500 from parse).
+ */
+export async function POST(request: Request) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return NextResponse.json(
+      { error: "Use Content-Type: application/json with an object body for this export request." },
+      { status: 400 }
+    );
+  }
+
+  let raw: unknown;
+  try {
+    raw = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Could not read export settings: the body is not valid JSON." },
+      { status: 400 }
+    );
+  }
+
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return NextResponse.json({ error: "The export request body must be a JSON object." }, { status: 400 });
+  }
+
+  const obj = raw as Record<string, unknown>;
+  if ("filter_json" in obj) {
+    const fj = obj.filter_json;
+    if (fj !== undefined && (typeof fj !== "object" || fj === null || Array.isArray(fj))) {
+      return NextResponse.json(
+        { error: "filter_json must be a JSON object. Remove the field or send an empty object {}." },
+        { status: 400 }
+      );
+    }
+  }
+
+  const orgId = typeof obj.orgId === "string" ? obj.orgId.trim() : "";
+  if (!orgId || !isUuid(orgId)) {
+    return NextResponse.json({ error: "orgId must be a valid organization UUID." }, { status: 400 });
+  }
+
+  let contractIdsParam = "";
+  if (Array.isArray(obj.contractIds)) {
+    const ids = obj.contractIds
+      .filter((x): x is string => typeof x === "string" && isUuid(x))
+      .slice(0, 200);
+    contractIdsParam = ids.join(",");
+  }
+
+  const url = new URL("http://localhost/api/export/contracts");
+  url.searchParams.set("orgId", orgId);
+  if (contractIdsParam) {
+    url.searchParams.set("contractIds", contractIdsParam);
+  }
+
+  const filt = obj.filter_json;
+  const filterJsonExtension =
+    typeof filt === "object" && filt !== null && !Array.isArray(filt)
+      ? (filt as Record<string, unknown>)
+      : undefined;
+
+  const forward = new Request(url.toString(), {
+    method: "GET",
+    headers: request.headers,
+  });
+
+  return runExportContractsCsv(forward, filterJsonExtension ? { filterJsonExtension } : undefined);
 }

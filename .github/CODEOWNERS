@@ -7,3 +7,8 @@
 # semgrep/ @YOUR_ORG/backend
 # next.config.ts @YOUR_ORG/backend
 # .github/workflows/ @YOUR_ORG/backend
+
+# Maximal UI QA plan (Tier 39) — e2e + governance tests
+e2e/ @YOUR_ORG/frontend-qa
+src/lib/qa/ @YOUR_ORG/frontend-qa
+playwright.config.ts @YOUR_ORG/frontend-qa

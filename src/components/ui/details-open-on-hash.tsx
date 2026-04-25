@@ -30,7 +30,10 @@ export function DetailsOpenOnHash(props: {
       if (!fragment || !ids.includes(fragment)) return;
       setOpen(true);
       requestAnimationFrame(() => {
-        document.getElementById(fragment)?.scrollIntoView({ block: "start", behavior: "smooth" });
+        const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        document
+          .getElementById(fragment)
+          ?.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
       });
     }
 

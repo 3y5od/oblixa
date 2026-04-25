@@ -185,11 +185,11 @@ export default async function MaintenancePage() {
   });
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <p className="ui-eyebrow">Portfolio hygiene</p>
         <h1 className="ui-display-title">Maintenance workspace</h1>
-        <p className="max-w-2xl text-[15px] text-zinc-500">
+        <p className="ui-page-lead max-w-2xl">
           Detect stale records, ownerless contracts, duplicate candidates, and orphaned files.
         </p>
       </header>
@@ -197,7 +197,7 @@ export default async function MaintenancePage() {
       <section className="space-y-3">
         <div>
           <p className="ui-eyebrow">Signals</p>
-          <h2 className="ui-section-title mt-2 text-xl">Hygiene backlog</h2>
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Hygiene backlog</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           <OperationalSummaryCard
@@ -253,12 +253,13 @@ export default async function MaintenancePage() {
         </div>
       </section>
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
-          <h2 className="ui-section-title text-base">Maintenance campaigns (V4)</h2>
+      <section className="ui-page-shell overflow-hidden">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
+          <h2 className="ui-section-title text-base">Maintenance campaigns</h2>
+          <p className="ui-support-copy mt-1">Create and run remediation batches from the same surface used to inspect stale records and correction demand.</p>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={createCampaignAction} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={createCampaignAction} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Create campaign</p>
             <input name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
             <select name="campaignType" className="ui-input w-full" defaultValue="data_remediation">
@@ -275,21 +276,21 @@ export default async function MaintenancePage() {
               Create draft campaign
             </button>
           </form>
-          <div className="rounded-lg border border-zinc-200 p-4">
+          <div className="ui-card-quiet p-4">
             <p className="ui-label-caps">Campaign history</p>
             <ul className="mt-2 space-y-2">
               {campaigns.length === 0 ? (
-                <li className="text-sm text-zinc-500">No campaigns created yet.</li>
+                <li className="text-sm text-[var(--text-tertiary)]">No campaigns created yet.</li>
               ) : (
                 campaigns.map((campaign) => (
-                  <li key={campaign.id} className="rounded border border-zinc-200 px-3 py-2 text-sm">
-                    <p className="font-medium text-zinc-900">{campaign.name}</p>
-                    <p className="text-xs text-zinc-500">
+                  <li key={campaign.id} className="rounded border border-[var(--border-subtle)] px-3 py-2 text-sm">
+                    <p className="font-medium text-[var(--text-primary)]">{campaign.name}</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">
                       {campaign.campaign_type} · {campaign.status}
                       {campaign.rolled_back_at ? " · rolled back" : ""}
                     </p>
                     {campaign.last_preview_at ? (
-                      <p className="mt-1 text-[11px] text-zinc-500">
+                      <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
                         Last preview: {new Date(campaign.last_preview_at).toLocaleString()}
                       </p>
                     ) : null}
@@ -321,19 +322,19 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Stale active/review records</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {staleContracts.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-zinc-500">No stale records.</li>
+            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No stale records.</li>
           ) : (
             staleContracts.map((row) => (
               <li key={row.id} className="px-6 py-3">
                 <Link href={`/contracts/${row.id}`} className="ui-link text-sm">
                   {row.title}
                 </Link>
-                <p className="text-xs text-zinc-500">{new Date(row.updated_at).toISOString().slice(0, 10)}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{new Date(row.updated_at).toISOString().slice(0, 10)}</p>
               </li>
             ))
           )}
@@ -341,12 +342,12 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Ownerless contracts (reassign)</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {missingOwner.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-zinc-500">No ownerless records.</li>
+            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No ownerless records.</li>
           ) : (
             missingOwner.slice(0, 20).map((row) => (
               <li key={row.id} className="flex items-center justify-between gap-3 px-6 py-3">
@@ -373,16 +374,16 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Duplicate review queue (archive)</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {duplicates.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-zinc-500">No duplicate groups.</li>
+            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No duplicate groups.</li>
           ) : (
             duplicates.slice(0, 10).map((group, idx) => (
               <li key={`dup-${idx}`} className="px-6 py-3">
-                <p className="text-xs text-zinc-500">Group {idx + 1}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Group {idx + 1}</p>
                 <div className="mt-1 space-y-1">
                   {group.map((row) => (
                     <div key={row.id} className="flex items-center justify-between gap-3">
@@ -406,16 +407,16 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Orphaned file rows (cleanup)</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {orphaned.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-zinc-500">No orphaned file rows detected.</li>
+            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No orphaned file rows detected.</li>
           ) : (
             orphaned.slice(0, 30).map((row) => (
               <li key={row.id} className="flex items-center justify-between gap-3 px-6 py-3">
-                <span className="text-sm text-zinc-700">{row.file_name}</span>
+                <span className="text-sm text-[var(--text-secondary)]">{row.file_name}</span>
                 <form action={deleteOrphanFileRecordForm as never}>
                   <input type="hidden" name="fileId" value={row.id} />
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
@@ -429,11 +430,11 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Correction campaigns</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={runCorrectionCampaignForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={runCorrectionCampaignForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Normalization campaign</p>
             <select name="campaignType" className="ui-input w-full">
               <option value="normalize_counterparty">Normalize counterparty spacing</option>
@@ -443,7 +444,7 @@ export default async function MaintenancePage() {
               Run correction
             </button>
           </form>
-          <form action={runDateBackfillCampaignForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={runDateBackfillCampaignForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Date backfill campaign</p>
             <input name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
             <select name="fieldName" className="ui-input w-full">
@@ -462,11 +463,11 @@ export default async function MaintenancePage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
           <h2 className="ui-section-title text-base">Guided change-event maintenance</h2>
         </div>
         <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={logContractChangeEventForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={logContractChangeEventForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Log change event</p>
             <input name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
             <select name="eventType" defaultValue="amendment" className="ui-input w-full">
@@ -485,26 +486,26 @@ export default async function MaintenancePage() {
               Log change event
             </button>
           </form>
-          <form action={processContractChangeEventsForm as never} className="space-y-2 rounded-lg border border-zinc-200 p-4">
+          <form action={processContractChangeEventsForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Create maintenance tasks from queue</p>
             <input name="maxRows" type="number" min={1} max={100} defaultValue={25} className="ui-input w-full" />
             <input name="teamKey" defaultValue="ops" className="ui-input w-full" />
             <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
               Process change queue
             </button>
-            <p className="text-xs text-zinc-500">Creates follow-up tasks and marks queued events processed.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Creates follow-up tasks and marks queued events processed.</p>
           </form>
         </div>
-        <ul className="divide-y divide-[var(--border-subtle)] border-t border-zinc-100">
+        <ul className="divide-y divide-[var(--border-subtle)] border-t border-[var(--border-subtle)]">
           {changeEvents.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-zinc-500">No pending change events.</li>
+            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No pending change events.</li>
           ) : (
             changeEvents.map((evt) => {
               const rel = evt.contracts as unknown;
               const contract = (Array.isArray(rel) ? rel[0] : rel) as { id?: string; title?: string } | null;
               return (
                 <li key={evt.id} className="px-6 py-3 text-sm">
-                  <p className="font-medium text-zinc-900">
+                  <p className="font-medium text-[var(--text-primary)]">
                     {evt.event_type} · {evt.impact_level}
                     {contract?.id ? (
                       <>
@@ -515,7 +516,7 @@ export default async function MaintenancePage() {
                       </>
                     ) : null}
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">{evt.summary}</p>
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">{evt.summary}</p>
                 </li>
               );
             })

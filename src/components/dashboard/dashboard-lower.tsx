@@ -1,5 +1,5 @@
 /**
- * docs/refinement.md §8.1–§8.2 (Core home): “blocked / missing / recent / owned” via My tasks & obligations,
+ * product-surface policy §8.1–§8.2 (Core home): “blocked / missing / recent / owned” via My tasks & obligations,
  * upcoming actions, missing fields, usage/evidence, recent contracts table, and review-oriented queues.
  */
 import Link from "next/link";
@@ -11,6 +11,8 @@ import { MyTasks } from "@/components/dashboard/my-tasks";
 import { MyObligations } from "@/components/dashboard/my-obligations";
 import { UpcomingActions } from "@/components/dashboard/upcoming-actions";
 import { CONTRACT_LIST_ROW_COLUMNS } from "@/lib/contract-list";
+import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
+import { getContractListRowSignalsMap } from "@/lib/contract-list-row-signals";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import {
   getDashboardAdminClientCached,
@@ -127,6 +129,11 @@ export async function DashboardLower(props: {
   const evidenceRequiredCount = evidenceRequiredRaw ?? 0;
 
   const recentContracts = await attachOwnerProfiles(admin, recentContractsData ?? []);
+  const recentContractIds = recentContracts.map((contract) => contract.id);
+  const [recentReviewStats, recentRowSignals] = await Promise.all([
+    getReviewStatsForContractIds(admin, recentContractIds),
+    getContractListRowSignalsMap(admin, orgId, recentContractIds),
+  ]);
   const pendingContracts = pendingContractsData ?? [];
   const dateFields = dateFieldsData as unknown as DashboardDeadlineField[];
 
@@ -226,17 +233,17 @@ export async function DashboardLower(props: {
       <CommandCenterRoleMetrics orgId={orgId} role={role} />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <section className="ui-card-hero overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
+          <div className="ui-surface-tint px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Queue</p>
-            <h2 className="ui-section-title mt-2">Now</h2>
-            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
-              Immediate actions requiring attention today
+            <h2 className="ui-page-title mt-2 text-[1.55rem]">Now</h2>
+            <p className="ui-section-lead mt-2">
+              Immediate actions requiring attention today.
             </p>
             <div className="mt-2">
               <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="now" />
                 <input type="hidden" name="pinned" value={nowPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                <button type="submit" className="ui-filter-pill">
                   {nowPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -273,8 +280,8 @@ export async function DashboardLower(props: {
                   <OperationalMetricChip label="At-risk contracts" value={String(metrics.atRiskContracts)} />
                 </div>
                 {isHrefEligible("/work") ? (
-                  <Link href="/work" className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--accent-strong)] hover:text-[var(--text-primary)]">
-                    View work queue
+                  <Link href="/work?lens=due_soon" className="ui-operational-action text-[12px]">
+                    View due-soon work
                     <span aria-hidden>→</span>
                   </Link>
                 ) : null}
@@ -290,17 +297,17 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
+          <div className="ui-surface-tint px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Horizon</p>
-            <h2 className="ui-section-title mt-2">Next</h2>
-            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
-              Upcoming deadlines and obligations in the next two weeks
+            <h2 className="ui-page-title mt-2 text-[1.55rem]">Next</h2>
+            <p className="ui-section-lead mt-2">
+              Upcoming deadlines and obligations in the next two weeks.
             </p>
             <div className="mt-2">
               <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="next" />
                 <input type="hidden" name="pinned" value={nextPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                <button type="submit" className="ui-filter-pill">
                   {nextPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -311,11 +318,11 @@ export async function DashboardLower(props: {
             {effectiveView === "personal" ? (
               <MyObligations obligations={myObligations.slice(0, 5)} />
             ) : effectiveView === "team" ? (
-              <p className="text-[12px] text-[var(--text-secondary)]">
+              <p className="ui-support-copy">
                 Switch to Personal mode for your assigned obligations.
               </p>
             ) : (
-              <p className="text-[12px] text-[var(--text-secondary)]">
+              <p className="ui-support-copy">
                 Portfolio mode emphasizes global pipeline and risk rather than individual
                 ownership.
               </p>
@@ -324,17 +331,17 @@ export async function DashboardLower(props: {
         </section>
 
         <section className="ui-card overflow-hidden xl:col-span-1">
-          <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-5 md:py-4">
+          <div className="ui-surface-tint px-4 py-3.5 md:px-5 md:py-4">
             <p className="ui-eyebrow">Exposure</p>
-            <h2 className="ui-section-title mt-2">Risk</h2>
-            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
-              Exceptions, missing critical fields, and renewal risk signals
+            <h2 className="ui-page-title mt-2 text-[1.55rem]">Risk</h2>
+            <p className="ui-section-lead mt-2">
+              Exceptions, missing critical fields, and renewal risk signals.
             </p>
             <div className="mt-2">
               <form action={setDashboardQueuePinForm as never}>
                 <input type="hidden" name="queueKey" value="risk" />
                 <input type="hidden" name="pinned" value={riskPinned ? "0" : "1"} />
-                <button type="submit" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                <button type="submit" className="ui-filter-pill">
                   {riskPinned ? "Unpin queue" : "Pin queue"}
                 </button>
               </form>
@@ -343,7 +350,7 @@ export async function DashboardLower(props: {
           <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
             {isHrefEligible("/contracts/exceptions") ? (
               <OperationalQueueRow
-                href="/contracts/exceptions"
+                href="/contracts/exceptions?status=open"
                 eyebrow="Backlog"
                 title="Exceptions"
                 hint="Stale records and workflow gaps."
@@ -354,7 +361,7 @@ export async function DashboardLower(props: {
             ) : null}
             {isHrefEligible("/contracts/approvals") ? (
               <OperationalQueueRow
-                href="/contracts/approvals"
+                href="/contracts/approvals?status=pending"
                 eyebrow="SLA"
                 title="Pending approvals"
                 hint="Queued sign-offs and blockers."
@@ -365,7 +372,7 @@ export async function DashboardLower(props: {
             ) : null}
             {isHrefEligible("/contracts/data-quality") ? (
               <OperationalQueueRow
-                href="/contracts/data-quality"
+                href="/contracts?data_quality=missing_critical"
                 eyebrow="Data quality"
                 title="Critical date gaps"
                 hint="End, renewal, and notice fields need approved values."
@@ -376,7 +383,7 @@ export async function DashboardLower(props: {
             ) : null}
             {isHrefEligible("/contracts/evidence-studio") ? (
               <OperationalQueueRow
-                href="/contracts/evidence-studio"
+                href="/contracts?evidence=outstanding"
                 eyebrow="Evidence"
                 title="Open evidence requests"
                 hint="Submissions still required for gated work."
@@ -393,8 +400,8 @@ export async function DashboardLower(props: {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="ui-eyebrow">Ledger</p>
-            <h2 className="ui-section-title mt-2 text-xl">Recent contracts</h2>
-            <p className="mt-1 text-[12px] text-[var(--text-secondary)] md:text-[13px]">
+            <h2 className="ui-page-title mt-2 text-[1.85rem]">Recent contracts</h2>
+            <p className="ui-page-lead mt-2">
               Latest activity in your workspace
             </p>
           </div>
@@ -402,14 +409,19 @@ export async function DashboardLower(props: {
             View all contracts
           </Link>
         </div>
-        <ContractTable contracts={recentContracts as Contract[]} />
+        <ContractTable
+          contracts={recentContracts as Contract[]}
+          reviewStats={recentReviewStats}
+          rowSignals={recentRowSignals}
+          showContinuityLinks
+        />
       </section>
 
       <DetailsOpenOnHash
         className="ui-card overflow-hidden"
         openForHashIds={["missing-critical"]}
         summary={
-          <summary className="cursor-pointer list-none border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3.5 text-[13px] font-semibold text-zinc-700 marker:hidden md:px-6 md:py-4 md:text-sm">
+          <summary className="ui-surface-tint cursor-pointer list-none px-5 py-3.5 text-[13px] font-semibold tracking-tight text-[var(--text-secondary)] marker:hidden md:px-6 md:py-4 md:text-sm">
             Portfolio diagnostics and usage
           </summary>
         }

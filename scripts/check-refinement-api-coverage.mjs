@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §19 — refinement-critical API trees must follow the same test/allowlist
+ * product-surface policy §19 — refinement-critical API trees must follow the same test/allowlist
  * discipline as `check-api-route-tests.mjs` (assurance, autopilot, selected outbound crons).
  */
 import fs from "node:fs";

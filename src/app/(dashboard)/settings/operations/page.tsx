@@ -25,6 +25,8 @@ import {
 import { createObligationTemplateForm } from "@/actions/obligations";
 import { cookies } from "next/headers";
 
+export const metadata = { title: "Workflow configuration" };
+
 export default async function OperationsSettingsPage() {
   const ctx = await getAuthContext();
   if (!ctx) return null;
@@ -114,22 +116,33 @@ export default async function OperationsSettingsPage() {
     const p = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
     return { id: row.user_id, label: p?.full_name || p?.email || "Member" };
   });
+  const notificationPolicy =
+    (workflowSettings?.notification_policy_json as Record<string, unknown> | null) ?? {};
+  const emailPolicy = (notificationPolicy.email as Record<string, unknown> | undefined) ?? {};
+  const slackPolicy = (notificationPolicy.slack as Record<string, unknown> | undefined) ?? {};
+  const emailBlockedTypes = Array.isArray(emailPolicy.blocked_types)
+    ? (emailPolicy.blocked_types as unknown[]).map((value) => String(value))
+    : [];
+  const slackBlockedTypes = Array.isArray(slackPolicy.blocked_types)
+    ? (slackPolicy.blocked_types as unknown[]).map((value) => String(value))
+    : [];
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Operations</p>
           <h1 className="ui-display-title mt-2">Workflow configuration</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
+          <p className="ui-page-lead mt-3 max-w-2xl">
             Configure task rules, renewal checklist templates, obligation templates, and outbound webhooks.
           </p>
         </div>
       </header>
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+      <section className="ui-page-shell overflow-hidden">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Task automation rules</h2>
+          <p className="ui-support-copy mt-1">Use automation rules as the top-level trigger architecture for follow-up work, notifications, and report generation.</p>
         </div>
         <div className="space-y-4 p-6">
           <form action={createTaskAutomationRuleForm} className="grid gap-3 md:grid-cols-2">
@@ -194,7 +207,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(rules ?? []).map((rule) => (
-              <li key={rule.id} className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={rule.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
                 <span>
                   {rule.name} · {rule.trigger_type}
                 </span>
@@ -209,12 +222,13 @@ export default async function OperationsSettingsPage() {
         </div>
       </section>
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+      <section className="ui-page-shell overflow-hidden">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Policy packs</h2>
+          <p className="ui-support-copy mt-1">Apply grouped operational presets before tuning the lower-level templates and cadence settings below.</p>
         </div>
         <div className="space-y-4 p-6">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-[var(--text-tertiary)]">
             Apply a preset package of workflow thresholds and required field coverage.
           </p>
           <form action={applyPolicyPackForm as never} className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -230,11 +244,29 @@ export default async function OperationsSettingsPage() {
         </div>
       </section>
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+      <section className="ui-page-shell overflow-hidden">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Workflow cadence settings</h2>
+          <p className="ui-support-copy mt-1">These settings define workspace-wide timing, freshness thresholds, and notification posture for downstream workflows.</p>
         </div>
         <div className="space-y-4 p-6">
+          <div className="ui-soft-details px-4 py-3 text-sm text-[var(--text-secondary)]">
+            <p className="font-semibold text-[var(--text-primary)]">Current reminder and notification posture</p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+              Email: {emailPolicy.enabled === false ? "muted" : "enabled"}
+              {emailBlockedTypes.length > 0 ? ` · blocked types ${emailBlockedTypes.join(", ")}` : ""}
+              {" · "}
+              Slack: {slackPolicy.enabled === false ? "muted" : "enabled"}
+              {slackBlockedTypes.length > 0 ? ` · blocked types ${slackBlockedTypes.join(", ")}` : ""}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+              Use{" "}
+              <Link href="/settings/health" className="ui-link">
+                Health
+              </Link>{" "}
+              to see delivery failures and retry posture after these settings change.
+            </p>
+          </div>
           <form action={upsertWorkflowSettingsForm as never} className="grid gap-3 md:grid-cols-2">
             <input
               name="weeklyIntakeLookbackDays"
@@ -268,7 +300,7 @@ export default async function OperationsSettingsPage() {
               defaultValue={workflowSettings?.stale_ownership_days ?? 90}
               className="ui-input"
             />
-            <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
               <input
                 type="checkbox"
                 name="emailEnabled"
@@ -280,7 +312,7 @@ export default async function OperationsSettingsPage() {
               />
               Email notifications enabled
             </label>
-            <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
               <input
                 type="checkbox"
                 name="slackEnabled"
@@ -364,7 +396,7 @@ export default async function OperationsSettingsPage() {
               ).join(", ")}
               className="ui-input md:col-span-2"
             />
-            <label className="inline-flex items-center gap-2 text-sm text-zinc-600 md:col-span-2">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] md:col-span-2">
               <input
                 type="checkbox"
                 name="dashboardTrackingEnabled"
@@ -387,7 +419,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Field templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -395,8 +427,8 @@ export default async function OperationsSettingsPage() {
             <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
             <input name="fieldName" required placeholder="payment_cadence" className="ui-input" />
             <input name="defaultValue" placeholder="net_30" className="ui-input" />
-            <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
-              <input type="checkbox" name="required" value="1" className="h-4 w-4 rounded border-zinc-300" />
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input type="checkbox" name="required" value="1" className="h-4 w-4 rounded border-[var(--border-strong)]" />
               Required field
             </label>
             <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
@@ -405,7 +437,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(fieldTemplates ?? []).map((t) => (
-              <li key={t.id} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
                 {t.field_name} · {t.contract_type || "default"} · {t.required ? "required" : "optional"}
               </li>
             ))}
@@ -414,7 +446,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Approval policies</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -443,7 +475,7 @@ export default async function OperationsSettingsPage() {
             {(approvalPolicies ?? []).map((row) => (
               <li
                 key={row.id}
-                className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm"
               >
                 <span>
                   {row.approval_type}
@@ -462,7 +494,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Reminder templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -477,7 +509,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(reminderTemplates ?? []).map((t) => (
-              <li key={t.id} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
                 {t.field_name} · {t.offset_days}d · {t.reminder_type}
                 {t.contract_type ? ` · ${t.contract_type}` : " · default"}
               </li>
@@ -487,7 +519,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Task templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -508,7 +540,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(taskTemplates ?? []).map((t) => (
-              <li key={t.id} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
                 {t.title} · {t.priority} · due+{t.due_offset_days}d
                 {t.team_key ? ` · ${t.team_key}` : ""}
               </li>
@@ -518,7 +550,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Renewal checklist templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -533,7 +565,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(playbooks ?? []).map((row) => (
-              <li key={row.id} className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={row.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
                 <span>
                   {row.offset_days}d · {row.label}
                   {row.contract_type ? ` · ${row.contract_type}` : " · default"}
@@ -550,18 +582,18 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Integration connections</h2>
         </div>
         <div className="space-y-4 p-6">
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-4 text-sm text-zinc-700">
-            <p className="font-semibold text-zinc-900">Inbound automation (Slack and email)</p>
-            <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+          <div className="ui-soft-details p-4 text-sm text-[var(--text-secondary)]">
+            <p className="font-semibold text-[var(--text-primary)]">Inbound automation (Slack and email)</p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
               Your hosting provider sets a secret token in the server environment as{" "}
-              <code className="rounded bg-zinc-100 px-1 text-[10px]">INBOUND_AUTOMATION_TOKEN</code>. HTTP clients send{" "}
-              <code className="rounded bg-zinc-100 px-1 text-[10px]">Authorization: Bearer &lt;token&gt;</code> to:
+              <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[10px]">INBOUND_AUTOMATION_TOKEN</code>. HTTP clients send{" "}
+              <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[10px]">Authorization: Bearer &lt;token&gt;</code> to:
             </p>
-            <ul className="mt-2 list-inside list-disc text-xs text-zinc-600">
+            <ul className="mt-2 list-inside list-disc text-xs text-[var(--text-secondary)]">
               <li>
                 <code className="text-[10px]">POST /api/tasks/from-slack</code> — JSON body with{" "}
                 <code className="text-[10px]">organizationId</code>, <code className="text-[10px]">contractId</code>,{" "}
@@ -574,7 +606,7 @@ export default async function OperationsSettingsPage() {
                 bridges.
               </li>
             </ul>
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-[var(--text-tertiary)]">
               Outbound Slack alerts from automation include an <strong>Open in Oblixa</strong> link when a{" "}
               <code className="text-[10px]">contract_id</code> is present in the event metadata. Set{" "}
               <code className="text-[10px]">NEXT_PUBLIC_APP_URL</code> in production so links resolve to your real domain.
@@ -603,7 +635,7 @@ export default async function OperationsSettingsPage() {
               Save integration state
             </button>
           </form>
-          <form action={setIntegrationTokenForm as never} className="grid gap-3 border-t border-zinc-100 pt-4 md:grid-cols-2">
+          <form action={setIntegrationTokenForm as never} className="grid gap-3 border-t border-[var(--border-subtle)] pt-4 md:grid-cols-2">
             <select name="provider" defaultValue="google_calendar" className="ui-input">
               <option value="google_calendar">google_calendar</option>
               <option value="outlook_calendar">outlook_calendar</option>
@@ -621,17 +653,17 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(integrations ?? []).map((row) => (
-              <li key={row.id} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={row.id} className="ui-support-panel px-3 py-2 text-sm">
                 {row.provider} · {row.status}
                 {row.last_synced_at ? ` · synced ${new Date(row.last_synced_at).toLocaleDateString()}` : ""}
                 {row.last_error ? ` · ${row.last_error}` : ""}
               </li>
             ))}
           </ul>
-          <div className="border-t border-zinc-100 pt-4">
+          <div className="border-t border-[var(--border-subtle)] pt-4">
             <p className="ui-label-caps">Integration API keys</p>
             {newlyIssuedApiKey && (
-              <div className="mt-2 rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <div className="ui-alert-warning mt-2 px-3 py-2 text-xs">
                 <p className="font-semibold">Copy this API key now. It will not be shown again.</p>
                 <p className="mt-1 break-all font-mono">{newlyIssuedApiKey}</p>
               </div>
@@ -654,7 +686,8 @@ export default async function OperationsSettingsPage() {
                   expiresAt: expiresAtRaw || null,
                 });
                 if (res && "error" in res && res.error) {
-                  console.error("[workflow-config] createIntegrationApiKey", res.error);
+                  const { formatUnknownForServerLog } = await import("@/lib/observability/log-redaction");
+                  console.error("[workflow-config] createIntegrationApiKey", formatUnknownForServerLog(res.error));
                 } else if (res && "success" in res && res.success) {
                   cookieStore.set("oblixa_new_api_key_token", res.token, {
                     httpOnly: true,
@@ -674,13 +707,13 @@ export default async function OperationsSettingsPage() {
                 Create API key
               </button>
             </form>
-            <ul className="mt-3 space-y-2 text-xs text-zinc-600">
+            <ul className="mt-3 space-y-2 text-xs text-[var(--text-secondary)]">
               {(apiKeys ?? []).map((key) => (
-                <li key={key.id} className="rounded-lg border border-zinc-200 px-3 py-2">
-                  <p className="font-semibold text-zinc-800">
+                <li key={key.id} className="ui-support-panel px-3 py-2">
+                  <p className="font-semibold text-[var(--text-primary)]">
                     {key.label} · {key.key_prefix} · {key.active ? "active" : "inactive"}
                   </p>
-                  <p className="mt-1 text-zinc-600">
+                  <p className="mt-1 text-[var(--text-secondary)]">
                     Scopes: {(key.scopes ?? []).join(", ") || "events:read"}
                     {key.expires_at
                       ? ` · expires ${new Date(key.expires_at).toLocaleString()}`
@@ -690,7 +723,7 @@ export default async function OperationsSettingsPage() {
                       : ""}
                   </p>
                   {key.revoked_at && (
-                    <p className="mt-1 text-rose-700">
+                    <p className="mt-1 text-[var(--danger-ink)]">
                       Revoked {new Date(key.revoked_at).toLocaleString()}
                       {key.revoked_reason ? ` · ${key.revoked_reason}` : ""}
                     </p>
@@ -710,7 +743,7 @@ export default async function OperationsSettingsPage() {
                           defaultValue={key.expires_at ? new Date(key.expires_at).toISOString().slice(0, 16) : ""}
                           className="ui-input h-8 text-[11px]"
                         />
-                        <label className="inline-flex items-center gap-1 text-[11px] text-zinc-600">
+                        <label className="inline-flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
                           <input type="checkbox" name="active" value="1" defaultChecked={key.active} />
                           active
                         </label>
@@ -739,7 +772,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Obligation templates</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -756,7 +789,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(templates ?? []).map((t) => (
-              <li key={t.id} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
                 {t.contract_type} · {t.title} · {t.obligation_type}
                 {t.cadence ? ` · ${t.cadence}` : ""}
               </li>
@@ -766,7 +799,7 @@ export default async function OperationsSettingsPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-6 py-4">
+        <div className="ui-surface-tint px-6 py-4">
           <h2 className="ui-section-title text-base">Webhook subscriptions</h2>
         </div>
         <div className="space-y-4 p-6">
@@ -780,7 +813,7 @@ export default async function OperationsSettingsPage() {
           </form>
           <ul className="space-y-2">
             {(webhooks ?? []).map((wh) => (
-              <li key={wh.id} className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+              <li key={wh.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
                 <span className="truncate pr-3">{wh.url}</span>
                 <form action={toggleWebhookSubscriptionForm.bind(null, wh.id, !wh.active) as never}>
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">

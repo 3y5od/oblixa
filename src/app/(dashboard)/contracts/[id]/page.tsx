@@ -15,6 +15,7 @@ import { formatFileSize } from "@/lib/format-file-size";
 import { ContractStatusTransition } from "@/components/contracts/contract-status-transition";
 import { ExtractionJobAlert } from "@/components/contracts/extraction-job-alert";
 import { BatchApproveButton } from "@/components/contracts/batch-approve-button";
+import { ReviewSaveNextTelemetryLink } from "@/components/contracts/review-save-next-telemetry-link";
 import { ContractTasksPanel } from "@/components/contracts/contract-tasks-panel";
 import { ContractNotesPanel } from "@/components/contracts/contract-notes-panel";
 import { ContractObligationsPanel } from "@/components/contracts/contract-obligations-panel";
@@ -22,6 +23,7 @@ import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoi
 import { ContractEvidenceRequirementsPanel } from "@/components/contracts/contract-evidence-requirements-panel";
 import { addRenewalWorkspaceNoteForm, seedRenewalPlaybook } from "@/actions/renewal-playbook";
 import { canEditContracts } from "@/lib/permissions";
+import { hasRoleCapability } from "@/lib/access-control";
 import { addFieldCommentForm } from "@/actions/field-comments";
 import { createClarificationTaskForm } from "@/actions/tasks";
 import { removeWatchlistEntry, upsertWatchlistEntryForm } from "@/actions/watchlists";
@@ -53,13 +55,45 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metrics";
+import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
+import {
+  getReminderDeliveryState,
+  groupReminderDeliveriesByReminderId,
+} from "@/lib/reminder-delivery-visibility";
+import { fetchReviewQueueContinuity } from "@/lib/contract-review-stats";
+import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import {
+  buildContractImmediateActions,
+  buildContractOperationsStrip,
+  type ContractDetailIconKey,
+} from "@/lib/contract-detail-summary";
+import { isEvidenceGapStatus } from "@/lib/evidence-status";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{
+    tab?: string;
+    created?: string;
+    uploaded?: string;
+    invalid?: string;
+    failed?: string;
+    extraction?: string;
+    from?: string;
+    reviewPage?: string;
+  }>;
 }) {
   const { id } = await props.params;
-  const { tab: rawTab } = await props.searchParams;
+  const {
+    tab: rawTab,
+    created: createdParam,
+    uploaded: uploadedParam,
+    invalid: invalidParam,
+    failed: failedParam,
+    extraction: extractionParam,
+    from: fromParam,
+    reviewPage: reviewPageParam,
+  } = await props.searchParams;
   const activeTab = (
     ["overview", "dates", "tasks", "obligations", "notes", "audit"].includes(
       rawTab ?? ""
@@ -68,7 +102,14 @@ export default async function ContractDetailPage(props: {
       : "overview"
   ) as "overview" | "dates" | "tasks" | "obligations" | "notes" | "audit";
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) {
+    return (
+      <WorkspaceRequiredState
+        title="Workspace required for contract details"
+        message="Contract detail, review continuity, and evidence state are only available inside a workspace. Refresh this page, then ask a workspace admin to restore access if this record stays unavailable."
+      />
+    );
+  }
 
   const { orgId, admin, role } = ctx;
   const canEdit = canEditContracts(role as OrgRole);
@@ -243,6 +284,7 @@ export default async function ContractDetailPage(props: {
   ]);
 
   if (!contractData) notFound();
+  const reminders = remindersData ?? [];
 
   type OwnerProfileRow = { full_name: string | null; email: string | null };
   const ownerProfilePromise = contractData.owner_id
@@ -252,6 +294,49 @@ export default async function ContractDetailPage(props: {
         .eq("id", contractData.owner_id)
         .single()
     : Promise.resolve({ data: null as OwnerProfileRow | null });
+  const reminderDeliveryPromise =
+    reminders.length === 0
+      ? Promise.resolve({
+          data: [] as Array<{
+            status: string | null;
+            created_at: string | null;
+            updated_at: string | null;
+            delivered_at: string | null;
+            next_attempt_at: string | null;
+            last_error: string | null;
+            metadata: unknown;
+          }>,
+        })
+      : admin
+          .from("notification_deliveries")
+          .select("status, created_at, updated_at, delivered_at, next_attempt_at, last_error, metadata")
+          .eq("organization_id", orgId)
+          .eq("notification_type", "reminder_due")
+          .order("created_at", { ascending: false })
+          .limit(200);
+  const evidenceSubmissionPromise =
+    (evidenceRequirementsData ?? []).length === 0
+      ? Promise.resolve({
+          data: [] as Array<{
+            id: string;
+            requirement_id: string;
+            status: string;
+            submitted_at: string | null;
+            reviewed_at: string | null;
+            rejection_reason: string | null;
+            payload_json: Record<string, unknown> | null;
+          }>,
+        })
+      : admin
+          .from("evidence_submissions")
+          .select("id, requirement_id, status, submitted_at, reviewed_at, rejection_reason, payload_json")
+          .eq("organization_id", orgId)
+          .in(
+            "requirement_id",
+            (evidenceRequirementsData ?? []).map((row) => row.id as string)
+          )
+          .order("submitted_at", { ascending: false })
+          .limit(120);
 
   const [
     { data: graphEdgesData },
@@ -259,6 +344,9 @@ export default async function ContractDetailPage(props: {
     { data: changeEventsCasefileData },
     { data: programAssignmentsData },
     { data: ownerProfile },
+    { data: reminderDeliveriesData },
+    { data: evidenceSubmissionsData },
+    { data: workflowSettingsData },
   ] = await Promise.all([
     admin
       .from("execution_graph_edges")
@@ -289,11 +377,17 @@ export default async function ContractDetailPage(props: {
       .eq("contract_id", id)
       .eq("status", "active"),
     ownerProfilePromise,
+    reminderDeliveryPromise,
+    evidenceSubmissionPromise,
+    admin
+      .from("organization_workflow_settings")
+      .select("role_policy_json")
+      .eq("organization_id", orgId)
+      .maybeSingle(),
   ]);
 
   const contract = { ...contractData, owner: ownerProfile as OwnerProfileRow | null };
   const auditEvents = auditEventsData ?? [];
-  const reminders = remindersData ?? [];
 
   const ownerMembers = (membersData ?? []).map((m) => {
     const profile = m.profiles as unknown as {
@@ -308,6 +402,15 @@ export default async function ContractDetailPage(props: {
 
   const upcomingReminders = reminders.filter((r) => !r.sent_at);
   const reminderHistory = reminders.filter((r) => r.sent_at);
+  const reminderDeliveryMap = groupReminderDeliveriesByReminderId(
+    (reminderDeliveriesData ?? []).filter((row) => {
+      const metadata =
+        row.metadata && typeof row.metadata === "object"
+          ? (row.metadata as Record<string, unknown>)
+          : null;
+      return typeof metadata?.contract_id === "string" ? metadata.contract_id === id : true;
+    })
+  );
 
   const extractionJob = (extractionJobData ?? null) as ContractExtractionJob | null;
   const tasks = (tasksData ?? []) as ContractTask[];
@@ -450,28 +553,168 @@ export default async function ContractDetailPage(props: {
       work_item_type: string;
       work_item_id: string;
     }>;
+  const latestEvidenceSubmissionByRequirement = Object.fromEntries(
+    ((evidenceSubmissionsData ?? []) as Array<{
+      id: string;
+      requirement_id: string;
+      status: string;
+      submitted_at: string | null;
+      reviewed_at: string | null;
+      rejection_reason: string | null;
+      payload_json: Record<string, unknown> | null;
+    }>).map((row) => [row.requirement_id, row])
+  ) as Record<
+    string,
+    {
+      id: string;
+      status: string;
+      submitted_at: string | null;
+      reviewed_at: string | null;
+      rejection_reason: string | null;
+      payload_json: Record<string, unknown> | null;
+    }
+  >;
+  const canReviewEvidence = hasRoleCapability({
+    role: role as OrgRole,
+    capability: "approvals_manage",
+    rolePolicyJson: (workflowSettingsData?.role_policy_json as Record<string, unknown> | null) ?? null,
+  });
   const pendingFieldsCount = (contract.extracted_fields ?? []).filter(
     (f: { status: string }) => f.status === "pending"
   ).length;
+  const approvedFieldsCount = (contract.extracted_fields ?? []).filter(
+    (f: { status: string }) => f.status === "approved"
+  ).length;
   const filesCount = contract.contract_files?.length ?? 0;
   const fieldsCount = contract.extracted_fields?.length ?? 0;
+  const reviewQueueContinuity =
+    pendingFieldsCount > 0 || contract.status === "pending_review"
+      ? await fetchReviewQueueContinuity(admin, orgId, contract.id)
+      : null;
   const workflowTimeline = buildUnifiedWorkflowTimeline({
     taskEvents: taskEvents as Array<{ id: string; event_type: string; created_at: string }>,
     obligationEvents: obligationEvents as Array<{ id: string; event_type: string; created_at: string }>,
     approvalEvents: approvalEvents as Array<{ id: string; event_type: string; created_at: string }>,
     renewalNotes: renewalWorkspaceNotes,
   });
+  const createdFromUpload = createdParam === "1";
+  const fromReview = fromParam === "review";
+  const parsedReviewPage = Number.parseInt(reviewPageParam ?? "1", 10);
+  const reviewPage =
+    Number.isFinite(parsedReviewPage) && parsedReviewPage > 0 ? parsedReviewPage : 1;
+  const reviewQueueHref = `/contracts/review${reviewPage > 1 ? `?page=${reviewPage}` : ""}`;
+  const backHref = fromReview ? reviewQueueHref : "/contracts";
+  const backLabel = fromReview ? "Review queue" : "Contracts";
+  const uploadedCount = Math.max(0, Number(uploadedParam ?? "0") || 0);
+  const invalidCount = Math.max(0, Number(invalidParam ?? "0") || 0);
+  const failedCount = Math.max(0, Number(failedParam ?? "0") || 0);
+  const extractionState =
+    extractionParam === "queued" || extractionParam === "not_available" || extractionParam === "skipped_no_files"
+      ? extractionParam
+      : null;
+  const creationNotice = createdFromUpload
+    ? {
+        tone:
+          uploadedCount === 0 || failedCount > 0 || invalidCount > 0 ? ("warning" as const) : ("success" as const),
+        title:
+          uploadedCount > 0
+            ? "Contract created and intake started"
+            : "Contract created, but source documents still need attention",
+        lines: [
+          uploadedCount > 0
+            ? `${uploadedCount} source file${uploadedCount === 1 ? "" : "s"} stored successfully.`
+            : "No source files were stored on the first attempt.",
+          invalidCount > 0
+            ? `${invalidCount} file${invalidCount === 1 ? " was" : "s were"} skipped because they were unsupported or over 20 MB.`
+            : null,
+          failedCount > 0
+            ? `${failedCount} file upload${failedCount === 1 ? "" : "s"} failed after contract creation. Re-attach any missing signed source documents below.`
+            : null,
+          extractionState === "queued"
+            ? "Extraction has been queued. Review extracted fields before reminders or downstream work rely on them."
+            : extractionState === "not_available"
+              ? "Extraction was not started automatically in this environment. You can run it manually from the extracted fields section."
+              : extractionState === "skipped_no_files"
+                ? "Add at least one signed source document to unlock extraction and source-backed review."
+                : null,
+        ].filter((line): line is string => Boolean(line)),
+      }
+    : null;
+  const ownerLabel = contract.owner?.full_name || contract.owner?.email || null;
+  const latestSourceDocumentAt = contract.contract_files?.length
+    ? [...contract.contract_files]
+        .map((file: { created_at: string }) => file.created_at)
+        .sort((a, b) => +new Date(b) - +new Date(a))[0] ?? null
+    : null;
+  const latestExtractionTouchAt = extractionJob?.completed_at ?? extractionJob?.started_at ?? null;
+  const operationsStrip = buildContractOperationsStrip({
+    ownerLabel,
+    requiredNextStep: contract.required_next_step,
+    upcomingRemindersCount: upcomingReminders.length,
+    reminderHistoryCount: reminderHistory.length,
+    approvedFieldsCount,
+    latestExtractionTouchAt,
+    latestSourceDocumentAt,
+  });
+  const openExceptionsCount = (exceptionsCasefileData ?? []).filter((item) =>
+    ["open", "in_progress"].includes(item.status)
+  ).length;
+  const pendingApprovalsCount = approvals.filter((item) => item.status === "pending").length;
+  const outstandingEvidenceCount = evidenceRequirements.filter((item) =>
+    isEvidenceGapStatus(item.status)
+  ).length;
+  const immediateActions = buildContractImmediateActions({
+    contractId: contract.id,
+    pendingFieldsCount,
+    pendingApprovalsCount,
+    openExceptionsCount,
+    outstandingEvidenceCount,
+    hasOwner: Boolean(ownerLabel),
+    approvedFieldsCount,
+  });
+
+  const iconByKey: Record<ContractDetailIconKey, typeof User> = {
+    owner: User,
+    nextAction: FileText,
+    reminders: Bell,
+    freshness: Calendar,
+  };
+
+  const accentClassByKey = {
+    primary: "text-[var(--text-primary)]",
+    attention: "text-amber-700",
+    secondary: "text-[var(--text-secondary)]",
+  } as const;
 
   return (
     <div className="space-y-7 md:space-y-8">
+      {creationNotice ? (
+        <div className={creationNotice.tone === "success" ? "ui-alert-success" : "ui-alert-warning"}>
+          <p className="font-semibold">{creationNotice.title}</p>
+          <ul className="mt-2 space-y-1 text-[13px] leading-relaxed">
+            {creationNotice.lines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <div className="mt-3 flex flex-wrap gap-2 text-[13px]">
+            <Link href="#extracted-fields" className="ui-link">
+              Open extracted fields
+            </Link>
+            <span className="text-[var(--text-tertiary)]">·</span>
+            <Link href={`${contract.id ? `/contracts/${contract.id}?tab=overview#source-documents` : "#source-documents"}`} className="ui-link">
+              Check source documents
+            </Link>
+          </div>
+        </div>
+      ) : null}
       <div className="ui-card-hero overflow-hidden">
         <div className="border-b border-[var(--border-subtle)]/90 bg-[radial-gradient(circle_at_top_right,var(--canvas-glow),transparent_24%),linear-gradient(180deg,color-mix(in_oklab,var(--surface)_92%,white),var(--surface-raised))] px-5 py-6 md:px-10 md:py-8">
           <Link
-            href="/contracts"
+            href={backHref}
             className="inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
           >
             <ArrowLeft size={16} strokeWidth={2} aria-hidden />
-            Contracts
+            {backLabel}
           </Link>
           <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
@@ -532,6 +775,39 @@ export default async function ContractDetailPage(props: {
               )}
             </div>
           </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {operationsStrip.map((item) => {
+              const Icon = iconByKey[item.icon];
+              return (
+                <div
+                  key={item.label}
+                  className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_76%,transparent)] p-2 text-[var(--text-tertiary)]">
+                      <Icon size={14} aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        {item.label}
+                      </p>
+                      <p className={`mt-1 text-[13px] leading-relaxed ${accentClassByKey[item.accent]}`}>{item.value}</p>
+                      {item.footerHref && item.footerLabel ? (
+                        <div className="mt-1">
+                          <Link
+                            href={item.footerHref}
+                            className="text-[12px] font-medium text-[var(--text-link)] underline underline-offset-2"
+                          >
+                            {item.footerLabel}
+                          </Link>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
           <ContractHeroMetrics
             contractId={contract.id}
             pendingFieldsCount={pendingFieldsCount}
@@ -539,6 +815,29 @@ export default async function ContractDetailPage(props: {
             filesCount={filesCount}
             upcomingRemindersCount={upcomingReminders.length}
           />
+          {immediateActions.length > 0 ? (
+            <div className="mt-6 border-t border-[var(--border-subtle)] pt-6 sm:mt-8 sm:pt-8">
+              <div className="flex flex-col gap-2">
+                <p className="ui-eyebrow">Immediate actions</p>
+                <p className="text-[13px] text-[var(--text-secondary)]">
+                  The highest-signal blockers and next steps on this contract.
+                </p>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {immediateActions.map((action) => (
+                  <OperationalQueueRow
+                    key={`${action.eyebrow}-${action.title}`}
+                    href={action.href}
+                    eyebrow={action.eyebrow}
+                    title={action.title}
+                    hint={action.hint}
+                    actionLabel={action.actionLabel}
+                    tone={action.tone}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -573,12 +872,15 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-7 md:space-y-8 lg:col-span-2">
           {(activeTab === "overview" || activeTab === "dates") && (
           <div id="extracted-fields" className="scroll-mt-28 ui-card overflow-hidden">
-            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
+            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div>
                 <h2 className="ui-section-title text-base">Extracted fields</h2>
-                <p className="mt-1 text-[12px] text-zinc-500">Review before reminders run.</p>
+                <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Review before reminders run.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Link href="/contracts/review" className="ui-link text-xs">
+                  Review queue
+                </Link>
                 <ExtractButton
                   contractId={contract.id}
                   hasFiles={!!contract.contract_files?.length}
@@ -596,7 +898,49 @@ export default async function ContractDetailPage(props: {
               </div>
             </div>
             <div className="space-y-5 px-4 py-6 md:px-8">
-              <ExtractionJobAlert job={extractionJob} />
+              <ExtractionJobAlert
+                job={extractionJob}
+                fieldsCount={fieldsCount}
+                pendingFieldsCount={pendingFieldsCount}
+              />
+              {reviewQueueContinuity ? (
+                <div className="rounded-2xl border border-indigo-200/70 bg-indigo-50/50 px-4 py-4 text-sm text-indigo-950">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-700/80">
+                        Review queue
+                      </p>
+                      <p className="font-semibold text-indigo-950">
+                        Contract {reviewQueueContinuity.position} of {reviewQueueContinuity.total} still needs attention.
+                      </p>
+                      <p className="text-[13px] leading-relaxed text-indigo-900/85">
+                        {reviewQueueContinuity.currentPendingCount > 0
+                          ? `${reviewQueueContinuity.currentPendingCount} field${reviewQueueContinuity.currentPendingCount === 1 ? "" : "s"} on this contract are still pending.`
+                          : "The contract is still marked pending review even though no extracted fields are pending."}{" "}
+                        {reviewQueueContinuity.nextContractId
+                          ? `When you finish here, continue straight to the next contract instead of returning to the queue.`
+                          : "This is the last contract currently waiting in the active queue."}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
+                        Open queue
+                      </Link>
+                      {reviewQueueContinuity.nextContractId ? (
+                        <ReviewSaveNextTelemetryLink
+                          href={`/contracts/${reviewQueueContinuity.nextContractId}?tab=overview&from=review&reviewPage=${reviewPage}#extracted-fields`}
+                          className="ui-btn-primary px-3 py-2 text-xs"
+                        >
+                          Open next contract
+                          {reviewQueueContinuity.nextPendingCount > 0
+                            ? ` (${reviewQueueContinuity.nextPendingCount} pending)`
+                            : ""}
+                        </ReviewSaveNextTelemetryLink>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
               <BatchApproveButton
                 contractId={contract.id}
                 pendingCount={pendingFieldsCount}
@@ -623,7 +967,7 @@ export default async function ContractDetailPage(props: {
               Boolean((contract as { counterparty_key?: string | null }).counterparty_key)) && (
               <div className="ui-card border-emerald-200/50 bg-emerald-50/30 p-5 md:p-6">
                 <h2 className="ui-section-title text-base">Relationship context</h2>
-                <p className="mt-1 text-[12px] text-zinc-600">
+                <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                   Open portfolio summaries for keys on this contract.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -648,14 +992,14 @@ export default async function ContractDetailPage(props: {
             )}
 
           {(activeTab === "overview" || activeTab === "dates") && (
-          <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-4 py-3.5 md:px-8 md:py-4">
+          <div id="source-documents" className="ui-card overflow-hidden">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-3.5 md:px-8 md:py-4">
               <h2 className="ui-section-title text-base">Source documents</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">Signed files on this agreement.</p>
+              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Signed files on this agreement.</p>
             </div>
             <div className="px-4 py-4.5 md:px-8 md:py-5">
               {!contract.contract_files?.length ? (
-                <p className="text-[13px] text-zinc-500">No files uploaded yet.</p>
+                <p className="text-[13px] text-[var(--text-tertiary)]">No files uploaded yet.</p>
               ) : (
                 <ul className="divide-y divide-[var(--border-subtle)]">
                   {contract.contract_files.map(
@@ -672,18 +1016,18 @@ export default async function ContractDetailPage(props: {
                         className="flex items-center justify-between gap-4 py-4 first:pt-0"
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200/80 bg-zinc-50/80">
-                            <FileText size={18} className="text-zinc-500" aria-hidden />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]">
+                            <FileText size={18} className="text-[var(--text-tertiary)]" aria-hidden />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[14px] font-semibold text-zinc-900">
+                            <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                               {file.file_name}
                             </p>
-                            <p className="mt-0.5 text-[12px] text-zinc-500">
+                            <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                               {formatFileSize(file.file_size)}
-                              <span className="text-zinc-300"> · </span>
+                              <span className="text-[var(--text-tertiary)]"> · </span>
                               {format(new Date(file.created_at), "MMM d, yyyy")}
-                              <span className="text-zinc-300"> · </span>
+                              <span className="text-[var(--text-tertiary)]"> · </span>
                               <span className="font-medium text-emerald-700">Stored</span>
                             </p>
                           </div>
@@ -697,7 +1041,7 @@ export default async function ContractDetailPage(props: {
                   )}
                 </ul>
               )}
-              <div className="mt-6 border-t border-zinc-100 pt-6">
+              <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
                 <UploadMoreFiles contractId={contract.id} canEdit={canEdit} />
                 {canEdit && contract.contract_files?.length ? (
                   <form action={supersedeContractFileForm} className="mt-4 space-y-2">
@@ -731,9 +1075,9 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "tasks") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Tasks & follow-up</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">Ownership and execution work.</p>
+              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Ownership and execution work.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractTasksPanel
@@ -754,9 +1098,9 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "obligations") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Obligations</h2>
-              <p className="mt-1 text-[12px] text-zinc-500">Ongoing commitments and evidence.</p>
+              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Ongoing commitments and evidence.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractObligationsPanel
@@ -773,11 +1117,11 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "dates") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4 md:px-8">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="ui-section-title text-base">Renewal checklist</h2>
-                  <p className="mt-1 text-[12px] text-zinc-500">120/90/60/30 renewal checkpoints.</p>
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">120/90/60/30 renewal checkpoints.</p>
                 </div>
                 {canEdit && checkpoints.length === 0 && (
                   <form action={seedRenewalPlaybook.bind(null, contract.id) as never}>
@@ -798,7 +1142,7 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-7 md:space-y-8">
           {activeTab === "overview" && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Workflow status</h3>
             </div>
             <div className="p-6">
@@ -807,13 +1151,13 @@ export default async function ContractDetailPage(props: {
                 currentStatus={contract.status}
                 canEdit={canEdit}
               />
-              <div className="mt-6 border-t border-zinc-100 pt-5">
+              <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">Operational lifecycle</p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   Intake: {contract.intake_status ?? "awaiting_review"} · Health:{" "}
                   {contract.health_status ?? "unknown"}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   Next step: {contract.required_next_step || "Not set"}
                 </p>
                 {canEdit && (
@@ -854,9 +1198,9 @@ export default async function ContractDetailPage(props: {
                 )}
               </div>
               {showUtilityExecutionSurfaces ? (
-                <div className="mt-6 border-t border-zinc-100 pt-5">
+                <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                   <p className="ui-label-caps">Execution graph</p>
-                  <p className="mt-1 text-xs text-zinc-500">Cross-work dependencies for this contract.</p>
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">Cross-work dependencies for this contract.</p>
                   <Link
                     href={`/contracts/execution-graph?contractId=${contract.id}`}
                     className="ui-link mt-2 inline-block text-xs"
@@ -868,13 +1212,13 @@ export default async function ContractDetailPage(props: {
                       <ExecutionGraphVizDynamic edges={executionGraphEdges} />
                     </div>
                   ) : (
-                    <p className="mt-2 text-xs text-zinc-500">Apply a program to generate dependency edges.</p>
+                    <p className="mt-2 text-xs text-[var(--text-tertiary)]">Apply a program to generate dependency edges.</p>
                   )}
                 </div>
               ) : null}
-              <div className="mt-6 border-t border-zinc-100 pt-5">
+              <div id="contract-evidence" className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">Operational evidence pack</p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   Export submissions and requirements for audits.
                 </p>
                 <a
@@ -886,14 +1230,16 @@ export default async function ContractDetailPage(props: {
                   Download evidence pack (JSON)
                 </a>
                 <div className="mt-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     Active requirements
                   </p>
                   <div className="mt-2">
                     <ContractEvidenceRequirementsPanel
                       requirements={evidenceRequirements}
                       canEdit={canEdit}
+                      canReview={canReviewEvidence}
                       contractId={contract.id}
+                      latestSubmissionByRequirement={latestEvidenceSubmissionByRequirement}
                     />
                   </div>
                 </div>
@@ -905,9 +1251,9 @@ export default async function ContractDetailPage(props: {
                 allowed={showCollaborationSurface}
               />
               {showProgramsSurface && (programAssignmentsData ?? []).length > 0 ? (
-                <div className="mt-6 border-t border-zinc-100 pt-5">
+                <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                   <p className="ui-label-caps">Program assignment overrides</p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                     Per-contract routing JSON merged when programs apply (assignee_id, assignee_by_team).
                   </p>
                   <ul className="mt-3 space-y-3">
@@ -923,8 +1269,8 @@ export default async function ContractDetailPage(props: {
                           ? prog[0]?.name
                           : prog?.name;
                         return (
-                          <li key={row.id} className="rounded-lg border border-zinc-200 p-3 text-xs">
-                            <p className="font-medium text-zinc-900">
+                          <li key={row.id} className="rounded-lg border border-[var(--border-subtle)] p-3 text-xs">
+                            <p className="font-medium text-[var(--text-primary)]">
                               {programName ?? row.program_id}
                             </p>
                             {canEdit ? (
@@ -941,7 +1287,7 @@ export default async function ContractDetailPage(props: {
                                 </button>
                               </form>
                             ) : (
-                              <pre className="mt-2 overflow-x-auto rounded bg-zinc-50 p-2 text-[11px]">
+                              <pre className="mt-2 overflow-x-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 text-[11px]">
                                 {JSON.stringify(row.override_json ?? {}, null, 2)}
                               </pre>
                             )}
@@ -952,9 +1298,9 @@ export default async function ContractDetailPage(props: {
                   </ul>
                 </div>
               ) : null}
-              <div className="mt-6 border-t border-zinc-100 pt-5">
+              <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">CRM / external link</p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   {contract.source_system || "No source system"} ·{" "}
                   {contract.region || "No region"} ·{" "}
                   {contract.annual_value != null ? `$${Number(contract.annual_value).toLocaleString()}` : "No annual value"} ·{" "}
@@ -1005,11 +1351,11 @@ export default async function ContractDetailPage(props: {
 
           {activeTab === "overview" && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Renewal scenario & approvals</h3>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 Scenario: {renewalScenario?.scenario?.replace(/_/g, " ") || "not set"}
                 {renewalScenario?.blocker ? ` · blocker: ${renewalScenario.blocker}` : ""}
               </p>
@@ -1090,14 +1436,14 @@ export default async function ContractDetailPage(props: {
                   </button>
                 </form>
               )}
-              <div className="border-t border-zinc-100 pt-4">
+              <div className="border-t border-[var(--border-subtle)] pt-4">
                 <p className="ui-label-caps">Workspace notes ({renewalWorkspaceNotes.length})</p>
                 {canEdit && (
                   <form action={addRenewalWorkspaceNoteForm as never} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
                     <textarea name="body" placeholder="Add renewal workspace note" className="ui-input min-h-[60px] text-xs" />
-                    <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
-                      <input type="checkbox" name="pinned" value="1" className="h-3.5 w-3.5 rounded border-zinc-300" />
+                    <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                      <input type="checkbox" name="pinned" value="1" className="h-3.5 w-3.5 rounded border-[var(--border-strong)]" />
                       Pin note
                     </label>
                     <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
@@ -1108,7 +1454,7 @@ export default async function ContractDetailPage(props: {
                 {renewalWorkspaceNotes.length > 0 && (
                   <ul className="mt-3 space-y-2">
                     {renewalWorkspaceNotes.slice(0, 4).map((note) => (
-                      <li key={note.id} className="rounded border border-zinc-200/80 px-3 py-2 text-xs text-zinc-600">
+                      <li key={note.id} className="rounded border border-[var(--border-subtle)] px-3 py-2 text-xs text-[var(--text-secondary)]">
                         {note.pinned ? "Pinned · " : ""}
                         {note.body}
                       </li>
@@ -1116,29 +1462,29 @@ export default async function ContractDetailPage(props: {
                   </ul>
                 )}
               </div>
-              <div className="border-t border-zinc-100 pt-4">
+              <div className="border-t border-[var(--border-subtle)] pt-4">
                 <p className="ui-label-caps">Renewal command context</p>
-                <ul className="mt-2 space-y-1 text-xs text-zinc-600">
+                <ul className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
                   <li>
                     Watchlist:{" "}
-                    <span className="font-semibold text-zinc-900">{isWatchlisted ? "yes" : "no"}</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{isWatchlisted ? "yes" : "no"}</span>
                   </li>
                   <li>
                     Pending approvals:{" "}
-                    <span className="font-semibold text-zinc-900">
+                    <span className="font-semibold text-[var(--text-primary)]">
                       {approvals.filter((a) => a.status === "pending").length}
                     </span>
                   </li>
                   <li>
                     Contract risk:{" "}
-                    <span className="font-semibold text-zinc-900">{contract.health_status ?? "unknown"}</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{contract.health_status ?? "unknown"}</span>
                   </li>
                   <li>
                     Why surfaced: target decision path, blockers, approvals, and risk are coordinated here.
                   </li>
                 </ul>
               </div>
-              <div className="border-t border-zinc-100 pt-4">
+              <div id="renewal-approvals" className="border-t border-[var(--border-subtle)] pt-4">
                 <p className="ui-label-caps">Approvals ({approvals.length})</p>
                 {canEdit && (
                   <form action={requestContractApprovalForm} className="mt-2 space-y-2">
@@ -1164,8 +1510,8 @@ export default async function ContractDetailPage(props: {
                       <option value="financial">financial</option>
                       <option value="operational">operational</option>
                     </select>
-                    <label className="inline-flex items-center gap-2 text-xs text-zinc-600">
-                      <input type="checkbox" name="exceptionFlag" value="1" className="h-3.5 w-3.5 rounded border-zinc-300" />
+                    <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                      <input type="checkbox" name="exceptionFlag" value="1" className="h-3.5 w-3.5 rounded border-[var(--border-strong)]" />
                       Mark as exception
                     </label>
                     <input
@@ -1181,7 +1527,7 @@ export default async function ContractDetailPage(props: {
                 {approvals.length > 0 && (
                   <ul className="mt-3 space-y-2">
                     {approvals.slice(0, 4).map((a) => (
-                      <li key={a.id} className="rounded border border-zinc-200/80 px-3 py-2 text-xs text-zinc-600">
+                      <li key={a.id} className="rounded border border-[var(--border-subtle)] px-3 py-2 text-xs text-[var(--text-secondary)]">
                         {a.approval_type.replace(/_/g, " ")} · {a.status}
                       </li>
                     ))}
@@ -1193,8 +1539,8 @@ export default async function ContractDetailPage(props: {
           )}
 
           {activeTab === "overview" && (
-          <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+          <div id="ownership-record" className="ui-card overflow-hidden">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="flex items-center gap-2 ui-section-title text-base">
                 <Bell size={17} className="text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
                 Reminders
@@ -1203,11 +1549,11 @@ export default async function ContractDetailPage(props: {
             <div className="p-6">
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-medium uppercase text-zinc-500">
+                <p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">
                   Scheduled
                 </p>
                 {upcomingReminders.length === 0 ? (
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-[var(--text-tertiary)]">
                     None pending. Approve a date field to schedule reminders.
                   </p>
                 ) : (
@@ -1217,33 +1563,53 @@ export default async function ContractDetailPage(props: {
                         id: string;
                         reminder_type: string;
                         reminder_date: string;
-                      }) => (
-                        <li
-                          key={r.id}
-                          className="rounded-lg border border-zinc-200/80 bg-zinc-50/80 px-3 py-2 text-sm"
-                        >
-                          <span className="font-medium text-zinc-800">
-                            {r.reminder_type.replace(/_/g, " ")}
-                          </span>
-                          <span className="text-zinc-500">
-                            {" · "}
-                            {format(
-                              new Date(r.reminder_date + "T12:00:00"),
-                              "MMM d, yyyy"
-                            )}
-                          </span>
-                        </li>
-                      )
+                      }) => {
+                        const delivery = getReminderDeliveryState(reminderDeliveryMap[r.id] ?? []);
+                        const deliveryToneClass =
+                          delivery.tone === "healthy"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                            : delivery.tone === "risk"
+                              ? "border-rose-200 bg-rose-50 text-rose-800"
+                              : delivery.tone === "attention"
+                                ? "border-amber-200 bg-amber-50 text-amber-800"
+                                : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
+                        return (
+                          <li
+                            key={r.id}
+                            className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-sm"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-medium text-[var(--text-primary)]">
+                                {r.reminder_type.replace(/_/g, " ")}
+                              </span>
+                              <span className="text-[var(--text-tertiary)]">
+                                {formatBusinessDateAtNoon(r.reminder_date)}
+                              </span>
+                              <span
+                                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${deliveryToneClass}`}
+                              >
+                                {delivery.label}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{delivery.detail}</p>
+                            {delivery.timestamp ? (
+                              <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
+                                Updated {format(new Date(delivery.timestamp), "MMM d, yyyy h:mm a")}
+                              </p>
+                            ) : null}
+                          </li>
+                        );
+                      }
                     )}
                   </ul>
                 )}
               </div>
               <div>
-                <p className="text-xs font-medium uppercase text-zinc-500">
+                <p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">
                   Sent (history)
                 </p>
                 {reminderHistory.length === 0 ? (
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-[var(--text-tertiary)]">
                     No reminder emails sent yet for this contract.
                   </p>
                 ) : (
@@ -1254,30 +1620,38 @@ export default async function ContractDetailPage(props: {
                         reminder_type: string;
                         reminder_date: string;
                         sent_at: string;
-                      }) => (
-                        <li
-                          key={r.id}
-                          className="text-sm text-zinc-600"
-                        >
-                          <span className="text-zinc-800">
-                            {r.reminder_type.replace(/_/g, " ")}
-                          </span>
-                          {" · scheduled "}
-                          {format(
-                            new Date(r.reminder_date + "T12:00:00"),
-                            "MMM d, yyyy"
-                          )}
-                          {r.sent_at && (
-                            <>
-                              {" · sent "}
-                              {format(
-                                new Date(r.sent_at),
-                                "MMM d, yyyy h:mm a"
-                              )}
-                            </>
-                          )}
-                        </li>
-                      )
+                      }) => {
+                        const delivery = getReminderDeliveryState(reminderDeliveryMap[r.id] ?? []);
+                        const deliveryToneClass =
+                          delivery.tone === "healthy"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                            : delivery.tone === "risk"
+                              ? "border-rose-200 bg-rose-50 text-rose-800"
+                              : delivery.tone === "attention"
+                                ? "border-amber-200 bg-amber-50 text-amber-800"
+                                : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
+                        return (
+                          <li key={r.id} className="rounded-lg border border-[var(--border-subtle)]/70 px-3 py-2 text-sm text-[var(--text-secondary)]">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[var(--text-primary)]">
+                                {r.reminder_type.replace(/_/g, " ")}
+                              </span>
+                              <span>scheduled {formatBusinessDateAtNoon(r.reminder_date)}</span>
+                              <span
+                                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${deliveryToneClass}`}
+                              >
+                                {delivery.label}
+                              </span>
+                            </div>
+                            {r.sent_at ? (
+                              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                                Sent {format(new Date(r.sent_at), "MMM d, yyyy h:mm a")}
+                              </p>
+                            ) : null}
+                            <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{delivery.detail}</p>
+                          </li>
+                        );
+                      }
                     )}
                   </ul>
                 )}
@@ -1289,22 +1663,22 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Operational casefile</h3>
             </div>
             <div className="p-6">
               {mergedCasefile.length === 0 ? (
-                <p className="text-sm text-zinc-500">No casefile events recorded yet.</p>
+                <p className="text-sm text-[var(--text-tertiary)]">No casefile events recorded yet.</p>
               ) : (
                 <ul className="space-y-2">
                   {mergedCasefile.map((entry) => (
                     <li key={entry.id} className="flex items-start justify-between gap-3 text-xs">
-                      <span className="text-zinc-700">
+                      <span className="text-[var(--text-secondary)]">
                         <span className="font-semibold">{entry.headline}</span>
                         {entry.detail ? ` · ${entry.detail}` : ""}
-                        <span className="text-zinc-400"> · {entry.kind}</span>
+                        <span className="text-[var(--text-tertiary)]"> · {entry.kind}</span>
                       </span>
-                      <span className="shrink-0 text-zinc-400">
+                      <span className="shrink-0 text-[var(--text-tertiary)]">
                         {format(new Date(entry.occurred_at), "MMM d, h:mm a")}
                       </span>
                     </li>
@@ -1317,29 +1691,29 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Ownership & record</h3>
             </div>
             <div className="p-6">
             <dl className="space-y-3">
               <div className="flex items-center gap-2">
-                <User size={14} className="text-zinc-400" />
-                <dt className="text-sm text-zinc-500">Owner</dt>
-                <dd className="ml-auto text-sm font-medium text-zinc-900">
+                <User size={14} className="text-[var(--text-tertiary)]" />
+                <dt className="text-sm text-[var(--text-tertiary)]">Owner</dt>
+                <dd className="ml-auto text-sm font-medium text-[var(--text-primary)]">
                   {contract.owner?.full_name || contract.owner?.email || "—"}
                 </dd>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-zinc-400" />
-                <dt className="text-sm text-zinc-500">Created</dt>
-                <dd className="ml-auto text-sm text-zinc-900">
+                <Calendar size={14} className="text-[var(--text-tertiary)]" />
+                <dt className="text-sm text-[var(--text-tertiary)]">Created</dt>
+                <dd className="ml-auto text-sm text-[var(--text-primary)]">
                   {format(new Date(contract.created_at), "MMM d, yyyy")}
                 </dd>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-zinc-400" />
-                <dt className="text-sm text-zinc-500">Updated</dt>
-                <dd className="ml-auto text-sm text-zinc-900">
+                <Calendar size={14} className="text-[var(--text-tertiary)]" />
+                <dt className="text-sm text-[var(--text-tertiary)]">Updated</dt>
+                <dd className="ml-auto text-sm text-[var(--text-primary)]">
                   {format(new Date(contract.updated_at), "MMM d, yyyy")}
                 </dd>
               </div>
@@ -1377,7 +1751,7 @@ export default async function ContractDetailPage(props: {
                 {handoffChecklists.length > 0 && (
                   <ul className="space-y-1.5">
                     {handoffChecklists.slice(0, 3).map((item) => (
-                      <li key={item.id} className="text-xs text-zinc-600">
+                      <li key={item.id} className="text-xs text-[var(--text-secondary)]">
                         <span>{item.status} · {item.checklist_note}</span>
                         {item.status !== "completed" && (
                           <form
@@ -1410,20 +1784,20 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Unified workflow timeline</h3>
             </div>
             <div className="p-6">
               {workflowTimeline.length === 0 ? (
-                <p className="text-sm text-zinc-500">No workflow timeline entries yet.</p>
+                <p className="text-sm text-[var(--text-tertiary)]">No workflow timeline entries yet.</p>
               ) : (
                 <ul className="space-y-2">
                   {workflowTimeline.map((entry) => (
                     <li key={entry.id} className="flex items-start justify-between gap-3 text-xs">
-                      <span className="text-zinc-700">
+                      <span className="text-[var(--text-secondary)]">
                         <span className="font-semibold">{entry.domain}</span> · {entry.label}
                       </span>
-                      <span className="shrink-0 text-zinc-400">
+                      <span className="shrink-0 text-[var(--text-tertiary)]">
                         {format(new Date(entry.createdAt), "MMM d, h:mm a")}
                       </span>
                     </li>
@@ -1436,12 +1810,12 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Activity</h3>
             </div>
             <div className="p-6">
             {auditEvents.length === 0 ? (
-              <p className="text-sm text-zinc-500">No activity recorded.</p>
+              <p className="text-sm text-[var(--text-tertiary)]">No activity recorded.</p>
             ) : (
               <ul className="space-y-3">
                 {auditEvents.map(
@@ -1451,12 +1825,12 @@ export default async function ContractDetailPage(props: {
                     created_at: string;
                   }) => (
                     <li key={event.id} className="flex items-start gap-2">
-                      <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-300" />
+                      <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--border-strong)]" />
                       <div>
-                        <p className="text-sm text-zinc-700">
+                        <p className="text-sm text-[var(--text-secondary)]">
                           {event.action.replace(/\./g, " ")}
                         </p>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-xs text-[var(--text-tertiary)]">
                           {format(
                             new Date(event.created_at),
                             "MMM d, yyyy h:mm a"
@@ -1474,7 +1848,7 @@ export default async function ContractDetailPage(props: {
 
           {(activeTab === "overview" || activeTab === "notes") && (
           <div className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Notes & commentary</h3>
             </div>
             <div className="p-6">
@@ -1485,7 +1859,7 @@ export default async function ContractDetailPage(props: {
                 memberLabels={ownerMembers}
                 canEdit={canEdit}
               />
-              <div className="mt-6 border-t border-zinc-100 pt-5">
+              <div id="field-comments" className="mt-6 border-t border-[var(--border-subtle)] pt-5 scroll-mt-28">
                 <p className="ui-label-caps">Field comments & mentions</p>
                 {canEdit && (
                   <form action={createClarificationTaskForm as never} className="mt-2 space-y-2">
@@ -1534,7 +1908,7 @@ export default async function ContractDetailPage(props: {
                 {fieldComments.length > 0 && (
                   <ul className="mt-3 space-y-2">
                     {fieldComments.map((comment) => (
-                      <li key={comment.id} className="rounded border border-zinc-200/80 px-3 py-2 text-xs text-zinc-600">
+                      <li key={comment.id} className="rounded border border-[var(--border-subtle)] px-3 py-2 text-xs text-[var(--text-secondary)]">
                         {comment.comment}
                       </li>
                     ))}

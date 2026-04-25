@@ -45,31 +45,31 @@ export default async function AssuranceSegmentsPage() {
       subtitle="Assurance"
       explainer={
         <p>
-          Portfolio segments drive policy assignments and rollups. <code className="rounded bg-zinc-100 px-1">segmentType</code>{" "}
+          Portfolio segments drive policy assignments and rollups. <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">segmentType</code>{" "}
           must be one of: business_unit, region, product_line, contract_class, customer_tier, operational_tier,
-          control_sensitivity_tier, or custom (see v6.md segments section). Criteria support status, regions, program, contract type,
-          counterparty substring, and <code className="rounded bg-zinc-100 px-1">tags_any</code> (requires contract tags
-          from migration 050). Optional <code className="rounded bg-zinc-100 px-1">membership_entity_types</code> in{" "}
-          <code className="rounded bg-zinc-100 px-1">criteria_json</code> adds rollups for{" "}
-          <code className="rounded bg-zinc-100 px-1">account</code>, <code className="rounded bg-zinc-100 px-1">counterparty</code>,{" "}
-          <code className="rounded bg-zinc-100 px-1">program</code>, <code className="rounded bg-zinc-100 px-1">owner</code>,{" "}
-          <code className="rounded bg-zinc-100 px-1">team</code> (derived from matched contracts). Default is{" "}
-          <code className="rounded bg-zinc-100 px-1">[&quot;contract&quot;]</code> only. Create via{" "}
-          <code className="rounded bg-zinc-100 px-1">POST /api/segments</code>, recompute with{" "}
-          <code className="rounded bg-zinc-100 px-1">POST /api/segments/&#123;id&#125;/recompute</code>.
+          control_sensitivity_tier, or custom. Criteria support status, regions, program, contract type,
+          counterparty substring, and <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">tags_any</code> (requires contract tags
+          from migration 050). Optional <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">membership_entity_types</code> in{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">criteria_json</code> adds rollups for{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">account</code>, <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">counterparty</code>,{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">program</code>, <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">owner</code>,{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">team</code> (derived from matched contracts). Default is{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">[&quot;contract&quot;]</code> only. Create via{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">POST /api/segments</code>, recompute with{" "}
+          <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">POST /api/segments/&#123;id&#125;/recompute</code>.
         </p>
       }
     >
       <ul className="space-y-2 text-sm">
         {(segments ?? []).map((row) => (
-          <li key={row.id} className="rounded-lg border border-zinc-100 p-3">
-            <p className="font-medium text-zinc-900">
-              {row.name} <span className="text-zinc-500">({row.key})</span>
+          <li key={row.id} className="rounded-lg border border-[var(--border-subtle)] p-3">
+            <p className="font-medium text-[var(--text-primary)]">
+              {row.name} <span className="text-[var(--text-tertiary)]">({row.key})</span>
             </p>
-            <p className="mt-1 text-xs text-zinc-600">
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Type {row.segment_type} · {row.active ? "active" : "inactive"} · Updated {String(row.updated_at)}
             </p>
-            <p className="mt-1 text-xs text-zinc-700">
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Members:{" "}
               <span className="font-semibold tabular-nums">{memberCountBySegment.get(String(row.id)) ?? 0}</span>
               {lastComputedBySegment.get(String(row.id)) ? (
@@ -78,18 +78,18 @@ export default async function AssuranceSegmentsPage() {
                   · Last membership run: {lastComputedBySegment.get(String(row.id))}
                 </>
               ) : (
-                <span className="text-zinc-500"> · Not recomputed yet</span>
+                <span className="text-[var(--text-tertiary)]"> · Not recomputed yet</span>
               )}
             </p>
             {row.active ? <SegmentRecomputeButton segmentId={String(row.id)} /> : null}
-            <pre className="mt-2 max-h-32 overflow-auto rounded bg-zinc-50 p-2 text-[10px] text-zinc-600">
+            <pre className="mt-2 max-h-32 overflow-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 text-[10px] text-[var(--text-secondary)]">
               {JSON.stringify(row.criteria_json ?? {}, null, 2)}
             </pre>
           </li>
         ))}
-        {(segments ?? []).length === 0 ? <li className="text-zinc-500">No segments yet.</li> : null}
+        {(segments ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No segments yet.</li> : null}
       </ul>
-      <p className="mt-4 text-xs text-zinc-600">
+      <p className="mt-4 text-xs text-[var(--text-secondary)]">
         <Link className="ui-link" href="/api/segments" target="_blank">
           Segments JSON
         </Link>

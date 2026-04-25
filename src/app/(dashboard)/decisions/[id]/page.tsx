@@ -118,8 +118,8 @@ export default async function DecisionDetailPage({
   );
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-zinc-200/60 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="ui-page-stack">
+      <header className="ui-page-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="ui-eyebrow">Decision workspace</p>
           <h1 className="ui-display-title mt-2">{decision.title}</h1>
@@ -144,22 +144,22 @@ export default async function DecisionDetailPage({
           typeof decision.required_inputs_json === "object" &&
           !Array.isArray(decision.required_inputs_json) &&
           Object.keys(decision.required_inputs_json as object).length > 0 ? (
-            <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+            <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
               {JSON.stringify(decision.required_inputs_json, null, 2)}
             </pre>
           ) : (
-            <p className="mt-3 text-sm text-zinc-500">No required inputs recorded yet.</p>
+            <p className="mt-3 text-sm text-[var(--text-tertiary)]">No required inputs recorded yet.</p>
           )}
         </article>
         <article className="ui-card p-5">
           <p className="ui-label-caps">Post-close actions (planned)</p>
           {Array.isArray(decision.post_decision_actions_json) &&
           (decision.post_decision_actions_json as unknown[]).length > 0 ? (
-            <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+            <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
               {JSON.stringify(decision.post_decision_actions_json, null, 2)}
             </pre>
           ) : (
-            <p className="mt-3 text-sm text-zinc-500">None configured on the workspace row.</p>
+            <p className="mt-3 text-sm text-[var(--text-tertiary)]">None configured on the workspace row.</p>
           )}
         </article>
       </section>
@@ -167,15 +167,15 @@ export default async function DecisionDetailPage({
       <section className="grid gap-4 lg:grid-cols-3">
         <article className="ui-card p-5 lg:col-span-2">
           <p className="ui-label-caps">Decision rationale</p>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700">
+          <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--text-secondary)]">
             {decision.rationale_markdown?.trim() || "No rationale has been captured yet."}
           </p>
           {decision.final_disposition_json &&
           typeof decision.final_disposition_json === "object" &&
           Object.keys(decision.final_disposition_json as object).length > 0 ? (
-            <div className="mt-4 border-t border-zinc-100 pt-4">
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
               <p className="ui-label-caps">Final disposition</p>
-              <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+              <pre className="mt-2 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
                 {JSON.stringify(decision.final_disposition_json, null, 2)}
               </pre>
             </div>
@@ -184,7 +184,7 @@ export default async function DecisionDetailPage({
         <div className="space-y-4">
           <article className="ui-card p-5">
             <p className="ui-label-caps">Scope</p>
-            <ul className="mt-3 space-y-2 text-sm text-zinc-600">
+            <ul className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
               <li>Due: {decision.due_at ? new Date(decision.due_at).toLocaleDateString() : "Not set"}</li>
               <li>Contracts: {Array.isArray(decision.linked_contract_ids) ? decision.linked_contract_ids.length : 0}</li>
               <li>
@@ -236,17 +236,17 @@ export default async function DecisionDetailPage({
           <p className="ui-label-caps">Recommendations</p>
           <div className="mt-3 space-y-3">
             {(recommendations ?? []).length === 0 ? (
-              <p className="text-sm text-zinc-500">No recommendations yet.</p>
+              <p className="text-sm text-[var(--text-tertiary)]">No recommendations yet.</p>
             ) : (
               (recommendations ?? []).map((r) => (
-                <div key={r.id} className="rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-sm">
-                  <p className="font-medium text-zinc-800">{r.recommendation_type}</p>
-                  <p className="mt-1 text-zinc-700">{r.recommendation_text}</p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                <div key={r.id} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-sm">
+                  <p className="font-medium text-[var(--text-primary)]">{r.recommendation_type}</p>
+                  <p className="mt-1 text-[var(--text-secondary)]">{r.recommendation_text}</p>
+                  <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                     Confidence {r.confidence}% · {r.accepted ? "Accepted" : "Pending"}
                   </p>
                   {Array.isArray(r.source_object_refs_json) && r.source_object_refs_json.length > 0 ? (
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       Linked refs: {r.source_object_refs_json.length}
                     </p>
                   ) : null}
@@ -260,13 +260,13 @@ export default async function DecisionDetailPage({
           <p className="ui-label-caps">Stakeholders</p>
           <div className="mt-3 space-y-3">
             {(stakeholders ?? []).length === 0 ? (
-              <p className="text-sm text-zinc-500">No stakeholders recorded.</p>
+              <p className="text-sm text-[var(--text-tertiary)]">No stakeholders recorded.</p>
             ) : (
               (stakeholders ?? []).map((s) => (
-                <div key={s.id} className="rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-sm">
-                  <p className="font-medium text-zinc-800">{s.stakeholder_role}</p>
-                  <p className="text-xs text-zinc-600">User: {s.stakeholder_user_id ?? "—"}</p>
-                  <p className="text-xs text-zinc-500">Status: {s.status}</p>
+                <div key={s.id} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-sm">
+                  <p className="font-medium text-[var(--text-primary)]">{s.stakeholder_role}</p>
+                  <p className="text-xs text-[var(--text-secondary)]">User: {s.stakeholder_user_id ?? "—"}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Status: {s.status}</p>
                 </div>
               ))
             )}
@@ -303,15 +303,14 @@ export default async function DecisionDetailPage({
       <section className="ui-card p-5">
         <p className="ui-label-caps">Packet export history</p>
         {!serverPacketPdf ? (
-          <p className="mt-2 text-xs text-zinc-500">
-            Binary server PDF is off. Use HTML export and print to PDF from your browser, or set{" "}
-            <code className="rounded bg-zinc-100 px-1">ENABLE_V5_PACKET_SERVER_PDF=true</code> for downloadable PDF
-            files.
+          <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+            Downloadable PDF files are off for this workspace. Use HTML export and print to PDF from your browser,
+            or ask an administrator to enable server-side PDF export.
           </p>
         ) : null}
-        <ul className="mt-3 space-y-2 text-sm text-zinc-700">
+        <ul className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
           {(packetRuns ?? []).length === 0 ? (
-            <li className="text-zinc-500">No packets exported yet.</li>
+            <li className="text-[var(--text-tertiary)]">No packets exported yet.</li>
           ) : (
             (packetRuns ?? []).map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-2">
@@ -354,12 +353,12 @@ export default async function DecisionDetailPage({
         <p className="ui-label-caps">Recent events</p>
         <div className="mt-3 space-y-3">
           {(events ?? []).length === 0 ? (
-            <p className="text-sm text-zinc-500">No events yet.</p>
+            <p className="text-sm text-[var(--text-tertiary)]">No events yet.</p>
           ) : (
             (events ?? []).map((event) => (
-              <div key={event.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 text-sm">
-                <p className="font-medium text-zinc-800">{event.event_type}</p>
-                <p className="text-xs text-zinc-500">{new Date(event.created_at).toLocaleString()}</p>
+              <div key={event.id} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-sm">
+                <p className="font-medium text-[var(--text-primary)]">{event.event_type}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{new Date(event.created_at).toLocaleString()}</p>
               </div>
             ))
           )}

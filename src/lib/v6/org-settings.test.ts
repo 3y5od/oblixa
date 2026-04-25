@@ -45,6 +45,44 @@ describe("v6 org-settings", () => {
     expect(await getV6OrgSettingsJson(admin as never, "org-1")).toEqual({});
   });
 
+  it("getV6OrgSettingsJson normalizes stale module and role keys on read", async () => {
+    const maybeSingle = vi.fn(async () => ({
+      data: {
+        v6_org_settings_json: {
+          workspace_mode: "assurance",
+          advanced_modules_hidden: ["decisions", "not_real"],
+          assurance_modules_hidden: ["autopilot", "not_real"],
+          utility_modules_hidden: ["intake", "not_real"],
+          advanced_nav_roles: ["admin", "not_real"],
+          assurance_nav_roles: ["manager", "not_real"],
+          search_scope: "invalid",
+          default_landing_path: "/dashboard",
+        },
+      },
+      error: null,
+    }));
+    const admin = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({ maybeSingle }),
+        }),
+      }),
+    };
+    const { getV6OrgSettingsJson } = await import("@/lib/v6/org-settings");
+    expect(await getV6OrgSettingsJson(admin as never, "org-1")).toEqual(
+      expect.objectContaining({
+        workspace_mode: "assurance",
+        advanced_modules_hidden: ["decisions"],
+        assurance_modules_hidden: ["autopilot"],
+        utility_modules_hidden: ["intake"],
+        advanced_nav_roles: ["admin"],
+        assurance_nav_roles: ["manager"],
+        search_scope: "match_mode",
+        default_landing_path: "/dashboard",
+      })
+    );
+  });
+
   it("mergeV6OrgSettingsJson filters unknown advanced_modules_hidden keys", async () => {
     const read = vi.fn(async () => ({
       data: { v6_org_settings_json: {} },

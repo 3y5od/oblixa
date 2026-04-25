@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { format } from "date-fns";
+import { AlertTriangle, CalendarClock, CheckCircle2, ListChecks } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
   createSavedView,
@@ -11,6 +12,7 @@ import {
 import { createObligationClarificationTaskForm } from "@/actions/tasks";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
 const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
@@ -21,9 +23,13 @@ const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
   { value: "waived", label: "Waived" },
 ];
 
+function currentTimeMs(): number {
+  return Date.now();
+}
+
 function statusTone(status: string): string {
   if (status === "done") return "text-emerald-700";
-  if (status === "waived") return "text-zinc-600";
+  if (status === "waived") return "text-[var(--text-secondary)]";
   if (status === "in_progress") return "text-blue-700";
   return "text-amber-800";
 }
@@ -124,6 +130,17 @@ export default async function ContractObligationsPage(props: {
       pinned: q.pinned === true || q.pinned === "1" || q.pinned === "true",
     };
   }).sort((a, b) => Number(b.pinned) - Number(a.pinned));
+  const openObligations = obligations.filter((ob) => ob.status === "open").length;
+  const inProgressObligations = obligations.filter((ob) => ob.status === "in_progress").length;
+  const nowMs = currentTimeMs();
+  const overdueObligations = obligations.filter((ob) => {
+    if (!ob.dueDate) return false;
+    return (
+      new Date(`${ob.dueDate}T12:00:00`).getTime() < nowMs &&
+      (ob.status === "open" || ob.status === "in_progress")
+    );
+  }).length;
+  const completedObligations = obligations.filter((ob) => ob.status === "done").length;
 
   return (
     <div className="ui-page-stack">
@@ -131,14 +148,62 @@ export default async function ContractObligationsPage(props: {
         <div>
           <p className="ui-eyebrow">Portfolio commitments</p>
           <h1 className="ui-display-title mt-2">Obligations queue</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl">Operational commitments and due-state execution.</p>
+          <p className="ui-page-lead mt-2">Operational commitments and due-state execution.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           Contract index
         </Link>
       </header>
 
-      <div className="ui-panel md:p-6">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <OperationalSummaryCard
+          eyebrow="Backlog"
+          headline="Open obligations"
+          tone={openObligations > 0 ? "attention" : "healthy"}
+          icon={ListChecks}
+          primaryValue={openObligations}
+          primaryUnit="awaiting start"
+          action={{ href: "/contracts/obligations?status=open", label: "Open active slice" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Execution"
+          headline="In progress"
+          tone={inProgressObligations > 0 ? "neutral" : "healthy"}
+          icon={CalendarClock}
+          primaryValue={inProgressObligations}
+          primaryUnit="currently running"
+          action={{ href: "/contracts/obligations?status=in_progress", label: "Review in progress" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Escalation"
+          headline="Past due"
+          tone={overdueObligations > 0 ? "risk" : "healthy"}
+          icon={AlertTriangle}
+          primaryValue={overdueObligations}
+          primaryUnit="need recovery"
+          action={{ href: "/contracts/obligations?status=open", label: "Open overdue work" }}
+          variant="compact"
+        />
+        <OperationalSummaryCard
+          eyebrow="Complete"
+          headline="Done"
+          tone="healthy"
+          icon={CheckCircle2}
+          primaryValue={completedObligations}
+          primaryUnit="complete in this slice"
+          action={{ href: "/contracts/obligations?status=done", label: "Review completed" }}
+          variant="compact"
+        />
+      </section>
+
+      <div className="ui-page-shell md:p-6">
+        <div className="mb-4 space-y-1.5">
+          <p className="ui-eyebrow">Filters</p>
+          <h2 className="ui-section-title">Shape the queue</h2>
+          <p className="ui-support-copy">Filter by obligation state or ownership, then save the slices you use for recurring follow-up.</p>
+        </div>
         <form className="flex flex-wrap items-end gap-4" action="/contracts/obligations" method="get">
           <div>
             <label htmlFor="obligation-status" className="ui-label-caps">Status</label>
@@ -153,13 +218,13 @@ export default async function ContractObligationsPage(props: {
           <div>
             <span className="ui-label-caps">Owner</span>
             <div className="flex min-h-10 items-center">
-              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-zinc-700">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
                 <input
                   type="checkbox"
                   name="mine"
                   value="1"
                   defaultChecked={onlyMine}
-                  className="h-4 w-4 rounded border-zinc-300"
+                  className="h-4 w-4 rounded border-[var(--border-strong)]"
                 />
                 Owned by me
               </label>
@@ -169,7 +234,11 @@ export default async function ContractObligationsPage(props: {
             Apply
           </button>
         </form>
-        <div className="mt-5 border-t border-zinc-100 pt-5">
+        <div className="mt-5 border-t border-[var(--border-subtle)] pt-5">
+          <div className="mb-3 space-y-1">
+            <p className="ui-eyebrow">Saved views</p>
+            <p className="ui-support-copy">Pin common obligation cuts and turn on weekly summaries for the views you review repeatedly.</p>
+          </div>
           <form action={createSavedView as never} className="flex flex-wrap items-end gap-3">
             <input type="hidden" name="organizationId" value={orgId} />
             <input type="hidden" name="viewType" value="obligations" />
@@ -190,13 +259,13 @@ export default async function ContractObligationsPage(props: {
               {savedViews.map((view) => (
                 <div
                   key={view.id}
-                  className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-1"
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-2 py-1"
                 >
-                  <Link href={view.href} className="px-2 py-0.5 text-[12px] font-semibold text-zinc-700">
+                  <Link href={view.href} className="px-2 py-0.5 text-[12px] font-semibold text-[var(--text-secondary)]">
                     {view.name}
                   </Link>
                   <form action={deleteSavedView.bind(null, view.id) as never}>
-                    <button type="submit" className="rounded-full px-1.5 py-0.5 text-[11px] text-zinc-500">
+                    <button type="submit" className="rounded-full px-1.5 py-0.5 text-[11px] text-[var(--text-tertiary)]">
                       ×
                     </button>
                   </form>
@@ -204,7 +273,7 @@ export default async function ContractObligationsPage(props: {
                     <button
                       type="submit"
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
-                        view.pinned ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                        view.pinned ? "bg-[var(--text-primary)] text-white" : "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]"
                       }`}
                     >
                       {view.pinned ? "Pinned" : "Pin"}
@@ -216,7 +285,7 @@ export default async function ContractObligationsPage(props: {
                       className={`rounded-full px-2 py-0.5 text-[11px] ${
                         view.weeklyActive
                           ? "bg-emerald-100 text-emerald-700"
-                          : "bg-zinc-100 text-zinc-600"
+                          : "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]"
                       }`}
                     >
                       {view.weeklyActive ? "Weekly on" : "Weekly off"}
@@ -236,7 +305,13 @@ export default async function ContractObligationsPage(props: {
         />
       ) : (
         <div className="ui-table-shell">
-          <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
+          <div className="ui-surface-tint px-5 py-4">
+            <p className="ui-eyebrow">Rows</p>
+            <h2 className="ui-section-title mt-1 text-[1.05rem]">Obligation ledger</h2>
+            <p className="ui-support-copy mt-1">Keep due state, escalation timing, and the next clarification step visible without losing contract context.</p>
+          </div>
+          <div className="overflow-x-auto">
+          <table aria-label="Obligations in this queue" className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
             <thead className="ui-table-header">
               <tr>
                 <th className="px-5 py-3">Obligation</th>
@@ -254,18 +329,18 @@ export default async function ContractObligationsPage(props: {
               {obligations.map((ob) => (
                 <tr key={ob.id} className="ui-table-row">
                   <td className="px-5 py-4">
-                    <p className="font-semibold text-zinc-900">{ob.title}</p>
-                    <p className="mt-0.5 text-[13px] text-zinc-500">
+                    <p className="font-semibold text-[var(--text-primary)]">{ob.title}</p>
+                    <p className="mt-0.5 text-[13px] text-[var(--text-tertiary)]">
                       {ob.obligationType}
                       {ob.cadence && (
                         <>
-                          <span className="text-zinc-300"> · </span>
+                          <span className="text-[var(--text-tertiary)]"> · </span>
                           {ob.cadence}
                         </>
                       )}
                       {ob.recurrenceType && ob.recurrenceType !== "none" && (
                         <>
-                          <span className="text-zinc-300"> · </span>
+                          <span className="text-[var(--text-tertiary)]"> · </span>
                           {ob.recurrenceType}
                           {ob.recurrenceType === "custom_days" && ob.recurrenceIntervalDays
                             ? ` (${ob.recurrenceIntervalDays}d)`
@@ -280,28 +355,28 @@ export default async function ContractObligationsPage(props: {
                     </Link>
                     <ContractContinuityLinks contractId={ob.contractId} omit={["obligations"]} />
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {ob.ownerId ? ownerById.get(ob.ownerId) ?? "Member" : "Unassigned"}
                   </td>
                   <td className={`px-5 py-4 font-semibold ${statusTone(ob.status)}`}>
                     {ob.status.replace("_", " ")}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {ob.dueDate
                       ? format(new Date(`${ob.dueDate}T12:00:00`), "MMM d, yyyy")
                       : "—"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {ob.nextDueDate
                       ? format(new Date(`${ob.nextDueDate}T12:00:00`), "MMM d, yyyy")
                       : "—"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-600">
+                  <td className="px-5 py-4 text-[var(--text-secondary)]">
                     {ob.escalationDueAt
                       ? `${format(new Date(ob.escalationDueAt), "MMM d, yyyy")} (${ob.escalationStatus ?? "pending"})`
                       : "—"}
                   </td>
-                  <td className="px-5 py-4 text-zinc-500">
+                  <td className="px-5 py-4 text-[var(--text-tertiary)]">
                     {format(new Date(ob.updatedAt), "MMM d")}
                   </td>
                   <td className="px-5 py-4">
@@ -322,6 +397,7 @@ export default async function ContractObligationsPage(props: {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

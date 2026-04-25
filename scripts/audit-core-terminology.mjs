@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §11.2 — flag advanced/assurance lemmas on Core route surfaces (heuristic).
+ * product-surface policy §11.2 — flag advanced/assurance lemmas on Core route surfaces (heuristic).
  * Usage: node scripts/audit-core-terminology.mjs [--strict]
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";

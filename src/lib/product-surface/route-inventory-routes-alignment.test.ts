@@ -1,5 +1,5 @@
 /**
- * docs/refinement.md §5–§6 / §10 — inventory tiers stay aligned with `routes.ts` mode floors.
+ * product-surface policy §5–§6 / §10 — inventory tiers stay aligned with `routes.ts` mode floors.
  */
 import { describe, expect, it } from "vitest";
 import { ROUTE_INVENTORY } from "@/lib/product-surface/route-inventory";

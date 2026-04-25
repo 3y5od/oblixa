@@ -8,16 +8,24 @@ export function EmptyState(props: {
   action?: ReactNode;
   eyebrow?: string;
   className?: string;
+  size?: "default" | "compact";
 }) {
+  const compact = props.size === "compact";
   return (
-    <div className={`ui-empty-state flex flex-col items-center justify-center ${props.className ?? ""}`.trim()}>
-      <div className="flex h-16 w-16 items-center justify-center rounded-[1.35rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_82%,white)] shadow-[var(--shadow-1)]">
-        {props.icon ?? <Inbox className="h-7 w-7 text-[var(--text-tertiary)]" strokeWidth={1.55} aria-hidden />}
+    <div
+      className={`ui-empty-state ${compact ? "ui-empty-state-compact" : ""} flex flex-col items-center justify-center ${props.className ?? ""}`.trim()}
+    >
+      <div className={compact ? "ui-icon-tile-compact" : "ui-icon-tile"}>
+        {props.icon ?? (
+          <Inbox className={`${compact ? "h-5 w-5" : "h-7 w-7"} text-[var(--text-tertiary)]`.trim()} strokeWidth={1.55} aria-hidden />
+        )}
       </div>
-      {props.eyebrow ? <p className="ui-eyebrow mt-5">{props.eyebrow}</p> : null}
-      <h3 className="ui-empty-state-title">{props.title}</h3>
-      <p className="ui-empty-state-copy">{props.copy}</p>
-      {props.action ? <div className="mt-6 flex flex-wrap items-center justify-center gap-2">{props.action}</div> : null}
+      {props.eyebrow ? <p className={`ui-eyebrow ${compact ? "mt-4" : "mt-5"}`.trim()}>{props.eyebrow}</p> : null}
+      <h3 className={`ui-empty-state-title text-balance ${compact ? "mt-4 text-[15px]" : ""}`.trim()}>{props.title}</h3>
+      <p className={`ui-empty-state-copy text-balance ${compact ? "mt-1.5 text-[13px]" : ""}`.trim()}>{props.copy}</p>
+      {props.action ? (
+        <div className={`${compact ? "mt-5" : "mt-6"} flex max-w-full flex-wrap items-center justify-center gap-2.5`.trim()}>{props.action}</div>
+      ) : null}
     </div>
   );
 }

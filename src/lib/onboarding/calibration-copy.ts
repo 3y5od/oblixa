@@ -166,7 +166,7 @@ export const calibrationHistoryChoiceLabels: {
 
 /** Review step subsection titles (visible + `aria-labelledby` targets). */
 export const reviewUtilitiesNoneHidden =
-  "No extra utility shortcuts hidden beyond defaults.";
+  "No extra tool shortcuts hidden beyond defaults.";
 
 export const reviewSectionHeadings = {
   summary: "Recommended workspace mode",
@@ -178,7 +178,7 @@ export const reviewSectionHeadings = {
   home: "Home dashboard",
   search: "Search and shortcuts",
   notifications: "Email notifications",
-  utilities: "Utility shortcuts",
+  utilities: "Tool shortcuts",
 } as const;
 
 /** `data-testid` hooks for E2E and RTL (stable selectors). */

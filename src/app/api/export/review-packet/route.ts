@@ -7,12 +7,8 @@ import {
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-
-function csvEscape(value: string | null | undefined): string {
-  if (!value) return "";
-  if (/[,"\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
-}
+import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 export async function GET() {
   const supabase = await createClient();
@@ -48,6 +44,17 @@ export async function GET() {
     .slice(0, 10);
   const MAX_REVIEW_PACKET_ROWS = 5000;
 
+  await emitProductTelemetryEvent(admin, {
+    organizationId: orgId,
+    userId: user.id,
+    action: "product.v9.export_started",
+    details: {
+      export_type: "review_packet",
+      horizon_days: 90,
+      max_rows: MAX_REVIEW_PACKET_ROWS,
+    },
+  });
+
   const [exceptions, approvalsRes, renewalsRes] = await Promise.all([
     getContractsMissingCriticalFields(admin, orgId),
     admin
@@ -68,10 +75,28 @@ export async function GET() {
 
   if (approvalsRes.error) {
     console.error("[export/review-packet] approvals:", approvalsRes.error.message);
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_failed",
+      details: {
+        export_type: "review_packet",
+        reason: "approvals_query_failed",
+      },
+    });
     return NextResponse.json({ error: "Could not load approvals" }, { status: 500 });
   }
   if (renewalsRes.error) {
     console.error("[export/review-packet] renewals:", renewalsRes.error.message);
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_failed",
+      details: {
+        export_type: "review_packet",
+        reason: "renewals_query_failed",
+      },
+    });
     return NextResponse.json({ error: "Could not load renewals" }, { status: 500 });
   }
 
@@ -80,10 +105,10 @@ export async function GET() {
     lines.push(
       [
         "exceptions",
-        csvEscape(c.id),
-        csvEscape(c.title),
+        escapeCsvCellForSpreadsheet(c.id),
+        escapeCsvCellForSpreadsheet(c.title),
         "missing_critical_fields",
-        csvEscape(c.counterparty ?? ""),
+        escapeCsvCellForSpreadsheet(c.counterparty ?? ""),
       ].join(",")
     );
   }
@@ -94,10 +119,10 @@ export async function GET() {
     lines.push(
       [
         "pending_approvals",
-        csvEscape(contract?.id ?? row.contract_id),
-        csvEscape(contract?.title ?? ""),
-        csvEscape(row.approval_type),
-        csvEscape(row.status),
+        escapeCsvCellForSpreadsheet(contract?.id ?? row.contract_id),
+        escapeCsvCellForSpreadsheet(contract?.title ?? ""),
+        escapeCsvCellForSpreadsheet(row.approval_type),
+        escapeCsvCellForSpreadsheet(row.status),
       ].join(",")
     );
   }
@@ -108,16 +133,27 @@ export async function GET() {
     lines.push(
       [
         "renewals_90d",
-        csvEscape(contract?.id ?? row.contract_id),
-        csvEscape(contract?.title ?? ""),
-        csvEscape(row.label),
-        csvEscape(row.due_date),
+        escapeCsvCellForSpreadsheet(contract?.id ?? row.contract_id),
+        escapeCsvCellForSpreadsheet(contract?.title ?? ""),
+        escapeCsvCellForSpreadsheet(row.label),
+        escapeCsvCellForSpreadsheet(row.due_date),
       ].join(",")
     );
   }
 
   const csv = lines.join("\r\n");
   const fileName = `review-packet-${today}.csv`;
+  await emitProductTelemetryEvent(admin, {
+    organizationId: orgId,
+    userId: user.id,
+    action: "product.v9.export_completed",
+    details: {
+      export_type: "review_packet",
+      missing_critical_count: exceptions.length,
+      pending_approvals_count: approvalsRes.data?.length ?? 0,
+      renewal_checkpoint_count: renewalsRes.data?.length ?? 0,
+    },
+  });
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",

@@ -54,16 +54,16 @@ export function OrgV6SettingsPanel({
 
   if (!canManage) {
     return (
-      <p className="text-xs text-zinc-500">
-        Org V6 settings are visible to operators; only workspace settings managers can edit.
+      <p className="text-xs text-[var(--text-tertiary)]">
+        Organization assurance settings are visible to operators; only workspace settings managers can edit.
       </p>
     );
   }
 
   return (
-    <div className="mt-3 space-y-3 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-800">Organization V6 settings</p>
-      <label className="flex cursor-pointer items-center gap-2 text-xs text-zinc-700">
+    <div className="mt-3 space-y-3 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-primary)]">Organization assurance settings</p>
+      <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--text-secondary)]">
         <input
           type="checkbox"
           checked={autopilotOn}
@@ -72,10 +72,10 @@ export function OrgV6SettingsPanel({
         Allow mutating autopilot actions for this org (still requires global env flag)
       </label>
       <div>
-        <label className="text-[11px] font-medium text-zinc-600">
+        <label className="text-[11px] font-medium text-[var(--text-secondary)]">
           Review board notification emails (stored for future digests)
           <textarea
-            className="mt-1 w-full rounded border border-zinc-200 px-2 py-1 text-xs"
+            className="mt-1 w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-xs"
             rows={2}
             value={emails}
             onChange={(e) => setEmails(e.target.value)}
@@ -86,7 +86,7 @@ export function OrgV6SettingsPanel({
       <button
         type="button"
         disabled={pending}
-        className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
         onClick={() => void save()}
       >
         {pending ? "Saving…" : "Save org settings"}

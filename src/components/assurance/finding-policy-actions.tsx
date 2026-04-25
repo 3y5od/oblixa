@@ -32,9 +32,9 @@ export function FindingPolicyActions({ policyId, canSimulate }: Props) {
   }
 
   return (
-    <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50/40 p-3 text-xs text-zinc-800">
-      <p className="font-semibold text-zinc-900">Linked control policy</p>
-      <p className="mt-1 font-mono text-[11px] text-zinc-600">{policyId}</p>
+    <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50/40 p-3 text-xs text-[var(--text-primary)]">
+      <p className="font-semibold text-[var(--text-primary)]">Linked control policy</p>
+      <p className="mt-1 font-mono text-[11px] text-[var(--text-secondary)]">{policyId}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Link className="ui-link" href={`/assurance/control-policies/${encodeURIComponent(policyId)}`}>
           Open policy
@@ -43,14 +43,14 @@ export function FindingPolicyActions({ policyId, canSimulate }: Props) {
           <button
             type="button"
             disabled={pending}
-            className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-800 disabled:opacity-50"
+            className="rounded border border-[var(--border-strong)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
             onClick={() => void runSimulate()}
           >
             {pending ? "Running…" : "Run policy what-if simulate"}
           </button>
         ) : null}
       </div>
-      {msg ? <p className="mt-2 text-[11px] text-zinc-600">{msg}</p> : null}
+      {msg ? <p className="mt-2 text-[11px] text-[var(--text-secondary)]">{msg}</p> : null}
     </div>
   );
 }

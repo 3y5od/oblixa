@@ -1,5 +1,5 @@
 /**
- * Product surface (docs/refinement.md §4–§10, §19–§21).
+ * Product surface (product-surface policy §4–§10, §19–§21).
  * @see REFINEMENT_TRACE in refinement-trace.ts for spec → file mapping.
  */
 export {
@@ -122,3 +122,24 @@ export {
   isRouteAllowedForWorkspacePath,
   type HomeSectionId,
 } from "@/lib/product-surface/resolver";
+export {
+  CORE_FORBIDDEN_WORKFLOW_DESTINATION_TERMS,
+  MORE_JUMP_DESTINATION_KEYS,
+  WORKFLOW_DESTINATIONS,
+  WORKFLOW_DESTINATION_KEYS,
+  assertNoForbiddenCoreWorkflowDestinationTerms,
+  buildWorkflowDestinationManifest,
+  listMoreJumpDestinations,
+  listWorkflowDestinationsForSurface,
+  resolveMorePageChrome,
+  resolveWorkflowDestination,
+  workflowDestinationByKey,
+  workflowDestinationForHref,
+  type ResolvedWorkflowDestination,
+  type WorkflowDestinationCopy,
+  type WorkflowDestinationDef,
+  type WorkflowDestinationKey,
+  type WorkflowDestinationManifestEntry,
+  type WorkflowDestinationPlacement,
+  type WorkflowDestinationSurface,
+} from "@/lib/product-surface/workflow-destinations";

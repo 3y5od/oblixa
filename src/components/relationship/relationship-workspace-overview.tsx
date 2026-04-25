@@ -35,26 +35,26 @@ export function RelationshipWorkspaceOverview({ healthSignalJson, summaryJson, l
   ];
 
   return (
-    <section className="ui-card p-5">
+    <section className="ui-page-shell p-5">
       <p className="ui-eyebrow">Relationship</p>
-      <h2 className="ui-section-title mt-1 text-base">Portfolio signals (this relationship)</h2>
-      <p className="ui-muted-tight mt-1">
+      <h2 className="ui-page-title mt-1 text-[1.6rem]">Portfolio signals</h2>
+      <p className="ui-section-lead mt-2">
         Live counts from linked contracts on this page load. Cron rollups also persist overlapping fields into
         workspace JSON.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-800">
+        <span className="ui-metric-chip">
           Health hint: {riskHint}
         </span>
         {rollupAt ? (
-          <span className="text-xs text-zinc-500">Rollup / computed: {rollupAt}</span>
+          <span className="ui-support-copy text-xs">Rollup / computed: {rollupAt}</span>
         ) : null}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2">
-            <p className="text-lg font-semibold tabular-nums text-zinc-900">{t.value}</p>
-            <p className="text-[11px] leading-snug text-zinc-500">{t.label}</p>
+          <div key={t.label} className="ui-operational-card px-3 py-3">
+            <p className="text-lg font-semibold tabular-nums text-[var(--text-primary)]">{t.value}</p>
+            <p className="ui-meta mt-1 leading-snug">{t.label}</p>
           </div>
         ))}
       </div>

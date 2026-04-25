@@ -7,36 +7,32 @@ import {
   mergeV6OrgSettingsJson,
   type V6OrgSettingsMergePatch,
 } from "@/lib/v6/org-settings";
-import type { WorkspaceRole } from "@/lib/navigation";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
-import type {
-  AdvancedNavModuleKey,
-  AssuranceNavModuleKey,
-  ProductSearchScope,
-  UtilityModuleKey,
-  WorkspaceProductMode,
-} from "@/lib/product-surface/types";
+import type { ProductSearchScope, WorkspaceProductMode } from "@/lib/product-surface/types";
 import { applyWorkspaceProductTransitionSideEffects } from "@/lib/product-surface/workspace-transition";
 import { isValidDefaultLandingPath } from "@/lib/product-surface/landing-eligibility";
 import { parseOnboardingCalibration } from "@/lib/onboarding/calibration-types";
 import { requireServerActionEligibility } from "@/lib/product-surface/server-action-guard";
+import {
+  ALL_ADVANCED_NAV_MODULE_KEYS,
+  ALL_ASSURANCE_NAV_MODULE_KEYS,
+  ALL_UTILITY_MODULE_KEYS,
+  WORKSPACE_HOME_SECTION_KEYS,
+  WORKSPACE_NAV_ROLE_ORDER,
+} from "@/lib/product-surface/workspace-module-keys";
 
-const ADVANCED_NAV_ROLE_OPTIONS: WorkspaceRole[] = [
-  "admin",
-  "editor",
-  "viewer",
-  "ops_manager",
-  "legal_reviewer",
-  "finance_reviewer",
-  "manager",
-];
+const WORKSPACE_HOME_HIDE_KEYS = [
+  "control_room_strip",
+  "telemetry_compact",
+  "v6_assurance_snapshot",
+  "outcome_intelligence",
+  "assurance_signals",
+] as const satisfies typeof WORKSPACE_HOME_SECTION_KEYS;
 
-function parseAdvancedNavRolesForPatch(
-  formData: FormData
-): WorkspaceRole[] | null | undefined {
+function parseAdvancedNavRolesForPatch(formData: FormData) {
   if (formData.get("customize_advanced_nav_roles") !== "on") return null;
-  const out: WorkspaceRole[] = [];
-  for (const r of ADVANCED_NAV_ROLE_OPTIONS) {
+  const out: Array<(typeof WORKSPACE_NAV_ROLE_ORDER)[number]> = [];
+  for (const r of WORKSPACE_NAV_ROLE_ORDER) {
     if (formData.get(`adv_nav_${r}`) === "on") out.push(r);
   }
   return out;
@@ -46,11 +42,11 @@ function parseAdvancedNavRolesForPatch(
 function parseAssuranceNavRolesForPatch(
   formData: FormData,
   workspaceMode: WorkspaceProductMode
-): WorkspaceRole[] | null | undefined {
+) {
   if (workspaceMode !== "assurance") return undefined;
   if (formData.get("customize_assurance_nav_roles") !== "on") return null;
-  const out: WorkspaceRole[] = [];
-  for (const r of ADVANCED_NAV_ROLE_OPTIONS) {
+  const out: Array<(typeof WORKSPACE_NAV_ROLE_ORDER)[number]> = [];
+  for (const r of WORKSPACE_NAV_ROLE_ORDER) {
     if (formData.get(`asm_nav_${r}`) === "on") out.push(r);
   }
   return out;
@@ -62,57 +58,25 @@ function parseMode(raw: FormDataEntryValue | null): WorkspaceProductMode | undef
   return undefined;
 }
 
-function parseHiddenModules(formData: FormData): AdvancedNavModuleKey[] {
-  const keys: AdvancedNavModuleKey[] = [
-    "decisions",
-    "campaigns",
-    "programs",
-    "relationships",
-    "analytics",
-    "maintenance",
-    "collaboration",
-    "compare_views",
-  ];
-  const out: AdvancedNavModuleKey[] = [];
-  for (const k of keys) {
+function parseHiddenModules(formData: FormData) {
+  const out: Array<(typeof ALL_ADVANCED_NAV_MODULE_KEYS)[number]> = [];
+  for (const k of ALL_ADVANCED_NAV_MODULE_KEYS) {
     if (formData.get(`hide_${k}`) === "on") out.push(k);
   }
   return out;
 }
 
-function parseHiddenAssuranceModules(formData: FormData): AssuranceNavModuleKey[] {
-  const keys: AssuranceNavModuleKey[] = [
-    "findings",
-    "control_policies",
-    "scorecards",
-    "playbooks",
-    "autopilot",
-    "review_boards",
-    "segments",
-    "program_evolution",
-    "health_graph",
-    "outcome_intelligence",
-  ];
-  const out: AssuranceNavModuleKey[] = [];
-  for (const k of keys) {
+function parseHiddenAssuranceModules(formData: FormData) {
+  const out: Array<(typeof ALL_ASSURANCE_NAV_MODULE_KEYS)[number]> = [];
+  for (const k of ALL_ASSURANCE_NAV_MODULE_KEYS) {
     if (formData.get(`hide_assurance_${k}`) === "on") out.push(k);
   }
   return out;
 }
 
-function parseHiddenUtilityModules(formData: FormData): UtilityModuleKey[] {
-  const keys: UtilityModuleKey[] = [
-    "intake",
-    "data_quality",
-    "review_cadence",
-    "watchlists",
-    "execution_graph",
-    "approval_workload",
-    "approval_sla_simulator",
-    "more_tools",
-  ];
-  const out: UtilityModuleKey[] = [];
-  for (const k of keys) {
+function parseHiddenUtilityModules(formData: FormData) {
+  const out: Array<(typeof ALL_UTILITY_MODULE_KEYS)[number]> = [];
+  for (const k of ALL_UTILITY_MODULE_KEYS) {
     if (formData.get(`hide_utility_${k}`) === "on") out.push(k);
   }
   return out;
@@ -122,16 +86,8 @@ function parseSearchScope(formData: FormData): ProductSearchScope {
   return formData.get("search_scope") === "core_only" ? "core_only" : "match_mode";
 }
 
-const HOME_SECTION_KEYS = [
-  "control_room_strip",
-  "telemetry_compact",
-  "v6_assurance_snapshot",
-  "outcome_intelligence",
-  "assurance_signals",
-] as const;
-
 function parseHiddenHomeSections(formData: FormData): string[] {
-  return HOME_SECTION_KEYS.filter((k) => formData.get(`hide_home_${k}`) === "on").map((k) => k);
+  return WORKSPACE_HOME_HIDE_KEYS.filter((k) => formData.get(`hide_home_${k}`) === "on").map((k) => k);
 }
 
 const EMAIL_MUTE_KEYS = ["reminder_due", "saved_view_summary", "automation_rule"] as const;
@@ -141,10 +97,10 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
     actionId: "product-surface-settings:updateWorkspaceProductSurfaceForm",
     featureFamily: "settings",
   });
-  if (!eligibility.ok) return { error: "Not eligible" };
+  if (!eligibility.ok) return { error: "This workspace cannot change product experience settings right now." };
 
   const ctx = await getAuthContext();
-  if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
+  if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can change product experience settings." };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
 
   const mode = parseMode(formData.get("workspace_mode")) ?? "core";
@@ -170,7 +126,7 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
     patch.default_landing_path = "";
   } else if (defaultLandingRaw.startsWith("/")) {
     if (!isValidDefaultLandingPath(defaultLandingRaw, mode)) {
-      return { error: "Invalid landing path" };
+      return { error: "That default landing path is not available in the selected workspace mode." };
     }
     patch.default_landing_path = defaultLandingRaw;
   }
@@ -253,38 +209,18 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
     actionId: "product-surface-settings:resetWorkspaceProductSurfaceDefaultsForm",
     featureFamily: "settings",
   });
-  if (!eligibility.ok) return { error: "Not eligible" };
+  if (!eligibility.ok) return { error: "This workspace cannot reset product experience settings right now." };
 
   const ctx = await getAuthContext();
-  if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
+  if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can reset product experience settings." };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const prevMode = parseWorkspaceMode(prevV6);
   const patch: V6OrgSettingsMergePatch = {
     workspace_mode: "core",
     default_landing_path: "",
     search_scope: "match_mode",
-    advanced_modules_hidden: [
-      "decisions",
-      "campaigns",
-      "programs",
-      "relationships",
-      "analytics",
-      "maintenance",
-      "collaboration",
-      "compare_views",
-    ],
-    assurance_modules_hidden: [
-      "findings",
-      "control_policies",
-      "scorecards",
-      "playbooks",
-      "autopilot",
-      "review_boards",
-      "segments",
-      "program_evolution",
-      "health_graph",
-      "outcome_intelligence",
-    ],
+    advanced_modules_hidden: [...ALL_ADVANCED_NAV_MODULE_KEYS],
+    assurance_modules_hidden: [...ALL_ASSURANCE_NAV_MODULE_KEYS],
     utility_modules_hidden: [],
     home_hidden_sections: [],
     advanced_nav_roles: null,
@@ -319,7 +255,7 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
   return { success: true as const };
 }
 
-/** Merge email notification `blocked_types` for known keys (docs/refinement.md §18.1 / §21). */
+/** Merge email notification `blocked_types` for known keys (product-surface policy §18.1 / §21). */
 export async function updateProductEmailNotificationCategoriesForm(formData: FormData): Promise<{ error: string } | { success: true }> {
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:updateProductEmailNotificationCategoriesForm",

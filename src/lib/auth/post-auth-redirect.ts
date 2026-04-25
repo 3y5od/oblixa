@@ -16,7 +16,7 @@ export function resolveDestinationWithBlockingCalibration(
 }
 
 /**
- * When the user lands on the default app home, honor org default landing (docs/refinement.md §21.2).
+ * When the user lands on the default app home, honor org default landing (product-surface policy §21.2).
  * Invalid paths for the org workspace mode are ignored (open-redirect safe via getSafeRedirectPath).
  */
 export async function resolvePostAuthRedirectPath(

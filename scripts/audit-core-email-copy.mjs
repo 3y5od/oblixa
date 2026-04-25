@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * docs/refinement.md §2 / §11 — Core email helpers should not hard-code Advanced/Assurance lemmas
+ * product-surface policy §2 / §11 — Core email helpers should not hard-code Advanced/Assurance lemmas
  * in static subject/body (dynamic user content is degraded via email-workspace-degrade).
  */
 import { readFileSync } from "node:fs";

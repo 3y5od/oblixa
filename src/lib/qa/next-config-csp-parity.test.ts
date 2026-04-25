@@ -25,13 +25,13 @@ describe("next.config CSP parity", () => {
     expect(raw).toContain("buildSecurityHeaders");
   });
 
-  it("keeps enforcing CSP and report-only aligned on third-party hosts (img, connect, frame)", () => {
+  it("keeps enforcing CSP and report-only aligned on third-party hosts (img, connect, frame, worker)", () => {
     for (const isProd of [true, false]) {
       const csp = buildContentSecurityPolicy(isProd);
       const ro = buildStrictCspReportOnly(isProd);
       const a = directiveMap(csp);
       const b = directiveMap(ro);
-      for (const key of ["img-src", "connect-src", "frame-src"] as const) {
+      for (const key of ["img-src", "connect-src", "frame-src", "worker-src"] as const) {
         expect(a.get(key), `${key} prod=${isProd}`).toBe(b.get(key));
       }
     }

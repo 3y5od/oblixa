@@ -7,6 +7,7 @@ import {
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -55,12 +56,56 @@ export async function GET(request: Request) {
     includeRenewalDecisions: includeRenewalDecisions || role === "finance" || role === "manager",
   };
 
-  const body = await buildOrganizationCalendarIcs(admin, membership.organization_id, roleDefaults);
-
-  return new NextResponse(body, {
-    headers: {
-      "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="oblixa-calendar.ics"',
+  await emitProductTelemetryEvent(admin, {
+    organizationId: membership.organization_id,
+    userId: user.id,
+    action: "product.v9.export_started",
+    details: {
+      export_type: "calendar_ics",
+      include_reminders: roleDefaults.includeReminders,
+      include_obligations: roleDefaults.includeObligations,
+      include_renewal_checkpoints: roleDefaults.includeRenewalCheckpoints,
+      include_renewal_decisions: roleDefaults.includeRenewalDecisions,
+      role: role || "default",
     },
   });
+
+  try {
+    const body = await buildOrganizationCalendarIcs(admin, membership.organization_id, roleDefaults);
+
+    await emitProductTelemetryEvent(admin, {
+      organizationId: membership.organization_id,
+      userId: user.id,
+      action: "product.v9.export_completed",
+      details: {
+        export_type: "calendar_ics",
+        include_reminders: roleDefaults.includeReminders,
+        include_obligations: roleDefaults.includeObligations,
+        include_renewal_checkpoints: roleDefaults.includeRenewalCheckpoints,
+        include_renewal_decisions: roleDefaults.includeRenewalDecisions,
+      },
+    });
+
+    return new NextResponse(body, {
+      headers: {
+        "Content-Type": "text/calendar; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="oblixa-calendar.ics"',
+      },
+    });
+  } catch (error) {
+    console.error("[export/calendar] could not build calendar export:", error);
+    await emitProductTelemetryEvent(admin, {
+      organizationId: membership.organization_id,
+      userId: user.id,
+      action: "product.v9.export_failed",
+      details: {
+        export_type: "calendar_ics",
+        reason: "calendar_build_failed",
+      },
+    });
+    return NextResponse.json(
+      { error: "Could not build calendar export." },
+      { status: 500 }
+    );
+  }
 }

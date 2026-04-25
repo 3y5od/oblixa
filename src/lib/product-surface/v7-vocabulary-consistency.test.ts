@@ -41,7 +41,7 @@ const CORE_ADMIN_PRIMARY_NAV_NAMES_SORTED = [
   "Reports",
   "Review",
   "Settings",
-  "Utilities",
+  "Tools",
   "Work",
 ].sort();
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import type { ContractObligation } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
+import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
 
 type ObligationRow = Pick<
   ContractObligation,
@@ -11,10 +11,10 @@ type ObligationRow = Pick<
 };
 
 function statusTone(status: ContractObligation["status"]): string {
-  if (status === "done") return "text-emerald-700";
-  if (status === "waived") return "text-zinc-600";
-  if (status === "in_progress") return "text-blue-700";
-  return "text-amber-800";
+  if (status === "done") return "text-[var(--success-ink)]";
+  if (status === "waived") return "text-[var(--text-secondary)]";
+  if (status === "in_progress") return "text-[var(--info-ink)]";
+  return "text-[var(--warning-ink)]";
 }
 
 export function MyObligations({ obligations }: { obligations: ObligationRow[] }) {
@@ -33,7 +33,7 @@ export function MyObligations({ obligations }: { obligations: ObligationRow[] })
 
   return (
     <section className="ui-card overflow-hidden">
-      <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3.5 md:px-6 md:py-4">
+      <div className="ui-surface-tint px-4 py-3.5 md:px-6 md:py-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="ui-section-title">My obligations</h2>
@@ -63,7 +63,7 @@ export function MyObligations({ obligations }: { obligations: ObligationRow[] })
                   <>
                     <span className="text-[var(--text-tertiary)]"> · </span>
                     <span className="text-[var(--text-secondary)]">
-                      Due {format(new Date(`${ob.due_date}T12:00:00`), "MMM d, yyyy")}
+                      Due {formatBusinessDateAtNoon(ob.due_date)}
                     </span>
                   </>
                 )}

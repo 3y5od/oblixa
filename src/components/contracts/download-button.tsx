@@ -31,7 +31,7 @@ export function DownloadButton({ storagePath, fileName }: DownloadButtonProps) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50"
+      className="rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] hover:text-[var(--text-secondary)] disabled:opacity-50"
       title={`Download ${fileName}`}
     >
       {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}

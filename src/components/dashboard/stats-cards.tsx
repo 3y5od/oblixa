@@ -92,17 +92,17 @@ export function StatsCards({
   };
 
   return (
-    <section className="space-y-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <section className="space-y-4">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="ui-eyebrow">Portfolio</p>
-          <h2 className="ui-section-title mt-2 text-xl">Contract metrics</h2>
-          <p className="ui-muted-tight mt-1 max-w-2xl">Portfolio volume, review pressure, deadline horizon, and data risk at a glance.</p>
+          <h2 className="ui-page-title mt-2 text-[1.85rem]">Contract metrics</h2>
+          <p className="ui-page-lead mt-2">Portfolio volume, review pressure, deadline horizon, and data risk at a glance.</p>
         </div>
       </div>
       <div
         data-testid={surfaceTestIds.dashboardStats}
-        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5"
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 2xl:grid-cols-10"
       >
         {metricsConfig.map((m) => {
           const value = values[m.valueKey];
@@ -112,6 +112,7 @@ export function StatsCards({
             <OperationalSummaryCard
               key={m.headline}
               variant="compact"
+              className="lg:col-span-1 2xl:col-span-2"
               eyebrow={m.eyebrow}
               headline={m.headline}
               tone={tone}

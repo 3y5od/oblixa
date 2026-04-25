@@ -9,39 +9,95 @@ export const CONTRACT_LIST_ROW_COLUMNS =
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
+export type ContractListSortKey = "activity" | "created";
+
 export interface ContractListFilterInput {
   orgId: string;
   status?: string;
   owner?: string;
   region?: string;
-  /** When non-null and empty, no rows match (deadline preset had no hits). */
-  deadlineIds: string[] | null;
+  /**
+   * Narrow to these contract ids (AND with all other filters).
+   * `null` — no id cap; `[]` — impossible (caller may short-circuit).
+   */
+  intersectIds: string[] | null;
   sanitizedSearch: string;
   fieldSearchIds: string[];
+  /** `activity` → `updated_at` (default operational scan); `created` → `created_at`. */
+  sort: ContractListSortKey;
+}
+
+type ContractsPageSnapshot = {
+  rows?: unknown[];
+  total?: unknown;
+};
+
+function canUseContractsPageSnapshot(filters: ContractListFilterInput): boolean {
+  return filters.intersectIds === null && filters.fieldSearchIds.length === 0;
+}
+
+function parseContractsPageSnapshot(data: unknown): { contracts: Contract[]; total: number } | null {
+  if (!data || typeof data !== "object") return null;
+  const snapshot = data as ContractsPageSnapshot;
+  if (!Array.isArray(snapshot.rows)) return null;
+  return {
+    contracts: snapshot.rows as Contract[],
+    total: Number(snapshot.total) || 0,
+  };
+}
+
+async function fetchContractsPageSnapshot(
+  admin: Admin,
+  filters: ContractListFilterInput,
+  page: number
+): Promise<{ contracts: Contract[]; total: number } | null> {
+  if (!canUseContractsPageSnapshot(filters)) return null;
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const offset = (safePage - 1) * CONTRACTS_PAGE_SIZE;
+  const { data, error } = await admin.rpc("contracts_page_snapshot", {
+    p_org_id: filters.orgId,
+    p_limit: CONTRACTS_PAGE_SIZE,
+    p_offset: offset,
+    p_search: filters.sanitizedSearch || null,
+    p_status: filters.status || null,
+    p_owner_id: filters.owner || null,
+    p_region: filters.region || null,
+    p_sort: filters.sort,
+  });
+  if (error) {
+    console.error("contracts_page_snapshot", error);
+    return null;
+  }
+  return parseContractsPageSnapshot(data);
 }
 
 /**
  * Fetches a page of contracts with total count in one round trip.
- * Returns empty data when deadlineIds is a non-empty filter that matched nothing (caller should short-circuit earlier).
+ * Returns empty data when `intersectIds` is `[]` (caller may short-circuit earlier).
  */
 export async function fetchContractsPage(
   admin: Admin,
   filters: ContractListFilterInput,
   page: number
 ): Promise<{ contracts: Contract[]; total: number }> {
+  const snapshot = await fetchContractsPageSnapshot(admin, filters, page);
+  if (snapshot) return snapshot;
+
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
   const from = (safePage - 1) * CONTRACTS_PAGE_SIZE;
   const to = from + CONTRACTS_PAGE_SIZE - 1;
 
-  if (filters.deadlineIds !== null && filters.deadlineIds.length === 0) {
+  if (filters.intersectIds !== null && filters.intersectIds.length === 0) {
     return { contracts: [], total: 0 };
   }
+
+  const orderColumn = filters.sort === "created" ? "created_at" : "updated_at";
 
   let q = admin
     .from("contracts")
     .select(CONTRACT_LIST_ROW_COLUMNS, { count: "exact" })
     .eq("organization_id", filters.orgId)
-    .order("created_at", { ascending: false });
+    .order(orderColumn, { ascending: false });
 
   if (filters.status) {
     q = q.eq("status", filters.status);
@@ -52,8 +108,8 @@ export async function fetchContractsPage(
   if (filters.region) {
     q = q.eq("region", filters.region);
   }
-  if (filters.deadlineIds !== null && filters.deadlineIds.length > 0) {
-    q = q.in("id", filters.deadlineIds);
+  if (filters.intersectIds !== null && filters.intersectIds.length > 0) {
+    q = q.in("id", filters.intersectIds);
   }
 
   if (filters.sanitizedSearch) {

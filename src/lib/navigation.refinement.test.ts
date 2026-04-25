@@ -1,9 +1,9 @@
 /**
- * docs/refinement.md §7.1–7.3 — navigation IA contract (Core primary set, Advanced hubs, Assurance children).
+ * product-surface policy §7.1–7.3 — navigation IA contract (Core primary set, Advanced hubs, Assurance children).
  * Fails if NAV_ITEMS drifts without updating the spec or this test.
  */
 import { describe, expect, it } from "vitest";
-import { NAV_ITEMS } from "@/lib/navigation";
+import { NAV_ITEMS, getWorkflowAreaForNavItem } from "@/lib/navigation";
 
 const CORE_PRIMARY_HREFS = [
   "/dashboard",
@@ -38,7 +38,7 @@ function primaryByHref(href: string) {
 }
 
 describe("refinement §7 navigation", () => {
-  it("§7.1 includes every Core primary destination (plus Utilities as /more)", () => {
+  it("§7.1 includes every Core primary destination (plus Tools as /more)", () => {
     for (const href of CORE_PRIMARY_HREFS) {
       const item = primaryByHref(href);
       expect(item, `missing primary nav item for ${href}`).toBeTruthy();
@@ -76,5 +76,14 @@ describe("refinement §7 navigation", () => {
       expect(childHrefs.has(href)).toBe(true);
       expect(primaryByHref(href)).toBeTruthy();
     }
+  });
+
+  it("classifies Work as a workflow area, not a monitor surface", () => {
+    const work = NAV_ITEMS.find((i) => i.href === "/work");
+    const dashboard = NAV_ITEMS.find((i) => i.href === "/dashboard");
+    const settings = NAV_ITEMS.find((i) => i.href === "/settings");
+    expect(work && getWorkflowAreaForNavItem(work)).toBe("workflows");
+    expect(dashboard && getWorkflowAreaForNavItem(dashboard)).toBe("monitor");
+    expect(settings && getWorkflowAreaForNavItem(settings)).toBe("workspace");
   });
 });

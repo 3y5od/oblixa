@@ -93,10 +93,7 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_minmax(0,28rem)]">
         <section className="ui-card-hero hidden min-h-[44rem] overflow-hidden p-10 lg:flex lg:flex-col lg:justify-between">
           <div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_76%,transparent)] px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
-            >
+            <Link href="/" className="ui-btn-ghost inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm">
               <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
               Back to home
             </Link>
@@ -116,10 +113,7 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
               "Renewals, exceptions, and tasks",
               "Workspace-gated advanced and assurance surfaces",
             ].map((item) => (
-              <div
-                key={item}
-                className="rounded-[1.25rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_76%,white)] px-4 py-4 text-sm font-medium text-[var(--text-secondary)] shadow-[var(--shadow-1)]"
-              >
+              <div key={item} className="ui-support-panel px-4 py-4 text-sm font-medium text-[var(--text-secondary)]">
                 {item}
               </div>
             ))}
@@ -129,27 +123,28 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
           <nav className="mb-5 flex justify-center lg:hidden" aria-label="Site">
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center gap-2 rounded-[0.95rem] px-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_66%,transparent)] hover:text-[var(--text-primary)]"
+              className="ui-btn-ghost inline-flex min-h-10 items-center gap-2 px-2 text-sm"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
               Back to home
             </Link>
           </nav>
           <div className="mb-8 text-center sm:mb-9">
-            <Link
-              href="/"
-              className="inline-block text-2xl font-bold tracking-tight text-[var(--text-primary)] no-underline transition-opacity hover:opacity-85 sm:text-3xl"
-            >
-              Oblixa
+            <Link href="/" className="inline-flex items-center gap-3 no-underline transition-opacity hover:opacity-85">
+              <span className="ui-avatar-tile h-10 w-10 text-[var(--accent-fg)] shadow-[var(--shadow-2)] [background:linear-gradient(180deg,color-mix(in_oklab,var(--accent)_76%,white),var(--accent-strong))]">
+                O
+              </span>
+              <span className="text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">Oblixa</span>
             </Link>
-            <h1 className="mx-auto mt-4 max-w-[28ch] text-pretty text-lg font-medium leading-snug text-[var(--text-secondary)] sm:mt-5 sm:text-xl">
+            <p className="ui-eyebrow mt-4">Workspace access</p>
+            <h1 className="mx-auto mt-3 max-w-[28ch] text-pretty text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:mt-4 sm:text-[2rem]">
               {c.title}
             </h1>
           </div>
 
-          <div className="ui-card p-7 shadow-[var(--shadow-2)] sm:p-9">
+          <div className="ui-page-shell p-7 shadow-[var(--shadow-2)] sm:p-9">
             <form action={action} className="space-y-5">
-              <div className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_66%,transparent)] px-3.5 py-3 text-[12px] text-[var(--text-secondary)]">
+              <div className="ui-surface-tint px-3.5 py-3 text-[12px] text-[var(--text-secondary)]">
                 Workspace sign-in keeps post-signature execution, approvals, and reminders scoped to your organization.
               </div>
               {urlBanner && (

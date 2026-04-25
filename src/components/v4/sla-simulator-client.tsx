@@ -27,7 +27,7 @@ export function SlaSimulatorClient() {
         for illustration only.
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="text-xs font-medium text-zinc-600">
+        <label className="text-xs font-medium text-[var(--text-secondary)]">
           SLA hours
           <input
             type="number"
@@ -38,7 +38,7 @@ export function SlaSimulatorClient() {
             className="ui-input mt-1 w-full"
           />
         </label>
-        <label className="text-xs font-medium text-zinc-600">
+        <label className="text-xs font-medium text-[var(--text-secondary)]">
           Requested at
           <input
             type="datetime-local"
@@ -47,7 +47,7 @@ export function SlaSimulatorClient() {
             className="ui-input mt-1 w-full"
           />
         </label>
-        <label className="text-xs font-medium text-zinc-600 sm:col-span-2">
+        <label className="text-xs font-medium text-[var(--text-secondary)] sm:col-span-2">
           Path mode
           <select
             value={pathMode}
@@ -60,7 +60,7 @@ export function SlaSimulatorClient() {
         </label>
       </div>
       {breachAt ? (
-        <p className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-800">
+        <p className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-sm text-[var(--text-primary)]">
           Estimated breach / escalation review at{" "}
           <span className="font-semibold">{format(breachAt, "MMM d, yyyy h:mm a")}</span>
         </p>

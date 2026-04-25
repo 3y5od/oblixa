@@ -24,19 +24,19 @@ export default async function ApprovalWorkloadPage() {
   const sortedApprovers = [...byApprover.entries()].sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="space-y-8">
+    <div className="ui-page-stack">
       <header className="ui-page-header">
         <div>
           <p className="ui-eyebrow">Approvals</p>
           <h1 className="ui-display-title mt-2">Approval workload</h1>
-          <p className="ui-muted mt-3">Pending approvals grouped by current approver.</p>
+          <p className="ui-page-lead mt-3">Pending approvals grouped by current approver.</p>
           <Link href="/contracts/approvals" className="ui-link mt-3 inline-block text-sm">
             ← Back to approvals
           </Link>
         </div>
       </header>
 
-      <section className="space-y-3">
+      <section className="ui-page-shell space-y-3">
         <div>
           <p className="ui-eyebrow">Load</p>
           <h2 className="ui-section-title mt-2 text-xl">Workload signals</h2>
@@ -66,18 +66,18 @@ export default async function ApprovalWorkloadPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
           <p className="ui-eyebrow">Owners</p>
           <h2 className="ui-section-title mt-1 text-base">By approver</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {sortedApprovers.length === 0 ? (
-            <li className="px-5 py-4 text-sm text-zinc-500">No pending approvals.</li>
+            <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No pending approvals.</li>
           ) : (
             sortedApprovers.map(([approverId, count]) => (
               <li key={approverId} className="flex items-center justify-between px-5 py-3 text-sm">
-                <span className="text-zinc-700">{approverId === "unassigned" ? "Unassigned" : approverId}</span>
-                <span className="font-semibold text-zinc-900">{count}</span>
+                <span className="text-[var(--text-secondary)]">{approverId === "unassigned" ? "Unassigned" : approverId}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{count}</span>
               </li>
             ))
           )}
@@ -85,13 +85,13 @@ export default async function ApprovalWorkloadPage() {
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-zinc-50/60 px-5 py-3">
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
           <p className="ui-eyebrow">Queue</p>
           <h2 className="ui-section-title mt-1 text-base">Oldest due first</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)] p-3">
           {(pending ?? []).length === 0 ? (
-            <li className="px-2 py-4 text-sm text-zinc-500">No pending approvals.</li>
+            <li className="px-2 py-4 text-sm text-[var(--text-tertiary)]">No pending approvals.</li>
           ) : (
             (pending ?? []).map((row) => {
               const c = row.contracts as { id?: string; title?: string } | null;

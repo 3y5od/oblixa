@@ -91,7 +91,7 @@ export default async function SettingsPage() {
         <div className="min-w-0">
           <p className="ui-eyebrow">Workspace</p>
           <h1 className="ui-display-title mt-2">Settings</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
+          <p className="ui-page-lead mt-3 max-w-2xl">
             Profile, organization, team access, and operational controls for the workspace.
           </p>
         </div>
@@ -133,12 +133,13 @@ export default async function SettingsPage() {
         </div>
       </header>
 
-      <section className="ui-card overflow-hidden">
+      <section className="ui-page-shell overflow-hidden">
         <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-6 py-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <div className="min-w-0">
               <p className="ui-eyebrow">You</p>
               <h2 className="ui-section-title mt-1 text-base">Profile</h2>
+              <p className="ui-support-copy mt-1">Keep your identity and notification-facing profile details accurate before you change workspace-wide controls.</p>
             </div>
             <p className="shrink-0 text-[12px] text-[var(--text-secondary)] sm:pt-0.5 sm:text-right">
               Joined{" "}
@@ -157,11 +158,12 @@ export default async function SettingsPage() {
       </section>
 
       {membership && (
-        <section className="ui-card overflow-hidden">
+        <section className="ui-page-shell overflow-hidden">
           <div className="flex flex-col gap-2 border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="min-w-0">
               <p className="ui-eyebrow">Workspace</p>
               <h2 className="ui-section-title mt-1 text-base">Organization</h2>
+              <p className="ui-support-copy mt-1">Treat this as the workspace architecture layer: organization identity, member access, invite flow, and admin-only bootstrapping.</p>
             </div>
             <span className="inline-flex w-fit shrink-0 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
               {roleLabels[membership.role] || membership.role}
@@ -189,7 +191,7 @@ export default async function SettingsPage() {
                       <th className="ui-table-header px-4 py-3">Role</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-200/70">
+                  <tbody className="divide-y divide-[var(--border-subtle)]/70">
                     {members.map((m) => (
                       <tr key={m.id} className="ui-table-row">
                         <td className="px-4 py-2.5 text-sm font-medium text-[var(--text-primary)]">

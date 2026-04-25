@@ -24,7 +24,14 @@ const nextConfig: NextConfig = {
     ? { env: { NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease } }
     : {}),
   poweredByHeader: false,
-  serverExternalPackages: ["pdf-parse", "mammoth"],
+  serverExternalPackages: [
+    "@react-pdf/renderer",
+    "mammoth",
+    "openai",
+    "pdf-parse",
+    "resend",
+    "stripe",
+  ],
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   experimental: {
     optimizePackageImports: ["lucide-react", "date-fns", "clsx"],

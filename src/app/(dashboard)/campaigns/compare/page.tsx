@@ -68,11 +68,11 @@ export default async function CampaignComparePage(props: {
   const simEligibility = Number(simInput.eligible_contracts ?? 0);
 
   return (
-    <div className="space-y-8">
-      <header className="border-b border-zinc-200/60 pb-8">
+    <div className="ui-page-stack">
+      <header className="ui-page-header">
         <p className="ui-eyebrow">Compare view</p>
         <h1 className="ui-display-title mt-2">Campaign and simulation compare</h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-500">
+        <p className="ui-page-lead mt-3 max-w-2xl">
           Review side-by-side output before promoting simulation assumptions into live campaign execution.
         </p>
       </header>
@@ -80,7 +80,7 @@ export default async function CampaignComparePage(props: {
       <section className="ui-card p-5">
         <p className="ui-label-caps">Pick items</p>
         <form className="mt-4 grid gap-4 md:grid-cols-3" method="get" action="/campaigns/compare">
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">
             Campaign A
             <select name="campaignA" className="ui-input-compact mt-1 w-full" defaultValue={campaignA ?? ""}>
               <option value="">—</option>
@@ -91,7 +91,7 @@ export default async function CampaignComparePage(props: {
               ))}
             </select>
           </label>
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">
             Campaign B
             <select name="campaignB" className="ui-input-compact mt-1 w-full" defaultValue={campaignB ?? ""}>
               <option value="">—</option>
@@ -102,7 +102,7 @@ export default async function CampaignComparePage(props: {
               ))}
             </select>
           </label>
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">
             Simulation
             <select name="simulationId" className="ui-input-compact mt-1 w-full" defaultValue={simulationId ?? ""}>
               <option value="">—</option>
@@ -167,56 +167,56 @@ export default async function CampaignComparePage(props: {
         <article className="ui-card p-5">
           <p className="ui-label-caps">Campaign A</p>
           {campaignOne.data ? (
-            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-600">
-              <dt className="font-semibold text-zinc-800">Type</dt>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
+              <dt className="font-semibold text-[var(--text-primary)]">Type</dt>
               <dd>{campaignOne.data.campaign_type}</dd>
-              <dt className="font-semibold text-zinc-800">Status</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Status</dt>
               <dd>{campaignOne.data.status}</dd>
-              <dt className="font-semibold text-zinc-800">Pending</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Pending</dt>
               <dd>{aPending}</dd>
-              <dt className="font-semibold text-zinc-800">Processed</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Processed</dt>
               <dd>{aProcessed}</dd>
             </dl>
           ) : null}
-          <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(campaignOne.data ?? { message: "Select campaign A above" }, null, 2)}
           </pre>
         </article>
         <article className="ui-card p-5">
           <p className="ui-label-caps">Campaign B</p>
           {campaignTwo.data ? (
-            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-600">
-              <dt className="font-semibold text-zinc-800">Type</dt>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
+              <dt className="font-semibold text-[var(--text-primary)]">Type</dt>
               <dd>{campaignTwo.data.campaign_type}</dd>
-              <dt className="font-semibold text-zinc-800">Status</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Status</dt>
               <dd>{campaignTwo.data.status}</dd>
-              <dt className="font-semibold text-zinc-800">Pending</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Pending</dt>
               <dd>{bPending}</dd>
-              <dt className="font-semibold text-zinc-800">Processed</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Processed</dt>
               <dd>{bProcessed}</dd>
             </dl>
           ) : null}
-          <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(campaignTwo.data ?? { message: "Select campaign B above" }, null, 2)}
           </pre>
         </article>
         <article className="ui-card p-5">
           <p className="ui-label-caps">Simulation</p>
           {simulation.data ? (
-            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-600">
-              <dt className="font-semibold text-zinc-800">Type</dt>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
+              <dt className="font-semibold text-[var(--text-primary)]">Type</dt>
               <dd>{simulation.data.simulation_type}</dd>
-              <dt className="font-semibold text-zinc-800">Eligible contracts</dt>
+              <dt className="font-semibold text-[var(--text-primary)]">Eligible contracts</dt>
               <dd>{simEligibility}</dd>
             </dl>
           ) : null}
-          <pre className="mt-3 overflow-x-auto rounded-xl bg-zinc-50 p-3 text-xs text-zinc-700">
+          <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
             {JSON.stringify(simulation.data ?? { message: "Select a simulation above" }, null, 2)}
           </pre>
         </article>
       </section>
 
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-[var(--text-tertiary)]">
         <Link href="/campaigns" className="ui-link">
           Back to campaigns
         </Link>

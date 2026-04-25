@@ -70,26 +70,26 @@ export function RelationshipTimelineCard({
     if (events === null) {
       return (
         <div className="mt-3">
-          <p className="text-xs font-semibold text-zinc-700">{title}</p>
-          <p className="mt-1 text-xs text-zinc-500">Loading…</p>
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">{title}</p>
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">Loading…</p>
         </div>
       );
     }
     return (
       <div className="mt-3">
-        <p className="text-xs font-semibold text-zinc-700">
+        <p className="text-xs font-semibold text-[var(--text-secondary)]">
           <Link href={href} className="ui-link">
             {title}
           </Link>
         </p>
         {events.length === 0 ? (
-          <p className="mt-1 text-xs text-zinc-500">No timeline events yet.</p>
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">No timeline events yet.</p>
         ) : (
-          <ul className="mt-2 space-y-2 text-xs text-zinc-600">
+          <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
             {events.slice(0, 8).map((e) => (
-              <li key={e.id} className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-2 py-1.5">
-                <p className="font-medium text-zinc-800">{e.event_type}</p>
-                <p className="text-[10px] text-zinc-500">{new Date(e.event_at).toLocaleString()}</p>
+              <li key={e.id} className="ui-soft-details px-2 py-1.5">
+                <p className="font-medium text-[var(--text-primary)]">{e.event_type}</p>
+                <p className="text-[10px] text-[var(--text-tertiary)]">{new Date(e.event_at).toLocaleString()}</p>
               </li>
             ))}
           </ul>
@@ -106,7 +106,7 @@ export function RelationshipTimelineCard({
         Recent events from account and counterparty workspaces (same data as summary APIs).
       </p>
       {error ? (
-        <p className="mt-2 text-xs text-rose-700" role="alert">
+        <p className="ui-alert-error mt-2 text-xs" role="alert">
           {error}
         </p>
       ) : null}

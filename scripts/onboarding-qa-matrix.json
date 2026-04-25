@@ -46,6 +46,7 @@
     "src/lib/onboarding/calibration-zod-type-parity.test.ts",
     "src/lib/onboarding/onboarding-acceptance.test.ts",
     "src/lib/onboarding/onboarding-banner-checklist-order.test.ts",
+    "src/lib/onboarding/onboarding-banner-checklist-order.v9.test.ts",
     "src/lib/onboarding/onboarding-calibration-export-shape.test.ts",
     "src/lib/onboarding/onboarding-calibration-json-version.test.ts",
     "src/lib/onboarding/onboarding-calibration-rate-limit-surface.test.ts",

@@ -6,7 +6,7 @@ export type RouteInventoryEntry = {
   /** App Router path pattern (no query). */
   pattern: string;
   tier: RouteInventoryTier;
-  /** docs/refinement.md §10 subsection reference. */
+  /** product-surface policy §10 subsection reference. */
   refinementRef: string;
 };
 
@@ -44,6 +44,7 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   { pattern: "/decisions/compare", tier: "advanced", refinementRef: "§10.2" },
   { pattern: "/decisions/review", tier: "advanced", refinementRef: "§10.2" },
   { pattern: "/contracts/programs", tier: "advanced", refinementRef: "§10.2" },
+  { pattern: "/contracts/analytics", tier: "advanced", refinementRef: "§10.2" },
   { pattern: "/relationship-workspaces", tier: "advanced", refinementRef: "§10.2" },
   { pattern: "/accounts/[key]", tier: "advanced", refinementRef: "§10.2" },
   { pattern: "/counterparties/[key]", tier: "advanced", refinementRef: "§10.2" },
@@ -61,7 +62,6 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   { pattern: "/assurance/program-evolution", tier: "assurance", refinementRef: "§10.3" },
   { pattern: "/assurance/health-graph", tier: "assurance", refinementRef: "§10.3" },
   // §10.4 Utility
-  { pattern: "/contracts/analytics", tier: "utility", refinementRef: "§10.4" },
   { pattern: "/contracts/maintenance", tier: "utility", refinementRef: "§10.4" },
   { pattern: "/contracts/intake", tier: "utility", refinementRef: "§10.4" },
   { pattern: "/contracts/data-quality", tier: "utility", refinementRef: "§10.4" },
@@ -109,7 +109,7 @@ export function inventoryTierForPath(pathname: string): RouteInventoryTier | nul
 }
 
 /**
- * Minimum workspace mode implied by **inventory tier** metadata (docs/refinement.md §10).
+ * Minimum workspace mode implied by **inventory tier** metadata (product-surface policy §10).
  * §10.4 utility routes are **not** Advanced-mode requirements: Core admins may open them; Core
  * non-admins are redirected by `assertCoreUtilitySurfaceOrRedirect` (see `utility-surface.test.ts`).
  */

@@ -9,6 +9,7 @@ import {
   deleteContractObligation,
   updateContractObligation,
 } from "@/actions/obligations";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractObligation, ContractObligationStatus } from "@/lib/types";
 import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
@@ -42,7 +43,7 @@ const STATUS_OPTIONS: { value: ContractObligationStatus; label: string }[] = [
 
 function statusTone(status: ContractObligationStatus): string {
   if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "waived") return "border-zinc-200 bg-zinc-100 text-zinc-700";
+  if (status === "waived") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
@@ -104,7 +105,7 @@ export function ContractObligationsPanel({
         ownerId: String(formData.get("ownerId") ?? ""),
       });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -117,7 +118,7 @@ export function ContractObligationsPanel({
     startTransition(async () => {
       const res = await updateContractObligation({ obligationId: id, status });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -130,7 +131,7 @@ export function ContractObligationsPanel({
     startTransition(async () => {
       const res = await deleteContractObligation(id);
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -146,7 +147,7 @@ export function ContractObligationsPanel({
         ownerId: ownerId || null,
       });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -190,7 +191,7 @@ export function ContractObligationsPanel({
         evidenceNotes: evidenceNotes || null,
       });
       if ("error" in res && res.error) {
-        setError(res.error);
+        setError(describeRecoverableMutationError(res.error));
         return;
       }
       router.refresh();
@@ -200,7 +201,7 @@ export function ContractObligationsPanel({
   return (
     <div className="space-y-4">
       {canEdit && (
-        <form action={onCreate} className="grid gap-3 rounded-xl border border-zinc-200/80 bg-zinc-50/40 p-4">
+        <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="ui-label-caps">Obligation</label>
@@ -293,7 +294,7 @@ export function ContractObligationsPanel({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-xs text-zinc-500">Obligations track non-date commitments tied to this contract.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Obligations track non-date commitments tied to this contract.</p>
             <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
               {isPending ? "Saving..." : "Add obligation"}
             </button>
@@ -311,27 +312,27 @@ export function ContractObligationsPanel({
       {error && <p className="text-sm text-rose-700">{error}</p>}
 
       {obligations.length === 0 ? (
-        <p className="text-sm text-zinc-500">No obligations recorded yet.</p>
+        <p className="text-sm text-[var(--text-tertiary)]">No obligations recorded yet.</p>
       ) : (
         <ul className="space-y-3">
           {obligations.map((ob) => (
-            <li key={ob.id} className="rounded-xl border border-zinc-200/80 bg-surface p-4">
+            <li key={ob.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-900">{ob.title}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{ob.title}</p>
                   {ob.details && (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-600">{ob.details}</p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--text-secondary)]">{ob.details}</p>
                   )}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                     <span className={`rounded-full border px-2 py-0.5 font-medium ${statusTone(ob.status)}`}>
                       {ob.status.replace("_", " ")}
                     </span>
-                    <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-zinc-700">
+                    <span className="rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-2 py-0.5 text-[var(--text-secondary)]">
                       {ob.obligation_type}
                     </span>
-                    {ob.cadence && <span className="text-zinc-500">Cadence: {ob.cadence}</span>}
+                    {ob.cadence && <span className="text-[var(--text-tertiary)]">Cadence: {ob.cadence}</span>}
                     {ob.recurrence_type && ob.recurrence_type !== "none" && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Recurs: {ob.recurrence_type}
                         {ob.recurrence_type === "custom_days" && ob.recurrence_interval_days
                           ? ` (${ob.recurrence_interval_days}d)`
@@ -339,12 +340,12 @@ export function ContractObligationsPanel({
                       </span>
                     )}
                     {ob.owner_id && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Owner: {labelByUserId.get(ob.owner_id) ?? "Member"}
                       </span>
                     )}
                     {ob.due_date && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Due {format(new Date(`${ob.due_date}T12:00:00`), "MMM d, yyyy")}
                       </span>
                     )}
@@ -354,7 +355,7 @@ export function ContractObligationsPanel({
                       </span>
                     )}
                     {ob.next_due_date && (
-                      <span className="text-zinc-500">
+                      <span className="text-[var(--text-tertiary)]">
                         Next due {format(new Date(`${ob.next_due_date}T12:00:00`), "MMM d, yyyy")}
                       </span>
                     )}
@@ -365,10 +366,10 @@ export function ContractObligationsPanel({
                     )}
                   </div>
                   {ob.evidence_notes && (
-                    <p className="mt-2 text-xs text-zinc-500">Evidence: {ob.evidence_notes}</p>
+                    <p className="mt-2 text-xs text-[var(--text-tertiary)]">Evidence: {ob.evidence_notes}</p>
                   )}
                   {ob.evidence_url && (
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       Evidence link:{" "}
                       <a
                         href={ob.evidence_url}
@@ -414,7 +415,7 @@ export function ContractObligationsPanel({
                         .filter((event) => event.obligation_id === ob.id)
                         .slice(0, 4)
                         .map((event) => (
-                          <li key={event.id} className="text-[11px] text-zinc-500">
+                          <li key={event.id} className="text-[11px] text-[var(--text-tertiary)]">
                             {event.event_type.replace(/_/g, " ")} ·{" "}
                             {format(new Date(event.created_at), "MMM d, h:mm a")}
                           </li>

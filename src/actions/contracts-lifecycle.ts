@@ -10,6 +10,7 @@ import { canEditContracts } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
+import { emitProductTelemetryIfFirstInOrganization } from "@/lib/product-telemetry";
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   draft: ["pending_review"],
@@ -129,6 +130,16 @@ export async function updateContractStatus(
     entityId: contractId,
     payload: { old_status: contract.status, new_status: newStatus },
   });
+
+  if (newStatus === "active" && currentStatus === "pending_review") {
+    await emitProductTelemetryIfFirstInOrganization(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId,
+      action: "product.v9.first_review_completed",
+      details: { from: "pending_review", to: "active" },
+    });
+  }
 
   if (newStatus === "active") {
     await applyContractTemplatePack(contractId);

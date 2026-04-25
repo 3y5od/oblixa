@@ -55,13 +55,13 @@ export function SettingsProductCalibrationExport(props: { orgFingerprint: string
   return (
     <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
       <p className="ui-label-caps">Support export</p>
-      <p className="ui-muted-tight mt-2 text-[13px] text-zinc-700">
+      <p className="ui-muted-tight mt-2 text-[13px] text-[var(--text-secondary)]">
         Download a JSON file with the workspace questionnaire record for troubleshooting. Only workspace
         admins can export; the file is generated on the server for the current organization.
       </p>
       <button
         type="button"
-        className="ui-btn-secondary mt-3 min-h-9 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2"
+        className="ui-btn-secondary mt-3 min-h-9 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
         onClick={onExport}
         disabled={isPending}
         aria-busy={isPending}
@@ -69,7 +69,7 @@ export function SettingsProductCalibrationExport(props: { orgFingerprint: string
       >
         {isPending ? "Preparing export…" : "Export questionnaire JSON"}
       </button>
-      <p className="ui-muted-tight mt-2 min-h-[1.25rem] text-[13px] text-zinc-700" aria-live="polite">
+      <p className="ui-muted-tight mt-2 min-h-[1.25rem] text-[13px] text-[var(--text-secondary)]" aria-live="polite">
         {message ?? "\u00a0"}
       </p>
     </div>

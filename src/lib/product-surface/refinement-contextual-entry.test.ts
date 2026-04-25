@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/refinement.md §14 — tripwire: contextual entry surfaces keep cross-links described in refinement-trace.
+ * product-surface policy §14 — tripwire: contextual entry surfaces keep cross-links described in refinement-trace.
  */
 const CONTRACT_DETAIL = "src/app/(dashboard)/contracts/[id]/page.tsx";
 const PROGRAMS = "src/app/(dashboard)/contracts/programs/page.tsx";

@@ -71,6 +71,11 @@ const API_EXEMPT_RULES: V8ExemptSurfaceRule[] = [
 const ACTION_EXEMPT_RULES: Array<{ class: V8ExemptSurfaceClass; filePrefix: string; reason: string }> = [
   { class: "auth_entry", filePrefix: "auth", reason: "Authentication/account actions" },
   { class: "infra_utility", filePrefix: "demo", reason: "Demo/test utility action module" },
+  {
+    class: "health_instrumentation",
+    filePrefix: "product-telemetry",
+    reason: "Allowlisted product telemetry (audit_events only)",
+  },
 ];
 
 function normalize(pathname: string): string {

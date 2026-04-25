@@ -4,7 +4,7 @@ export default async function ExternalActionPage(props: { params: Promise<{ toke
   const { token } = await props.params;
 
   return (
-    <div className="min-h-screen bg-canvas px-4 py-16">
+    <div className="flex min-h-full flex-1 items-center justify-center px-4 py-12 sm:px-6 sm:py-16">
       <ExternalSubmitForm token={token} />
     </div>
   );

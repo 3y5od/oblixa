@@ -10,19 +10,26 @@ import {
   isExtractionProcessingStale,
   MAX_EXTRACTION_ATTEMPTS,
 } from "@/lib/extraction/constants";
+import { formatRelativeSampleAge } from "@/lib/v9-data-freshness";
 
 interface ExtractionJobAlertProps {
   job: ContractExtractionJob | null;
+  fieldsCount?: number;
+  pendingFieldsCount?: number;
 }
 
 const EXTRACTION_POLL_MS = 3000;
 
-export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
+export function ExtractionJobAlert({
+  job,
+  fieldsCount = 0,
+  pendingFieldsCount = 0,
+}: ExtractionJobAlertProps) {
   const router = useRouter();
   const kickRefreshDone = useRef(false);
 
   useEffect(() => {
-    if (job?.status !== "processing") {
+    if (job?.status !== "processing" && job?.status !== "pending") {
       kickRefreshDone.current = false;
       return;
     }
@@ -41,7 +48,7 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
   }, [job?.status, router]);
 
   useEffect(() => {
-    if (job?.status !== "processing") return;
+    if (job?.status !== "processing" && job?.status !== "pending") return;
     if (kickRefreshDone.current) return;
     kickRefreshDone.current = true;
     const t = window.setTimeout(() => router.refresh(), 600);
@@ -49,6 +56,36 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
   }, [job?.status, job?.started_at, router]);
 
   if (!job) return null;
+
+  const jobFreshness = formatRelativeSampleAge(job.updated_at);
+  const completedLabel = job.completed_at
+    ? formatDistanceToNow(new Date(job.completed_at), { addSuffix: true })
+    : null;
+
+  if (job.status === "pending") {
+    return (
+      <div
+        className="ui-alert-info mb-4"
+        role="status"
+        aria-live="polite"
+      >
+        <p className="font-medium">Extraction queued</p>
+        <p className="mt-1">
+          The request has been accepted and is waiting for a worker pickup. This page refreshes while the run
+          starts, or use the button below if you want to check again now.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.refresh()}
+          className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs"
+        >
+          <RefreshCw size={14} aria-hidden />
+          Refresh now
+        </button>
+        {jobFreshness ? <p className="mt-2 text-[11px] opacity-80">{jobFreshness}</p> : null}
+      </div>
+    );
+  }
 
   if (job.status === "processing") {
     const stale = isExtractionProcessingStale(job.started_at);
@@ -60,16 +97,14 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
       <div
         className={
           stale
-            ? "mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-            : "mb-4 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-950"
+            ? "ui-alert-warning mb-4"
+            : "ui-alert-info mb-4"
         }
         role="status"
         aria-live="polite"
       >
-        <p className={`font-medium ${stale ? "text-amber-900" : "text-violet-900"}`}>
-          {stale ? "Extraction may be stuck" : "Extraction in progress"}
-        </p>
-        <p className={`mt-1 ${stale ? "text-amber-900/95" : "text-violet-900/90"}`}>
+        <p className="font-medium">{stale ? "Extraction may be stuck" : "Extraction in progress"}</p>
+        <p className="mt-1">
           {stale ? (
             <>
               No completion after{" "}
@@ -93,15 +128,52 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
         <button
           type="button"
           onClick={() => router.refresh()}
-          className={
-            stale
-              ? "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-amber-950 transition-colors hover:bg-amber-100/60"
-              : "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-violet-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-violet-900 transition-colors hover:bg-violet-100/60"
-          }
+          className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs"
         >
           <RefreshCw size={14} aria-hidden />
           Refresh now
         </button>
+        {jobFreshness ? <p className="mt-2 text-[11px] opacity-80">{jobFreshness}</p> : null}
+      </div>
+    );
+  }
+
+  if (job.status === "succeeded") {
+    const needsReview = pendingFieldsCount > 0;
+    const noFieldsExtracted = fieldsCount === 0;
+
+    return (
+      <div
+        className={
+          noFieldsExtracted
+            ? "ui-alert-warning mb-4"
+            : needsReview
+              ? "ui-alert-success mb-4"
+              : "ui-alert-success mb-4"
+        }
+        role="status"
+        aria-live="polite"
+      >
+        <p className="font-medium">
+          {noFieldsExtracted ? "Extraction completed with no reviewable fields" : "Extraction completed"}
+        </p>
+        <p className="mt-1">
+          {noFieldsExtracted
+            ? "No fields were extracted from the current source set. Re-attach clearer or more complete signed files, then run extraction again."
+            : needsReview
+              ? `${pendingFieldsCount} of ${fieldsCount} extracted field${fieldsCount === 1 ? " is" : "s are"} still waiting for review before reminders and downstream workflow rely on them.`
+              : `${fieldsCount} extracted field${fieldsCount === 1 ? " is" : "s are"} available and no items are currently waiting for review.`}
+          {completedLabel ? ` Completed ${completedLabel}.` : ""}
+        </p>
+        <button
+          type="button"
+          onClick={() => router.refresh()}
+          className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs"
+        >
+          <RefreshCw size={14} aria-hidden />
+          Refresh status
+        </button>
+        {jobFreshness ? <p className="mt-2 text-[11px] opacity-80">{jobFreshness}</p> : null}
       </div>
     );
   }
@@ -109,23 +181,25 @@ export function ExtractionJobAlert({ job }: ExtractionJobAlertProps) {
   if (job.status === "failed") {
     return (
       <div
-        className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950"
+        className="ui-alert-error mb-4"
         role="alert"
       >
-        <p className="font-medium text-red-900">Last extraction failed</p>
-        <p className="mt-1 text-red-800">{job.last_error || "Unknown error"}</p>
-        <p className="mt-2 text-xs text-red-800">
+        <p className="font-medium">Last extraction failed</p>
+        <p className="mt-1">{job.last_error || "Unknown error"}</p>
+        <p className="mt-2 text-xs">
           Attempt {job.attempt_count} of {MAX_EXTRACTION_ATTEMPTS}. Fix any issues above, then use
           &ldquo;Extract fields with AI&rdquo; to retry.
+          {completedLabel ? ` Last failure ${completedLabel}.` : ""}
         </p>
         <button
           type="button"
           onClick={() => router.refresh()}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-300/80 bg-surface px-3 py-1.5 text-xs font-medium text-red-900 transition-colors hover:bg-red-100/50"
+          className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs"
         >
           <RefreshCw size={14} aria-hidden />
           Refresh status
         </button>
+        {jobFreshness ? <p className="mt-2 text-[11px] opacity-80">{jobFreshness}</p> : null}
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 type ProgramDefinition = {
   /** UUIDs of org evidence templates; first template is attached to each generated obligation. */
@@ -267,6 +268,17 @@ export async function applyProgramToContract(input: {
             .update({ evidence_requirement_id: reqRow.id })
             .eq("id", row.id)
             .eq("organization_id", input.organizationId);
+          await emitProductTelemetryEvent(input.admin, {
+            organizationId: input.organizationId,
+            userId: input.actorUserId,
+            contractId: input.contractId,
+            action: "product.v9.evidence_requested",
+            details: {
+              requirementId: reqRow.id,
+              workItemType: "obligation",
+              obligationId: row.id,
+            },
+          });
         }
       }
     }

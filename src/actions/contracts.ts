@@ -1,6 +1,12 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import {
+  emitProductTelemetryEvent,
+  emitProductTelemetryIfFirstInOrganization,
+  emitProductTelemetryIfFirstForOrgUser,
+  emitVisibleMutationErrorTelemetry,
+} from "@/lib/product-telemetry";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { FIELD_NAMES } from "@/lib/types";
 import {
@@ -51,7 +57,22 @@ const MAX_EXTERNAL_REF_LEN = 160;
 const MAX_REGION_LEN = 40;
 const MAX_ANNUAL_VALUE = 999999999999.99;
 
-export async function createContract(formData: FormData) {
+type CreateContractResult =
+  | { error: string }
+  | {
+      ok: true;
+      contractId: string;
+      redirectTo: string;
+      uploadSummary: {
+        attemptedFiles: number;
+        uploadedFiles: number;
+        skippedInvalidFiles: number;
+        failedUploadFiles: number;
+      };
+      extractionStatus: "queued" | "not_available" | "skipped_no_files";
+    };
+
+export async function createContract(formData: FormData): Promise<CreateContractResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -104,6 +125,11 @@ export async function createContract(formData: FormData) {
   const writeErr = await requireWriteAccess(admin, user.id, organizationId);
   if (writeErr) return writeErr;
 
+  const { count: contractsBeforeCreate } = await admin
+    .from("contracts")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId);
+
   const files = formData.getAll("files") as File[];
   const attemptedFiles = files.filter((f) => f.size > 0);
   const validFiles = attemptedFiles.filter((f) => {
@@ -111,6 +137,7 @@ export async function createContract(formData: FormData) {
     if (!ALLOWED_TYPES.has(f.type)) return false;
     return true;
   });
+  const skippedInvalidFiles = attemptedFiles.length - validFiles.length;
   if (attemptedFiles.length > 0 && validFiles.length === 0) {
     return {
       error:
@@ -132,10 +159,13 @@ export async function createContract(formData: FormData) {
       intake_status: "awaiting_review",
       intake_owner_id: user.id,
       intake_source: sourceSystem || "manual",
-      intake_completeness_score: 35,
+      intake_completeness_score: validFiles.length > 0 ? 35 : 15,
       intake_last_scored_at: new Date().toISOString(),
       health_status: "unknown",
-      required_next_step: "Complete extraction review",
+      required_next_step:
+        validFiles.length > 0
+          ? "Confirm uploaded files, then review extraction results"
+          : "Upload at least one signed source document",
       source_system: sourceSystem || null,
       region: region || null,
       annual_value: annualValue,
@@ -146,7 +176,7 @@ export async function createContract(formData: FormData) {
 
   if (error) return { error: mapDataSourceError(error.message) };
 
-  await Promise.all(
+  const uploadResults = await Promise.all(
     validFiles.map(async (file) => {
       const safeName = sanitizeUploadedFileName(file.name);
       const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
@@ -157,10 +187,14 @@ export async function createContract(formData: FormData) {
 
       if (uploadError) {
         console.error("Upload error:", uploadError.message);
-        return;
+        return {
+          ok: false as const,
+          fileName: safeName,
+          reason: uploadError.message,
+        };
       }
 
-      await admin.from("contract_files").insert({
+      const { error: fileInsertError } = await admin.from("contract_files").insert({
         contract_id: contract.id,
         file_name: safeName,
         file_type: file.type,
@@ -168,8 +202,42 @@ export async function createContract(formData: FormData) {
         storage_path: storagePath,
         uploaded_by: user.id,
       });
+
+      if (fileInsertError) {
+        console.error("contract_files insert error:", fileInsertError.message);
+        return {
+          ok: false as const,
+          fileName: safeName,
+          reason: fileInsertError.message,
+        };
+      }
+
+      return {
+        ok: true as const,
+        fileName: safeName,
+      };
     })
   );
+
+  const uploadedFiles = uploadResults.filter((result) => result.ok).length;
+  const failedUploadFiles = uploadResults.length - uploadedFiles;
+
+  if (uploadedFiles === 0) {
+    await admin
+      .from("contracts")
+      .update({
+        required_next_step: "Upload at least one signed source document",
+        intake_completeness_score: 15,
+      })
+      .eq("id", contract.id);
+  } else if (failedUploadFiles > 0 || skippedInvalidFiles > 0) {
+    await admin
+      .from("contracts")
+      .update({
+        required_next_step: "Review uploaded files and re-attach any missing source documents",
+      })
+      .eq("id", contract.id);
+  }
 
   await admin.from("audit_events").insert({
     organization_id: organizationId,
@@ -210,11 +278,44 @@ export async function createContract(formData: FormData) {
     actorUserId: user.id,
   }).catch((err) => console.error("[v4] autoAttachProgramsForContract", err));
 
-  if (validFiles.length > 0 && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
-    triggerExtraction(contract.id).catch(console.error);
+  if ((contractsBeforeCreate ?? 0) === 0) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: organizationId,
+      userId: user.id,
+      contractId: contract.id,
+      action: "product.v9.first_contract_created",
+      details: { intake: validFiles.length > 0 ? "with_files" : "metadata_only" },
+    });
   }
 
-  redirect(`/contracts/${contract.id}`);
+  let extractionStatus: "queued" | "not_available" | "skipped_no_files" = "skipped_no_files";
+  if (uploadedFiles > 0 && process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder")) {
+    triggerExtraction(contract.id).catch(console.error);
+    extractionStatus = "queued";
+  } else if (uploadedFiles > 0) {
+    extractionStatus = "not_available";
+  }
+
+  const params = new URLSearchParams({
+    created: "1",
+    uploaded: String(uploadedFiles),
+    invalid: String(skippedInvalidFiles),
+    failed: String(failedUploadFiles),
+    extraction: extractionStatus,
+  });
+
+  return {
+    ok: true,
+    contractId: contract.id,
+    redirectTo: `/contracts/${contract.id}?${params.toString()}`,
+    uploadSummary: {
+      attemptedFiles: attemptedFiles.length,
+      uploadedFiles,
+      skippedInvalidFiles,
+      failedUploadFiles,
+    },
+    extractionStatus,
+  };
 }
 
 export async function updateContractField(
@@ -286,7 +387,18 @@ export async function updateContractField(
     .update(updateData)
     .eq("id", fieldId);
 
-  if (error) return { error: mapDataSourceError(error.message) };
+  if (error) {
+    const code = mapDataSourceError(error.message);
+    await emitVisibleMutationErrorTelemetry(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId: contract.id,
+      surface: "review",
+      mutation: "updateContractField",
+      code,
+    });
+    return { error: code };
+  }
 
   await admin.from("audit_events").insert({
     organization_id: contract.organization_id,
@@ -330,6 +442,31 @@ export async function updateContractField(
       .from("reminders")
       .delete()
       .eq("field_id", fieldId);
+  }
+
+  await emitProductTelemetryIfFirstForOrgUser(admin, {
+    organizationId: contract.organization_id,
+    userId: user.id,
+    contractId: contract.id,
+    action: "product.v9.review_started",
+    details: { surface: "field_review" },
+  });
+  if (action === "approved") {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId: contract.id,
+      action: "product.v9.review_item_approved",
+      details: { fieldId },
+    });
+  } else if (action === "edited") {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId: contract.id,
+      action: "product.v9.review_item_edited",
+      details: { fieldId },
+    });
   }
 
   return { success: true };
@@ -983,7 +1120,12 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     return { error: "Add at least one PDF or DOCX under 20 MB." };
   }
 
-  const { data: job } = await admin
+  const { count: contractsBeforeCreate } = await admin
+    .from("contracts")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId);
+
+  const { data: job, error: jobError } = await admin
     .from("contract_import_jobs")
     .insert({
       organization_id: organizationId,
@@ -994,6 +1136,30 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     })
     .select("id")
     .single();
+
+  if (jobError || !job) {
+    const code = mapDataSourceError(jobError?.message ?? "Could not create import job");
+    await emitVisibleMutationErrorTelemetry(admin, {
+      organizationId,
+      userId: user.id,
+      contractId: null,
+      surface: "contracts_bulk_import",
+      mutation: "bulkCreateContractsFromFiles",
+      code,
+    });
+    return { error: code };
+  }
+
+  await emitProductTelemetryEvent(admin, {
+    organizationId,
+    userId: user.id,
+    action: "product.v9.import_started",
+    details: {
+      job_row_count: validFiles.length,
+      source: "files",
+      file_count: validFiles.length,
+    },
+  });
 
   const createdIds: string[] = [];
   const rowErrors: string[] = [];
@@ -1092,25 +1258,54 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     }
   }
 
-  if (job) {
-    if (rowResults.length > 0) {
-      await admin.from("contract_import_job_rows").insert(
-        rowResults.map((row) => ({
-          job_id: job.id,
-          organization_id: organizationId,
-          ...row,
-        }))
-      );
-    }
-    await admin
-      .from("contract_import_jobs")
-      .update({
-        status: rowErrors.length === validFiles.length ? "failed" : "completed",
-        valid_rows: validFiles.length - rowErrors.length,
-        inserted_rows: createdIds.length,
-        error_rows: rowErrors.length,
-      })
-      .eq("id", job.id);
+  if (rowResults.length > 0) {
+    await admin.from("contract_import_job_rows").insert(
+      rowResults.map((row) => ({
+        job_id: job.id,
+        organization_id: organizationId,
+        ...row,
+      }))
+    );
+  }
+  await admin
+    .from("contract_import_jobs")
+    .update({
+      status: rowErrors.length === validFiles.length ? "failed" : "completed",
+      valid_rows: validFiles.length - rowErrors.length,
+      inserted_rows: createdIds.length,
+      error_rows: rowErrors.length,
+    })
+    .eq("id", job.id);
+
+  const importAction =
+    rowErrors.length === validFiles.length
+      ? "product.v9.import_failed"
+      : rowErrors.length > 0
+        ? "product.v9.import_partially_completed"
+        : "product.v9.import_completed";
+  await emitProductTelemetryEvent(admin, {
+    organizationId,
+    userId: user.id,
+    contractId: createdIds[0] ?? null,
+    action: importAction,
+    details: {
+      job_row_count: validFiles.length,
+      valid_row_count: validFiles.length - rowErrors.length,
+      inserted_row_count: createdIds.length,
+      error_row_count: rowErrors.length,
+      source: "files",
+      file_count: validFiles.length,
+    },
+  });
+
+  if ((contractsBeforeCreate ?? 0) === 0 && createdIds.length > 0) {
+    await emitProductTelemetryIfFirstInOrganization(admin, {
+      organizationId,
+      userId: user.id,
+      contractId: createdIds[0],
+      action: "product.v9.first_contract_created",
+      details: { intake: "bulk_files" },
+    });
   }
 
   return {
@@ -1240,6 +1435,82 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
   });
 
   return { success: true };
+}
+
+const BULK_OWNER_ASSIGN_CAP = 60;
+
+export async function bulkAssignContractOwners(
+  formData: FormData
+): Promise<{ error?: string; success?: true; updated?: number }> {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const rawIds = String(formData.get("contractIds") ?? "").trim();
+  const newOwnerId = String(formData.get("newOwnerId") ?? "").trim();
+  if (!newOwnerId || !isUuid(newOwnerId)) return { error: "Select a valid owner" };
+
+  const contractIds = [
+    ...new Set(
+      rawIds
+        .split(/[\s,]+/)
+        .map((s) => s.trim())
+        .filter((s) => isUuid(s))
+    ),
+  ].slice(0, BULK_OWNER_ASSIGN_CAP);
+
+  if (contractIds.length === 0) return { error: "No contracts selected" };
+
+  let updated = 0;
+  let orgIdForTelemetry: string | null = null;
+  for (const contractId of contractIds) {
+    const res = await updateContractOwner(contractId, newOwnerId);
+    if ("error" in res && res.error) {
+      if (!orgIdForTelemetry) {
+        const { data: row } = await admin
+          .from("contracts")
+          .select("organization_id")
+          .eq("id", contractId)
+          .maybeSingle();
+        orgIdForTelemetry = row?.organization_id ?? null;
+      }
+      if (orgIdForTelemetry) {
+        await emitVisibleMutationErrorTelemetry(admin, {
+          organizationId: orgIdForTelemetry,
+          userId: user.id,
+          contractId,
+          surface: "contracts",
+          mutation: "bulkAssignContractOwners",
+          code: res.error,
+        });
+      }
+      return { error: `${res.error} (stopped after ${updated} updates)` };
+    }
+    if (!orgIdForTelemetry) {
+      const { data: row } = await admin
+        .from("contracts")
+        .select("organization_id")
+        .eq("id", contractId)
+        .maybeSingle();
+      orgIdForTelemetry = row?.organization_id ?? null;
+    }
+    updated += 1;
+  }
+
+  if (orgIdForTelemetry) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgIdForTelemetry,
+      userId: user.id,
+      action: "product.v9.bulk_owner_assigned",
+      details: { count: updated },
+    });
+  }
+
+  revalidatePath("/contracts");
+  return { success: true, updated };
 }
 
 export async function getFileDownloadUrl(storagePath: string) {

@@ -1,8 +1,10 @@
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/server";
+import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 import { getOrgUsageStats } from "@/lib/usage-stats";
 import { orgHasActivePlan } from "@/lib/plan";
+import { V9_DUE_SOON_DAYS } from "@/lib/v9-business-dates";
 
 export type DashboardOrgMetrics = {
   totalContracts: number;
@@ -13,6 +15,18 @@ export type DashboardOrgMetrics = {
   teamOpenObligations: number;
   extractedFieldsTotal: number;
   approvedOperationalDateFields: number;
+};
+
+export type DashboardOperationalSignals = {
+  assignedWork: number;
+  dueSoonAssignedWork: number;
+  pendingApprovals: number;
+  openExceptions: number;
+  outstandingEvidence: number;
+  renewalAttention: number;
+  recentChanges: number;
+  ownerAssignedContracts: number;
+  visibleWorkItems: number;
 };
 
 export type NavBadgeCounts = {
@@ -167,3 +181,146 @@ export const getPinnedSavedViewsCached = cache(async (orgId: string) => {
     .limit(6);
   return data ?? [];
 });
+
+export const getDashboardOperationalSignalsCached = cache(
+  async (orgId: string, userId: string): Promise<DashboardOperationalSignals> => {
+    const admin = await getDashboardAdminClientCached();
+    const today = new Date();
+    const todayIso = today.toISOString().slice(0, 10);
+    const soonDateIso = new Date(today.getTime() + V9_DUE_SOON_DAYS * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const reviewWindowIso = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const renewalWindowIso = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    const [
+      assignedTasksRes,
+      dueSoonTasksRes,
+      assignedObligationsRes,
+      dueSoonObligationsRes,
+      assignedApprovalsRes,
+      dueSoonApprovalsRes,
+      pendingApprovalsRes,
+      openExceptionsRes,
+      outstandingEvidenceRes,
+      recentChangesRes,
+      ownerAssignedContractsRes,
+      renewalAttentionFieldsRes,
+    ] = await Promise.all([
+      admin
+        .from("contract_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("assignee_id", userId)
+        .in("status", ["open", "in_progress", "blocked"]),
+      admin
+        .from("contract_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("assignee_id", userId)
+        .in("status", ["open", "in_progress", "blocked"])
+        .not("due_date", "is", null)
+        .gte("due_date", todayIso)
+        .lte("due_date", soonDateIso),
+      admin
+        .from("contract_obligations")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("owner_id", userId)
+        .in("status", ["open", "in_progress"]),
+      admin
+        .from("contract_obligations")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("owner_id", userId)
+        .in("status", ["open", "in_progress"])
+        .not("due_date", "is", null)
+        .gte("due_date", todayIso)
+        .lte("due_date", soonDateIso),
+      admin
+        .from("contract_approvals")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("approver_id", userId)
+        .eq("status", "pending"),
+      admin
+        .from("contract_approvals")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("approver_id", userId)
+        .eq("status", "pending")
+        .not("due_at", "is", null)
+        .gte("due_at", today.toISOString())
+        .lte(
+          "due_at",
+          new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString()
+        ),
+      admin
+        .from("contract_approvals")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("status", "pending"),
+      admin
+        .from("exceptions")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .in("status", ["open", "in_progress"]),
+      admin
+        .from("evidence_requirements")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .in("status", [...EVIDENCE_GAP_STATUSES]),
+      admin
+        .from("contracts")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .gte("updated_at", reviewWindowIso),
+      admin
+        .from("contracts")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .not("owner_id", "is", null),
+      admin
+        .from("extracted_fields")
+        .select("contract_id, contracts!inner(organization_id, status)")
+        .eq("contracts.organization_id", orgId)
+        .eq("status", "approved")
+        .eq("field_name", "renewal_date")
+        .not("field_value", "is", null)
+        .gte("field_value", todayIso)
+        .lte("field_value", renewalWindowIso),
+    ]);
+
+    const assignedWork =
+      (assignedTasksRes.count ?? 0) +
+      (assignedObligationsRes.count ?? 0) +
+      (assignedApprovalsRes.count ?? 0);
+    const dueSoonAssignedWork =
+      (dueSoonTasksRes.count ?? 0) +
+      (dueSoonObligationsRes.count ?? 0) +
+      (dueSoonApprovalsRes.count ?? 0);
+
+    const renewalAttention = new Set(
+      (renewalAttentionFieldsRes.data ?? []).flatMap((row) =>
+        typeof row.contract_id === "string" ? [row.contract_id] : []
+      )
+    ).size;
+
+    return {
+      assignedWork,
+      dueSoonAssignedWork,
+      pendingApprovals: pendingApprovalsRes.count ?? 0,
+      openExceptions: openExceptionsRes.count ?? 0,
+      outstandingEvidence: outstandingEvidenceRes.count ?? 0,
+      renewalAttention,
+      recentChanges: recentChangesRes.count ?? 0,
+      ownerAssignedContracts: ownerAssignedContractsRes.count ?? 0,
+      visibleWorkItems:
+        (assignedTasksRes.count ?? 0) +
+        (assignedObligationsRes.count ?? 0) +
+        (pendingApprovalsRes.count ?? 0),
+    };
+  }
+);

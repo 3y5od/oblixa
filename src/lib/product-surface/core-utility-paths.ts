@@ -1,9 +1,8 @@
 /**
- * docs/refinement.md §10.4 — secondary/utility routes (not primary narrative on Core).
+ * product-surface policy §10.4 — secondary/utility routes (not primary narrative on Core).
  * Shared by nav/cmd-K hiding and default landing validation.
  */
 export const REFINEMENT_CORE_UTILITY_PREFIXES: readonly string[] = [
-  "/contracts/analytics",
   "/contracts/maintenance",
   "/contracts/intake",
   "/contracts/data-quality",

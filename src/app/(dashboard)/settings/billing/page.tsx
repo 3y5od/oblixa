@@ -59,32 +59,32 @@ export default async function BillingPage(props: {
   const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; label: string }> = {
     active: {
       icon: CheckCircle,
-      color: "border border-emerald-200/80 bg-emerald-50 text-emerald-900",
+      color: "ui-status-badge ui-status-badge-healthy",
       label: "Active",
     },
     trialing: {
       icon: CheckCircle,
-      color: "border border-sky-200/80 bg-sky-50 text-sky-900",
+      color: "ui-status-badge ui-status-badge-info",
       label: "Trial",
     },
     past_due: {
       icon: AlertCircle,
-      color: "border border-amber-200/80 bg-amber-50 text-amber-900",
+      color: "ui-status-badge ui-status-badge-warning",
       label: "Past Due",
     },
     incomplete: {
       icon: AlertCircle,
-      color: "border border-amber-200/80 bg-amber-50 text-amber-900",
+      color: "ui-status-badge ui-status-badge-warning",
       label: "Incomplete",
     },
     canceled: {
       icon: XCircle,
-      color: "border border-red-200/80 bg-red-50 text-red-900",
+      color: "ui-status-badge ui-status-badge-critical",
       label: "Canceled",
     },
     none: {
       icon: XCircle,
-      color: "border border-zinc-200 bg-zinc-50 text-zinc-700",
+      color: "ui-status-badge ui-status-badge-empty",
       label: "No Plan",
     },
   };
@@ -94,45 +94,46 @@ export default async function BillingPage(props: {
 
   return (
     <div className="ui-page-stack mx-auto max-w-3xl">
-      <header className="border-b border-zinc-200/60 pb-8">
+      <header className="ui-page-header">
         <Link
           href="/settings"
-          className="text-[13px] font-semibold text-zinc-500 transition-colors hover:text-[var(--accent)]"
+          className="text-[13px] font-semibold text-[var(--text-tertiary)] transition-colors hover:text-[var(--accent)]"
         >
           ← Settings
         </Link>
         <div className="mt-6">
           <p className="ui-eyebrow">Subscription</p>
           <h1 className="ui-display-title mt-2">Billing</h1>
-          <p className="ui-muted-tight mt-3">Plan status and Stripe customer portal access.</p>
+          <p className="ui-page-lead mt-3">Plan status and Stripe customer portal access.</p>
         </div>
       </header>
 
       {searchParams.success && (
-        <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-5 py-4 text-[14px] font-medium text-emerald-950">
+        <div className="ui-alert-success px-5 py-4 text-[14px] font-medium">
           Subscription activated. Thank you!
         </div>
       )}
       {searchParams.canceled && (
-        <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-5 py-4 text-[14px] font-medium text-amber-950">
+        <div className="ui-alert-warning px-5 py-4 text-[14px] font-medium">
           Checkout was canceled. No charges were made.
         </div>
       )}
 
-      <p className="text-[12px] leading-relaxed text-zinc-500">
+      <p className="ui-support-copy text-[12px]">
         To require an active subscription before creating or editing contracts, set{" "}
-        <code className="rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px]">
+        <code className="rounded-md bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1.5 py-0.5 font-mono text-[11px]">
           REQUIRE_ACTIVE_SUBSCRIPTION=true
         </code>{" "}
         on the server.
       </p>
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)]/90 bg-zinc-50/40 px-6 py-4">
+      <section className="ui-page-shell overflow-hidden">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="ui-eyebrow">Stripe</p>
               <h2 className="ui-section-title mt-1 text-base">Your plan</h2>
+              <p className="ui-support-copy mt-1">Use billing as the commercial control layer for plan posture, upgrade state, and who can open the Stripe portal.</p>
             </div>
             <div
               className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold ${config.color}`}
@@ -146,13 +147,13 @@ export default async function BillingPage(props: {
         <div className="p-6 md:p-8">
         {isActive ? (
           <div className="space-y-4">
-            <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4">
-              <p className="text-sm font-medium text-zinc-900">Oblixa Pro</p>
-              <p className="text-sm text-zinc-500">
+            <div className="ui-soft-details p-4">
+              <p className="text-sm font-medium text-[var(--text-primary)]">Oblixa Pro</p>
+              <p className="text-sm text-[var(--text-tertiary)]">
                 Unlimited contracts, AI extraction, email reminders
               </p>
               {currentPeriodEnd && (
-                <p className="mt-2 text-xs text-zinc-400">
+                <p className="mt-2 text-xs text-[var(--text-tertiary)]">
                   Current period ends {currentPeriodEnd}
                 </p>
               )}
@@ -161,25 +162,25 @@ export default async function BillingPage(props: {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-xl border border-sky-200/70 bg-sky-50/40 p-6">
-              <h3 className="text-base font-bold tracking-tight text-zinc-900">
+            <div className="ui-status-panel ui-status-panel-info p-6">
+              <h3 className="text-base font-bold tracking-tight text-[var(--text-primary)]">
                 Oblixa Pro
               </h3>
-              <ul className="mt-3 space-y-2 text-sm text-zinc-600">
+              <ul className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
+                  <CheckCircle size={14} className="text-[var(--success-ink)]" strokeWidth={2} />
                   Unlimited contract uploads
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
+                  <CheckCircle size={14} className="text-[var(--success-ink)]" strokeWidth={2} />
                   AI-powered field extraction
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
+                  <CheckCircle size={14} className="text-[var(--success-ink)]" strokeWidth={2} />
                   Email reminders for key dates
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-600" strokeWidth={2} />
+                  <CheckCircle size={14} className="text-[var(--success-ink)]" strokeWidth={2} />
                   Team collaboration
                 </li>
               </ul>
@@ -189,7 +190,7 @@ export default async function BillingPage(props: {
                 </div>
               )}
               {membership.role !== "admin" && (
-                <p className="mt-4 text-xs text-zinc-500">
+                <p className="mt-4 text-xs text-[var(--text-tertiary)]">
                   Contact your organization admin to subscribe.
                 </p>
               )}

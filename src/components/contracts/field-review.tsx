@@ -2,6 +2,8 @@
 
 import {
   memo,
+  useEffect,
+  useMemo,
   useState,
   useTransition,
   useRef,
@@ -9,14 +11,21 @@ import {
 } from "react";
 import { Check, X, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
+import {
+  buildFieldReviewStatusMessage,
+  getCriticalFieldReviewSummary,
+  sortFieldsForReview,
+} from "@/lib/review-feedback";
 import type { ExtractedField } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { fieldReviewProvenanceLabel } from "@/lib/v9-field-provenance";
 
 const statusBadge: Record<string, string> = {
-  pending: "border border-amber-200/70 bg-amber-50/90 text-amber-950",
-  approved: "border border-emerald-200/60 bg-emerald-50/80 text-emerald-900",
-  rejected: "border border-red-200/60 bg-red-50/80 text-red-900",
-  edited: "border border-indigo-200/50 bg-indigo-50/70 text-indigo-950",
+  pending: "ui-status-badge ui-status-badge-warning",
+  approved: "ui-status-badge ui-status-badge-healthy",
+  rejected: "ui-status-badge ui-status-badge-critical",
+  edited: "ui-status-badge ui-status-badge-in-review",
 };
 
 function confidenceLabel(c: number | null): string {
@@ -26,10 +35,10 @@ function confidenceLabel(c: number | null): string {
 }
 
 function confidenceTone(c: number | null): string {
-  if (c == null) return "text-zinc-400";
-  if (c >= 0.75) return "text-emerald-700";
-  if (c >= 0.45) return "text-amber-700";
-  return "text-rose-700";
+  if (c == null) return "text-[var(--text-tertiary)]";
+  if (c >= 0.75) return "text-[var(--success-ink)]";
+  if (c >= 0.45) return "text-[var(--warning-ink)]";
+  return "text-[var(--danger-ink)]";
 }
 
 interface FieldReviewProps {
@@ -39,7 +48,22 @@ interface FieldReviewProps {
 }
 
 export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
-  if (fields.length === 0) {
+  const [currentFields, setCurrentFields] = useState(fields);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentFields(fields);
+  }, [fields]);
+
+  const pendingCount = currentFields.filter((f) => f.status === "pending").length;
+  const hasPending = pendingCount > 0;
+  const orderedFields = useMemo(() => sortFieldsForReview(currentFields), [currentFields]);
+  const criticalSummary = useMemo(
+    () => getCriticalFieldReviewSummary(currentFields),
+    [currentFields]
+  );
+
+  if (currentFields.length === 0) {
     return (
       <EmptyState
         title="No extracted fields"
@@ -48,18 +72,43 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
     );
   }
 
-  const hasPending = fields.some((f) => f.status === "pending");
-
   return (
     <div className="space-y-4">
+      {statusMessage ? (
+        <div
+          className="ui-alert-success"
+          role="status"
+          aria-live="polite"
+        >
+          {statusMessage}
+        </div>
+      ) : null}
       {canEdit && hasPending && (
         <div className="ui-toolbar">
-          <span className="font-semibold text-zinc-700">Shortcuts</span>
-          <span className="hidden sm:inline text-zinc-300">·</span>
+          <span className="font-semibold text-[var(--text-secondary)]">Shortcuts</span>
+          <span className="hidden sm:inline text-[var(--text-tertiary)]">·</span>
           <span>
             <kbd className="ui-kbd">A</kbd> approve · <kbd className="ui-kbd">R</kbd> reject ·{" "}
             <kbd className="ui-kbd">E</kbd> edit · <kbd className="ui-kbd">Esc</kbd> cancel
           </span>
+          <span className="hidden sm:inline text-[var(--text-tertiary)]">·</span>
+          <span>{pendingCount} pending</span>
+        </div>
+      )}
+      {(criticalSummary.pendingLabels.length > 0 || criticalSummary.missingLabels.length > 0) && (
+        <div className="ui-alert-warning px-4 py-3 text-sm">
+          <p className="font-semibold">Key date coverage still needs review</p>
+          <p className="mt-1 text-[13px] leading-relaxed">
+            Approve or add end, renewal, and notice values before reminders, renewal reporting, or downstream work should rely on this contract.
+          </p>
+          <div className="mt-2 flex flex-col gap-1 text-[12px]">
+            {criticalSummary.pendingLabels.length > 0 ? (
+              <p>Pending now: {criticalSummary.pendingLabels.join(", ")}.</p>
+            ) : null}
+            {criticalSummary.missingLabels.length > 0 ? (
+              <p>Still missing an approved value: {criticalSummary.missingLabels.join(", ")}.</p>
+            ) : null}
+          </div>
         </div>
       )}
       <div className="ui-table-shell">
@@ -69,7 +118,7 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
               Extracted contract fields — approve, reject, or edit pending rows
             </caption>
             <thead>
-              <tr className="border-b border-zinc-200/80 bg-zinc-50/90">
+              <tr className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/90">
                 <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left first:pl-6">
                   Field
                 </th>
@@ -93,8 +142,28 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
-              {fields.map((field) => (
-                <FieldRow key={field.id} field={field} canEdit={canEdit} />
+              {orderedFields.map((field) => (
+                <FieldRow
+                  key={field.id}
+                  field={field}
+                  canEdit={canEdit}
+                  onUpdated={(nextField, action) => {
+                    setCurrentFields((prev) => {
+                      const next = prev.map((candidate) =>
+                        candidate.id === nextField.id ? nextField : candidate
+                      );
+                      const nextPendingCount = next.filter((candidate) => candidate.status === "pending").length;
+                      setStatusMessage(
+                        buildFieldReviewStatusMessage({
+                          pendingCount: nextPendingCount,
+                          action,
+                          fieldLabel: nextField.field_name.replace(/_/g, " "),
+                        })
+                      );
+                      return next;
+                    });
+                  }}
+                />
               ))}
             </tbody>
           </table>
@@ -125,9 +194,11 @@ function focusNextPendingRow(row: HTMLTableRowElement | null) {
 const FieldRow = memo(function FieldRow({
   field,
   canEdit,
+  onUpdated,
 }: {
   field: ExtractedField;
   canEdit: boolean;
+  onUpdated: (field: ExtractedField, action: "approved" | "rejected" | "edited") => void;
 }) {
   const rowRef = useRef<HTMLTableRowElement>(null);
   const [editing, setEditing] = useState(false);
@@ -153,18 +224,20 @@ const FieldRow = memo(function FieldRow({
     startTransition(async () => {
       const result = await updateContractField(currentField.id, action, newValue);
       if (result && "error" in result && result.error) {
-        setActionError(result.error);
+        setActionError(describeRecoverableMutationError(result.error));
         return;
       }
       if (result && "success" in result && result.success) {
         const wasPending = currentField.status === "pending";
-        setCurrentField((prev) => ({
-          ...prev,
+        const nextField = {
+          ...currentField,
           status: action,
           ...(action === "edited" && newValue !== undefined
             ? { field_value: newValue, source: "human" as const }
             : {}),
-        }));
+        };
+        setCurrentField(nextField);
+        onUpdated(nextField, action);
         setEditing(false);
         if (wasPending && (action === "approved" || action === "rejected" || action === "edited")) {
           focusNextPendingRow(rowRef.current);
@@ -175,12 +248,12 @@ const FieldRow = memo(function FieldRow({
 
   const rowBg =
     currentField.status === "pending"
-      ? "bg-amber-50/25"
+      ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_34%,transparent)]"
       : currentField.status === "approved"
-        ? "bg-emerald-50/15"
+        ? "bg-[color:color-mix(in_oklab,var(--success-soft)_28%,transparent)]"
         : currentField.status === "rejected"
-          ? "bg-rose-50/20"
-          : "bg-indigo-50/15";
+          ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_30%,transparent)]"
+          : "bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)]";
 
   const rowKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
     if (!canEdit || currentField.status !== "pending" || editing) return;
@@ -208,17 +281,17 @@ const FieldRow = memo(function FieldRow({
     <tr
       ref={rowRef}
       id={`field-${currentField.id}`}
-      className={`scroll-mt-28 outline-none transition-colors focus-visible:bg-zinc-50/80 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/20 ${rowBg}`}
+      className={`scroll-mt-28 outline-none transition-colors focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/20 ${rowBg}`}
       tabIndex={canEdit && currentField.status === "pending" && !editing ? 0 : -1}
       onKeyDown={rowKeyDown}
     >
       <td className="whitespace-nowrap px-4 py-4 align-top first:pl-6">
-        <p className="font-semibold capitalize text-zinc-900">{fieldLabel}</p>
-        <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+        <p className="font-semibold capitalize text-[var(--text-primary)]">{fieldLabel}</p>
+        <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
           {currentField.source === "ai" ? "AI extraction" : "Human entry"}
         </p>
       </td>
-      <td className="max-w-[min(280px,32vw)] px-4 py-4 align-top text-zinc-800">
+      <td className="max-w-[min(280px,32vw)] px-4 py-4 align-top text-[var(--text-primary)]">
         {editing ? (
           <div className="flex flex-col gap-2">
             <input
@@ -235,7 +308,7 @@ const FieldRow = memo(function FieldRow({
               className="ui-input py-2 text-[13px]"
               aria-label={`Edit ${fieldLabel}`}
             />
-            {actionError && <p className="text-xs font-medium text-red-700">{actionError}</p>}
+            {actionError && <p className="text-xs font-medium text-[var(--danger-ink)]">{actionError}</p>}
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -258,16 +331,16 @@ const FieldRow = memo(function FieldRow({
           <>
             <span className="font-medium">
               {currentField.field_value || (
-                <span className="font-normal italic text-zinc-400">Unknown</span>
+                <span className="font-normal italic text-[var(--text-tertiary)]">Unknown</span>
               )}
             </span>
             {needsCitation && (
-              <p className="mt-2 rounded-lg border border-amber-200/60 bg-amber-50/50 px-2.5 py-2 text-[11px] leading-snug text-amber-950">
+              <p className="ui-alert-warning mt-2 px-2.5 py-2 text-[11px] leading-snug">
                 Citation required: edit to add source text, or reject this extraction.
               </p>
             )}
             {actionError && (
-              <p className="mt-2 text-xs font-medium text-red-700">{actionError}</p>
+              <p className="mt-2 text-xs font-medium text-[var(--danger-ink)]">{actionError}</p>
             )}
           </>
         )}
@@ -279,16 +352,25 @@ const FieldRow = memo(function FieldRow({
         >
           {confidenceLabel(currentField.confidence)}
         </span>
+        <p className="mt-2 max-w-[14rem] text-[11px] leading-snug text-[var(--text-tertiary)]">
+          {fieldReviewProvenanceLabel({
+            status: currentField.status,
+            confidence:
+              currentField.confidence == null
+                ? null
+                : Math.round(Math.min(1, Math.max(0, currentField.confidence)) * 100),
+          })}
+        </p>
       </td>
       <td className="max-w-[min(320px,40vw)] px-4 py-4 align-top">
         {currentField.source_snippet ? (
           <blockquote className="ui-source-quote rounded-r-lg text-[13px] leading-snug">
-            <span className="italic text-zinc-700">
+            <span className="italic text-[var(--text-secondary)]">
               &ldquo;{currentField.source_snippet}&rdquo;
             </span>
           </blockquote>
         ) : (
-          <span className="text-[13px] text-zinc-400">—</span>
+          <span className="text-[13px] text-[var(--text-tertiary)]">—</span>
         )}
       </td>
       <td className="whitespace-nowrap px-4 py-4 align-top">
@@ -309,12 +391,12 @@ const FieldRow = memo(function FieldRow({
       {canEdit && (
         <td className="whitespace-nowrap px-4 py-4 pr-6 align-top text-right">
           {currentField.status === "pending" && !editing && (
-            <div className="inline-flex rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-0.5 shadow-sm">
+            <div className="inline-flex rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-0.5 shadow-[var(--shadow-1)]">
               <button
                 type="button"
                 onClick={() => handleAction("approved")}
                 disabled={isPending || needsCitation}
-                className="rounded-lg p-2 text-emerald-700 transition-colors hover:bg-surface hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
+                className="ui-icon-button min-h-0 min-w-0 rounded-[calc(var(--radius-lg)-0.1rem)] border-transparent bg-transparent p-2 text-[var(--success-ink)] shadow-none hover:bg-surface disabled:cursor-not-allowed disabled:opacity-35"
                 title={
                   needsCitation
                     ? "Add a source citation by editing first"
@@ -331,7 +413,7 @@ const FieldRow = memo(function FieldRow({
                   setEditValue(currentField.field_value || "");
                 }}
                 disabled={isPending}
-                className="rounded-lg p-2 text-[var(--accent)] transition-colors hover:bg-surface hover:shadow-sm disabled:opacity-50"
+                className="ui-icon-button min-h-0 min-w-0 rounded-[calc(var(--radius-lg)-0.1rem)] border-transparent bg-transparent p-2 text-[var(--accent)] shadow-none hover:bg-surface disabled:opacity-50"
                 title="Edit"
                 aria-label={`Edit ${fieldLabel}`}
               >
@@ -341,7 +423,7 @@ const FieldRow = memo(function FieldRow({
                 type="button"
                 onClick={() => handleAction("rejected")}
                 disabled={isPending}
-                className="rounded-lg p-2 text-rose-700 transition-colors hover:bg-surface hover:shadow-sm disabled:opacity-50"
+                className="ui-icon-button min-h-0 min-w-0 rounded-[calc(var(--radius-lg)-0.1rem)] border-transparent bg-transparent p-2 text-[var(--danger-ink)] shadow-none hover:bg-surface disabled:opacity-50"
                 title="Reject"
                 aria-label={`Reject ${fieldLabel}`}
               >

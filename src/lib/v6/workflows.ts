@@ -82,7 +82,7 @@ export async function workflowFindingToIntervention(admin: AdminClient, orgId: s
 export async function workflowPolicyBreachRemediation(admin: AdminClient, orgId: string, userId: string) {
   const simulation = await createRow(admin, "change_simulations", orgId, {
     simulation_type: "control_policy",
-    name: "V6 policy breach preview",
+    name: "Policy breach preview",
     input_json: { source: "v6_workflow", scope: "portfolio" },
     created_by: userId,
   });

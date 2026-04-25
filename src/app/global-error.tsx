@@ -1,41 +1,42 @@
 "use client";
 
 import { useEffect } from "react";
-import * as Sentry from "@sentry/nextjs";
+import Link from "next/link";
 import "./globals.css";
+import { AlertCircle } from "lucide-react";
+import { RouteStatePanel } from "@/components/ui/route-state-panel";
+import { captureClientException } from "@/lib/observability/sentry";
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    captureClientException(error, { extra: { route: "global-error", digest: error.digest } });
   }, [error]);
 
   return (
     <html lang="en" className="h-full">
-      <body className="flex min-h-dvh items-center justify-center p-6 font-sans text-[var(--text-secondary)] antialiased">
-        <div className="ui-card-hero w-full max-w-xl px-8 py-10 text-center shadow-[var(--shadow-3)]">
-          <p className="ui-kicker">Oblixa</p>
-          <h1 className="mt-3 text-[1.6rem] font-semibold tracking-tight text-[var(--text-primary)]">
-            Something went wrong
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-            Please refresh the page. If the problem continues, contact support with the reference below.
-          </p>
-          {error.digest ? (
-            <p className="ui-density-note mt-3">Reference: {error.digest}</p>
-          ) : null}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="ui-btn-primary min-w-[8rem]"
-            >
-              Refresh
-            </button>
-            <a href="/dashboard" className="ui-btn-secondary min-w-[8rem]">
-              Dashboard
-            </a>
-          </div>
-        </div>
+      <body className="ui-public-minimal-shell min-h-dvh font-sans text-[var(--text-secondary)] antialiased">
+        <RouteStatePanel
+          eyebrow="Oblixa"
+          title="This page could not load"
+          copy="Try again now. If the problem keeps happening, refresh the page, then return to the dashboard or home page while the workflow recovers."
+          digest={error.digest}
+          digestLabel="Reference"
+          icon={<AlertCircle className="h-6 w-6" strokeWidth={1.75} />}
+          cardClassName="ui-card-hero max-w-xl shadow-[var(--shadow-3)]"
+          actions={
+            <>
+              <button type="button" onClick={() => window.location.reload()} className="ui-btn-primary min-w-[8rem]">
+                Try again
+              </button>
+              <a href="/dashboard" className="ui-btn-secondary min-w-[8rem]">
+                Dashboard
+              </a>
+              <Link href="/" className="ui-link min-w-[8rem] px-2 py-2 text-sm font-semibold">
+                Home
+              </Link>
+            </>
+          }
+        />
       </body>
     </html>
   );

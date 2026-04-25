@@ -42,34 +42,34 @@ export function ProgramEvolutionCreateForm() {
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className="space-y-2 rounded-lg border border-zinc-100 p-3 text-sm">
-      <p className="text-xs font-semibold text-zinc-700">New experiment</p>
+    <form onSubmit={(e) => void onSubmit(e)} className="space-y-2 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
+      <p className="text-xs font-semibold text-[var(--text-secondary)]">New experiment</p>
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Hypothesis (optional)"
         value={hypothesis}
         onChange={(e) => setHypothesis(e.target.value)}
       />
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Program UUID (optional)"
         value={programId}
         onChange={(e) => setProgramId(e.target.value)}
       />
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Baseline program version UUID (optional)"
         value={baselineVersionId}
         onChange={(e) => setBaselineVersionId(e.target.value)}
       />
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Candidate program version UUID (optional)"
         value={candidateVersionId}
         onChange={(e) => setCandidateVersionId(e.target.value)}
       />
       <input
-        className="w-full rounded border border-zinc-200 px-2 py-1 text-sm"
+        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Target segment UUID (optional)"
         value={targetSegmentId}
         onChange={(e) => setTargetSegmentId(e.target.value)}
@@ -77,7 +77,7 @@ export function ProgramEvolutionCreateForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create experiment"}
       </button>
@@ -168,7 +168,7 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
       >
         {pending ? "Advancing…" : "Advance rollout stage"}
       </button>
-      <p className="mt-1 text-[10px] text-zinc-500">
+      <p className="mt-1 text-[10px] text-[var(--text-tertiary)]">
         Marks experiment running, logs a program_evolution_results milestone with live portfolio metrics.
       </p>
       {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
@@ -204,7 +204,7 @@ export function ProgramEvolutionSimulateButton({ experimentId }: { experimentId:
       <button
         type="button"
         disabled={pending}
-        className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-800 disabled:opacity-50"
+        className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
         onClick={() => void onSim()}
       >
         {pending ? "Simulating…" : "Run simulate"}

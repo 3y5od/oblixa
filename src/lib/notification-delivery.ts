@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 const DELIVERY_LEASE_MS = 5 * 60 * 1000;
@@ -144,6 +145,37 @@ function getMaxAttempts(metadata: Record<string, unknown> | null | undefined, fa
   return Math.max(1, Math.min(5, Math.trunc(raw)));
 }
 
+function isReminderNotification(notificationType: string | null | undefined, metadata: Record<string, unknown>) {
+  return notificationType === "reminder_due" || typeof metadata.reminder_id === "string";
+}
+
+async function emitReminderDeliveryTelemetry(
+  admin: AdminClient,
+  input: {
+    organizationId: string;
+    notificationType?: string | null;
+    metadata?: Record<string, unknown> | null;
+    action:
+      | "product.v9.reminder_delivered"
+      | "product.v9.reminder_suppressed"
+      | "product.v9.reminder_failed"
+      | "product.v9.reminder_retried";
+  }
+) {
+  const metadata = input.metadata ?? {};
+  if (!isReminderNotification(input.notificationType, metadata)) return;
+  await emitProductTelemetryEvent(admin, {
+    organizationId: input.organizationId,
+    userId: null,
+    contractId: typeof metadata.contract_id === "string" ? metadata.contract_id : null,
+    action: input.action,
+    details: {
+      notificationType: String(input.notificationType ?? "reminder_due"),
+      reminderId: typeof metadata.reminder_id === "string" ? metadata.reminder_id : null,
+    },
+  });
+}
+
 async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | null }> {
   if (payload.kind === "reminder_due") {
     const result = await sendReminderEmail({
@@ -219,7 +251,7 @@ async function attemptDelivery(
     .eq("id", deliveryId)
     .in("status", ["pending", "retrying"])
     .or(`next_attempt_at.is.null,next_attempt_at.lte.${nowIso}`)
-    .select("id, attempt_count, metadata")
+    .select("id, organization_id, notification_type, attempt_count, metadata")
     .maybeSingle();
   if (!row) return { delivered: false, error: "delivery_locked_or_not_due", skipped: true };
 
@@ -255,6 +287,12 @@ async function attemptDelivery(
       })
       .eq("id", deliveryId);
     if (updateErr) console.error("[notification-delivery] post-send delivered update failed:", updateErr.message);
+    await emitReminderDeliveryTelemetry(admin, {
+      organizationId: row.organization_id as string,
+      notificationType: row.notification_type as string | null,
+      metadata,
+      action: "product.v9.reminder_delivered",
+    });
     return { delivered: true, error: null, finalStatus: "delivered" };
   }
 
@@ -273,6 +311,12 @@ async function attemptDelivery(
     })
     .eq("id", deliveryId);
   if (failUpdateErr) console.error("[notification-delivery] post-send failure update failed:", failUpdateErr.message);
+  await emitReminderDeliveryTelemetry(admin, {
+    organizationId: row.organization_id as string,
+    notificationType: row.notification_type as string | null,
+    metadata,
+    action: isFinal ? "product.v9.reminder_failed" : "product.v9.reminder_retried",
+  });
   return {
     delivered: false,
     error: sendResult.error.message,
@@ -337,7 +381,7 @@ export async function markNotificationSuppressed(
     metadata?: Record<string, unknown>;
   }
 ) {
-  await admin.from("notification_deliveries").insert({
+  const { error } = await admin.from("notification_deliveries").insert({
     organization_id: input.organizationId,
     channel: input.channel,
     notification_type: input.notificationType,
@@ -346,6 +390,16 @@ export async function markNotificationSuppressed(
     status: "suppressed",
     attempt_count: 0,
     metadata: input.metadata ?? {},
+  });
+  if (error) {
+    console.error("[notification-delivery] suppressed insert failed:", error.message);
+    return;
+  }
+  await emitReminderDeliveryTelemetry(admin, {
+    organizationId: input.organizationId,
+    notificationType: input.notificationType,
+    metadata: input.metadata ?? {},
+    action: "product.v9.reminder_suppressed",
   });
 }
 

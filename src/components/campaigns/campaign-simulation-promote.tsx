@@ -47,9 +47,9 @@ export function CampaignSimulationPromote({ campaignContextId }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-100 bg-zinc-50/50 p-4">
-      <p className="text-xs font-semibold text-zinc-700">Promote simulation to new campaign</p>
-      <p className="mt-1 text-xs text-zinc-500">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
+      <p className="text-xs font-semibold text-[var(--text-secondary)]">Promote simulation to new campaign</p>
+      <p className="mt-1 text-xs text-[var(--text-tertiary)]">
         Creates a draft campaign from the latest run of the simulation you specify.
       </p>
       <input

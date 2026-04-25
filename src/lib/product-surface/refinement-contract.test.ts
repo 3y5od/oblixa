@@ -1,5 +1,5 @@
 /**
- * Automated checks for docs/refinement.md checklist items (supplements E2E + audits).
+ * Automated checks for product-surface policy checklist items (supplements E2E + audits).
  * §23: this file asserts containment/gating — it does not delete routes or schemas.
  */
 import { readFileSync } from "node:fs";
@@ -14,7 +14,7 @@ import {
   REFINEMENT_V7_TRACE_STRINGS,
 } from "@/lib/product-surface/refinement-trace";
 
-/** docs/refinement.md §3 — stable checklist strings for PR traceability. */
+/** product-surface policy §3 — stable checklist strings for PR traceability. */
 const EXPECTED_REFINEMENT_OBJECTIVES = [
   "Clearer primary surface",
   "Progressive disclosure",
@@ -75,7 +75,7 @@ describe("refinement §2 primary story routes", () => {
 });
 
 describe("refinement §7.1 primary nav workspace group order", () => {
-  it("matches docs/refinement.md Home → Contracts → Review → Work → Renewals → Exceptions → Evidence → Reports → Settings", () => {
+  it("matches product-surface policy Home → Contracts → Review → Work → Renewals → Exceptions → Evidence → Reports → Settings", () => {
     const workspace = PRIMARY_NAV_GROUPS.find((g) => g.label === "Workspace");
     expect(workspace?.hrefs).toEqual([
       "/dashboard",
@@ -109,7 +109,7 @@ describe("refinement §3 objectives", () => {
     expect(REFINEMENT_OBJECTIVES).toHaveLength(7);
   });
 
-  it("keeps REFINEMENT_OBJECTIVES aligned with docs/refinement.md §3 wording", () => {
+  it("keeps REFINEMENT_OBJECTIVES aligned with product-surface policy §3 wording", () => {
     expect([...REFINEMENT_OBJECTIVES]).toEqual([...EXPECTED_REFINEMENT_OBJECTIVES]);
   });
 });
@@ -181,7 +181,7 @@ describe("refinement §12.4 / §19 nav badges", () => {
 });
 
 describe("refinement §7.3 Assurance nav href order", () => {
-  it("matches docs/refinement.md (findings through health graph)", () => {
+  it("matches product-surface policy (findings through health graph)", () => {
     const assurance = NAV_ITEMS.find((i) => i.name === "Assurance");
     const hrefs =
       assurance?.navChildren?.map((c) => (c.href.split("?")[0] ?? c.href).toLowerCase()) ?? [];

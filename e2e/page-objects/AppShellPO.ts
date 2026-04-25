@@ -9,6 +9,18 @@ export class AppShellPO {
     return this.page.getByTestId(shellTestIds.primaryNav);
   }
 
+  desktopSidebar() {
+    return this.page.getByTestId(shellTestIds.sidebarDesktop);
+  }
+
+  mobileDrawer() {
+    return this.page.getByTestId(shellTestIds.sidebarMobileDrawer);
+  }
+
+  collapseToggle() {
+    return this.page.getByTestId(shellTestIds.sidebarCollapseToggle);
+  }
+
   headerSearch() {
     return this.page.getByTestId(shellTestIds.headerSearch);
   }
@@ -30,6 +42,11 @@ export class AppShellPO {
     const mod = process.platform === "darwin" ? "Meta" : "Control";
     await this.page.keyboard.press(`${mod}+KeyK`);
     await expect(this.commandPalette()).toBeVisible();
+  }
+
+  async openMobileNavigation() {
+    await this.page.getByTestId(shellTestIds.sidebarMobileOpen).click();
+    await expect(this.mobileDrawer()).toBeVisible();
   }
 }
 

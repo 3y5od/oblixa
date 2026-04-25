@@ -66,7 +66,6 @@ describe("PERFORMANCE_OPTIMIZATION_SWEEP.md drift guard", () => {
       "performance-artifacts.test.ts",
       "SECURITY_SWEEP_QUARTERLY_WORKSHEET.md",
       "SECURITY_PASS_CHECKLIST.md",
-      "docs/refinement.md",
       "instrumentation-client.ts",
       "dashboard-data.ts",
       "next.config.ts",

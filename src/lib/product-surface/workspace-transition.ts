@@ -1,5 +1,5 @@
 /**
- * Side effects when workspace product mode moves to a lower tier (docs/refinement.md §18).
+ * Side effects when workspace product mode moves to a lower tier (product-surface policy §18).
  * Extracted from product-surface-settings for reuse (onboarding calibration).
  */
 import { notificationTypesBlockedByMode } from "@/lib/notification-product-tier";
@@ -14,6 +14,32 @@ function modeRank(mode: WorkspaceProductMode): number {
   if (mode === "assurance") return 2;
   if (mode === "advanced") return 1;
   return 0;
+}
+
+export type WorkspaceReportSubscriptionSnapshot = {
+  id: string;
+  report_pack_id: string;
+};
+
+export type WorkspaceReportPackSnapshot = {
+  id: string;
+  report_type: string;
+};
+
+export function reportSubscriptionIdsIneligibleForWorkspaceMode(input: {
+  mode: WorkspaceProductMode;
+  subscriptions: readonly WorkspaceReportSubscriptionSnapshot[];
+  packs: readonly WorkspaceReportPackSnapshot[];
+}): string[] {
+  const packTypeById = new Map(input.packs.map((row) => [String(row.id), String(row.report_type ?? "")]));
+  return input.subscriptions
+    .filter((sub) => {
+      const reportType = packTypeById.get(String(sub.report_pack_id)) ?? "";
+      const minMode = minWorkspaceModeForReportType(reportType);
+      return !workspaceModeAtLeast(input.mode, minMode);
+    })
+    .map((sub) => String(sub.id))
+    .filter(Boolean);
 }
 
 export async function suppressNotificationTypesForModeDowngrade(input: {
@@ -109,15 +135,17 @@ export async function applyWorkspaceProductTransitionSideEffects(input: {
     .select("id, report_type")
     .eq("organization_id", orgId)
     .in("id", packIds);
-  const packTypeById = new Map((packs ?? []).map((row) => [String(row.id), String(row.report_type ?? "")]));
-  const deactivateIds = (activeSubs ?? [])
-    .filter((sub) => {
-      const reportType = packTypeById.get(String(sub.report_pack_id)) ?? "";
-      const minMode = minWorkspaceModeForReportType(reportType);
-      return !workspaceModeAtLeast(nextMode, minMode);
-    })
-    .map((sub) => String(sub.id))
-    .filter(Boolean);
+  const deactivateIds = reportSubscriptionIdsIneligibleForWorkspaceMode({
+    mode: nextMode,
+    subscriptions: (activeSubs ?? []).map((sub) => ({
+      id: String(sub.id),
+      report_pack_id: String(sub.report_pack_id),
+    })),
+    packs: (packs ?? []).map((pack) => ({
+      id: String(pack.id),
+      report_type: String(pack.report_type ?? ""),
+    })),
+  });
   if (deactivateIds.length === 0) {
     return { autoBlockedNotificationTypes, suppressedSubscriptionCount: 0 };
   }

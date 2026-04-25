@@ -2,15 +2,29 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { completeProductOnboarding } from "@/actions/settings";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { formatSetupChecklistSummary } from "@/lib/onboarding/calibration-copy";
 import { checklistRowOrderFromSetupChecklist } from "@/lib/onboarding/onboarding-banner-checklist-order";
 import Link from "next/link";
-import { Check, Circle } from "lucide-react";
+import { ArrowRight, Check, Circle } from "lucide-react";
 
 export interface OnboardingActivationStats {
+  setupConfigured: boolean;
   contractCount: number;
   hasExtractions: boolean;
   approvedOperationalDates: number;
+  pendingReviewCount: number;
+  ownerAssignedContracts: number;
+  visibleWorkItems: number;
+  renewalAttention: number;
+  dashboardReady: boolean;
+  /** True when latest org import job is still `processing` (§7.2 + §17.2 intake progress). */
+  importJobProcessing?: boolean;
+  /** True when a completed import inserted ≥1 row (server-backed upload step before list metrics refresh). */
+  importJobCompletedInserts?: boolean;
+  recoverableImportIssue?: string | null;
+  failedExtractionIssue?: string | null;
+  failedExtractionContractId?: string | null;
 }
 
 function StepIcon({ done }: { done: boolean }) {
@@ -24,7 +38,7 @@ function StepIcon({ done }: { done: boolean }) {
   ) : (
     <Circle
       size={16}
-      className="mt-0.5 shrink-0 text-zinc-300"
+      className="mt-0.5 shrink-0 text-[var(--text-tertiary)]"
       strokeWidth={1.5}
       aria-hidden
     />
@@ -42,46 +56,138 @@ export function OnboardingBanner({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const step1 = stats.contractCount >= 1;
-  const step2 = stats.hasExtractions;
-  const step3 = stats.approvedOperationalDates >= 1;
+  const stepSetup = stats.setupConfigured;
+  const stepUpload =
+    stats.contractCount >= 1 ||
+    Boolean(stats.importJobCompletedInserts);
+  const stepReview = stats.hasExtractions && stats.pendingReviewCount === 0;
+  const stepOwner = stats.ownerAssignedContracts >= 1;
+  const stepApprove = stats.approvedOperationalDates >= 1;
+  const stepWork = stats.visibleWorkItems >= 1 || stats.renewalAttention >= 1;
+  const stepDashboard = stats.dashboardReady;
+  const totalSteps = 7;
+  const completedCount = [
+    stepSetup,
+    stepUpload,
+    stepReview,
+    stepOwner,
+    stepApprove,
+    stepWork,
+    stepDashboard,
+  ].filter(Boolean).length;
+  const hasMeaningfulProgress = completedCount >= 2;
+  const isLateStage = completedCount >= totalSteps - 2;
+  const remainingCount = totalSteps - completedCount;
 
-  if (dismissed) return null;
+  if (dismissed || completedCount === totalSteps) return null;
 
   function dismiss() {
     setError(null);
     startTransition(async () => {
       const result = await completeProductOnboarding();
       if (result && "error" in result && result.error) {
-        setError(result.error);
+        setError(describeRecoverableMutationError(result.error));
         return;
       }
       setDismissed(true);
     });
   }
 
+  type OnboardingRowKey =
+    | "setup"
+    | "upload"
+    | "review"
+    | "owner"
+    | "approve"
+    | "work"
+    | "dashboard";
   const rowOrder = checklistRowOrderFromSetupChecklist(setupChecklist);
-  const rows: Record<"upload" | "review" | "approve", { done: boolean; el: ReactNode }> = {
-    upload: {
-      done: step1,
+  const rows: Record<
+    OnboardingRowKey,
+    { done: boolean; href: string; actionLabel: string; detail: string; el: ReactNode }
+  > = {
+    setup: {
+      done: stepSetup,
+      href: stepSetup ? "/settings/product" : "/onboarding/calibration",
+      actionLabel: stepSetup ? "Review product experience" : "Complete workspace calibration",
+      detail: stepSetup
+        ? "Workspace calibration is on file and the recommended product defaults can still be adjusted later."
+        : "Complete the workspace calibration so the starting mode, shortcuts, and landing path point to the right operational surfaces.",
       el: (
         <span>
-          <Link href="/contracts/new" className="ui-link">
-            Upload
-          </Link>{" "}
-          a contract (or{" "}
-          <Link href="/contracts/bulk" className="ui-link">
-            bulk import
-          </Link>
-          ).
+          {stepSetup ? (
+            <>
+              Review{" "}
+              <Link href="/settings/product" className="ui-link">
+                product experience settings
+              </Link>{" "}
+              if you want to fine-tune the recommended defaults.
+            </>
+          ) : (
+            <>
+              Complete{" "}
+              <Link href="/onboarding/calibration" className="ui-link">
+                workspace calibration
+              </Link>{" "}
+              so onboarding follows the right operational path.
+            </>
+          )}
         </span>
       ),
     },
+    upload: {
+      done: stepUpload,
+      href: stats.importJobProcessing ? "/contracts/bulk#recent-imports" : "/contracts/new",
+      actionLabel: stepUpload
+        ? "Open contracts"
+        : stats.importJobProcessing
+          ? "View import progress"
+          : "Upload first contract",
+      detail: stepUpload
+        ? stats.contractCount >= 1
+          ? `${stats.contractCount} contract${stats.contractCount === 1 ? "" : "s"} created.`
+          : "A recent import finished with inserted rows. Open Contracts if the list has not refreshed yet."
+        : stats.importJobProcessing
+          ? "A CSV import is still running. Contracts appear as rows are inserted; use Bulk import to monitor or retry if something fails."
+          : "Add at least one signed agreement so extraction and review can begin.",
+      el:
+        stats.importJobProcessing && !stepUpload ? (
+          <span>
+            Follow{" "}
+            <Link href="/contracts/bulk#recent-imports" className="ui-link">
+              bulk import status
+            </Link>{" "}
+            for live job progress, or{" "}
+            <Link href="/contracts/new" className="ui-link">
+              upload a single contract
+            </Link>{" "}
+            in parallel.
+          </span>
+        ) : (
+          <span>
+            <Link href="/contracts/new" className="ui-link">
+              Upload
+            </Link>{" "}
+            a contract (or{" "}
+            <Link href="/contracts/bulk" className="ui-link">
+              bulk import
+            </Link>
+            ).
+          </span>
+        ),
+    },
     review: {
-      done: step2,
+      done: stepReview,
+      href: "/contracts/review",
+      actionLabel: stepReview ? "Open review queue" : "Review extracted fields",
+      detail: stepReview
+        ? "Extraction has produced reviewable data for this workspace."
+        : stats.hasExtractions && stats.pendingReviewCount > 0
+          ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need review attention before this step is complete.`
+          : "Run extraction, then confirm fields with source-backed review.",
       el: (
         <span>
-          Run <strong className="font-semibold text-zinc-800">Extract fields with AI</strong>
+          Run <strong className="font-semibold text-[var(--text-primary)]">Extract fields with AI</strong>
           , then use the{" "}
           <Link href="/contracts/review" className="ui-link">
             review queue
@@ -90,8 +196,30 @@ export function OnboardingBanner({
         </span>
       ),
     },
+    owner: {
+      done: stepOwner,
+      href: "/contracts?sort=activity",
+      actionLabel: stepOwner ? "Open contracts" : "Check contract owners",
+      detail: stepOwner
+        ? `${stats.ownerAssignedContracts} contract${stats.ownerAssignedContracts === 1 ? "" : "s"} already have an owner recorded.`
+        : "Assign an owner so escalations, renewals, and follow-up work have a clear home.",
+      el: (
+        <span>
+          Confirm each active agreement has a visible owner from the{" "}
+          <Link href="/contracts?sort=activity" className="ui-link">
+            contracts list
+          </Link>
+          .
+        </span>
+      ),
+    },
     approve: {
-      done: step3,
+      done: stepApprove,
+      href: "/contracts/review",
+      actionLabel: stepApprove ? "Open dashboard" : "Approve key operational dates",
+      detail: stepApprove
+        ? `${stats.approvedOperationalDates} approved operational date${stats.approvedOperationalDates === 1 ? "" : "s"} now drive reminders and reporting.`
+        : "Approve at least one key date so reminders, renewals, and reports can trust the record.",
       el: (
         <span>
           Approve at least one operational date so{" "}
@@ -102,11 +230,89 @@ export function OnboardingBanner({
         </span>
       ),
     },
+    work: {
+      done: stepWork,
+      href: stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/contracts/renewals",
+      actionLabel:
+        stepWork && stats.visibleWorkItems > 0
+          ? "Open assigned work"
+          : stepWork
+            ? "Open renewals"
+            : "Open execution queues",
+      detail: stepWork
+        ? stats.visibleWorkItems > 0
+          ? `${stats.visibleWorkItems} visible work item${stats.visibleWorkItems === 1 ? "" : "s"} can now be worked from the shared queue.`
+          : `${stats.renewalAttention} renewal item${stats.renewalAttention === 1 ? "" : "s"} already ${stats.renewalAttention === 1 ? "needs" : "need"} attention in the active horizon.`
+        : "Finish review and key approvals so assigned work, reminders, or renewal follow-up have something actionable to drive.",
+      el: (
+        <span>
+          Use the{" "}
+          <Link
+            href={stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/contracts/renewals"}
+            className="ui-link"
+          >
+            {stats.visibleWorkItems > 0 ? "assigned work lens" : "renewals queue"}
+          </Link>{" "}
+          once approvals and generated work are ready to execute.
+        </span>
+      ),
+    },
+    dashboard: {
+      done: stepDashboard,
+      href: "/dashboard",
+      actionLabel: stepDashboard ? "Open dashboard" : "Return to dashboard",
+      detail: stepDashboard
+        ? "Dashboard cards now point to real queues and records for this workspace."
+        : "Return to the dashboard once the first queue, renewal, or review signals are live so the home view becomes actionable.",
+      el: (
+        <span>
+          Return to the{" "}
+          <Link href="/dashboard" className="ui-link">
+            dashboard
+          </Link>{" "}
+          once the first review, work, or renewal signals are live.
+        </span>
+      ),
+    },
   };
+  const orderedKeys: OnboardingRowKey[] = ["setup", ...rowOrder, "owner", "work", "dashboard"];
+  const recoveryRow =
+    !stepReview && stats.failedExtractionContractId
+      ? {
+          href: `/contracts/${stats.failedExtractionContractId}`,
+          actionLabel: "Recover failed extraction",
+          detail:
+            stats.failedExtractionIssue ||
+            "Extraction failed on a recent contract. Re-open it and retry from the latest error state.",
+        }
+      : stats.recoverableImportIssue
+        ? {
+            href: "/contracts/bulk#recent-imports",
+            actionLabel: "Recover failed import",
+            detail: stats.recoverableImportIssue,
+          }
+        : null;
+  const nextKey = orderedKeys.find((key) => !rows[key].done) ?? "work";
+  const nextRow = rows[nextKey];
+  const wrapperClass = hasMeaningfulProgress ? "ui-card relative overflow-hidden" : "ui-card-hero relative overflow-hidden";
+  const title = isLateStage
+    ? remainingCount === 1
+      ? "Complete the last activation step"
+      : "Complete the remaining activation steps"
+    : hasMeaningfulProgress
+      ? "Keep the activation path moving"
+      : "Establish your post-signature execution baseline";
+  const summary = recoveryRow
+    ? recoveryRow.detail
+    : isLateStage
+      ? "You already have source-backed data flowing. Finish the remaining activation steps so reminders, renewals, and work queues can trust this workspace."
+      : stats.hasExtractions && stats.pendingReviewCount > 0 && !stepReview
+        ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need review attention before the workspace can trust extracted dates and generated work.`
+      : nextRow.detail;
 
   return (
     <div
-      className="ui-card-hero relative overflow-hidden"
+      className={wrapperClass}
       role="region"
       aria-label="Getting started checklist"
     >
@@ -114,8 +320,14 @@ export function OnboardingBanner({
       <div className="flex flex-col gap-6 px-6 py-6 pl-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="ui-eyebrow text-[var(--accent-strong)]">Onboarding</p>
-          <p className="mt-2 text-lg font-semibold tracking-tight text-[var(--text-primary)]">
-            Establish your post-signature execution baseline
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <p className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
+              {title}
+            </p>
+            <span className="ui-chip">{completedCount}/{totalSteps} complete</span>
+          </div>
+          <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">
+            {summary}
           </p>
           {setupChecklist?.length ? (
             <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">
@@ -123,24 +335,51 @@ export function OnboardingBanner({
               {formatSetupChecklistSummary(setupChecklist)}
             </p>
           ) : null}
+          {recoveryRow ? (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+              <p className="font-semibold">Recovery available</p>
+              <p className="mt-1">{recoveryRow.detail}</p>
+            </div>
+          ) : null}
           <ul className="mt-4 space-y-3 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-            {rowOrder.map((key) => (
+            {orderedKeys.map((key) => (
               <li key={key} className="flex gap-3">
                 <StepIcon done={rows[key].done} />
-                {rows[key].el}
+                <div>
+                  {rows[key].el}
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{rows[key].detail}</p>
+                </div>
               </li>
             ))}
           </ul>
+          {stepWork ? (
+            <p className="mt-3 text-[12px] text-[var(--text-secondary)]">
+              Execution is now live in the{" "}
+              <Link href="/work?lens=assigned" className="ui-link">
+                assigned work lens
+              </Link>{" "}
+              for tasks, approvals, and obligations in one place.
+            </p>
+          ) : null}
           {error && <p className="mt-3 text-xs font-medium text-[var(--danger-ink)]">{error}</p>}
         </div>
-        <button
-          type="button"
-          onClick={dismiss}
-          disabled={isPending}
-          className="ui-btn-primary min-h-9 shrink-0 px-5 py-2.5"
-        >
-          {isPending ? "Saving…" : "Dismiss"}
-        </button>
+        <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+          <Link
+            href={recoveryRow?.href ?? nextRow.href}
+            className="ui-btn-primary inline-flex min-h-9 items-center gap-2 px-5 py-2.5"
+          >
+            {recoveryRow?.actionLabel ?? nextRow.actionLabel}
+            <ArrowRight size={14} aria-hidden />
+          </Link>
+          <button
+            type="button"
+            onClick={dismiss}
+            disabled={isPending}
+            className="ui-btn-secondary min-h-9 px-5 py-2.5"
+          >
+            {isPending ? "Saving…" : "Hide for now"}
+          </button>
+        </div>
       </div>
     </div>
   );

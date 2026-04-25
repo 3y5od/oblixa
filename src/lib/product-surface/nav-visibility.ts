@@ -1,5 +1,5 @@
 /**
- * Nav visibility vs capability vs route guards (docs/refinement.md §12.4).
+ * Nav visibility vs capability vs route guards (product-surface policy §12.4).
  *
  * - **Primary nav / cmd-K**: `isNavItemVisibleForSurface` and `isNavChildVisibleForSurface` control what
  *   appears in the sidebar and command palette. Hiding an item does not revoke backend capability by itself.
@@ -103,6 +103,7 @@ function advancedModuleForHref(href: string): AdvancedNavModuleKey | null {
   if (path.startsWith("/decisions/compare") || path.startsWith("/campaigns/compare")) {
     return "compare_views";
   }
+  if (path.startsWith("/contracts/analytics")) return "analytics";
   if (path.startsWith("/contracts/maintenance")) return "maintenance";
   if (path.startsWith("/contracts/collaboration")) return "collaboration";
   if (path.startsWith("/decisions")) return "decisions";

@@ -63,7 +63,7 @@ export function CreateDecisionForm() {
           {error}
         </p>
       ) : null}
-      <label className="block text-[11px] font-medium text-zinc-500">
+      <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Title
         <input
           className="ui-input-compact mt-1 w-full text-sm"
@@ -73,7 +73,7 @@ export function CreateDecisionForm() {
           required
         />
       </label>
-      <label className="block text-[11px] font-medium text-zinc-500">
+      <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Decision type
         <select
           className="ui-input-compact mt-1 w-full text-sm"
@@ -88,7 +88,7 @@ export function CreateDecisionForm() {
           ))}
         </select>
       </label>
-      <label className="block text-[11px] font-medium text-zinc-500">
+      <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Required inputs (JSON object, optional)
         <textarea
           className="ui-input-compact mt-1 min-h-[56px] w-full font-mono text-[11px]"

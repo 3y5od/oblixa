@@ -9,12 +9,31 @@
   --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 1.875rem;
+  --radius-4xl: 2.25rem;
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-surface-contrast: var(--surface-contrast);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-inset: var(--surface-inset);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
   --color-accent-fg: var(--accent-fg);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-contrast: var(--border-contrast);
+  --color-success-soft: var(--success-soft);
+  --color-success-ink: var(--success-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --color-info-soft: var(--info-soft);
+  --color-info-ink: var(--info-ink);
   --color-sidebar: var(--sidebar);
   --color-sidebar-border: var(--sidebar-border);
 }
@@ -56,6 +75,7 @@
   --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px rgba(15, 23, 42, 0.04);
   --shadow-2: 0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.04);
   --shadow-3: 0 26px 70px rgba(15, 23, 42, 0.16), 0 6px 18px rgba(15, 23, 42, 0.08);
+  --shadow-4: 0 34px 90px rgba(15, 23, 42, 0.22), 0 14px 34px rgba(15, 23, 42, 0.12);
   --shadow-glow: 0 18px 44px color-mix(in oklab, var(--accent) 16%, transparent);
   --canvas-glow: color-mix(in oklab, var(--accent) 11%, transparent);
   --canvas-glow-secondary: rgba(14, 165, 233, 0.1);
@@ -103,6 +123,7 @@
     --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24), 0 10px 28px rgba(0, 0, 0, 0.16);
     --shadow-2: 0 20px 48px rgba(0, 0, 0, 0.3), 0 6px 14px rgba(0, 0, 0, 0.14);
     --shadow-3: 0 30px 72px rgba(0, 0, 0, 0.42), 0 12px 28px rgba(0, 0, 0, 0.2);
+    --shadow-4: 0 42px 96px rgba(0, 0, 0, 0.5), 0 18px 40px rgba(0, 0, 0, 0.24);
     --shadow-glow: 0 18px 44px color-mix(in oklab, var(--accent) 18%, transparent);
     --canvas-glow: color-mix(in oklab, var(--accent) 18%, transparent);
     --canvas-glow-secondary: rgba(6, 182, 212, 0.08);
@@ -117,16 +138,12 @@
   }
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .ui-overlay-scrim {
-    @apply backdrop-blur-none;
-  }
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;
     background: var(--canvas);
+    scrollbar-gutter: stable;
+    scrollbar-color: color-mix(in oklab, var(--border-strong) 78%, transparent) transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -136,12 +153,12 @@
   }
 
   body {
-    @apply min-h-full font-sans text-[14px] leading-relaxed antialiased;
+    @apply min-h-full font-sans text-[15px] leading-[1.6] antialiased;
     color: var(--text-secondary);
     background:
-      radial-gradient(circle at top left, var(--canvas-glow), transparent 34%),
-      radial-gradient(circle at top right, var(--canvas-glow-secondary), transparent 30%),
-      linear-gradient(180deg, color-mix(in oklab, var(--canvas) 90%, white) 0%, var(--canvas) 52%, var(--canvas-strong) 100%);
+      radial-gradient(circle at top left, color-mix(in oklab, var(--canvas-glow) 115%, transparent), transparent 30%),
+      radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 118%, transparent), transparent 24%),
+      linear-gradient(180deg, color-mix(in oklab, var(--canvas) 86%, white) 0%, var(--canvas) 46%, var(--canvas-strong) 100%);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "liga" 1;
   }
 
@@ -158,6 +175,13 @@
     background: color-mix(in oklab, var(--accent) 28%, transparent);
     color: var(--text-primary);
   }
+
+  @media (prefers-color-scheme: dark) {
+    ::selection {
+      background: color-mix(in oklab, var(--accent) 42%, transparent);
+      color: var(--text-primary);
+    }
+  }
 }
 
 @layer components {
@@ -173,20 +197,24 @@
   }
 
   .ui-card {
-    @apply rounded-[1.5rem] border shadow-[var(--shadow-1)];
+    @apply border shadow-[var(--shadow-1)];
+    border-radius: var(--radius-2xl);
     border-color: var(--border-subtle);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface) 100%);
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 6%, transparent), transparent 48%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 86%, white) 0%, var(--surface) 100%);
     transition-property: box-shadow, border-color, background-color, transform;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-panel {
-    @apply rounded-[1.5rem] border p-5 shadow-[var(--shadow-1)];
+    @apply border p-5 shadow-[var(--shadow-1)];
+    border-radius: var(--radius-2xl);
     border-color: var(--border-subtle);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 94%, white) 0%, var(--surface) 100%);
+      radial-gradient(circle at top right, color-mix(in oklab, var(--accent) 7%, transparent), transparent 44%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface) 100%);
   }
 
   .ui-card-hover {
@@ -196,41 +224,132 @@
   }
 
   .ui-card-quiet {
-    @apply rounded-[1.375rem] border;
+    @apply border;
+    border-radius: calc(var(--radius-2xl) - 0.125rem);
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 82%, white) 0%, color-mix(in oklab, var(--surface-inset) 92%, transparent) 100%);
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 76%, white) 0%, color-mix(in oklab, var(--surface-inset) 88%, transparent) 100%);
     transition: border-color var(--ui-duration) var(--ui-ease-out), background-color var(--ui-duration) var(--ui-ease-out),
       box-shadow var(--ui-duration) var(--ui-ease-out);
   }
 
   .ui-card-raised {
-    @apply rounded-[1.5rem] border shadow-[var(--shadow-2)];
+    @apply border shadow-[var(--shadow-2)];
+    border-radius: var(--radius-2xl);
     border-color: color-mix(in oklab, var(--border-strong) 55%, var(--border-subtle));
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 90%, white) 0%, var(--surface-raised) 100%);
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 8%, transparent), transparent 42%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 88%, white) 0%, var(--surface-raised) 100%);
   }
 
   .ui-card-hero {
-    @apply rounded-[1.875rem] border shadow-[var(--shadow-2)];
+    @apply border shadow-[var(--shadow-2)];
+    border-radius: var(--radius-4xl);
     border-color: color-mix(in oklab, var(--border-subtle) 80%, var(--accent) 14%);
     background:
-      radial-gradient(circle at top right, color-mix(in oklab, var(--accent) 11%, transparent), transparent 36%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface) 100%);
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 12%, transparent), transparent 34%),
+      radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 150%, transparent), transparent 38%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface) 100%);
+    box-shadow: var(--shadow-3), var(--shadow-glow);
   }
 
   .ui-shell-surface {
-    @apply rounded-[1.875rem] border shadow-[var(--shadow-2)];
+    @apply border shadow-[var(--shadow-2)];
+    border-radius: var(--radius-3xl);
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
     background:
       linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 90%, white) 0%, var(--surface) 100%);
   }
 
   .ui-page-shell {
-    @apply rounded-[1.75rem] border p-5 shadow-[var(--shadow-1)] md:p-6;
+    @apply border p-5 shadow-[var(--shadow-1)] md:p-6;
+    border-radius: var(--radius-3xl);
     border-color: color-mix(in oklab, var(--border-subtle) 94%, transparent);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 6%, transparent), transparent 54%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-loading-panel,
+  .ui-route-state-card,
+  .ui-support-panel,
+  .ui-status-panel {
+    @apply border shadow-[var(--shadow-1)];
+    border-radius: var(--radius-2xl);
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-loading-panel {
+    @apply p-4 md:p-5;
+    border-radius: var(--radius-3xl);
+    border: 1px solid color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 44%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface-muted) 100%);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ui-status-panel {
+    @apply px-5 py-4;
+  }
+
+  .ui-status-panel-success {
+    border-color: color-mix(in oklab, var(--success-soft) 58%, var(--border-subtle));
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--success-soft) 72%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+  }
+
+  .ui-status-panel-warning {
+    border-color: color-mix(in oklab, var(--warning-soft) 58%, var(--border-subtle));
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--warning-soft) 76%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+  }
+
+  .ui-status-panel-risk {
+    border-color: color-mix(in oklab, var(--danger-soft) 54%, var(--border-subtle));
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--danger-soft) 72%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+  }
+
+  .ui-status-panel-info {
+    border-color: color-mix(in oklab, var(--info-soft) 54%, var(--border-subtle));
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--info-soft) 74%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+  }
+
+  .ui-loading-card-grid {
+    @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .ui-route-state-shell {
+    @apply flex min-h-[50vh] items-center justify-center px-4 py-12 md:py-16;
+  }
+
+  .ui-route-state-card {
+    @apply mx-auto w-full max-w-lg px-6 py-8 text-center md:px-8 md:py-10;
+  }
+
+  .ui-route-state-actions {
+    @apply mt-6 flex flex-wrap items-center justify-center gap-3;
+  }
+
+  .ui-route-state-copy {
+    @apply mt-2 max-w-lg text-balance text-[13px] leading-[1.5];
+    color: var(--text-secondary);
+  }
+
+  .ui-skip-link {
+    @apply absolute left-[-10000px] top-0 z-[200] h-px w-px overflow-hidden whitespace-nowrap;
+  }
+
+  .ui-skip-link:focus {
+    @apply left-4 top-4 h-auto w-auto overflow-visible whitespace-normal px-4 py-2.5 text-sm font-medium shadow-lg outline-none ring-2 ring-offset-2;
+    border-radius: var(--radius-lg);
+    background: var(--text-primary);
+    color: var(--text-inverse);
+    --tw-ring-color: var(--focus-ring);
   }
 
   .ui-soft-divider {
@@ -238,7 +357,8 @@
   }
 
   .ui-input {
-    @apply block min-h-11 w-full rounded-[1rem] border px-3.5 py-2.5 text-sm leading-tight shadow-none outline-none;
+    @apply block min-h-11 w-full border px-3.5 py-2.5 text-sm leading-tight shadow-none outline-none;
+    border-radius: var(--radius-lg);
     color: var(--text-primary);
     background: color-mix(in oklab, var(--surface) 86%, white);
     border-color: color-mix(in oklab, var(--border-subtle) 92%, transparent);
@@ -266,7 +386,8 @@
   }
 
   .ui-input-compact {
-    @apply block min-h-9 w-full rounded-[0.9rem] border px-3 py-2 text-[13px] leading-tight shadow-none outline-none;
+    @apply block min-h-9 w-full border px-3 py-2 text-[13px] leading-tight shadow-none outline-none;
+    border-radius: calc(var(--radius-lg) - 0.1rem);
     color: var(--text-primary);
     background: color-mix(in oklab, var(--surface) 84%, white);
     border-color: color-mix(in oklab, var(--border-subtle) 92%, transparent);
@@ -307,7 +428,8 @@
   }
 
   .ui-btn-primary {
-    @apply min-h-10 rounded-[1rem] border px-4 py-2.5 text-sm shadow-[var(--shadow-1)] motion-safe:active:scale-[0.99];
+    @apply min-h-10 border px-4 py-2.5 text-sm shadow-[var(--shadow-1)] motion-safe:active:scale-[0.99];
+    border-radius: var(--radius-lg);
     background:
       linear-gradient(180deg, color-mix(in oklab, var(--accent) 84%, white) 0%, var(--accent-strong) 100%);
     color: var(--accent-fg);
@@ -320,7 +442,8 @@
   }
 
   .ui-btn-secondary {
-    @apply min-h-10 rounded-[1rem] border px-4 py-2.5 text-sm;
+    @apply min-h-10 border px-4 py-2.5 text-sm;
+    border-radius: var(--radius-lg);
     border-color: color-mix(in oklab, var(--border-subtle) 84%, transparent);
     color: var(--text-primary);
     background:
@@ -333,7 +456,8 @@
   }
 
   .ui-btn-ghost {
-    @apply min-h-9 rounded-[0.95rem] border border-transparent px-3.5 py-2 text-sm font-medium;
+    @apply min-h-9 border border-transparent px-3.5 py-2 text-sm font-medium;
+    border-radius: calc(var(--radius-lg) - 0.05rem);
     color: var(--text-secondary);
     background: transparent;
   }
@@ -344,10 +468,58 @@
   }
 
   .ui-btn-danger {
-    @apply min-h-10 rounded-[1rem] border px-4 py-2.5 text-sm;
+    @apply min-h-10 border px-4 py-2.5 text-sm;
+    border-radius: var(--radius-lg);
     color: var(--danger-ink);
     background: color-mix(in oklab, var(--danger-soft) 82%, white);
     border-color: color-mix(in oklab, var(--danger-soft) 55%, var(--border-subtle));
+  }
+
+  .ui-icon-button {
+    @apply inline-flex min-h-10 min-w-10 items-center justify-center border px-2.5 py-2 text-sm;
+    border-radius: calc(var(--radius-lg) - 0.05rem);
+    color: var(--text-secondary);
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+    transition:
+      color var(--ui-duration) var(--ui-ease-out),
+      border-color var(--ui-duration) var(--ui-ease-out),
+      background-color var(--ui-duration) var(--ui-ease-out),
+      box-shadow var(--ui-duration) var(--ui-ease-out),
+      transform var(--ui-duration) var(--ui-ease-out);
+  }
+
+  .ui-icon-button:hover {
+    color: var(--text-primary);
+    border-color: color-mix(in oklab, var(--border-strong) 84%, transparent);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ui-icon-tile,
+  .ui-icon-tile-compact,
+  .ui-avatar-tile {
+    @apply flex items-center justify-center border shadow-[var(--shadow-1)];
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, color-mix(in oklab, var(--surface-contrast) 84%, transparent) 100%);
+  }
+
+  .ui-icon-tile {
+    @apply h-12 w-12;
+    border-radius: calc(var(--radius-xl) + 0.1rem);
+  }
+
+  .ui-icon-tile-compact,
+  .ui-avatar-tile {
+    @apply h-10 w-10;
+    border-radius: calc(var(--radius-lg) - 0.05rem);
+  }
+
+  .ui-avatar-tile {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--accent-soft) 54%, white) 0%, color-mix(in oklab, var(--accent-soft) 70%, transparent) 100%);
+    color: var(--accent-strong);
   }
 
   .ui-link {
@@ -378,7 +550,7 @@
   .ui-table-header {
     @apply text-left text-[11px] font-semibold uppercase tracking-[0.16em];
     color: var(--text-tertiary);
-    background: color-mix(in oklab, var(--surface-muted) 76%, transparent);
+    background: color-mix(in oklab, var(--surface-muted) 88%, transparent);
   }
 
   .ui-table-row {
@@ -393,38 +565,66 @@
   }
 
   .ui-page-title {
-    @apply text-2xl font-semibold tracking-tight sm:text-[1.85rem] sm:leading-tight;
+    @apply text-[1.9rem] font-semibold tracking-tight sm:text-[2.15rem] sm:leading-[1.08];
+    color: var(--text-primary);
+  }
+
+  .ui-display-hero {
+    @apply text-[2.85rem] font-semibold tracking-tight text-balance sm:text-[3.45rem] lg:text-[4.35rem];
+    line-height: 0.98;
     color: var(--text-primary);
   }
 
   .ui-display-title {
-    @apply text-3xl font-semibold tracking-tight sm:text-[2.4rem] sm:leading-[1.06];
+    @apply text-[2.45rem] font-semibold tracking-tight text-balance sm:text-[3rem] sm:leading-[1.02];
     color: var(--text-primary);
   }
 
   .ui-section-title {
-    @apply text-[15px] font-semibold tracking-tight;
+    @apply text-[1.05rem] font-semibold tracking-tight leading-snug;
     color: var(--text-primary);
   }
 
   .ui-page-header {
-    @apply relative flex flex-col gap-5 overflow-hidden rounded-[1.75rem] border px-5 py-6 shadow-[var(--shadow-1)] md:px-6 md:py-7 lg:gap-6 lg:flex-row lg:items-end lg:justify-between;
+    @apply relative flex flex-col gap-6 overflow-hidden border px-5 py-6 shadow-[var(--shadow-2)] md:px-7 md:py-8 lg:flex-row lg:items-end lg:justify-between;
+    border-radius: var(--radius-4xl);
     border-color: color-mix(in oklab, var(--border-subtle) 94%, transparent);
     background:
-      radial-gradient(circle at top right, color-mix(in oklab, var(--accent) 10%, transparent), transparent 32%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 11%, transparent), transparent 34%),
+      radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 140%, transparent), transparent 36%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-page-lead {
+    @apply max-w-3xl text-[14px] leading-[1.65] md:text-[15px];
+    color: var(--text-secondary);
+  }
+
+  .ui-section-lead {
+    @apply max-w-2xl text-[13px] leading-[1.6];
+    color: var(--text-secondary);
+  }
+
+  .ui-meta {
+    @apply text-[11px] font-medium uppercase tracking-[0.14em];
+    color: var(--text-tertiary);
+  }
+
+  .ui-support-copy {
+    @apply text-[12px] leading-[1.55];
+    color: var(--text-secondary);
   }
 
   .ui-page-stack {
-    @apply space-y-6 md:space-y-7;
+    @apply space-y-7 md:space-y-8 xl:space-y-9;
   }
 
   .ui-page-actions {
-    @apply flex w-full flex-wrap items-center gap-2 lg:w-auto lg:max-w-[44rem] lg:justify-end;
+    @apply flex w-full flex-wrap items-center gap-2.5 lg:w-auto lg:max-w-[48rem] lg:justify-end;
   }
 
   .ui-eyebrow {
-    @apply text-[10px] font-semibold uppercase tracking-[0.22em];
+    @apply text-[10px] font-semibold uppercase tracking-[0.2em];
     color: var(--text-tertiary);
   }
 
@@ -434,16 +634,16 @@
   }
 
   .ui-muted-tight {
-    @apply text-[13px] leading-[1.5];
+    @apply text-[13px] leading-[1.58];
     color: var(--text-secondary);
   }
 
   .ui-operational-focusable {
-    @apply rounded-[0.9rem];
+    border-radius: calc(var(--radius-lg) - 0.1rem);
   }
 
   .ui-kicker {
-    @apply text-[10px] font-semibold uppercase tracking-[0.18em];
+    @apply text-[10px] font-semibold uppercase tracking-[0.16em];
     color: var(--text-tertiary);
   }
 
@@ -455,12 +655,18 @@
   .ui-badge,
   .ui-status-badge,
   .ui-chip {
-    @apply inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-tight;
+    @apply inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-tight;
+  }
+
+  /* Utility-composed chips (e.g. contract table signals) keep one-line labels in max-w / flex-wrap cells */
+  :where(.ui-badge, .ui-status-badge, .ui-chip, .ui-metric-chip, .ui-nowrap-chip) {
+    white-space: nowrap;
   }
 
   .ui-status-badge {
     border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
-    background: color-mix(in oklab, var(--surface-contrast) 64%, transparent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-contrast) 74%, white) 0%, color-mix(in oklab, var(--surface-muted) 72%, transparent) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
 
   .ui-status-badge-healthy {
@@ -515,11 +721,39 @@
     color: var(--text-primary);
   }
 
-  .ui-metric-chip {
-    @apply inline-flex min-h-8 items-center gap-2 rounded-[0.95rem] border px-2.5 py-1 text-[11px];
+  .ui-filter-pill {
+    @apply inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold;
+    color: var(--text-secondary);
     border-color: color-mix(in oklab, var(--border-subtle) 84%, transparent);
-    background: color-mix(in oklab, var(--surface) 74%, white);
-    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 88%, white) 0%, color-mix(in oklab, var(--surface-inset) 84%, transparent) 100%);
+    transition:
+      border-color var(--ui-duration) var(--ui-ease-out),
+      background-color var(--ui-duration) var(--ui-ease-out),
+      color var(--ui-duration) var(--ui-ease-out),
+      box-shadow var(--ui-duration) var(--ui-ease-out);
+  }
+
+  .ui-filter-pill:hover {
+    color: var(--text-primary);
+    border-color: color-mix(in oklab, var(--border-strong) 74%, transparent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-contrast) 78%, white) 0%, color-mix(in oklab, var(--surface-muted) 72%, transparent) 100%);
+  }
+
+  .ui-filter-pill-active {
+    color: var(--accent-fg);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--accent) 82%, white) 0%, var(--accent-strong) 100%);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ui-metric-chip {
+    @apply inline-flex min-h-8 items-center gap-2 border px-2.5 py-1 text-[11px];
+    border-radius: calc(var(--radius-lg) - 0.05rem);
+    border-color: color-mix(in oklab, var(--border-subtle) 84%, transparent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 80%, white) 0%, color-mix(in oklab, var(--surface-muted) 72%, transparent) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 1px 0 rgba(15, 23, 42, 0.03);
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
   }
@@ -535,7 +769,8 @@
   }
 
   .ui-sidebar-link {
-    @apply flex items-center gap-3 rounded-[1rem] px-3 py-2.5 text-[13px] font-medium;
+    @apply relative flex min-w-0 items-center gap-3 px-3 py-2.5 text-[13px] font-medium;
+    border-radius: var(--radius-lg);
     color: var(--sidebar-muted);
     transition-property: background-color, color, border-color, box-shadow;
     transition-duration: var(--ui-duration-slow);
@@ -545,10 +780,10 @@
   .ui-sidebar-link-active {
     color: var(--sidebar-fg);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--sidebar-surface) 88%, white) 0%, color-mix(in oklab, var(--accent) 20%, transparent) 100%);
+      linear-gradient(180deg, color-mix(in oklab, var(--sidebar-surface) 92%, white) 0%, color-mix(in oklab, var(--accent) 22%, transparent) 100%);
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 12px 30px rgba(0, 0, 0, 0.16);
+      0 16px 34px rgba(0, 0, 0, 0.2);
   }
 
   .ui-sidebar-link-active-rail {
@@ -557,13 +792,19 @@
 
   .ui-sidebar-link-active-rail::before {
     content: "";
-    @apply absolute left-1.5 top-2.5 h-4 w-0.5 rounded-full;
+    @apply absolute left-1.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full;
     background: var(--sidebar-fg);
   }
 
   .ui-sidebar-link-idle:hover {
     color: var(--sidebar-fg);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .ui-sidebar-sublink-active {
+    color: var(--sidebar-fg);
+    background: rgba(255, 255, 255, 0.11);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   }
 
   /*
@@ -599,20 +840,26 @@
   }
 
   .ui-empty-state {
-    @apply rounded-[1.75rem] border border-dashed px-8 py-14 text-center shadow-[var(--shadow-1)];
+    @apply border border-dashed px-8 py-14 text-center shadow-[var(--shadow-1)];
+    border-radius: var(--radius-4xl);
     border-color: color-mix(in oklab, var(--border-strong) 50%, transparent);
     background:
-      radial-gradient(circle at top center, color-mix(in oklab, var(--accent) 8%, transparent), transparent 34%),
+      radial-gradient(circle at top center, color-mix(in oklab, var(--accent) 10%, transparent), transparent 30%),
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-inset) 100%);
   }
 
+  .ui-empty-state-compact {
+    @apply px-5 py-8;
+    border-radius: var(--radius-2xl);
+  }
+
   .ui-empty-state-title {
-    @apply mt-5 text-[16px] font-semibold;
+    @apply mt-5 text-[1.05rem] font-semibold tracking-tight;
     color: var(--text-primary);
   }
 
   .ui-empty-state-copy {
-    @apply mt-2 max-w-sm text-[14px] leading-relaxed;
+    @apply mt-2 max-w-md text-[14px] leading-[1.65];
     color: var(--text-secondary);
   }
 
@@ -626,10 +873,45 @@
   }
 
   .ui-summary-card {
-    @apply rounded-[1.5rem] border p-4 shadow-[var(--shadow-1)];
+    @apply border p-4 shadow-[var(--shadow-1)];
+    border-radius: var(--radius-2xl);
     border-color: var(--border-subtle);
     background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 5%, transparent), transparent 58%),
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-operational-card {
+    @apply border p-4 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)];
+    border-radius: var(--radius-2xl);
+    border-color: var(--border-subtle);
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 54%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+    transition-property: background-color, color, border-color, box-shadow, transform;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  .ui-operational-card-compact {
+    @apply border p-3.5 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)];
+    border-radius: calc(var(--radius-2xl) - 0.15rem);
+    border-color: var(--border-subtle);
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 5%, transparent), transparent 56%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+    transition-property: background-color, color, border-color, box-shadow, transform;
+    transition-duration: var(--ui-duration-slow);
+    transition-timing-function: var(--ui-ease-out);
+  }
+
+  .ui-operational-action {
+    @apply inline-flex min-w-0 max-w-full items-center gap-1 text-[12px] font-semibold;
+    color: var(--accent-strong);
+  }
+
+  .ui-operational-action:hover {
+    color: var(--text-primary);
   }
 
   .ui-question-card {
@@ -689,8 +971,10 @@
 
   .ui-alert-error,
   .ui-alert-success,
-  .ui-alert-warning {
-    @apply rounded-[1rem] border px-3 py-2 text-[12px] font-medium;
+  .ui-alert-warning,
+  .ui-alert-info {
+    @apply border px-3 py-2 text-[12px] font-medium;
+    border-radius: var(--radius-lg);
   }
 
   .ui-alert-error {
@@ -711,14 +995,44 @@
     color: var(--warning-ink);
   }
 
+  .ui-alert-info {
+    border-color: color-mix(in oklab, var(--info-soft) 55%, transparent);
+    background: color-mix(in oklab, var(--info-soft) 76%, transparent);
+    color: var(--info-ink);
+  }
+
+  .ui-surface-tint {
+    @apply border-b;
+    border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
+    background: color-mix(in oklab, var(--surface-muted) 75%, var(--canvas) 25%);
+  }
+
+  .ui-icon-badge-danger {
+    @apply flex h-12 w-12 items-center justify-center border;
+    border-radius: calc(var(--radius-xl) + 0.1rem);
+    border-color: color-mix(in oklab, var(--danger-soft) 55%, transparent);
+    background: color-mix(in oklab, var(--danger-soft) 86%, var(--canvas));
+    color: var(--danger-ink);
+  }
+
+  .ui-icon-badge-danger-compact {
+    @apply flex h-10 w-10 items-center justify-center border;
+    border-radius: calc(var(--radius-lg) - 0.05rem);
+    border-color: color-mix(in oklab, var(--danger-soft) 55%, transparent);
+    background: color-mix(in oklab, var(--danger-soft) 86%, var(--canvas));
+    color: var(--danger-ink);
+  }
+
   .ui-soft-details {
-    @apply rounded-[1rem] border p-3;
+    @apply border p-3;
+    border-radius: var(--radius-lg);
     border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
     background: color-mix(in oklab, var(--surface-muted) 72%, transparent);
   }
 
   .ui-table-shell {
-    @apply overflow-hidden rounded-[1.5rem] border shadow-[var(--shadow-1)];
+    @apply overflow-hidden border shadow-[var(--shadow-1)];
+    border-radius: var(--radius-2xl);
     border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
     background:
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
@@ -734,17 +1048,106 @@
   }
 
   .ui-toolbar {
-    @apply flex flex-wrap items-center gap-2 rounded-[1.25rem] border px-3 py-2 text-[12px] shadow-[var(--shadow-1)];
+    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px] shadow-[var(--shadow-1)];
+    border-radius: var(--radius-xl);
     color: var(--text-secondary);
     border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-toolbar-strong {
+    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px] shadow-[var(--shadow-1)];
+    border-radius: var(--radius-xl);
+    color: var(--text-secondary);
+    border-color: color-mix(in oklab, var(--border-strong) 36%, var(--border-subtle));
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 56%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-footer-shell {
+    @apply border-t backdrop-blur-md;
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, transparent) 0%, color-mix(in oklab, var(--surface-raised) 82%, transparent) 100%);
+  }
+
+  .ui-legal-links {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-medium;
+    color: var(--text-tertiary);
+  }
+
+  .ui-command-modal {
+    @apply overflow-hidden border shadow-[var(--shadow-3)];
+    border-radius: calc(var(--radius-3xl) + 0.1rem);
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 56%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-command-search {
+    @apply grid items-center gap-3 border-b px-4 py-4 sm:px-5;
+    grid-template-columns: auto minmax(0, 1fr);
+    border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
+    background: color-mix(in oklab, var(--surface) 90%, white);
+  }
+
+  @media (min-width: 640px) {
+    .ui-command-search {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+  }
+
+  .ui-command-group-label {
+    @apply px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] sm:px-5;
+    color: var(--text-tertiary);
+  }
+
+  .ui-command-item {
+    @apply block px-4 py-3.5 transition-colors sm:px-5;
+  }
+
+  .ui-command-item-active {
+    background: color-mix(in oklab, var(--accent-soft) 68%, transparent);
+  }
+
+  .ui-command-item-idle:hover {
+    background: color-mix(in oklab, var(--surface-contrast) 74%, transparent);
+  }
+
+  .ui-permission-hint {
+    @apply border px-4 py-3;
+    border-radius: var(--radius-xl);
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 82%, white) 0%, color-mix(in oklab, var(--surface-inset) 78%, transparent) 100%);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ui-public-shell {
+    background:
+      radial-gradient(circle at top, var(--canvas-glow), transparent 28%),
+      linear-gradient(180deg, color-mix(in oklab, var(--canvas) 92%, white) 0%, var(--canvas-strong) 100%);
+  }
+
+  .ui-public-minimal-shell {
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, var(--canvas-glow) 82%, transparent), transparent 30%),
+      linear-gradient(180deg, color-mix(in oklab, var(--canvas) 94%, white) 0%, var(--canvas-strong) 100%);
   }
 
   .ui-skeleton {
     @apply animate-pulse rounded-[1rem];
     background:
       linear-gradient(90deg, color-mix(in oklab, var(--surface-inset) 86%, transparent) 0%, color-mix(in oklab, var(--surface-contrast) 84%, white) 50%, color-mix(in oklab, var(--surface-inset) 86%, transparent) 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ui-skeleton {
+      animation: none;
+    }
   }
 
   .ui-segmented {
@@ -779,7 +1182,8 @@
   }
 
   .ui-overlay-scrim {
-    @apply bg-zinc-950/56 backdrop-blur-md;
+    background: color-mix(in oklab, #18181b 64%, transparent);
+    backdrop-filter: blur(12px);
   }
 }
 
@@ -788,6 +1192,42 @@
     content: " (" attr(href) ")";
     font-size: 0.8em;
     font-weight: 400;
-    color: #71717a;
+    color: var(--text-tertiary);
+  }
+}
+
+/* Unlayered: wins over @layer so reduced-transparency / contrast users get predictable surfaces */
+@media (prefers-reduced-transparency: reduce) {
+  .ui-card,
+  .ui-panel,
+  .ui-card-raised,
+  .ui-card-hero,
+  .ui-table-shell,
+  .ui-toolbar,
+  .ui-empty-state,
+  .ui-question-card {
+    backdrop-filter: none;
+  }
+
+  .ui-overlay-scrim {
+    backdrop-filter: none;
+  }
+
+  .ui-sidebar-link-active {
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ui-card,
+  .ui-panel,
+  .ui-card-raised,
+  .ui-table-shell {
+    border-color: var(--border-strong);
+  }
+
+  .ui-sidebar-link-active,
+  .ui-sidebar-sublink-active {
+    box-shadow: inset 0 0 0 1px currentColor;
   }
 }
