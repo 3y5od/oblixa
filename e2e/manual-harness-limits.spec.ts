@@ -1,6 +1,7 @@
 /**
  * Centralized `test.skip` for harness limits (WebAuthn, biometrics, some native APIs).
  * opt-in: PLAYWRIGHT_EXPERIMENTAL_MODALITIES=1, PLAYWRIGHT_PRIVILEGED_DEVICE=1, E2E_USE_WEBAUTHN=1
+ * skip-meta-default: owner=@qa expiry=2027-12-31 reason=manual_native_api_harness_requires_privileged_local_device_flags
  */
 import { test, expect } from "@playwright/test";
 

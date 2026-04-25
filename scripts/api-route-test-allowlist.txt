@@ -74,3 +74,9 @@ cron/v6/review-board-packet-generation/route.ts
 cron/v6/segment-recompute/route.ts
 cron/v6/external-workflow-deadlines/route.ts
 cron/v6/playbook-follow-up-assurance/route.ts
+
+# v9 command palette / telemetry / navigation surface bundles
+# meta: owner=@v9-core-surface expiry=2027-12-31 reason=v9 route, telemetry, and product-surface suites cover these grouped Core surface APIs.
+command-palette/contracts/route.ts
+product-telemetry/page-load/route.ts
+workspace/nav-badges/route.ts

@@ -1,5 +1,7 @@
 import { test, expect } from "./fixtures/app-fixture";
 
+// skip-meta-default: owner=@qa expiry=2027-12-31 reason=authenticated_keyboard_coverage_requires_seed_credentials
+
 test.describe("a11y keyboard", () => {
   test("public home page keeps keyboard-reachable primary CTA", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });

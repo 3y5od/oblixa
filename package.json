@@ -327,7 +327,9 @@
     "pipeline:release:checklist": "node scripts/pipelines/pipeline-release-checklist.mjs",
     "report:ratchet-snapshot": "node scripts/report-ratchet-snapshot.mjs",
     "report:api-route-auth-and-scope-coverage": "node scripts/report-api-route-auth-and-scope-coverage.mjs",
-    "report:db-privilege-surface": "node scripts/report-db-privilege-surface.mjs"
+    "report:db-privilege-surface": "node scripts/report-db-privilege-surface.mjs",
+    "test:e2e:teardown": "node scripts/e2e-teardown-stub.mjs",
+    "codemod:zinc-sweep-tokens": "node scripts/zinc-sweep-tokens.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.4.0",
@@ -369,5 +371,9 @@
     "typescript": "^5",
     "vitest": "^4.1.2",
     "yaml": "^2.8.3"
+  },
+  "overrides": {
+    "postcss": "8.5.10",
+    "uuid": "14.0.0"
   }
 }

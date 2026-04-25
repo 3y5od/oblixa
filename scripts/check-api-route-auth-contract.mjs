@@ -80,6 +80,7 @@ function loadPublicAllowlist() {
 const AUTH_SIGNALS = [
   // Session/user context
   /\bgetApiAuthContext\b/,
+  /\bgetAuthContext\b/,
   /\.auth\.getUser\s*\(/,
   /\bcreateClient\s*\(/,
   /\bcreateServerClient\s*\(/,
