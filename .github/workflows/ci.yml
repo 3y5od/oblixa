@@ -297,6 +297,7 @@ jobs:
   quality_security:
     permissions:
       contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
