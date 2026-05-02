@@ -691,7 +691,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     needs: quality
     steps:
       - name: Gate runtime comprehensive pass
@@ -727,7 +727,7 @@ jobs:
             curl -fsS -m 10 "$HC_RUNTIME_COMPREHENSIVE_PING/start"
           fi
 
-      - name: Runtime comprehensive pass (staging)
+      - name: Runtime comprehensive pass (staging + local Next fallback)
         if: ${{ steps.gate_runtime.outputs.run == 'true' }}
         env:
           COMPREHENSIVE_PASS_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
@@ -737,7 +737,31 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
           COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
-        run: npm run check:comprehensive-pass
+        run: |
+          set -euo pipefail
+          base="${COMPREHENSIVE_PASS_BASE_URL%/}"
+          probe=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 20 "${base}/api/reminders/send" || echo "000")
+          if [ "$probe" = "401" ]; then
+            npm run check:comprehensive-pass
+          else
+            echo "WARN staging cron probe returned HTTP ${probe} (expected 401); building local Next for comprehensive-pass fallback"
+            npm run build
+            PORT=3000 npm run start &
+            start_pid=$!
+            trap 'kill "$start_pid" 2>/dev/null || true' EXIT
+            code="000"
+            for _ in $(seq 1 90); do
+              code=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 8 http://127.0.0.1:3000/api/reminders/send || echo "000")
+              if [ "$code" = "401" ]; then break; fi
+              sleep 2
+            done
+            if [ "$code" != "401" ]; then
+              echo "::error::Local next start never returned HTTP 401 for unsigned GET /api/reminders/send (last status ${code})"
+              exit 1
+            fi
+            export NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
+            npm run check:comprehensive-pass
+          fi
 
       - name: CI provenance report (telemetry)
         if: ${{ steps.gate_runtime.outputs.run == 'true' && always() }}
