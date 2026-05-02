@@ -1135,7 +1135,7 @@ export const V10_DEPRECATION_CANDIDATES: readonly V10DeprecationCandidate[] = [
     removalGate: "tests-ci-release",
   },
   {
-    key: "duplicate_v10_e2e_smoke_lane",
+    key: "duplicate_v10_e2e_smoke_lane", // gitleaks:allow gap-audit catalog id, not a secret
     category: "duplicate_e2e",
     artifact: ".github/workflows/ci.yml",
     replacement: "intentional smoke/workflow/release-candidate E2E split",
@@ -1231,7 +1231,7 @@ export const V10_DEPRECATION_CLEANUP_DECISIONS: readonly V10DeprecationCleanupDe
     cleanupCommand: "npm run check:v10-release-evidence -- --cleanup v10_semgrep_warning_only",
   },
   {
-    candidateKey: "duplicate_v10_e2e_smoke_lane",
+    candidateKey: "duplicate_v10_e2e_smoke_lane", // gitleaks:allow gap-audit catalog id, not a secret
     action: "quarantine",
     supersededBy: "intentional smoke/workflow/release-candidate E2E split",
     runtimeReplacementProof: ".github/workflows/ci.yml",
