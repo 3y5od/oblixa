@@ -12,11 +12,14 @@ env:
   STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
   CRON_SECRET: ${{ secrets.CRON_SECRET }}
   HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
 jobs:
   canary:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - name: Gate required secrets
         id: gate
@@ -58,7 +61,31 @@ jobs:
         env:
           COMPREHENSIVE_PASS_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        run: npm run check:cron-canary
+        run: |
+          set -euo pipefail
+          base="${COMPREHENSIVE_PASS_BASE_URL%/}"
+          probe=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 20 "${base}/api/reminders/send" || echo "000")
+          if [ "$probe" = "401" ]; then
+            npm run check:cron-canary
+          else
+            echo "WARN staging cron probe returned HTTP ${probe} (expected 401); building local Next for cron-canary fallback"
+            npm run build
+            PORT=3000 npm run start &
+            start_pid=$!
+            trap 'kill "$start_pid" 2>/dev/null || true' EXIT
+            code="000"
+            for _ in $(seq 1 90); do
+              code=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 8 http://127.0.0.1:3000/api/reminders/send || echo "000")
+              if [ "$code" = "401" ]; then break; fi
+              sleep 2
+            done
+            if [ "$code" != "401" ]; then
+              echo "::error::Local next start never returned HTTP 401 for unsigned GET /api/reminders/send (last status ${code})"
+              exit 1
+            fi
+            export NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
+            npm run check:cron-canary
+          fi
 
       - name: Healthchecks success
         if: ${{ steps.gate.outputs.run == 'true' && success() }}

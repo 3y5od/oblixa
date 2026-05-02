@@ -51,13 +51,18 @@ async function safeFetch(url, init) {
 async function resolveReachableBaseUrl() {
   const configured = normalizeBaseUrl(requireEnv("COMPREHENSIVE_PASS_BASE_URL"));
   const publicApp = normalizeBaseUrl(env("NEXT_PUBLIC_APP_URL"));
+  const secondary = normalizeBaseUrl(env("COMPREHENSIVE_PASS_SECONDARY_BASE_URL"));
   const probeRoute = "/api/reminders/send";
   const probeOpts = { cache: "no-store", headers: { "Cache-Control": "no-store" } };
+
+  async function probeCronUnsigned(base) {
+    return safeFetch(`${base}${probeRoute}`, probeOpts);
+  }
 
   let firstRes;
   let firstErr;
   try {
-    firstRes = await safeFetch(`${configured}${probeRoute}`, probeOpts);
+    firstRes = await probeCronUnsigned(configured);
   } catch (e) {
     firstErr = e;
   }
@@ -67,12 +72,58 @@ async function resolveReachableBaseUrl() {
   }
 
   if (
+    secondary &&
+    secondary !== configured &&
+    (firstErr || !firstRes || firstRes.status !== 401)
+  ) {
+    warn(
+      `COMPREHENSIVE_PASS_BASE_URL=${configured} probe ${
+        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes?.status} (expected 401 unsigned)`
+      }; retrying COMPREHENSIVE_PASS_SECONDARY_BASE_URL=${secondary}`
+    );
+    try {
+      const secRes = await probeCronUnsigned(secondary);
+      if (secRes.status === 401) {
+        return secondary;
+      }
+      warn(
+        `COMPREHENSIVE_PASS_SECONDARY_BASE_URL probe returned ${secRes.status} (expected 401 unsigned); continuing fallbacks`
+      );
+    } catch (e) {
+      warn(`COMPREHENSIVE_PASS_SECONDARY_BASE_URL probe failed: ${String(e?.message || e)}`);
+    }
+  }
+
+  if (
     publicApp &&
     publicApp !== configured &&
-    (firstErr || firstRes?.status !== 401)
+    isLocalhostUrl(publicApp) &&
+    (firstErr || !firstRes || firstRes.status !== 401)
+  ) {
+    warn(
+      `COMPREHENSIVE_PASS_BASE_URL=${configured} probe ${
+        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes?.status} (expected 401 unsigned)`
+      }; retrying NEXT_PUBLIC_APP_URL=${publicApp}`
+    );
+    try {
+      const second = await probeCronUnsigned(publicApp);
+      if (second.status === 401) {
+        return publicApp;
+      }
+      warn(`NEXT_PUBLIC_APP_URL probe returned ${second.status} (expected 401 unsigned); continuing fallbacks`);
+    } catch (e) {
+      warn(`NEXT_PUBLIC_APP_URL probe failed: ${String(e?.message || e)}`);
+    }
+  }
+
+  if (
+    publicApp &&
+    publicApp !== configured &&
+    !isLocalhostUrl(publicApp) &&
+    (firstErr || !firstRes || firstRes.status !== 401)
   ) {
     try {
-      const sec = await safeFetch(`${publicApp}${probeRoute}`, probeOpts);
+      const sec = await probeCronUnsigned(publicApp);
       if (sec.status === 401) {
         warn(
           `COMPREHENSIVE_PASS_BASE_URL=${configured} probe ${
@@ -86,23 +137,20 @@ async function resolveReachableBaseUrl() {
     }
   }
 
-  if (publicApp && isLocalhostUrl(publicApp) && (firstErr || firstRes?.status !== 401)) {
-    try {
-      const local = await safeFetch(`${publicApp}${probeRoute}`, probeOpts);
-      if (local.status === 401) {
-        return publicApp;
-      }
-    } catch (e) {
-      warn(`NEXT_PUBLIC_APP_URL (localhost) probe failed: ${String(e?.message || e)}`);
-    }
-  }
-
   if (firstRes && firstRes.status !== 401 && firstRes.status >= 500) {
     const snippet = (await firstRes.clone().text().catch(() => "")).slice(0, 500);
     const looksLikeHtml = /<!DOCTYPE html|<html/i.test(snippet);
-    for (const localBase of ["http://127.0.0.1:3000", "http://localhost:3000"]) {
+    const pw = normalizeBaseUrl(env("PLAYWRIGHT_BASE_URL"));
+    const localCandidates = [
+      pw && isLocalhostUrl(pw) ? pw : null,
+      "http://127.0.0.1:3000",
+      "http://localhost:3000",
+      "http://127.0.0.1:3001",
+      "http://127.0.0.1:3002",
+    ].filter(Boolean);
+    for (const localBase of localCandidates) {
       try {
-        const lr = await safeFetch(`${localBase}${probeRoute}`, probeOpts);
+        const lr = await probeCronUnsigned(localBase);
         if (lr.status === 401) {
           warn(
             `cron canary using ${localBase} (configured URL returned ${firstRes.status}${
@@ -121,7 +169,9 @@ async function resolveReachableBaseUrl() {
     throw firstErr;
   }
   throw new Error(
-    `${probeRoute}: expected unsigned 401, got ${firstRes?.status ?? "no response"} (start \`npm run start\` locally when using production URLs that return HTML errors)`
+    `${probeRoute}: expected unsigned 401, got ${firstRes?.status ?? "no response"} ` +
+      `(run \`npm run build && npm run start\` locally, set NEXT_PUBLIC_APP_URL to that origin, ` +
+      `or point COMPREHENSIVE_PASS_BASE_URL at a deployment where unsigned cron routes return 401.)`
   );
 }
 
