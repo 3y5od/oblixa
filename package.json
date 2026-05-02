@@ -589,7 +589,7 @@
     "react-dom": "19.2.5",
     "resend": "^6.10.0",
     "server-only": "^0.0.1",
-    "stripe": "^22.0.0"
+    "stripe": "^22.1.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
