@@ -43,13 +43,16 @@ rules:
   - id: oblixa-v8-dashboard-layout-must-enforce-page-eligibility
     languages: [typescript]
     message: >
-      Dashboard layout must enforce page-surface eligibility via assertPagePathEligibleOrNotFound.
+      Dashboard layout must enforce page-surface eligibility via assertPagePathEligibleForContextOrNotFound
+      (or legacy assertPagePathEligibleOrNotFound).
     severity: WARNING
     patterns:
       - pattern: |
           export default async function $LAYOUT(...) {
             ...
           }
+      - pattern-not: |
+          assertPagePathEligibleForContextOrNotFound(...)
       - pattern-not: |
           assertPagePathEligibleOrNotFound(...)
     paths:

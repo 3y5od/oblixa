@@ -22,7 +22,9 @@ test.describe("@v10 V10 core smoke", () => {
     await page.goto("/work", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: /Work Queue/i })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("link", { name: /Workspace health/i }).first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole("link", { name: /Failed jobs/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("link", { name: /Failed jobs/i }).first()).toBeVisible({ timeout: 10_000 });
+    // Queue summary CTAs (e.g. Review approvals) live inside the closed <details> diagnostic panel.
+    await page.getByText("Source queue diagnostics").click();
     await expect(page.getByRole("link", { name: /Review approvals/i }).first()).toBeVisible({ timeout: 10_000 });
 
     const shell = new AppShellPO(page);
