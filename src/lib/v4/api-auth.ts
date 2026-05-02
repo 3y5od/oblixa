@@ -6,7 +6,7 @@ import {
 } from "@/lib/supabase/server";
 import { hasRoleCapability, type RoleCapability } from "@/lib/access-control";
 
-type AuthContext = {
+export type AuthContext = {
   admin: Awaited<ReturnType<typeof createAdminClient>>;
   userId: string;
   orgId: string;

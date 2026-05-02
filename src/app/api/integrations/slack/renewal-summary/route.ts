@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { sendSlackRenewalDecisionSummary } from "@/lib/integrations/slack";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
@@ -17,7 +18,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const payload = (await request.json().catch(() => ({}))) as {
+  const _lb_payload = await readJsonBodyLimited(request);
+  if (!_lb_payload.ok) return _lb_payload.response;
+  const payload = (_lb_payload.body ?? {}) as {
     contractId?: string;
     outcome?: string;
     details?: string;

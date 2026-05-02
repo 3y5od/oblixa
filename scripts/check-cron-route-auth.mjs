@@ -16,6 +16,7 @@ const vercelJsonPath = path.join(root, "vercel.json");
 const AUTH_HELPERS = [
   "authorizeCronRequest",
   "ensureCronAuthorized",
+  "requireCronAuthorized",
   "requireV5CronAuth",
   "requireV6CronAuth",
 ];

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { shouldTreat404AsOptionalMatrix } from "./fixtures/surface-availability";
 // skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=v5_workflow_smokes_are_fixture_gated
 
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL;
@@ -52,8 +53,11 @@ test.describe("V5 workflow smoke", () => {
     for (const { path, label } of steps) {
       const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
       if (resp?.status() === 404) {
-        test.skip(true, `V5 route ${path} not enabled (404).`);
-        return;
+        if (shouldTreat404AsOptionalMatrix(path)) {
+          test.skip(true, `V5 route ${path} not mounted in this matrix (fixture).`);
+          return;
+        }
+        throw new Error(`Unexpected 404 for ${path}`);
       }
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.getByRole("heading", { name: label })).toBeVisible();
@@ -65,8 +69,11 @@ test.describe("V5 workflow smoke", () => {
     for (const path of ["/decisions/review", "/decisions/compare"] as const) {
       const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
       if (resp?.status() === 404) {
-        test.skip(true, `Route ${path} not enabled (404).`);
-        return;
+        if (shouldTreat404AsOptionalMatrix(path)) {
+          test.skip(true, `Route ${path} not mounted in this matrix (fixture).`);
+          return;
+        }
+        throw new Error(`Unexpected 404 for ${path}`);
       }
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }

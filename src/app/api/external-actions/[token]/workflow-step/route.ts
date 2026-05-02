@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import {
   RATE_LIMITS,
@@ -54,11 +55,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
 
-  const body = readJsonBody<{
-    stepType?: string;
-    payload?: Record<string, unknown>;
-    ackDeadlineIso?: string;
-  }>(await request.json().catch(() => ({})), {});
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{
+      stepType?: string;
+      payload?: Record<string, unknown>;
+      ackDeadlineIso?: string;
+    }>(raw ?? {}, {})
+  );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
   const stepType = toSafeString(body.stepType) || "handoff";
 
   const result = await appendExternalWorkflowStep(

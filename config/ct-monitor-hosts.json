@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "apex_hostnames": ["oblixa.io"],
+  "notes": "Used when CT_STRICT=1 with scripts/check-certificate-transparency.mjs; crt.sh queries optional behind CT_FETCH=1."
+}

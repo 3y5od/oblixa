@@ -92,6 +92,21 @@ const patterns = [
     re: /\b(?:execSync|spawnSync)\s*\(/,
     infoOnly: true,
   },
+  {
+    label: "dynamic import() with non-literal",
+    re: /\bimport\s*\(\s*[a-zA-Z_$][\w$]*\s*\)/,
+    warnOnly: true,
+  },
+  {
+    label: "worker_threads",
+    re: /\bworker_threads\b|from\s+["']node:worker_threads["']/,
+    warnOnly: true,
+  },
+  {
+    label: "WebAssembly / .wasm",
+    re: /\.wasm\b|WebAssembly\./,
+    warnOnly: true,
+  },
 ];
 
 function warnJsonParseWithRequestBody(rel, content) {

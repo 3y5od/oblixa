@@ -1,0 +1,17 @@
+flowchart TB
+  meta[pipeline-autonomous-perf]
+  keys[external-handoff.keys.json]
+  extGroups[ext-key-groups.json]
+  matrix[coverage-matrix.json]
+  closure[phase-closure.json]
+  meta --> keys
+  meta --> extGroups
+  meta --> matrix
+  meta --> closure
+  keys -.same key set.-> extGroups
+  meta --> tierA[TierA_static_build]
+  meta --> tierB[TierB_analyze]
+  meta --> tierC[TierC_k6_lighthouse]
+  meta --> tierD[TierD_e2e_perf_subset]
+  meta --> tierE[TierE_stryker_k6_soak]
+  meta --> tierF[TierF_mega_verify_nightly]

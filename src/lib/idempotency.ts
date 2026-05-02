@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { rateLimitCheck } from "@/lib/rate-limit";
+export {
+  executeV10IdempotentMutation,
+  getV10IdempotencyKeyFromRequest,
+  getV10RequestHash,
+  recordV10AuditEvent,
+} from "@/lib/v10-server-contracts";
 
 const IDEMPOTENCY_KEY_RE = /^[A-Za-z0-9:_\-]{8,200}$/;
 

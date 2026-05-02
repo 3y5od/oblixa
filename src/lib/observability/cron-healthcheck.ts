@@ -1,4 +1,5 @@
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { safeFetch } from "@/lib/security/safe-fetch";
 
 export type CronHealthPayload = Record<string, unknown>;
 
@@ -11,10 +12,11 @@ export function pingCronHealthcheck(route: string, payload: CronHealthPayload): 
   if (!raw) return;
   const url = validateOutboundHttpUrl(raw);
   if (!url) return;
-  void fetch(url.toString(), {
+  void safeFetch(url.toString(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ route, ...payload }),
+    timeoutMs: 5000,
   }).catch(() => {});
 }
 

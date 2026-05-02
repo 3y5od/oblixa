@@ -1,0 +1,5 @@
+{
+  "exemptUntil": "2027-12-31",
+  "exemptFiles": [],
+  "note": "After exemptUntil, each e2e/*.spec.ts must contain @smoke|@nightly|@staging|@pr in file body."
+}

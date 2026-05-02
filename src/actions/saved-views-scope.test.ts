@@ -15,10 +15,22 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient: vi.fn(async () => ({ from })),
 }));
 
+vi.mock("@/lib/v10-server-contracts", () => ({
+  recordV10AuditEvent: vi.fn(async () => "audit_1"),
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization: vi.fn(async () => ({ ok: true })),
+}));
+
 describe("createSavedView (org scope via membership)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    upsert.mockImplementation(async () => ({ error: null }));
+    upsert.mockImplementation(() => ({
+      select: () => ({
+        single: vi.fn(async () => ({ data: { id: "saved_view_1" }, error: null })),
+      }),
+    }));
     from.mockImplementation((table: string) => {
       if (table === "organization_members") {
         return {

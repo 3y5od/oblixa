@@ -1,0 +1,6 @@
+{
+  "crossOriginIsolated": false,
+  "credentialless": false,
+  "workerScriptPolicy": "same-origin-or-trusted-bundles-only",
+  "note": "When enabling crossOriginIsolated, assert COOP/COEP/CORP headers per security-headers smoke."
+}

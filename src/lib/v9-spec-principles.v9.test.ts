@@ -1,6 +1,11 @@
-import { readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  V9_IMPLEMENTATION_PREFERENCES,
+  V9_OPTIMIZATION_DIMENSIONS,
+  V9_VISIBLE_PRODUCT_OUTCOMES,
+} from "./v9-release-contract";
 
 /**
  * §1 / §2 / §4 principles — each theme/outcome maps to ≥1 automated test path (non-behavioral anchor).
@@ -34,75 +39,41 @@ const PREFERENCE_ANCHORS = [
   "src/lib/product-surface/refinement-contract.test.ts",
 ];
 
-function loadV9Doc(): string {
-  return readFileSync(join(process.cwd(), "docs", "v9.md"), "utf8");
-}
-
-function bulletsBetween(doc: string, startNeedle: string, endNeedle: string): string[] {
-  const i0 = doc.indexOf(startNeedle);
-  expect(i0).toBeGreaterThan(-1);
-  const i1 = doc.indexOf(endNeedle, i0 + startNeedle.length);
-  expect(i1).toBeGreaterThan(i0);
-  const slice = doc.slice(i0, i1);
-  return slice
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.startsWith("- "))
-    .map((l) => l.slice(2).replace(/,$/, ""));
-}
-
-function numberedListBetween(doc: string, startNeedle: string, endNeedle: string): string[] {
-  const i0 = doc.indexOf(startNeedle);
-  expect(i0).toBeGreaterThan(-1);
-  const i1 = doc.indexOf(endNeedle, i0 + startNeedle.length);
-  expect(i1).toBeGreaterThan(i0);
-  const slice = doc.slice(i0, i1);
-  return slice
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => /^\d+\.\s+/.test(l))
-    .map((l) => l.replace(/^\d+\.\s+/, "").replace(/,$/, ""));
-}
-
 describe("V9 spec principles trace anchors", () => {
   it("§1 nine improvement themes have file anchors", () => {
     expect(THEME_ANCHORS).toHaveLength(9);
     for (const row of THEME_ANCHORS) {
       for (const f of row.files) {
         expect(f.startsWith("src/"), f).toBe(true);
+        expect(existsSync(join(process.cwd(), f)), f).toBe(true);
       }
     }
   });
 
-  it("§1 doc themes match anchor list (verbatim drift guard)", () => {
-    const doc = loadV9Doc();
-    const themes = bulletsBetween(doc, "V9 is an improvement release focused on:", "---");
-    expect(themes).toHaveLength(9);
-    for (let i = 0; i < 9; i++) {
-      expect(themes[i]?.startsWith(THEME_ANCHORS[i]!.theme)).toBe(true);
-    }
+  it("§1 theme vocabulary stays explicit in the anchor list", () => {
+    expect(THEME_ANCHORS.map((row) => row.theme)).toEqual([
+      "usability",
+      "reliability",
+      "performance",
+      "consistency",
+      "operational trust",
+      "data quality",
+      "workflow speed",
+      "error handling",
+      "quality of visible behavior",
+    ]);
   });
 
-  it("§2 six visible-product outcomes + seven optimization dimensions (verbatim)", () => {
-    const doc = loadV9Doc();
-    const outcomes = bulletsBetween(doc, "The visible product must become:", "V9 shall optimize the product primarily through:");
-    expect(outcomes).toHaveLength(6);
-    expect(outcomes[0]).toContain("understandable");
-
-    const opt = numberedListBetween(
-      doc,
-      "V9 shall optimize the product primarily through:",
-      "---"
-    );
-    expect(opt).toHaveLength(7);
-    expect(opt[0]).toContain("workflow refinement");
+  it("§2 six visible-product outcomes + seven optimization dimensions stay codified", () => {
+    expect(V9_VISIBLE_PRODUCT_OUTCOMES).toHaveLength(6);
+    expect(V9_VISIBLE_PRODUCT_OUTCOMES[0]).toContain("understandable");
+    expect(V9_OPTIMIZATION_DIMENSIONS).toHaveLength(7);
+    expect(V9_OPTIMIZATION_DIMENSIONS[0]).toContain("workflow refinement");
   });
 
-  it("§4 five implementation preferences (verbatim)", () => {
-    const doc = loadV9Doc();
-    const prefs = bulletsBetween(doc, "V9 shall prefer:", "---");
-    expect(prefs).toHaveLength(5);
-    expect(prefs[0]).toContain("refinement over addition");
+  it("§4 five implementation preferences stay codified", () => {
+    expect(V9_IMPLEMENTATION_PREFERENCES).toHaveLength(5);
+    expect(V9_IMPLEMENTATION_PREFERENCES[0]).toContain("refinement over addition");
   });
 
   it("§2 / §4 proxy lists stay wired", () => {

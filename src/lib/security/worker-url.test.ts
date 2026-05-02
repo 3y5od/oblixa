@@ -42,6 +42,11 @@ describe("isSafeExtractionWorkerOrigin", () => {
     expect(isSafeExtractionWorkerOrigin("http://[fd00::1]")).toBe(false);
   });
 
+  it("rejects IPv4-mapped IPv6 to loopback and private IPv4", () => {
+    expect(isSafeExtractionWorkerOrigin("https://[::ffff:127.0.0.1]")).toBe(false);
+    expect(isSafeExtractionWorkerOrigin("https://[::ffff:10.0.0.1]")).toBe(false);
+  });
+
   it("rejects path segments", () => {
     expect(isSafeExtractionWorkerOrigin("https://example.com/internal")).toBe(
       false

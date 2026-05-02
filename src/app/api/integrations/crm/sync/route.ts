@@ -3,6 +3,7 @@ import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 
@@ -130,10 +131,8 @@ export async function GET(request: Request) {
     }
     attempted++;
     try {
-      const controller = new AbortController();
       const timeoutMs = Math.min(Math.max(Number(cfg.timeoutMs ?? 10000), 2000), 30000);
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(endpointUrl.toString(), {
+      const res = await safeFetch(endpointUrl.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -154,9 +153,8 @@ export async function GET(request: Request) {
             risk: riskByContract.get(contract.id as string) ?? { openExceptions: 0, criticalExceptions: 0 },
           },
         }),
-        signal: controller.signal,
+        timeoutMs,
       });
-      clearTimeout(timeout);
       if (!res.ok) {
         failed++;
         await admin

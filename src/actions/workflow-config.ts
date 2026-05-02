@@ -11,6 +11,9 @@ import { encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { isUuid } from "@/lib/security/validation";
 import { sanitizeRolePolicyJson } from "@/lib/settings/sanitize-role-policy-json";
 import { createHash, randomBytes } from "crypto";
+import { cookies } from "next/headers";
+import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
 
 async function getMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -667,6 +670,13 @@ export async function createIntegrationApiKey(input: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  const jar = await cookies();
+  if (!isStepUpCookieValidForUser(jar, user.id)) {
+    return {
+      error: "Confirm your password under Settings → Security before creating API keys.",
+      needStepUp: true as const,
+    };
+  }
   const organizationId = input.organizationId.trim();
   const label = input.label.trim();
   if (!isUuid(organizationId) || !label) return { error: "Invalid request" };
@@ -680,17 +690,32 @@ export async function createIntegrationApiKey(input: {
   const token = `cop_${randomBytes(24).toString("hex")}`;
   const keyPrefix = token.slice(0, 12);
   const keyHash = createHash("sha256").update(token).digest("hex");
-  const { error } = await admin.from("integration_api_keys").insert({
-    organization_id: organizationId,
-    label,
-    key_prefix: keyPrefix,
-    key_hash: keyHash,
-    scopes,
-    expires_at: expiresAt,
-    active: true,
-    created_by: user.id,
-  });
+  const { data: inserted, error } = await admin
+    .from("integration_api_keys")
+    .insert({
+      organization_id: organizationId,
+      label,
+      key_prefix: keyPrefix,
+      key_hash: keyHash,
+      scopes,
+      expires_at: expiresAt,
+      active: true,
+      created_by: user.id,
+    })
+    .select("id")
+    .maybeSingle();
   if (error) return { error: mapDataSourceError(error.message) };
+  if (inserted?.id) {
+    void recordSecurityAuditEvent(admin, {
+      organizationId,
+      actorUserId: user.id,
+      action: "security.integration_api_key_created",
+      targetType: "integration_api_key",
+      targetId: String(inserted.id),
+      outcome: "success",
+      safeMetadata: { label, keyPrefix },
+    });
+  }
   return { success: true as const, token, keyPrefix };
 }
 
@@ -701,6 +726,13 @@ export async function revokeIntegrationApiKeyForm(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  const jar = await cookies();
+  if (!isStepUpCookieValidForUser(jar, user.id)) {
+    return {
+      error: "Confirm your password under Settings → Security before revoking API keys.",
+      needStepUp: true as const,
+    };
+  }
   const keyId = String(formData.get("keyId") ?? "").trim();
   const reason = String(formData.get("reason") ?? "").trim() || null;
   if (!isUuid(keyId)) return { error: "Invalid key ID" };
@@ -721,6 +753,15 @@ export async function revokeIntegrationApiKeyForm(formData: FormData) {
     })
     .eq("id", keyId);
   if (error) return { error: mapDataSourceError(error.message) };
+  void recordSecurityAuditEvent(admin, {
+    organizationId: row.organization_id,
+    actorUserId: user.id,
+    action: "security.integration_api_key_revoked",
+    targetType: "integration_api_key",
+    targetId: keyId,
+    outcome: "success",
+    safeMetadata: reason ? { reason } : {},
+  });
   return { success: true };
 }
 

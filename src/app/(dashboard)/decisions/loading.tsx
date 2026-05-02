@@ -5,7 +5,7 @@ export default function DecisionsSegmentLoading() {
         Loading decisions. Queues and compare surfaces will appear shortly.
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
-        <header className="ui-page-header">
+        <header className="ui-page-header-compact">
           <div className="space-y-3">
             <div className="ui-skeleton h-4 w-28 rounded" />
             <div className="ui-skeleton h-9 w-56 max-w-full rounded" />

@@ -1,0 +1,15 @@
+name: QA Terraform plan stub
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "terraform plan when IaC is adopted"

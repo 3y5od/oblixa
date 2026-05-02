@@ -1,0 +1,627 @@
+{
+  "version": 1,
+  "generated": "2026-04-29T22:19:04.724Z",
+  "todoCount": 124,
+  "todos": {
+    "pipeline-maximal": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "discover-checks-union": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "workflow-maximal": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "workflow-reuse-convergence": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "workflow-align-qa-fleet": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "placeholder-tests": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "quarantine-unwind": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "skip-stripe-pwa-media": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "playwright-config-projects": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "playwright-trace-video": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "vitest-property-expand": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "vitest-coverage-ratchet": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "api-route-tests-fill": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "server-action-contracts": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "http-matrix-e2e-or-vitest": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "session-cookie-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "webhook-cron-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "i18n-rtl-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "rls-staging-job": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "lighthouse-staging-job": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "openapi-staging-smoke": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "mutation-fuzz-load": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "supply-chain-security-jobs": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "governance-ratchets": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "observability-contracts": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "db-migration-smoke": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "flake-stabilization": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "waiver-registry-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "verify-local-ci": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "artifact-json-matrix-parity": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "absent-surface-scripts": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "contract-artifacts-b2b-bimi": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "pen-test-closure-gate": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "security-txt-rfc9116": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "merge-queue-dependabot-branch-protection": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "lifecycle-supply-chain-deep": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "sbom-formats-vex-sarif": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "container-signing-slsa": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "email-pdf-export-pipeline": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "outbound-webhooks-from-app": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "unicode-bidi-emoji-db": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "pairwise-feature-flags": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "regression-linked-vitest": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "sre-slo-synthetic-uptime": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "nextjs-platform-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "supabase-data-plane": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "stripe-depth-clocks": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "ai-surface-redaction-streaming": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "browser-security-headers-advanced": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "abuse-throttle-captcha-geo": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "export-xlsx-ole-csv-all-endpoints": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "a11y-advanced-motion-seizure-forced-colors": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "embed-csp-frame-ancestors": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "infra-edge-host-xff-surrogate": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "db-contention-pool-exhaustion": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "i18n-locale-engine-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "keyboard-ime-voice-switch-magnification": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "jurisdiction-consent-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "moderation-sanctions-ui-flows": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "incident-integrations-webhooks": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "sre-multi-window-burn-chaos": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "time-numeric-reproducibility": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "docker-multi-arch-smoke": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "mta-sts-bimi-dane-nel": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "csp-nel-report-endpoints": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "client-hints-media-preferences-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "privacy-sandbox-fenced-chips": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "webtransport-quic-http3": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "tls-ocsp-session-tickets": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "url-idna-ipv6-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "iac-supply-chain-terraform-helm": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "ml-governance-model-card": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "compliance-fips-fedramp-cc": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "enterprise-browser-tor-brave": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "mdm-attestation-root-detection": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "drm-screenshot-eink-assets": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "indexeddb-sw-cookie-limits": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "messaging-streaming-backpressure": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "stride-dread-threat-model-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "iso25010-nfr-quality-model": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "hipaa-ferpa-pci-saq-stubs": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "hr-payroll-tax-export-paths": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "atag-authoring-cms-a11y": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "rich-text-xss-editor-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "pact-consumer-contracts": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "semver-sunset-api-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "oauth-import-least-privilege": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "red-team-purple-team-calendar": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "global-privacy-law-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "eu-ai-act-oecd-nist-rmf": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "c2pa-content-credentials": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "green-sci-carbon-stub": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "slsa-in-toto-npm-attestations": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "linux-hardening-seccomp-profile": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "polyglot-lockfile-audit-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "cross-platform-electron-tauri-capacitor": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "restricted-commerce-itar-gambling-stubs": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "dora-space-metrics-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "rum-session-replay-privacy": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "cwv-field-lab-parity": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "asyncapi-cloudevents-otel": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "protobuf-buf-breaking": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "data-contracts-open-standard": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "dependency-cycles-ratchet": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "adr-required-paths-lint": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "regulated-vertical-stubs-gxp-auto-aviation-space": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "cis-stig-samm-bsimm-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "formal-methods-tla-alloy-optional": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "native-asan-valgrind-optional": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "color-vision-trivariant-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "neurodiversity-cognitive-path-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "media-audio-autoplay-captions": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "haptics-webxr-immersive-a11y": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "webgpu-timing-sidechannel-policy": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "typescript-max-strict-flags": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "third-party-outage-cascade-matrix": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "vendor-geo-blocklist-check": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "cla-dco-signed-commits-policy": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "bus-factor-codeowners-json": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "copyleft-transitive-license-graph": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "oauth-par-jar-dpop-mtls-spiffe": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "api-field-deprecation-sunset": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "constant-time-spectre-doc-grep": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    },
+    "archaeology-legacy-touch-ratchet": {
+      "plan": "twelfth-expansion",
+      "tracked": true,
+      "registry": "config/qa-maximal-twelfth-expansion-registry.json"
+    }
+  }
+}

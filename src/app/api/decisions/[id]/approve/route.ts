@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
@@ -27,7 +28,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (duplicate) return duplicate;
 
-  const raw = await request.json().catch(() => ({}));
+  const _limitedBody = await readJsonBodyLimited(request);
+  if (!_limitedBody.ok) return _limitedBody.response;
+  const raw = _limitedBody.body ?? {};
   const body = readJsonBody<{ note?: string }>(raw, {});
   const note = toSafeString(body.note);
 

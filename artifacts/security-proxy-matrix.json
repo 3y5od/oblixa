@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-05-01T23:36:46.340Z",
+  "sources": [
+    "src/lib/auth/proxy-path-policy.ts",
+    "src/lib/marketing/public-paths.ts"
+  ],
+  "unauthenticated_rules": {
+    "always_api_prefix": "/api/",
+    "auth_callback_prefix": "/auth/callback",
+    "external_participant_prefix": "/external/",
+    "root_path": "/",
+    "public_auth_surface_paths": [
+      "/login",
+      "/signup",
+      "/forgot-password",
+      "/reset-password"
+    ],
+    "public_information_paths": [
+      "/privacy",
+      "/terms",
+      "/security",
+      "/accessibility",
+      "/cookies"
+    ],
+    "crawler_and_metadata": {
+      "robots": "/robots.txt",
+      "sitemap": "/sitemap.xml",
+      "well_known_prefix": "/.well-known/",
+      "og_image": [
+        "/opengraph-image",
+        "/twitter-image",
+        "/icon",
+        "/apple-icon"
+      ]
+    }
+  },
+  "marketing_sitemap_paths": [
+    "/",
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password"
+  ],
+  "api_routes_flagged_public_guess": [
+    "/api/assurance/health-graph",
+    "/api/command-palette/contracts"
+  ],
+  "notes": "Anonymous users may hit /api/*; each route enforces its own auth. public_guess heuristics are not a substitute for handler review."
+}

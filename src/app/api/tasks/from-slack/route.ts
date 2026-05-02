@@ -3,11 +3,14 @@
  * INBOUND_AUTOMATION_TOKEN. Body: organizationId, contractId, title, optional details, assigneeId, dueDate.
  */
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
+import { verifySlackSigningSecret } from "@/lib/security/slack-signing";
+import { isKillInboundAutomation, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 
 type SlackTaskPayload = {
   organizationId: string;
@@ -42,11 +45,40 @@ export async function POST(request: Request) {
       }
     );
   }
+  if (isKillInboundAutomation()) {
+    return killSwitchJsonResponse("inbound_automation");
+  }
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => null)) as SlackTaskPayload | null;
+  const slackSecret = process.env.SLACK_SIGNING_SECRET?.trim();
+  let body: SlackTaskPayload | null = null;
+  if (slackSecret) {
+    const raw = await request.text();
+    if (raw.length > 262_144) {
+      return NextResponse.json({ error: "Body too large" }, { status: 413 });
+    }
+    const sig = verifySlackSigningSecret({
+      signingSecret: slackSecret,
+      rawBody: raw,
+      slackSignatureHeader: request.headers.get("X-Slack-Signature"),
+      slackTimestampHeader: request.headers.get("X-Slack-Request-Timestamp"),
+    });
+    if (!sig.ok) {
+      return NextResponse.json({ error: "Invalid Slack signature" }, { status: 401 });
+    }
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      body = parsed && typeof parsed === "object" ? (parsed as SlackTaskPayload) : null;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+  } else {
+    const _lb_body = await readJsonBodyLimited(request);
+    if (!_lb_body.ok) return _lb_body.response;
+    body = (_lb_body.body ?? null) as SlackTaskPayload | null;
+  }
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }

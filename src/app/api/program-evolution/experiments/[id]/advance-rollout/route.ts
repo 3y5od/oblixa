@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -25,7 +26,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (modeGate) return modeGate;
 
   const id = toSafeString((await params).id);
-  const body = readJsonBody<{ stage?: string }>(await request.json().catch(() => ({})), {});
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = readJsonBody<{ stage?: string }>(_lb_body.body ?? {}, {});
   const stage = toSafeString(body.stage).trim() || "segment_expansion";
 
   const { data: expRow, error: expErr } = await ctx.admin

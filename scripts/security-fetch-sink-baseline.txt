@@ -1,0 +1,46 @@
+# One repo-relative path per line (under src/). Files listed here contain raw fetch( —
+# migrate to safeFetch or add // security:fetch-allowlist SEC-INT-005 on the call site, then remove.
+# Generated for autonomous security program phase 0b baseline.
+
+src/actions/contracts.ts
+src/app/api/integrations/calendar/sync/route.ts
+src/app/api/integrations/crm/sync/route.ts
+src/app/api/integrations/oauth/callback/route.ts
+src/app/api/integrations/refresh-tokens/route.ts
+src/components/assurance/autopilot-revert-log-button.tsx
+src/components/assurance/autopilot-rule-patch.tsx
+src/components/assurance/control-policy-assign-panel.tsx
+src/components/assurance/control-policy-detail-actions.tsx
+src/components/assurance/control-policy-remediation-playbook.tsx
+src/components/assurance/finding-policy-actions.tsx
+src/components/assurance/org-v6-settings-panel.tsx
+src/components/assurance/playbook-approve-button.tsx
+src/components/assurance/program-evolution-form.tsx
+src/components/assurance/recommended-playbook-run.tsx
+src/components/assurance/review-board-actions.tsx
+src/components/assurance/segment-recompute-button.tsx
+src/components/campaigns/campaign-assignment-panel.tsx
+src/components/campaigns/campaign-control-panel.tsx
+src/components/campaigns/campaign-simulation-promote.tsx
+src/components/decisions/create-decision-form.tsx
+src/components/decisions/decision-external-panel.tsx
+src/components/decisions/decision-workspace-panel.tsx
+src/components/external/external-submit-form.tsx
+src/components/layout/command-palette.tsx
+src/components/layout/sidebar.tsx
+src/components/layout/v9-page-load-reporter.tsx
+src/components/relationship/relationship-timeline-card.tsx
+src/components/reports/recommendation-row-actions.tsx
+src/components/settings/billing-actions.tsx
+src/components/settings/security-settings-panel.tsx
+src/components/v4/campaign-maintenance-actions.tsx
+src/components/v4/program-impact-preview-button.tsx
+src/components/v4/slack-renewal-summary-form.tsx
+src/lib/extraction/retry.ts
+src/lib/http/client-json.ts
+src/lib/integrations/slack.ts
+src/lib/notification-delivery.ts
+src/lib/observability/cron-healthcheck.ts
+src/lib/security/safe-fetch.ts
+src/lib/v10-api-client.ts
+src/lib/v6/review-board-notifications.ts

@@ -12,8 +12,8 @@ import { OperationalSummaryCard } from "@/components/ui/operational-summary-card
 import { AlertOctagon, CalendarClock, ShieldAlert, UserRound } from "lucide-react";
 import { ExceptionMutationPanels } from "@/components/contracts/exception-mutation-panels";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { EmptyState } from "@/components/ui/empty-state";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 
 type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";
 type SeverityFilter = "" | "low" | "medium" | "high" | "critical";
@@ -121,10 +121,10 @@ export default async function ExceptionsPage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Exceptions</p>
-          <h1 className="ui-display-title mt-2">Exception ledger</h1>
+          <h1 className="ui-page-title-compact mt-2">Exception ledger</h1>
           <p className="ui-page-lead mt-3">Live exception system of record with assignment, SLA tracking, and history.</p>
         </div>
       </header>
@@ -135,7 +135,7 @@ export default async function ExceptionsPage(props: {
           {" — "}
           When an exception needs an explicit call, open or continue a decision record.{" "}
           <Link href="/decisions" prefetch={false} className="ui-link">
-            Open decisions
+            Review decisions
           </Link>
         </div>
       ) : null}
@@ -181,7 +181,7 @@ export default async function ExceptionsPage(props: {
           icon={ShieldAlert}
           primaryValue={actionableExceptions.length}
           primaryUnit="need action"
-          action={{ href: "/contracts/exceptions?status=open", label: "Open active ledger" }}
+          action={{ href: "/contracts/exceptions?status=open", label: "Review active exceptions" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -191,7 +191,7 @@ export default async function ExceptionsPage(props: {
           icon={AlertOctagon}
           primaryValue={criticalActiveCount}
           primaryUnit="active critical"
-          action={{ href: "/contracts/exceptions?status=open&severity=critical", label: "Open critical slice" }}
+          action={{ href: "/contracts/exceptions?status=open&severity=critical", label: "Triage critical issues" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -231,19 +231,22 @@ export default async function ExceptionsPage(props: {
         <ul className="mt-3 space-y-3">
           {(exceptions ?? []).length === 0 ? (
             <li>
-              <EmptyState
-                eyebrow="Exception ledger"
+              <V10RecoverableState
+                state="empty"
                 title="No exceptions match this view"
-                copy={
+                reason={
                   status || severity || contractFilter
                     ? "The current filters hide active exception work. Clear or widen the ledger filters to keep high-severity issues visible."
                     : "No active or historical exceptions are in scope right now. New exceptions will appear here with ownership, due state, and auditable recovery history."
                 }
-                action={
+                accessibleName="No exceptions match this ledger view"
+                nextAction={
                   <Link href="/contracts/exceptions" className="ui-btn-secondary px-4 py-2 text-[13px]">
                     Clear filters
                   </Link>
                 }
+                nextActionLabel="Clear filters"
+                density="compact"
               />
             </li>
           ) : (

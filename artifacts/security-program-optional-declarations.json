@@ -1,0 +1,5 @@
+{
+  "honeytokens": "Deferred: optional API honeytoken row + alerting is product-flagged (SEC-SDLC-012 manual).",
+  "secretlint_precommit": "Optional: secretlint-optional.yml is workflow_dispatch stub until .secretlintrc.json is adopted.",
+  "mutation_testing": "Stryker-class mutation testing not enabled; check:mutation-race-safety covers race-class regressions in CI."
+}

@@ -14,6 +14,7 @@ function runJson(scriptName, args = []) {
 
 const skip = runJson("report-test-skip-governance.mjs", ["--report"]);
 const api = runJson("check-api-route-tests.mjs", ["--report"]);
+const apiMeta = api.meta ?? {};
 const rateLimit = runJson("check-api-route-rate-limit-coverage.mjs", ["--report"]);
 const owner = runJson("check-owner-metadata.mjs", ["--report"]);
 const integration = runJson("report-integration-contract-surface.mjs");
@@ -26,9 +27,9 @@ const report = {
   generatedAt: new Date().toISOString(),
   skipCount: skip.skipCount,
   skipProblemCount: skip.problemCount,
-  allowlistedApiRoutes: api.allowlistedCount,
-  uncoveredApiRoutes: api.uncoveredCount,
-  allowlistMetadataIssues: api.allowlistMetadataIssueCount,
+  allowlistedApiRoutes: apiMeta.allowlistedCount ?? api.allowlistedCount ?? 0,
+  uncoveredApiRoutes: apiMeta.uncoveredCount ?? api.uncoveredCount ?? 0,
+  allowlistMetadataIssues: apiMeta.allowlistMetadataIssueCount ?? api.allowlistMetadataIssueCount ?? 0,
   rateLimitViolations: rateLimit.violationCount,
   v8ExemptionRows: Array.isArray(exemptions) ? exemptions.length : 0,
   ownerMetadataIssues: owner.issueCount,

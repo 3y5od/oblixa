@@ -126,4 +126,45 @@ describe("requireApiWorkspaceEligibility", () => {
     });
     expect(res?.status).toBe(403);
   });
+
+  it("returns V10 mutation envelopes for workspace gate denials when requested", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    const { requireApiWorkspaceEligibilityV10 } = await import(
+      "@/lib/product-surface/api-workspace-guard"
+    );
+    const res = await requireApiWorkspaceEligibilityV10({
+      admin: {} as never,
+      orgId: "org-1",
+      apiPath: "/api/decisions",
+    });
+    const body = await res?.json();
+
+    expect(res?.status).toBe(403);
+    expect(res?.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(res?.headers.get("X-V10-Idempotent-Replay")).toBe("false");
+    expect(body).toMatchObject({
+      outcome: "mode_required",
+      diagnostic_id: "v10_api_workspace_gate_insufficient_workspace_mode",
+      next_destination_href: "/settings/product",
+    });
+  });
+
+  it("returns V10 not_found envelopes for unmapped API routes", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    const { requireApiWorkspaceEligibilityV10 } = await import(
+      "@/lib/product-surface/api-workspace-guard"
+    );
+    const res = await requireApiWorkspaceEligibilityV10({
+      admin: {} as never,
+      orgId: "org-1",
+      apiPath: "/api/not-mapped-by-registry",
+    });
+    const body = await res?.json();
+
+    expect(res?.status).toBe(404);
+    expect(body).toMatchObject({
+      outcome: "not_found",
+      diagnostic_id: "v10_api_workspace_mapping_missing",
+    });
+  });
 });

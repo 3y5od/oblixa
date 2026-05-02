@@ -51,10 +51,10 @@ export default async function DecisionsPage({
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Records</p>
-          <h1 className="ui-display-title mt-2">Decision Queue</h1>
+          <h1 className="ui-page-title-compact mt-2">Decision queue</h1>
           <p className="ui-page-lead mt-2 max-w-2xl">
             Decision records by type, status, due date, and next action across the governed advanced workspace.
             {typeFilter || queueActiveOnly ? (
@@ -103,7 +103,7 @@ export default async function DecisionsPage({
             icon={CircleDot}
             primaryValue={openCount}
             primaryUnit="awaiting owner"
-            action={{ href: "/decisions?queue=active", label: "View active" }}
+            action={{ href: "/decisions?queue=active", label: "Review active" }}
             variant="compact"
           />
           <OperationalSummaryCard

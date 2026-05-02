@@ -1,0 +1,87 @@
+name: QA external SaaS stubs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  applitools_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Applitools — disabled (P5)"
+  browserstack_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "BrowserStack — disabled (P5)"
+  chromatic_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Chromatic — disabled (P5)"
+  sonar_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "SonarCloud — disabled (P5)"
+  codecov_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Codecov — disabled (P5)"
+  coveralls_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Coveralls — disabled (P5)"
+  storybook_ci_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Storybook CI build — disabled (P5)"
+  msw_visual_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "MSW visual regression runner — disabled (P5)"
+  turbopack_parity_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Turbopack vs webpack parity — disabled (P5)"
+  stryker_nightly_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Stryker mutation — use stryker.conf.json when RUN_STRYKER=1"
+  memory_budgets_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "Playwright memory budgets — artifacts/memory-budgets.json"
+  reproducible_build_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "npm run report:reproducible-build — compare two sequential builds when enabled"
+  sbom_diff_disabled:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "npm run report:sbom-diff-stub — wire real SBOM diff when org adopts"

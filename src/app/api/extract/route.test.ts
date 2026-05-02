@@ -80,7 +80,7 @@ describe("POST /api/extract", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Request body must be valid JSON" });
+    expect(body).toEqual({ error: "Invalid JSON" });
   });
 
   it("returns 429 when rate limited (before auth)", async () => {

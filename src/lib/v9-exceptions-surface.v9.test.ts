@@ -11,7 +11,7 @@ describe("V9 §14 exceptions — page + priority + mutation panels", () => {
     expect(page).toContain("ExceptionMutationPanels");
     expect(page).toContain("WorkspaceRequiredState");
     expect(page).toContain("PermissionEligibilityHint");
-    expect(page).toContain("EmptyState");
+    expect(page).toMatch(/EmptyState|V10RecoverableState/);
     expect(page).toMatch(/exceptions|exception/i);
   });
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -48,10 +49,14 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  const body = readJsonBody<{ name?: string; objective?: string; enforcementMode?: string; scope?: Record<string, unknown> }>(
-    await request.json().catch(() => ({})),
-    {}
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{ name?: string; objective?: string; enforcementMode?: string; scope?: Record<string, unknown> }>(
+      raw ?? {},
+      {}
+    )
   );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
 
   const name = toSafeString(body.name);
   const objective = toSafeString(body.objective);

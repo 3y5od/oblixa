@@ -1,0 +1,15 @@
+name: QA Windows Edge optional
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows_smoke:
+    if: false
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - run: echo "Tiny @windows tagged suite when enabled"

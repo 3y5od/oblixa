@@ -39,6 +39,9 @@ const ignore = new Set([
   "release-checklist.mjs",
   "audit-v7-cross-surface-hrefs.mjs",
   "check-v7-vocabulary.mjs",
+  "debugging-sweep/bucket-definitions.mjs",
+  "debugging-sweep/merge-stub-lists.mjs",
+  "scaffold-sweep-stub.mjs",
 ]);
 
 const unused = allScripts.filter(

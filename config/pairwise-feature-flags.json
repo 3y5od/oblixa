@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "pairs": [
+    { "a": "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS", "b": "REQUIRE_ACTIVE_SUBSCRIPTION" },
+    { "a": "ENABLE_DEMO_SEED", "b": "REQUIRE_ACTIVE_SUBSCRIPTION" }
+  ]
+}

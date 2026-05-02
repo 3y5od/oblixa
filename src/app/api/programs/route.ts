@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { secFetchSiteAllowsSensitiveMutation } from "@/lib/security/sec-fetch-policy";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 
 export async function GET() {
   const ctx = await getApiAuthContext();
@@ -37,8 +39,13 @@ export async function POST(request: Request) {
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+  if (!secFetchSiteAllowsSensitiveMutation(request)) {
+    return NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 });
+  }
 
-  const body = (await request.json().catch(() => ({}))) as {
+  const parsed = await readJsonBodyLimited(request);
+  if (!parsed.ok) return parsed.response;
+  const body = (parsed.body ?? {}) as {
     name?: string;
     description?: string;
     autoAssignmentRules?: unknown[];

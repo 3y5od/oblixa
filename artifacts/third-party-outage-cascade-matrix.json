@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "vendors": [
+    { "name": "stripe", "blastRadius": "billing" },
+    { "name": "supabase", "blastRadius": "data_plane" },
+    { "name": "vercel", "blastRadius": "hosting" }
+  ]
+}

@@ -4,6 +4,18 @@ const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const getV6OrgSettingsJson = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
+const executeV10AuditedMutation = vi.fn(
+  async (
+    _admin: unknown,
+    _input: unknown,
+    executeTransaction: () => Promise<{ response: unknown; auditEventId: string | null }>
+  ) => {
+    const result = await executeTransaction();
+    return { response: result.response, replayed: false };
+  }
+);
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -16,6 +28,18 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
 
 vi.mock("@/lib/v6/org-settings", () => ({
   getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10AuditedMutation,
+  getV10ExpectedVersionFromRequest: (request: Request) =>
+    request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 function adminMock(opts: {
@@ -82,6 +106,9 @@ describe("/api/report-packs", () => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
+    executeV10AuditedMutation.mockClear();
     getApiAuthContext.mockResolvedValue({
       admin: adminMock({}),
       userId: "user-1",
@@ -96,6 +123,7 @@ describe("/api/report-packs", () => {
     const { GET } = await import("@/app/api/report-packs/route");
     const res = await GET();
     expect(res.status).toBe(401);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
   });
 
   it("GET returns report packs for org", async () => {
@@ -154,6 +182,7 @@ describe("/api/report-packs", () => {
       })
     );
     expect(res.status).toBe(403);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
   });
 
   it("POST returns 400 when name is missing", async () => {
@@ -173,16 +202,28 @@ describe("/api/report-packs", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/report-packs", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "report_pack_12345" },
         body: JSON.stringify({ name: "Weekly health" }),
       })
     );
     expect(res.status).toBe(201);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(res.headers.get("X-V10-Idempotent-Replay")).toBe("false");
     const body = await res.json();
     expect(body.reportPack.id).toBe("pack-1");
+    expect(executeV10AuditedMutation).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        mutationName: "report_pack.create",
+        targetType: "report_run",
+        targetId: "pending:report_pack_12345",
+        auditAction: "report_run.created",
+      }),
+      expect.any(Function)
+    );
   });
 
-  it("POST returns 404 for report type ineligible in Core mode", async () => {
+  it("POST returns a V10 mode_required envelope for report type ineligible in Core mode", async () => {
     const { POST } = await import("@/app/api/report-packs/route");
     const res = await POST(
       new Request("http://localhost:3000/api/report-packs", {
@@ -191,6 +232,10 @@ describe("/api/report-packs", () => {
         body: JSON.stringify({ name: "Adv pack", reportType: "decision_queue_summary" }),
       })
     );
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({
+      outcome: "mode_required",
+      diagnostic_id: "v10_report_pack_workspace_mode_required",
+    });
   });
 });

@@ -2,10 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, History } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import {
+  DiagnosticDisclosure,
+  OperationalSummaryCard,
+} from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { RelationshipWorkspaceOverview } from "@/components/relationship/relationship-workspace-overview";
+import { RelationshipWorkspaceActions } from "@/components/relationship/relationship-workspace-actions";
 import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
 import {
   ensureAccountWorkspaceFromContracts,
@@ -70,28 +74,37 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
   );
 
   const contractCount = (contracts ?? []).length;
+  const leadContractId = contracts?.[0]?.id ? String(contracts[0].id) : null;
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Account workspace</p>
-          <h1 className="ui-display-title mt-2">{workspace.display_name}</h1>
+          <h1 className="ui-page-title-compact mt-2">{workspace.display_name}</h1>
           <p className="ui-page-lead mt-2 text-[13px]">Key: {workspace.account_key}</p>
-          <Link
-            href={`/api/accounts/${encodeURIComponent(key)}/summary`}
-            className="ui-link mt-3 inline-block text-xs"
-            target="_blank"
-          >
-            Open summary JSON
-          </Link>
         </div>
       </header>
+      <DiagnosticDisclosure title="Relationship diagnostics">
+        <Link
+          href={`/api/accounts/${encodeURIComponent(key)}/summary`}
+          className="ui-link text-xs"
+          target="_blank"
+        >
+          Inspect support summary
+        </Link>
+      </DiagnosticDisclosure>
 
       <RelationshipWorkspaceOverview
         healthSignalJson={workspace.health_signal_json}
         summaryJson={workspace.summary_json}
         liveMetrics={liveMetrics}
+      />
+
+      <RelationshipWorkspaceActions
+        relationshipKind="account"
+        relationshipKey={key}
+        sourceContractId={leadContractId}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -102,7 +115,7 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
           icon={FileText}
           primaryValue={contractCount}
           primaryUnit="loaded sample"
-          action={{ href: `/accounts/${encodeURIComponent(key)}`, label: "Refresh" }}
+          action={{ href: `/accounts/${encodeURIComponent(key)}`, label: "Refresh relationship" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -112,13 +125,13 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
           icon={History}
           primaryValue={timelineEvents.length}
           primaryUnit="recent sample"
-          action={{ href: `/accounts/${encodeURIComponent(key)}`, label: "View below" }}
+          action={{ href: "#relationship-timeline", label: "Review timeline" }}
           variant="compact"
         />
       </div>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <article className="ui-page-shell p-5">
+        <article id="relationship-timeline" className="ui-page-shell p-5">
           <p className="ui-eyebrow">Records</p>
           <p className="ui-section-title mt-1 text-base">Contracts</p>
           <ul className="mt-3 divide-y divide-[var(--border-subtle)] text-sm">

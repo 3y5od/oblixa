@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "note": "Run `npm run check:branch-protection-drift` with GH token to refresh; placeholder for P0 baseline.",
+  "requiredChecks": []
+}

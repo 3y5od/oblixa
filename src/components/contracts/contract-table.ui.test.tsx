@@ -5,11 +5,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { resetMockRouter } from "@/test-utils/mock-router";
 import { bulkAssignContractOwners } from "@/actions/contracts";
+import { emitV10EmptyStateCtaClickedTelemetry } from "@/actions/product-telemetry";
 import type { Contract } from "@/lib/types";
 import { ContractTable } from "./contract-table";
 
 vi.mock("@/actions/contracts", () => ({
   bulkAssignContractOwners: vi.fn(),
+}));
+
+vi.mock("@/actions/product-telemetry", () => ({
+  emitV10EmptyStateCtaClickedTelemetry: vi.fn(),
 }));
 
 const baseContracts: Contract[] = [
@@ -59,6 +64,7 @@ describe("ContractTable", () => {
   afterEach(() => {
     window.sessionStorage.clear();
     resetMockRouter();
+    vi.clearAllMocks();
   });
 
   it("persists bulk selection across pages and filters (§9.6)", async () => {
@@ -115,11 +121,14 @@ describe("ContractTable", () => {
       />
     );
 
-    expect(screen.getByText(/2 pending/i)).toBeTruthy();
+    expect(screen.getAllByText(/2 pending/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/3\/5 fields/i)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /continue field review/i }).getAttribute("href")).toBe(
+      "/contracts/contract-1#extracted-fields"
+    );
     expect(screen.getByText(/renewal due today/i)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /2 ex/i }).getAttribute("href")).toContain("/contracts/exceptions");
-    expect(screen.getByText(/1 ev/i)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /2 exceptions/i }).getAttribute("href")).toContain("/contracts/exceptions");
+    expect(screen.getByText(/1 evidence request/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /dates gap/i }).getAttribute("href")).toBe("/contracts/contract-1#dates");
   });
 
@@ -129,6 +138,39 @@ describe("ContractTable", () => {
     expect(screen.getByText(/no contracts yet/i)).toBeTruthy();
     expect(screen.getByText(/upload an agreement to extract dates and build your operational record/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /upload contract/i }).getAttribute("href")).toBe("/contracts/new");
+    const state = screen.getByRole("status", { name: /contracts empty state/i });
+    expect(state.getAttribute("data-v10-state")).toBe("empty");
+    expect(state.getAttribute("data-v10-source-object")).toBe("contract");
+    expect(state.getAttribute("data-v10-next-action-label")).toBe("Upload contract");
+    fireEvent.click(screen.getByRole("link", { name: /upload contract/i }));
+    expect(emitV10EmptyStateCtaClickedTelemetry).toHaveBeenCalledWith({
+      surface: "contracts",
+      section: "contract_table",
+      sourceObject: "contract",
+      actionLabel: "Upload contract",
+      href: "/contracts/new",
+    });
+  });
+
+  it("distinguishes filtered-empty lists from an empty contract portfolio", () => {
+    renderWithProviders(
+      <ContractTable
+        contracts={[]}
+        emptyState={{
+          title: "No contracts match these filters",
+          copy: "Clear the filters or search terms to return to the full contract list.",
+          actionHref: "/contracts",
+          actionLabel: "Clear filters",
+        }}
+      />
+    );
+
+    expect(screen.getByText(/no contracts match these filters/i)).toBeTruthy();
+    expect(screen.getByText(/clear the filters or search terms/i)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /clear filters/i }).getAttribute("href")).toBe("/contracts");
+    const state = screen.getByRole("status", { name: /filtered contracts empty state/i });
+    expect(state.getAttribute("data-v10-state")).toBe("empty");
+    expect(state.getAttribute("data-v10-section")).toBe("contract_table");
   });
 
   it("keeps bulk owner assignment pending-safe and maps recoverable failures", async () => {

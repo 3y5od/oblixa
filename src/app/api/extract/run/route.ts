@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
 import {
   getClientIpFromRequest,
@@ -47,12 +48,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const _lim = await readJsonBodyLimited(request);
+  if (!_lim.ok) return _lim.response;
+  const body = _lim.body;
 
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });

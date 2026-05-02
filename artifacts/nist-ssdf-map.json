@@ -1,0 +1,5 @@
+{
+  "activities": [
+    { "id": "PO.3", "description": "Secure design", "repoLinks": ["scripts/security-static-audit.mjs"] }
+  ]
+}

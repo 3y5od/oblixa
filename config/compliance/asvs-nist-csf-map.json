@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "standard": "OWASP ASVS 4.x / NIST CSF 2.0 cross-walk",
+  "rows": [
+    { "ledgerSection": "A", "asvs": "V1", "nistCsf": "GV" },
+    { "ledgerSection": "C", "asvs": "V2", "nistCsf": "PR" },
+    { "ledgerSection": "D", "asvs": "V4", "nistCsf": "PR" },
+    { "ledgerSection": "E", "asvs": "V13", "nistCsf": "PR" },
+    { "ledgerSection": "H", "asvs": "V14", "nistCsf": "PR" },
+    { "ledgerSection": "M", "asvs": "V14.1", "nistCsf": "PR" }
+  ]
+}

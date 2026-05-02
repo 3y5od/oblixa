@@ -1,0 +1,6055 @@
+[
+  {
+    "id": "L1-ART-001",
+    "title": "Repo artifact linkage: pqc-readiness.json",
+    "list": "1",
+    "sectionPath": "artifacts/pqc-readiness",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/pqc-readiness.json",
+    "relatedArtifactIds": [
+      "pqc-readiness"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-002",
+    "title": "Repo artifact linkage: stride-dread-threat-model.json",
+    "list": "1",
+    "sectionPath": "artifacts/stride-dread-threat-model",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/stride-dread-threat-model.json",
+    "relatedArtifactIds": [
+      "stride-dread-threat-model"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-003",
+    "title": "Repo artifact linkage: dora-space-metrics.json",
+    "list": "1",
+    "sectionPath": "artifacts/dora-space-metrics",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/dora-space-metrics.json",
+    "relatedArtifactIds": [
+      "dora-space-metrics"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-004",
+    "title": "Repo artifact linkage: qa-game-day-checklist.json",
+    "list": "1",
+    "sectionPath": "artifacts/qa-game-day-checklist",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/qa-game-day-checklist.json",
+    "relatedArtifactIds": [
+      "qa-game-day-checklist"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-005",
+    "title": "Repo artifact linkage: pen-test-findings.json",
+    "list": "1",
+    "sectionPath": "artifacts/pen-test-findings",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/pen-test-findings.json",
+    "relatedArtifactIds": [
+      "pen-test-findings"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-006",
+    "title": "Repo artifact linkage: memory-budgets.json",
+    "list": "1",
+    "sectionPath": "artifacts/memory-budgets",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/memory-budgets.json",
+    "relatedArtifactIds": [
+      "memory-budgets"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-007",
+    "title": "Repo artifact linkage: lighthouse-budgets.json",
+    "list": "1",
+    "sectionPath": "artifacts/lighthouse-budgets",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/lighthouse-budgets.json",
+    "relatedArtifactIds": [
+      "lighthouse-budgets"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-008",
+    "title": "Repo artifact linkage: mta-sts-policy.json",
+    "list": "1",
+    "sectionPath": "artifacts/mta-sts-policy",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/mta-sts-policy.json",
+    "relatedArtifactIds": [
+      "mta-sts-policy"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-009",
+    "title": "Repo artifact linkage: bimi-svg-placeholder.json",
+    "list": "1",
+    "sectionPath": "artifacts/bimi-svg-placeholder",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/bimi-svg-placeholder.json",
+    "relatedArtifactIds": [
+      "bimi-svg-placeholder"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-010",
+    "title": "Repo artifact linkage: sbom-diff-report.json",
+    "list": "1",
+    "sectionPath": "artifacts/sbom-diff-report",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/sbom-diff-report.json",
+    "relatedArtifactIds": [
+      "sbom-diff-report"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-ART-011",
+    "title": "Repo artifact linkage: web3-surface-absent.json",
+    "list": "1",
+    "sectionPath": "artifacts/web3-surface-absent",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "artifactsPath": "artifacts/web3-surface-absent.json",
+    "relatedArtifactIds": [
+      "web3-surface-absent"
+    ],
+    "sbomFormat": "unknown",
+    "tags": [
+      "artifact",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-CFG-012",
+    "title": "Config linkage: asvs-level-target.json",
+    "list": "1",
+    "sectionPath": "config/asvs-level-target",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "configPath": "config/compliance/asvs-level-target.json",
+    "tags": [
+      "config",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-CFG-013",
+    "title": "Config linkage: nist-sp800-controls-map.json",
+    "list": "1",
+    "sectionPath": "config/nist-sp800-controls-map",
+    "layer": "meta",
+    "implementation": "partial",
+    "partition": "pass8",
+    "configPath": "config/compliance/nist-sp800-controls-map.json",
+    "tags": [
+      "config",
+      "compliance"
+    ]
+  },
+  {
+    "id": "L1-META-DEP-SAMPLE",
+    "title": "Sample deprecated catalog row for merge policy tests",
+    "list": "1",
+    "sectionPath": "meta/deprecation-sample",
+    "layer": "meta",
+    "implementation": "stub",
+    "partition": "meta",
+    "provenanceMeta": true,
+    "deprecated": true,
+    "deprecatedBy": "L1-NATIVE-MW-CORRELATION"
+  },
+  {
+    "id": "L1-META-GEN-DIFF",
+    "title": "CI generator diff failures are catalogued as observability meta signal",
+    "list": "1",
+    "sectionPath": "meta/generator-diff",
+    "layer": "meta",
+    "implementation": "stub",
+    "partition": "meta",
+    "provenanceMeta": true
+  },
+  {
+    "id": "L1-META-PARTITION-DRIFT",
+    "title": "Partition checksum drift detection for debugging sweep rows",
+    "list": "1",
+    "sectionPath": "meta/partition-checksum",
+    "layer": "meta",
+    "implementation": "native",
+    "partition": "meta",
+    "provenanceMeta": true
+  },
+  {
+    "id": "L1-META-PROV-HASH",
+    "title": "Provenance hash chain optional; disabled by default with tamper-evident stub row",
+    "list": "1",
+    "sectionPath": "meta/provenance-hash-chain",
+    "layer": "meta",
+    "implementation": "stub",
+    "partition": "meta",
+    "provenanceMeta": true
+  },
+  {
+    "id": "L1-MW-001",
+    "title": "Matcher excludes /_next/static",
+    "list": "1",
+    "sectionPath": "middleware-matrix/matcher/static",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-002",
+    "title": "Matcher excludes /_next/image",
+    "list": "1",
+    "sectionPath": "middleware-matrix/matcher/image",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-003",
+    "title": "Matcher excludes favicon.ico",
+    "list": "1",
+    "sectionPath": "middleware-matrix/matcher/favicon",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-004",
+    "title": "RSC flight prefetch must not run heavy diagnostics in middleware",
+    "list": "1",
+    "sectionPath": "middleware-matrix/rsc-prefetch",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-005",
+    "title": "NextRequest geo and IP must not be logged raw",
+    "list": "1",
+    "sectionPath": "middleware-matrix/privacy-ip",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-006",
+    "title": "Bot User-Agent should not be special-cased unless product requires",
+    "list": "1",
+    "sectionPath": "middleware-matrix/bot-ua",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-007",
+    "title": "Edge middleware must not register process.on handlers",
+    "list": "1",
+    "sectionPath": "middleware-matrix/edge-process",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-008",
+    "title": "Correlation header values capped and CRLF stripped",
+    "list": "1",
+    "sectionPath": "middleware-matrix/header-sanitize",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-MW-009",
+    "title": "Avoid conflicting Vary headers from middleware",
+    "list": "1",
+    "sectionPath": "middleware-matrix/vary",
+    "layer": "protocol",
+    "implementation": "stub",
+    "partition": "middleware-matrix",
+    "detectability": "hybrid",
+    "blastRadius": "low",
+    "privacyRisk": "low"
+  },
+  {
+    "id": "L1-NATIVE-INSTRUMENTATION",
+    "title": "Instrumentation registers debugging sweep runtime on Node only",
+    "list": "1",
+    "sectionPath": "native/instrumentation",
+    "layer": "meta",
+    "implementation": "native",
+    "partition": "native"
+  },
+  {
+    "id": "L1-NATIVE-LOGGER",
+    "title": "Server sweep logger uses redaction helpers for unknown errors",
+    "list": "1",
+    "sectionPath": "native/observability/logger",
+    "layer": "platform",
+    "implementation": "native",
+    "partition": "native"
+  },
+  {
+    "id": "L1-NATIVE-MW-CORRELATION",
+    "title": "Correlation headers x-request-id and x-correlation-id stamped on edge proxy responses (src/proxy.ts)",
+    "list": "1",
+    "sectionPath": "native/edge-proxy/correlation",
+    "layer": "platform",
+    "implementation": "native",
+    "partition": "native",
+    "tags": [
+      "middleware",
+      "tracing"
+    ]
+  },
+  {
+    "id": "L1-NATIVE-MW-MATCHER",
+    "title": "Edge proxy matcher excludes static assets and image optimizer paths (src/proxy.ts config)",
+    "list": "1",
+    "sectionPath": "native/edge-proxy/matcher",
+    "layer": "platform",
+    "implementation": "native",
+    "partition": "native",
+    "tags": [
+      "next",
+      "middleware"
+    ]
+  },
+  {
+    "id": "L1-NATIVE-ROUTE-DIAG",
+    "title": "Internal debugging sweep JSON route gated by secret and env",
+    "list": "1",
+    "sectionPath": "native/api/internal-diagnostics",
+    "layer": "platform",
+    "implementation": "native",
+    "partition": "native",
+    "tags": [
+      "api",
+      "security"
+    ]
+  },
+  {
+    "id": "L1-NATIVE-SENTRY-TAGS",
+    "title": "Sentry optional correlation context with bounded tag sizes",
+    "list": "1",
+    "sectionPath": "native/observability/sentry",
+    "layer": "platform",
+    "implementation": "partial",
+    "partition": "native"
+  },
+  {
+    "id": "L1-PASS10-STUB-0004",
+    "title": "Sweep stub surface: active directory ldap",
+    "list": "1",
+    "sectionPath": "pass10/stub/active-directory-ldap",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "active-directory-ldap"
+  },
+  {
+    "id": "L1-PASS10-STUB-0039",
+    "title": "Sweep stub surface: bazel hermetic sdk",
+    "list": "1",
+    "sectionPath": "pass10/stub/bazel-hermetic-sdk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "bazel-hermetic-sdk"
+  },
+  {
+    "id": "L1-PASS10-STUB-0048",
+    "title": "Sweep stub surface: btrfs enospc",
+    "list": "1",
+    "sectionPath": "pass10/stub/btrfs-enospc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "btrfs-enospc"
+  },
+  {
+    "id": "L1-PASS10-STUB-0074",
+    "title": "Sweep stub surface: cirq google engine",
+    "list": "1",
+    "sectionPath": "pass10/stub/cirq-google-engine",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "cirq-google-engine"
+  },
+  {
+    "id": "L1-PASS10-STUB-0104",
+    "title": "Sweep stub surface: ctap2 ble",
+    "list": "1",
+    "sectionPath": "pass10/stub/ctap2-ble",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "ctap2-ble"
+  },
+  {
+    "id": "L1-PASS10-STUB-0105",
+    "title": "Sweep stub surface: ctap2 nfc",
+    "list": "1",
+    "sectionPath": "pass10/stub/ctap2-nfc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "ctap2-nfc"
+  },
+  {
+    "id": "L1-PASS10-STUB-0106",
+    "title": "Sweep stub surface: ctap2 usb",
+    "list": "1",
+    "sectionPath": "pass10/stub/ctap2-usb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "ctap2-usb"
+  },
+  {
+    "id": "L1-PASS10-STUB-0114",
+    "title": "Sweep stub surface: devicecheck app attest",
+    "list": "1",
+    "sectionPath": "pass10/stub/devicecheck-app-attest",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "devicecheck-app-attest"
+  },
+  {
+    "id": "L1-PASS10-STUB-0117",
+    "title": "Sweep stub surface: diffoscope html",
+    "list": "1",
+    "sectionPath": "pass10/stub/diffoscope-html",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "diffoscope-html"
+  },
+  {
+    "id": "L1-PASS10-STUB-0125",
+    "title": "Sweep stub surface: dotnet gc loh",
+    "list": "1",
+    "sectionPath": "pass10/stub/dotnet-gc-loh",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "dotnet-gc-loh"
+  },
+  {
+    "id": "L1-PASS10-STUB-0141",
+    "title": "Sweep stub surface: ext4 journal abort",
+    "list": "1",
+    "sectionPath": "pass10/stub/ext4-journal-abort",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "ext4-journal-abort"
+  },
+  {
+    "id": "L1-PASS10-STUB-0146",
+    "title": "Sweep stub surface: fastq parse gzip",
+    "list": "1",
+    "sectionPath": "pass10/stub/fastq-parse-gzip",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "fastq-parse-gzip"
+  },
+  {
+    "id": "L1-PASS10-STUB-0148",
+    "title": "Sweep stub surface: feast online store",
+    "list": "1",
+    "sectionPath": "pass10/stub/feast-online-store",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "feast-online-store"
+  },
+  {
+    "id": "L1-PASS10-STUB-0161",
+    "title": "Sweep stub surface: gamepad api mapping",
+    "list": "1",
+    "sectionPath": "pass10/stub/gamepad-api-mapping",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "gamepad-api-mapping"
+  },
+  {
+    "id": "L1-PASS10-STUB-0169",
+    "title": "Sweep stub surface: geojson invalid ring",
+    "list": "1",
+    "sectionPath": "pass10/stub/geojson-invalid-ring",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "geojson-invalid-ring"
+  },
+  {
+    "id": "L1-PASS10-STUB-0174",
+    "title": "Sweep stub surface: go scheduler trace",
+    "list": "1",
+    "sectionPath": "pass10/stub/go-scheduler-trace",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "go-scheduler-trace"
+  },
+  {
+    "id": "L1-PASS10-STUB-0213",
+    "title": "Sweep stub surface: iscsi mpio path down",
+    "list": "1",
+    "sectionPath": "pass10/stub/iscsi-mpio-path-down",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "iscsi-mpio-path-down"
+  },
+  {
+    "id": "L1-PASS10-STUB-0226",
+    "title": "Sweep stub surface: jvm g1 pause",
+    "list": "1",
+    "sectionPath": "pass10/stub/jvm-g1-pause",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "jvm-g1-pause"
+  },
+  {
+    "id": "L1-PASS10-STUB-0228",
+    "title": "Sweep stub surface: kerberos kinit",
+    "list": "1",
+    "sectionPath": "pass10/stub/kerberos-kinit",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "kerberos-kinit"
+  },
+  {
+    "id": "L1-PASS10-STUB-0238",
+    "title": "Sweep stub surface: leveldb compaction",
+    "list": "1",
+    "sectionPath": "pass10/stub/leveldb-compaction",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "leveldb-compaction"
+  },
+  {
+    "id": "L1-PASS10-STUB-0246",
+    "title": "Sweep stub surface: lmdb mdb map full",
+    "list": "1",
+    "sectionPath": "pass10/stub/lmdb-mdb-map-full",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "lmdb-mdb-map-full"
+  },
+  {
+    "id": "L1-PASS10-STUB-0261",
+    "title": "Sweep stub surface: metar taf parser",
+    "list": "1",
+    "sectionPath": "pass10/stub/metar-taf-parser",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "metar-taf-parser"
+  },
+  {
+    "id": "L1-PASS10-STUB-0267",
+    "title": "Sweep stub surface: mlflow tracking uri",
+    "list": "1",
+    "sectionPath": "pass10/stub/mlflow-tracking-uri",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "mlflow-tracking-uri"
+  },
+  {
+    "id": "L1-PASS10-STUB-0277",
+    "title": "Sweep stub surface: naif spice kernel",
+    "list": "1",
+    "sectionPath": "pass10/stub/naif-spice-kernel",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "naif-spice-kernel"
+  },
+  {
+    "id": "L1-PASS10-STUB-0279",
+    "title": "Sweep stub surface: neptune api token",
+    "list": "1",
+    "sectionPath": "pass10/stub/neptune-api-token",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "neptune-api-token"
+  },
+  {
+    "id": "L1-PASS10-STUB-0283",
+    "title": "Sweep stub surface: nfs3 stale file handle",
+    "list": "1",
+    "sectionPath": "pass10/stub/nfs3-stale-file-handle",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "nfs3-stale-file-handle"
+  },
+  {
+    "id": "L1-PASS10-STUB-0287",
+    "title": "Sweep stub surface: nix flake input lock",
+    "list": "1",
+    "sectionPath": "pass10/stub/nix-flake-input-lock",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "nix-flake-input-lock"
+  },
+  {
+    "id": "L1-PASS10-STUB-0288",
+    "title": "Sweep stub surface: nix store path drift",
+    "list": "1",
+    "sectionPath": "pass10/stub/nix-store-path-drift",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "nix-store-path-drift"
+  },
+  {
+    "id": "L1-PASS10-STUB-0290",
+    "title": "Sweep stub surface: node v8 oom",
+    "list": "1",
+    "sectionPath": "pass10/stub/node-v8-oom",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "node-v8-oom"
+  },
+  {
+    "id": "L1-PASS10-STUB-0335",
+    "title": "Sweep stub surface: php opcache stale",
+    "list": "1",
+    "sectionPath": "pass10/stub/php-opcache-stale",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "php-opcache-stale"
+  },
+  {
+    "id": "L1-PASS10-STUB-0340",
+    "title": "Sweep stub surface: play integrity standard",
+    "list": "1",
+    "sectionPath": "pass10/stub/play-integrity-standard",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "play-integrity-standard"
+  },
+  {
+    "id": "L1-PASS10-STUB-0364",
+    "title": "Sweep stub surface: python gil asyncio",
+    "list": "1",
+    "sectionPath": "pass10/stub/python-gil-asyncio",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "python-gil-asyncio"
+  },
+  {
+    "id": "L1-PASS10-STUB-0365",
+    "title": "Sweep stub surface: qiskit runtime job",
+    "list": "1",
+    "sectionPath": "pass10/stub/qiskit-runtime-job",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "qiskit-runtime-job"
+  },
+  {
+    "id": "L1-PASS10-STUB-0376",
+    "title": "Sweep stub surface: rocksdb write stall",
+    "list": "1",
+    "sectionPath": "pass10/stub/rocksdb-write-stall",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "rocksdb-write-stall"
+  },
+  {
+    "id": "L1-PASS10-STUB-0381",
+    "title": "Sweep stub surface: ruby yjit invalidate",
+    "list": "1",
+    "sectionPath": "pass10/stub/ruby-yjit-invalidate",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "ruby-yjit-invalidate"
+  },
+  {
+    "id": "L1-PASS10-STUB-0384",
+    "title": "Sweep stub surface: rust tokio starvation",
+    "list": "1",
+    "sectionPath": "pass10/stub/rust-tokio-starvation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "rust-tokio-starvation"
+  },
+  {
+    "id": "L1-PASS10-STUB-0388",
+    "title": "Sweep stub surface: safetynet legacy",
+    "list": "1",
+    "sectionPath": "pass10/stub/safetynet-legacy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "safetynet-legacy"
+  },
+  {
+    "id": "L1-PASS10-STUB-0418",
+    "title": "Sweep stub surface: smb2 signing required",
+    "list": "1",
+    "sectionPath": "pass10/stub/smb2-signing-required",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "smb2-signing-required"
+  },
+  {
+    "id": "L1-PASS10-STUB-0428",
+    "title": "Sweep stub surface: sqlite wal busy",
+    "list": "1",
+    "sectionPath": "pass10/stub/sqlite-wal-busy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "sqlite-wal-busy"
+  },
+  {
+    "id": "L1-PASS10-STUB-0460",
+    "title": "Sweep stub surface: tecton materialization",
+    "list": "1",
+    "sectionPath": "pass10/stub/tecton-materialization",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "tecton-materialization"
+  },
+  {
+    "id": "L1-PASS10-STUB-0461",
+    "title": "Sweep stub surface: tensorboard grpc",
+    "list": "1",
+    "sectionPath": "pass10/stub/tensorboard-grpc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "tensorboard-grpc"
+  },
+  {
+    "id": "L1-PASS10-STUB-0492",
+    "title": "Sweep stub surface: vcf multiallelic",
+    "list": "1",
+    "sectionPath": "pass10/stub/vcf-multiallelic",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "vcf-multiallelic"
+  },
+  {
+    "id": "L1-PASS10-STUB-0498",
+    "title": "Sweep stub surface: vibrate api sandwich",
+    "list": "1",
+    "sectionPath": "pass10/stub/vibrate-api-sandwich",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "vibrate-api-sandwich"
+  },
+  {
+    "id": "L1-PASS10-STUB-0508",
+    "title": "Sweep stub surface: wamr iwasm",
+    "list": "1",
+    "sectionPath": "pass10/stub/wamr-iwasm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "wamr-iwasm"
+  },
+  {
+    "id": "L1-PASS10-STUB-0509",
+    "title": "Sweep stub surface: wandb run crash",
+    "list": "1",
+    "sectionPath": "pass10/stub/wandb-run-crash",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "wandb-run-crash"
+  },
+  {
+    "id": "L1-PASS10-STUB-0510",
+    "title": "Sweep stub surface: wasm component model",
+    "list": "1",
+    "sectionPath": "pass10/stub/wasm-component-model",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "wasm-component-model"
+  },
+  {
+    "id": "L1-PASS10-STUB-0511",
+    "title": "Sweep stub surface: wasmer runtime",
+    "list": "1",
+    "sectionPath": "pass10/stub/wasmer-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "wasmer-runtime"
+  },
+  {
+    "id": "L1-PASS10-STUB-0512",
+    "title": "Sweep stub surface: wasmtime runtime",
+    "list": "1",
+    "sectionPath": "pass10/stub/wasmtime-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "wasmtime-runtime"
+  },
+  {
+    "id": "L1-PASS10-STUB-0515",
+    "title": "Sweep stub surface: web serial port",
+    "list": "1",
+    "sectionPath": "pass10/stub/web-serial-port",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "web-serial-port"
+  },
+  {
+    "id": "L1-PASS10-STUB-0516",
+    "title": "Sweep stub surface: webbluetooth gatt",
+    "list": "1",
+    "sectionPath": "pass10/stub/webbluetooth-gatt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "webbluetooth-gatt"
+  },
+  {
+    "id": "L1-PASS10-STUB-0519",
+    "title": "Sweep stub surface: webhid claim",
+    "list": "1",
+    "sectionPath": "pass10/stub/webhid-claim",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "webhid-claim"
+  },
+  {
+    "id": "L1-PASS10-STUB-0522",
+    "title": "Sweep stub surface: webnfc ndef",
+    "list": "1",
+    "sectionPath": "pass10/stub/webnfc-ndef",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "webnfc-ndef"
+  },
+  {
+    "id": "L1-PASS10-STUB-0526",
+    "title": "Sweep stub surface: webusb device filter",
+    "list": "1",
+    "sectionPath": "pass10/stub/webusb-device-filter",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "webusb-device-filter"
+  },
+  {
+    "id": "L1-PASS10-STUB-0538",
+    "title": "Sweep stub surface: xfs repair force",
+    "list": "1",
+    "sectionPath": "pass10/stub/xfs-repair-force",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "xfs-repair-force"
+  },
+  {
+    "id": "L1-PASS10-STUB-0547",
+    "title": "Sweep stub surface: zfs scrub io",
+    "list": "1",
+    "sectionPath": "pass10/stub/zfs-scrub-io",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "stubClass": "zfs-scrub-io"
+  },
+  {
+    "id": "L1-PASS11-STUB-0010",
+    "title": "Sweep stub surface: alloy analyzer counterexample",
+    "list": "1",
+    "sectionPath": "pass11/stub/alloy-analyzer-counterexample",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "alloy-analyzer-counterexample"
+  },
+  {
+    "id": "L1-PASS11-STUB-0022",
+    "title": "Sweep stub surface: asyncapi parser",
+    "list": "1",
+    "sectionPath": "pass11/stub/asyncapi-parser",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "asyncapi-parser"
+  },
+  {
+    "id": "L1-PASS11-STUB-0028",
+    "title": "Sweep stub surface: avro schema resolution",
+    "list": "1",
+    "sectionPath": "pass11/stub/avro-schema-resolution",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "avro-schema-resolution"
+  },
+  {
+    "id": "L1-PASS11-STUB-0046",
+    "title": "Sweep stub surface: breakpad minidump",
+    "list": "1",
+    "sectionPath": "pass11/stub/breakpad-minidump",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "breakpad-minidump"
+  },
+  {
+    "id": "L1-PASS11-STUB-0083",
+    "title": "Sweep stub surface: cluster primary death",
+    "list": "1",
+    "sectionPath": "pass11/stub/cluster-primary-death",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "cluster-primary-death"
+  },
+  {
+    "id": "L1-PASS11-STUB-0088",
+    "title": "Sweep stub surface: connect buf build",
+    "list": "1",
+    "sectionPath": "pass11/stub/connect-buf-build",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "connect-buf-build"
+  },
+  {
+    "id": "L1-PASS11-STUB-0089",
+    "title": "Sweep stub surface: coq compilation stub",
+    "list": "1",
+    "sectionPath": "pass11/stub/coq-compilation-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "coq-compilation-stub"
+  },
+  {
+    "id": "L1-PASS11-STUB-0099",
+    "title": "Sweep stub surface: cron vs anacron",
+    "list": "1",
+    "sectionPath": "pass11/stub/cron-vs-anacron",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "cron-vs-anacron"
+  },
+  {
+    "id": "L1-PASS11-STUB-0103",
+    "title": "Sweep stub surface: csv sniffer wrong delimiter",
+    "list": "1",
+    "sectionPath": "pass11/stub/csv-sniffer-wrong-delimiter",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "csv-sniffer-wrong-delimiter"
+  },
+  {
+    "id": "L1-PASS11-STUB-0113",
+    "title": "Sweep stub surface: deterministic rng seed",
+    "list": "1",
+    "sectionPath": "pass11/stub/deterministic-rng-seed",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "deterministic-rng-seed"
+  },
+  {
+    "id": "L1-PASS11-STUB-0130",
+    "title": "Sweep stub surface: dsym dwarf missing",
+    "list": "1",
+    "sectionPath": "pass11/stub/dsym-dwarf-missing",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "dsym-dwarf-missing"
+  },
+  {
+    "id": "L1-PASS11-STUB-0144",
+    "title": "Sweep stub surface: fast check shrink loop",
+    "list": "1",
+    "sectionPath": "pass11/stub/fast-check-shrink-loop",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "fast-check-shrink-loop"
+  },
+  {
+    "id": "L1-PASS11-STUB-0160",
+    "title": "Sweep stub surface: foundationdb simulator class",
+    "list": "1",
+    "sectionPath": "pass11/stub/foundationdb-simulator-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "foundationdb-simulator-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0167",
+    "title": "Sweep stub surface: gdb remote protocol",
+    "list": "1",
+    "sectionPath": "pass11/stub/gdb-remote-protocol",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "gdb-remote-protocol"
+  },
+  {
+    "id": "L1-PASS11-STUB-0182",
+    "title": "Sweep stub surface: grpc server reflection",
+    "list": "1",
+    "sectionPath": "pass11/stub/grpc-server-reflection",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "grpc-server-reflection"
+  },
+  {
+    "id": "L1-PASS11-STUB-0193",
+    "title": "Sweep stub surface: hypothesis flaky example",
+    "list": "1",
+    "sectionPath": "pass11/stub/hypothesis-flaky-example",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "hypothesis-flaky-example"
+  },
+  {
+    "id": "L1-PASS11-STUB-0205",
+    "title": "Sweep stub surface: ini windows codepage",
+    "list": "1",
+    "sectionPath": "pass11/stub/ini-windows-codepage",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "ini-windows-codepage"
+  },
+  {
+    "id": "L1-PASS11-STUB-0207",
+    "title": "Sweep stub surface: instrumented fetch partial types",
+    "list": "1",
+    "sectionPath": "pass11/stub/instrumented-fetch-partial-types",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "instrumented-fetch-partial-types"
+  },
+  {
+    "id": "L1-PASS11-STUB-0222",
+    "title": "Sweep stub surface: jepsen linearizability class",
+    "list": "1",
+    "sectionPath": "pass11/stub/jepsen-linearizability-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "jepsen-linearizability-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0225",
+    "title": "Sweep stub surface: json schema draft 2019 09",
+    "list": "1",
+    "sectionPath": "pass11/stub/json-schema-draft-2019-09",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "json-schema-draft-2019-09"
+  },
+  {
+    "id": "L1-PASS11-STUB-0235",
+    "title": "Sweep stub surface: launchd throttle interval",
+    "list": "1",
+    "sectionPath": "pass11/stub/launchd-throttle-interval",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "launchd-throttle-interval"
+  },
+  {
+    "id": "L1-PASS11-STUB-0240",
+    "title": "Sweep stub surface: libfaketime offset",
+    "list": "1",
+    "sectionPath": "pass11/stub/libfaketime-offset",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "libfaketime-offset"
+  },
+  {
+    "id": "L1-PASS11-STUB-0245",
+    "title": "Sweep stub surface: lldb vscode adapter",
+    "list": "1",
+    "sectionPath": "pass11/stub/lldb-vscode-adapter",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "lldb-vscode-adapter"
+  },
+  {
+    "id": "L1-PASS11-STUB-0289",
+    "title": "Sweep stub surface: node stream backpressure",
+    "list": "1",
+    "sectionPath": "pass11/stub/node-stream-backpressure",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "node-stream-backpressure"
+  },
+  {
+    "id": "L1-PASS11-STUB-0315",
+    "title": "Sweep stub surface: openapi 3 1 discriminator",
+    "list": "1",
+    "sectionPath": "pass11/stub/openapi-3-1-discriminator",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "openapi-3-1-discriminator"
+  },
+  {
+    "id": "L1-PASS11-STUB-0319",
+    "title": "Sweep stub surface: orc stripe index",
+    "list": "1",
+    "sectionPath": "pass11/stub/orc-stripe-index",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "orc-stripe-index"
+  },
+  {
+    "id": "L1-PASS11-STUB-0322",
+    "title": "Sweep stub surface: pact broker verify",
+    "list": "1",
+    "sectionPath": "pass11/stub/pact-broker-verify",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "pact-broker-verify"
+  },
+  {
+    "id": "L1-PASS11-STUB-0327",
+    "title": "Sweep stub surface: parquet column pruning",
+    "list": "1",
+    "sectionPath": "pass11/stub/parquet-column-pruning",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "parquet-column-pruning"
+  },
+  {
+    "id": "L1-PASS11-STUB-0344",
+    "title": "Sweep stub surface: pm2 cluster ipc",
+    "list": "1",
+    "sectionPath": "pass11/stub/pm2-cluster-ipc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "pm2-cluster-ipc"
+  },
+  {
+    "id": "L1-PASS11-STUB-0361",
+    "title": "Sweep stub surface: proptest regressions",
+    "list": "1",
+    "sectionPath": "pass11/stub/proptest-regressions",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "proptest-regressions"
+  },
+  {
+    "id": "L1-PASS11-STUB-0370",
+    "title": "Sweep stub surface: re2 no backref",
+    "list": "1",
+    "sectionPath": "pass11/stub/re2-no-backref",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "re2-no-backref"
+  },
+  {
+    "id": "L1-PASS11-STUB-0409",
+    "title": "Sweep stub surface: simdjson parse error",
+    "list": "1",
+    "sectionPath": "pass11/stub/simdjson-parse-error",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "simdjson-parse-error"
+  },
+  {
+    "id": "L1-PASS11-STUB-0438",
+    "title": "Sweep stub surface: stryker mutation score",
+    "list": "1",
+    "sectionPath": "pass11/stub/stryker-mutation-score",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "stryker-mutation-score"
+  },
+  {
+    "id": "L1-PASS11-STUB-0439",
+    "title": "Sweep stub surface: stub sweep self telemetry",
+    "list": "1",
+    "sectionPath": "pass11/stub/stub-sweep-self-telemetry",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "stub-sweep-self-telemetry"
+  },
+  {
+    "id": "L1-PASS11-STUB-0447",
+    "title": "Sweep stub surface: synthetic blackbox class",
+    "list": "1",
+    "sectionPath": "pass11/stub/synthetic-blackbox-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "synthetic-blackbox-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0448",
+    "title": "Sweep stub surface: synthetic ct log class",
+    "list": "1",
+    "sectionPath": "pass11/stub/synthetic-ct-log-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "synthetic-ct-log-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0449",
+    "title": "Sweep stub surface: synthetic icmp class",
+    "list": "1",
+    "sectionPath": "pass11/stub/synthetic-icmp-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "synthetic-icmp-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0450",
+    "title": "Sweep stub surface: synthetic ntp class",
+    "list": "1",
+    "sectionPath": "pass11/stub/synthetic-ntp-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "synthetic-ntp-class"
+  },
+  {
+    "id": "L1-PASS11-STUB-0452",
+    "title": "Sweep stub surface: systemd restart on failure",
+    "list": "1",
+    "sectionPath": "pass11/stub/systemd-restart-on-failure",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "systemd-restart-on-failure"
+  },
+  {
+    "id": "L1-PASS11-STUB-0468",
+    "title": "Sweep stub surface: tlc model checker oom",
+    "list": "1",
+    "sectionPath": "pass11/stub/tlc-model-checker-oom",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "tlc-model-checker-oom"
+  },
+  {
+    "id": "L1-PASS11-STUB-0469",
+    "title": "Sweep stub surface: tlc state explosion",
+    "list": "1",
+    "sectionPath": "pass11/stub/tlc-state-explosion",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "tlc-state-explosion"
+  },
+  {
+    "id": "L1-PASS11-STUB-0474",
+    "title": "Sweep stub surface: toml datetime offset",
+    "list": "1",
+    "sectionPath": "pass11/stub/toml-datetime-offset",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "toml-datetime-offset"
+  },
+  {
+    "id": "L1-PASS11-STUB-0477",
+    "title": "Sweep stub surface: transform objectmode",
+    "list": "1",
+    "sectionPath": "pass11/stub/transform-objectmode",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "transform-objectmode"
+  },
+  {
+    "id": "L1-PASS11-STUB-0479",
+    "title": "Sweep stub surface: trpc batch link",
+    "list": "1",
+    "sectionPath": "pass11/stub/trpc-batch-link",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "trpc-batch-link"
+  },
+  {
+    "id": "L1-PASS11-STUB-0483",
+    "title": "Sweep stub surface: twirp hpk wire",
+    "list": "1",
+    "sectionPath": "pass11/stub/twirp-hpk-wire",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "twirp-hpk-wire"
+  },
+  {
+    "id": "L1-PASS11-STUB-0504",
+    "title": "Sweep stub surface: volatility plugin stub",
+    "list": "1",
+    "sectionPath": "pass11/stub/volatility-plugin-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "volatility-plugin-stub"
+  },
+  {
+    "id": "L1-PASS11-STUB-0534",
+    "title": "Sweep stub surface: worker thread uncaught",
+    "list": "1",
+    "sectionPath": "pass11/stub/worker-thread-uncaught",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "worker-thread-uncaught"
+  },
+  {
+    "id": "L1-PASS11-STUB-0539",
+    "title": "Sweep stub surface: yaml merge key unsafe",
+    "list": "1",
+    "sectionPath": "pass11/stub/yaml-merge-key-unsafe",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "stubClass": "yaml-merge-key-unsafe"
+  },
+  {
+    "id": "L1-PASS5-STUB-0008",
+    "title": "Sweep stub surface: airgap oci mirror",
+    "list": "1",
+    "sectionPath": "pass5/stub/airgap-oci-mirror",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "airgap-oci-mirror"
+  },
+  {
+    "id": "L1-PASS5-STUB-0009",
+    "title": "Sweep stub surface: alertmanager",
+    "list": "1",
+    "sectionPath": "pass5/stub/alertmanager",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "alertmanager"
+  },
+  {
+    "id": "L1-PASS5-STUB-0019",
+    "title": "Sweep stub surface: appdynamics machine agent",
+    "list": "1",
+    "sectionPath": "pass5/stub/appdynamics-machine-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "appdynamics-machine-agent"
+  },
+  {
+    "id": "L1-PASS5-STUB-0035",
+    "title": "Sweep stub surface: axiom ingest",
+    "list": "1",
+    "sectionPath": "pass5/stub/axiom-ingest",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "axiom-ingest"
+  },
+  {
+    "id": "L1-PASS5-STUB-0062",
+    "title": "Sweep stub surface: cef arcSight",
+    "list": "1",
+    "sectionPath": "pass5/stub/cef-arcSight",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "cef-arcSight"
+  },
+  {
+    "id": "L1-PASS5-STUB-0071",
+    "title": "Sweep stub surface: chronosphere",
+    "list": "1",
+    "sectionPath": "pass5/stub/chronosphere",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "chronosphere"
+  },
+  {
+    "id": "L1-PASS5-STUB-0090",
+    "title": "Sweep stub surface: coralogix shipper",
+    "list": "1",
+    "sectionPath": "pass5/stub/coralogix-shipper",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "coralogix-shipper"
+  },
+  {
+    "id": "L1-PASS5-STUB-0092",
+    "title": "Sweep stub surface: cortex distributor",
+    "list": "1",
+    "sectionPath": "pass5/stub/cortex-distributor",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "cortex-distributor"
+  },
+  {
+    "id": "L1-PASS5-STUB-0121",
+    "title": "Sweep stub surface: dns over https",
+    "list": "1",
+    "sectionPath": "pass5/stub/dns-over-https",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "dns-over-https"
+  },
+  {
+    "id": "L1-PASS5-STUB-0132",
+    "title": "Sweep stub surface: dynatrace oneagent",
+    "list": "1",
+    "sectionPath": "pass5/stub/dynatrace-oneagent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "dynatrace-oneagent"
+  },
+  {
+    "id": "L1-PASS5-STUB-0150",
+    "title": "Sweep stub surface: fedramp low baseline stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/fedramp-low-baseline-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "fedramp-low-baseline-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0151",
+    "title": "Sweep stub surface: fedramp moderate baseline stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/fedramp-moderate-baseline-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "fedramp-moderate-baseline-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0157",
+    "title": "Sweep stub surface: fluent bit",
+    "list": "1",
+    "sectionPath": "pass5/stub/fluent-bit",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "fluent-bit"
+  },
+  {
+    "id": "L1-PASS5-STUB-0179",
+    "title": "Sweep stub surface: graphite carbon",
+    "list": "1",
+    "sectionPath": "pass5/stub/graphite-carbon",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "graphite-carbon"
+  },
+  {
+    "id": "L1-PASS5-STUB-0180",
+    "title": "Sweep stub surface: graylog sidecar",
+    "list": "1",
+    "sectionPath": "pass5/stub/graylog-sidecar",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "graylog-sidecar"
+  },
+  {
+    "id": "L1-PASS5-STUB-0188",
+    "title": "Sweep stub surface: hipaa baa controls stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/hipaa-baa-controls-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "hipaa-baa-controls-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0189",
+    "title": "Sweep stub surface: honeycomb refinery",
+    "list": "1",
+    "sectionPath": "pass5/stub/honeycomb-refinery",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "honeycomb-refinery"
+  },
+  {
+    "id": "L1-PASS5-STUB-0190",
+    "title": "Sweep stub surface: hsm aws cloudhsm",
+    "list": "1",
+    "sectionPath": "pass5/stub/hsm-aws-cloudhsm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "hsm-aws-cloudhsm"
+  },
+  {
+    "id": "L1-PASS5-STUB-0191",
+    "title": "Sweep stub surface: hsm thales luna",
+    "list": "1",
+    "sectionPath": "pass5/stub/hsm-thales-luna",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "hsm-thales-luna"
+  },
+  {
+    "id": "L1-PASS5-STUB-0203",
+    "title": "Sweep stub surface: influxdb enterprise",
+    "list": "1",
+    "sectionPath": "pass5/stub/influxdb-enterprise",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "influxdb-enterprise"
+  },
+  {
+    "id": "L1-PASS5-STUB-0206",
+    "title": "Sweep stub surface: instana host agent",
+    "list": "1",
+    "sectionPath": "pass5/stub/instana-host-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "instana-host-agent"
+  },
+  {
+    "id": "L1-PASS5-STUB-0215",
+    "title": "Sweep stub surface: iso27001 annex a stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/iso27001-annex-a-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "iso27001-annex-a-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0217",
+    "title": "Sweep stub surface: itar ear dual use stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/itar-ear-dual-use-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "itar-ear-dual-use-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0224",
+    "title": "Sweep stub surface: journald",
+    "list": "1",
+    "sectionPath": "pass5/stub/journald",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "journald"
+  },
+  {
+    "id": "L1-PASS5-STUB-0230",
+    "title": "Sweep stub surface: kms envelope audit stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/kms-envelope-audit-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "kms-envelope-audit-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0237",
+    "title": "Sweep stub surface: leef ibm",
+    "list": "1",
+    "sectionPath": "pass5/stub/leef-ibm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "leef-ibm"
+  },
+  {
+    "id": "L1-PASS5-STUB-0242",
+    "title": "Sweep stub surface: lightstep satellite",
+    "list": "1",
+    "sectionPath": "pass5/stub/lightstep-satellite",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "lightstep-satellite"
+  },
+  {
+    "id": "L1-PASS5-STUB-0247",
+    "title": "Sweep stub surface: logstash beats",
+    "list": "1",
+    "sectionPath": "pass5/stub/logstash-beats",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "logstash-beats"
+  },
+  {
+    "id": "L1-PASS5-STUB-0248",
+    "title": "Sweep stub surface: logzio shipper",
+    "list": "1",
+    "sectionPath": "pass5/stub/logzio-shipper",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "logzio-shipper"
+  },
+  {
+    "id": "L1-PASS5-STUB-0250",
+    "title": "Sweep stub surface: loki canary",
+    "list": "1",
+    "sectionPath": "pass5/stub/loki-canary",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "loki-canary"
+  },
+  {
+    "id": "L1-PASS5-STUB-0262",
+    "title": "Sweep stub surface: mezmo logdna",
+    "list": "1",
+    "sectionPath": "pass5/stub/mezmo-logdna",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "mezmo-logdna"
+  },
+  {
+    "id": "L1-PASS5-STUB-0264",
+    "title": "Sweep stub surface: mimir distributor",
+    "list": "1",
+    "sectionPath": "pass5/stub/mimir-distributor",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "mimir-distributor"
+  },
+  {
+    "id": "L1-PASS5-STUB-0274",
+    "title": "Sweep stub surface: mtls service mesh istio",
+    "list": "1",
+    "sectionPath": "pass5/stub/mtls-service-mesh-istio",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "mtls-service-mesh-istio"
+  },
+  {
+    "id": "L1-PASS5-STUB-0275",
+    "title": "Sweep stub surface: mtls service mesh linkerd",
+    "list": "1",
+    "sectionPath": "pass5/stub/mtls-service-mesh-linkerd",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "mtls-service-mesh-linkerd"
+  },
+  {
+    "id": "L1-PASS5-STUB-0282",
+    "title": "Sweep stub surface: newrelic infrastructure",
+    "list": "1",
+    "sectionPath": "pass5/stub/newrelic-infrastructure",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "newrelic-infrastructure"
+  },
+  {
+    "id": "L1-PASS5-STUB-0285",
+    "title": "Sweep stub surface: nist csf subcategory stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/nist-csf-subcategory-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "nist-csf-subcategory-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0306",
+    "title": "Sweep stub surface: ofac screening batch stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/ofac-screening-batch-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "ofac-screening-batch-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0307",
+    "title": "Sweep stub surface: offline sbom gpg verify",
+    "list": "1",
+    "sectionPath": "pass5/stub/offline-sbom-gpg-verify",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "offline-sbom-gpg-verify"
+  },
+  {
+    "id": "L1-PASS5-STUB-0316",
+    "title": "Sweep stub surface: opensearch data prepper",
+    "list": "1",
+    "sectionPath": "pass5/stub/opensearch-data-prepper",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "opensearch-data-prepper"
+  },
+  {
+    "id": "L1-PASS5-STUB-0326",
+    "title": "Sweep stub surface: papertrail remote syslog",
+    "list": "1",
+    "sectionPath": "pass5/stub/papertrail-remote-syslog",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "papertrail-remote-syslog"
+  },
+  {
+    "id": "L1-PASS5-STUB-0332",
+    "title": "Sweep stub surface: pci saq aep stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/pci-saq-aep-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "pci-saq-aep-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0354",
+    "title": "Sweep stub surface: pqc hybrid tls",
+    "list": "1",
+    "sectionPath": "pass5/stub/pqc-hybrid-tls",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "pqc-hybrid-tls"
+  },
+  {
+    "id": "L1-PASS5-STUB-0357",
+    "title": "Sweep stub surface: prometheus pushgateway",
+    "list": "1",
+    "sectionPath": "pass5/stub/prometheus-pushgateway",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "prometheus-pushgateway"
+  },
+  {
+    "id": "L1-PASS5-STUB-0359",
+    "title": "Sweep stub surface: prometheus remote write",
+    "list": "1",
+    "sectionPath": "pass5/stub/prometheus-remote-write",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "prometheus-remote-write"
+  },
+  {
+    "id": "L1-PASS5-STUB-0366",
+    "title": "Sweep stub surface: quantum safe vpn stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/quantum-safe-vpn-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "quantum-safe-vpn-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0367",
+    "title": "Sweep stub surface: questdb",
+    "list": "1",
+    "sectionPath": "pass5/stub/questdb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "questdb"
+  },
+  {
+    "id": "L1-PASS5-STUB-0394",
+    "title": "Sweep stub surface: scalyr agent",
+    "list": "1",
+    "sectionPath": "pass5/stub/scalyr-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "scalyr-agent"
+  },
+  {
+    "id": "L1-PASS5-STUB-0400",
+    "title": "Sweep stub surface: secure enclave ios",
+    "list": "1",
+    "sectionPath": "pass5/stub/secure-enclave-ios",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "secure-enclave-ios"
+  },
+  {
+    "id": "L1-PASS5-STUB-0407",
+    "title": "Sweep stub surface: signalfx smart agent",
+    "list": "1",
+    "sectionPath": "pass5/stub/signalfx-smart-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "signalfx-smart-agent"
+  },
+  {
+    "id": "L1-PASS5-STUB-0420",
+    "title": "Sweep stub surface: soc2 tsc mapping stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/soc2-tsc-mapping-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "soc2-tsc-mapping-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0425",
+    "title": "Sweep stub surface: spiffe spire",
+    "list": "1",
+    "sectionPath": "pass5/stub/spiffe-spire",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "spiffe-spire"
+  },
+  {
+    "id": "L1-PASS5-STUB-0433",
+    "title": "Sweep stub surface: statsd",
+    "list": "1",
+    "sectionPath": "pass5/stub/statsd",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "statsd"
+  },
+  {
+    "id": "L1-PASS5-STUB-0441",
+    "title": "Sweep stub surface: sumologic collector",
+    "list": "1",
+    "sectionPath": "pass5/stub/sumologic-collector",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "sumologic-collector"
+  },
+  {
+    "id": "L1-PASS5-STUB-0451",
+    "title": "Sweep stub surface: syslog rfc5424",
+    "list": "1",
+    "sectionPath": "pass5/stub/syslog-rfc5424",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "syslog-rfc5424"
+  },
+  {
+    "id": "L1-PASS5-STUB-0463",
+    "title": "Sweep stub surface: thanos receive",
+    "list": "1",
+    "sectionPath": "pass5/stub/thanos-receive",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "thanos-receive"
+  },
+  {
+    "id": "L1-PASS5-STUB-0466",
+    "title": "Sweep stub surface: timescale promscale",
+    "list": "1",
+    "sectionPath": "pass5/stub/timescale-promscale",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "timescale-promscale"
+  },
+  {
+    "id": "L1-PASS5-STUB-0470",
+    "title": "Sweep stub surface: tls ech client",
+    "list": "1",
+    "sectionPath": "pass5/stub/tls-ech-client",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "tls-ech-client"
+  },
+  {
+    "id": "L1-PASS5-STUB-0476",
+    "title": "Sweep stub surface: tpm 2.0 attestation stub",
+    "list": "1",
+    "sectionPath": "pass5/stub/tpm-2.0-attestation-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "tpm-2.0-attestation-stub"
+  },
+  {
+    "id": "L1-PASS5-STUB-0493",
+    "title": "Sweep stub surface: vector dev",
+    "list": "1",
+    "sectionPath": "pass5/stub/vector-dev",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "vector-dev"
+  },
+  {
+    "id": "L1-PASS5-STUB-0499",
+    "title": "Sweep stub surface: victoriametrics single",
+    "list": "1",
+    "sectionPath": "pass5/stub/victoriametrics-single",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "victoriametrics-single"
+  },
+  {
+    "id": "L1-PASS5-STUB-0513",
+    "title": "Sweep stub surface: wavefront proxy",
+    "list": "1",
+    "sectionPath": "pass5/stub/wavefront-proxy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "wavefront-proxy"
+  },
+  {
+    "id": "L1-PASS5-STUB-0531",
+    "title": "Sweep stub surface: windows event log forwarding",
+    "list": "1",
+    "sectionPath": "pass5/stub/windows-event-log-forwarding",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass5",
+    "stubClass": "windows-event-log-forwarding"
+  },
+  {
+    "id": "L1-PASS6-STUB-0002",
+    "title": "Sweep stub surface: acme dns 01",
+    "list": "1",
+    "sectionPath": "pass6/stub/acme-dns-01",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "acme-dns-01"
+  },
+  {
+    "id": "L1-PASS6-STUB-0003",
+    "title": "Sweep stub surface: acme tls alpn 01",
+    "list": "1",
+    "sectionPath": "pass6/stub/acme-tls-alpn-01",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "acme-tls-alpn-01"
+  },
+  {
+    "id": "L1-PASS6-STUB-0011",
+    "title": "Sweep stub surface: amd sev snp",
+    "list": "1",
+    "sectionPath": "pass6/stub/amd-sev-snp",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "amd-sev-snp"
+  },
+  {
+    "id": "L1-PASS6-STUB-0021",
+    "title": "Sweep stub surface: arm trustzone",
+    "list": "1",
+    "sectionPath": "pass6/stub/arm-trustzone",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "arm-trustzone"
+  },
+  {
+    "id": "L1-PASS6-STUB-0032",
+    "title": "Sweep stub surface: aws nitro enclaves",
+    "list": "1",
+    "sectionPath": "pass6/stub/aws-nitro-enclaves",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "aws-nitro-enclaves"
+  },
+  {
+    "id": "L1-PASS6-STUB-0036",
+    "title": "Sweep stub surface: azure dcv2",
+    "list": "1",
+    "sectionPath": "pass6/stub/azure-dcv2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "azure-dcv2"
+  },
+  {
+    "id": "L1-PASS6-STUB-0040",
+    "title": "Sweep stub surface: bazel remote exec",
+    "list": "1",
+    "sectionPath": "pass6/stub/bazel-remote-exec",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "bazel-remote-exec"
+  },
+  {
+    "id": "L1-PASS6-STUB-0042",
+    "title": "Sweep stub surface: bimi vmc",
+    "list": "1",
+    "sectionPath": "pass6/stub/bimi-vmc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "bimi-vmc"
+  },
+  {
+    "id": "L1-PASS6-STUB-0049",
+    "title": "Sweep stub surface: buck2 action graph",
+    "list": "1",
+    "sectionPath": "pass6/stub/buck2-action-graph",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "buck2-action-graph"
+  },
+  {
+    "id": "L1-PASS6-STUB-0052",
+    "title": "Sweep stub surface: bun install lockfile drift",
+    "list": "1",
+    "sectionPath": "pass6/stub/bun-install-lockfile-drift",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "bun-install-lockfile-drift"
+  },
+  {
+    "id": "L1-PASS6-STUB-0060",
+    "title": "Sweep stub surface: cargo crates io",
+    "list": "1",
+    "sectionPath": "pass6/stub/cargo-crates-io",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cargo-crates-io"
+  },
+  {
+    "id": "L1-PASS6-STUB-0061",
+    "title": "Sweep stub surface: cargo deny",
+    "list": "1",
+    "sectionPath": "pass6/stub/cargo-deny",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cargo-deny"
+  },
+  {
+    "id": "L1-PASS6-STUB-0066",
+    "title": "Sweep stub surface: chain bom",
+    "list": "1",
+    "sectionPath": "pass6/stub/chain-bom",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "chain-bom"
+  },
+  {
+    "id": "L1-PASS6-STUB-0086",
+    "title": "Sweep stub surface: cocoapods trunk",
+    "list": "1",
+    "sectionPath": "pass6/stub/cocoapods-trunk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cocoapods-trunk"
+  },
+  {
+    "id": "L1-PASS6-STUB-0093",
+    "title": "Sweep stub surface: cosign sign blob",
+    "list": "1",
+    "sectionPath": "pass6/stub/cosign-sign-blob",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cosign-sign-blob"
+  },
+  {
+    "id": "L1-PASS6-STUB-0094",
+    "title": "Sweep stub surface: cosign sign verify",
+    "list": "1",
+    "sectionPath": "pass6/stub/cosign-sign-verify",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cosign-sign-verify"
+  },
+  {
+    "id": "L1-PASS6-STUB-0095",
+    "title": "Sweep stub surface: cosign verify attestation",
+    "list": "1",
+    "sectionPath": "pass6/stub/cosign-verify-attestation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cosign-verify-attestation"
+  },
+  {
+    "id": "L1-PASS6-STUB-0096",
+    "title": "Sweep stub surface: cpan meta",
+    "list": "1",
+    "sectionPath": "pass6/stub/cpan-meta",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "cpan-meta"
+  },
+  {
+    "id": "L1-PASS6-STUB-0097",
+    "title": "Sweep stub surface: crl distribution point timeout",
+    "list": "1",
+    "sectionPath": "pass6/stub/crl-distribution-point-timeout",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "crl-distribution-point-timeout"
+  },
+  {
+    "id": "L1-PASS6-STUB-0110",
+    "title": "Sweep stub surface: dane smime",
+    "list": "1",
+    "sectionPath": "pass6/stub/dane-smime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "dane-smime"
+  },
+  {
+    "id": "L1-PASS6-STUB-0111",
+    "title": "Sweep stub surface: deno cache dir",
+    "list": "1",
+    "sectionPath": "pass6/stub/deno-cache-dir",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "deno-cache-dir"
+  },
+  {
+    "id": "L1-PASS6-STUB-0119",
+    "title": "Sweep stub surface: discord webhook",
+    "list": "1",
+    "sectionPath": "pass6/stub/discord-webhook",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "discord-webhook"
+  },
+  {
+    "id": "L1-PASS6-STUB-0120",
+    "title": "Sweep stub surface: dkim dmarc spf alignment",
+    "list": "1",
+    "sectionPath": "pass6/stub/dkim-dmarc-spf-alignment",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "dkim-dmarc-spf-alignment"
+  },
+  {
+    "id": "L1-PASS6-STUB-0122",
+    "title": "Sweep stub surface: dnssec chain",
+    "list": "1",
+    "sectionPath": "pass6/stub/dnssec-chain",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "dnssec-chain"
+  },
+  {
+    "id": "L1-PASS6-STUB-0126",
+    "title": "Sweep stub surface: dpop bound tokens",
+    "list": "1",
+    "sectionPath": "pass6/stub/dpop-bound-tokens",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "dpop-bound-tokens"
+  },
+  {
+    "id": "L1-PASS6-STUB-0136",
+    "title": "Sweep stub surface: endorlabs sca",
+    "list": "1",
+    "sectionPath": "pass6/stub/endorlabs-sca",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "endorlabs-sca"
+  },
+  {
+    "id": "L1-PASS6-STUB-0158",
+    "title": "Sweep stub surface: fossa cli",
+    "list": "1",
+    "sectionPath": "pass6/stub/fossa-cli",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "fossa-cli"
+  },
+  {
+    "id": "L1-PASS6-STUB-0164",
+    "title": "Sweep stub surface: gcp confidential vm",
+    "list": "1",
+    "sectionPath": "pass6/stub/gcp-confidential-vm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "gcp-confidential-vm"
+  },
+  {
+    "id": "L1-PASS6-STUB-0171",
+    "title": "Sweep stub surface: github oidc issuer",
+    "list": "1",
+    "sectionPath": "pass6/stub/github-oidc-issuer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "github-oidc-issuer"
+  },
+  {
+    "id": "L1-PASS6-STUB-0173",
+    "title": "Sweep stub surface: go proxy sumdb",
+    "list": "1",
+    "sectionPath": "pass6/stub/go-proxy-sumdb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "go-proxy-sumdb"
+  },
+  {
+    "id": "L1-PASS6-STUB-0175",
+    "title": "Sweep stub surface: google chat webhook",
+    "list": "1",
+    "sectionPath": "pass6/stub/google-chat-webhook",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "google-chat-webhook"
+  },
+  {
+    "id": "L1-PASS6-STUB-0176",
+    "title": "Sweep stub surface: gradle configuration cache",
+    "list": "1",
+    "sectionPath": "pass6/stub/gradle-configuration-cache",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "gradle-configuration-cache"
+  },
+  {
+    "id": "L1-PASS6-STUB-0177",
+    "title": "Sweep stub surface: gradle dependency verification",
+    "list": "1",
+    "sectionPath": "pass6/stub/gradle-dependency-verification",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "gradle-dependency-verification"
+  },
+  {
+    "id": "L1-PASS6-STUB-0178",
+    "title": "Sweep stub surface: gradle plugin portal",
+    "list": "1",
+    "sectionPath": "pass6/stub/gradle-plugin-portal",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "gradle-plugin-portal"
+  },
+  {
+    "id": "L1-PASS6-STUB-0184",
+    "title": "Sweep stub surface: happy eyeballs v2",
+    "list": "1",
+    "sectionPath": "pass6/stub/happy-eyeballs-v2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "happy-eyeballs-v2"
+  },
+  {
+    "id": "L1-PASS6-STUB-0187",
+    "title": "Sweep stub surface: hex pm",
+    "list": "1",
+    "sectionPath": "pass6/stub/hex-pm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "hex-pm"
+  },
+  {
+    "id": "L1-PASS6-STUB-0192",
+    "title": "Sweep stub surface: http ntlm negotiate",
+    "list": "1",
+    "sectionPath": "pass6/stub/http-ntlm-negotiate",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "http-ntlm-negotiate"
+  },
+  {
+    "id": "L1-PASS6-STUB-0196",
+    "title": "Sweep stub surface: ice stun turn",
+    "list": "1",
+    "sectionPath": "pass6/stub/ice-stun-turn",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "ice-stun-turn"
+  },
+  {
+    "id": "L1-PASS6-STUB-0200",
+    "title": "Sweep stub surface: in toto run",
+    "list": "1",
+    "sectionPath": "pass6/stub/in-toto-run",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "in-toto-run"
+  },
+  {
+    "id": "L1-PASS6-STUB-0208",
+    "title": "Sweep stub surface: intel sgx",
+    "list": "1",
+    "sectionPath": "pass6/stub/intel-sgx",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "intel-sgx"
+  },
+  {
+    "id": "L1-PASS6-STUB-0210",
+    "title": "Sweep stub surface: intercom conversation",
+    "list": "1",
+    "sectionPath": "pass6/stub/intercom-conversation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "intercom-conversation"
+  },
+  {
+    "id": "L1-PASS6-STUB-0212",
+    "title": "Sweep stub surface: ipv6 ice literal",
+    "list": "1",
+    "sectionPath": "pass6/stub/ipv6-ice-literal",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "ipv6-ice-literal"
+  },
+  {
+    "id": "L1-PASS6-STUB-0220",
+    "title": "Sweep stub surface: jaws log",
+    "list": "1",
+    "sectionPath": "pass6/stub/jaws-log",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "jaws-log"
+  },
+  {
+    "id": "L1-PASS6-STUB-0227",
+    "title": "Sweep stub surface: jwt at+jwt",
+    "list": "1",
+    "sectionPath": "pass6/stub/jwt-at+jwt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "jwt-at+jwt"
+  },
+  {
+    "id": "L1-PASS6-STUB-0229",
+    "title": "Sweep stub surface: kerberos spnego",
+    "list": "1",
+    "sectionPath": "pass6/stub/kerberos-spnego",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "kerberos-spnego"
+  },
+  {
+    "id": "L1-PASS6-STUB-0241",
+    "title": "Sweep stub surface: license eye",
+    "list": "1",
+    "sectionPath": "pass6/stub/license-eye",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "license-eye"
+  },
+  {
+    "id": "L1-PASS6-STUB-0256",
+    "title": "Sweep stub surface: maven central",
+    "list": "1",
+    "sectionPath": "pass6/stub/maven-central",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "maven-central"
+  },
+  {
+    "id": "L1-PASS6-STUB-0257",
+    "title": "Sweep stub surface: maven enforcer plugin",
+    "list": "1",
+    "sectionPath": "pass6/stub/maven-enforcer-plugin",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "maven-enforcer-plugin"
+  },
+  {
+    "id": "L1-PASS6-STUB-0258",
+    "title": "Sweep stub surface: maven reactor order",
+    "list": "1",
+    "sectionPath": "pass6/stub/maven-reactor-order",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "maven-reactor-order"
+  },
+  {
+    "id": "L1-PASS6-STUB-0259",
+    "title": "Sweep stub surface: mdns ice",
+    "list": "1",
+    "sectionPath": "pass6/stub/mdns-ice",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "mdns-ice"
+  },
+  {
+    "id": "L1-PASS6-STUB-0260",
+    "title": "Sweep stub surface: measured boot tpm",
+    "list": "1",
+    "sectionPath": "pass6/stub/measured-boot-tpm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "measured-boot-tpm"
+  },
+  {
+    "id": "L1-PASS6-STUB-0272",
+    "title": "Sweep stub surface: mta sts policy",
+    "list": "1",
+    "sectionPath": "pass6/stub/mta-sts-policy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "mta-sts-policy"
+  },
+  {
+    "id": "L1-PASS6-STUB-0273",
+    "title": "Sweep stub surface: mtls obtain cert acme",
+    "list": "1",
+    "sectionPath": "pass6/stub/mtls-obtain-cert-acme",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "mtls-obtain-cert-acme"
+  },
+  {
+    "id": "L1-PASS6-STUB-0286",
+    "title": "Sweep stub surface: nitro enclave",
+    "list": "1",
+    "sectionPath": "pass6/stub/nitro-enclave",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "nitro-enclave"
+  },
+  {
+    "id": "L1-PASS6-STUB-0291",
+    "title": "Sweep stub surface: npm ci cache clear",
+    "list": "1",
+    "sectionPath": "pass6/stub/npm-ci-cache-clear",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "npm-ci-cache-clear"
+  },
+  {
+    "id": "L1-PASS6-STUB-0292",
+    "title": "Sweep stub surface: npm cli provenance",
+    "list": "1",
+    "sectionPath": "pass6/stub/npm-cli-provenance",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "npm-cli-provenance"
+  },
+  {
+    "id": "L1-PASS6-STUB-0293",
+    "title": "Sweep stub surface: npm provenance attestation",
+    "list": "1",
+    "sectionPath": "pass6/stub/npm-provenance-attestation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "npm-provenance-attestation"
+  },
+  {
+    "id": "L1-PASS6-STUB-0296",
+    "title": "Sweep stub surface: nuget feed",
+    "list": "1",
+    "sectionPath": "pass6/stub/nuget-feed",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "nuget-feed"
+  },
+  {
+    "id": "L1-PASS6-STUB-0297",
+    "title": "Sweep stub surface: nvda log",
+    "list": "1",
+    "sectionPath": "pass6/stub/nvda-log",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "nvda-log"
+  },
+  {
+    "id": "L1-PASS6-STUB-0298",
+    "title": "Sweep stub surface: nx graph cache",
+    "list": "1",
+    "sectionPath": "pass6/stub/nx-graph-cache",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "nx-graph-cache"
+  },
+  {
+    "id": "L1-PASS6-STUB-0299",
+    "title": "Sweep stub surface: nx run many affected",
+    "list": "1",
+    "sectionPath": "pass6/stub/nx-run-many-affected",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "nx-run-many-affected"
+  },
+  {
+    "id": "L1-PASS6-STUB-0300",
+    "title": "Sweep stub surface: oauth device flow",
+    "list": "1",
+    "sectionPath": "pass6/stub/oauth-device-flow",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "oauth-device-flow"
+  },
+  {
+    "id": "L1-PASS6-STUB-0301",
+    "title": "Sweep stub surface: oauth jar",
+    "list": "1",
+    "sectionPath": "pass6/stub/oauth-jar",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "oauth-jar"
+  },
+  {
+    "id": "L1-PASS6-STUB-0302",
+    "title": "Sweep stub surface: oauth par",
+    "list": "1",
+    "sectionPath": "pass6/stub/oauth-par",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "oauth-par"
+  },
+  {
+    "id": "L1-PASS6-STUB-0304",
+    "title": "Sweep stub surface: ocsp stapling",
+    "list": "1",
+    "sectionPath": "pass6/stub/ocsp-stapling",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "ocsp-stapling"
+  },
+  {
+    "id": "L1-PASS6-STUB-0310",
+    "title": "Sweep stub surface: oidc fapi",
+    "list": "1",
+    "sectionPath": "pass6/stub/oidc-fapi",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "oidc-fapi"
+  },
+  {
+    "id": "L1-PASS6-STUB-0325",
+    "title": "Sweep stub surface: pantsbuild go",
+    "list": "1",
+    "sectionPath": "pass6/stub/pantsbuild-go",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "pantsbuild-go"
+  },
+  {
+    "id": "L1-PASS6-STUB-0338",
+    "title": "Sweep stub surface: pip audit",
+    "list": "1",
+    "sectionPath": "pass6/stub/pip-audit",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "pip-audit"
+  },
+  {
+    "id": "L1-PASS6-STUB-0343",
+    "title": "Sweep stub surface: playwright video retention policy",
+    "list": "1",
+    "sectionPath": "pass6/stub/playwright-video-retention-policy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "playwright-video-retention-policy"
+  },
+  {
+    "id": "L1-PASS6-STUB-0345",
+    "title": "Sweep stub surface: pnpm audit ci",
+    "list": "1",
+    "sectionPath": "pass6/stub/pnpm-audit-ci",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "pnpm-audit-ci"
+  },
+  {
+    "id": "L1-PASS6-STUB-0346",
+    "title": "Sweep stub surface: pnpm store corruption",
+    "list": "1",
+    "sectionPath": "pass6/stub/pnpm-store-corruption",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "pnpm-store-corruption"
+  },
+  {
+    "id": "L1-PASS6-STUB-0362",
+    "title": "Sweep stub surface: pypi proxy",
+    "list": "1",
+    "sectionPath": "pass6/stub/pypi-proxy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "pypi-proxy"
+  },
+  {
+    "id": "L1-PASS6-STUB-0368",
+    "title": "Sweep stub surface: quic 0rtt replay",
+    "list": "1",
+    "sectionPath": "pass6/stub/quic-0rtt-replay",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "quic-0rtt-replay"
+  },
+  {
+    "id": "L1-PASS6-STUB-0372",
+    "title": "Sweep stub surface: rekor cli upload",
+    "list": "1",
+    "sectionPath": "pass6/stub/rekor-cli-upload",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "rekor-cli-upload"
+  },
+  {
+    "id": "L1-PASS6-STUB-0373",
+    "title": "Sweep stub surface: rekor transparency",
+    "list": "1",
+    "sectionPath": "pass6/stub/rekor-transparency",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "rekor-transparency"
+  },
+  {
+    "id": "L1-PASS6-STUB-0374",
+    "title": "Sweep stub surface: risc v tee stub",
+    "list": "1",
+    "sectionPath": "pass6/stub/risc-v-tee-stub",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "risc-v-tee-stub"
+  },
+  {
+    "id": "L1-PASS6-STUB-0379",
+    "title": "Sweep stub surface: rspack swc",
+    "list": "1",
+    "sectionPath": "pass6/stub/rspack-swc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "rspack-swc"
+  },
+  {
+    "id": "L1-PASS6-STUB-0382",
+    "title": "Sweep stub surface: rubygems",
+    "list": "1",
+    "sectionPath": "pass6/stub/rubygems",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "rubygems"
+  },
+  {
+    "id": "L1-PASS6-STUB-0387",
+    "title": "Sweep stub surface: safety py",
+    "list": "1",
+    "sectionPath": "pass6/stub/safety-py",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "safety-py"
+  },
+  {
+    "id": "L1-PASS6-STUB-0389",
+    "title": "Sweep stub surface: saml xmlsec",
+    "list": "1",
+    "sectionPath": "pass6/stub/saml-xmlsec",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "saml-xmlsec"
+  },
+  {
+    "id": "L1-PASS6-STUB-0396",
+    "title": "Sweep stub surface: screenshot diff engine",
+    "list": "1",
+    "sectionPath": "pass6/stub/screenshot-diff-engine",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "screenshot-diff-engine"
+  },
+  {
+    "id": "L1-PASS6-STUB-0397",
+    "title": "Sweep stub surface: sctp data channel",
+    "list": "1",
+    "sectionPath": "pass6/stub/sctp-data-channel",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "sctp-data-channel"
+  },
+  {
+    "id": "L1-PASS6-STUB-0399",
+    "title": "Sweep stub surface: secure boot dbx revocation",
+    "list": "1",
+    "sectionPath": "pass6/stub/secure-boot-dbx-revocation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "secure-boot-dbx-revocation"
+  },
+  {
+    "id": "L1-PASS6-STUB-0413",
+    "title": "Sweep stub surface: slsa build verifier",
+    "list": "1",
+    "sectionPath": "pass6/stub/slsa-build-verifier",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "slsa-build-verifier"
+  },
+  {
+    "id": "L1-PASS6-STUB-0414",
+    "title": "Sweep stub surface: slsa github generator",
+    "list": "1",
+    "sectionPath": "pass6/stub/slsa-github-generator",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "slsa-github-generator"
+  },
+  {
+    "id": "L1-PASS6-STUB-0415",
+    "title": "Sweep stub surface: slsa verifier go",
+    "list": "1",
+    "sectionPath": "pass6/stub/slsa-verifier-go",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "slsa-verifier-go"
+  },
+  {
+    "id": "L1-PASS6-STUB-0417",
+    "title": "Sweep stub surface: smartcard piv",
+    "list": "1",
+    "sectionPath": "pass6/stub/smartcard-piv",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "smartcard-piv"
+  },
+  {
+    "id": "L1-PASS6-STUB-0419",
+    "title": "Sweep stub surface: snyk cli",
+    "list": "1",
+    "sectionPath": "pass6/stub/snyk-cli",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "snyk-cli"
+  },
+  {
+    "id": "L1-PASS6-STUB-0421",
+    "title": "Sweep stub surface: socket dev security",
+    "list": "1",
+    "sectionPath": "pass6/stub/socket-dev-security",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "socket-dev-security"
+  },
+  {
+    "id": "L1-PASS6-STUB-0430",
+    "title": "Sweep stub surface: srtp dtls handshake",
+    "list": "1",
+    "sectionPath": "pass6/stub/srtp-dtls-handshake",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "srtp-dtls-handshake"
+  },
+  {
+    "id": "L1-PASS6-STUB-0455",
+    "title": "Sweep stub surface: talkback ci",
+    "list": "1",
+    "sectionPath": "pass6/stub/talkback-ci",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "talkback-ci"
+  },
+  {
+    "id": "L1-PASS6-STUB-0458",
+    "title": "Sweep stub surface: tcp fast open",
+    "list": "1",
+    "sectionPath": "pass6/stub/tcp-fast-open",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "tcp-fast-open"
+  },
+  {
+    "id": "L1-PASS6-STUB-0471",
+    "title": "Sweep stub surface: tls rpt aggregate",
+    "list": "1",
+    "sectionPath": "pass6/stub/tls-rpt-aggregate",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "tls-rpt-aggregate"
+  },
+  {
+    "id": "L1-PASS6-STUB-0472",
+    "title": "Sweep stub surface: tls session tickets rotation",
+    "list": "1",
+    "sectionPath": "pass6/stub/tls-session-tickets-rotation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "tls-session-tickets-rotation"
+  },
+  {
+    "id": "L1-PASS6-STUB-0480",
+    "title": "Sweep stub surface: turbo daemon socket",
+    "list": "1",
+    "sectionPath": "pass6/stub/turbo-daemon-socket",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "turbo-daemon-socket"
+  },
+  {
+    "id": "L1-PASS6-STUB-0481",
+    "title": "Sweep stub surface: turbopack incremental",
+    "list": "1",
+    "sectionPath": "pass6/stub/turbopack-incremental",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "turbopack-incremental"
+  },
+  {
+    "id": "L1-PASS6-STUB-0482",
+    "title": "Sweep stub surface: turborepo remote cache",
+    "list": "1",
+    "sectionPath": "pass6/stub/turborepo-remote-cache",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "turborepo-remote-cache"
+  },
+  {
+    "id": "L1-PASS6-STUB-0485",
+    "title": "Sweep stub surface: uefi secure boot",
+    "list": "1",
+    "sectionPath": "pass6/stub/uefi-secure-boot",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "uefi-secure-boot"
+  },
+  {
+    "id": "L1-PASS6-STUB-0501",
+    "title": "Sweep stub surface: vite optimize deps",
+    "list": "1",
+    "sectionPath": "pass6/stub/vite-optimize-deps",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "vite-optimize-deps"
+  },
+  {
+    "id": "L1-PASS6-STUB-0503",
+    "title": "Sweep stub surface: voiceover ci",
+    "list": "1",
+    "sectionPath": "pass6/stub/voiceover-ci",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "voiceover-ci"
+  },
+  {
+    "id": "L1-PASS6-STUB-0524",
+    "title": "Sweep stub surface: webpack cache pack",
+    "list": "1",
+    "sectionPath": "pass6/stub/webpack-cache-pack",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "webpack-cache-pack"
+  },
+  {
+    "id": "L1-PASS6-STUB-0532",
+    "title": "Sweep stub surface: witness bom",
+    "list": "1",
+    "sectionPath": "pass6/stub/witness-bom",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "witness-bom"
+  },
+  {
+    "id": "L1-PASS6-STUB-0535",
+    "title": "Sweep stub surface: ws fed",
+    "list": "1",
+    "sectionPath": "pass6/stub/ws-fed",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "ws-fed"
+  },
+  {
+    "id": "L1-PASS6-STUB-0540",
+    "title": "Sweep stub surface: yarn berry integrity",
+    "list": "1",
+    "sectionPath": "pass6/stub/yarn-berry-integrity",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "yarn-berry-integrity"
+  },
+  {
+    "id": "L1-PASS6-STUB-0541",
+    "title": "Sweep stub surface: yarn berry zipfs",
+    "list": "1",
+    "sectionPath": "pass6/stub/yarn-berry-zipfs",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "yarn-berry-zipfs"
+  },
+  {
+    "id": "L1-PASS6-STUB-0543",
+    "title": "Sweep stub surface: yubikey fido",
+    "list": "1",
+    "sectionPath": "pass6/stub/yubikey-fido",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "yubikey-fido"
+  },
+  {
+    "id": "L1-PASS6-STUB-0545",
+    "title": "Sweep stub surface: zendesk sunshine conversations",
+    "list": "1",
+    "sectionPath": "pass6/stub/zendesk-sunshine-conversations",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "zendesk-sunshine-conversations"
+  },
+  {
+    "id": "L1-PASS6-STUB-0546",
+    "title": "Sweep stub surface: zendesk ticket api",
+    "list": "1",
+    "sectionPath": "pass6/stub/zendesk-ticket-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass6",
+    "stubClass": "zendesk-ticket-api"
+  },
+  {
+    "id": "L1-PASS7-STUB-0001",
+    "title": "Sweep stub surface: ach nacha returns",
+    "list": "1",
+    "sectionPath": "pass7/stub/ach-nacha-returns",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "ach-nacha-returns"
+  },
+  {
+    "id": "L1-PASS7-STUB-0005",
+    "title": "Sweep stub surface: adp workforce now",
+    "list": "1",
+    "sectionPath": "pass7/stub/adp-workforce-now",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "adp-workforce-now"
+  },
+  {
+    "id": "L1-PASS7-STUB-0014",
+    "title": "Sweep stub surface: android credential manager",
+    "list": "1",
+    "sectionPath": "pass7/stub/android-credential-manager",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "android-credential-manager"
+  },
+  {
+    "id": "L1-PASS7-STUB-0023",
+    "title": "Sweep stub surface: attribution reporting api",
+    "list": "1",
+    "sectionPath": "pass7/stub/attribution-reporting-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "attribution-reporting-api"
+  },
+  {
+    "id": "L1-PASS7-STUB-0024",
+    "title": "Sweep stub surface: audio asr failure",
+    "list": "1",
+    "sectionPath": "pass7/stub/audio-asr-failure",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "audio-asr-failure"
+  },
+  {
+    "id": "L1-PASS7-STUB-0026",
+    "title": "Sweep stub surface: autosar classic platform",
+    "list": "1",
+    "sectionPath": "pass7/stub/autosar-classic-platform",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "autosar-classic-platform"
+  },
+  {
+    "id": "L1-PASS7-STUB-0057",
+    "title": "Sweep stub surface: can bus iso15765",
+    "list": "1",
+    "sectionPath": "pass7/stub/can-bus-iso15765",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "can-bus-iso15765"
+  },
+  {
+    "id": "L1-PASS7-STUB-0068",
+    "title": "Sweep stub surface: chips settlement",
+    "list": "1",
+    "sectionPath": "pass7/stub/chips-settlement",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "chips-settlement"
+  },
+  {
+    "id": "L1-PASS7-STUB-0070",
+    "title": "Sweep stub surface: chrome devtools protocol",
+    "list": "1",
+    "sectionPath": "pass7/stub/chrome-devtools-protocol",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "chrome-devtools-protocol"
+  },
+  {
+    "id": "L1-PASS7-STUB-0081",
+    "title": "Sweep stub surface: cloudfront signed cookie",
+    "list": "1",
+    "sectionPath": "pass7/stub/cloudfront-signed-cookie",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "cloudfront-signed-cookie"
+  },
+  {
+    "id": "L1-PASS7-STUB-0082",
+    "title": "Sweep stub surface: cloudfront signed url",
+    "list": "1",
+    "sectionPath": "pass7/stub/cloudfront-signed-url",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "cloudfront-signed-url"
+  },
+  {
+    "id": "L1-PASS7-STUB-0087",
+    "title": "Sweep stub surface: color font svg in ot",
+    "list": "1",
+    "sectionPath": "pass7/stub/color-font-svg-in-ot",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "color-font-svg-in-ot"
+  },
+  {
+    "id": "L1-PASS7-STUB-0118",
+    "title": "Sweep stub surface: disa stig hardening",
+    "list": "1",
+    "sectionPath": "pass7/stub/disa-stig-hardening",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "disa-stig-hardening"
+  },
+  {
+    "id": "L1-PASS7-STUB-0123",
+    "title": "Sweep stub surface: do 178c software level",
+    "list": "1",
+    "sectionPath": "pass7/stub/do-178c-software-level",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "do-178c-software-level"
+  },
+  {
+    "id": "L1-PASS7-STUB-0143",
+    "title": "Sweep stub surface: fairplay streaming",
+    "list": "1",
+    "sectionPath": "pass7/stub/fairplay-streaming",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "fairplay-streaming"
+  },
+  {
+    "id": "L1-PASS7-STUB-0147",
+    "title": "Sweep stub surface: fda 21cfr11 part11",
+    "list": "1",
+    "sectionPath": "pass7/stub/fda-21cfr11-part11",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "fda-21cfr11-part11"
+  },
+  {
+    "id": "L1-PASS7-STUB-0149",
+    "title": "Sweep stub surface: fedcm fedcm",
+    "list": "1",
+    "sectionPath": "pass7/stub/fedcm-fedcm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "fedcm-fedcm"
+  },
+  {
+    "id": "L1-PASS7-STUB-0152",
+    "title": "Sweep stub surface: fedwire funds",
+    "list": "1",
+    "sectionPath": "pass7/stub/fedwire-funds",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "fedwire-funds"
+  },
+  {
+    "id": "L1-PASS7-STUB-0155",
+    "title": "Sweep stub surface: firefox marionette",
+    "list": "1",
+    "sectionPath": "pass7/stub/firefox-marionette",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "firefox-marionette"
+  },
+  {
+    "id": "L1-PASS7-STUB-0183",
+    "title": "Sweep stub surface: gxp csv validation",
+    "list": "1",
+    "sectionPath": "pass7/stub/gxp-csv-validation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "gxp-csv-validation"
+  },
+  {
+    "id": "L1-PASS7-STUB-0185",
+    "title": "Sweep stub surface: harfbuzz buffer overflow class",
+    "list": "1",
+    "sectionPath": "pass7/stub/harfbuzz-buffer-overflow-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "harfbuzz-buffer-overflow-class"
+  },
+  {
+    "id": "L1-PASS7-STUB-0198",
+    "title": "Sweep stub surface: iec 62443 zone model",
+    "list": "1",
+    "sectionPath": "pass7/stub/iec-62443-zone-model",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "iec-62443-zone-model"
+  },
+  {
+    "id": "L1-PASS7-STUB-0211",
+    "title": "Sweep stub surface: ios password autofill",
+    "list": "1",
+    "sectionPath": "pass7/stub/ios-password-autofill",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "ios-password-autofill"
+  },
+  {
+    "id": "L1-PASS7-STUB-0216",
+    "title": "Sweep stub surface: iso8583 de110 issuer",
+    "list": "1",
+    "sectionPath": "pass7/stub/iso8583-de110-issuer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "iso8583-de110-issuer"
+  },
+  {
+    "id": "L1-PASS7-STUB-0218",
+    "title": "Sweep stub surface: jailbreak classifier",
+    "list": "1",
+    "sectionPath": "pass7/stub/jailbreak-classifier",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "jailbreak-classifier"
+  },
+  {
+    "id": "L1-PASS7-STUB-0239",
+    "title": "Sweep stub surface: libass subtitle",
+    "list": "1",
+    "sectionPath": "pass7/stub/libass-subtitle",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "libass-subtitle"
+  },
+  {
+    "id": "L1-PASS7-STUB-0280",
+    "title": "Sweep stub surface: nerc cip bulk electric",
+    "list": "1",
+    "sectionPath": "pass7/stub/nerc-cip-bulk-electric",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "nerc-cip-bulk-electric"
+  },
+  {
+    "id": "L1-PASS7-STUB-0281",
+    "title": "Sweep stub surface: netsuite suiteql",
+    "list": "1",
+    "sectionPath": "pass7/stub/netsuite-suiteql",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "netsuite-suiteql"
+  },
+  {
+    "id": "L1-PASS7-STUB-0314",
+    "title": "Sweep stub surface: opc ua client session",
+    "list": "1",
+    "sectionPath": "pass7/stub/opc-ua-client-session",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "opc-ua-client-session"
+  },
+  {
+    "id": "L1-PASS7-STUB-0328",
+    "title": "Sweep stub surface: passkey conditional ui",
+    "list": "1",
+    "sectionPath": "pass7/stub/passkey-conditional-ui",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "passkey-conditional-ui"
+  },
+  {
+    "id": "L1-PASS7-STUB-0329",
+    "title": "Sweep stub surface: passkey sync google password manager",
+    "list": "1",
+    "sectionPath": "pass7/stub/passkey-sync-google-password-manager",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "passkey-sync-google-password-manager"
+  },
+  {
+    "id": "L1-PASS7-STUB-0330",
+    "title": "Sweep stub surface: passkey sync icloud keychain",
+    "list": "1",
+    "sectionPath": "pass7/stub/passkey-sync-icloud-keychain",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "passkey-sync-icloud-keychain"
+  },
+  {
+    "id": "L1-PASS7-STUB-0341",
+    "title": "Sweep stub surface: playready client",
+    "list": "1",
+    "sectionPath": "pass7/stub/playready-client",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "playready-client"
+  },
+  {
+    "id": "L1-PASS7-STUB-0342",
+    "title": "Sweep stub surface: playwright cdp session",
+    "list": "1",
+    "sectionPath": "pass7/stub/playwright-cdp-session",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "playwright-cdp-session"
+  },
+  {
+    "id": "L1-PASS7-STUB-0350",
+    "title": "Sweep stub surface: postgrest embedding limit",
+    "list": "1",
+    "sectionPath": "pass7/stub/postgrest-embedding-limit",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "postgrest-embedding-limit"
+  },
+  {
+    "id": "L1-PASS7-STUB-0356",
+    "title": "Sweep stub surface: private aggregation api",
+    "list": "1",
+    "sectionPath": "pass7/stub/private-aggregation-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "private-aggregation-api"
+  },
+  {
+    "id": "L1-PASS7-STUB-0360",
+    "title": "Sweep stub surface: prompt injection taxonomy",
+    "list": "1",
+    "sectionPath": "pass7/stub/prompt-injection-taxonomy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "prompt-injection-taxonomy"
+  },
+  {
+    "id": "L1-PASS7-STUB-0375",
+    "title": "Sweep stub surface: rmf control assessment",
+    "list": "1",
+    "sectionPath": "pass7/stub/rmf-control-assessment",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "rmf-control-assessment"
+  },
+  {
+    "id": "L1-PASS7-STUB-0380",
+    "title": "Sweep stub surface: rtp fednow instant",
+    "list": "1",
+    "sectionPath": "pass7/stub/rtp-fednow-instant",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "rtp-fednow-instant"
+  },
+  {
+    "id": "L1-PASS7-STUB-0386",
+    "title": "Sweep stub surface: safari web inspector",
+    "list": "1",
+    "sectionPath": "pass7/stub/safari-web-inspector",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "safari-web-inspector"
+  },
+  {
+    "id": "L1-PASS7-STUB-0391",
+    "title": "Sweep stub surface: sap s4hana odata v4",
+    "list": "1",
+    "sectionPath": "pass7/stub/sap-s4hana-odata-v4",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "sap-s4hana-odata-v4"
+  },
+  {
+    "id": "L1-PASS7-STUB-0393",
+    "title": "Sweep stub surface: scada modbus tcp",
+    "list": "1",
+    "sectionPath": "pass7/stub/scada-modbus-tcp",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "scada-modbus-tcp"
+  },
+  {
+    "id": "L1-PASS7-STUB-0404",
+    "title": "Sweep stub surface: sepa sct inst",
+    "list": "1",
+    "sectionPath": "pass7/stub/sepa-sct-inst",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "sepa-sct-inst"
+  },
+  {
+    "id": "L1-PASS7-STUB-0406",
+    "title": "Sweep stub surface: shared storage api",
+    "list": "1",
+    "sectionPath": "pass7/stub/shared-storage-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "shared-storage-api"
+  },
+  {
+    "id": "L1-PASS7-STUB-0431",
+    "title": "Sweep stub surface: stablecoin onchain bridge",
+    "list": "1",
+    "sectionPath": "pass7/stub/stablecoin-onchain-bridge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "stablecoin-onchain-bridge"
+  },
+  {
+    "id": "L1-PASS7-STUB-0436",
+    "title": "Sweep stub surface: streaming json parse recovery",
+    "list": "1",
+    "sectionPath": "pass7/stub/streaming-json-parse-recovery",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "streaming-json-parse-recovery"
+  },
+  {
+    "id": "L1-PASS7-STUB-0440",
+    "title": "Sweep stub surface: successfactors odata v2",
+    "list": "1",
+    "sectionPath": "pass7/stub/successfactors-odata-v2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "successfactors-odata-v2"
+  },
+  {
+    "id": "L1-PASS7-STUB-0442",
+    "title": "Sweep stub surface: supabase auth hook edge",
+    "list": "1",
+    "sectionPath": "pass7/stub/supabase-auth-hook-edge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "supabase-auth-hook-edge"
+  },
+  {
+    "id": "L1-PASS7-STUB-0443",
+    "title": "Sweep stub surface: supabase realtime channel",
+    "list": "1",
+    "sectionPath": "pass7/stub/supabase-realtime-channel",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "supabase-realtime-channel"
+  },
+  {
+    "id": "L1-PASS7-STUB-0444",
+    "title": "Sweep stub surface: supabase storage presign skew",
+    "list": "1",
+    "sectionPath": "pass7/stub/supabase-storage-presign-skew",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "supabase-storage-presign-skew"
+  },
+  {
+    "id": "L1-PASS7-STUB-0446",
+    "title": "Sweep stub surface: swift mt103 class",
+    "list": "1",
+    "sectionPath": "pass7/stub/swift-mt103-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "swift-mt103-class"
+  },
+  {
+    "id": "L1-PASS7-STUB-0475",
+    "title": "Sweep stub surface: topics api deprecated",
+    "list": "1",
+    "sectionPath": "pass7/stub/topics-api-deprecated",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "topics-api-deprecated"
+  },
+  {
+    "id": "L1-PASS7-STUB-0491",
+    "title": "Sweep stub surface: variable font wght wdth slnt",
+    "list": "1",
+    "sectionPath": "pass7/stub/variable-font-wght-wdth-slnt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "variable-font-wght-wdth-slnt"
+  },
+  {
+    "id": "L1-PASS7-STUB-0495",
+    "title": "Sweep stub surface: vercel edge config",
+    "list": "1",
+    "sectionPath": "pass7/stub/vercel-edge-config",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "vercel-edge-config"
+  },
+  {
+    "id": "L1-PASS7-STUB-0496",
+    "title": "Sweep stub surface: vercel fluid",
+    "list": "1",
+    "sectionPath": "pass7/stub/vercel-fluid",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "vercel-fluid"
+  },
+  {
+    "id": "L1-PASS7-STUB-0497",
+    "title": "Sweep stub surface: vercel kv",
+    "list": "1",
+    "sectionPath": "pass7/stub/vercel-kv",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "vercel-kv"
+  },
+  {
+    "id": "L1-PASS7-STUB-0500",
+    "title": "Sweep stub surface: vision model ocr failure",
+    "list": "1",
+    "sectionPath": "pass7/stub/vision-model-ocr-failure",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "vision-model-ocr-failure"
+  },
+  {
+    "id": "L1-PASS7-STUB-0520",
+    "title": "Sweep stub surface: webid direct",
+    "list": "1",
+    "sectionPath": "pass7/stub/webid-direct",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "webid-direct"
+  },
+  {
+    "id": "L1-PASS7-STUB-0527",
+    "title": "Sweep stub surface: webvtt parser",
+    "list": "1",
+    "sectionPath": "pass7/stub/webvtt-parser",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "webvtt-parser"
+  },
+  {
+    "id": "L1-PASS7-STUB-0528",
+    "title": "Sweep stub surface: widevine l1 hdcp",
+    "list": "1",
+    "sectionPath": "pass7/stub/widevine-l1-hdcp",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "widevine-l1-hdcp"
+  },
+  {
+    "id": "L1-PASS7-STUB-0529",
+    "title": "Sweep stub surface: widevine l3 sw",
+    "list": "1",
+    "sectionPath": "pass7/stub/widevine-l3-sw",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "widevine-l3-sw"
+  },
+  {
+    "id": "L1-PASS7-STUB-0533",
+    "title": "Sweep stub surface: workday raas",
+    "list": "1",
+    "sectionPath": "pass7/stub/workday-raas",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "workday-raas"
+  },
+  {
+    "id": "L1-PASS7-STUB-0537",
+    "title": "Sweep stub surface: xcode instruments time profiler",
+    "list": "1",
+    "sectionPath": "pass7/stub/xcode-instruments-time-profiler",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass7",
+    "stubClass": "xcode-instruments-time-profiler"
+  },
+  {
+    "id": "L1-PASS8-STUB-0007",
+    "title": "Sweep stub surface: agora sdk",
+    "list": "1",
+    "sectionPath": "pass8/stub/agora-sdk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "agora-sdk"
+  },
+  {
+    "id": "L1-PASS8-STUB-0012",
+    "title": "Sweep stub surface: amd uprof",
+    "list": "1",
+    "sectionPath": "pass8/stub/amd-uprof",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "amd-uprof"
+  },
+  {
+    "id": "L1-PASS8-STUB-0013",
+    "title": "Sweep stub surface: amplitude http",
+    "list": "1",
+    "sectionPath": "pass8/stub/amplitude-http",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "amplitude-http"
+  },
+  {
+    "id": "L1-PASS8-STUB-0015",
+    "title": "Sweep stub surface: android webview",
+    "list": "1",
+    "sectionPath": "pass8/stub/android-webview",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "android-webview"
+  },
+  {
+    "id": "L1-PASS8-STUB-0016",
+    "title": "Sweep stub surface: apache drill",
+    "list": "1",
+    "sectionPath": "pass8/stub/apache-drill",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "apache-drill"
+  },
+  {
+    "id": "L1-PASS8-STUB-0017",
+    "title": "Sweep stub surface: apigee x",
+    "list": "1",
+    "sectionPath": "pass8/stub/apigee-x",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "apigee-x"
+  },
+  {
+    "id": "L1-PASS8-STUB-0018",
+    "title": "Sweep stub surface: apparmor profile",
+    "list": "1",
+    "sectionPath": "pass8/stub/apparmor-profile",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "apparmor-profile"
+  },
+  {
+    "id": "L1-PASS8-STUB-0020",
+    "title": "Sweep stub surface: archer grc",
+    "list": "1",
+    "sectionPath": "pass8/stub/archer-grc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "archer-grc"
+  },
+  {
+    "id": "L1-PASS8-STUB-0027",
+    "title": "Sweep stub surface: avalara ava tax",
+    "list": "1",
+    "sectionPath": "pass8/stub/avalara-ava-tax",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "avalara-ava-tax"
+  },
+  {
+    "id": "L1-PASS8-STUB-0029",
+    "title": "Sweep stub surface: aws api gateway http",
+    "list": "1",
+    "sectionPath": "pass8/stub/aws-api-gateway-http",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "aws-api-gateway-http"
+  },
+  {
+    "id": "L1-PASS8-STUB-0030",
+    "title": "Sweep stub surface: aws iam policy simulator",
+    "list": "1",
+    "sectionPath": "pass8/stub/aws-iam-policy-simulator",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "aws-iam-policy-simulator"
+  },
+  {
+    "id": "L1-PASS8-STUB-0031",
+    "title": "Sweep stub surface: aws lambda",
+    "list": "1",
+    "sectionPath": "pass8/stub/aws-lambda",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "aws-lambda"
+  },
+  {
+    "id": "L1-PASS8-STUB-0033",
+    "title": "Sweep stub surface: aws secrets manager",
+    "list": "1",
+    "sectionPath": "pass8/stub/aws-secrets-manager",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "aws-secrets-manager"
+  },
+  {
+    "id": "L1-PASS8-STUB-0034",
+    "title": "Sweep stub surface: aws shield advanced",
+    "list": "1",
+    "sectionPath": "pass8/stub/aws-shield-advanced",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "aws-shield-advanced"
+  },
+  {
+    "id": "L1-PASS8-STUB-0037",
+    "title": "Sweep stub surface: azure functions",
+    "list": "1",
+    "sectionPath": "pass8/stub/azure-functions",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "azure-functions"
+  },
+  {
+    "id": "L1-PASS8-STUB-0038",
+    "title": "Sweep stub surface: azure rbac abac",
+    "list": "1",
+    "sectionPath": "pass8/stub/azure-rbac-abac",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "azure-rbac-abac"
+  },
+  {
+    "id": "L1-PASS8-STUB-0041",
+    "title": "Sweep stub surface: betterstack uptime",
+    "list": "1",
+    "sectionPath": "pass8/stub/betterstack-uptime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "betterstack-uptime"
+  },
+  {
+    "id": "L1-PASS8-STUB-0043",
+    "title": "Sweep stub surface: blackbox exporter",
+    "list": "1",
+    "sectionPath": "pass8/stub/blackbox-exporter",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "blackbox-exporter"
+  },
+  {
+    "id": "L1-PASS8-STUB-0044",
+    "title": "Sweep stub surface: boomi",
+    "list": "1",
+    "sectionPath": "pass8/stub/boomi",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "boomi"
+  },
+  {
+    "id": "L1-PASS8-STUB-0047",
+    "title": "Sweep stub surface: browserstack automate",
+    "list": "1",
+    "sectionPath": "pass8/stub/browserstack-automate",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "browserstack-automate"
+  },
+  {
+    "id": "L1-PASS8-STUB-0050",
+    "title": "Sweep stub surface: buildkit cache mount",
+    "list": "1",
+    "sectionPath": "pass8/stub/buildkit-cache-mount",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "buildkit-cache-mount"
+  },
+  {
+    "id": "L1-PASS8-STUB-0051",
+    "title": "Sweep stub surface: buildkite agent",
+    "list": "1",
+    "sectionPath": "pass8/stub/buildkite-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "buildkite-agent"
+  },
+  {
+    "id": "L1-PASS8-STUB-0053",
+    "title": "Sweep stub surface: bun runtime",
+    "list": "1",
+    "sectionPath": "pass8/stub/bun-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "bun-runtime"
+  },
+  {
+    "id": "L1-PASS8-STUB-0059",
+    "title": "Sweep stub surface: capacitor plugin",
+    "list": "1",
+    "sectionPath": "pass8/stub/capacitor-plugin",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "capacitor-plugin"
+  },
+  {
+    "id": "L1-PASS8-STUB-0063",
+    "title": "Sweep stub surface: cert manager acme",
+    "list": "1",
+    "sectionPath": "pass8/stub/cert-manager-acme",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cert-manager-acme"
+  },
+  {
+    "id": "L1-PASS8-STUB-0064",
+    "title": "Sweep stub surface: certificate transparency subscriber",
+    "list": "1",
+    "sectionPath": "pass8/stub/certificate-transparency-subscriber",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "certificate-transparency-subscriber"
+  },
+  {
+    "id": "L1-PASS8-STUB-0065",
+    "title": "Sweep stub surface: cgroups v2 oom",
+    "list": "1",
+    "sectionPath": "pass8/stub/cgroups-v2-oom",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cgroups-v2-oom"
+  },
+  {
+    "id": "L1-PASS8-STUB-0069",
+    "title": "Sweep stub surface: chromatic ci",
+    "list": "1",
+    "sectionPath": "pass8/stub/chromatic-ci",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "chromatic-ci"
+  },
+  {
+    "id": "L1-PASS8-STUB-0073",
+    "title": "Sweep stub surface: circleci runner",
+    "list": "1",
+    "sectionPath": "pass8/stub/circleci-runner",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "circleci-runner"
+  },
+  {
+    "id": "L1-PASS8-STUB-0076",
+    "title": "Sweep stub surface: clang address sanitizer",
+    "list": "1",
+    "sectionPath": "pass8/stub/clang-address-sanitizer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "clang-address-sanitizer"
+  },
+  {
+    "id": "L1-PASS8-STUB-0077",
+    "title": "Sweep stub surface: clang thread sanitizer",
+    "list": "1",
+    "sectionPath": "pass8/stub/clang-thread-sanitizer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "clang-thread-sanitizer"
+  },
+  {
+    "id": "L1-PASS8-STUB-0078",
+    "title": "Sweep stub surface: clang undefined behavior sanitizer",
+    "list": "1",
+    "sectionPath": "pass8/stub/clang-undefined-behavior-sanitizer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "clang-undefined-behavior-sanitizer"
+  },
+  {
+    "id": "L1-PASS8-STUB-0079",
+    "title": "Sweep stub surface: cloudflare waf only",
+    "list": "1",
+    "sectionPath": "pass8/stub/cloudflare-waf-only",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cloudflare-waf-only"
+  },
+  {
+    "id": "L1-PASS8-STUB-0080",
+    "title": "Sweep stub surface: cloudflare workers",
+    "list": "1",
+    "sectionPath": "pass8/stub/cloudflare-workers",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cloudflare-workers"
+  },
+  {
+    "id": "L1-PASS8-STUB-0084",
+    "title": "Sweep stub surface: cobol batch bridge",
+    "list": "1",
+    "sectionPath": "pass8/stub/cobol-batch-bridge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cobol-batch-bridge"
+  },
+  {
+    "id": "L1-PASS8-STUB-0085",
+    "title": "Sweep stub surface: cockroachdb",
+    "list": "1",
+    "sectionPath": "pass8/stub/cockroachdb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cockroachdb"
+  },
+  {
+    "id": "L1-PASS8-STUB-0098",
+    "title": "Sweep stub surface: crlf gitattributes",
+    "list": "1",
+    "sectionPath": "pass8/stub/crlf-gitattributes",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "crlf-gitattributes"
+  },
+  {
+    "id": "L1-PASS8-STUB-0101",
+    "title": "Sweep stub surface: crowdin sync",
+    "list": "1",
+    "sectionPath": "pass8/stub/crowdin-sync",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "crowdin-sync"
+  },
+  {
+    "id": "L1-PASS8-STUB-0102",
+    "title": "Sweep stub surface: crowdstrike falcon log",
+    "list": "1",
+    "sectionPath": "pass8/stub/crowdstrike-falcon-log",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "crowdstrike-falcon-log"
+  },
+  {
+    "id": "L1-PASS8-STUB-0107",
+    "title": "Sweep stub surface: cuda driver",
+    "list": "1",
+    "sectionPath": "pass8/stub/cuda-driver",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cuda-driver"
+  },
+  {
+    "id": "L1-PASS8-STUB-0108",
+    "title": "Sweep stub surface: cyclonedx 1 5 json",
+    "list": "1",
+    "sectionPath": "pass8/stub/cyclonedx-1-5-json",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cyclonedx-1-5-json"
+  },
+  {
+    "id": "L1-PASS8-STUB-0109",
+    "title": "Sweep stub surface: cypress io",
+    "list": "1",
+    "sectionPath": "pass8/stub/cypress-io",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "cypress-io"
+  },
+  {
+    "id": "L1-PASS8-STUB-0112",
+    "title": "Sweep stub surface: deno deploy",
+    "list": "1",
+    "sectionPath": "pass8/stub/deno-deploy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "deno-deploy"
+  },
+  {
+    "id": "L1-PASS8-STUB-0124",
+    "title": "Sweep stub surface: doppler sync",
+    "list": "1",
+    "sectionPath": "pass8/stub/doppler-sync",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "doppler-sync"
+  },
+  {
+    "id": "L1-PASS8-STUB-0127",
+    "title": "Sweep stub surface: dr memory",
+    "list": "1",
+    "sectionPath": "pass8/stub/dr-memory",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "dr-memory"
+  },
+  {
+    "id": "L1-PASS8-STUB-0128",
+    "title": "Sweep stub surface: drata",
+    "list": "1",
+    "sectionPath": "pass8/stub/drata",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "drata"
+  },
+  {
+    "id": "L1-PASS8-STUB-0129",
+    "title": "Sweep stub surface: druid",
+    "list": "1",
+    "sectionPath": "pass8/stub/druid",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "druid"
+  },
+  {
+    "id": "L1-PASS8-STUB-0131",
+    "title": "Sweep stub surface: duckdb embedded",
+    "list": "1",
+    "sectionPath": "pass8/stub/duckdb-embedded",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "duckdb-embedded"
+  },
+  {
+    "id": "L1-PASS8-STUB-0133",
+    "title": "Sweep stub surface: ebpf parca agent",
+    "list": "1",
+    "sectionPath": "pass8/stub/ebpf-parca-agent",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "ebpf-parca-agent"
+  },
+  {
+    "id": "L1-PASS8-STUB-0135",
+    "title": "Sweep stub surface: electron main process",
+    "list": "1",
+    "sectionPath": "pass8/stub/electron-main-process",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "electron-main-process"
+  },
+  {
+    "id": "L1-PASS8-STUB-0139",
+    "title": "Sweep stub surface: evm json rpc",
+    "list": "1",
+    "sectionPath": "pass8/stub/evm-json-rpc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "evm-json-rpc"
+  },
+  {
+    "id": "L1-PASS8-STUB-0142",
+    "title": "Sweep stub surface: f5 bigip",
+    "list": "1",
+    "sectionPath": "pass8/stub/f5-bigip",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "f5-bigip"
+  },
+  {
+    "id": "L1-PASS8-STUB-0145",
+    "title": "Sweep stub surface: fastly compute edge",
+    "list": "1",
+    "sectionPath": "pass8/stub/fastly-compute-edge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "fastly-compute-edge"
+  },
+  {
+    "id": "L1-PASS8-STUB-0154",
+    "title": "Sweep stub surface: firebolt",
+    "list": "1",
+    "sectionPath": "pass8/stub/firebolt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "firebolt"
+  },
+  {
+    "id": "L1-PASS8-STUB-0156",
+    "title": "Sweep stub surface: flagsmith api",
+    "list": "1",
+    "sectionPath": "pass8/stub/flagsmith-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "flagsmith-api"
+  },
+  {
+    "id": "L1-PASS8-STUB-0162",
+    "title": "Sweep stub surface: gatekeeper xattr quarantine",
+    "list": "1",
+    "sectionPath": "pass8/stub/gatekeeper-xattr-quarantine",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "gatekeeper-xattr-quarantine"
+  },
+  {
+    "id": "L1-PASS8-STUB-0163",
+    "title": "Sweep stub surface: gcp cloud functions",
+    "list": "1",
+    "sectionPath": "pass8/stub/gcp-cloud-functions",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "gcp-cloud-functions"
+  },
+  {
+    "id": "L1-PASS8-STUB-0165",
+    "title": "Sweep stub surface: gcp iam conditions",
+    "list": "1",
+    "sectionPath": "pass8/stub/gcp-iam-conditions",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "gcp-iam-conditions"
+  },
+  {
+    "id": "L1-PASS8-STUB-0166",
+    "title": "Sweep stub surface: gcp secret manager",
+    "list": "1",
+    "sectionPath": "pass8/stub/gcp-secret-manager",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "gcp-secret-manager"
+  },
+  {
+    "id": "L1-PASS8-STUB-0170",
+    "title": "Sweep stub surface: github actions runner vm",
+    "list": "1",
+    "sectionPath": "pass8/stub/github-actions-runner-vm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "github-actions-runner-vm"
+  },
+  {
+    "id": "L1-PASS8-STUB-0172",
+    "title": "Sweep stub surface: gitlab runner",
+    "list": "1",
+    "sectionPath": "pass8/stub/gitlab-runner",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "gitlab-runner"
+  },
+  {
+    "id": "L1-PASS8-STUB-0181",
+    "title": "Sweep stub surface: growthbook sdk",
+    "list": "1",
+    "sectionPath": "pass8/stub/growthbook-sdk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "growthbook-sdk"
+  },
+  {
+    "id": "L1-PASS8-STUB-0186",
+    "title": "Sweep stub surface: hashicorp vault kv2",
+    "list": "1",
+    "sectionPath": "pass8/stub/hashicorp-vault-kv2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "hashicorp-vault-kv2"
+  },
+  {
+    "id": "L1-PASS8-STUB-0194",
+    "title": "Sweep stub surface: ibm db2",
+    "list": "1",
+    "sectionPath": "pass8/stub/ibm-db2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "ibm-db2"
+  },
+  {
+    "id": "L1-PASS8-STUB-0195",
+    "title": "Sweep stub surface: ibm mq",
+    "list": "1",
+    "sectionPath": "pass8/stub/ibm-mq",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "ibm-mq"
+  },
+  {
+    "id": "L1-PASS8-STUB-0197",
+    "title": "Sweep stub surface: icmp probe",
+    "list": "1",
+    "sectionPath": "pass8/stub/icmp-probe",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "icmp-probe"
+  },
+  {
+    "id": "L1-PASS8-STUB-0201",
+    "title": "Sweep stub surface: incident io timeline",
+    "list": "1",
+    "sectionPath": "pass8/stub/incident-io-timeline",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "incident-io-timeline"
+  },
+  {
+    "id": "L1-PASS8-STUB-0204",
+    "title": "Sweep stub surface: informatica",
+    "list": "1",
+    "sectionPath": "pass8/stub/informatica",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "informatica"
+  },
+  {
+    "id": "L1-PASS8-STUB-0209",
+    "title": "Sweep stub surface: intel vtune hotspots",
+    "list": "1",
+    "sectionPath": "pass8/stub/intel-vtune-hotspots",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "intel-vtune-hotspots"
+  },
+  {
+    "id": "L1-PASS8-STUB-0219",
+    "title": "Sweep stub surface: janus gateway",
+    "list": "1",
+    "sectionPath": "pass8/stub/janus-gateway",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "janus-gateway"
+  },
+  {
+    "id": "L1-PASS8-STUB-0221",
+    "title": "Sweep stub surface: jenkins controller",
+    "list": "1",
+    "sectionPath": "pass8/stub/jenkins-controller",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "jenkins-controller"
+  },
+  {
+    "id": "L1-PASS8-STUB-0223",
+    "title": "Sweep stub surface: jira align",
+    "list": "1",
+    "sectionPath": "pass8/stub/jira-align",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "jira-align"
+  },
+  {
+    "id": "L1-PASS8-STUB-0231",
+    "title": "Sweep stub surface: kong gateway",
+    "list": "1",
+    "sectionPath": "pass8/stub/kong-gateway",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "kong-gateway"
+  },
+  {
+    "id": "L1-PASS8-STUB-0232",
+    "title": "Sweep stub surface: kyverno policy",
+    "list": "1",
+    "sectionPath": "pass8/stub/kyverno-policy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "kyverno-policy"
+  },
+  {
+    "id": "L1-PASS8-STUB-0233",
+    "title": "Sweep stub surface: lacework",
+    "list": "1",
+    "sectionPath": "pass8/stub/lacework",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "lacework"
+  },
+  {
+    "id": "L1-PASS8-STUB-0234",
+    "title": "Sweep stub surface: lambda edge",
+    "list": "1",
+    "sectionPath": "pass8/stub/lambda-edge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "lambda-edge"
+  },
+  {
+    "id": "L1-PASS8-STUB-0236",
+    "title": "Sweep stub surface: launchdarkly sdk",
+    "list": "1",
+    "sectionPath": "pass8/stub/launchdarkly-sdk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "launchdarkly-sdk"
+  },
+  {
+    "id": "L1-PASS8-STUB-0243",
+    "title": "Sweep stub surface: linux perf record",
+    "list": "1",
+    "sectionPath": "pass8/stub/linux-perf-record",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "linux-perf-record"
+  },
+  {
+    "id": "L1-PASS8-STUB-0244",
+    "title": "Sweep stub surface: livekit",
+    "list": "1",
+    "sectionPath": "pass8/stub/livekit",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "livekit"
+  },
+  {
+    "id": "L1-PASS8-STUB-0249",
+    "title": "Sweep stub surface: lokalise webhook",
+    "list": "1",
+    "sectionPath": "pass8/stub/lokalise-webhook",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "lokalise-webhook"
+  },
+  {
+    "id": "L1-PASS8-STUB-0253",
+    "title": "Sweep stub surface: lsf scheduler",
+    "list": "1",
+    "sectionPath": "pass8/stub/lsf-scheduler",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "lsf-scheduler"
+  },
+  {
+    "id": "L1-PASS8-STUB-0254",
+    "title": "Sweep stub surface: macos notarization stapling",
+    "list": "1",
+    "sectionPath": "pass8/stub/macos-notarization-stapling",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "macos-notarization-stapling"
+  },
+  {
+    "id": "L1-PASS8-STUB-0255",
+    "title": "Sweep stub surface: mainframe zos",
+    "list": "1",
+    "sectionPath": "pass8/stub/mainframe-zos",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "mainframe-zos"
+  },
+  {
+    "id": "L1-PASS8-STUB-0263",
+    "title": "Sweep stub surface: microsoft sqlserver",
+    "list": "1",
+    "sectionPath": "pass8/stub/microsoft-sqlserver",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "microsoft-sqlserver"
+  },
+  {
+    "id": "L1-PASS8-STUB-0266",
+    "title": "Sweep stub surface: mixpanel import",
+    "list": "1",
+    "sectionPath": "pass8/stub/mixpanel-import",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "mixpanel-import"
+  },
+  {
+    "id": "L1-PASS8-STUB-0269",
+    "title": "Sweep stub surface: motherduck",
+    "list": "1",
+    "sectionPath": "pass8/stub/motherduck",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "motherduck"
+  },
+  {
+    "id": "L1-PASS8-STUB-0270",
+    "title": "Sweep stub surface: mpi cluster",
+    "list": "1",
+    "sectionPath": "pass8/stub/mpi-cluster",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "mpi-cluster"
+  },
+  {
+    "id": "L1-PASS8-STUB-0271",
+    "title": "Sweep stub surface: ms teams adaptive card",
+    "list": "1",
+    "sectionPath": "pass8/stub/ms-teams-adaptive-card",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "ms-teams-adaptive-card"
+  },
+  {
+    "id": "L1-PASS8-STUB-0276",
+    "title": "Sweep stub surface: mulesoft",
+    "list": "1",
+    "sectionPath": "pass8/stub/mulesoft",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "mulesoft"
+  },
+  {
+    "id": "L1-PASS8-STUB-0278",
+    "title": "Sweep stub surface: neon serverless",
+    "list": "1",
+    "sectionPath": "pass8/stub/neon-serverless",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "neon-serverless"
+  },
+  {
+    "id": "L1-PASS8-STUB-0294",
+    "title": "Sweep stub surface: ntp stratum monitor",
+    "list": "1",
+    "sectionPath": "pass8/stub/ntp-stratum-monitor",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "ntp-stratum-monitor"
+  },
+  {
+    "id": "L1-PASS8-STUB-0303",
+    "title": "Sweep stub surface: oci image layer squash",
+    "list": "1",
+    "sectionPath": "pass8/stub/oci-image-layer-squash",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "oci-image-layer-squash"
+  },
+  {
+    "id": "L1-PASS8-STUB-0311",
+    "title": "Sweep stub surface: oneapi level zero",
+    "list": "1",
+    "sectionPath": "pass8/stub/oneapi-level-zero",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "oneapi-level-zero"
+  },
+  {
+    "id": "L1-PASS8-STUB-0313",
+    "title": "Sweep stub surface: opa gatekeeper",
+    "list": "1",
+    "sectionPath": "pass8/stub/opa-gatekeeper",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "opa-gatekeeper"
+  },
+  {
+    "id": "L1-PASS8-STUB-0317",
+    "title": "Sweep stub surface: opsgenie alert",
+    "list": "1",
+    "sectionPath": "pass8/stub/opsgenie-alert",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "opsgenie-alert"
+  },
+  {
+    "id": "L1-PASS8-STUB-0318",
+    "title": "Sweep stub surface: oracle db",
+    "list": "1",
+    "sectionPath": "pass8/stub/oracle-db",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "oracle-db"
+  },
+  {
+    "id": "L1-PASS8-STUB-0323",
+    "title": "Sweep stub surface: pagerduty events v2",
+    "list": "1",
+    "sectionPath": "pass8/stub/pagerduty-events-v2",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "pagerduty-events-v2"
+  },
+  {
+    "id": "L1-PASS8-STUB-0324",
+    "title": "Sweep stub surface: palo alto fw",
+    "list": "1",
+    "sectionPath": "pass8/stub/palo-alto-fw",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "palo-alto-fw"
+  },
+  {
+    "id": "L1-PASS8-STUB-0333",
+    "title": "Sweep stub surface: pega platform",
+    "list": "1",
+    "sectionPath": "pass8/stub/pega-platform",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "pega-platform"
+  },
+  {
+    "id": "L1-PASS8-STUB-0334",
+    "title": "Sweep stub surface: percy snapshot",
+    "list": "1",
+    "sectionPath": "pass8/stub/percy-snapshot",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "percy-snapshot"
+  },
+  {
+    "id": "L1-PASS8-STUB-0336",
+    "title": "Sweep stub surface: phrase tms api",
+    "list": "1",
+    "sectionPath": "pass8/stub/phrase-tms-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "phrase-tms-api"
+  },
+  {
+    "id": "L1-PASS8-STUB-0337",
+    "title": "Sweep stub surface: pinot",
+    "list": "1",
+    "sectionPath": "pass8/stub/pinot",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "pinot"
+  },
+  {
+    "id": "L1-PASS8-STUB-0339",
+    "title": "Sweep stub surface: planetscale mysql",
+    "list": "1",
+    "sectionPath": "pass8/stub/planetscale-mysql",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "planetscale-mysql"
+  },
+  {
+    "id": "L1-PASS8-STUB-0348",
+    "title": "Sweep stub surface: polarsignals cloud",
+    "list": "1",
+    "sectionPath": "pass8/stub/polarsignals-cloud",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "polarsignals-cloud"
+  },
+  {
+    "id": "L1-PASS8-STUB-0351",
+    "title": "Sweep stub surface: posthog capture",
+    "list": "1",
+    "sectionPath": "pass8/stub/posthog-capture",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "posthog-capture"
+  },
+  {
+    "id": "L1-PASS8-STUB-0355",
+    "title": "Sweep stub surface: presto trino",
+    "list": "1",
+    "sectionPath": "pass8/stub/presto-trino",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "presto-trino"
+  },
+  {
+    "id": "L1-PASS8-STUB-0363",
+    "title": "Sweep stub surface: pyroscope push",
+    "list": "1",
+    "sectionPath": "pass8/stub/pyroscope-push",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "pyroscope-push"
+  },
+  {
+    "id": "L1-PASS8-STUB-0371",
+    "title": "Sweep stub surface: react native hermes",
+    "list": "1",
+    "sectionPath": "pass8/stub/react-native-hermes",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "react-native-hermes"
+  },
+  {
+    "id": "L1-PASS8-STUB-0377",
+    "title": "Sweep stub surface: rocm driver",
+    "list": "1",
+    "sectionPath": "pass8/stub/rocm-driver",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "rocm-driver"
+  },
+  {
+    "id": "L1-PASS8-STUB-0378",
+    "title": "Sweep stub surface: rootly retrospective",
+    "list": "1",
+    "sectionPath": "pass8/stub/rootly-retrospective",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "rootly-retrospective"
+  },
+  {
+    "id": "L1-PASS8-STUB-0383",
+    "title": "Sweep stub surface: rudderstack transform",
+    "list": "1",
+    "sectionPath": "pass8/stub/rudderstack-transform",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "rudderstack-transform"
+  },
+  {
+    "id": "L1-PASS8-STUB-0390",
+    "title": "Sweep stub surface: sap rfc",
+    "list": "1",
+    "sectionPath": "pass8/stub/sap-rfc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "sap-rfc"
+  },
+  {
+    "id": "L1-PASS8-STUB-0392",
+    "title": "Sweep stub surface: sauce labs",
+    "list": "1",
+    "sectionPath": "pass8/stub/sauce-labs",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "sauce-labs"
+  },
+  {
+    "id": "L1-PASS8-STUB-0398",
+    "title": "Sweep stub surface: seccomp bpf default",
+    "list": "1",
+    "sectionPath": "pass8/stub/seccomp-bpf-default",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "seccomp-bpf-default"
+  },
+  {
+    "id": "L1-PASS8-STUB-0402",
+    "title": "Sweep stub surface: selenium grid 4",
+    "list": "1",
+    "sectionPath": "pass8/stub/selenium-grid-4",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "selenium-grid-4"
+  },
+  {
+    "id": "L1-PASS8-STUB-0403",
+    "title": "Sweep stub surface: selinux denial avc",
+    "list": "1",
+    "sectionPath": "pass8/stub/selinux-denial-avc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "selinux-denial-avc"
+  },
+  {
+    "id": "L1-PASS8-STUB-0405",
+    "title": "Sweep stub surface: servicenow cmdb",
+    "list": "1",
+    "sectionPath": "pass8/stub/servicenow-cmdb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "servicenow-cmdb"
+  },
+  {
+    "id": "L1-PASS8-STUB-0410",
+    "title": "Sweep stub surface: singlestore",
+    "list": "1",
+    "sectionPath": "pass8/stub/singlestore",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "singlestore"
+  },
+  {
+    "id": "L1-PASS8-STUB-0411",
+    "title": "Sweep stub surface: slack incoming webhook",
+    "list": "1",
+    "sectionPath": "pass8/stub/slack-incoming-webhook",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "slack-incoming-webhook"
+  },
+  {
+    "id": "L1-PASS8-STUB-0416",
+    "title": "Sweep stub surface: slurm scheduler",
+    "list": "1",
+    "sectionPath": "pass8/stub/slurm-scheduler",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "slurm-scheduler"
+  },
+  {
+    "id": "L1-PASS8-STUB-0422",
+    "title": "Sweep stub surface: solana rpc",
+    "list": "1",
+    "sectionPath": "pass8/stub/solana-rpc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "solana-rpc"
+  },
+  {
+    "id": "L1-PASS8-STUB-0424",
+    "title": "Sweep stub surface: spdx 2 3 tag value",
+    "list": "1",
+    "sectionPath": "pass8/stub/spdx-2-3-tag-value",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "spdx-2-3-tag-value"
+  },
+  {
+    "id": "L1-PASS8-STUB-0426",
+    "title": "Sweep stub surface: split io sdk",
+    "list": "1",
+    "sectionPath": "pass8/stub/split-io-sdk",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "split-io-sdk"
+  },
+  {
+    "id": "L1-PASS8-STUB-0427",
+    "title": "Sweep stub surface: splunk phantom soar",
+    "list": "1",
+    "sectionPath": "pass8/stub/splunk-phantom-soar",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "splunk-phantom-soar"
+  },
+  {
+    "id": "L1-PASS8-STUB-0429",
+    "title": "Sweep stub surface: sqlite wasm",
+    "list": "1",
+    "sectionPath": "pass8/stub/sqlite-wasm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "sqlite-wasm"
+  },
+  {
+    "id": "L1-PASS8-STUB-0434",
+    "title": "Sweep stub surface: statsig check gate",
+    "list": "1",
+    "sectionPath": "pass8/stub/statsig-check-gate",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "statsig-check-gate"
+  },
+  {
+    "id": "L1-PASS8-STUB-0435",
+    "title": "Sweep stub surface: statuspage api",
+    "list": "1",
+    "sectionPath": "pass8/stub/statuspage-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "statuspage-api"
+  },
+  {
+    "id": "L1-PASS8-STUB-0437",
+    "title": "Sweep stub surface: stripe tax calculation",
+    "list": "1",
+    "sectionPath": "pass8/stub/stripe-tax-calculation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "stripe-tax-calculation"
+  },
+  {
+    "id": "L1-PASS8-STUB-0445",
+    "title": "Sweep stub surface: swid tag",
+    "list": "1",
+    "sectionPath": "pass8/stub/swid-tag",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "swid-tag"
+  },
+  {
+    "id": "L1-PASS8-STUB-0453",
+    "title": "Sweep stub surface: systemd unit restart storm",
+    "list": "1",
+    "sectionPath": "pass8/stub/systemd-unit-restart-storm",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "systemd-unit-restart-storm"
+  },
+  {
+    "id": "L1-PASS8-STUB-0456",
+    "title": "Sweep stub surface: tauri runtime",
+    "list": "1",
+    "sectionPath": "pass8/stub/tauri-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "tauri-runtime"
+  },
+  {
+    "id": "L1-PASS8-STUB-0457",
+    "title": "Sweep stub surface: taxjar api",
+    "list": "1",
+    "sectionPath": "pass8/stub/taxjar-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "taxjar-api"
+  },
+  {
+    "id": "L1-PASS8-STUB-0464",
+    "title": "Sweep stub surface: tibco emsl",
+    "list": "1",
+    "sectionPath": "pass8/stub/tibco-emsl",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "tibco-emsl"
+  },
+  {
+    "id": "L1-PASS8-STUB-0467",
+    "title": "Sweep stub surface: timescaledb",
+    "list": "1",
+    "sectionPath": "pass8/stub/timescaledb",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "timescaledb"
+  },
+  {
+    "id": "L1-PASS8-STUB-0473",
+    "title": "Sweep stub surface: tolgee cli",
+    "list": "1",
+    "sectionPath": "pass8/stub/tolgee-cli",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "tolgee-cli"
+  },
+  {
+    "id": "L1-PASS8-STUB-0484",
+    "title": "Sweep stub surface: tyk gateway",
+    "list": "1",
+    "sectionPath": "pass8/stub/tyk-gateway",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "tyk-gateway"
+  },
+  {
+    "id": "L1-PASS8-STUB-0486",
+    "title": "Sweep stub surface: unity webgl runtime",
+    "list": "1",
+    "sectionPath": "pass8/stub/unity-webgl-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "unity-webgl-runtime"
+  },
+  {
+    "id": "L1-PASS8-STUB-0487",
+    "title": "Sweep stub surface: unleash server",
+    "list": "1",
+    "sectionPath": "pass8/stub/unleash-server",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "unleash-server"
+  },
+  {
+    "id": "L1-PASS8-STUB-0488",
+    "title": "Sweep stub surface: unreal pixel streaming",
+    "list": "1",
+    "sectionPath": "pass8/stub/unreal-pixel-streaming",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "unreal-pixel-streaming"
+  },
+  {
+    "id": "L1-PASS8-STUB-0489",
+    "title": "Sweep stub surface: valgrind memcheck",
+    "list": "1",
+    "sectionPath": "pass8/stub/valgrind-memcheck",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "valgrind-memcheck"
+  },
+  {
+    "id": "L1-PASS8-STUB-0490",
+    "title": "Sweep stub surface: vanta",
+    "list": "1",
+    "sectionPath": "pass8/stub/vanta",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "vanta"
+  },
+  {
+    "id": "L1-PASS8-STUB-0494",
+    "title": "Sweep stub surface: vercel edge",
+    "list": "1",
+    "sectionPath": "pass8/stub/vercel-edge",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "vercel-edge"
+  },
+  {
+    "id": "L1-PASS8-STUB-0517",
+    "title": "Sweep stub surface: webdriverio runner",
+    "list": "1",
+    "sectionPath": "pass8/stub/webdriverio-runner",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "webdriverio-runner"
+  },
+  {
+    "id": "L1-PASS8-STUB-0521",
+    "title": "Sweep stub surface: webmethods",
+    "list": "1",
+    "sectionPath": "pass8/stub/webmethods",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "webmethods"
+  },
+  {
+    "id": "L1-PASS8-STUB-0525",
+    "title": "Sweep stub surface: webrtc sfu",
+    "list": "1",
+    "sectionPath": "pass8/stub/webrtc-sfu",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "webrtc-sfu"
+  },
+  {
+    "id": "L1-PASS8-STUB-0530",
+    "title": "Sweep stub surface: win32 long path",
+    "list": "1",
+    "sectionPath": "pass8/stub/win32-long-path",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "win32-long-path"
+  },
+  {
+    "id": "L1-PASS8-STUB-0536",
+    "title": "Sweep stub surface: wsl2 glibc mismatch",
+    "list": "1",
+    "sectionPath": "pass8/stub/wsl2-glibc-mismatch",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "wsl2-glibc-mismatch"
+  },
+  {
+    "id": "L1-PASS8-STUB-0548",
+    "title": "Sweep stub surface: zscaler zpa",
+    "list": "1",
+    "sectionPath": "pass8/stub/zscaler-zpa",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass8",
+    "stubClass": "zscaler-zpa"
+  },
+  {
+    "id": "L1-PASS9-STUB-0006",
+    "title": "Sweep stub surface: ads b ais receiver only",
+    "list": "1",
+    "sectionPath": "pass9/stub/ads-b-ais-receiver-only",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "ads-b-ais-receiver-only"
+  },
+  {
+    "id": "L1-PASS9-STUB-0025",
+    "title": "Sweep stub surface: automerge repo",
+    "list": "1",
+    "sectionPath": "pass9/stub/automerge-repo",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "automerge-repo"
+  },
+  {
+    "id": "L1-PASS9-STUB-0045",
+    "title": "Sweep stub surface: brazil lgpd",
+    "list": "1",
+    "sectionPath": "pass9/stub/brazil-lgpd",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "brazil-lgpd"
+  },
+  {
+    "id": "L1-PASS9-STUB-0054",
+    "title": "Sweep stub surface: burp suite proxy",
+    "list": "1",
+    "sectionPath": "pass9/stub/burp-suite-proxy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "burp-suite-proxy"
+  },
+  {
+    "id": "L1-PASS9-STUB-0055",
+    "title": "Sweep stub surface: c2pa manifest",
+    "list": "1",
+    "sectionPath": "pass9/stub/c2pa-manifest",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "c2pa-manifest"
+  },
+  {
+    "id": "L1-PASS9-STUB-0056",
+    "title": "Sweep stub surface: california cpra",
+    "list": "1",
+    "sectionPath": "pass9/stub/california-cpra",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "california-cpra"
+  },
+  {
+    "id": "L1-PASS9-STUB-0058",
+    "title": "Sweep stub surface: canada pipeda",
+    "list": "1",
+    "sectionPath": "pass9/stub/canada-pipeda",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "canada-pipeda"
+  },
+  {
+    "id": "L1-PASS9-STUB-0067",
+    "title": "Sweep stub surface: charles proxy",
+    "list": "1",
+    "sectionPath": "pass9/stub/charles-proxy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "charles-proxy"
+  },
+  {
+    "id": "L1-PASS9-STUB-0072",
+    "title": "Sweep stub surface: chrony vs ntpd",
+    "list": "1",
+    "sectionPath": "pass9/stub/chrony-vs-ntpd",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "chrony-vs-ntpd"
+  },
+  {
+    "id": "L1-PASS9-STUB-0075",
+    "title": "Sweep stub surface: citus distributed pg",
+    "list": "1",
+    "sectionPath": "pass9/stub/citus-distributed-pg",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "citus-distributed-pg"
+  },
+  {
+    "id": "L1-PASS9-STUB-0091",
+    "title": "Sweep stub surface: coreml model",
+    "list": "1",
+    "sectionPath": "pass9/stub/coreml-model",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "coreml-model"
+  },
+  {
+    "id": "L1-PASS9-STUB-0100",
+    "title": "Sweep stub surface: cross border tia",
+    "list": "1",
+    "sectionPath": "pass9/stub/cross-border-tia",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "cross-border-tia"
+  },
+  {
+    "id": "L1-PASS9-STUB-0115",
+    "title": "Sweep stub surface: did key",
+    "list": "1",
+    "sectionPath": "pass9/stub/did-key",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "did-key"
+  },
+  {
+    "id": "L1-PASS9-STUB-0116",
+    "title": "Sweep stub surface: did web",
+    "list": "1",
+    "sectionPath": "pass9/stub/did-web",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "did-web"
+  },
+  {
+    "id": "L1-PASS9-STUB-0134",
+    "title": "Sweep stub surface: electric sql shape",
+    "list": "1",
+    "sectionPath": "pass9/stub/electric-sql-shape",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "electric-sql-shape"
+  },
+  {
+    "id": "L1-PASS9-STUB-0137",
+    "title": "Sweep stub surface: eu ai act risk class",
+    "list": "1",
+    "sectionPath": "pass9/stub/eu-ai-act-risk-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "eu-ai-act-risk-class"
+  },
+  {
+    "id": "L1-PASS9-STUB-0138",
+    "title": "Sweep stub surface: eu digital markets act hint",
+    "list": "1",
+    "sectionPath": "pass9/stub/eu-digital-markets-act-hint",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "eu-digital-markets-act-hint"
+  },
+  {
+    "id": "L1-PASS9-STUB-0140",
+    "title": "Sweep stub surface: executorch mobile",
+    "list": "1",
+    "sectionPath": "pass9/stub/executorch-mobile",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "executorch-mobile"
+  },
+  {
+    "id": "L1-PASS9-STUB-0153",
+    "title": "Sweep stub surface: fiddler classic",
+    "list": "1",
+    "sectionPath": "pass9/stub/fiddler-classic",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "fiddler-classic"
+  },
+  {
+    "id": "L1-PASS9-STUB-0159",
+    "title": "Sweep stub surface: foundationdb record layer",
+    "list": "1",
+    "sectionPath": "pass9/stub/foundationdb-record-layer",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "foundationdb-record-layer"
+  },
+  {
+    "id": "L1-PASS9-STUB-0168",
+    "title": "Sweep stub surface: gdpr uk adequacy",
+    "list": "1",
+    "sectionPath": "pass9/stub/gdpr-uk-adequacy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "gdpr-uk-adequacy"
+  },
+  {
+    "id": "L1-PASS9-STUB-0199",
+    "title": "Sweep stub surface: ieee 1588 ptp boundary clock",
+    "list": "1",
+    "sectionPath": "pass9/stub/ieee-1588-ptp-boundary-clock",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "ieee-1588-ptp-boundary-clock"
+  },
+  {
+    "id": "L1-PASS9-STUB-0202",
+    "title": "Sweep stub surface: india dpdp",
+    "list": "1",
+    "sectionPath": "pass9/stub/india-dpdp",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "india-dpdp"
+  },
+  {
+    "id": "L1-PASS9-STUB-0214",
+    "title": "Sweep stub surface: iso iec 42001",
+    "list": "1",
+    "sectionPath": "pass9/stub/iso-iec-42001",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "iso-iec-42001"
+  },
+  {
+    "id": "L1-PASS9-STUB-0251",
+    "title": "Sweep stub surface: loki label cardinality",
+    "list": "1",
+    "sectionPath": "pass9/stub/loki-label-cardinality",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "loki-label-cardinality"
+  },
+  {
+    "id": "L1-PASS9-STUB-0252",
+    "title": "Sweep stub surface: loro crdt",
+    "list": "1",
+    "sectionPath": "pass9/stub/loro-crdt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "loro-crdt"
+  },
+  {
+    "id": "L1-PASS9-STUB-0265",
+    "title": "Sweep stub surface: mitmproxy flow",
+    "list": "1",
+    "sectionPath": "pass9/stub/mitmproxy-flow",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "mitmproxy-flow"
+  },
+  {
+    "id": "L1-PASS9-STUB-0268",
+    "title": "Sweep stub surface: model card missing",
+    "list": "1",
+    "sectionPath": "pass9/stub/model-card-missing",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "model-card-missing"
+  },
+  {
+    "id": "L1-PASS9-STUB-0284",
+    "title": "Sweep stub surface: nist ai rmf",
+    "list": "1",
+    "sectionPath": "pass9/stub/nist-ai-rmf",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "nist-ai-rmf"
+  },
+  {
+    "id": "L1-PASS9-STUB-0295",
+    "title": "Sweep stub surface: nuclei template",
+    "list": "1",
+    "sectionPath": "pass9/stub/nuclei-template",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "nuclei-template"
+  },
+  {
+    "id": "L1-PASS9-STUB-0305",
+    "title": "Sweep stub surface: oecd ai principles",
+    "list": "1",
+    "sectionPath": "pass9/stub/oecd-ai-principles",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "oecd-ai-principles"
+  },
+  {
+    "id": "L1-PASS9-STUB-0308",
+    "title": "Sweep stub surface: oid4vci",
+    "list": "1",
+    "sectionPath": "pass9/stub/oid4vci",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "oid4vci"
+  },
+  {
+    "id": "L1-PASS9-STUB-0309",
+    "title": "Sweep stub surface: oid4vp",
+    "list": "1",
+    "sectionPath": "pass9/stub/oid4vp",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "oid4vp"
+  },
+  {
+    "id": "L1-PASS9-STUB-0312",
+    "title": "Sweep stub surface: onnx runtime",
+    "list": "1",
+    "sectionPath": "pass9/stub/onnx-runtime",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "onnx-runtime"
+  },
+  {
+    "id": "L1-PASS9-STUB-0320",
+    "title": "Sweep stub surface: otel semconv http",
+    "list": "1",
+    "sectionPath": "pass9/stub/otel-semconv-http",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "otel-semconv-http"
+  },
+  {
+    "id": "L1-PASS9-STUB-0321",
+    "title": "Sweep stub surface: owasp zap dast",
+    "list": "1",
+    "sectionPath": "pass9/stub/owasp-zap-dast",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "owasp-zap-dast"
+  },
+  {
+    "id": "L1-PASS9-STUB-0331",
+    "title": "Sweep stub surface: payment request api",
+    "list": "1",
+    "sectionPath": "pass9/stub/payment-request-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "payment-request-api"
+  },
+  {
+    "id": "L1-PASS9-STUB-0347",
+    "title": "Sweep stub surface: polars lazy",
+    "list": "1",
+    "sectionPath": "pass9/stub/polars-lazy",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "polars-lazy"
+  },
+  {
+    "id": "L1-PASS9-STUB-0349",
+    "title": "Sweep stub surface: postgres logical slot lag",
+    "list": "1",
+    "sectionPath": "pass9/stub/postgres-logical-slot-lag",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "postgres-logical-slot-lag"
+  },
+  {
+    "id": "L1-PASS9-STUB-0352",
+    "title": "Sweep stub surface: pouchdb sync",
+    "list": "1",
+    "sectionPath": "pass9/stub/pouchdb-sync",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "pouchdb-sync"
+  },
+  {
+    "id": "L1-PASS9-STUB-0353",
+    "title": "Sweep stub surface: powersync bucket",
+    "list": "1",
+    "sectionPath": "pass9/stub/powersync-bucket",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "powersync-bucket"
+  },
+  {
+    "id": "L1-PASS9-STUB-0358",
+    "title": "Sweep stub surface: prometheus red metrics",
+    "list": "1",
+    "sectionPath": "pass9/stub/prometheus-red-metrics",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "prometheus-red-metrics"
+  },
+  {
+    "id": "L1-PASS9-STUB-0369",
+    "title": "Sweep stub surface: ray data",
+    "list": "1",
+    "sectionPath": "pass9/stub/ray-data",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "ray-data"
+  },
+  {
+    "id": "L1-PASS9-STUB-0385",
+    "title": "Sweep stub surface: rxdb replication",
+    "list": "1",
+    "sectionPath": "pass9/stub/rxdb-replication",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "rxdb-replication"
+  },
+  {
+    "id": "L1-PASS9-STUB-0395",
+    "title": "Sweep stub surface: schrems ii scc",
+    "list": "1",
+    "sectionPath": "pass9/stub/schrems-ii-scc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "schrems-ii-scc"
+  },
+  {
+    "id": "L1-PASS9-STUB-0401",
+    "title": "Sweep stub surface: secure payment confirmation",
+    "list": "1",
+    "sectionPath": "pass9/stub/secure-payment-confirmation",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "secure-payment-confirmation"
+  },
+  {
+    "id": "L1-PASS9-STUB-0408",
+    "title": "Sweep stub surface: signed http exchange",
+    "list": "1",
+    "sectionPath": "pass9/stub/signed-http-exchange",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "signed-http-exchange"
+  },
+  {
+    "id": "L1-PASS9-STUB-0412",
+    "title": "Sweep stub surface: slo error budget burn",
+    "list": "1",
+    "sectionPath": "pass9/stub/slo-error-budget-burn",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "slo-error-budget-burn"
+  },
+  {
+    "id": "L1-PASS9-STUB-0423",
+    "title": "Sweep stub surface: spark connect",
+    "list": "1",
+    "sectionPath": "pass9/stub/spark-connect",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "spark-connect"
+  },
+  {
+    "id": "L1-PASS9-STUB-0432",
+    "title": "Sweep stub surface: starlink latency class",
+    "list": "1",
+    "sectionPath": "pass9/stub/starlink-latency-class",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "starlink-latency-class"
+  },
+  {
+    "id": "L1-PASS9-STUB-0454",
+    "title": "Sweep stub surface: tail sampling probabilistic",
+    "list": "1",
+    "sectionPath": "pass9/stub/tail-sampling-probabilistic",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "tail-sampling-probabilistic"
+  },
+  {
+    "id": "L1-PASS9-STUB-0459",
+    "title": "Sweep stub surface: tcpdump pcap",
+    "list": "1",
+    "sectionPath": "pass9/stub/tcpdump-pcap",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "tcpdump-pcap"
+  },
+  {
+    "id": "L1-PASS9-STUB-0462",
+    "title": "Sweep stub surface: tensorrt engine",
+    "list": "1",
+    "sectionPath": "pass9/stub/tensorrt-engine",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "tensorrt-engine"
+  },
+  {
+    "id": "L1-PASS9-STUB-0465",
+    "title": "Sweep stub surface: tidb distributed",
+    "list": "1",
+    "sectionPath": "pass9/stub/tidb-distributed",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "tidb-distributed"
+  },
+  {
+    "id": "L1-PASS9-STUB-0478",
+    "title": "Sweep stub surface: triton inference server",
+    "list": "1",
+    "sectionPath": "pass9/stub/triton-inference-server",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "triton-inference-server"
+  },
+  {
+    "id": "L1-PASS9-STUB-0502",
+    "title": "Sweep stub surface: vllm openai api",
+    "list": "1",
+    "sectionPath": "pass9/stub/vllm-openai-api",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "vllm-openai-api"
+  },
+  {
+    "id": "L1-PASS9-STUB-0505",
+    "title": "Sweep stub surface: w3c vc jwt",
+    "list": "1",
+    "sectionPath": "pass9/stub/w3c-vc-jwt",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "w3c-vc-jwt"
+  },
+  {
+    "id": "L1-PASS9-STUB-0506",
+    "title": "Sweep stub surface: w3c vc ld",
+    "list": "1",
+    "sectionPath": "pass9/stub/w3c-vc-ld",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "w3c-vc-ld"
+  },
+  {
+    "id": "L1-PASS9-STUB-0507",
+    "title": "Sweep stub surface: wal2json decoder",
+    "list": "1",
+    "sectionPath": "pass9/stub/wal2json-decoder",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "wal2json-decoder"
+  },
+  {
+    "id": "L1-PASS9-STUB-0514",
+    "title": "Sweep stub surface: web bundle wbn",
+    "list": "1",
+    "sectionPath": "pass9/stub/web-bundle-wbn",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "web-bundle-wbn"
+  },
+  {
+    "id": "L1-PASS9-STUB-0518",
+    "title": "Sweep stub surface: webgpu compute shader",
+    "list": "1",
+    "sectionPath": "pass9/stub/webgpu-compute-shader",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "webgpu-compute-shader"
+  },
+  {
+    "id": "L1-PASS9-STUB-0523",
+    "title": "Sweep stub surface: webnn graph",
+    "list": "1",
+    "sectionPath": "pass9/stub/webnn-graph",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "webnn-graph"
+  },
+  {
+    "id": "L1-PASS9-STUB-0542",
+    "title": "Sweep stub surface: yjs doc",
+    "list": "1",
+    "sectionPath": "pass9/stub/yjs-doc",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "yjs-doc"
+  },
+  {
+    "id": "L1-PASS9-STUB-0544",
+    "title": "Sweep stub surface: yugabyte ysql",
+    "list": "1",
+    "sectionPath": "pass9/stub/yugabyte-ysql",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass9",
+    "stubClass": "yugabyte-ysql"
+  },
+  {
+    "id": "L1-SAMPLE-JURIS",
+    "title": "Sample jurisdiction taxonomy row without legal advice text",
+    "list": "1",
+    "sectionPath": "samples/jurisdiction-tags",
+    "layer": "product",
+    "implementation": "stub",
+    "partition": "pass9",
+    "jurisdictionTags": [
+      "DE",
+      "US"
+    ],
+    "aiGovernanceFramework": [
+      "nist_ai_rmf"
+    ],
+    "contentAuthenticityHint": "C2PA"
+  },
+  {
+    "id": "L1-SAMPLE-PASS11",
+    "title": "Sample Pass-11 formal methods and RPC contract tags",
+    "list": "1",
+    "sectionPath": "samples/pass11-tags",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass11",
+    "formalMethodTags": [
+      "tlc"
+    ],
+    "serializationFormatTags": [
+      "json"
+    ],
+    "rpcContractTags": [
+      "grpc"
+    ],
+    "nodeRuntimeTags": [
+      "streams"
+    ]
+  },
+  {
+    "id": "L1-SAMPLE-REFURL",
+    "title": "Sample row with public https reference URL only",
+    "list": "1",
+    "sectionPath": "samples/reference-url",
+    "layer": "meta",
+    "implementation": "stub",
+    "partition": "pass8",
+    "referenceUrls": [
+      "https://www.w3.org/TR/trace-context/"
+    ],
+    "sbomFormat": "SPDX",
+    "npmPackageName": "next"
+  },
+  {
+    "id": "L1-SAMPLE-RUNTIME-TAGS",
+    "title": "Sample Pass-10 bounded runtime and peripheral tags",
+    "list": "1",
+    "sectionPath": "samples/pass10-tags",
+    "layer": "platform",
+    "implementation": "stub",
+    "partition": "pass10",
+    "languageRuntimeTags": [
+      "node-20"
+    ],
+    "peripheralApiTags": [
+      "webhid"
+    ],
+    "filesystemStorageTags": [
+      "sqlite-wal"
+    ],
+    "mlOpsToolTags": [
+      "mlflow"
+    ]
+  },
+  {
+    "id": "L1-STRIDE-DOS",
+    "title": "STRIDE denial of service: rate limit and optional IP allowlist",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/dos",
+    "layer": "pathology",
+    "implementation": "native",
+    "partition": "native"
+  },
+  {
+    "id": "L1-STRIDE-ELEV",
+    "title": "STRIDE elevation: separate internal diagnostics secret from cron secret",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/elevation",
+    "layer": "pathology",
+    "implementation": "native",
+    "partition": "native"
+  },
+  {
+    "id": "L1-STRIDE-INFO",
+    "title": "STRIDE information disclosure: strict allowlist on diagnostics JSON",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/info-disclosure",
+    "layer": "pathology",
+    "implementation": "native",
+    "partition": "native"
+  },
+  {
+    "id": "L1-STRIDE-REPU",
+    "title": "STRIDE repudiation: access audit with redacted request id",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/repudiation",
+    "layer": "people",
+    "implementation": "partial",
+    "partition": "native"
+  },
+  {
+    "id": "L1-STRIDE-SPOOF",
+    "title": "STRIDE spoofing: forged bearer against internal diagnostics",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/spoofing",
+    "layer": "pathology",
+    "implementation": "native",
+    "partition": "native",
+    "owaspCategory": "A07",
+    "cweIds": [
+      "CWE-287"
+    ]
+  },
+  {
+    "id": "L1-STRIDE-TAMPER",
+    "title": "STRIDE tampering: MITM JSON response class (TLS-only posture)",
+    "list": "1",
+    "sectionPath": "stride/internal-diag/tampering",
+    "layer": "pathology",
+    "implementation": "stub",
+    "partition": "native"
+  }
+]

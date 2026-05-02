@@ -132,6 +132,16 @@ describe("scrubSentryEvent", () => {
     expect(url).not.toContain("@");
   });
 
+  it("drops banlisted Sentry tag keys entirely", () => {
+    const out = scrubSentryEvent({
+      request: { headers: {} },
+      tags: { email: "user@corp.test", route: "/api/me" },
+    });
+    const tags = (out as { tags?: Record<string, unknown> }).tags ?? {};
+    expect(tags.email).toBeUndefined();
+    expect(tags.route).toBe("/api/me");
+  });
+
   it("redacts email-like strings in breadcrumb data", () => {
     const out = scrubSentryEvent({
       request: { headers: {} },

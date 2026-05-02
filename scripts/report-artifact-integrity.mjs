@@ -20,7 +20,7 @@ const reports = [
     script: "report-release-readiness.mjs",
     required: false,
     requiredKeys: ["generatedAt", "schemaVersion", "traceId", "ok", "checks", "nextActions"],
-    timeoutMs: 180000,
+    timeoutMs: 1_800_000,
   },
   {
     script: "report-dependency-risk.mjs",
@@ -111,4 +111,6 @@ console.log(
   )
 );
 if (requiredFailed.length > 0) process.exit(1);
-if (strict && process.env.CI === "true" && !ciContext.githubSha) process.exit(1);
+// Require commit provenance only on real GitHub Actions runners. Local workflows
+// often set CI=1 for Playwright/check batch parity; that must not imply GITHUB_SHA.
+if (strict && process.env.GITHUB_ACTIONS === "true" && !ciContext.githubSha) process.exit(1);

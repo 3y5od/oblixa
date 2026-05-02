@@ -23,6 +23,7 @@ import {
   minWorkspaceModeForReportType,
   workspaceModeAtLeast,
 } from "@/lib/product-surface/feature-registry";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 function metricsToSummaryRows(metrics: Record<string, unknown>): Array<{ label: string; value: string }> {
   const skip = new Set(["generated_at", "report_type", "dashboard_rpc_ok", "prior"]);
@@ -148,6 +149,11 @@ export async function GET(request: Request) {
       entityType: "report_pack",
       entityId: packId,
       details: { generated_at: nowIso, report_type: pack.report_type, run_id: runRow?.id },
+    });
+    await refreshV10ReadModelsForOrganization(admin, orgId, {
+      refreshScope: "one_model",
+      reason: "report_pack_generation_cron",
+      modelKeys: ["work_items", "report_run_visibility", "job_run_visibility", "contract_activity_events", "audit_events", "command_search_index"],
     });
 
     if (emitWebhooks) {

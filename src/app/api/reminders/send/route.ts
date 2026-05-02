@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { sendReminderEmail } from "@/lib/email";
 import { getRequestOrigin } from "@/lib/app-url";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
 } from "@/lib/env/server";
+import { requireCronAuthorized } from "@/lib/security/api-guards";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { isNotificationAllowed } from "@/lib/notification-policy";
@@ -14,26 +14,11 @@ import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
-function authorizeCron(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) {
-    return false;
-  }
-  return authorizeCronRequest(request, cronSecret);
-}
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) {
-    return NextResponse.json(
-      { error: "Service unavailable" },
-      { status: 500 }
-    );
-  }
-
-  if (!authorizeCron(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = requireCronAuthorized(request);
+  if (auth) return auth;
 
   let supabaseUrl: string;
   let serviceRoleKey: string;

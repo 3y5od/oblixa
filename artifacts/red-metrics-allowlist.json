@@ -1,0 +1,4 @@
+{
+  "metricNames": ["*"],
+  "note": "Replace * with explicit OpenTelemetry/Prometheus names when telemetry naming stabilizes."
+}

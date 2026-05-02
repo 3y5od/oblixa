@@ -44,6 +44,22 @@ jobs:
       - name: npm audit (high+)
         run: npm audit --audit-level=high
 
+      - name: SBOM (CycloneDX, package-lock)
+        run: npm run sbom
+
+      - name: SBOM license allowlist spot-check
+        run: npm run check:license-sbom
+
+      - name: SBOM diff / VEX stub gate
+        run: npm run check:sbom-diff
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cyclonedx-sbom
+          path: cyclonedx-sbom.json
+          if-no-files-found: ignore
+
       - name: Dependency risk summary (telemetry)
         if: ${{ always() }}
         run: npm run report:dependency-risk
@@ -78,8 +94,43 @@ jobs:
       - name: Tracked secrets and coverage hygiene
         run: npm run check:tracked-secrets-hygiene
 
+      - name: Outbound fetch contract (API routes)
+        run: npm run check:outbound-fetch
+
+      - name: Security enforcement matrix
+        run: npm run check:security-enforcement-matrix
+
+      - name: Subprocessors artifact drift
+        run: npm run check:subprocessors-drift
+
+      - name: NEXT_PUBLIC surface hygiene
+        run: npm run check:next-public-surface
+
+      - name: Unsafe deserialization import grep
+        run: npm run check:unsafe-deserialization
+
+      - name: dangerouslySetInnerHTML allowlist
+        run: npm run check:dangerously-set-inner-html
+
+      - name: Supply-chain external waiver registry
+        run: npm run check:supply-chain-waivers
+
+      - name: postMessage origin inventory
+        run: npm run check:postmessage-origins
+
+      - name: next/script SRI inventory
+        run: npm run check:next-script-integrity
+
+      - name: Certificate transparency host config (strict)
+        env:
+          CT_STRICT: "1"
+        run: npm run check:certificate-transparency
+
       - name: Performance static audit (strict; zero WARN)
         run: npm run check:performance-static:strict
+
+      - name: Autonomous perf EXT registry consistency
+        run: npm run check:autonomous-perf-registry
 
       - name: QA loading.tsx checklist vs repo
         run: npm run check:qa-loading-routes
@@ -98,6 +149,12 @@ jobs:
 
       - name: API route auth contract
         run: npm run check:api-route-auth-contract
+
+      - name: API route auth inventory path index
+        run: npm run check:api-route-auth-route-index
+
+      - name: Security route matrix, proxy matrix, program checks, SEC coverage gate
+        run: npm run report:security-route-matrix && npm run report:security-proxy-matrix && npm run build:security-control-coverage-matrix && npm run check:autonomous-security-program && npm run check:security-control-coverage && npm run check:security-fetch-sinks:strict
 
       - name: API route admin org-scope contract
         run: npm run check:api-route-admin-org-scope
@@ -167,6 +224,9 @@ jobs:
 
       - name: Report redaction contract
         run: npm run check:report-redaction-contract
+
+      - name: V10 privacy scan
+        run: npm run check:v10-privacy-scan
 
       - name: Feature-flag security bypass
         run: npm run check:feature-flag-security-bypass
@@ -291,6 +351,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Security matrix JSON for Vitest evidence
+        run: npm run build:security-control-coverage-matrix
+
       - name: Vitest logic + UI coverage
         run: npm run test:coverage
 
@@ -313,7 +376,7 @@ jobs:
         run: pip install "semgrep>=1.90.0"
 
       - name: Semgrep (OSS + Oblixa rules)
-        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --config semgrep/oblixa-v8-surface.yml --severity ERROR --error .
+        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --config semgrep/oblixa-v8-surface.yml --config semgrep/oblixa-v10-surface.yml --severity ERROR --error .
 
       - name: OSV dependency scan
         uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
@@ -375,6 +438,25 @@ jobs:
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
         run: npm run build
 
+      - name: Autonomous perf Tier A (emit run.json; post-build)
+        if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        env:
+          PERF_SKIP_BUILD: "1"
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          RUNNER_OS: ${{ runner.os }}
+        run: npm run perf:autonomous:postbuild
+
+      - name: Upload autonomous perf run artifact
+        if: ${{ steps.gate_e2e.outputs.run == 'true' && always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: autonomous-perf-run
+          path: artifacts/autonomous-perf-run.json
+          if-no-files-found: ignore
+
       - name: Install Playwright Chromium
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
         run: npx playwright install --with-deps chromium
@@ -382,6 +464,10 @@ jobs:
       - name: Playwright smoke
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
         run: npm run test:e2e:smoke
+
+      - name: Playwright V10 release smoke
+        if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        run: npm run test:e2e:v10
 
       - name: Playwright accessibility lanes
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
@@ -408,6 +494,19 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
@@ -416,6 +515,25 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+      - name: V10 inventory lock
+        run: npm run check:v10-inventory-lock
+      - name: V10 release evidence
+        run: npm run check:v10-release-evidence
+      - name: V10 release privacy scan
+        run: npm run check:v10-privacy-scan
+      - name: V10 migration smoke (disposable PostgreSQL)
+        env:
+          V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
+        run: npm run check:v10-migration-smoke -- --strict
+      - name: V10 complete closure
+        run: npm run check:v10-complete-closure
+      - name: V10 zero exclusion report
+        run: npm run check:v10-zero-exclusion-report
+      - name: V10 suite
+        run: npm run check:v10-suite
       - name: Surface suite pipeline
         run: npm run pipeline:surface:suite
       - name: Operational UI strict audit
@@ -439,7 +557,7 @@ jobs:
       - name: Governance checks
         run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity
       - name: Workflow and command integrity
-        run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction
+        run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction && npm run check:tier-coverage:strict && npm run check:workflow-tier-coverage:strict
 
   quality_static_codehealth:
     permissions:
@@ -534,6 +652,31 @@ jobs:
       - name: Multi-browser public smoke
         if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
         run: npm run test:e2e:multi-browser
+
+  # Opt-in: set `if: true` (or gate on `vars`) to run four-way autodiscovered `check:*` shards (complements quality_static_*).
+  qa_ultimate_pr_shard:
+    if: false
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard_index: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: Autodiscovered check:* batch shard
+        run: npm run qa:sweep:checks:batch
+        env:
+          CI: "true"
+          QA_CHECK_BATCH_TOTAL: "4"
+          QA_CHECK_BATCH_INDEX: ${{ matrix.shard_index }}
 
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:

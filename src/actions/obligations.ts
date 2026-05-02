@@ -6,7 +6,10 @@ import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import type { ContractObligationStatus } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
-import { emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
+import { emitProductTelemetryEvent, emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/v10-mutation-envelope";
 
 const OBLIGATION_STATUSES: ContractObligationStatus[] = [
   "open",
@@ -29,6 +32,61 @@ const MAX_TYPE_LEN = 80;
 const MAX_CADENCE_LEN = 120;
 const MAX_URL_LEN = 1000;
 const MAX_FILE_PATH_LEN = 1000;
+
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+
+function buildObligationActionEnvelope(input: {
+  outcome?: V10MutationResponse["outcome"];
+  message: string;
+  obligationId?: string | null;
+  contractId?: string | null;
+  auditEventId?: string | null;
+  nextDestinationHref?: string | null;
+}): V10MutationResponse {
+  return buildV10MutationResponse({
+    outcome: input.outcome ?? "success",
+    message: input.message,
+    changedObjectType: "obligation",
+    changedObjectId: input.obligationId ?? null,
+    nextDestinationHref:
+      input.nextDestinationHref ??
+      (input.contractId ? `/contracts/${input.contractId}?tab=obligations` : "/contracts/obligations"),
+    auditEventId: input.auditEventId,
+    retryEligible: false,
+  });
+}
+
+async function recordV10ObligationMutation(
+  admin: Admin,
+  input: {
+    organizationId: string;
+    actorUserId: string;
+    action: string;
+    obligationId: string;
+    contractId: string;
+    beforeStateHash?: string | null;
+    afterStateHash?: string | null;
+    safeMetadata?: Record<string, string | number | boolean | null>;
+  }
+) {
+  const auditEventId = await recordV10AuditEvent(admin, {
+    organizationId: input.organizationId,
+    actorUserId: input.actorUserId,
+    action: input.action,
+    targetType: "obligation",
+    targetId: input.obligationId,
+    contractId: input.contractId,
+    outcome: "success",
+    beforeStateHash: input.beforeStateHash,
+    afterStateHash: input.afterStateHash,
+    safeMetadata: input.safeMetadata,
+  });
+  await refreshV10ReadModelsForOrganization(admin, input.organizationId, {
+    reason: input.action,
+    refreshScope: "incremental",
+  });
+  return auditEventId;
+}
 
 type ObligationRecurrenceType =
   | "none"
@@ -247,8 +305,31 @@ export async function createContractObligation(input: {
     },
   });
   await recomputeContractSignals(admin, contract.id);
+  const auditEventId = await recordV10ObligationMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "obligation.created",
+    obligationId: created.id,
+    contractId: contract.id,
+    afterStateHash: "open",
+    safeMetadata: {
+      obligation_type: obligationType,
+      owner_assigned: Boolean(ownerId),
+      due_date_state: dueDate ? "provided" : "missing",
+      recurrence_type: recurrenceType,
+    },
+  });
 
-  return { success: true as const, obligationId: created.id };
+  return {
+    success: true as const,
+    obligationId: created.id,
+    v10: buildObligationActionEnvelope({
+      message: "Obligation created.",
+      obligationId: created.id,
+      contractId: contract.id,
+      auditEventId,
+    }),
+  };
 }
 
 export async function updateContractObligation(input: {
@@ -360,7 +441,17 @@ export async function updateContractObligation(input: {
     patch.evidence_url = url;
   }
 
-  if (Object.keys(patch).length === 0) return { success: true as const };
+  if (Object.keys(patch).length === 0) {
+    return {
+      success: true as const,
+      v10: buildObligationActionEnvelope({
+        outcome: "no_action",
+        message: "No action was needed for this obligation.",
+        obligationId: input.obligationId,
+        contractId: obligation.contract_id,
+      }),
+    };
+  }
 
   if (input.status !== undefined) {
     await emitWorkActionTelemetry(
@@ -495,8 +586,47 @@ export async function updateContractObligation(input: {
       "succeeded"
     );
   }
+  const auditEventId = await recordV10ObligationMutation(admin, {
+    organizationId: obligation.organization_id,
+    actorUserId: user.id,
+    action: input.status !== undefined ? "obligation.status_changed" : "obligation.updated",
+    obligationId: input.obligationId,
+    contractId: obligation.contract_id,
+    beforeStateHash: String(obligation.status ?? "open"),
+    afterStateHash: String(input.status ?? patch.status ?? "updated"),
+    safeMetadata: {
+      status_changed: input.status !== undefined,
+      owner_changed: input.ownerId !== undefined,
+      due_date_changed: input.dueDate !== undefined,
+      evidence_changed:
+        input.evidenceNotes !== undefined || input.evidenceFilePath !== undefined || input.evidenceUrl !== undefined,
+      generated_recurring_obligation: generatedRecurringObligation,
+    },
+  });
+  if (input.status === "done" || input.status === "waived") {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: obligation.organization_id,
+      userId: user.id,
+      contractId: obligation.contract_id,
+      action: "product.v10.work_item_completed",
+      details: {
+        source_type: "obligation",
+        completion_state: input.status,
+        generated_recurring_obligation: generatedRecurringObligation,
+      },
+    });
+  }
 
-  return { success: true as const, generatedRecurringObligation };
+  return {
+    success: true as const,
+    generatedRecurringObligation,
+    v10: buildObligationActionEnvelope({
+      message: input.status !== undefined ? "Obligation status updated." : "Obligation updated.",
+      obligationId: input.obligationId,
+      contractId: obligation.contract_id,
+      auditEventId,
+    }),
+  };
 }
 
 export async function deleteContractObligation(obligationId: string) {
@@ -540,8 +670,26 @@ export async function deleteContractObligation(obligationId: string) {
     details: { deleted: true },
   });
   await recomputeContractSignals(admin, obligation.contract_id);
+  const auditEventId = await recordV10ObligationMutation(admin, {
+    organizationId: obligation.organization_id,
+    actorUserId: user.id,
+    action: "obligation.deleted",
+    obligationId,
+    contractId: obligation.contract_id,
+    beforeStateHash: "visible",
+    afterStateHash: "deleted",
+  });
 
-  return { success: true as const };
+  return {
+    success: true as const,
+    v10: buildObligationActionEnvelope({
+      message: "Obligation deleted.",
+      obligationId,
+      contractId: obligation.contract_id,
+      auditEventId,
+      nextDestinationHref: `/contracts/${obligation.contract_id}?tab=obligations`,
+    }),
+  };
 }
 
 export async function createObligationTemplate(input: {

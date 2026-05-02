@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "targetVerificationLevel": "L2",
+  "releaseTrain": "default",
+  "rationale": "L3 reserved for regulated verticals; gate features by config when product requires L3."
+}

@@ -1,3 +1,8 @@
 # Add api-relative route.ts paths only after explicit security review.
 # Example:
 # campaigns/route.ts
+#
+# internal/debugging-sweep: createAdminClient is only used for optional audit writes
+# when OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID is set; access is gated by env flag, bearer secret,
+# rate limit, and IP allowlist (no session org context on this internal diagnostics surface).
+internal/debugging-sweep/route.ts

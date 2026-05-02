@@ -1,0 +1,6 @@
+{
+  "provider": "stub",
+  "purgeEndpoint": "https://cdn.example.invalid/purge",
+  "auth": "header_or_none",
+  "note": "Phase 71 — enable when CDN integration exists."
+}

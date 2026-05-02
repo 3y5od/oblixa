@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "laws": [
+    {
+      "id": "GDPR",
+      "artifact": "artifacts/gdpr-soc2-control-map.json",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": "config/compliance/asvs-nist-csf-map.json"
+    },
+    {
+      "id": "UK_GDPR",
+      "artifact": "artifacts/gdpr-soc2-control-map.json",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": "waived_duplicate_of_GDPR_row"
+    },
+    {
+      "id": "PIPEDA",
+      "artifact": "waived_until_product_CA",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "LGPD",
+      "artifact": "waived_until_product_BR",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "PDPL_SA",
+      "artifact": "waived_until_product_SA",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "PIPL",
+      "artifact": "waived_until_product_CN",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "DPDPA_IN",
+      "artifact": "waived_until_product_IN",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "APPI_JP",
+      "artifact": "waived_until_product_JP",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "PDPA_SG",
+      "artifact": "waived_until_product_SG",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    },
+    {
+      "id": "POPIA_ZA",
+      "artifact": "waived_until_product_ZA",
+      "owner": "privacy",
+      "expiry": "2027-12-31",
+      "technicalMeasure": null
+    }
+  ]
+}

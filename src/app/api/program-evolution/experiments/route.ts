@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -50,13 +51,15 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
   const body = readJsonBody<{
     hypothesis?: string;
     programId?: string;
     baselineVersionId?: string;
     candidateVersionId?: string;
     targetSegmentId?: string;
-  }>(await request.json().catch(() => ({})), {});
+  }>(_lb_body.body ?? {}, {});
 
   const result = await createProgramEvolutionExperiment(ctx.admin, ctx.orgId, ctx.userId, {
     hypothesis: toSafeString(body.hypothesis) || undefined,

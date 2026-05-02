@@ -1,0 +1,1 @@
+# Repo-relative paths allowed to call postMessage (empty = none allowed).

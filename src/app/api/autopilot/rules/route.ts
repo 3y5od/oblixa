@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -52,10 +53,11 @@ export async function POST(request: Request) {
   const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
   if (modeBlock) return modeBlock;
 
-  const body = readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(
-    await request.json().catch(() => ({})),
-    {}
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(raw ?? {}, {})
   );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
 
   const name = toSafeString(body.name);
   const actionType = toSafeString(body.actionType) || "request_evidence_refresh";

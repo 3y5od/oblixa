@@ -1,0 +1,775 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-29T23:04:50.976Z",
+  "phases": {
+    "cov-legend": {
+      "type": "json",
+      "path": "config/security-coverage-ledger.json"
+    },
+    "phase0-baseline": {
+      "type": "scripts",
+      "path": "package.json#scripts"
+    },
+    "phase0-inventory": {
+      "type": "txt",
+      "path": "scripts/api-route-auth-route-index.txt"
+    },
+    "phase1-api-authz": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase1-server-actions": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase1-proxy-align": {
+      "type": "ts",
+      "path": "src/lib/auth/proxy-path-policy.ts"
+    },
+    "phase2-rate-limit": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase2-secrets-compare": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase2-env-strict": {
+      "type": "ts",
+      "path": "src/lib/observability/instrumentation-env-warn.ts"
+    },
+    "phase2-account-abuse": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase3-csp-nonce": {
+      "type": "ts",
+      "path": "src/lib/security/csp-builders.ts"
+    },
+    "phase3-hsts-corp": {
+      "type": "ts",
+      "path": "src/lib/security/csp-builders.ts"
+    },
+    "phase3-cookie-prefix": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase4-ssrf": {
+      "type": "ts",
+      "path": "src/lib/security/worker-url.ts"
+    },
+    "phase4-upload-parse": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase4-stripe-oauth": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase4-inbound": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase5-rls": {
+      "type": "sql",
+      "path": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    "phase5-secdefiner": {
+      "type": "sql",
+      "path": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    "phase5-timeouts-roles": {
+      "type": "sql",
+      "path": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    "phase6-sentry-otel": {
+      "type": "ts",
+      "path": "src/lib/observability/sentry-scrub.ts"
+    },
+    "phase6-logs-redact": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase7-ci-block": {
+      "type": "yaml",
+      "path": ".github/workflows/ci.yml"
+    },
+    "phase7-sbom-audit": {
+      "type": "script",
+      "path": "package.json#sbom"
+    },
+    "phase8-e2e-security": {
+      "type": "spec",
+      "path": "e2e/security-api.spec.ts"
+    },
+    "phase8-vitest-security": {
+      "type": "spec",
+      "path": "src/lib/security/redirect.test.ts"
+    },
+    "phase9-xss-dom": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase9-csrf-xsleak": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase10-export-csv": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase10-idor-search": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase11-artifacts-config": {
+      "type": "json",
+      "path": "config/compliance-artifact-registry.json"
+    },
+    "ext-mdm-endpoint": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-physical-soc": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-sim-swap-sms": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-bg-insider": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-bug-bounty": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-cyber-insurance": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-datacenter-visitor": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-ntp-time-integrity": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-hsm-kms-ceremony": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-customer-audit": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-transparency-lawful": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-dr-tabletop-redteam": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-vishing-deepfake": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "phase12-protocol-surfaces": {
+      "type": "script",
+      "path": "scripts/lib/security-program-checks.mjs#checkForbiddenProtocolPackages"
+    },
+    "phase12-wasm-native": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase13-browser-advanced": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase13-trusted-types": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase13-mixed-subresource": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase14-pg-extensions": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase14-db-encryption": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase14-replication-lag": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase15-http-edge": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase15-cache-poison": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase16-money-locale": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase16-unicode-homoglyph": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase17-slsa-sigstore": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase17-npm-hygiene": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase18-chaos-resilience": {
+      "type": "yaml",
+      "path": "docker-compose.chaos.yml"
+    },
+    "phase19-compliance-artifacts": {
+      "type": "json",
+      "path": "config/compliance-artifact-registry.json"
+    },
+    "phase20-a11y-security-ux": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase21-prototype-pollution": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase22-qr-deeplink": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase23-k8s-container-hardening": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase23-terraform-iac-secrets": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase24-jwt-oauth-advanced": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase25-injection-deser-depth": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase26-wellknown-disclosure": {
+      "type": "txt",
+      "path": "public/.well-known/security.txt"
+    },
+    "phase26b-mta-sts-contract": {
+      "type": "json",
+      "path": "artifacts/mta-sts-contract.json"
+    },
+    "phase27-license-spdx": {
+      "type": "json",
+      "path": "artifacts/license-allowlist.json"
+    },
+    "phase28-merge-queue-dependabot": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase29-runtime-host-node": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase30-sensitive-ui-leak": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase31-har-dev-redact": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase32-subprocessor-drift": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase33-asvs-nist-map": {
+      "type": "json",
+      "path": "config/compliance/asvs-nist-csf-map.json"
+    },
+    "phase34-ebpf-tcpdump": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase35-board-risk-heatmap": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "ext-sovereign-residency": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-forensics-chain": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-ethics-ai-governance": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-climate-bc-dr": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "phase36-global-privacy-matrix": {
+      "type": "json",
+      "path": "config/global-privacy-law-matrix.json"
+    },
+    "phase37-vertical-compliance": {
+      "type": "json",
+      "path": "config/vertical-compliance-matrix.json"
+    },
+    "phase38-coppa-age-gate": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase39-hipaa-minimum-necessary": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase40-fraud-session-velocity": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase41-honeypot-canary": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase42-link-unfurl-oembed": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase43-collab-surface-sanitize": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase44-conversion-pipeline": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase45-multi-ecosystem-locks": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase46-dangerous-web-apis": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase47-sw-importmaps-sri": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase48-cwe-sans-map": {
+      "type": "json",
+      "path": "config/compliance/cwe-api-sans-map.json"
+    },
+    "ext-schrems-tia-dtia": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-swift-csp-pci-pin": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-fedramp-state-ramp": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-biometric-bipa": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-rowhammer-microarch": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-ci-artifact-secrets": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-smtp-smuggling-response": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-captcha-accessibility": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "phase49-money-numeric-integrity": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase50-outbox-saga-resilience": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase51-json-schema-remote-ref": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase52-obs-cardinality-nel": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase53-git-crypto-integrity": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase54-k8s-admission-helm": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase55-dom-css-sidechannel": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase56-ml-artifact-supply": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase57-mtls-b2b-api": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase58-privacy-signals-http": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase59-clear-site-data-coep": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase60-sql-advanced-class": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase61-notices-bundle": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase62-message-bus": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase63-samm-bsimm-json": {
+      "type": "json",
+      "path": "config/compliance/samm-bsimm-map.json"
+    },
+    "phase64-ipv6-dns64-ssrf": {
+      "type": "ts",
+      "path": "src/lib/security/worker-url.ts"
+    },
+    "ext-source-code-escrow": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-bsimm-samm-assessment": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-iso-42001-ai-ms": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-actuarial-cyber-risk": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "phase65-edge-http2-abuse": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase66-breach-crime-compression": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase67-cloud-iam-oidc": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase68-github-env-oidc": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase69-docker-build-secrets": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase70-dast-iast-rasp": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase71-malware-upload-pipeline": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase72-sigma-stix-detection": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase73-nist-sp-800-json": {
+      "type": "json",
+      "path": "config/compliance/nist-sp800-controls-map.json"
+    },
+    "phase74-asvs-level-target": {
+      "type": "json",
+      "path": "config/compliance/asvs-level-target.json"
+    },
+    "phase75-pci-dss-v4-artifacts": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase76-serverless-isolate-sidechannel": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase77-masvs-mobile": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase78-cvd-iso29147": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase79-first-tlp-isac": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase80-seventh-meta-dashboard": {
+      "type": "json",
+      "path": "config/compliance/meta-plan-closure-register.json"
+    },
+    "phase81-observability-lockin": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase82-finops-denial-wallet": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase83-dns-tls-privacy-routing": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase84-github-pat-device-flow": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase85-devcontainer-cursor-supply": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase86-aux-datastores": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase87-notebook-rd-policy": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase88-mcp-agent-tooling": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase89-python-web-stack": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase90-distdb-read-consistency": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase91-eighth-meta-horizon": {
+      "type": "json",
+      "path": "config/compliance/meta-plan-closure-register.json"
+    },
+    "ext-cloud-region-loss-bc": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-space-weather-carrington": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-cloud-detection-playbooks": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-isac-sector-membership": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "phase92-ediscovery-retention-chain": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase93-cla-dco-governance": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase94-ci-fork-matrix-governance": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase95-redos-shell-tooling": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase96-binary-serde-limits": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase97-secure-time-ntp": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase98-y2038-embedded-time": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase99-wassenaar-ear-export": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase100-scif-airgap-deploy": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase101-ninth-meta-closure-register": {
+      "type": "json",
+      "path": "config/compliance/meta-plan-closure-register.json"
+    },
+    "phase102-environment-energy-bc": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase103-idn-punycode-homograph": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase104-waterhole-typosquat-intel": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase105-dns-statuspage-integrity": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase106-forensic-watermark": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase107-steganography-detect-optional": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase108-native-sidechannel-hardening": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase109-golden-rebuild-compromise": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase110-hsm-custody-ceremony": {
+      "type": "program",
+      "path": "scripts/lib/security-program-checks.mjs"
+    },
+    "phase112-tenth-meta-plan-integrity": {
+      "type": "json",
+      "path": "config/phase112-integrity-manifest.json"
+    },
+    "ext-energy-grid-brownout-bc": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-idn-registrar-homograph-policy": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-legal-ediscovery-counsel": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    },
+    "ext-export-control-counsel": {
+      "type": "external_registry",
+      "path": "config/security-external-obligations.json"
+    }
+  },
+  "non_code_controls": [
+    {
+      "control_id": "dast_zap_preview",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "evidence_url": "https://github.com/oblixa/oblixa/actions",
+      "phase_key": "phase70-dast-iast-rasp",
+      "notes": "OWASP ZAP against ephemeral preview — optional workflow; tracked until blocking tier enabled."
+    },
+    {
+      "control_id": "certificate_transparency_monitoring",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@platform",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "evidence_url": "https://crt.sh",
+      "phase_key": "phase83-dns-tls-privacy-routing",
+      "notes": "crt.sh / CT API checks scripted; vendor CA dashboard is primary evidence."
+    },
+    {
+      "control_id": "postgres_global_statement_timeout",
+      "bucket": "C",
+      "status": "implemented",
+      "owner": "@platform",
+      "expiry": "2099-12-31",
+      "renewal_expiry": "2099-12-31",
+      "evidence_url": "https://supabase.com/dashboard",
+      "phase_key": "phase5-timeouts-roles",
+      "notes": "Managed Postgres: set statement_timeout / idle_in_transaction via pooler or dashboard; migration 059 documents."
+    },
+    {
+      "control_id": "force_rls_owner_tables_wave",
+      "bucket": "A",
+      "status": "pending",
+      "owner": "@security",
+      "expiry": "2026-12-31",
+      "renewal_expiry": "2026-09-30",
+      "evidence_url": "https://oblixa.io",
+      "phase_key": "phase5-rls",
+      "notes": "FORCE ROW LEVEL SECURITY + policy symmetry — staged per table risk review."
+    },
+    {
+      "control_id": "third_party_script_sri",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "evidence_url": "https://oblixa.io",
+      "phase_key": "phase47-sw-importmaps-sri",
+      "notes": "Next/font + analytics exceptions; prefer first-party or nonce CSP."
+    }
+  ]
+}

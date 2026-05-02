@@ -17,12 +17,18 @@ const sentryRelease =
 const securityHeaders = buildSecurityHeaders({
   isProd,
   isVercel: Boolean(process.env.VERCEL),
+  selfHostedHsts: process.env.OBLIXA_SELF_HOSTED_HSTS === "1",
+  cspReportOnlyScriptNonce: process.env.OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE?.trim() || undefined,
+  trustedTypesReportOnly: process.env.OBLIXA_TRUSTED_TYPES_REPORT_ONLY === "1",
+  cspStrictEnforcingStyleSrc: process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "1",
 });
 
 const nextConfig: NextConfig = {
   ...(sentryRelease
     ? { env: { NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease } }
     : {}),
+  /** gzip for Node server responses; CDN may apply Brotli at edge (EXT). */
+  compress: true,
   poweredByHeader: false,
   serverExternalPackages: [
     "@react-pdf/renderer",
@@ -33,8 +39,11 @@ const nextConfig: NextConfig = {
     "stripe",
   ],
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   experimental: {
-    optimizePackageImports: ["lucide-react", "date-fns", "clsx"],
+    optimizePackageImports: ["lucide-react", "date-fns", "clsx", "next-themes"],
   },
   async headers() {
     return [

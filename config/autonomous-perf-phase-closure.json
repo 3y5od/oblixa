@@ -1,0 +1,1054 @@
+{
+  "schemaVersion": 1,
+  "phases": {
+    "phase-0-coverage-matrix": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-0-driver": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-0-ext-key-groups": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-0-handoff-registry": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-1-next-config": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-1-turbo-dev": {
+      "lane": "in_repo",
+      "refs": [
+        "package.json",
+        "scripts/check-next-config-surface.mjs"
+      ],
+      "note": "Webpack dev default; turbopack gated by Next + check:next-config-surface policy."
+    },
+    "phase-10-heavy-parsers": {
+      "lane": "in_repo",
+      "refs": [
+        "next.config.ts",
+        "scripts/security-static-audit.mjs",
+        "scripts/performance-static-audit.mjs"
+      ],
+      "note": "Heavy parsers externalized via serverExternalPackages + audits."
+    },
+    "phase-10-stripe-openai-resend": {
+      "lane": "in_repo",
+      "refs": [
+        "next.config.ts",
+        "src/app/api"
+      ],
+      "note": "Vendor SDKs server-only; caps/idempotency in route handlers as applicable."
+    },
+    "phase-100-outbox-subprocessor-json": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-101-pen-test-stride-artifacts": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-102-zap-baseline-artifact": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-103-rpo-rto-artifact": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-104-graphql-surface-absent": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-105-web3-surface-absent": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-106-scim-oidc-contract": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-107-docker-compose-chaos": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-108-husky-lint-staged": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-109-corepack-engines": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-11-i18n-intl": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-110-node-toolchain-files": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-111-storybook-vite-surface": {
+      "lane": "na",
+      "absent_reason": "Storybook / root Vite app build not configured.",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    },
+    "phase-112-next-font-display": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-113-react-compiler-eslint": {
+      "lane": "na",
+      "absent_reason": "eslint-plugin-react-compiler / babel-plugin-react-compiler not installed.",
+      "refs": [
+        "package.json",
+        "eslint.config.mjs"
+      ]
+    },
+    "phase-114-duplicate-deps-audit": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-115-heap-snapshot-optional": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-116-dependency-review-workflow": {
+      "lane": "optional_tier",
+      "tier": "F",
+      "refs": [
+        ".github/workflows/dependency-review.yml",
+        "artifacts/autonomous-perf-ci-runtime-budget.json"
+      ]
+    },
+    "phase-117-openapi-codegen-cold": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-118-next-image-loader": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-119-i18n-static-segments": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-12-a11y-perf": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-120-cls-e2e-strict": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-13-static-audit-extend": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-14-scripts-batch": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-15-vitest-perf": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-16-artifacts-budgets": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-17-k6-lighthouse": {
+      "lane": "optional_tier",
+      "tier": "C",
+      "refs": [
+        "scripts/pipelines/pipeline-autonomous-perf.mjs",
+        "package.json"
+      ]
+    },
+    "phase-18-supply-chain": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-19-react-cache-lib": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-2-cookie-payload": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-2-proxy": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-20-revalidate-audit": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-21-suspense-loading": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-22-external-surface": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-23-supabase-realtime": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-24-webhooks-ingest": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-25-cron-batch": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-26-validation-layer": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-27-barrels-tree": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-28-auth-callbacks": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-29-storage-signed-urls": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-3-duplicate-fetch": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-3-layout-rsc": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-3-marketing-public": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-30-headers-payload": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-31-instrumentation": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-32-deploy-artifacts": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-33-e2e-perf-matrix": {
+      "lane": "optional_tier",
+      "tier": "D",
+      "refs": [
+        ".github/workflows",
+        "playwright.config.ts"
+      ]
+    },
+    "phase-34-compliance-writes": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-35-feature-flags": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-36-toolchain-ts": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-37-eslint-ci-cache": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-38-tailwind-postcss": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-39-metadata-og-images": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-api-gets": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-api-mutations": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-contract-filters": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-rpc-audit": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-select-star-sweep": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-server-actions": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-4-v6-service": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-40-parallel-intercepting": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-41-dynamic-route-apis": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-42-use-client-inventory": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-43-searchparams-suspense": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-44-after-deferred-work": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-45-runtime-edge-node": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-46-streaming-downloads": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-47-marketing-third-party": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-48-jwt-jwks-cache": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-49-openai-prompts": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-5-client-dynamic": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-5-prefetch": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-5-rerender": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-5-timers": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-5-workers-offthread": {
+      "lane": "na",
+      "absent_reason": "No large client parse workload; use Worker pattern if introduced.",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    },
+    "phase-50-stripe-js-dynamic": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-51-pdf-email-render": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-52-heavy-test-gates": {
+      "lane": "optional_tier",
+      "tier": "E",
+      "refs": [
+        "scripts/pipelines/pipeline-autonomous-perf.mjs",
+        "stryker.conf.json"
+      ]
+    },
+    "phase-53-ci-npm-cache": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-54-package-lifecycle": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-55-config-surface-gates": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-56-playwright-asset-cache": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-57-vitest-ui-split": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-58-artifact-json-gates": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-59-root-app-layout": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-6-logging": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-6-request-correlation": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-6-sentry": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-60-sentry-client-config": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-61-public-assets": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-62-server-only-barrier": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-63-fetch-cache-semantics": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-64-e2e-fixture-weight": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-65-og-route-dedupe": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-66-api-buffer-policy": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-67-stryker-config": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-68-junit-merge-streaming": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-69-sharp-svgo-gate": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-7-db-indexes": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-7-db-rls-planner": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-7-matview-refresh": {
+      "lane": "na",
+      "absent_reason": "No materialized-view refresh jobs in repo migrations.",
+      "refs": [
+        "supabase/migrations"
+      ]
+    },
+    "phase-7-read-models": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-70-codegen-supabase-types": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-71-mdx-content-pipeline": {
+      "lane": "na",
+      "absent_reason": "No MDX toolchain or .mdx routes.",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    },
+    "phase-72-webcrypto-parity": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-73-resource-hints": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-74-sourcemap-sentry-tradeoff": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-75-lockfile-dedupe": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-76-openapi-codegen-audit": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-77-robots-sitemap": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-78-well-known": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-79-problem-json-size": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-8-ci-runtime-budget": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-8-ci-workflows": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-8-playwright-perf": {
+      "lane": "optional_tier",
+      "tier": "D",
+      "refs": [
+        "playwright.config.ts",
+        "e2e/font-cls-web-vitals.spec.ts",
+        "e2e/memory-budget-smoke.spec.ts"
+      ]
+    },
+    "phase-80-csp-build-cache": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-81-contract-tests-tier": {
+      "lane": "optional_tier",
+      "tier": "D_F",
+      "refs": [
+        "scripts/pipelines/pipeline-autonomous-perf.mjs"
+      ]
+    },
+    "phase-82-config-parse-once": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-83-sri-third-party": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-84-ci-runner-metadata": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-85-merge-gate-path-filters": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-86-tier-f-nightly": {
+      "lane": "optional_tier",
+      "tier": "F",
+      "refs": [
+        "scripts/pipelines/pipeline-autonomous-perf.mjs"
+      ]
+    },
+    "phase-87-next-themes-fo": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-88-datetime-hotpaths": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-89-json-bigint-safety": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-9-idempotency": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-9-rate-limit-redis": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-9-timeouts-retries": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-90-multipart-body-limits": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-91-edge-response-limits": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-92-otel-baggage": {
+      "lane": "na",
+      "absent_reason": "OpenTelemetry SDK not a direct dependency; see coverage-matrix.",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    },
+    "phase-93-peer-deps-policy": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-94-wasm-surface": {
+      "lane": "na",
+      "absent_reason": "No WASM modules; see coverage-matrix.",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    },
+    "phase-95-security-scan-ci-ext": {
+      "lane": "optional_tier",
+      "tier": "F",
+      "refs": [
+        ".github/workflows/codeql.yml",
+        ".github/workflows/semgrep-sarif.yml",
+        ".github/workflows/trivy-fs.yml"
+      ]
+    },
+    "phase-96-run-json-provenance": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-97-neurodiversity-artifacts": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-98-compliance-artifact-registry": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    },
+    "phase-99-sbom-license-allowlist": {
+      "lane": "in_repo",
+      "refs": [
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ],
+      "note": "Subtree ownership and audits; see coverage-matrix subtrees whose phases array includes this id."
+    }
+  }
+}

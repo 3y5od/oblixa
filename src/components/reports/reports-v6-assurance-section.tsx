@@ -84,7 +84,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
               primaryValue={`${(a.policy_pass_rate * 100).toFixed(1)}%`}
               primaryUnit="evaluations"
               breakdown={[{ label: "Units", value: String(a.policy_evaluation_units) }]}
-              action={{ href: "/assurance/control-policies", label: "View policies" }}
+              action={{ href: "/assurance/control-policies", label: "Review policies" }}
               variant="compact"
             />
             <OperationalSummaryCard
@@ -95,7 +95,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
               primaryValue={openTotal}
               primaryUnit="open findings"
               breakdown={sevChips.length ? sevChips : [{ label: "Status", value: "None open" }]}
-              action={{ href: "/assurance/findings", label: "View findings" }}
+              action={{ href: "/assurance/findings", label: "Review findings" }}
               variant="compact"
             />
             <OperationalSummaryCard
@@ -109,7 +109,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 { label: "Failed", value: String(a.playbook_runs_last_30d.failed) },
                 { label: "Awaiting approval", value: String(a.playbook_runs_last_30d.awaiting_approval) },
               ]}
-              action={{ href: "/assurance/playbooks", label: "View playbooks" }}
+              action={{ href: "/assurance/playbooks", label: "Review playbooks" }}
               variant="compact"
             />
             <OperationalSummaryCard
@@ -123,7 +123,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 { label: "Dry-run", value: String(a.autopilot_logs_last_30d.dry_run) },
                 { label: "Blocked", value: String(a.autopilot_logs_last_30d.blocked) },
               ]}
-              action={{ href: "/assurance/autopilot", label: "View autopilot" }}
+              action={{ href: "/assurance/autopilot", label: "Review autopilot" }}
               variant="compact"
             />
           </div>
@@ -150,7 +150,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 icon={GitBranch}
                 primaryValue={a.campaign_drift_velocity_proxy}
                 primaryUnit="proxy count"
-                action={{ href: "/campaigns", label: "View campaigns" }}
+                action={{ href: "/campaigns", label: "Review campaigns" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -164,7 +164,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                     : "—"
                 }
                 primaryUnit="completed vs failed"
-                action={{ href: "/assurance/playbooks", label: "View playbooks" }}
+                action={{ href: "/assurance/playbooks", label: "Review playbooks" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -178,7 +178,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                     : "—"
                 }
                 primaryUnit="executed vs failed"
-                action={{ href: "/assurance/autopilot", label: "View autopilot" }}
+                action={{ href: "/assurance/autopilot", label: "Review autopilot" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -188,7 +188,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 icon={AlertTriangle}
                 primaryValue={a.low_health_program_scorecards}
                 primaryUnit="under threshold (52)"
-                action={{ href: "/assurance/scorecards", label: "View scorecards" }}
+                action={{ href: "/assurance/scorecards", label: "Review scorecards" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -208,7 +208,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 icon={Layers}
                 primaryValue={a.open_finding_type_recurrence_count}
                 primaryUnit="types with 2+ open"
-                action={{ href: "/assurance/findings", label: "View findings" }}
+                action={{ href: "/assurance/findings", label: "Review findings" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -228,7 +228,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                 icon={Target}
                 primaryValue={a.median_scorecard_overall != null ? a.median_scorecard_overall.toFixed(1) : "—"}
                 primaryUnit="sample (≤200)"
-                action={{ href: "/assurance/scorecards", label: "View scorecards" }}
+                action={{ href: "/assurance/scorecards", label: "Review scorecards" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -256,7 +256,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                   { label: "Failed", value: String(a.autopilot_blocked_and_failed_30d.failed) },
                   { label: "Reverted", value: String(a.autopilot_blocked_and_failed_30d.reverted) },
                 ]}
-                action={{ href: "/assurance/autopilot", label: "View autopilot" }}
+                action={{ href: "/assurance/autopilot", label: "Review autopilot" }}
                 variant="compact"
               />
               <OperationalSummaryCard
@@ -270,7 +270,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                   label: t,
                   value: String(n),
                 }))}
-                action={{ href: "/assurance/scorecards", label: "View scorecards" }}
+                action={{ href: "/assurance/scorecards", label: "Review scorecards" }}
                 variant="compact"
               />
             </div>

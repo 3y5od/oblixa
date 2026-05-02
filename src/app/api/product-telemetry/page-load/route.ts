@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { getClientIpFromHeaders, rateLimitCheck, RATE_LIMITS } from "@/lib/rate-limit";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -9,7 +10,9 @@ export async function POST(request: Request) {
   const ctx = await getAuthContext();
   if (!ctx) return new Response(null, { status: 204 });
 
-  const body = (await request.json().catch(() => null)) as {
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? null) as {
     path?: unknown;
     durationMs?: unknown;
   } | null;

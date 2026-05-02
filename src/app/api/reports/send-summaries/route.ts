@@ -20,6 +20,9 @@ import {
   degradeOutboundEmailCopyForCore,
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -27,6 +30,19 @@ export const maxDuration = 60;
 const RECIPIENT_SEND_CONCURRENCY = 4;
 const MAX_DUE_SUBSCRIPTIONS = 100;
 const MAX_RECIPIENTS_PER_SUBSCRIPTION = 20;
+const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+
+async function refreshV10ReportDeliveryReadModels(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  organizationId: string,
+  reason: string
+) {
+  await refreshV10ReadModelsForOrganization(admin, organizationId, {
+    refreshScope: "one_model",
+    reason,
+    modelKeys: ["work_items", "report_run_visibility", "notification_deliveries", "contract_activity_events", "audit_events", "command_search_index"],
+  });
+}
 
 function authorizeCron(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -189,6 +205,17 @@ export async function GET(request: Request) {
       })
       .select("id")
       .maybeSingle();
+    if (reportRun?.id) {
+      await recordV10AuditEvent(admin, {
+        organizationId: row.organization_id,
+        actorUserId: row.user_id,
+        action: "report_run.created",
+        targetType: "report_run",
+        targetId: reportRun.id,
+        outcome: "success",
+        safeMetadata: { report_mode: "saved_view", subscription_id: row.id },
+      });
+    }
 
     const savedView = row.saved_views as unknown as {
       id: string;
@@ -211,6 +238,17 @@ export async function GET(request: Request) {
             error_summary: "No recipients configured",
           })
           .eq("id", reportRun.id);
+        await emitProductTelemetryEvent(admin, {
+          organizationId: row.organization_id,
+          userId: row.user_id,
+          action: "product.v10.report_run_completed",
+          details: {
+            status: "failed",
+            report_mode: "saved_view",
+            failure_category: "no_recipients",
+          },
+        });
+        await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_no_recipients");
       }
       continue;
     }
@@ -505,6 +543,18 @@ export async function GET(request: Request) {
             },
           })
           .eq("id", reportRun.id);
+        await emitProductTelemetryEvent(admin, {
+          organizationId: row.organization_id,
+          userId: row.user_id,
+          action: "product.v10.report_run_completed",
+          details: {
+            status: "failed",
+            report_mode: "saved_view",
+            failure_category: "delivery_failed",
+            recipient_count: recipients.length,
+          },
+        });
+        await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_failed");
       }
       continue;
     }
@@ -540,6 +590,28 @@ export async function GET(request: Request) {
           },
         })
         .eq("id", reportRun.id);
+      await recordV10AuditEvent(admin, {
+        organizationId: row.organization_id,
+        actorUserId: row.user_id,
+        action: "report_run.completed",
+        targetType: "report_run",
+        targetId: reportRun.id,
+        outcome: "success",
+        safeMetadata: { recipient_count: recipients.length, delivered_recipient_count: deliveredRecipients },
+      });
+      await emitProductTelemetryEvent(admin, {
+        organizationId: row.organization_id,
+        userId: row.user_id,
+        action: "product.v10.report_run_completed",
+        details: {
+          status: "succeeded",
+          report_mode: "saved_view",
+          item_count: count,
+          recipient_count: recipients.length,
+          delivered_recipient_count: deliveredRecipients,
+        },
+      });
+      await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_completed");
     }
     sent++;
   }
@@ -559,5 +631,5 @@ export async function GET(request: Request) {
     durationMs: Date.now() - startedAt,
   };
   pingCronHealthcheck("reports/send-summaries", payload);
-  return NextResponse.json(payload);
+  return NextResponse.json(payload, { headers: PRIVATE_NO_STORE_HEADERS });
 }

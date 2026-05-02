@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Oblixa API surface (QA inventory)
+  version: "0.0.1"
+paths:
+  /api/health:
+    get:
+      summary: Health probe placeholder
+      responses:
+        "200":
+          description: OK

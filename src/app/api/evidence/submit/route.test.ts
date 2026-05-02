@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createHash } from "node:crypto";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const createAdminClient = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -11,6 +13,10 @@ vi.mock("@/lib/v4/api-auth", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createAdminClient,
 }));
 
 describe("POST /api/evidence/submit", () => {
@@ -25,6 +31,7 @@ describe("POST /api/evidence/submit", () => {
     const { POST } = await import("@/app/api/evidence/submit/route");
     const res = await POST(new Request("http://localhost:3000/api/evidence/submit", { method: "POST" }));
     expect(res.status).toBe(401);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
   });
 
   it("returns 403 when user lacks capability", async () => {
@@ -33,7 +40,11 @@ describe("POST /api/evidence/submit", () => {
     const { POST } = await import("@/app/api/evidence/submit/route");
     const res = await POST(new Request("http://localhost:3000/api/evidence/submit", { method: "POST" }));
     expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: "Access denied" });
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(await res.json()).toMatchObject({
+      outcome: "forbidden",
+      diagnostic_id: "v10_evidence_submit_forbidden",
+    });
   });
 
   it("returns 404 when requirement does not belong to org", async () => {
@@ -58,6 +69,52 @@ describe("POST /api/evidence/submit", () => {
     );
 
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: "Requirement not found" });
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(await res.json()).toMatchObject({
+      outcome: "not_found",
+      diagnostic_id: "v10_evidence_submit_requirement_not_found",
+    });
+  });
+
+  it("allows unauthenticated external token submissions to fail closed on expired scoped links", async () => {
+    getApiAuthContext.mockResolvedValueOnce(null);
+    const token = "external-token-123";
+    const tokenHash = createHash("sha256").update(token, "utf8").digest("hex");
+    const requirementQuery = {
+      select: vi.fn(() => requirementQuery),
+      eq: vi.fn(() => requirementQuery),
+      maybeSingle: vi.fn(async () => ({
+        data: {
+          id: "req-1",
+          organization_id: "org-1",
+          contract_id: "contract-1",
+          reviewer_id: "00000000-0000-0000-0000-000000000001",
+          config_json: {
+            external_token_hash: tokenHash,
+            external_token_expires_at: "2026-01-01T00:00:00.000Z",
+          },
+        },
+      })),
+    };
+    const admin = {
+      from: vi.fn(() => requirementQuery),
+    };
+    createAdminClient.mockResolvedValueOnce(admin);
+
+    const { POST } = await import("@/app/api/evidence/submit/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/evidence/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-v10-external-evidence-token": token },
+        body: JSON.stringify({ requirementId: "req-1", payload: { note: "SOC report attached" } }),
+      })
+    );
+
+    expect(res.status).toBe(410);
+    expect(createAdminClient).toHaveBeenCalled();
+    expect(await res.json()).toMatchObject({
+      outcome: "external_link_expired",
+      diagnostic_id: "v10_external_evidence_submit_expired",
+    });
   });
 });

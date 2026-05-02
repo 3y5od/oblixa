@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "encryption_at_rest": {
+    "status": "ext",
+    "n_a_rationale": "Database and object storage encryption-at-rest are enforced by Supabase/Vercel operator configuration; verify in vendor console and RPO/RTO runbooks.",
+    "n_a_reviewed_at": "2026-04-30"
+  },
+  "restore_drill": {
+    "status": "ext",
+    "n_a_rationale": "Full restore drills are org-operational; track in incident program outside this repo.",
+    "n_a_reviewed_at": "2026-04-30"
+  },
+  "related_artifacts": ["artifacts/rpo-rto-status.json"]
+}

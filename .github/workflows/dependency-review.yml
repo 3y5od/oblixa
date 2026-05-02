@@ -1,0 +1,21 @@
+name: Dependency review
+
+# Policy template for orgs: see artifacts/dependency-review-policy.json (fail-on-severity wiring is org-specific).
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/dependency-review-action@da175c992b813310b929c240d2dcec1a0f46e518
+        with:
+          fail-on-severity: high

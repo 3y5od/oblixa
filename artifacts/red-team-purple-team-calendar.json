@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "events": [
+    { "id": "game-day", "nextDue": "2030-01-01", "owner": "security", "artifact": "artifacts/qa-game-day-checklist.json" }
+  ]
+}

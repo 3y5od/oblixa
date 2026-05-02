@@ -96,6 +96,9 @@ export default async function SettingsPage() {
           </p>
         </div>
         <div className="ui-page-actions w-full shrink-0 justify-start pt-0">
+          <Link href="/settings/security" className="ui-btn-secondary px-4 py-2 text-[13px]">
+            Security
+          </Link>
           {canOpenHealth && (
             <Link href="/settings/health" className="ui-btn-secondary px-4 py-2 text-[13px]">
               System health

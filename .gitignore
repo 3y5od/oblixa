@@ -18,9 +18,14 @@ out/
 build/
 dist/
 
+# Playwright saved auth (local only; never commit)
+e2e/.auth/
+
 # Testing & coverage
 coverage/
 cyclonedx-sbom.json
+artifacts/carbon-ci-stub.runtime.json
+artifacts/autonomous-perf-run.json
 test-results/
 playwright-report/
 blob-report/

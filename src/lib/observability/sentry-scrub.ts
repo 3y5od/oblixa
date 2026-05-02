@@ -1,17 +1,35 @@
 import { deepRedactEmailLikeInUnknown, redactEmailLikeSubstrings } from "@/lib/observability/log-redaction";
+import rawBanlist from "./metric-label-sentry-banlist.json";
+
+type MetricLabelBanlist = { deny_tag_keys?: string[] };
+const banlist = rawBanlist as MetricLabelBanlist;
+const SENTRY_DENY_TAG_KEYS = new Set(
+  Array.isArray(banlist.deny_tag_keys) ? banlist.deny_tag_keys.map((k) => k.toLowerCase()) : []
+);
 
 const SENSITIVE_HEADER_KEYS = new Set([
   "authorization",
+  "proxy-authorization",
   "cookie",
   "set-cookie",
   "x-api-key",
   "x-forwarded-authorization",
   "stripe-signature",
+  "x-slack-signature",
   "x-cron-secret",
   "x-vercel-cron-secret",
   "x-inbound-automation-token",
   "x-webhook-signature",
   "x-integration-token",
+  "cf-access-jwt-assertion",
+  "cf-access-token",
+  "true-client-ip",
+  "x-auth-request-email",
+  "x-amz-security-token",
+  "baggage",
+  "tracestate",
+  "x-forwarded-client-cert",
+  "x-client-cert",
 ]);
 
 /**
@@ -88,6 +106,20 @@ function scrubSentryBreadcrumbs<T>(event: T): T {
   return event;
 }
 
+function scrubSentryDeniedTagKeys<T>(event: T): T {
+  if (!event || typeof event !== "object") return event;
+  const o = event as Record<string, unknown>;
+  const tags = o.tags;
+  if (!tags || typeof tags !== "object") return event;
+  const next: Record<string, string | number | boolean | null> = {};
+  for (const [key, value] of Object.entries(tags as Record<string, unknown>)) {
+    if (SENTRY_DENY_TAG_KEYS.has(key.toLowerCase())) continue;
+    next[key] = value as string | number | boolean | null;
+  }
+  o.tags = next;
+  return event;
+}
+
 function scrubSentryDeepExtras<T>(event: T): T {
   if (!event || typeof event !== "object") return event;
   const o = event as Record<string, unknown>;
@@ -121,6 +153,7 @@ export function scrubSentryEvent<T>(event: T): T {
   }
   let out = scrubCalibrationPayloads(event);
   out = scrubSentryDeepExtras(out);
+  out = scrubSentryDeniedTagKeys(out);
   out = scrubSentryUser(out);
   out = scrubSentryRequestUrl(out);
   out = scrubSentryBreadcrumbs(out);

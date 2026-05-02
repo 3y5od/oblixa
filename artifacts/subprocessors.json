@@ -1,0 +1,28 @@
+{
+  "subprocessors": [
+    {
+      "name": "Supabase",
+      "purpose": "Auth and database",
+      "dataResidency": "configurable",
+      "lastNotifiedAt": "2025-06-01T00:00:00.000Z",
+      "nextReviewDue": "2030-12-31T00:00:00.000Z",
+      "noticeLeadTimeDays": 30
+    },
+    {
+      "name": "Stripe",
+      "purpose": "Payments",
+      "dataResidency": "US/EU",
+      "lastNotifiedAt": "2025-06-01T00:00:00.000Z",
+      "nextReviewDue": "2030-12-31T00:00:00.000Z",
+      "noticeLeadTimeDays": 30
+    },
+    {
+      "name": "Sentry",
+      "purpose": "Error telemetry",
+      "dataResidency": "EU/US",
+      "lastNotifiedAt": "2025-06-01T00:00:00.000Z",
+      "nextReviewDue": "2030-12-31T00:00:00.000Z",
+      "noticeLeadTimeDays": 30
+    }
+  ]
+}

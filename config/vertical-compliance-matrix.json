@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "verticals": [
+    { "id": "HIPAA", "applicability": "non_applicable_until_phi", "owner": "compliance", "expiry": "2027-12-31" },
+    { "id": "PCI_DSS", "applicability": "saq_a_eligible_stripe_elements", "owner": "compliance", "expiry": "2027-12-31" },
+    { "id": "COPPA", "applicability": "e2e_coppa_age_gate", "owner": "product", "expiry": "2027-12-31" },
+    { "id": "FedRAMP", "applicability": "external_sales_discretion", "owner": "compliance", "expiry": "2027-12-31" }
+  ]
+}

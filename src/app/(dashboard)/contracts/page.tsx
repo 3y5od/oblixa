@@ -7,6 +7,7 @@ import {
 } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
@@ -90,7 +91,11 @@ function parseDataQualityFilter(v: string | undefined): "" | "missing_critical" 
 }
 
 function parseEvidenceFilter(v: string | undefined): "" | "outstanding" {
-  return v === "outstanding" ? "outstanding" : "";
+  return v === "outstanding" || v === "attention" ? "outstanding" : "";
+}
+
+function parseHealthFilter(v: string | undefined): "" | "watch" {
+  return v === "watch" ? "watch" : "";
 }
 
 const FILTER_PILL_IDLE_CLASS = "ui-filter-pill";
@@ -113,6 +118,7 @@ export default async function ContractsPage(props: {
     review?: string;
     data_quality?: string;
     evidence?: string;
+    health?: string;
     page?: string;
   }>;
 }) {
@@ -156,6 +162,7 @@ export default async function ContractsPage(props: {
   const reviewFilter = parseReviewFilter(searchParams.review);
   const dataQualityFilter = parseDataQualityFilter(searchParams.data_quality);
   const evidenceFilter = parseEvidenceFilter(searchParams.evidence);
+  const healthFilter = parseHealthFilter(searchParams.health);
   const sortKey = parseContractListSort(searchParams.sort);
 
   const [deadlineIds, fieldSearchIds, auxIntersect] = await Promise.all([
@@ -170,6 +177,7 @@ export default async function ContractsPage(props: {
       review: reviewFilter || undefined,
       data_quality: dataQualityFilter || undefined,
       evidence: evidenceFilter || undefined,
+      health: healthFilter || undefined,
     }),
   ]);
 
@@ -211,7 +219,7 @@ export default async function ContractsPage(props: {
     { data: membersData },
     { data: savedViewsData },
     { data: exportJobsData },
-    { contracts: contractsData, total: contractTotal },
+    { contracts: contractsData, total: contractTotal, error: contractsPageError },
     role,
   ] = await Promise.all([
     membersPromise,
@@ -240,6 +248,7 @@ export default async function ContractsPage(props: {
         review: searchParams.review,
         data_quality: searchParams.data_quality,
         evidence: searchParams.evidence,
+        health: searchParams.health,
         page: String(listTotalPages),
       })
     );
@@ -342,6 +351,7 @@ export default async function ContractsPage(props: {
     review: searchParams.review,
     data_quality: searchParams.data_quality,
     evidence: searchParams.evidence,
+    health: searchParams.health,
   };
 
   const paginationQuery: Record<string, string | undefined> = {
@@ -479,7 +489,7 @@ export default async function ContractsPage(props: {
             icon={CheckCircle2}
             primaryValue={pageActive}
             primaryUnit="on this page"
-            action={{ href: "/contracts?status=active", label: "View active" }}
+            action={{ href: "/contracts?status=active", label: "Review active" }}
             variant="compact"
             className="lg:col-span-2"
           />
@@ -697,6 +707,16 @@ export default async function ContractsPage(props: {
                 >
                   Evidence outstanding
                 </Link>
+                <Link
+                  href={buildContractsListHref({
+                    ...baseParams,
+                    status: searchParams.status,
+                    health: healthFilter === "watch" ? undefined : "watch",
+                  })}
+                  className={healthFilter === "watch" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                >
+                  Health watch
+                </Link>
               </div>
             </div>
           </div>
@@ -806,26 +826,52 @@ export default async function ContractsPage(props: {
               </Link>
             </div>
           </div>
-          <ContractTable
-            contracts={contracts}
-            reviewStats={reviewStats}
-            rowSignals={rowSignals}
-            filterFingerprint={filterFingerprint}
-            bulkActions={{
-              canEdit,
-              orgId,
-              members,
-            }}
-            footer={
-              <ContractPagination
-                total={contractTotal}
-                page={page}
-                pageSize={CONTRACTS_PAGE_SIZE}
-                basePath="/contracts"
-                queryParams={paginationQuery}
-              />
-            }
-          />
+          {contractsPageError ? (
+            <V10RecoverableState
+              state="failed"
+              title="Contracts could not be loaded"
+              reason="The contract list query failed, so this is not being shown as an empty portfolio."
+              accessibleName="Contracts list failed state"
+              nextActionLabel="Retry contracts"
+              nextAction={
+                <Link href="/contracts" className="ui-link">
+                  Retry contracts
+                </Link>
+              }
+            />
+          ) : null}
+          {!contractsPageError ? (
+            <ContractTable
+              contracts={contracts}
+              reviewStats={reviewStats}
+              rowSignals={rowSignals}
+              filterFingerprint={filterFingerprint}
+              emptyState={
+                activeFilters.length > 0 || sanitizedSearch
+                  ? {
+                      title: "No contracts match these filters",
+                      copy: "Clear the filters or search terms to return to the full contract list.",
+                      actionHref: "/contracts",
+                      actionLabel: "Clear filters",
+                    }
+                  : undefined
+              }
+              bulkActions={{
+                canEdit,
+                orgId,
+                members,
+              }}
+              footer={
+                <ContractPagination
+                  total={contractTotal}
+                  page={page}
+                  pageSize={CONTRACTS_PAGE_SIZE}
+                  basePath="/contracts"
+                  queryParams={paginationQuery}
+                />
+              }
+            />
+          ) : null}
         </section>
       </div>
     </div>

@@ -4,6 +4,17 @@ import { nowIso } from "@/lib/v5/api";
 import { evaluateSingleControlPolicy } from "@/lib/v6/policy-evaluator";
 import { parseFullVersionFromPublishBody, validateControlPolicyVersionPayload } from "@/lib/v6/policy-validation";
 
+const CONTROL_POLICY_REVIEW_CONTRACT_LIMIT = 50;
+
+function hasEvidenceExpectations(input: unknown): boolean {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return false;
+  return Object.keys(input).some((key) => key !== "schema" && (input as Record<string, unknown>)[key] != null);
+}
+
+function dueInDays(days: number) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
 export function listControlPolicies(admin: AdminClient, orgId: string) {
   return listRows(
     admin,
@@ -43,7 +54,7 @@ export async function publishControlPolicy(
 ) {
   const { data: policyRow } = await admin
     .from("control_policies")
-    .select("objective")
+    .select("name, objective")
     .eq("organization_id", orgId)
     .eq("id", policyId)
     .maybeSingle();
@@ -116,7 +127,113 @@ export async function publishControlPolicy(
     latest_version_id: versionInsert.data?.id,
   });
 
-  return { version: versionInsert.data, policy: policyUpdate.data, error: versionInsert.error ?? policyUpdate.error };
+  const generatedWork =
+    versionInsert.error || policyUpdate.error
+      ? { reviewTaskIds: [], evidenceRequirementIds: [], skippedReason: "publish_failed" as const }
+      : await generateControlPolicyReviewWork(admin, orgId, policyId, userId, {
+          policyName: String((policyRow as { name?: string } | null)?.name ?? (policyRow?.objective as string) ?? "Control policy"),
+          evidenceExpectationsJson: payload.evidenceExpectations,
+        });
+
+  return { version: versionInsert.data, policy: policyUpdate.data, generatedWork, error: versionInsert.error ?? policyUpdate.error };
+}
+
+export async function generateControlPolicyReviewWork(
+  admin: AdminClient,
+  orgId: string,
+  policyId: string,
+  userId: string,
+  options?: {
+    policyName?: string;
+    evidenceExpectationsJson?: unknown;
+  }
+): Promise<{
+  reviewTaskIds: string[];
+  evidenceRequirementIds: string[];
+  skippedReason: "no_scoped_contracts" | "publish_failed" | null;
+}> {
+  const evaluations = await evaluateSingleControlPolicy(admin, orgId, policyId);
+  const contractIds = [
+    ...new Set(evaluations.flatMap((evaluation) => evaluation.scope.contract_ids.map(String).filter(Boolean))),
+  ].slice(0, CONTROL_POLICY_REVIEW_CONTRACT_LIMIT);
+  if (contractIds.length === 0) {
+    return { reviewTaskIds: [], evidenceRequirementIds: [], skippedReason: "no_scoped_contracts" };
+  }
+
+  const policyName = options?.policyName?.trim() || evaluations[0]?.policy_name || "Control policy";
+  const taskTitle = `Review control policy: ${policyName}`;
+  const evidenceTitle = `Evidence for control policy: ${policyName}`;
+
+  const { data: existingTasks } = await admin
+    .from("contract_tasks")
+    .select("id, contract_id, title")
+    .eq("organization_id", orgId)
+    .in("contract_id", contractIds)
+    .eq("title", taskTitle);
+  const existingTaskByContract = new Map(
+    (existingTasks ?? []).map((row) => [String((row as { contract_id?: string }).contract_id), String((row as { id?: string }).id)])
+  );
+
+  const reviewTaskIds: string[] = [...existingTaskByContract.values()].filter(Boolean);
+  const createdTaskByContract = new Map<string, string>();
+  for (const contractId of contractIds) {
+    if (existingTaskByContract.has(contractId)) continue;
+    const task = await createRow(admin, "contract_tasks", orgId, {
+      contract_id: contractId,
+      created_by: userId,
+      assignee_id: userId,
+      title: taskTitle,
+      details: `Published control policy "${policyName}" requires review for this contract.`,
+      priority: "medium",
+      due_date: dueInDays(7).slice(0, 10),
+    });
+    if (task.data?.id) {
+      const taskId = String(task.data.id);
+      reviewTaskIds.push(taskId);
+      createdTaskByContract.set(contractId, taskId);
+    }
+  }
+
+  const evidenceRequirementIds: string[] = [];
+  if (hasEvidenceExpectations(options?.evidenceExpectationsJson)) {
+    const { data: existingEvidence } = await admin
+      .from("evidence_requirements")
+      .select("id, contract_id, title")
+      .eq("organization_id", orgId)
+      .in("contract_id", contractIds)
+      .eq("title", evidenceTitle);
+    const existingEvidenceContracts = new Set(
+      (existingEvidence ?? []).map((row) => String((row as { contract_id?: string }).contract_id))
+    );
+    evidenceRequirementIds.push(
+      ...(existingEvidence ?? []).map((row) => String((row as { id?: string }).id)).filter(Boolean)
+    );
+
+    for (const contractId of contractIds) {
+      const taskId = createdTaskByContract.get(contractId) ?? existingTaskByContract.get(contractId);
+      if (!taskId || existingEvidenceContracts.has(contractId)) continue;
+      const evidence = await createRow(admin, "evidence_requirements", orgId, {
+        contract_id: contractId,
+        work_item_type: "control_policy_review",
+        work_item_id: taskId,
+        requirement_type: "attestation",
+        title: evidenceTitle,
+        required: true,
+        due_at: dueInDays(14),
+        review_due_at: dueInDays(21),
+        reviewer_id: userId,
+        status: "required",
+        config_json: {
+          source: "control_policy_publish",
+          control_policy_id: policyId,
+          expectation_keys: Object.keys((options?.evidenceExpectationsJson ?? {}) as Record<string, unknown>).filter((key) => key !== "schema"),
+        },
+      });
+      if (evidence.data?.id) evidenceRequirementIds.push(String(evidence.data.id));
+    }
+  }
+
+  return { reviewTaskIds, evidenceRequirementIds, skippedReason: null };
 }
 
 export async function simulateControlPolicy(admin: AdminClient, orgId: string, policyId: string, userId: string) {

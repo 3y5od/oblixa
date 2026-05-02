@@ -11,6 +11,7 @@ const files = [
   "semgrep/oblixa-performance.yml",
   "semgrep/oblixa-v7-surface.yml",
   "semgrep/oblixa-v8-surface.yml",
+  "semgrep/oblixa-v10-surface.yml",
 ];
 const missing = files.filter((rel) => !fs.existsSync(path.join(root, rel)));
 const ci = fs.readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");

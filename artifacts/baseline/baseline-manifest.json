@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "branch": "qa-maximal-sweep",
+  "capturedAt": "2026-04-30T00:00:00.000Z",
+  "note": "Populate via `npm run qa:baseline:capture` after a full green sweep; used by qa:cost:estimate regression gate.",
+  "commands": {}
+}

@@ -13,7 +13,7 @@ const BLOCKED_HOSTNAMES = new Set([
 ]);
 
 function isPrivateOrMetadataHost(hostname: string): boolean {
-  const h = hostname.toLowerCase();
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (BLOCKED_HOSTNAMES.has(h)) return true;
   if (h.endsWith(".localhost") || h.endsWith(".local")) return true;
 
@@ -32,12 +32,26 @@ function isPrivateOrMetadataHost(hostname: string): boolean {
   }
 
   if (h.includes(":")) {
-    const lower = h.replace(/^\[|\]$/g, "");
+    if (h.startsWith("::ffff:")) {
+      const tail = h.slice("::ffff:".length);
+      const dottedTail = /^(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(tail);
+      if (dottedTail) {
+        return isPrivateOrMetadataHost(dottedTail[1]);
+      }
+      const hexPair = /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i.exec(tail);
+      if (hexPair) {
+        const hi = parseInt(hexPair[1], 16);
+        const lo = parseInt(hexPair[2], 16);
+        const v = ((hi & 0xffff) << 16) | (lo & 0xffff);
+        const dec = `${(v >>> 24) & 255}.${(v >>> 16) & 255}.${(v >>> 8) & 255}.${v & 255}`;
+        return isPrivateOrMetadataHost(dec);
+      }
+    }
     if (
-      lower === "::1" ||
-      lower.startsWith("fe80:") ||
-      lower.startsWith("fc") ||
-      lower.startsWith("fd")
+      h === "::1" ||
+      h.startsWith("fe80:") ||
+      h.startsWith("fc") ||
+      h.startsWith("fd")
     ) {
       return true;
     }

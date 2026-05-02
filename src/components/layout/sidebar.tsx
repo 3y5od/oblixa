@@ -91,6 +91,21 @@ const areaIconByKey = {
 } as const;
 
 const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
+
+/** Heavy RSC destinations: avoid viewport prefetch churn (default hover prefetch stays on elsewhere). */
+function sidebarPrefetch(href: string): boolean | undefined {
+  const pathOnly = href.split("?")[0]?.split("#")[0] ?? href;
+  if (
+    pathOnly.startsWith("/contracts") ||
+    pathOnly.startsWith("/reports") ||
+    pathOnly.startsWith("/assurance") ||
+    pathOnly.startsWith("/more")
+  ) {
+    return false;
+  }
+  return undefined;
+}
+
 const RAIL_NAV_HREFS = [
   "/dashboard",
   "/contracts",
@@ -307,6 +322,7 @@ export function Sidebar(props: {
               <div key={item.href} className="space-y-0.5">
                 <Link
                   href={item.href}
+                  prefetch={sidebarPrefetch(item.href)}
                   onClick={() => setMobileOpen(false)}
                   className={`ui-sidebar-link ${
                     isActive
@@ -344,6 +360,7 @@ export function Sidebar(props: {
                         <Link
                           key={`${c.name}-${c.href}`}
                           href={c.href}
+                          prefetch={sidebarPrefetch(c.href)}
                           onClick={() => setMobileOpen(false)}
                           className={`ui-sidebar-link text-[12px] ${
                             childActive ? "ui-sidebar-sublink-active" : "ui-sidebar-link-idle opacity-90"
@@ -363,6 +380,7 @@ export function Sidebar(props: {
             <div key={item.href} className="space-y-0.5">
               <Link
                 href={item.href}
+                prefetch={sidebarPrefetch(item.href)}
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] transition-colors ${
                   isActive
@@ -386,6 +404,7 @@ export function Sidebar(props: {
                       <Link
                         key={`${c.name}-${c.href}`}
                         href={c.href}
+                        prefetch={sidebarPrefetch(c.href)}
                         onClick={() => setMobileOpen(false)}
                         className={`ui-sidebar-sublink-align-dot-row flex items-center gap-2 rounded-lg py-1.5 pr-3 text-[12px] transition-colors ${
                           childActive
@@ -490,6 +509,7 @@ export function Sidebar(props: {
         {mobile && !bodyCollapsed ? (
           <Link
             href="/more"
+            prefetch={false}
             onClick={() => setMobileOpen(false)}
             className="mb-4 block rounded-[1rem] border border-white/[0.14] bg-white/[0.06] px-3 py-2.5 text-[12px] font-semibold text-white/95"
           >
@@ -509,6 +529,7 @@ export function Sidebar(props: {
                   <Link
                     key={`${area}-${item.href}`}
                     href={item.href}
+                    prefetch={sidebarPrefetch(item.href)}
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-2 rounded-[0.95rem] px-2.5 py-2 text-[12px] font-semibold transition-colors ${
                       isAreaActive
@@ -549,6 +570,7 @@ export function Sidebar(props: {
             {navBySection.operations.length > 6 && (
               <Link
                 href="/more?section=workflows"
+                prefetch={false}
                 onClick={() => setMobileOpen(false)}
                 className="mt-2.5 block rounded-[var(--radius-lg)] px-3 py-2 text-[12px] font-medium text-[color:color-mix(in_oklab,var(--sidebar-fg)_78%,transparent)] transition-colors duration-[var(--ui-duration)] hover:bg-white/[0.08] hover:text-white"
               >

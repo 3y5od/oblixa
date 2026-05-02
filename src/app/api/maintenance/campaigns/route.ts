@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
@@ -16,7 +17,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as {
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as {
     name?: string;
     campaignType?: string;
     filter?: Record<string, unknown>;

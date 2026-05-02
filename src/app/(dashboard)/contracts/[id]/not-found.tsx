@@ -18,7 +18,7 @@ export default function ContractNotFound() {
             Back to contracts
           </Link>
           <Link href="/work" className="ui-btn-secondary inline-flex px-5 py-2.5 text-[13px]">
-            Open Work hub
+            Review Work hub
           </Link>
         </>
       }

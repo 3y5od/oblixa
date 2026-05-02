@@ -1,0 +1,67 @@
+{
+  "ok": false,
+  "pipeline": "qa-ultimate",
+  "tier": "release",
+  "mergeAutodiscoverChecks": false,
+  "ultimateStrict": false,
+  "batchTotal": null,
+  "batchIndex": null,
+  "skippedIfEnv": [
+    "report:security-scorecard",
+    "report:release-readiness",
+    "report:control-efficacy",
+    "report:policy-conformance-score",
+    "report:rpo-rto-status",
+    "report:dependency-sunset-readiness",
+    "report:governance-auditability",
+    "report:canary-blast-radius",
+    "report:chaos-readiness",
+    "report:artifact-integrity",
+    "report:db-privilege-surface",
+    "report:api-route-auth-and-scope-coverage"
+  ],
+  "results": [
+    {
+      "script": "report:qa-coverage-tier",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 254
+    },
+    {
+      "script": "qa:sweep:max:p4",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 296469
+    },
+    {
+      "script": "pipeline:ci-parity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 837
+    },
+    {
+      "script": "check:command-reference-integrity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 381
+    },
+    {
+      "script": "preflight:release",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 931178
+    },
+    {
+      "script": "pipeline:release:checklist",
+      "required": true,
+      "ok": false,
+      "code": 1,
+      "durationMs": 2422984
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { NextResponse, after } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { resolveExtractionWorkerOrigin } from "@/lib/app-url";
 import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
@@ -18,23 +19,28 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
+import { secFetchSiteAllowsSensitiveMutation } from "@/lib/security/sec-fetch-policy";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { isKillExtraction, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 
 /** Large PDFs + OpenAI can exceed default serverless limits on some hosts */
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
+  if (isKillExtraction()) {
+    return killSwitchJsonResponse("extraction");
+  }
   const ctReject = jsonContentTypeRejection(request);
   if (ctReject) {
     return NextResponse.json(ctReject.body, { status: ctReject.status });
   }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
+  if (!secFetchSiteAllowsSensitiveMutation(request)) {
+    return NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 });
   }
+
+  const _limBody = await readJsonBodyLimited(request);
+  if (!_limBody.ok) return _limBody.response;
+  const body = _limBody.body;
 
   const rawId =
     body !== null &&

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { createAdminClient } from "@/lib/supabase/server";
 import {
@@ -41,7 +42,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
   const { token } = await params;
   const admin = await createAdminClient();
-  const rawPayload = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const _lb_rawPayload = await readJsonBodyLimited(request);
+  if (!_lb_rawPayload.ok) return _lb_rawPayload.response;
+  const rawPayload = (_lb_rawPayload.body ?? {}) as Record<string, unknown>;
   const passcode = typeof rawPayload.passcode === "string" ? rawPayload.passcode : undefined;
   const submitTicket =
     typeof rawPayload.submitTicket === "string" ? rawPayload.submitTicket : undefined;

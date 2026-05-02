@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash, randomBytes } from "crypto";
 import { getRequestOrigin } from "@/lib/app-url";
@@ -6,6 +7,8 @@ import { readOAuthProviderConfigFromEnv, readOAuthProviderConfigFromConnection }
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { cookies } from "next/headers";
+import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
 
 const ALLOWED_PROVIDERS = new Set([
   "google_calendar",
@@ -35,7 +38,9 @@ export async function POST(request: Request) {
       }
     );
   }
-  const body = (await request.json().catch(() => ({}))) as {
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as {
     provider?: string;
     redirectUri?: string;
   };
@@ -55,6 +60,13 @@ export async function POST(request: Request) {
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership || membership.role !== "admin") {
     return NextResponse.json({ error: "Only admins can start integration auth" }, { status: 403 });
+  }
+  const jar = await cookies();
+  if (!isStepUpCookieValidForUser(jar, user.id)) {
+    return NextResponse.json(
+      { error: "Step-up required", needStepUp: true },
+      { status: 403 }
+    );
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,

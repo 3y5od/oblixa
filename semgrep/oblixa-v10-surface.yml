@@ -1,0 +1,89 @@
+# V10-specific guardrails. Deterministic release checks enforce most coverage;
+# this pack catches high-signal regressions in service-role reads and cron routes.
+rules:
+  - id: oblixa-v10-service-role-read-needs-visibility-helper
+    languages: [typescript]
+    message: >
+      Member-facing V10 service-role reads should use applyV10ReadModelVisibility,
+      applyV10CommandSearchVisibility, or equivalent organization/visibility/role filtering.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          $ADMIN.from("v10_$TABLE").select(...)
+      - pattern-not-inside: |
+          applyV10ReadModelVisibility(...)
+      - pattern-not-inside: |
+          applyV10CommandSearchVisibility(...)
+      - pattern-not: |
+          $ADMIN.from("v10_$TABLE").select(...).eq("organization_id", ...).eq("visibility_state", "visible").in("required_role_minimum", ...)
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/app/**/*.tsx
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/app/api/cron/**/route.ts
+        - /src/lib/v10-read-model-refresh.ts
+        - /src/lib/v10-server-contracts.ts
+
+  - id: oblixa-v10-cron-needs-private-no-store
+    languages: [typescript]
+    message: >
+      V10 cron routes must return private no-store responses so diagnostics and maintenance counts are not cached.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          export async function GET(...) {
+            ...
+          }
+      - pattern-not: |
+          const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+    paths:
+      include:
+        - /src/app/api/cron/v10/**/route.ts
+
+  - id: oblixa-v10-cron-needs-cron-auth
+    languages: [typescript]
+    message: >
+      V10 cron routes must authenticate with ensureCronAuthorized before executing maintenance or refresh work.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          export async function GET($REQUEST: Request) {
+            ...
+          }
+      - pattern-not: |
+          export async function GET($REQUEST: Request) {
+            ...
+            ensureCronAuthorized($REQUEST)
+            ...
+          }
+    paths:
+      include:
+        - /src/app/api/cron/v10/**/route.ts
+
+  - id: oblixa-v10-privacy-scan-no-file-wide-redaction-bypass
+    languages: [javascript]
+    message: >
+      V10 privacy scans must not waive an entire file because it mentions privacy_redaction_cases;
+      redaction exceptions must be line-scoped.
+    severity: ERROR
+    pattern: |
+      content.includes("privacy_redaction_cases")
+    paths:
+      include:
+        - /scripts/check-v10-release-evidence.mjs
+
+  - id: oblixa-v10-telemetry-no-private-detail-keys
+    languages: [typescript]
+    message: >
+      V10 telemetry details must not include private payload key names such as raw contract text,
+      emails, tokens, signed URLs, or file URLs. Use safe state/count fields instead.
+    severity: ERROR
+    pattern-regex: '(raw_contract_text|contract_text|responder_email|owner_email|signed_url|private_url|file_url|file_name|token|secret)\s*:'
+    paths:
+      include:
+        - /src/**/*.ts
+        - /src/**/*.tsx
+      exclude:
+        - /src/lib/product-telemetry.v10.test.ts

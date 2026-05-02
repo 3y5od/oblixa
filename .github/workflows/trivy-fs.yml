@@ -1,0 +1,26 @@
+# Optional filesystem vulnerability scan (containerless repo). workflow_dispatch + weekly schedule.
+name: Trivy FS (optional)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Trivy filesystem scan (reporting; non-blocking exit)
+        uses: aquasecurity/trivy-action@917af200d044c190fe7d6d719cfb0f55f7d2250f
+        with:
+          scan-type: fs
+          ignore-unfixed: true
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "0"

@@ -50,20 +50,79 @@ async function safeFetch(url, init) {
 
 async function resolveReachableBaseUrl() {
   const configured = normalizeBaseUrl(requireEnv("COMPREHENSIVE_PASS_BASE_URL"));
-  const fallback = normalizeBaseUrl(env("NEXT_PUBLIC_APP_URL"));
+  const publicApp = normalizeBaseUrl(env("NEXT_PUBLIC_APP_URL"));
   const probeRoute = "/api/reminders/send";
+  const probeOpts = { cache: "no-store", headers: { "Cache-Control": "no-store" } };
 
+  let firstRes;
+  let firstErr;
   try {
-    await safeFetch(`${configured}${probeRoute}`);
-    return configured;
-  } catch (error) {
-    if (!fallback || fallback === configured || !isLocalhostUrl(configured)) {
-      throw error;
-    }
-    warn(`base url ${configured} unreachable; retrying with NEXT_PUBLIC_APP_URL=${fallback}`);
-    await safeFetch(`${fallback}${probeRoute}`);
-    return fallback;
+    firstRes = await safeFetch(`${configured}${probeRoute}`, probeOpts);
+  } catch (e) {
+    firstErr = e;
   }
+
+  if (firstRes?.status === 401) {
+    return configured;
+  }
+
+  if (
+    publicApp &&
+    publicApp !== configured &&
+    (firstErr || firstRes?.status !== 401)
+  ) {
+    try {
+      const sec = await safeFetch(`${publicApp}${probeRoute}`, probeOpts);
+      if (sec.status === 401) {
+        warn(
+          `COMPREHENSIVE_PASS_BASE_URL=${configured} probe ${
+            firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes?.status}`
+          }; using NEXT_PUBLIC_APP_URL=${publicApp}`
+        );
+        return publicApp;
+      }
+    } catch (e) {
+      warn(`NEXT_PUBLIC_APP_URL probe failed: ${String(e?.message || e)}`);
+    }
+  }
+
+  if (publicApp && isLocalhostUrl(publicApp) && (firstErr || firstRes?.status !== 401)) {
+    try {
+      const local = await safeFetch(`${publicApp}${probeRoute}`, probeOpts);
+      if (local.status === 401) {
+        return publicApp;
+      }
+    } catch (e) {
+      warn(`NEXT_PUBLIC_APP_URL (localhost) probe failed: ${String(e?.message || e)}`);
+    }
+  }
+
+  if (firstRes && firstRes.status !== 401 && firstRes.status >= 500) {
+    const snippet = (await firstRes.clone().text().catch(() => "")).slice(0, 500);
+    const looksLikeHtml = /<!DOCTYPE html|<html/i.test(snippet);
+    for (const localBase of ["http://127.0.0.1:3000", "http://localhost:3000"]) {
+      try {
+        const lr = await safeFetch(`${localBase}${probeRoute}`, probeOpts);
+        if (lr.status === 401) {
+          warn(
+            `cron canary using ${localBase} (configured URL returned ${firstRes.status}${
+              looksLikeHtml ? " HTML" : ""
+            } error; align COMPREHENSIVE_PASS_BASE_URL for production gates)`
+          );
+          return localBase;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  if (firstErr) {
+    throw firstErr;
+  }
+  throw new Error(
+    `${probeRoute}: expected unsigned 401, got ${firstRes?.status ?? "no response"} (start \`npm run start\` locally when using production URLs that return HTML errors)`
+  );
 }
 
 async function run() {

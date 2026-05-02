@@ -16,6 +16,14 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient: vi.fn(),
 }));
 
+vi.mock("@/lib/observability/sentry", () => ({
+  captureServerMessage: vi.fn(),
+}));
+
+vi.mock("@/lib/observability/cron-healthcheck", () => ({
+  pingCronHealthcheck: vi.fn(),
+}));
+
 describe("GET /api/cron/v4/exceptions-detect", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -37,5 +45,18 @@ describe("GET /api/cron/v4/exceptions-detect", () => {
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/exceptions-detect"));
     expect(res.status).toBe(429);
     expect(await res.json()).toEqual({ error: "Too many requests", retryAfterMs: 2100 });
+  });
+
+  it("returns 200 with detected and durationMs when admin client fails", async () => {
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockRejectedValueOnce(new Error("supabase unavailable"));
+    const { GET } = await import("@/app/api/cron/v4/exceptions-detect/route");
+    const res = await GET(new Request("http://localhost:3000/api/cron/v4/exceptions-detect"));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.detected).toBe(0);
+    expect(body.ok).toBe(false);
+    expect(body.error).toBe("detector_failed");
+    expect(typeof body.durationMs).toBe("number");
   });
 });

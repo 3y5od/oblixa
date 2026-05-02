@@ -208,10 +208,10 @@ export default async function ContractAnalyticsPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Trends</p>
-          <h1 className="ui-display-title">Advanced analytics</h1>
+          <h1 className="ui-page-title-compact">Advanced analytics</h1>
           <p className="ui-page-lead mt-2">
           Contract velocity, task execution trendlines, and upcoming renewal concentration.
           </p>
@@ -266,7 +266,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={ListChecks}
             primaryValue={overdueObligations}
             primaryUnit="open or in progress"
-            action={{ href: "/contracts/obligations", label: "View obligations" }}
+            action={{ href: "/contracts/obligations", label: "Review obligations" }}
             variant="compact"
           />
           <OperationalSummaryCard

@@ -3,6 +3,7 @@ import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
+import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 
 /** Buffered export cap; full dataset via paged `.range` (see collectSupabaseRangePages). Streaming CSV remains future work if memory becomes an issue. */
 const EXPORT_CAMPAIGN_CONTRACTS_MAX_ROWS = 250_000;
@@ -19,11 +20,7 @@ type CampaignContractExportRow = {
 function toCsv(rows: Record<string, string | number | null | undefined>[]) {
   if (rows.length === 0) return "contract_id,status,segment_key,assigned_team\n";
   const keys = Object.keys(rows[0]);
-  const esc = (v: unknown) => {
-    const s = v == null ? "" : String(v);
-    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
-  };
+  const esc = (v: unknown) => escapeCsvCellForSpreadsheet(v == null ? "" : String(v));
   return [keys.join(","), ...rows.map((r) => keys.map((k) => esc(r[k])).join(","))].join("\n");
 }
 

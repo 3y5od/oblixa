@@ -32,8 +32,10 @@ import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
 import {
   emitCmdkPaletteOpenedTelemetry,
   emitCmdkResultSelectedTelemetry,
+  emitCmdkSearchFailedTelemetry,
   emitCmdkZeroResultsTelemetry,
 } from "@/actions/product-telemetry";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 type PaletteItem = NavItem & { resultMeta?: string; resultOrder?: number };
@@ -43,6 +45,20 @@ type ContractPaletteResult = {
   counterparty?: string | null;
   status?: string | null;
   ownerLabel?: string | null;
+  href?: string | null;
+  resultType?: string | null;
+  description?: string | null;
+  actionLabel?: string | null;
+};
+type CommandPaletteRecoveryAction = {
+  label: string;
+  href: string;
+  reason?: string | null;
+};
+type CommandPaletteRecovery = {
+  message: string;
+  diagnosticId?: string | null;
+  actions: CommandPaletteRecoveryAction[];
 };
 
 function fallbackNavSurface(
@@ -122,6 +138,10 @@ export function CommandPalette(props: {
   const [remoteContractResults, setRemoteContractResults] = useState<ContractPaletteResult[]>(
     () => props.contractResults ?? []
   );
+  const [remoteSearchFailed, setRemoteSearchFailed] = useState(false);
+  const [remoteSearchPartial, setRemoteSearchPartial] = useState<string | null>(null);
+  const [remoteSearchRecovery, setRemoteSearchRecovery] = useState<CommandPaletteRecovery | null>(null);
+  const [remoteSearchRetryNonce, setRemoteSearchRetryNonce] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [footerVisible, setFooterVisible] = useState(false);
   const [recentHrefs, setRecentHrefs] = useState<string[]>(() => {
@@ -162,6 +182,7 @@ export function CommandPalette(props: {
       const ce = event as CustomEvent<CommandPaletteOpenDetail>;
       const q = typeof ce.detail?.query === "string" ? ce.detail.query : "";
       setQuery(q);
+      if (q.trim().length < 2) setRemoteSearchFailed(false);
       setActiveIndex(0);
       setOpen(true);
       queueMicrotask(() => searchInputRef.current?.focus());
@@ -182,14 +203,22 @@ export function CommandPalette(props: {
         signal: controller.signal,
       })
         .then((response) => (response.ok ? response.json() : null))
-        .then((payload: { contracts?: ContractPaletteResult[] } | null) => {
+        .then((payload: { contracts?: ContractPaletteResult[]; partial?: { reason?: string; diagnosticId?: string } | null; recovery?: CommandPaletteRecovery | null } | null) => {
           if (!controller.signal.aborted) {
             setRemoteContractResults(payload?.contracts ?? []);
+            setRemoteSearchFailed(payload === null);
+            setRemoteSearchPartial(payload?.partial?.reason ?? null);
+            setRemoteSearchRecovery(payload?.recovery ?? null);
+            if (payload === null) void emitCmdkSearchFailedTelemetry({ queryLen: q.length });
           }
         })
         .catch((error) => {
           if (!controller.signal.aborted && error instanceof Error && error.name !== "AbortError") {
             setRemoteContractResults([]);
+            setRemoteSearchFailed(true);
+            setRemoteSearchPartial(null);
+            setRemoteSearchRecovery(null);
+            void emitCmdkSearchFailedTelemetry({ queryLen: q.length });
           }
         });
     }, 160);
@@ -197,7 +226,7 @@ export function CommandPalette(props: {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [deferredFilterQ]);
+  }, [deferredFilterQ, remoteSearchRetryNonce]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -252,40 +281,36 @@ export function CommandPalette(props: {
     if (q.length < 2) return [];
     const rows = remoteContractResults;
     const ranked = rows
-      .map((row): PaletteItem | null => {
+      .map((row, index): PaletteItem | null => {
         const title = row.title.trim();
         const counterparty = row.counterparty?.trim() ?? "";
         const ownerLabel = row.ownerLabel?.trim() ?? "";
-        const haystack = `${title} ${counterparty} ${ownerLabel}`.toLowerCase();
-        if (!haystack.includes(q)) return null;
-        let order = 40;
-        const titleLower = title.toLowerCase();
-        const counterpartyLower = counterparty.toLowerCase();
-        if (titleLower === q) order = 0;
-        else if (titleLower.startsWith(q)) order = 1;
-        else if (titleLower.includes(q)) order = 2;
-        else if (counterpartyLower.startsWith(q)) order = 3;
-        else if (counterpartyLower.includes(q)) order = 4;
+        const resultType = row.resultType?.trim() ?? "";
+        const description = row.description?.trim() ?? "";
+        const actionLabel = row.actionLabel?.trim() ?? "";
         return {
           name: title,
-          href: `/contracts/${row.id}`,
-          description: [
-            counterparty || "No counterparty",
-            ownerLabel,
-            row.status ? STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status : null,
-          ]
-            .filter(Boolean)
-            .join(" · "),
+          href: row.href || `/contracts/${row.id}`,
+          description:
+            description ||
+            [
+              counterparty || "No counterparty",
+              ownerLabel,
+              row.status ? STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status : null,
+            ]
+              .filter(Boolean)
+              .join(" · "),
           section: "workspace" as const,
           resultMeta: [
-            "Contract",
+            resultType || "Contract",
+            actionLabel || null,
             counterparty || "No counterparty",
             ownerLabel || null,
             row.status ? STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] ?? row.status : null,
           ]
             .filter(Boolean)
             .join(" · "),
-          resultOrder: order,
+          resultOrder: index,
         };
       })
       .filter((row): row is PaletteItem => row !== null)
@@ -443,7 +468,9 @@ export function CommandPalette(props: {
                 autoFocus
                 value={query}
                 onChange={(event) => {
-                  setQuery(event.target.value);
+                  const nextQuery = event.target.value;
+                  setQuery(nextQuery);
+                  if (nextQuery.trim().length < 2) setRemoteSearchFailed(false);
                   setActiveIndex(0);
                 }}
                 className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
@@ -490,9 +517,88 @@ export function CommandPalette(props: {
                 </div>
               </div>
             )}
+            {remoteSearchPartial ? (
+              <div className="border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">
+                <V10RecoverableState
+                  state="partial"
+                  title="Command search is partially available"
+                  reason={remoteSearchRecovery?.message ?? remoteSearchPartial}
+                  accessibleName="Command palette partial search state"
+                  surface="command_palette"
+                  section="remote_search"
+                  sourceObject="setting_destination"
+                  diagnosticId={remoteSearchRecovery?.diagnosticId}
+                  nextActionLabel="Open recovery destination"
+                  className="border-0 bg-transparent p-0"
+                  nextAction={(remoteSearchRecovery?.actions ?? [{ label: "Open workspace health", href: "/settings/health" }]).slice(0, 2).map((action) => (
+                    <Link key={action.href} href={action.href} onClick={() => setOpen(false)} className="ui-link inline-flex">
+                      {action.label}
+                    </Link>
+                  ))}
+                />
+              </div>
+            ) : null}
             <ul data-testid={shellTestIds.commandPaletteResults} className="max-h-[58vh] overflow-y-auto py-2">
               {flatItems.length === 0 ? (
-                <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">No matches found.</li>
+                <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">
+                  <V10RecoverableState
+                    state={remoteSearchFailed ? "failed" : "empty"}
+                    title={remoteSearchFailed ? "Command search could not load." : (remoteSearchRecovery?.message ?? "No matches found.")}
+                    reason={
+                      remoteSearchFailed
+                        ? "Retry command search or open workspace health for recovery diagnostics."
+                        : "No eligible command destination matched this query. Search contracts or use a recovery destination."
+                    }
+                    accessibleName={remoteSearchFailed ? "Command palette failed search state" : "Command palette empty search state"}
+                    surface="command_palette"
+                    section="zero_results"
+                    sourceObject="setting_destination"
+                    diagnosticId={remoteSearchRecovery?.diagnosticId}
+                    nextActionLabel={remoteSearchFailed ? "Retry command search" : "Search contracts for this query"}
+                    className="border-0 bg-transparent p-0"
+                    nextAction={
+                      <>
+                        {remoteSearchFailed ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRemoteSearchFailed(false);
+                              setRemoteSearchRetryNonce((value) => value + 1);
+                            }}
+                            className="ui-button-secondary min-h-9 rounded-full px-3 text-xs"
+                          >
+                            Retry search
+                          </button>
+                        ) : null}
+                        <Link href="/settings/health" onClick={() => setOpen(false)} className="ui-link inline-flex">
+                          Open workspace health
+                        </Link>
+                        {remoteSearchRecovery
+                          ? remoteSearchRecovery.actions.map((action) => (
+                              <Link
+                                key={`${action.href}:${action.reason ?? "recovery"}`}
+                                href={action.href}
+                                onClick={() => setOpen(false)}
+                                className="ui-button-secondary min-h-9 rounded-full px-3 text-xs"
+                              >
+                                {action.label}
+                              </Link>
+                            ))
+                          : null}
+                        <Link
+                          href={`/contracts?search=${encodeURIComponent(query.trim())}`}
+                          onClick={() => setOpen(false)}
+                          className="ui-link inline-flex"
+                        >
+                          Search contracts for this query
+                        </Link>
+                      </>
+                    }
+                    noActionExplanation={
+                      remoteSearchRecovery ? undefined : "Recovery action: route to eligible contract search instead of leaving a blank panel."
+                    }
+                  />
+                </li>
               ) : (
                 ([
                   [WORKFLOW_AREA_LABELS.monitor, grouped.monitor],

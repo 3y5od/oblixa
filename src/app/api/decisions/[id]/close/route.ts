@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { readJsonBody } from "@/lib/v5/api";
@@ -31,7 +32,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const raw = await request.json().catch(() => ({}));
+  const _limitedBody = await readJsonBodyLimited(request);
+  if (!_limitedBody.ok) return _limitedBody.response;
+  const raw = _limitedBody.body ?? {};
   const body = readJsonBody<{ finalDisposition?: Record<string, unknown>; postActions?: unknown[] }>(raw, {});
 
   const { data: prior } = await ctx.admin

@@ -10,6 +10,7 @@ import {
   rateLimitCheck,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+import { isKillInvites } from "@/lib/security/kill-switches";
 
 const MAX_PROFILE_NAME_LEN = 200;
 const MAX_ORG_NAME_LEN = 200;
@@ -98,6 +99,10 @@ export async function inviteOrgMember(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+
+  if (isKillInvites()) {
+    return { error: "Invitations are temporarily disabled." };
+  }
 
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`invite:${user.id}:${ip}`, RATE_LIMITS.inviteMember);

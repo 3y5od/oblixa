@@ -1,0 +1,3 @@
+# One path per line (repo-relative). Extend only with security review.
+src/components/landing/landing-json-ld.tsx
+src/components/landing/legal-page-json-ld.tsx

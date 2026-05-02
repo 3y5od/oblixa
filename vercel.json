@@ -163,6 +163,18 @@
     {
       "path": "/api/cron/v6/onboarding-calibration-stale",
       "schedule": "18 4 * * *"
+    },
+    {
+      "path": "/api/cron/v10/read-model-refresh",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/v10/idempotency-cleanup",
+      "schedule": "12 3 * * *"
+    },
+    {
+      "path": "/api/cron/v10/runtime-artifact-cleanup",
+      "schedule": "27 3 * * *"
     }
   ]
 }

@@ -448,7 +448,7 @@ export default async function RenewalsWorkspacePage(props: {
           </Link>
           {showDecisionsCta ? (
             <Link href="/decisions" prefetch={false} className="ui-btn-primary px-4 py-2.5 text-[13px]">
-              Open decisions
+              Review decisions
             </Link>
           ) : null}
         </div>

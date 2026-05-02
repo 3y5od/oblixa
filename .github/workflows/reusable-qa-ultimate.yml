@@ -1,0 +1,111 @@
+name: Reusable QA ultimate static
+
+on:
+  workflow_call:
+    inputs:
+      tier:
+        description: "QA_ULTIMATE_TIER (pr | nightly | release | postmerge | pr_strict | checks_batch)"
+        required: true
+        type: string
+      batch_total:
+        description: "QA_CHECK_BATCH_TOTAL / QA_CHECK_BATCH_SIZE for checks_batch tier"
+        required: false
+        type: string
+        default: ""
+      batch_index:
+        description: "QA_CHECK_BATCH_INDEX (1-based)"
+        required: false
+        type: string
+        default: ""
+      ultimate_strict:
+        description: "QA_ULTIMATE_STRICT=1 fails required ifEnv steps when the env gate is unset"
+        required: false
+        type: string
+        default: "0"
+    secrets:
+      STAGING_BASE_URL:
+        required: false
+      RLS_SMOKE_STRICT:
+        required: false
+      RUN_LIGHTHOUSE_NIGHTLY:
+        required: false
+      SYNTHETIC_STRICT:
+        required: false
+      SEMGREP_FULL:
+        required: false
+      SBOM_DIFF_STRICT:
+        required: false
+      DOMAIN_STRICT:
+        required: false
+      DNSSEC_PRIVACY_STRICT:
+        required: false
+      CERT_STRICT:
+        required: false
+      READABILITY_STRICT:
+        required: false
+      EMAIL_DNS_STRICT:
+        required: false
+      COSIGN_PUBLIC_KEY:
+        required: false
+      SLSA_VERIFY_STRICT:
+        required: false
+      DR_DRILL_STRICT:
+        required: false
+      SUPPLY_CHAIN_STUB_REPORT:
+        required: false
+      CARBON_RUNTIME_REPORT:
+        required: false
+      K8S_POLICY_STRICT:
+        required: false
+      REPORT_GATE_STRICT:
+        required: false
+      POSTMERGE_VERIFY_STRICT:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  qa_static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: QA ultimate (${{ inputs.tier }})
+        run: npm run pipeline:qa-ultimate
+        env:
+          CI: "true"
+          QA_ULTIMATE_TIER: ${{ inputs.tier }}
+          QA_ULTIMATE_STRICT: ${{ inputs.ultimate_strict }}
+          QA_CHECK_BATCH_TOTAL: ${{ inputs.batch_total }}
+          QA_CHECK_BATCH_SIZE: ${{ inputs.batch_total }}
+          QA_CHECK_BATCH_INDEX: ${{ inputs.batch_index }}
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          RLS_SMOKE_STRICT: ${{ secrets.RLS_SMOKE_STRICT }}
+          RUN_LIGHTHOUSE_NIGHTLY: ${{ secrets.RUN_LIGHTHOUSE_NIGHTLY }}
+          SYNTHETIC_STRICT: ${{ secrets.SYNTHETIC_STRICT }}
+          SEMGREP_FULL: ${{ secrets.SEMGREP_FULL }}
+          SBOM_DIFF_STRICT: ${{ secrets.SBOM_DIFF_STRICT }}
+          DOMAIN_STRICT: ${{ secrets.DOMAIN_STRICT }}
+          DNSSEC_PRIVACY_STRICT: ${{ secrets.DNSSEC_PRIVACY_STRICT }}
+          CERT_STRICT: ${{ secrets.CERT_STRICT }}
+          READABILITY_STRICT: ${{ secrets.READABILITY_STRICT }}
+          EMAIL_DNS_STRICT: ${{ secrets.EMAIL_DNS_STRICT }}
+          COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+          SLSA_VERIFY_STRICT: ${{ secrets.SLSA_VERIFY_STRICT }}
+          DR_DRILL_STRICT: ${{ secrets.DR_DRILL_STRICT }}
+          SUPPLY_CHAIN_STUB_REPORT: ${{ secrets.SUPPLY_CHAIN_STUB_REPORT }}
+          CARBON_RUNTIME_REPORT: ${{ secrets.CARBON_RUNTIME_REPORT }}
+          K8S_POLICY_STRICT: ${{ secrets.K8S_POLICY_STRICT }}
+          REPORT_GATE_STRICT: ${{ secrets.REPORT_GATE_STRICT }}
+          POSTMERGE_VERIFY_STRICT: ${{ secrets.POSTMERGE_VERIFY_STRICT }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: qa-ultimate-run-${{ inputs.tier }}
+          path: artifacts/qa-ultimate-run.json

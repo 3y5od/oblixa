@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oblixa.local/config/qa-tier-manifest.schema.json",
+  "title": "QA tier manifest",
+  "type": "object",
+  "required": ["version", "tiers"],
+  "properties": {
+    "_documentation": { "type": "object" },
+    "version": { "type": "integer", "minimum": 1 },
+    "autodiscover": {
+      "type": "object",
+      "properties": {
+        "denylist": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tiers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "mergeAutodiscoverChecks": { "type": "boolean" },
+          "steps": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "type": "string", "minLength": 1 },
+                {
+                  "type": "object",
+                  "required": ["script"],
+                  "properties": {
+                    "script": { "type": "string" },
+                    "required": { "type": "boolean" },
+                    "ifEnv": { "type": ["string", "null"] }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

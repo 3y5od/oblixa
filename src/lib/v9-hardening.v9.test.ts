@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
 import { formatRelativeSampleAge } from "./v9-data-freshness";
 import { fieldReviewProvenanceLabel } from "./v9-field-provenance";
 import { V9_DUE_SOON_DAYS, parseBusinessDateAtNoon } from "./v9-business-dates";
@@ -64,11 +62,4 @@ describe("V9 cross-cutting hardening contracts", () => {
     expect(v9OutcomeLabel("partial")).toBe("Partial");
   });
 
-  it("keeps V9 spec present for release signoff matrix", () => {
-    const p = join(process.cwd(), "docs", "v9.md");
-    if (!existsSync(p)) return;
-    const body = readFileSync(p, "utf8");
-    expect(body.length).toBeGreaterThan(500);
-    expect(body).toMatch(/V9|§/);
-  });
 });

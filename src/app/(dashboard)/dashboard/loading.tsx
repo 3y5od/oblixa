@@ -8,7 +8,7 @@ export default function DashboardLoading() {
       </div>
       <div className="min-h-0" aria-hidden aria-busy="true">
         <div className="ui-page-stack">
-        <header className="ui-page-header">
+        <header className="ui-page-header-compact">
           <div className="min-w-0 flex-1 space-y-3">
             <div className="ui-skeleton h-4 w-24 rounded" />
             <div className="ui-skeleton h-9 w-52 max-w-full rounded" />

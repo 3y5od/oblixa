@@ -1,0 +1,15 @@
+{
+  "_comment": "Contract / evidence artifacts wired into maximal bundle checks (plan: contract-artifacts-b2b-bimi + parity).",
+  "requiredArtifacts": [
+    "artifacts/b2b-idp-contract.json",
+    "artifacts/bimi-svg-placeholder.json",
+    "artifacts/browser-os-matrix.json",
+    "artifacts/scim-oidc-contract.json",
+    "artifacts/reporting-endpoints-stub.json",
+    "artifacts/mta-sts-policy.json",
+    "artifacts/locale-coverage-drift.json",
+    "artifacts/pen-test-findings.json",
+    "artifacts/qa-ultimate-run.json",
+    "artifacts/qa-closure-manifest.json"
+  ]
+}

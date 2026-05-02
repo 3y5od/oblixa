@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "description": "RepoPolicy wiring — artifacts that must exist for security program CI (phase11 / phase19).",
+  "artifacts": [
+    { "path": "artifacts/security-route-matrix.json", "generator": "npm run report:security-route-matrix" },
+    { "path": "artifacts/security-proxy-matrix.json", "generator": "npm run report:security-proxy-matrix" },
+    { "path": "artifacts/security-control-coverage-matrix.rows.json", "generator": "npm run build:security-control-coverage-matrix" },
+    { "path": "artifacts/gdpr-soc2-control-map.json", "optional": true },
+    { "path": "artifacts/nist-ssdf-map.json", "optional": true },
+    { "path": "artifacts/stride-dread-threat-model.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-run.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-external-handoff.keys.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-ext-key-groups.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-coverage-matrix.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-ci-runtime-budget.json", "optional": true },
+    { "path": "config/autonomous-perf-phase-closure.json", "optional": true },
+    { "path": "artifacts/autonomous-perf-pipeline-graph.mmd", "optional": true },
+    { "path": "config/worker-isolation.json", "required": true }
+  ]
+}

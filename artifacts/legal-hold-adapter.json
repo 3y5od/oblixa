@@ -1,0 +1,5 @@
+{
+  "exportBlocked": false,
+  "auditRetentionDays": 2555,
+  "testPaths": ["src/lib/v10-server-contracts.v10.test.ts"]
+}

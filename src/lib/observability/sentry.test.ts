@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const captureException = vi.fn();
 const captureMessage = vi.fn();
+const setContext = vi.fn();
 
 vi.mock("@sentry/nextjs", () => ({
   captureException,
   captureMessage,
+  setContext,
 }));
 
 describe("observability sentry helpers", () => {
@@ -13,6 +15,7 @@ describe("observability sentry helpers", () => {
     vi.resetModules();
     captureException.mockClear();
     captureMessage.mockClear();
+    setContext.mockClear();
     delete process.env.SENTRY_DSN;
     delete process.env.NEXT_PUBLIC_SENTRY_DSN;
   });
@@ -51,5 +54,21 @@ describe("observability sentry helpers", () => {
     const err = new Error("client");
     captureClientException(err);
     expect(captureException).toHaveBeenCalledWith(err, undefined);
+  });
+
+  it("truncateSweepTag strips newlines and truncates", async () => {
+    const { truncateSweepTag } = await import("@/lib/observability/sentry");
+    expect(truncateSweepTag("a\nb")).toBe("ab");
+    expect(truncateSweepTag("x".repeat(250), 10).endsWith("…")).toBe(true);
+  });
+
+  it("setSweepCorrelationContext forwards bounded context when DSN set", async () => {
+    process.env.SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0";
+    const { setSweepCorrelationContext } = await import("@/lib/observability/sentry");
+    setSweepCorrelationContext({ rid: "abc", cid: "def" });
+    expect(setContext).toHaveBeenCalledWith(
+      "sweep_correlation",
+      expect.objectContaining({ rid: "abc", cid: "def" })
+    );
   });
 });

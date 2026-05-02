@@ -51,7 +51,7 @@ const TIER_FILES: Readonly<Record<string, string[]>> = {
   "tier43-unified-error-mapping": ["src/lib/qa/user-visible-error-shape.v9.test.ts"],
   "tier44-embeddings-widgets": ["e2e/ui-qa-skip-lab-tiers.spec.ts"],
   "tier45-admin-debug-safe": ["e2e/ui-qa-skip-lab-tiers.spec.ts"],
-  "tier46-e2e-data-hygiene": ["scripts/e2e-teardown-stub.mjs"],
+  "tier46-e2e-data-hygiene": ["scripts/e2e-teardown.mjs"],
   "tier47-i18n-intl": ["src/lib/qa/intl-format-sampling.v9.test.ts"],
   "tier48-strictmode-devprod-parity": ["e2e/ui-qa-skip-lab-tiers.spec.ts"],
   "tier49-experiments-analyze": ["e2e/ui-qa-skip-lab-tiers.spec.ts"],

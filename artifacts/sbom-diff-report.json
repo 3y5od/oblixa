@@ -1,0 +1,5 @@
+{
+  "ok": true,
+  "mode": "stub",
+  "hint": "Set SBOM_DIFF_STRICT=1 and SBOM_BASELINE_PATH to compare cyclonedx-sbom.json hashes."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "status": "deferred_no_multipart_route",
+  "n_a_rationale": "No public multipart upload API routes in this repository; contract files use server-side PDF/DOCX validation in server actions (see src/actions/contracts.ts).",
+  "required_when_added": [
+    "MIME sniff + extension allowlist",
+    "Max size enforced before disk",
+    "Optional MALWARE_SCAN webhook env",
+    "Server-generated object keys only"
+  ],
+  "related": ["scripts/check-upload-banlist.mjs", "config/upload-format-banlist.json"]
+}

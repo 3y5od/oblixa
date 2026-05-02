@@ -33,6 +33,7 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   { pattern: "/reports", tier: "core", refinementRef: "§10.1" },
   { pattern: "/onboarding/calibration", tier: "utility", refinementRef: "appendix" },
   { pattern: "/settings", tier: "core", refinementRef: "§10.1" },
+  { pattern: "/settings/security", tier: "core", refinementRef: "§10.1" },
   { pattern: "/settings/billing", tier: "core", refinementRef: "§10.1" },
   { pattern: "/settings/operations", tier: "core", refinementRef: "§10.1" },
   // §10.2 Advanced

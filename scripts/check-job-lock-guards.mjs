@@ -14,7 +14,8 @@ for (const route of scheduledPaths) {
   if (!fs.existsSync(abs)) continue;
   const text = fs.readFileSync(abs, "utf8");
   const hasLimiter = /rateLimitCheck\(/.test(text);
-  const hasAuth = /authorizeCronRequest|requireV[56]CronAuth|ensureCronAuthorized/.test(text);
+  const hasAuth =
+    /authorizeCronRequest|requireCronAuthorized|requireV[56]CronAuth|ensureCronAuthorized/.test(text);
   if (!hasLimiter) {
     issues.push({ file: `src/app/${rel}/route.ts`, issue: "scheduled_route_missing_rate_limit_guard" });
   }

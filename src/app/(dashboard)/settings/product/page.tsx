@@ -20,6 +20,7 @@ import {
 import { SettingsProductDraftPreview } from "@/app/(dashboard)/settings/product/settings-product-draft-preview";
 import { SettingsProductCalibrationExport } from "@/app/(dashboard)/settings/product/settings-product-calibration-export";
 import { SettingsProductCalibrationSummary } from "@/app/(dashboard)/settings/product/settings-product-calibration-summary";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 
 const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
 const ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS;
@@ -33,10 +34,21 @@ export default async function WorkspaceProductSettingsPage() {
   if (ctx.role !== "admin") {
     return (
       <div className="ui-page-stack mx-auto max-w-2xl">
-        <p className="text-sm text-[var(--text-secondary)]">Only workspace admins can change product mode.</p>
-        <Link href="/settings" className="ui-link mt-3 inline-block text-sm">
-          Back to settings
-        </Link>
+        <V10RecoverableState
+          state="forbidden"
+          title="Only workspace admins can change product mode"
+          reason="Your current role can view settings but cannot change workspace mode, module visibility, or notification category controls."
+          accessibleName="Product experience settings forbidden state"
+          surface="settings_product"
+          section="authorization"
+          sourceObject="setting"
+          nextActionLabel="Back to settings"
+          nextAction={
+            <Link href="/settings" className="ui-link inline-block text-sm">
+              Back to settings
+            </Link>
+          }
+        />
       </div>
     );
   }

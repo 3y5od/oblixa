@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "tracks": [
+    { "id": "phase2-track-wcag-iso", "priorityBand": "P3" },
+    { "id": "phase2-track-owasp-asvs", "priorityBand": "P0" },
+    { "id": "phase2-track-identity-oauth-webauthn", "priorityBand": "P0" },
+    { "id": "phase2-track-http-cdn-tls-dns-email", "priorityBand": "P2" },
+    { "id": "phase2-track-web-platform-privacy", "priorityBand": "P1" },
+    { "id": "phase2-track-next-rsc-react", "priorityBand": "P1" },
+    { "id": "phase2-track-distributed-data", "priorityBand": "P1" },
+    { "id": "phase2-track-db-binary-media", "priorityBand": "P0" },
+    { "id": "phase2-track-i18n-time-numeric", "priorityBand": "P2" },
+    { "id": "phase2-track-mobile-webview", "priorityBand": "P3" },
+    { "id": "phase2-track-k8s-opsec-supplychain", "priorityBand": "P2" },
+    { "id": "phase2-track-abuse-economics", "priorityBand": "P0" },
+    { "id": "phase2-track-ai-ml-safety", "priorityBand": "P1" },
+    { "id": "phase2-track-analytics-reporting", "priorityBand": "P2" },
+    { "id": "phase2-track-legal-export-sanctions", "priorityBand": "P0" },
+    { "id": "phase2-track-dr-sre-synthetics", "priorityBand": "P2" },
+    { "id": "phase2-track-ugc-safety-ethics", "priorityBand": "P2" },
+    { "id": "phase2-track-seo-content-public", "priorityBand": "P2" },
+    { "id": "phase2-track-email-comms-async", "priorityBand": "P2" },
+    { "id": "phase2-track-payments-stripe", "priorityBand": "P1" },
+    { "id": "phase2-track-metaqa-flake-cost", "priorityBand": "P1" },
+    { "id": "phase2-track-nonsoftware-evidence", "priorityBand": "P3" }
+  ]
+}

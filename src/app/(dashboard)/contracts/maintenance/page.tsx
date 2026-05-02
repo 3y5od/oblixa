@@ -186,9 +186,9 @@ export default async function MaintenancePage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <p className="ui-eyebrow">Portfolio hygiene</p>
-        <h1 className="ui-display-title">Maintenance workspace</h1>
+        <h1 className="ui-page-title-compact">Maintenance workspace</h1>
         <p className="ui-page-lead max-w-2xl">
           Detect stale records, ownerless contracts, duplicate candidates, and orphaned files.
         </p>

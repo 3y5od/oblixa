@@ -619,6 +619,30 @@
     @apply space-y-7 md:space-y-8 xl:space-y-9;
   }
 
+  .ui-page-stack-dense {
+    @apply space-y-4 md:space-y-5;
+  }
+
+  .ui-page-header-compact {
+    @apply relative flex flex-col gap-4 overflow-hidden border px-4 py-4 shadow-[var(--shadow-1)] md:px-5 md:py-5 lg:flex-row lg:items-end lg:justify-between;
+    border-radius: var(--radius-3xl);
+    border-color: color-mix(in oklab, var(--border-subtle) 92%, transparent);
+    background:
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 7%, transparent), transparent 32%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+  }
+
+  .ui-page-title-compact {
+    @apply text-[1.45rem] font-semibold leading-tight tracking-tight sm:text-[1.7rem];
+    color: var(--text-primary);
+  }
+
+  .ui-section-shell-dense {
+    @apply rounded-2xl border px-3.5 py-3 shadow-[var(--shadow-1)];
+    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background: color-mix(in oklab, var(--surface) 90%, white);
+  }
+
   .ui-page-actions {
     @apply flex w-full flex-wrap items-center gap-2.5 lg:w-auto lg:max-w-[48rem] lg:justify-end;
   }

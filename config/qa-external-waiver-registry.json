@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "waivers": [
+    {
+      "id": "github_dependency_review_high",
+      "tool": "actions_dependency_review",
+      "policy_path": "artifacts/dependency-review-policy.json",
+      "workflow_path": ".github/workflows/dependency-review.yml",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "dependency_review_policy_transitive",
+      "notes": "PR dependency review fail-on-severity=high; waivers for transitive noise tracked in policy JSON."
+    },
+    {
+      "id": "trivy_fs_optional_tier",
+      "tool": "trivy_filesystem",
+      "workflow_path": ".github/workflows/trivy-fs.yml",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "trivy_optional_org_tier",
+      "notes": "Container/fs Trivy workflow present; blocking tier org-specific."
+    },
+    {
+      "id": "codeql_analysis",
+      "tool": "github_codeql",
+      "workflow_path": ".github/workflows/codeql.yml",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "codeql_sarif_optional_upload",
+      "notes": "CodeQL default queries; SARIF upload optional per org."
+    },
+    {
+      "id": "semgrep_sarif",
+      "tool": "semgrep_ci",
+      "workflow_path": ".github/workflows/semgrep-sarif.yml",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "semgrep_rulepacks_workflow",
+      "notes": "Semgrep SARIF workflow; rule packs managed in workflow."
+    },
+    {
+      "id": "zap_dast_optional",
+      "tool": "owasp_zap_baseline",
+      "workflow_path": ".github/workflows/qa-dast-zap.yml",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "zast_staging_gated",
+      "notes": "DAST disabled by default (if: false); enable with STAGING_BASE_URL."
+    },
+    {
+      "id": "qa_taxonomy_gap_wcag22_automation",
+      "tool": "qa_comprehensive_taxonomy",
+      "owner": "@qa",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "wcag22_rows_pending_per_sc_automation",
+      "notes": "WCAG 2.2 taxonomy rows bind here until Playwright/Vitest per-SC coverage lands."
+    },
+    {
+      "id": "qa_taxonomy_gap_phase2_feature",
+      "tool": "qa_comprehensive_taxonomy",
+      "owner": "@qa",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "dimension_and_phase2_tracks_deferred",
+      "notes": "Phase-2 burn-down tracks (identity, HTTP/CDN depth, distributed, AI, etc.) pending substantive tests."
+    },
+    {
+      "id": "infra_only_workflow_no_product_surface",
+      "tool": "qa_comprehensive_taxonomy",
+      "owner": "@infra",
+      "expiry": "2027-12-31",
+      "issue": "https://github.com/oblixa/oblixa/issues/1",
+      "expires": "2027-12-31",
+      "scope": "allowlisted_github_workflows_infra_only",
+      "notes": "Stub or infra-only workflows excluded from product QA surface."
+    }
+  ]
+}

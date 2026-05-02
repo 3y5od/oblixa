@@ -5,8 +5,10 @@ import { PRODUCT_TELEMETRY_ACTIONS } from "./product-telemetry";
 
 describe("product telemetry (v9 §28)", () => {
   it("keeps exactly 43 allowlisted literals with stable naming", () => {
-    expect(PRODUCT_TELEMETRY_ACTIONS).toHaveLength(43);
-    for (const action of PRODUCT_TELEMETRY_ACTIONS) {
+    const v9Actions = PRODUCT_TELEMETRY_ACTIONS.filter((action) => action.startsWith("product.v9."));
+
+    expect(v9Actions).toHaveLength(43);
+    for (const action of v9Actions) {
       expect(action, action).toMatch(/^product\.v9\.[a-z0-9_]+$/);
     }
   });

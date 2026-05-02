@@ -20,6 +20,8 @@ src/lib/notification-policy.ts
 src/lib/permissions.ts
 src/lib/plan.ts
 src/lib/product-telemetry.ts
+# Type-only import of createAdminClient for audit helper signatures (no runtime admin client construction).
+src/lib/security/audit-write.ts
 src/lib/actions/access.ts
 src/lib/actions/contracts-access.ts
 src/lib/supabase/server.ts
@@ -40,4 +42,6 @@ src/lib/v5/relationship-bootstrap.ts
 src/lib/v5/relationship-timeline.ts
 src/lib/v6/cron.ts
 src/lib/v6/service.ts
+src/lib/v10-read-model-refresh.ts
+src/lib/v10-server-contracts.ts
 src/lib/workflow-signals.ts

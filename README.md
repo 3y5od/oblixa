@@ -50,6 +50,8 @@ The local app runs on [http://localhost:3000](http://localhost:3000) by default.
 | `npm run check:v8-suite` | Product-surface, routing, vocabulary, and eligibility suite |
 | `npm run test:e2e:smoke` | Fast authenticated/public Playwright smoke |
 | `npm run test:e2e:a11y` | Playwright accessibility lanes |
+| `npm run test:e2e:visual:full:update` | First-time or OS-specific visual baselines: public + authenticated surfaces with `--update-snapshots` (needs `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD` for the second half) |
+| `npm run test:e2e:visual:full:continue` | Run authenticated visual specs even when the public phase fails (baseline drift); exit status follows the second phase |
 | `npm run check:comprehensive-pass` | Runtime cron, migration, and RLS checks against a target environment |
 | `npm run preflight:release` | Validate release env and run release-adjacent static gates |
 | `npm run release:checklist` | Preflight, verify, runtime comprehensive pass, and Playwright |

@@ -1,0 +1,11 @@
+{
+  "features": [
+    {
+      "featureId": "core_contracts",
+      "eccn": "EAR99",
+      "jurisdiction": "US",
+      "exportRestricted": false,
+      "testPaths": ["e2e/v10-core-smoke.spec.ts"]
+    }
+  ]
+}

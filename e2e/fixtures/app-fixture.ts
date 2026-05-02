@@ -1,5 +1,5 @@
 import { test as base, expect, type Page } from "@playwright/test";
-import { loginWithCredentials } from "../login-test-user";
+import { ensureAuthenticatedSession } from "../login-test-user";
 import { attachFailOnConsole } from "./fail-on-console";
 import { attachFailOnRequestErrors } from "./fail-on-request-errors";
 import { annotateRouteState } from "./route-state-fixture";
@@ -44,7 +44,7 @@ export const test = base.extend<AppFixture>({
         const email = process.env.E2E_TEST_EMAIL?.trim();
         const password = process.env.E2E_TEST_PASSWORD?.trim();
         test.skip(!email || !password, "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated E2E.");
-        await loginWithCredentials(page, email!, password!);
+        await ensureAuthenticatedSession(page, email!, password!);
       },
       async gotoAndWait(path: string) {
         await page.goto(path, { waitUntil: "domcontentloaded" });

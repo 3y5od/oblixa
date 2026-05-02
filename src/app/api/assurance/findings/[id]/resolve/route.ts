@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -21,10 +22,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (modeGate) return modeGate;
 
-  const body = readJsonBody<{ note?: string; action?: string; signalFeedback?: string }>(
-    await request.json().catch(() => ({})),
-    {}
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{ note?: string; action?: string; signalFeedback?: string }>(raw ?? {}, {})
   );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
   const findingId = toSafeString((await params).id);
   if (!findingId) return NextResponse.json({ error: "id is required" }, { status: 400 });
 

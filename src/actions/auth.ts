@@ -8,6 +8,7 @@ import {
   getOrEnsureDeterministicMembership,
   resolveDefaultOrganizationNameForUser,
 } from "@/lib/supabase/server";
+import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
 import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { mapAuthError } from "@/lib/errors/user-facing";
@@ -16,6 +17,7 @@ import {
   rateLimitCheck,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+import { isKillSignup } from "@/lib/security/kill-switches";
 
 async function resolvePostAuthRedirectForUser(user: {
   id: string;
@@ -38,6 +40,9 @@ export async function signUp(formData: FormData) {
   const rl = await rateLimitCheck(`signup:${ip}`, RATE_LIMITS.signUp);
   if (!rl.ok) {
     return { error: "Too many sign-up attempts. Try again later." };
+  }
+  if (isKillSignup()) {
+    return { error: "New sign-ups are temporarily disabled." };
   }
 
   const supabase = await createClient();
@@ -97,9 +102,12 @@ export async function signIn(formData: FormData) {
 
   if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
 
+  const t0 = Date.now();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    const elapsed = Date.now() - t0;
+    await new Promise((r) => setTimeout(r, Math.max(0, 200 - elapsed)));
     return { error: mapAuthError(error.message) };
   }
 
@@ -115,6 +123,28 @@ export async function signIn(formData: FormData) {
 
 export async function signOut() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    try {
+      const admin = await createAdminClient();
+      const membership = await getOrEnsureDeterministicMembership(admin, user);
+      if (membership?.organization_id) {
+        void recordSecurityAuditEvent(admin, {
+          organizationId: membership.organization_id,
+          actorUserId: user.id,
+          action: "security.session_signed_out",
+          targetType: "auth_session",
+          targetId: user.id,
+          outcome: "success",
+          safeMetadata: {},
+        });
+      }
+    } catch (e) {
+      console.error("[auth] signOut security audit skipped:", e);
+    }
+  }
   await supabase.auth.signOut();
   redirect("/api/auth/post-sign-out");
 }

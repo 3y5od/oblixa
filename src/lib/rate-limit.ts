@@ -78,6 +78,8 @@ export const RATE_LIMITS = {
   /** Internal POST /api/extract/run (bearer secret); limits abuse if secret leaks */
   extractWorker: { max: 120, windowMs: 60_000 },
   signIn: { max: 40, windowMs: 15 * 60_000 },
+  /** Re-authenticate before sensitive actions (cookie mint). */
+  stepUpPassword: { max: 15, windowMs: 15 * 60_000 },
   signUp: { max: 12, windowMs: 60 * 60_000 },
   forgotPassword: { max: 8, windowMs: 60 * 60_000 },
   inviteMember: { max: 40, windowMs: 60 * 60_000 },
@@ -122,6 +124,8 @@ export const RATE_LIMITS = {
   /** Poll GET /api/export/contracts/[jobId] for job status (mirrors import job poll ceiling). */
   exportContractsJob: { max: 40, windowMs: 60_000 },
   exportCalendar: { max: 30, windowMs: 60_000 },
+  /** Authenticated self-service data export (DSR-style JSON). */
+  dsrSelfExport: { max: 10, windowMs: 60_000 },
   exportReviewPacket: { max: 15, windowMs: 60_000 },
   importContractsJob: { max: 40, windowMs: 60_000 },
   integrationCalendarSync: { max: 20, windowMs: 60_000 },
@@ -145,6 +149,8 @@ export const RATE_LIMITS = {
   v6OnboardingCalibrationStaleCron: { max: 60, windowMs: 60_000 },
   /** V9 product telemetry server actions (CmdK, page load, review save-next) — user+IP keyed. */
   productV9Telemetry: { max: 240, windowMs: 60_000 },
+  /** Gated internal debugging sweep diagnostics (bearer + env). */
+  internalDebuggingSweep: { max: 30, windowMs: 60_000 },
 } as const;
 
 export function getClientIpFromRequest(request: Request): string {

@@ -8,6 +8,16 @@ import {
 } from "@/lib/ui/operational-surface";
 
 export type OperationalBreakdownItem = { label: string; value: string };
+export type OperationalTriageItem = {
+  id: string;
+  title: string;
+  description?: string;
+  count?: number | string;
+  tone?: OperationalTone;
+  href?: string;
+  actionLabel?: string;
+  meta?: OperationalBreakdownItem[];
+};
 
 /**
  * When to use what:
@@ -133,6 +143,151 @@ export function OperationalMetricChip({ label, value }: OperationalBreakdownItem
       <span className="ui-metric-label">{label}</span>
       <span className="font-semibold tabular-nums text-[var(--text-primary)]">{value}</span>
     </div>
+  );
+}
+
+export function CompressedNormalState(props: {
+  title: string;
+  description?: string;
+  action?: { href: string; label: string };
+  className?: string;
+}) {
+  return (
+    <div
+      role="status"
+      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] px-3.5 py-3 text-[13px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="font-semibold text-[var(--text-primary)]">{props.title}</p>
+          {props.description ? <p className="mt-0.5">{props.description}</p> : null}
+        </div>
+        {props.action ? (
+          <Link href={props.action.href} className="ui-operational-action shrink-0 text-[11px]">
+            <span>{props.action.label}</span>
+            <span aria-hidden>→</span>
+          </Link>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function DiagnosticDisclosure(props: {
+  title?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <details
+      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] px-3.5 py-3 text-[12px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
+    >
+      <summary className="cursor-pointer list-none font-semibold text-[var(--text-primary)] marker:hidden">
+        {props.title ?? "Diagnostics"}
+      </summary>
+      <div className="mt-2 leading-relaxed">{props.children}</div>
+    </details>
+  );
+}
+
+export function SeverityMetricStrip(props: {
+  items: Array<OperationalBreakdownItem & { tone?: OperationalTone }>;
+  className?: string;
+}) {
+  return (
+    <div className={`flex flex-wrap gap-2 ${props.className ?? ""}`.trim()} role="list">
+      {props.items.map((item) => (
+        <div
+          key={item.label}
+          role="listitem"
+          className={`ui-metric-chip ${
+            item.tone ? OPERATIONAL_SHELL_BY_TONE[item.tone] : ""
+          }`.trim()}
+        >
+          <span className="ui-metric-label">{item.label}</span>
+          <span className="font-semibold tabular-nums text-[var(--text-primary)]">{item.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function OperationalTriagePanel(props: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  items: OperationalTriageItem[];
+  allClear?: {
+    title: string;
+    description?: string;
+    action?: { href: string; label: string };
+  };
+  diagnostics?: ReactNode;
+  className?: string;
+}) {
+  const activeItems = props.items.filter((item) => item.count !== 0 && item.count !== "0");
+  return (
+    <section className={`ui-card p-4 md:p-5 ${props.className ?? ""}`.trim()}>
+      <OperationalSectionHeader
+        eyebrow={props.eyebrow}
+        title={props.title}
+        description={props.description}
+        className="items-start"
+      />
+      {activeItems.length > 0 ? (
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {activeItems.map((item) => {
+            const content = (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[var(--text-primary)]">{item.title}</p>
+                    {item.description ? (
+                      <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+                        {item.description}
+                      </p>
+                    ) : null}
+                  </div>
+                  {item.count !== undefined ? (
+                    <span className="shrink-0 text-lg font-semibold tabular-nums text-[var(--text-primary)]">
+                      {item.count}
+                    </span>
+                  ) : null}
+                </div>
+                {item.meta && item.meta.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5" role="list">
+                    {item.meta.map((chip) => (
+                      <OperationalMetricChip key={chip.label} {...chip} />
+                    ))}
+                  </div>
+                ) : null}
+                {item.actionLabel ? (
+                  <span className="ui-operational-action mt-3 text-[11px]">
+                    {item.actionLabel}
+                    <span aria-hidden>→</span>
+                  </span>
+                ) : null}
+              </>
+            );
+            const className = `ui-operational-focusable ui-operational-card-compact flex min-h-0 flex-col px-3.5 py-3 ${OPERATIONAL_SHELL_BY_TONE[item.tone ?? "neutral"]}`;
+            return item.href ? (
+              <Link key={item.id} href={item.href} className={className}>
+                {content}
+              </Link>
+            ) : (
+              <div key={item.id} className={className}>
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      ) : props.allClear ? (
+        <CompressedNormalState className="mt-4" {...props.allClear} />
+      ) : null}
+      {props.diagnostics ? (
+        <DiagnosticDisclosure className="mt-4">{props.diagnostics}</DiagnosticDisclosure>
+      ) : null}
+    </section>
   );
 }
 

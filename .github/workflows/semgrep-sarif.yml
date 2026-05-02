@@ -1,0 +1,45 @@
+# Upload Semgrep results to GitHub Code Scanning (SARIF). Complements CI Semgrep --error gate.
+name: Semgrep SARIF
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - uses: actions/setup-python@0b9366ef6a0cdd62d9abac2b2de1819d50a075db
+        with:
+          python-version: "3.12"
+
+      - name: Install Semgrep
+        run: pip install "semgrep>=1.90.0"
+
+      - name: Semgrep scan (SARIF)
+        run: |
+          semgrep scan \
+            --config p/ci \
+            --config p/typescript \
+            --config semgrep/oblixa-security.yml \
+            --config semgrep/oblixa-performance.yml \
+            --config semgrep/oblixa-v7-surface.yml \
+            --config semgrep/oblixa-v8-surface.yml \
+            --config semgrep/oblixa-v10-surface.yml \
+            --sarif --output semgrep.sarif \
+            .
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@9c646c91e31ab31d6e812b6d6ff31848c0bbc637
+        with:
+          sarif_file: semgrep.sarif

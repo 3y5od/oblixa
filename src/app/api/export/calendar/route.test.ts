@@ -28,6 +28,7 @@ vi.mock("@/lib/integrations/calendar", () => ({
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
   emitProductTelemetryEvent,
 }));
 

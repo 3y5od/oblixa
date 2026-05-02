@@ -8,18 +8,21 @@ function isProductionLikeEnv(): boolean {
   return process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
 }
 
-/** Prefer dedicated submit-ticket secret; shared peppers allowed as fallback. Dev-only default if unset. */
+/**
+ * HMAC key for external submit tickets. Production-like env requires
+ * `EXTERNAL_ACTION_SUBMIT_TICKET_SECRET` (must not reuse CRON_SECRET or the passcode pepper).
+ */
 function externalSubmitTicketSecret(): string {
-  const resolved =
-    process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET?.trim() ??
-    process.env.EXTERNAL_ACTION_PASSCODE_PEPPER?.trim() ??
-    process.env.CRON_SECRET?.trim();
-  if (resolved) return resolved;
+  const submit = process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET?.trim();
   if (isProductionLikeEnv()) {
+    if (submit) return submit;
     throw new Error(
-      "[v5] Missing secret for external submit tickets: set EXTERNAL_ACTION_SUBMIT_TICKET_SECRET, EXTERNAL_ACTION_PASSCODE_PEPPER, or CRON_SECRET"
+      "[v5] Missing EXTERNAL_ACTION_SUBMIT_TICKET_SECRET for external submit tickets (CRON_SECRET and EXTERNAL_ACTION_PASSCODE_PEPPER are not allowed for this HMAC in production)"
     );
   }
+  const pepper = process.env.EXTERNAL_ACTION_PASSCODE_PEPPER?.trim();
+  const resolved = submit ?? pepper ?? process.env.CRON_SECRET?.trim();
+  if (resolved) return resolved;
   return DEV_EXTERNAL_PEPPER_FALLBACK;
 }
 
@@ -97,14 +100,15 @@ export function clampConfidence(value: unknown): number {
 }
 
 function resolvePasscodePepper(): string {
-  const resolved =
-    process.env.EXTERNAL_ACTION_PASSCODE_PEPPER?.trim() ?? process.env.CRON_SECRET?.trim();
-  if (resolved) return resolved;
+  const pepper = process.env.EXTERNAL_ACTION_PASSCODE_PEPPER?.trim();
   if (isProductionLikeEnv()) {
+    if (pepper) return pepper;
     throw new Error(
-      "[v5] Missing secret for external passcodes: set EXTERNAL_ACTION_PASSCODE_PEPPER or CRON_SECRET"
+      "[v5] Missing secret for external passcodes: set EXTERNAL_ACTION_PASSCODE_PEPPER (CRON_SECRET is not allowed in production)"
     );
   }
+  const resolved = pepper ?? process.env.CRON_SECRET?.trim();
+  if (resolved) return resolved;
   return DEV_EXTERNAL_PEPPER_FALLBACK;
 }
 

@@ -4,6 +4,9 @@ const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const appendCasefileEvent = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
+const emitProductTelemetryEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -16,6 +19,25 @@ vi.mock("@/lib/v4/casefile", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
+  emitProductTelemetryEvent,
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentMutation: async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({
+    response: await execute(),
+    replayed: false,
+  }),
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  getV10ExpectedVersionFromRequest: (request: Request) => request.headers.get("x-v10-expected-version")?.trim() || undefined,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 function createAdminClientMock() {
@@ -54,6 +76,8 @@ describe("POST /api/approvals/[id]/[action]", () => {
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
     getApiAuthContext.mockResolvedValue({
       admin: createAdminClientMock(),
       userId: "user-1",
@@ -68,7 +92,7 @@ describe("POST /api/approvals/[id]/[action]", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/approvals/approval-1/delegate", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-approval-delegate" },
         body: JSON.stringify({ delegateUserId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }),
       }),
       { params: Promise.resolve({ id: "approval-1", action: "delegate" }) }
@@ -76,7 +100,53 @@ describe("POST /api/approvals/[id]/[action]", () => {
 
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "delegateUserId must belong to your organization" });
+    expect(body).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_approval_delegate_wrong_org",
+    });
     expect(appendCasefileEvent).not.toHaveBeenCalled();
+    expect(recordV10AuditEvent).not.toHaveBeenCalled();
+  });
+
+  it("approves an approval through the V10 mutation envelope", async () => {
+    const { POST } = await import("@/app/api/approvals/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/approvals/approval-1/approve", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-approval-approve" },
+        body: JSON.stringify({ note: "Looks good" }),
+      }),
+      { params: Promise.resolve({ id: "approval-1", action: "approve" }) }
+    );
+
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      outcome: "success",
+      changed_object_type: "approval",
+      changed_object_id: "approval-1",
+      audit_event_id: "v10-audit-1",
+    });
+    expect(appendCasefileEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "approval.approved",
+        entityId: "approval-1",
+      })
+    );
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "approval.approved",
+        afterStateHash: "approved",
+      })
+    );
+    expect(refreshV10ReadModelsForOrganization).toHaveBeenCalled();
+    expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "product.v10.approval_decision_recorded",
+        details: expect.objectContaining({ action: "approve", outcome: "approved" }),
+      })
+    );
   });
 });

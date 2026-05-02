@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { applyProgramToContract } from "@/lib/v4/execution-engine";
@@ -117,7 +118,9 @@ export async function POST(
   }
 
   if (action === "apply") {
-    const payload = (await request.json().catch(() => ({}))) as { contractIds?: string[] };
+    const _lb_payload = await readJsonBodyLimited(request);
+  if (!_lb_payload.ok) return _lb_payload.response;
+  const payload = (_lb_payload.body ?? {}) as { contractIds?: string[] };
     const rawContractIds = Array.isArray(payload.contractIds) ? payload.contractIds : [];
     const contractIds = [...new Set(rawContractIds.map((value) => String(value ?? "").trim()).filter(Boolean))];
     if (contractIds.length === 0) {

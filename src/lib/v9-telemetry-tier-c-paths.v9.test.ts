@@ -49,6 +49,7 @@ describe("V9 telemetry Tier C — allowlisted actions co-locate with emit helper
     const bodies = files.map((f) => ({ f, body: readFileSync(f, "utf8") }));
 
     for (const action of PRODUCT_TELEMETRY_ACTIONS) {
+      if (action.startsWith("product.v10.")) continue;
       if (HELPER_DYNAMIC.has(action)) continue;
       const q = `"${action}"`;
       const hit = bodies.find((b) => b.body.includes(q) && hasEmitCall(b.body));

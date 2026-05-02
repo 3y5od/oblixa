@@ -1,0 +1,406 @@
+{
+  "generatedAt": "2026-05-02T00:03:03.757Z",
+  "sampleSize": 400,
+  "rows": [
+    {
+      "file": "src/lib/actions/access.ts",
+      "prodLines": 133,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/actions/contracts-access.ts",
+      "prodLines": 46,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contract-detail-summary.ts",
+      "prodLines": 169,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contract-list-id-filters.ts",
+      "prodLines": 172,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contract-list-row-signals.ts",
+      "prodLines": 117,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contract-list.ts",
+      "prodLines": 149,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contract-review-stats.ts",
+      "prodLines": 171,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contracts-search-url.ts",
+      "prodLines": 28,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/contracts.ts",
+      "prodLines": 60,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/csv-formula-safe.ts",
+      "prodLines": 17,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/dashboard-data.ts",
+      "prodLines": 327,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-generated.ts",
+      "prodLines": 8,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-handwritten-overrides.ts",
+      "prodLines": 5,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-index.server.ts",
+      "prodLines": 35,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-a11y-at-engines.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-a11y-standards-matrix.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-ai-governance-standards.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-airgap-sovereign.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-alt-e2e-visual-grid.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-build-monorepo-bundlers.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-chaos-vendors.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-ci-media-retention.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-cloud-iam-secrets-gateways.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-compliance-frameworks.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-container-k8s-admission.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-cryptography-pki.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-dast-fuzz-proxy.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-data-engineering-distributed.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-data-lineage-warehouse.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-device-attestation-os.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-devtools-debug-protocols.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-edge-ml-serving.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-email-dns-security.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-enterprise-idp-netfs.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-erp-hr-enterprise.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-filesystems-block-storage.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-financial-calendars.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-forensics-debug-symbols.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-formal-methods-property-testing.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-fringe-physical-network-time.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-humans-change-management.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-ide-lsp-arch.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-incident-comms-status.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-jurisdictions-data-residency.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-language-runtimes-gc.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-licensing-notices.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-llm-safety-multimodal.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-log-formats-siem.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-media-drm-fonts-typography.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-ml-experiment-monitoring.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-native-sanitizers-profilers.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-nix-reproducible-builds.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-node-streams-process-managers.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-observability-semconv-slo.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-offline-crdt-local-first.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-orchestration-etl.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-os-hardware-pathology.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-os-host-security-fs.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-owasp-asvs-ssdf.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-package-registries.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-payments-rails-global.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-privacy-sandbox-identity.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-product-analytics-experimentation.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-routing-rpki-bgp.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-rpc-schema-contracts.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-sbom-formats-i18n-tax.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-scientific-niche-domains.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-serialization-parsing-matrix.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-supabase-cdn-vercel.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-supply-chain-provenance.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-threat-stride-internal.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-time-determinism-simulation.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-vertical-regulated-industry.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-wasm-alternate-runtimes.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-web-payment-vc-did-c2pa.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-web-peripheral-apis.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-partitions/catalog-webrtc-realtime.ts",
+      "prodLines": 3,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/catalog-types.ts",
+      "prodLines": 92,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/client-sweep-bridge.tsx",
+      "prodLines": 18,
+      "hasColocatedTest": false
+    },
+    {
+      "file": "src/lib/debugging-sweep/partition-checksums.generated.ts",
+      "prodLines": 15,
+      "hasColocatedTest": false
+    }
+  ]
+}

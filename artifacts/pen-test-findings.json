@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "id": "VA-BOOTSTRAP-001",
+      "title": "Placeholder closed finding",
+      "severity": "info",
+      "regressionTestGlob": "src/**/*.test.ts",
+      "status": "closed"
+    }
+  ]
+}

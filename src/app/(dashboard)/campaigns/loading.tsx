@@ -7,7 +7,7 @@ export default function CampaignsSegmentLoading() {
         Loading campaigns. List filters, simulations, and campaign cards will appear shortly.
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
-        <header className="ui-page-header">
+        <header className="ui-page-header-compact">
           <div className="space-y-3">
             <div className="ui-skeleton h-4 w-32 rounded" />
             <div className="ui-skeleton h-9 w-64 max-w-full rounded" />

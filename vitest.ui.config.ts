@@ -4,10 +4,22 @@ import { defineConfig } from "vitest/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const minimalFloor = { lines: 1, functions: 1, branches: 1, statements: 1 };
+const maximalUiRatchet =
+  process.env.VITEST_COVERAGE_MAXIMAL === "1" || process.env.VITEST_COVERAGE_MAXIMAL === "true"
+    ? {
+        perDirectory: {
+          "src/components/auth": { ...minimalFloor },
+          "src/components/layout": { ...minimalFloor },
+        },
+      }
+    : {};
+
 const UI_TEST_FILES = [
   "src/**/*.ui.test.ts",
   "src/**/*.ui.test.tsx",
   "src/components/ui/operational-summary-card.test.tsx",
+  "src/components/ui/v10-recoverable-state.test.tsx",
   "src/components/ui/axe-smoke.test.tsx",
   "src/components/onboarding/calibration-wizard.review.test.tsx",
   "src/components/onboarding/calibration-wizard-debounce.test.tsx",
@@ -35,6 +47,7 @@ export default defineConfig({
         "src/components/layout/skip-link.tsx",
         "src/components/layout/workspace-required-state.tsx",
         "src/components/ui/operational-summary-card.tsx",
+        "src/components/ui/v10-recoverable-state.tsx",
         "src/components/ui/empty-state.tsx",
         "src/components/ui/inline-skeleton.tsx",
         "src/components/ui/queue-item-card.tsx",
@@ -57,6 +70,7 @@ export default defineConfig({
         functions: 20,
         branches: 15,
         statements: 21,
+        ...maximalUiRatchet,
       },
     },
   },

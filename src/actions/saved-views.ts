@@ -4,10 +4,43 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { isUuid } from "@/lib/security/validation";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 const MAX_NAME_LEN = 80;
 const VIEW_TYPES = ["contracts", "tasks", "obligations", "renewals"] as const;
 type SavedViewType = (typeof VIEW_TYPES)[number];
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+
+async function recordV10SavedViewMutation(
+  admin: Admin,
+  input: {
+    organizationId: string;
+    actorUserId: string;
+    action: string;
+    savedViewId: string;
+    viewType?: string | null;
+    safeMetadata?: Record<string, string | number | boolean | null>;
+  }
+) {
+  const auditEventId = await recordV10AuditEvent(admin, {
+    organizationId: input.organizationId,
+    actorUserId: input.actorUserId,
+    action: input.action,
+    targetType: "saved_view",
+    targetId: input.savedViewId,
+    outcome: "success",
+    safeMetadata: {
+      view_type: input.viewType ?? "unknown",
+      ...(input.safeMetadata ?? {}),
+    },
+  });
+  await refreshV10ReadModelsForOrganization(admin, input.organizationId, {
+    reason: input.action,
+    refreshScope: "incremental",
+  });
+  return auditEventId;
+}
 
 function trimOrNull(v: FormDataEntryValue | null): string | null {
   const t = String(v ?? "").trim();
@@ -81,36 +114,54 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
     .maybeSingle();
   if (!membership) return { error: "Access denied" };
 
-  const { error } = await admin.from("saved_views").upsert(
-    {
-      organization_id: orgId,
-      user_id: user.id,
-      view_type: viewType,
-      name,
-      query_json: {
-        status,
-        search,
-        owner,
-        region,
-        deadline,
-        sort,
-        exceptions,
-        review,
-        data_quality,
-        evidence,
-        mine,
-        team,
-        pinned,
+  const { data: savedView, error } = await admin
+    .from("saved_views")
+    .upsert(
+      {
+        organization_id: orgId,
+        user_id: user.id,
+        view_type: viewType,
+        name,
+        query_json: {
+          status,
+          search,
+          owner,
+          region,
+          deadline,
+          sort,
+          exceptions,
+          review,
+          data_quality,
+          evidence,
+          mine,
+          team,
+          pinned,
+        },
       },
-    },
-    {
-      onConflict: "user_id,view_type,name",
-      ignoreDuplicates: false,
-    }
-  );
+      {
+        onConflict: "user_id,view_type,name",
+        ignoreDuplicates: false,
+      }
+    )
+    .select("id")
+    .single();
 
   if (error) {
     return { error: mapDataSourceError(error.message) };
+  }
+  if (savedView?.id) {
+    await recordV10SavedViewMutation(admin, {
+      organizationId: orgId,
+      actorUserId: user.id,
+      action: "saved_view.upserted",
+      savedViewId: savedView.id,
+      viewType,
+      safeMetadata: {
+        pinned,
+        has_search: Boolean(search),
+        has_deadline: Boolean(deadline),
+      },
+    });
   }
   revalidateSavedViewPaths(viewType);
   return { success: true as const };
@@ -127,7 +178,7 @@ export async function setSavedViewPinned(savedViewId: string, pinned: boolean) {
 
   const { data: row } = await admin
     .from("saved_views")
-    .select("id, user_id, view_type, query_json")
+    .select("id, organization_id, user_id, view_type, query_json")
     .eq("id", savedViewId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -146,6 +197,14 @@ export async function setSavedViewPinned(savedViewId: string, pinned: boolean) {
   if (error) {
     return { error: mapDataSourceError(error.message) };
   }
+  await recordV10SavedViewMutation(admin, {
+    organizationId: row.organization_id,
+    actorUserId: user.id,
+    action: "saved_view.pinned_changed",
+    savedViewId: row.id,
+    viewType: row.view_type,
+    safeMetadata: { pinned },
+  });
   revalidateSavedViewPaths(row.view_type);
   return { success: true as const };
 }
@@ -159,6 +218,14 @@ export async function deleteSavedView(savedViewId: string) {
   if (!user) return { error: "Not authenticated" };
   if (!isUuid(savedViewId)) return { error: "Invalid saved view" };
 
+  const { data: row } = await admin
+    .from("saved_views")
+    .select("id, organization_id, view_type")
+    .eq("id", savedViewId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!row) return { error: "Saved view not found" };
+
   const { error } = await admin
     .from("saved_views")
     .delete()
@@ -168,6 +235,13 @@ export async function deleteSavedView(savedViewId: string) {
   if (error) {
     return { error: mapDataSourceError(error.message) };
   }
+  await recordV10SavedViewMutation(admin, {
+    organizationId: row.organization_id,
+    actorUserId: user.id,
+    action: "saved_view.deleted",
+    savedViewId,
+    viewType: row.view_type,
+  });
   revalidatePath("/contracts");
   return { success: true as const };
 }
@@ -186,7 +260,7 @@ export async function setSavedViewWeeklySummary(
 
   const { data: savedView } = await admin
     .from("saved_views")
-    .select("id, organization_id, user_id")
+    .select("id, organization_id, user_id, view_type")
     .eq("id", savedViewId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -222,6 +296,14 @@ export async function setSavedViewWeeklySummary(
     }
   }
 
+  await recordV10SavedViewMutation(admin, {
+    organizationId: savedView.organization_id,
+    actorUserId: user.id,
+    action: "saved_view.summary_subscription_updated",
+    savedViewId: savedView.id,
+    viewType: savedView.view_type,
+    safeMetadata: { frequency: "weekly", active: enable },
+  });
   revalidatePath("/contracts");
   return { success: true as const };
 }
@@ -240,7 +322,7 @@ export async function setSavedViewMonthlySummary(
 
   const { data: savedView } = await admin
     .from("saved_views")
-    .select("id, organization_id, user_id")
+    .select("id, organization_id, user_id, view_type")
     .eq("id", savedViewId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -276,6 +358,14 @@ export async function setSavedViewMonthlySummary(
     }
   }
 
+  await recordV10SavedViewMutation(admin, {
+    organizationId: savedView.organization_id,
+    actorUserId: user.id,
+    action: "saved_view.summary_subscription_updated",
+    savedViewId: savedView.id,
+    viewType: savedView.view_type,
+    safeMetadata: { frequency: "monthly", active: enable },
+  });
   revalidatePath("/contracts");
   return { success: true as const };
 }
@@ -300,7 +390,7 @@ export async function setSavedViewWeeklyRecipients(
 
   const { data: savedView } = await admin
     .from("saved_views")
-    .select("id, user_id")
+    .select("id, organization_id, user_id, view_type")
     .eq("id", savedViewId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -316,6 +406,14 @@ export async function setSavedViewWeeklyRecipients(
     return { error: mapDataSourceError(error.message) };
   }
 
+  await recordV10SavedViewMutation(admin, {
+    organizationId: savedView.organization_id,
+    actorUserId: user.id,
+    action: "saved_view.summary_recipients_updated",
+    savedViewId: savedView.id,
+    viewType: savedView.view_type,
+    safeMetadata: { recipient_count: recipients.length },
+  });
   revalidatePath("/contracts");
   return { success: true as const };
 }

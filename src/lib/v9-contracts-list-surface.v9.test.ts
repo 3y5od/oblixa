@@ -24,7 +24,7 @@ describe("V9 §9 contract list — URL filters + selection stability anchors", (
 
   it("keeps the contracts list empty state actionable with shared EmptyState + upload CTA", () => {
     const table = read("src/components/contracts/contract-table.tsx");
-    expect(table).toContain("EmptyState");
+    expect(table).toMatch(/EmptyState|V10RecoverableState/);
     expect(table).toContain('title="No contracts yet"');
     expect(table).toContain('href="/contracts/new"');
   });

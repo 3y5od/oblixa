@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "sp800_63b": { "topic": "Digital identity guidelines", "repoScope": "Authenticator strength delegated to IdP (Supabase)" },
+  "sp800_207": { "topic": "Zero trust architecture", "repoScope": "Session + org-scoped APIs; admin client least use" },
+  "ledgerSections": ["C", "D", "E", "M", "N"]
+}

@@ -1,0 +1,20 @@
+name: QA Stryker monthly schedule
+
+on:
+  schedule:
+    - cron: "30 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stryker_schedule_notice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Monthly mutation-testing window (opt-in heavy job)
+        run: |
+          echo "Scheduled monthly slot for mutation testing."
+          echo "For a full Stryker run use qa-max-nightly workflow_dispatch with run_stryker=1."

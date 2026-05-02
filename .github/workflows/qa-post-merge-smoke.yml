@@ -1,0 +1,32 @@
+name: QA post-merge smoke
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:smoke
+        env:
+          CI: "true"
+      - name: QA ultimate post-merge tier
+        run: npm run qa:sweep:ultimate:postmerge
+        env:
+          CI: "true"
+          QA_CHECK_BATCH_TOTAL: "4"
+          QA_CHECK_BATCH_SIZE: "4"
+          QA_CHECK_BATCH_INDEX: ${{ (github.run_number % 4) + 1 }}

@@ -1,0 +1,28 @@
+name: QA game day
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  game_day:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:synthetic-p0
+      - run: npm run test:synthetic-p0
+      - name: Evidence
+        run: |
+          echo '{"steps":["synthetic-p0","synthetic-p0"],"ts":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' > game-day-evidence.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: game-day-evidence
+          path: game-day-evidence.json

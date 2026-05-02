@@ -21,15 +21,22 @@ describe("hashExternalPasscode", () => {
     expect(() => hashExternalPasscode("x")).toThrow(/EXTERNAL_ACTION_PASSCODE_PEPPER/);
   });
 
-  it("signExternalSubmitTicket uses CRON_SECRET in production when dedicated secrets unset", () => {
+  it("signExternalSubmitTicket works in production with dedicated submit secret", () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("CRON_SECRET", "cron-shared-secret");
-    delete process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET;
-    delete process.env.EXTERNAL_ACTION_PASSCODE_PEPPER;
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET", "submit-ticket-secret");
+    vi.stubEnv("EXTERNAL_ACTION_PASSCODE_PEPPER", "passcode-pepper");
     const ticket = signExternalSubmitTicket({ linkId: "link-1", urlToken: "tok" });
     expect(ticket.length).toBeGreaterThan(20);
-    expect(
-      verifyExternalSubmitTicket("tok", ticket, "link-1")
-    ).toEqual({ ok: true });
+    expect(verifyExternalSubmitTicket("tok", ticket, "link-1")).toEqual({ ok: true });
+  });
+
+  it("rejects CRON_SECRET as submit-ticket HMAC key in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("CRON_SECRET", "cron-only");
+    delete process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET;
+    delete process.env.EXTERNAL_ACTION_PASSCODE_PEPPER;
+    expect(() => signExternalSubmitTicket({ linkId: "link-1", urlToken: "tok" })).toThrow(
+      /EXTERNAL_ACTION_SUBMIT_TICKET_SECRET/
+    );
   });
 });

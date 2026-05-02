@@ -1,5 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
 
+/** Max tags per sweep correlation attach (Sentry limits tags; stay conservative). */
+export const SENTRY_SWEEP_MAX_TAGS = 50;
+
 const HAS_SERVER_DSN = Boolean(process.env.SENTRY_DSN?.trim());
 const HAS_CLIENT_DSN = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN?.trim());
 
@@ -25,6 +28,21 @@ export function captureClientException(
 ): void {
   if (!HAS_CLIENT_DSN) return;
   Sentry.captureException(error, context);
+}
+
+export function truncateSweepTag(value: string, max = 200): string {
+  const t = value.replace(/[\r\n]/g, "").trim();
+  return t.length <= max ? t : `${t.slice(0, max - 1)}…`;
+}
+
+/** Optional correlation context for sweep / internal diagnostics (no secrets). */
+export function setSweepCorrelationContext(data: Record<string, string>): void {
+  if (!HAS_SERVER_DSN) return;
+  const entries = Object.entries(data).slice(0, SENTRY_SWEEP_MAX_TAGS);
+  Sentry.setContext(
+    "sweep_correlation",
+    Object.fromEntries(entries.map(([k, v]) => [k, truncateSweepTag(v, 200)]))
+  );
 }
 
 /** Scrubbed product-surface denial breadcrumbs (V7 §21.2); enable with PRODUCT_SURFACE_SENTRY_DIAGNOSTICS=1. */

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "description": "Non-binding wall-clock budgets for longest CI workflows (seconds). Breach is telemetry-only unless wired to a gate.",
+  "workflows": [
+    { "id": "ci.yml:quality_static_security", "softBudgetSeconds": 900 },
+    { "id": "ci.yml:quality_build_e2e", "softBudgetSeconds": 1500 },
+    { "id": "ci.yml:quality_static_surface", "softBudgetSeconds": 900 },
+    { "id": "ci.yml:dependency-review", "softBudgetSeconds": 300 }
+  ]
+}

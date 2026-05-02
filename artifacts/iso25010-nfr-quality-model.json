@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "characteristics": [
+    { "id": "security", "checks": ["check:security-static:grep", "check:api-problem-json"] },
+    { "id": "reliability", "checks": ["test:e2e:resilience:all"] }
+  ]
+}

@@ -1,0 +1,840 @@
+{
+  "schemaVersion": 1,
+  "keys": {
+    "a11y.contrast_certification_lab": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "a11y.neurodiversity_cognitive_path_program": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "a11y.vpat_audit_firm": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ai.prompt_retention_ttl": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ai.vendor_data_processing_agreement": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "backup.cross_region_object_replication": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "biz.annual_commit_discount": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "biz.capacity_commit": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "biz.cost_allocation_tags": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "build.native_toolchain": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cache.service_worker_update_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "carbon.measurement_attestation_methodology": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.bot_rate": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.brotli_quality": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.cache_rules": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.early_hints": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.http3_toggle": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.origin_shield": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.purge_automation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.speculation_rules": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "cdn.vary_cookie_fragmentation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.cache_restore_keys_strategy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.compute_budget_merge_queue": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.concurrency_queue_depth": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.merge_queue_parallel_depth": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.runner_disk_space": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ci.self_hosted_runner_pool_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.audit_log_immutability_provider": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.dpia_register_calendar": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.export_control_classification": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.legal_hold_storage_tier": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.ofac_list_refresh_operator_schedule": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.pen_test_engagement_calendar": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.sanctions_screening_vendor": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.sbom_diff_policy_registry": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.slsa_attestation_evidence_host": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.subprocessor_change_notice_sla": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compliance.web3_surface_policy_future": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.autoscaling_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.carbon_aware_scheduling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.concurrency_limits": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.cpu_throttle_steal": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.instance_class": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "compute.provisioned_concurrency": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "container.cpu_memory_requests": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "container.hpa_metrics_custom": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "crypto.kms_hsm_operator": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "crypto.pqc_transition": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "data.outbox_replication_lag_budget": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "data.residency_region_lock": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.autovacuum_global": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.connection_pooler_mode": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.cross_region_replica_lag_slo": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.logical_replication_slots": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.maintenance_window": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.managed_parameter_group": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.max_connections": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.pitr_backup_window": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.query_statement_timeout_global": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.read_replica_routing": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "db.storage_provisioned_iops": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "dns.dnssec_dnskey_rotation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "dns.multi_region_records": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "dns.ttl_authoritative": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "email.bimi_publish": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "email.dkim_rotation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "email.mtasts_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "email.tls_rpt_aggregate_hosting": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "finreg.audit_firm_rotation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "finreg.eccn_classification_board": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "fraud.device_fingerprint_vendor": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "fraud.risk_engine": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "geo.routing_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "hw.nic_offload": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "hw.numa_layout": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "hw.thp_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "i18n.mt_engine_region": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "i18n.translation_vendor_tms": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "idp.directory_sync_throughput": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "idp.mfa_enrollment_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "idp.sso_session_lifetime": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "k8s.hpa_behavior": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "k8s.pdb_budget": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "lb.connection_draining": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "lb.etag_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "lb.idle_timeout": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "legal.cookie_consent_cmp_vendor": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "legal.ediscovery_export_bandwidth": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ml.model_lineage_registry_vendor": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "mobile.android_assetlinks": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "mobile.ios_aasa": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "mobile.webview_update_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "npm.peer_dependency_resolution_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.customer_experience_dashboard": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.dashboard_slo_burn": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.log_ingest_retention_pricing": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.metric_cardinality_limits": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.rum_sampling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "o11y.tail_sampling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.code_review_sla": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.dr_drill_calendar": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.game_day_schedule": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.incident_severity_definitions": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.merge_queue_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.on_call_rotation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.rpo_rto_evidence_system": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "ops.vendor_escalation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "os.disk_scheduler": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "os.sysctl_tcp": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "os.transparent_hugepage_defrag": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "otel.collector_scaling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "payments.3ds_region_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "payments.scheme_updates": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.browser_os_matrix_lab_host": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.browserstack_matrix": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.carrier_network_emulation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.flaky_test_quarantine_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.locale_coverage_governance_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "qa.physical_device_farm": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "reg.change_advisory_calendar": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "runtime.gc_tuning": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "runtime.libuv_threadpool": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "runtime.node_heap_limit": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "scm.git_lfs_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "scm.large_pack_objects_gc": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "scm.monorepo_sparse_checkout": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.bug_bounty_program_scope": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.codeql_cron_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.dast_zap_baseline_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.dlp_inline_scanning": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.semgrep_rulepack_hosting": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.siem_ingest_rate": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.stride_threat_model_review_cadence": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.supply_chain_native_artifacts": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.trivy_db_mirror": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "sec.waf_learning_mode": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "secrets.external_vault": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "secrets.replica_lag_budget": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "secrets.rotation_automation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "serverless.cold_start_mitigation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "serverless.region_pinning": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "service_mesh.mtls_overhead_budget": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "service_mesh.sidecar_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "tls.acme_certificate_lifecycle_separation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "tls.ocsp_stapling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "tls.session_tickets_rotation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.b2b_idp_integration_calendar": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.cdn_log_shipping": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.dependabot_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.graphql_federation_sla": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.olap_warehouse_slots": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.openai_org_limits": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.resend_domain_warmth": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.search_cluster": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.sentry_quota": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.stripe_dashboard": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.supabase_dashboard": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.tag_manager_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.upstash_region": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.vercel_project_settings": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vendor.warehouse_sync": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vpc.egress_firewall": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vpc.nat_gateway_scaling": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "vpc.private_link": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "waf.bot_mitigation": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "waf.rules_latency": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    },
+    "wasm.runtime_allowlist_policy": {
+      "status": "requires_external",
+      "owner": null,
+      "lastReviewedCommit": null
+    }
+  }
+}

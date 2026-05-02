@@ -148,11 +148,18 @@ export const getAuthContext = cache(async () => {
 
   if (!membership) return null;
 
+  const { data: orgRow } = await admin
+    .from("organizations")
+    .select("mfa_required")
+    .eq("id", membership.organization_id)
+    .maybeSingle();
+
   return {
     user,
     orgId: membership.organization_id as string,
     role: membership.role as string,
     admin,
+    mfaRequired: Boolean((orgRow as { mfa_required?: boolean } | null)?.mfa_required),
   };
 });
 

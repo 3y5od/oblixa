@@ -1,0 +1,61 @@
+# Library modules referencing createAdminClient
+
+Generated: 2026-05-02T01:16:17.788Z
+
+**Purpose:** Index only. Each caller must enforce tenant scope when bypassing RLS.
+
+Regenerate:
+
+```bash
+npm run report:security-lib-admin
+```
+
+**Total files scanned:** 409
+**Files with createAdminClient:** 44
+
+| File |
+|------|
+| `src/lib/actions/access.ts` |
+| `src/lib/actions/contracts-access.ts` |
+| `src/lib/contract-filters.ts` |
+| `src/lib/contract-list-id-filters.ts` |
+| `src/lib/contract-list-row-signals.ts` |
+| `src/lib/contract-list.ts` |
+| `src/lib/contract-review-stats.ts` |
+| `src/lib/contracts.ts` |
+| `src/lib/dashboard-data.ts` |
+| `src/lib/data-quality.ts` |
+| `src/lib/extraction-job.ts` |
+| `src/lib/extraction/run-pipeline.ts` |
+| `src/lib/import-jobs.ts` |
+| `src/lib/integrations/calendar.ts` |
+| `src/lib/integrations/events.ts` |
+| `src/lib/integrations/slack.ts` |
+| `src/lib/missing-critical-fields.ts` |
+| `src/lib/notification-delivery.ts` |
+| `src/lib/notification-policy.ts` |
+| `src/lib/permissions.ts` |
+| `src/lib/plan.ts` |
+| `src/lib/product-telemetry.ts` |
+| `src/lib/security/audit-write.ts` |
+| `src/lib/supabase/server.ts` |
+| `src/lib/usage-stats.ts` |
+| `src/lib/v10-read-model-refresh.ts` |
+| `src/lib/v10-server-contracts.ts` |
+| `src/lib/v4/api-auth.ts` |
+| `src/lib/v4/automation-audit.ts` |
+| `src/lib/v4/casefile.ts` |
+| `src/lib/v4/exceptions.ts` |
+| `src/lib/v4/execution-engine.ts` |
+| `src/lib/v4/program-auto-attach.ts` |
+| `src/lib/v4/report-pack-metrics.ts` |
+| `src/lib/v5/campaign-eligibility.ts` |
+| `src/lib/v5/cron.ts` |
+| `src/lib/v5/persist-signal-quality.ts` |
+| `src/lib/v5/portfolio-analytics.ts` |
+| `src/lib/v5/post-decision-actions.ts` |
+| `src/lib/v5/relationship-bootstrap.ts` |
+| `src/lib/v5/relationship-timeline.ts` |
+| `src/lib/v6/cron.ts` |
+| `src/lib/v6/service.ts` |
+| `src/lib/workflow-signals.ts` |

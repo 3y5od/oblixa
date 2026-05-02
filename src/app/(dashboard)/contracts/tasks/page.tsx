@@ -10,8 +10,10 @@ import {
   setSavedViewWeeklySummary,
 } from "@/actions/saved-views";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { EmptyState } from "@/components/ui/empty-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+
+export const metadata = { title: "Tasks" };
 
 type TaskStatusFilter = "" | "open" | "in_progress" | "blocked" | "done";
 const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
@@ -139,10 +141,10 @@ export default async function ContractTasksPage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Execution</p>
-          <h1 className="ui-display-title mt-2">Task queue</h1>
+          <h1 className="ui-page-title-compact mt-2">Task queue</h1>
           <p className="ui-page-lead mt-2">Team follow-up with ownership, urgency, and status.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
@@ -305,9 +307,14 @@ export default async function ContractTasksPage(props: {
       </div>
 
       {tasks.length === 0 ? (
-        <EmptyState
+        <V10RecoverableState
+          state="empty"
           title="No tasks in this queue"
-          copy="Change filters or create tasks from a contract record."
+          reason="No tasks match the current Work filters. Clear filters or review unified Work for other action types."
+          accessibleName="No contract tasks match this queue"
+          nextAction={<Link href="/work" className="ui-btn-secondary px-3 py-2 text-xs">Review unified Work</Link>}
+          nextActionLabel="Review unified Work"
+          density="compact"
         />
       ) : (
         <div className="ui-table-shell">

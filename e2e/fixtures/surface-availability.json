@@ -1,0 +1,6 @@
+{
+  "marketingPaths": ["/", "/privacy", "/terms", "/security", "/cookies"],
+  "apiHealthPaths": ["/api/health"],
+  "optional404Prefixes": ["/decisions", "/campaigns", "/reports", "/assurance"],
+  "notes": "E2E can read this file to decide soft assertions vs hard failures when a route is intentionally absent in a matrix build."
+}

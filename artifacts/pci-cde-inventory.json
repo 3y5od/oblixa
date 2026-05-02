@@ -1,0 +1,6 @@
+{
+  "routes": ["/api/stripe/webhook"],
+  "tables": ["stripe_webhook_events"],
+  "cardholderDataFields": [],
+  "note": "No PAN storage in Oblixa web tier; Stripe handles cardholder data."
+}

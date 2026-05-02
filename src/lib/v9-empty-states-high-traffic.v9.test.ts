@@ -17,8 +17,10 @@ const CORE_EMPTY_PAGES = [
 describe("V9 §20 empty states — high-traffic Core surfaces", () => {
   it.each(CORE_EMPTY_PAGES)("%s imports the shared EmptyState primitive", (rel) => {
     const raw = readFileSync(join(process.cwd(), rel), "utf8");
-    expect(raw).toContain('from "@/components/ui/empty-state"');
-    expect(raw).toContain("<EmptyState");
+    const usesLegacyEmptyState = raw.includes('from "@/components/ui/empty-state"') && raw.includes("<EmptyState");
+    const usesV10RecoverableState =
+      raw.includes('from "@/components/ui/v10-recoverable-state"') && raw.includes("<V10RecoverableState");
+    expect(usesLegacyEmptyState || usesV10RecoverableState).toBe(true);
   });
 
   it("keeps the EmptyState API to a single optional action slot (§20.2 CTA budget)", () => {

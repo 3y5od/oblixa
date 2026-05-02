@@ -1,46 +1,32 @@
-import { describe, expect, it } from "vitest";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
-
-const SECRET = "cron-secret-value";
+import { describe, it, expect } from "vitest";
+import { authorizeCronRequest } from "./cron-auth";
 
 describe("authorizeCronRequest", () => {
-  it("accepts matching Bearer token", () => {
-    const ok = authorizeCronRequest(
-      new Request("http://localhost/api/cron/x", {
-        headers: { authorization: `Bearer ${SECRET}` },
-      }),
-      SECRET
-    );
-    expect(ok).toBe(true);
+  const secret = "test-cron-secret-value-32chars!!";
+
+  it("accepts Authorization Bearer match", () => {
+    const req = new Request("http://localhost/api/cron/x", {
+      headers: { authorization: `Bearer ${secret}` },
+    });
+    expect(authorizeCronRequest(req, secret)).toBe(true);
   });
 
-  it("accepts matching x-cron-secret", () => {
-    const ok = authorizeCronRequest(
-      new Request("http://localhost/api/cron/x", {
-        headers: { "x-cron-secret": SECRET },
-      }),
-      SECRET
-    );
-    expect(ok).toBe(true);
+  it("rejects wrong bearer", () => {
+    const req = new Request("http://localhost/api/cron/x", {
+      headers: { authorization: "Bearer wrong" },
+    });
+    expect(authorizeCronRequest(req, secret)).toBe(false);
   });
 
-  it("trims x-cron-secret value", () => {
-    const ok = authorizeCronRequest(
-      new Request("http://localhost/api/cron/x", {
-        headers: { "x-cron-secret": `  ${SECRET}  ` },
-      }),
-      SECRET
-    );
-    expect(ok).toBe(true);
+  it("accepts x-cron-secret header", () => {
+    const req = new Request("http://localhost/api/cron/x", {
+      headers: { "x-cron-secret": secret },
+    });
+    expect(authorizeCronRequest(req, secret)).toBe(true);
   });
 
-  it("rejects wrong secret and missing headers", () => {
-    expect(
-      authorizeCronRequest(
-        new Request("http://localhost/", { headers: { authorization: "Bearer wrong" } }),
-        SECRET
-      )
-    ).toBe(false);
-    expect(authorizeCronRequest(new Request("http://localhost/"), SECRET)).toBe(false);
+  it("rejects missing credentials", () => {
+    const req = new Request("http://localhost/api/cron/x");
+    expect(authorizeCronRequest(req, secret)).toBe(false);
   });
 });

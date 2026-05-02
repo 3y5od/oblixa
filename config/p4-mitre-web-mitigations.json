@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "description": "Maps MITRE ATT&CK enterprise techniques to in-repo mitigations (routes, libs, tests).",
+  "techniques": [
+    {
+      "id": "T1078",
+      "name": "Valid Accounts",
+      "mitigations": [
+        { "ref": "src/actions/auth.ts", "note": "Sign-in rate limits + timing normalization" },
+        { "ref": "src/actions/mfa.ts", "note": "TOTP MFA enroll/verify" },
+        { "ref": "src/app/(dashboard)/layout.tsx", "note": "Org MFA-required gate" },
+        { "ref": "e2e/settings-security.spec.ts", "note": "MFA settings surface smoke" }
+      ]
+    },
+    {
+      "id": "T1190",
+      "name": "Exploit Public-Facing Application",
+      "mitigations": [
+        { "ref": "src/lib/security/csp-builders.ts", "note": "CSP + security headers" },
+        { "ref": "scripts/check-json-body-limited-adoption.mjs", "note": "JSON body caps on mutating API routes" },
+        { "ref": "src/lib/json-body.ts", "note": "readJsonBodyLimited helper" }
+      ]
+    },
+    {
+      "id": "T1534",
+      "name": "Internal Spearphishing",
+      "mitigations": [
+        { "ref": "src/lib/security/escape-csv.ts", "note": "CSV formula injection defenses on exports" },
+        { "ref": "src/lib/security/json-ld-inline-script.ts", "note": "JSON-LD script breakout hardening" }
+      ]
+    },
+    {
+      "id": "T1552",
+      "name": "Unsecured Credentials",
+      "mitigations": [
+        { "ref": "scripts/check-outbound-fetch.mjs", "note": "SSRF allowlist for server fetch" },
+        { "ref": "src/lib/security/safe-fetch.ts", "note": "safeFetch for controlled egress" },
+        { "ref": "scripts/check-tracked-secrets-hygiene.mjs", "note": "Tracked secret hygiene" }
+      ]
+    },
+    {
+      "id": "T1565",
+      "name": "Data Manipulation",
+      "mitigations": [
+        { "ref": "supabase/migrations/005_stripe_webhook_idempotency.sql", "note": "Webhook idempotency store" },
+        { "ref": "src/lib/security/kill-switches.ts", "note": "Operator kill switches" }
+      ]
+    }
+  ]
+}

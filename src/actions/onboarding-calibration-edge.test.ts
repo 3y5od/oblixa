@@ -36,6 +36,7 @@ describe("onboarding-calibration edge cases (§23)", () => {
       orgId: "org-1",
       role: "viewer",
       admin: {} as never,
+      mfaRequired: false,
     });
     const r = await saveQuestionnaireProgress({ answers_required: {} });
     expect(r.ok).toBe(false);
@@ -48,6 +49,7 @@ describe("onboarding-calibration edge cases (§23)", () => {
       orgId: "org-1",
       role: "viewer",
       admin: {} as never,
+      mfaRequired: false,
     });
     const r = await previewCalibrationRecommendation(validPayload);
     expect(r.ok).toBe(false);

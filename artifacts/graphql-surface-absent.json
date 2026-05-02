@@ -1,0 +1,4 @@
+{
+  "graphqlPackages": false,
+  "note": "Extend with /api/graphql route scan when used."
+}

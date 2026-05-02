@@ -78,6 +78,31 @@ describe("GET /api/export/contracts/[jobId]", () => {
             })),
           };
         }
+        if (table === "v10_job_run_visibility") {
+          const result = {
+            data: {
+              job_id: "job-1",
+              job_class: "export",
+              status: "queued",
+              failure_category: null,
+              diagnostic_id: null,
+              user_visible_detail: "Export queued",
+              retry_action: null,
+              completed_count: 0,
+              failed_count: 0,
+              retryable_count: 0,
+            },
+            error: null,
+          };
+          const query = {
+            eq: vi.fn(() => query),
+            in: vi.fn(() => query),
+            maybeSingle: vi.fn().mockResolvedValue(result),
+          };
+          return {
+            select: vi.fn(() => query),
+          };
+        }
         return { select: vi.fn(() => ({ eq: vi.fn() })) };
       }),
     });
@@ -88,10 +113,14 @@ describe("GET /api/export/contracts/[jobId]", () => {
     });
     expect(res.status).toBe(200);
     const body = (await res.json()) as {
-      visible: { headline: string; detail: string; tone: string };
+      visible: { headline: string; detail: string; tone: string; diagnosticId: string | null; retryAction: string | null };
+      v10_job_visibility: { job_id: string; status: string } | null;
     };
     expect(body.visible.headline).toBe("Export is queued");
     expect(body.visible.detail).toContain("Export queued");
     expect(body.visible.tone).toBe("attention");
+    expect(body.visible.diagnosticId).toBeNull();
+    expect(body.visible.retryAction).toBeNull();
+    expect(body.v10_job_visibility).toMatchObject({ job_id: "job-1", status: "queued" });
   });
 });

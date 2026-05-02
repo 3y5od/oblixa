@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { interpretHttpMutationFailure } from "@/lib/v9-api-client-errors";
+import { mutateV10 } from "@/lib/v10-api-client";
 
+// mutateV10 centralizes interpretHttpMutationFailure for HTTP, rate-limit, and network copy.
 export function ImportJobRetryButton({ jobId }: { jobId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -18,19 +19,12 @@ export function ImportJobRetryButton({ jobId }: { jobId: string }) {
         onClick={() => {
           setMessage(null);
           startTransition(async () => {
-            const response = await fetch(`/api/import/contracts/${jobId}`, { method: "POST" });
-            const payload = (await response.json().catch(() => null)) as
-              | { error?: string; jobId?: string }
-              | null;
-            if (!response.ok) {
-              const mapped = interpretHttpMutationFailure({
-                status: response.status,
-                message: payload?.error ?? null,
-              });
-              setMessage(mapped.userMessage);
+            const result = await mutateV10({ url: `/api/import/contracts/${jobId}` });
+            if (!result.ok) {
+              setMessage(result.userMessage);
               return;
             }
-            setMessage("Retry started.");
+            setMessage(result.response.user_visible_message || "Retry started.");
             router.refresh();
           });
         }}

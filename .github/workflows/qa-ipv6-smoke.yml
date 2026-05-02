@@ -1,0 +1,15 @@
+name: QA IPv6 smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  curl_v6:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - run: echo "curl -6 against PLAYWRIGHT_BASE_URL when host supports IPv6"

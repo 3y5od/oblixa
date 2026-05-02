@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { WORK_HUB_LENS_VALUES, parseWorkHubLens } from "./work-hub-lens";
+import { V9_WORK_HUB_LENS_VALUES, WORK_HUB_LENS_VALUES, parseWorkHubLens } from "./work-hub-lens";
 
 describe("work hub lenses (v9 §12.2)", () => {
   it("parses lens query with safe default", () => {
@@ -10,7 +10,7 @@ describe("work hub lenses (v9 §12.2)", () => {
   });
 
   it("enumerates five lenses", () => {
-    expect(WORK_HUB_LENS_VALUES).toHaveLength(5);
+    expect(V9_WORK_HUB_LENS_VALUES).toHaveLength(5);
   });
 
   it("accepts each lens value as a /work?lens= query token (§12.2 URL contract)", () => {

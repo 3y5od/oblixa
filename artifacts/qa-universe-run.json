@@ -1,0 +1,60 @@
+{
+  "pipeline": "qa-sweep-universe",
+  "full": true,
+  "steps": [
+    "report:qa-coverage-tier",
+    "qa:sweep:max:p4",
+    "pipeline:ci-parity",
+    "check:command-reference-integrity",
+    "qa:sweep:ultimate:nightly",
+    "qa:sweep:ultimate:release",
+    "qa:sweep:ultimate:postmerge",
+    "qa:sweep:code:maximal",
+    "pipeline:verify",
+    "merge:junit"
+  ],
+  "failed": {
+    "script": "qa:sweep:ultimate:release",
+    "code": 1
+  },
+  "stepResults": [
+    {
+      "script": "report:qa-coverage-tier",
+      "ok": true,
+      "code": 0,
+      "durationMs": 400
+    },
+    {
+      "script": "qa:sweep:max:p4",
+      "ok": true,
+      "code": 0,
+      "durationMs": 276303
+    },
+    {
+      "script": "pipeline:ci-parity",
+      "ok": true,
+      "code": 0,
+      "durationMs": 830
+    },
+    {
+      "script": "check:command-reference-integrity",
+      "ok": true,
+      "code": 0,
+      "durationMs": 584
+    },
+    {
+      "script": "qa:sweep:ultimate:nightly",
+      "ok": true,
+      "code": 0,
+      "durationMs": 3408434
+    },
+    {
+      "script": "qa:sweep:ultimate:release",
+      "ok": false,
+      "code": 1,
+      "durationMs": 3652608
+    }
+  ],
+  "finishedAtUtc": "2026-05-02T00:59:07.622Z",
+  "durationMs": 7339166
+}

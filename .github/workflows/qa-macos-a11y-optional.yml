@@ -1,0 +1,15 @@
+name: QA macOS a11y optional
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos_voiceover_subset:
+    if: false
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - run: echo "Self-hosted or macOS VoiceOver subset when enabled"

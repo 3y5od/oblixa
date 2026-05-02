@@ -1,0 +1,10 @@
+{
+  "projects": [
+    { "name": "chromium", "engine": "chromium", "os": "linux", "tier": "P0" },
+    { "name": "firefox", "engine": "gecko", "os": "linux", "tier": "P2" },
+    { "name": "webkit", "engine": "webkit", "os": "linux", "tier": "P2" },
+    { "name": "Mobile Chrome", "engine": "chromium", "os": "linux", "tier": "P2" },
+    { "name": "iPad", "engine": "webkit", "os": "linux", "tier": "P2" }
+  ],
+  "note": "P2 projects require PLAYWRIGHT_MOBILE or PLAYWRIGHT_MULTI_BROWSER in playwright.config."
+}

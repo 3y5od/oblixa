@@ -1,0 +1,6 @@
+{
+  "steps": [
+    { "id": "verify-security-program-json", "note": "Parse security-program-optional-declarations.json in CI when present" },
+    { "id": "verify-qa-merge-queue-workflow", "note": "check:merge-queue-canary-parity in nightly" }
+  ]
+}

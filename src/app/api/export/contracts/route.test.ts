@@ -6,6 +6,8 @@ const rateLimitCheck = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const collectSupabaseRangePages = vi.fn();
 const emitProductTelemetryEvent = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -26,7 +28,24 @@ vi.mock("@/lib/supabase/range-pagination", () => ({
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
   emitProductTelemetryEvent,
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentResponseMutation: async (
+    _admin: unknown,
+    _input: unknown,
+    execute: () => Promise<Response>
+  ) => ({ response: await execute(), replayed: false }),
+  getV10ExpectedVersionFromRequest: (request: Request) =>
+    request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 describe("GET /api/export/contracts", () => {
@@ -36,6 +55,8 @@ describe("GET /api/export/contracts", () => {
     rateLimitCheck.mockResolvedValue({ ok: true });
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     emitProductTelemetryEvent.mockResolvedValue(undefined);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
   });
 
   it("returns 429 with retry metadata when rate limited", async () => {
@@ -93,7 +114,7 @@ describe("GET /api/export/contracts", () => {
     expect(body).toEqual({ error: "Not authenticated" });
   });
 
-  it("returns CSV for a workspace export and records telemetry", async () => {
+  it("keeps GET exports read-only while returning CSV", async () => {
     const exportJobId = "export-job-1";
     const exportJobUpdates: Array<Record<string, unknown>> = [];
     createClient.mockResolvedValue({
@@ -175,18 +196,9 @@ describe("GET /api/export/contracts", () => {
     const headerLine = body.split(/\r?\n/)[0] ?? "";
     expect(headerLine).not.toContain("field_fee_reference");
     expect(headerLine).not.toContain("field_payment_cadence");
-    expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ action: "product.v9.export_started" })
-    );
-    expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ action: "product.v9.export_completed" })
-    );
-    expect(exportJobUpdates).toContainEqual(
-      expect.objectContaining({ status: "completed", exported_rows: 1 })
-    );
-    expect(res.headers.get("x-export-job-id")).toBe(exportJobId);
+    expect(emitProductTelemetryEvent).not.toHaveBeenCalled();
+    expect(exportJobUpdates).toEqual([]);
+    expect(res.headers.get("x-export-job-id")).toBeNull();
   });
 
   it("includes fee_reference and payment_cadence columns for advanced workspace exports", async () => {
@@ -253,11 +265,16 @@ describe("GET /api/export/contracts", () => {
       truncated: false,
     });
 
-    const { GET } = await import("@/app/api/export/contracts/route");
-    const res = await GET(
-      new Request(
-        "http://localhost:3000/api/export/contracts?orgId=550e8400-e29b-41d4-a716-446655440001"
-      )
+    const { POST } = await import("@/app/api/export/contracts/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/export/contracts", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "export-partial-key",
+        },
+        body: JSON.stringify({ orgId: "550e8400-e29b-41d4-a716-446655440001" }),
+      })
     );
     expect(res.status).toBe(200);
     const body = await res.text();
@@ -322,11 +339,16 @@ describe("GET /api/export/contracts", () => {
       truncated: true,
     });
 
-    const { GET } = await import("@/app/api/export/contracts/route");
-    const res = await GET(
-      new Request(
-        "http://localhost:3000/api/export/contracts?orgId=550e8400-e29b-41d4-a716-446655440001"
-      )
+    const { POST } = await import("@/app/api/export/contracts/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/export/contracts", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "export-partial-key",
+        },
+        body: JSON.stringify({ orgId: "550e8400-e29b-41d4-a716-446655440001" }),
+      })
     );
 
     expect(res.status).toBe(413);
@@ -353,13 +375,16 @@ describe("POST /api/export/contracts", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/export/contracts", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "export_json_12345" },
         body: "{not-json",
       })
     );
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(String(body.error)).toMatch(/valid json/i);
+    expect(body).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_export_json_invalid",
+    });
   });
 
   it("returns 400 when filter_json is not an object", async () => {
@@ -367,7 +392,7 @@ describe("POST /api/export/contracts", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/export/contracts", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "export_filter_12345" },
         body: JSON.stringify({
           orgId: "550e8400-e29b-41d4-a716-446655440001",
           filter_json: "workspace",
@@ -376,7 +401,10 @@ describe("POST /api/export/contracts", () => {
     );
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(String(body.error)).toMatch(/filter_json/i);
+    expect(body).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_export_filter_json_invalid",
+    });
   });
 
   it("returns 400 when Content-Type is not application/json", async () => {
@@ -389,6 +417,10 @@ describe("POST /api/export/contracts", () => {
       })
     );
     expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_export_idempotency_key_invalid",
+    });
   });
 });
 

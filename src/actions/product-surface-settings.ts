@@ -20,6 +20,9 @@ import {
   WORKSPACE_HOME_SECTION_KEYS,
   WORKSPACE_NAV_ROLE_ORDER,
 } from "@/lib/product-surface/workspace-module-keys";
+import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
 
 const WORKSPACE_HOME_HIDE_KEYS = [
   "control_room_strip",
@@ -91,6 +94,59 @@ function parseHiddenHomeSections(formData: FormData): string[] {
 }
 
 const EMAIL_MUTE_KEYS = ["reminder_due", "saved_view_summary", "automation_rule"] as const;
+type ProductSurfaceActionContext = NonNullable<Awaited<ReturnType<typeof getAuthContext>>>;
+
+async function refreshV10SettingsReadModels(admin: ProductSurfaceActionContext["admin"], orgId: string) {
+  try {
+    await refreshV10ReadModelsForOrganization(admin, orgId, {
+      refreshScope: "one_model",
+      reason: "product_surface_settings_mutation",
+      modelKeys: [
+        "work_items",
+        "notification_deliveries",
+        "audit_events",
+        "command_search_index",
+        "advanced_assurance_linked_records",
+      ],
+    });
+  } catch (error) {
+    console.error("[product-surface-settings] V10 read-model refresh failed:", error);
+  }
+}
+
+async function reserveV10SettingsMutation(
+  ctx: ProductSurfaceActionContext,
+  input: {
+    mutationName: string;
+    targetId: string;
+    currentVersion: string;
+    payload: Record<string, unknown>;
+  }
+): Promise<{ error: string } | null> {
+  const { response } = await executeV10IdempotentMutation(
+    ctx.admin,
+    {
+      organizationId: ctx.orgId,
+      actorUserId: ctx.user.id,
+      mutationName: input.mutationName,
+      targetType: "setting",
+      targetId: input.targetId,
+      idempotencyKey: `v10-server-action:${crypto.randomUUID()}`,
+      expectedVersion: input.currentVersion,
+      currentVersion: input.currentVersion,
+      payload: input.payload,
+    },
+    async () =>
+      buildV10MutationResponse({
+        outcome: "success",
+        message: "Settings mutation reserved.",
+        changedObjectType: "setting",
+        changedObjectId: input.targetId,
+        nextDestinationHref: "/settings/health",
+      })
+  );
+  return response.outcome === "success" ? null : { error: response.user_visible_message };
+}
 
 export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<{ error: string } | { success: true }> {
   const eligibility = await requireServerActionEligibility({
@@ -102,6 +158,7 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
   const ctx = await getAuthContext();
   if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can change product experience settings." };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevVersion = JSON.stringify(prevV6);
 
   const mode = parseMode(formData.get("workspace_mode")) ?? "core";
   const defaultLandingRaw = String(formData.get("default_landing_path") ?? "").trim();
@@ -130,6 +187,31 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
     }
     patch.default_landing_path = defaultLandingRaw;
   }
+
+  const v10Reservation = await reserveV10SettingsMutation(ctx, {
+    mutationName: "update_workspace_mode",
+    targetId: "workspace_product_surface",
+    currentVersion: prevVersion,
+    payload: {
+      mode,
+      default_landing_path_state: defaultLandingRaw ? "provided" : "default",
+      advanced_hidden_count: patch.advanced_modules_hidden?.length ?? 0,
+      assurance_hidden_count: patch.assurance_modules_hidden?.length ?? 0,
+      utility_hidden_count: patch.utility_modules_hidden?.length ?? 0,
+    },
+  });
+  if (v10Reservation) return v10Reservation;
+  const v10ModuleReservation = await reserveV10SettingsMutation(ctx, {
+    mutationName: "update_module_visibility",
+    targetId: "workspace_product_surface_modules",
+    currentVersion: prevVersion,
+    payload: {
+      advanced_hidden_count: patch.advanced_modules_hidden?.length ?? 0,
+      assurance_hidden_count: patch.assurance_modules_hidden?.length ?? 0,
+      utility_hidden_count: patch.utility_modules_hidden?.length ?? 0,
+    },
+  });
+  if (v10ModuleReservation) return v10ModuleReservation;
 
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) {
@@ -195,6 +277,43 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
       suppressed_report_pack_subscription_count: transitionSideEffects.suppressedSubscriptionCount,
     },
   });
+  const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.user.id,
+    action: "workspace.mode_updated",
+    targetType: "setting",
+    targetId: "workspace_product_surface",
+    outcome: "success",
+    safeMetadata: {
+      prev_workspace_mode: prevMode,
+      next_workspace_mode: nextModeFinal,
+      hidden_advanced_count: (merged?.advanced_modules_hidden ?? []).length,
+      hidden_assurance_count: (merged?.assurance_modules_hidden ?? []).length,
+      hidden_utility_count: (merged?.utility_modules_hidden ?? []).length,
+    },
+  });
+  if (!v10AuditEventId) return { error: "Workspace settings changed, but V10 audit evidence could not be recorded." };
+  const moduleVisibilityChanged =
+    JSON.stringify(prevV6.advanced_modules_hidden ?? []) !== JSON.stringify(merged?.advanced_modules_hidden ?? []) ||
+    JSON.stringify(prevV6.assurance_modules_hidden ?? []) !== JSON.stringify(merged?.assurance_modules_hidden ?? []) ||
+    JSON.stringify(prevV6.utility_modules_hidden ?? []) !== JSON.stringify(merged?.utility_modules_hidden ?? []);
+  if (moduleVisibilityChanged) {
+    const moduleAuditEventId = await recordV10AuditEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      actorUserId: ctx.user.id,
+      action: "workspace.module_visibility_updated",
+      targetType: "setting",
+      targetId: "workspace_product_surface_modules",
+      outcome: "success",
+      safeMetadata: {
+        hidden_advanced_count: (merged?.advanced_modules_hidden ?? []).length,
+        hidden_assurance_count: (merged?.assurance_modules_hidden ?? []).length,
+        hidden_utility_count: (merged?.utility_modules_hidden ?? []).length,
+      },
+    });
+    if (!moduleAuditEventId) return { error: "Workspace settings changed, but V10 module visibility audit evidence could not be recorded." };
+  }
+  await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
 
   revalidatePath("/settings");
   revalidatePath("/settings/product");
@@ -214,6 +333,7 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
   const ctx = await getAuthContext();
   if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can reset product experience settings." };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevVersion = JSON.stringify(prevV6);
   const prevMode = parseWorkspaceMode(prevV6);
   const patch: V6OrgSettingsMergePatch = {
     workspace_mode: "core",
@@ -228,6 +348,29 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
     assurance_nav_admin_testing: false,
     autopilot_allow_execution: false,
   };
+  const v10Reservation = await reserveV10SettingsMutation(ctx, {
+    mutationName: "update_workspace_mode",
+    targetId: "workspace_product_surface_defaults",
+    currentVersion: prevVersion,
+    payload: {
+      reset_to: "core_defaults",
+      hidden_advanced_count: ALL_ADVANCED_NAV_MODULE_KEYS.length,
+      hidden_assurance_count: ALL_ASSURANCE_NAV_MODULE_KEYS.length,
+    },
+  });
+  if (v10Reservation) return v10Reservation;
+  const v10ModuleReservation = await reserveV10SettingsMutation(ctx, {
+    mutationName: "update_module_visibility",
+    targetId: "workspace_product_surface_modules",
+    currentVersion: prevVersion,
+    payload: {
+      reset_to: "core_module_defaults",
+      hidden_advanced_count: ALL_ADVANCED_NAV_MODULE_KEYS.length,
+      hidden_assurance_count: ALL_ASSURANCE_NAV_MODULE_KEYS.length,
+      hidden_utility_count: 0,
+    },
+  });
+  if (v10ModuleReservation) return v10ModuleReservation;
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) return { error: error.message };
   await applyWorkspaceProductTransitionSideEffects({
@@ -247,6 +390,37 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
       next_workspace_mode: parseWorkspaceMode(merged ?? prevV6),
     },
   });
+  const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.user.id,
+    action: "workspace.mode_updated",
+    targetType: "setting",
+    targetId: "workspace_product_surface_defaults",
+    outcome: "success",
+    safeMetadata: {
+      prev_workspace_mode: prevMode,
+      next_workspace_mode: parseWorkspaceMode(merged ?? prevV6),
+      hidden_advanced_count: ALL_ADVANCED_NAV_MODULE_KEYS.length,
+      hidden_assurance_count: ALL_ASSURANCE_NAV_MODULE_KEYS.length,
+      hidden_utility_count: 0,
+    },
+  });
+  if (!v10AuditEventId) return { error: "Workspace settings reset, but V10 audit evidence could not be recorded." };
+  const moduleAuditEventId = await recordV10AuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.user.id,
+    action: "workspace.module_visibility_updated",
+    targetType: "setting",
+    targetId: "workspace_product_surface_modules",
+    outcome: "success",
+    safeMetadata: {
+      hidden_advanced_count: ALL_ADVANCED_NAV_MODULE_KEYS.length,
+      hidden_assurance_count: ALL_ASSURANCE_NAV_MODULE_KEYS.length,
+      hidden_utility_count: 0,
+    },
+  });
+  if (!moduleAuditEventId) return { error: "Workspace settings reset, but V10 module visibility audit evidence could not be recorded." };
+  await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
   revalidatePath("/settings");
   revalidatePath("/settings/product");
   revalidatePath("/dashboard");
@@ -274,6 +448,7 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
     .maybeSingle();
 
   const prev = (row?.notification_policy_json ?? {}) as Record<string, unknown>;
+  const prevVersion = JSON.stringify(prev);
   const prevEmail = (prev.email ?? {}) as Record<string, unknown>;
   const prevBlocked = Array.isArray(prevEmail.blocked_types)
     ? (prevEmail.blocked_types as unknown[]).map((v) => String(v))
@@ -288,6 +463,18 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
       blocked_types: nextBlocked,
     },
   };
+
+  const v10Reservation = await reserveV10SettingsMutation(ctx, {
+    mutationName: "update_notification_preferences",
+    targetId: "workspace_email_notification_categories",
+    currentVersion: prevVersion,
+    payload: {
+      channel: "email",
+      muted_known_category_count: muted.length,
+      blocked_type_count: nextBlocked.length,
+    },
+  });
+  if (v10Reservation) return v10Reservation;
 
   const { error } = await ctx.admin
     .from("organization_workflow_settings")
@@ -311,6 +498,21 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
       affected_known_categories: muted,
     },
   });
+  const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.user.id,
+    action: "notification_preferences.updated",
+    targetType: "setting",
+    targetId: "workspace_email_notification_categories",
+    outcome: "success",
+    safeMetadata: {
+      channel: "email",
+      muted_known_category_count: muted.length,
+      blocked_type_count: nextBlocked.length,
+    },
+  });
+  if (!v10AuditEventId) return { error: "Notification settings changed, but V10 audit evidence could not be recorded." };
+  await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
 
   revalidatePath("/settings/product");
   revalidatePath("/settings/operations");

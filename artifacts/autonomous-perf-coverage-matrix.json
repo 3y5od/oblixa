@@ -1,0 +1,508 @@
+{
+  "schemaVersion": 1,
+  "apiExportBufferPolicyBytes": {
+    "softDefaultMaxInMemory": 5242880,
+    "note": "phase-66-api-buffer-policy: default soft cap for in-memory export buffers; routes must enforce streaming or stricter caps."
+  },
+  "subtrees": [
+    {
+      "pathGlob": "src/proxy.ts",
+      "phases": [
+        "phase-2-proxy",
+        "phase-2-cookie-payload",
+        "phase-30-headers-payload"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/(dashboard)/**",
+      "phases": [
+        "phase-3-layout-rsc",
+        "phase-3-duplicate-fetch",
+        "phase-5-prefetch",
+        "phase-21-suspense-loading",
+        "phase-35-feature-flags"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/(marketing)/**",
+      "phases": [
+        "phase-3-marketing-public"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/api/**",
+      "phases": [
+        "phase-4-api-gets",
+        "phase-4-api-mutations",
+        "phase-9-timeouts-retries",
+        "phase-9-idempotency",
+        "phase-24-webhooks-ingest",
+        "phase-25-cron-batch",
+        "phase-13-static-audit-extend"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/lib/**",
+      "phases": [
+        "phase-4-v6-service",
+        "phase-4-rpc-audit",
+        "phase-19-react-cache-lib",
+        "phase-20-revalidate-audit",
+        "phase-26-validation-layer",
+        "phase-29-storage-signed-urls",
+        "phase-34-compliance-writes",
+        "phase-82-config-parse-once"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/components/**",
+      "phases": [
+        "phase-5-client-dynamic",
+        "phase-5-rerender",
+        "phase-12-a11y-perf",
+        "phase-27-barrels-tree"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/lib/supabase/**",
+      "phases": [
+        "phase-4-select-star-sweep",
+        "phase-23-supabase-realtime"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "e2e/**",
+      "phases": [
+        "phase-8-playwright-perf",
+        "phase-33-e2e-perf-matrix",
+        "phase-64-e2e-fixture-weight",
+        "phase-120-cls-e2e-strict"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "e2e-quarantine.json",
+      "phases": [
+        "phase-0-coverage-matrix"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "scripts/**",
+      "phases": [
+        "phase-0-driver",
+        "phase-13-static-audit-extend",
+        "phase-14-scripts-batch",
+        "phase-17-k6-lighthouse"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "supabase/migrations/**",
+      "phases": [
+        "phase-7-db-indexes",
+        "phase-7-db-rls-planner",
+        "phase-34-compliance-writes"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".github/workflows/**",
+      "phases": [
+        "phase-8-ci-workflows",
+        "phase-8-ci-runtime-budget",
+        "phase-53-ci-npm-cache",
+        "phase-85-merge-gate-path-filters",
+        "phase-95-security-scan-ci-ext",
+        "phase-116-dependency-review-workflow"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "vercel.json",
+      "phases": [
+        "phase-32-deploy-artifacts"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "Dockerfile*",
+      "phases": [
+        "phase-32-deploy-artifacts"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "docker-compose*.yml",
+      "phases": [
+        "phase-32-deploy-artifacts",
+        "phase-107-docker-compose-chaos"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/instrumentation.ts",
+      "phases": [
+        "phase-31-instrumentation"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "tsconfig*.json",
+      "phases": [
+        "phase-36-toolchain-ts"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "eslint.config.*",
+      "phases": [
+        "phase-37-eslint-ci-cache",
+        "phase-55-config-surface-gates"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "tailwind.config.*",
+      "phases": [
+        "phase-38-tailwind-postcss"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "postcss.config.*",
+      "phases": [
+        "phase-38-tailwind-postcss"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "playwright.config.ts",
+      "phases": [
+        "phase-8-playwright-perf",
+        "phase-33-e2e-perf-matrix",
+        "phase-56-playwright-asset-cache"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "vitest.config.ts",
+      "phases": [
+        "phase-15-vitest-perf",
+        "phase-57-vitest-ui-split"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "vitest.ui.config.ts",
+      "phases": [
+        "phase-15-vitest-perf",
+        "phase-57-vitest-ui-split"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/auth/**",
+      "phases": [
+        "phase-28-auth-callbacks",
+        "phase-48-jwt-jwks-cache"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "artifacts/*.json",
+      "phases": [
+        "phase-16-artifacts-budgets",
+        "phase-58-artifact-json-gates",
+        "phase-97-neurodiversity-artifacts",
+        "phase-98-compliance-artifact-registry",
+        "phase-99-sbom-license-allowlist",
+        "phase-100-outbox-subprocessor-json",
+        "phase-101-pen-test-stride-artifacts",
+        "phase-102-zap-baseline-artifact",
+        "phase-103-rpo-rto-artifact",
+        "phase-104-graphql-surface-absent",
+        "phase-105-web3-surface-absent",
+        "phase-106-scim-oidc-contract"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "config/**",
+      "phases": [
+        "phase-0-coverage-matrix",
+        "phase-58-artifact-json-gates",
+        "phase-98-compliance-artifact-registry"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "package.json",
+      "phases": [
+        "phase-54-package-lifecycle",
+        "phase-109-corepack-engines"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "package-lock.json",
+      "phases": [
+        "phase-75-lockfile-dedupe",
+        "phase-18-supply-chain",
+        "phase-114-duplicate-deps-audit"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/layout.tsx",
+      "phases": [
+        "phase-59-root-app-layout",
+        "phase-73-resource-hints",
+        "phase-87-next-themes-fo"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "sentry.client.config.ts",
+      "phases": [
+        "phase-60-sentry-client-config",
+        "phase-74-sourcemap-sentry-tradeoff"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "public/**",
+      "phases": [
+        "phase-61-public-assets"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "stryker.conf*",
+      "phases": [
+        "phase-67-stryker-config",
+        "phase-52-heavy-test-gates"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "scripts/junit-merge-shards.mjs",
+      "phases": [
+        "phase-68-junit-merge-streaming"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/robots.ts",
+      "phases": [
+        "phase-77-robots-sitemap"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/sitemap.ts",
+      "phases": [
+        "phase-77-robots-sitemap"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "src/app/.well-known/**",
+      "phases": [
+        "phase-78-well-known"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".github/CODEOWNERS",
+      "phases": [
+        "phase-0-coverage-matrix"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".github/dependabot.yml",
+      "phases": [
+        "phase-85-merge-gate-path-filters"
+      ],
+      "technology_absent": true,
+      "absent_reason": "optional file",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".env.example",
+      "phases": [
+        "phase-0-coverage-matrix",
+        "phase-6-sentry",
+        "phase-96-run-json-provenance"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".husky/**",
+      "phases": [
+        "phase-108-husky-lint-staged"
+      ],
+      "technology_absent": true,
+      "absent_reason": "optional git hooks",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".nvmrc",
+      "phases": [
+        "phase-110-node-toolchain-files"
+      ],
+      "technology_absent": true,
+      "absent_reason": "optional; engines in package.json is canonical",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": ".storybook/**",
+      "phases": [
+        "phase-111-storybook-vite-surface"
+      ],
+      "technology_absent": true,
+      "absent_reason": "Storybook not configured",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "**/*.{mdx,MDX}",
+      "phases": [
+        "phase-71-mdx-content-pipeline"
+      ],
+      "technology_absent": true,
+      "absent_reason": "No MDX content pipeline in repo",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "vite.config.*",
+      "phases": [
+        "phase-111-storybook-vite-surface"
+      ],
+      "technology_absent": true,
+      "absent_reason": "Vite root config absent for app build",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "next.config.ts",
+      "phases": [
+        "phase-1-next-config",
+        "phase-55-config-surface-gates",
+        "phase-118-next-image-loader"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "**/*.{wasm,WASM}",
+      "phases": [
+        "phase-94-wasm-surface"
+      ],
+      "technology_absent": true,
+      "absent_reason": "no WASM modules in tree",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "**/node_modules/@opentelemetry/**",
+      "phases": [
+        "phase-92-otel-baggage"
+      ],
+      "technology_absent": true,
+      "absent_reason": "OpenTelemetry SDK not a direct dependency",
+      "lastReviewedCommit": null
+    },
+    {
+      "pathGlob": "scripts/heap-snapshot-staging.mjs",
+      "phases": [
+        "phase-115-heap-snapshot-optional"
+      ],
+      "technology_absent": false,
+      "absent_reason": null,
+      "lastReviewedCommit": null
+    }
+  ]
+}

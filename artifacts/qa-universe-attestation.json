@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-02T01:13:38.848Z",
+  "gitSha": "88f2d292f93228023b71636c560497aa0121a0a0",
+  "note": "Stub attestation — replace with signed bundle when cosign credentials are wired (plan P210).",
+  "inputs": {
+    "qaTierManifest": "config/qa-tier-manifest.json",
+    "qaTierCoverageAllowlist": "config/qa-tier-coverage-allowlist.json"
+  }
+}

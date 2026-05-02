@@ -1,0 +1,11 @@
+# Debugging sweep: keep Semgrep minimal; primary enforcement is ESLint + Vitest catalog tests.
+rules:
+  - id: oblixa-debugging-sweep-semgrep-reserved
+    languages: [typescript]
+    message: >
+      Semgrep pack reserved for future sweep-specific static rules (logger paths, import guards).
+    severity: INFO
+    pattern: oblixaDebuggingSweepSemgrepPlaceholderNeverUsed()
+    paths:
+      include:
+        - src/lib/debugging-sweep/**/*.ts

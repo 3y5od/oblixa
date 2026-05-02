@@ -8,8 +8,12 @@ import { createClient, createAdminClient, getDeterministicMembership } from "@/l
 import { getStripeClient } from "@/lib/stripe";
 import { getRequestOrigin } from "@/lib/app-url";
 import * as Sentry from "@sentry/nextjs";
+import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 
 export async function POST(request: Request) {
+  if (isKillBilling()) {
+    return killSwitchJsonResponse("billing");
+  }
   const supabase = await createClient();
   const admin = await createAdminClient();
 

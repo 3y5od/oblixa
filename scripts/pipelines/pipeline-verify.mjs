@@ -4,6 +4,11 @@ import { runParallel, runSequential } from "../lib/scheduler.mjs";
 
 const firstPass = await runSequential([
   "check:migrations:strict",
+  "check:v10-migration-smoke:strict",
+  "check:v10-release-evidence",
+  "check:v10-privacy-scan",
+  "check:v10-complete-closure",
+  "check:v10-suite",
   "check:api-route-tests",
   "check:api-route-auth-contract",
   "check:api-route-admin-org-scope",

@@ -34,5 +34,19 @@ test.describe("performance smoke", () => {
     const elapsed = Date.now() - start;
     expect(elapsed).toBeLessThan(25_000);
   });
+
+  test("navigation timing entry exists for home (Web Vitals harness)", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const nav = await page.evaluate(() => {
+      const e = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      return e ? { duration: e.duration, domContentLoaded: e.domContentLoadedEventEnd } : null;
+    });
+    if (!nav) {
+      test.skip(true, "Navigation timing not exposed in this browser.");
+      return;
+    }
+    expect(nav.duration).toBeGreaterThan(0);
+    expect(nav.domContentLoaded).toBeGreaterThan(0);
+  });
 });
 

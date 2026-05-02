@@ -11,8 +11,10 @@ import {
 } from "@/actions/saved-views";
 import { createObligationClarificationTaskForm } from "@/actions/tasks";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { EmptyState } from "@/components/ui/empty-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+
+export const metadata = { title: "Obligations" };
 
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
 const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
@@ -144,10 +146,10 @@ export default async function ContractObligationsPage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Portfolio commitments</p>
-          <h1 className="ui-display-title mt-2">Obligations queue</h1>
+          <h1 className="ui-page-title-compact mt-2">Obligations queue</h1>
           <p className="ui-page-lead mt-2">Operational commitments and due-state execution.</p>
         </div>
         <Link href="/contracts" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
@@ -163,7 +165,7 @@ export default async function ContractObligationsPage(props: {
           icon={ListChecks}
           primaryValue={openObligations}
           primaryUnit="awaiting start"
-          action={{ href: "/contracts/obligations?status=open", label: "Open active slice" }}
+          action={{ href: "/contracts/obligations?status=open", label: "Review active work" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -183,7 +185,7 @@ export default async function ContractObligationsPage(props: {
           icon={AlertTriangle}
           primaryValue={overdueObligations}
           primaryUnit="need recovery"
-          action={{ href: "/contracts/obligations?status=open", label: "Open overdue work" }}
+          action={{ href: "/contracts/obligations?status=open", label: "Recover overdue work" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -299,9 +301,14 @@ export default async function ContractObligationsPage(props: {
       </div>
 
       {obligations.length === 0 ? (
-        <EmptyState
+        <V10RecoverableState
+          state="empty"
           title="No obligations in this queue"
-          copy="Create obligations from contract records, then apply filters."
+          reason="No obligations match the current filters. Clear filters or review unified Work for other action types."
+          accessibleName="No contract obligations match this queue"
+          nextAction={<Link href="/work" className="ui-btn-secondary px-3 py-2 text-xs">Review unified Work</Link>}
+          nextActionLabel="Review unified Work"
+          density="compact"
         />
       ) : (
         <div className="ui-table-shell">

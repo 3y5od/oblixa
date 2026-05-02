@@ -148,13 +148,6 @@ function run() {
       }
     }
     if (
-      rel === "src/app/(dashboard)/layout.tsx" &&
-      /fetchNavBadgeCounts|attachOwnerProfiles|\.from\s*\(\s*["']contracts["']/.test(content)
-    ) {
-      console.warn(`WARN Dashboard layout preloads non-critical shell data in ${rel}`);
-      warnCount += 1;
-    }
-    if (
       isApiRoute(rel) &&
       /export\s+async\s+function\s+GET\b/.test(content) &&
       hasPotentialUnboundedSelect(content)
@@ -165,6 +158,9 @@ function run() {
     if (isExportOrReportRoute(rel) && hasPotentialUnboundedSelect(content)) {
       console.warn(`WARN Export/report route may miss pagination cap in ${rel}`);
       warnCount += 1;
+    }
+    if (isApiRoute(rel) && /JSON\.stringify\s*\(/.test(content)) {
+      info(`jsonstr:${rel}`, `Review JSON.stringify in ${rel} for response size / hot path`);
     }
     if (
       isUseClientSource(content) &&

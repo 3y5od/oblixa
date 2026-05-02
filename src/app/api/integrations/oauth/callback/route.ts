@@ -4,6 +4,7 @@ import { encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { readOAuthProviderConfigFromConnection, readOAuthProviderConfigFromEnv } from "@/lib/integrations/oauth-config";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { safeFetch } from "@/lib/security/safe-fetch";
 type OAuthProvider =
   | "google_calendar"
   | "outlook_calendar"
@@ -97,7 +98,7 @@ export async function GET(request: Request) {
     expires_in?: number;
   };
   try {
-    const tokenRes = await fetch(tokenUrl.toString(), {
+    const tokenRes = await safeFetch(tokenUrl.toString(), {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
@@ -108,6 +109,7 @@ export async function GET(request: Request) {
         client_secret: providerConfig.clientSecret,
         code_verifier: authState.code_verifier,
       }).toString(),
+      timeoutMs: 20_000,
     });
     if (!tokenRes.ok) {
       return NextResponse.json(

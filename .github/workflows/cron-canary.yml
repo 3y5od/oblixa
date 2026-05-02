@@ -5,6 +5,9 @@ on:
     - cron: "*/30 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
   CRON_SECRET: ${{ secrets.CRON_SECRET }}

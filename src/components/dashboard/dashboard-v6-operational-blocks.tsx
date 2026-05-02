@@ -282,7 +282,7 @@ export function DashboardOutcomeIntelligenceSection(props: {
           icon={TrendingUp}
           primaryValue={trend}
           primaryUnit="vs prior window"
-          action={{ href: "/reports#outcome-intelligence", label: "Open reports" }}
+          action={{ href: "/reports#outcome-intelligence", label: "Review reports" }}
           variant="compact"
         />
       </div>

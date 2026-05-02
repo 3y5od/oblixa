@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -25,7 +26,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (modeGate) return modeGate;
 
   const linkId = toSafeString((await params).id);
-  const body = readJsonBody<{ pack?: Record<string, unknown> }>(await request.json().catch(() => ({})), {});
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{ pack?: Record<string, unknown> }>(raw ?? {}, {})
+  );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
   const pack = body.pack && typeof body.pack === "object" ? body.pack : null;
   if (!pack || Object.keys(pack).length === 0) {
     return NextResponse.json({ error: "pack object is required" }, { status: 400 });

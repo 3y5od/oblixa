@@ -1,10 +1,6 @@
 Contact: mailto:security@oblixa.io
-Expires: 2027-04-10T23:59:59.000Z
+Expires: 2030-12-31T23:59:59.000Z
 Preferred-Languages: en
-Policy: https://oblixa.io
 Canonical: https://oblixa.io/.well-known/security.txt
-Acknowledgments: https://oblixa.io/security#thanks
-
-# Oblixa — security contact (RFC 9116)
-# Disclosure process: see docs/SECURITY_VULNERABILITY_DISCLOSURE.md in this repository.
-# Update Expires at least annually when reviewing this file.
+Policy: https://oblixa.io/security
+Acknowledgments: https://oblixa.io/security#acknowledgments

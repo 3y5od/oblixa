@@ -29,7 +29,8 @@ describe("V9 §10.3 overview reading order — extraction before review fields",
   it("keeps hero metrics before tabbed body so summary stays above the fold", () => {
     const raw = readFileSync(detailPagePath, "utf8");
     const hero = raw.indexOf("<ContractHeroMetrics");
-    const tabs = raw.indexOf('["overview", "Overview"]');
+    // Anchor the primary tab strip in JSX (not tab metadata declared earlier in the module).
+    const tabs = raw.indexOf("{primaryTabGroups.map");
     expect(hero).toBeGreaterThan(-1);
     expect(tabs).toBeGreaterThan(-1);
     expect(hero).toBeLessThan(tabs);

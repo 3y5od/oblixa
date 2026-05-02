@@ -128,3 +128,13 @@ rules:
       Return safe error codes/messages instead.
     pattern-regex: >-
       NextResponse\.json\s*\([^)]*(?:error\s*:\s*(?:error|err)\b(?!\s*\.)|stack\s*:)[^)]*\)
+
+  - id: oblixa-security-no-direct-eval
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Avoid eval(); use structured parsing (SEC-IN-008).
+    pattern: eval($X)
+    paths:
+      include:
+        - "/src/**/*.ts"
+        - "/src/**/*.tsx"

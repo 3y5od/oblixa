@@ -1,62 +1,6 @@
 {
-  "generatedAt": "2026-04-23T00:19:41.212Z",
+  "generatedAt": "2026-04-28T21:13:45.090Z",
   "offenders": [
-    {
-      "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-      "lines": 1926
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/analytics/page.tsx",
-      "lines": 581
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/maintenance/page.tsx",
-      "lines": 528
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/page.tsx",
-      "lines": 828
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/programs/page.tsx",
-      "lines": 377
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
-      "lines": 572
-    },
-    {
-      "file": "src/app/(dashboard)/contracts/reports/page.tsx",
-      "lines": 412
-    },
-    {
-      "file": "src/app/(dashboard)/dashboard/page.tsx",
-      "lines": 385
-    },
-    {
-      "file": "src/app/(dashboard)/dashboard/persona/page.tsx",
-      "lines": 525
-    },
-    {
-      "file": "src/app/(dashboard)/decisions/[id]/page.tsx",
-      "lines": 371
-    },
-    {
-      "file": "src/app/(dashboard)/settings/health/page.tsx",
-      "lines": 719
-    },
-    {
-      "file": "src/app/(dashboard)/settings/operations/page.tsx",
-      "lines": 831
-    },
-    {
-      "file": "src/app/(dashboard)/settings/product/page.tsx",
-      "lines": 562
-    },
-    {
-      "file": "src/app/(dashboard)/work/page.tsx",
-      "lines": 801
-    },
     {
       "file": "src/components/assurance/review-board-actions.tsx",
       "lines": 391
@@ -67,7 +11,7 @@
     },
     {
       "file": "src/components/contracts/contract-table.tsx",
-      "lines": 466
+      "lines": 607
     },
     {
       "file": "src/components/contracts/contract-tasks-panel.tsx",
@@ -91,7 +35,7 @@
     },
     {
       "file": "src/components/dashboard/dashboard-upper.tsx",
-      "lines": 684
+      "lines": 705
     },
     {
       "file": "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
@@ -107,19 +51,19 @@
     },
     {
       "file": "src/components/external/external-submit-form.tsx",
-      "lines": 448
+      "lines": 461
     },
     {
       "file": "src/components/landing/landing-page.tsx",
-      "lines": 407
+      "lines": 404
     },
     {
       "file": "src/components/layout/command-palette.tsx",
-      "lines": 526
+      "lines": 668
     },
     {
       "file": "src/components/layout/sidebar.tsx",
-      "lines": 526
+      "lines": 657
     },
     {
       "file": "src/components/onboarding/calibration-wizard.tsx",
@@ -127,11 +71,83 @@
     },
     {
       "file": "src/components/reports/reports-control-room-more.tsx",
-      "lines": 599
+      "lines": 591
     },
     {
       "file": "src/components/reports/reports-v6-assurance-section.tsx",
       "lines": 503
+    },
+    {
+      "file": "src/components/ui/operational-summary-card.tsx",
+      "lines": 522
+    },
+    {
+      "file": "src/app/(dashboard)/assurance/findings/page.tsx",
+      "lines": 352
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "lines": 2479
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "lines": 587
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "lines": 529
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/obligations/page.tsx",
+      "lines": 413
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/page.tsx",
+      "lines": 880
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "lines": 378
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "lines": 950
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "lines": 417
+    },
+    {
+      "file": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "lines": 398
+    },
+    {
+      "file": "src/app/(dashboard)/dashboard/page.tsx",
+      "lines": 824
+    },
+    {
+      "file": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "lines": 525
+    },
+    {
+      "file": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "lines": 370
+    },
+    {
+      "file": "src/app/(dashboard)/settings/health/page.tsx",
+      "lines": 1150
+    },
+    {
+      "file": "src/app/(dashboard)/settings/operations/page.tsx",
+      "lines": 834
+    },
+    {
+      "file": "src/app/(dashboard)/settings/product/page.tsx",
+      "lines": 576
+    },
+    {
+      "file": "src/app/(dashboard)/work/page.tsx",
+      "lines": 1036
     }
   ]
 }

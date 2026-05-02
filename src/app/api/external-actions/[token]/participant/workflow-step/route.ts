@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   RATE_LIMITS,
@@ -53,11 +54,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     return NextResponse.json({ error: "External action link expired" }, { status: 410 });
   }
 
-  const body = readJsonBody<{
-    stepType?: string;
-    payload?: Record<string, unknown>;
-    passcode?: string;
-  }>(await request.json().catch(() => ({})), {});
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{
+      stepType?: string;
+      payload?: Record<string, unknown>;
+      passcode?: string;
+    }>(raw ?? {}, {})
+  );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
 
   if (!verifyExternalPasscode(body.passcode, link.passcode_hash ?? null)) {
     return NextResponse.json({ error: "Invalid or missing passcode" }, { status: 403 });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
@@ -35,7 +36,9 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  const body = (await request.json().catch(() => ({}))) as { preferences?: Record<string, unknown> };
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as { preferences?: Record<string, unknown> };
   const { data, error } = await ctx.admin
     .from("role_command_center_preferences")
     .upsert(

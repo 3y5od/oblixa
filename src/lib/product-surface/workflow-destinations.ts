@@ -67,6 +67,7 @@ export type WorkflowDestinationKey =
   | "assurance_analytics"
   | "review_packets"
   | "more_tools"
+  | "security_settings"
   | "system_health"
   | "operations_settings"
   | "product_settings"
@@ -725,6 +726,19 @@ export const WORKFLOW_DESTINATIONS = [
       copy("Essential tools", "Secondary entry points for contract execution and workspace basics.", "Open tools"),
       copy("Portfolio tools", "Coordination, analytics, and portfolio operations.", "Open tools"),
       copy("Assurance tools", "Controls, evidence, remediation, and review workflows.", "Open tools")
+    ),
+  },
+  {
+    key: "security_settings",
+    href: "/settings/security",
+    featureFamily: "settings",
+    workflowArea: "workspace",
+    minWorkspaceMode: "core",
+    placementsByMode: placements(["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"]),
+    copyByMode: copies(
+      copy("Security", "MFA, sessions, step-up, and data export.", "Open security"),
+      copy("Security", "Authenticator enrollment and session controls.", "Open security"),
+      copy("Security", "MFA policy, session hygiene, and DSR export hooks.", "Open security")
     ),
   },
   {

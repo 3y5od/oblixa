@@ -23,6 +23,8 @@ export const API_WORKSPACE_GUARD_FAMILIES = [
   { prefix: "/api/attestations/", minMode: "core", modeMismatchStatus: 403 },
   { prefix: "/api/approvals/", minMode: "core", modeMismatchStatus: 403 },
   { prefix: "/api/report-packs/", minMode: "core", modeMismatchStatus: 403 },
+  { prefix: "/api/export/contracts", minMode: "core", modeMismatchStatus: 403 },
+  { prefix: "/api/command-palette/", minMode: "core", modeMismatchStatus: 403 },
   { prefix: "/api/evidence/", minMode: "core", modeMismatchStatus: 403 },
   { prefix: "/api/exceptions/", minMode: "core", modeMismatchStatus: 403 },
   { prefix: "/api/renewals/", minMode: "core", modeMismatchStatus: 403 },

@@ -20,6 +20,16 @@ test.describe("auth workflow matrix", () => {
     await auth.expectLoginLoaded();
   });
 
+  test("forgot-password page responds without throwing (enumeration-neutral surface)", async ({ page }) => {
+    const r = await page.goto("/forgot-password", { waitUntil: "domcontentloaded" });
+    if (r?.status() === 404) {
+      test.skip(true, "/forgot-password not routed in this build.");
+      return;
+    }
+    expect(r?.status() ?? 0).toBeLessThan(500);
+    await expect(page.locator("body")).toBeVisible();
+  });
+
   test("query tampering: work + dashboard tolerate junk params", async ({ page, app }) => {
     test.skip(!E2E_EMAIL || !E2E_PASSWORD, "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD");
     await app.loginAsDefaultUser();

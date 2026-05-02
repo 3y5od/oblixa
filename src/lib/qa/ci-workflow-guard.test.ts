@@ -70,14 +70,45 @@ describe(".github/workflows directory inventory", () => {
   it("keeps expected workflow files", () => {
     const dir = path.join(process.cwd(), ".github", "workflows");
     const names = fs.readdirSync(dir).filter((f) => f.endsWith(".yml")).sort();
-    expect(names).toEqual(
-      [
-        "ci.yml",
-        "cron-canary.yml",
-        "refinement-deletion-notice.yml",
-        "security-audit-weekly.yml",
-        "slo-monitor.yml",
-      ].sort()
-    );
+    const required = [
+      "ci.yml",
+      "codeql.yml",
+      "cron-canary.yml",
+      "dependency-review.yml",
+      "openssf-scorecard.yml",
+      "pr-process-stub.yml",
+      "qa-android-webview.yml",
+      "qa-cdn-purge.yml",
+      "qa-code-maximal.yml",
+      "qa-dast-zap.yml",
+      "qa-debugging-sweep.yml",
+      "qa-external-stubs.yml",
+      "qa-game-day.yml",
+      "qa-helm-lint.yml",
+      "qa-ios-wkwebview.yml",
+      "qa-ipv6-smoke.yml",
+      "qa-k8s-smoke.yml",
+      "qa-macos-a11y-optional.yml",
+      "qa-max-nightly.yml",
+      "qa-merge-queue-canary.yml",
+      "qa-ofac-hash-verify.yml",
+      "qa-post-merge-smoke.yml",
+      "qa-release-candidate.yml",
+      "qa-secrets-history-scan-optional.yml",
+      "qa-secrets-rotation-drill.yml",
+      "qa-stryker-monthly.yml",
+      "qa-taxonomy-closure.yml",
+      "qa-terraform-plan.yml",
+      "qa-visual-update.yml",
+      "qa-windows-edge-optional.yml",
+      "refinement-deletion-notice.yml",
+      "reusable-qa-ultimate.yml",
+      "secretlint-optional.yml",
+      "security-audit-weekly.yml",
+      "semgrep-sarif.yml",
+      "slo-monitor.yml",
+      "trivy-fs.yml",
+    ].sort();
+    expect(names).toEqual(required);
   });
 });

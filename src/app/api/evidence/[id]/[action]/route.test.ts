@@ -4,6 +4,8 @@ const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const revalidatePath = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -24,6 +26,21 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
 
 vi.mock("next/cache", () => ({
   revalidatePath,
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentMutation: async (
+    _admin: unknown,
+    _input: unknown,
+    execute: () => Promise<unknown>
+  ) => ({ response: await execute(), replayed: false }),
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  getV10ExpectedVersionFromRequest: (request: Request) => request.headers.get("x-v10-expected-version")?.trim() || undefined,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 function adminEvidence(submission: { id: string; requirement_id: string } | null) {
@@ -73,6 +90,8 @@ describe("POST /api/evidence/[id]/[action]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
     getApiAuthContext.mockResolvedValue({
       admin: adminEvidence({ id: "sub-1", requirement_id: "req-1" }),
       userId: "user-1",
@@ -129,11 +148,14 @@ describe("POST /api/evidence/[id]/[action]", () => {
   it("approve succeeds", async () => {
     const { POST } = await import("@/app/api/evidence/[id]/[action]/route");
     const res = await POST(
-      new Request("http://localhost:3000/api/evidence/sub-1/approve", { method: "POST" }),
+      new Request("http://localhost:3000/api/evidence/sub-1/approve", {
+        method: "POST",
+        headers: { "x-idempotency-key": "evidence_approve_12345" },
+      }),
       { params: Promise.resolve({ id: "sub-1", action: "approve" }) }
     );
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(await res.json()).toEqual(expect.objectContaining({ ok: true, outcome: "success" }));
   });
 
   it("reject succeeds with reviewer feedback", async () => {
@@ -141,12 +163,12 @@ describe("POST /api/evidence/[id]/[action]", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/evidence/sub-1/reject", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-idempotency-key": "evidence_reject_12345" },
         body: JSON.stringify({ reason: "Please upload the current certificate period." }),
       }),
       { params: Promise.resolve({ id: "sub-1", action: "reject" }) }
     );
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(await res.json()).toEqual(expect.objectContaining({ ok: true, outcome: "success" }));
   });
 });

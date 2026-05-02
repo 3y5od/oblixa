@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 
 /** When thresholds change, update this test in the same PR as vitest.config.ts */
 const EXPECTED_THRESHOLDS = {
-  lines: 50,
-  functions: 60,
-  branches: 45,
-  statements: 48,
+  lines: 51,
+  functions: 61,
+  branches: 46,
+  statements: 49,
 } as const;
 
 const REQUIRED_INCLUDE_GLOBS = [

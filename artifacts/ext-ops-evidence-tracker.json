@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "updated_at": "2026-04-30",
+  "items": [
+    {
+      "id": "waf_ddos",
+      "status": "ext",
+      "evidence": "Delegated to hosting/WAF vendor; no in-repo control plane."
+    },
+    {
+      "id": "supabase_auth_mfa_dashboard",
+      "status": "ext",
+      "evidence": "Enable TOTP/WebAuthn factors in Supabase Auth project settings; product UI at /settings/security."
+    },
+    {
+      "id": "mdm_endpoint_compliance",
+      "status": "ext",
+      "evidence": "Customer MDM posture; not enforced by application binary."
+    },
+    {
+      "id": "pen_test_bug_bounty",
+      "status": "ext",
+      "evidence": "Track engagements and findings outside repo (VDP: public/.well-known/security.txt)."
+    },
+    {
+      "id": "dpa_subprocessors",
+      "status": "ext",
+      "evidence": "artifacts/subprocessors.json + vendor DPAs; legal ownership."
+    }
+  ]
+}

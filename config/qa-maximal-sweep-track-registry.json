@@ -1,0 +1,1844 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-01T00:16:29.440Z",
+  "tracks": {
+    "p0": {
+      "npm": [
+        "qa:baseline:capture",
+        "report:qa-coverage-tier"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p1": {
+      "npm": [
+        "qa:sweep:max:p10",
+        "check:qa-maximal-bundle"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p2": {
+      "npm": [
+        "check:github-actions-permissions",
+        "check:workflow-tier-coverage:strict"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p3": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "qa:cost:estimate"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p4": {
+      "npm": [
+        "check:playwright-tag-coverage",
+        "test:e2e:smoke"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p5": {
+      "npm": [
+        "test:logic:coverage",
+        "check:checks-integrity-meta"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p6": {
+      "npm": [
+        "check:migration-security-patterns",
+        "test:rls-smoke"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p7": {
+      "npm": [
+        "check:vercel-cron",
+        "test:k6:smoke"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p8": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:sbom-formats-vex-sarif"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p9": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:pen-test-findings-closure"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p10": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "security:audit:maximal"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p11": {
+      "npm": [
+        "qa:sweep:universe",
+        "write:qa-universe-attestation"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p12": {
+      "npm": [
+        "check:api-route-tests",
+        "check:openapi-route-coverage"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p13": {
+      "npm": [
+        "check:server-action-exports",
+        "check:server-action-auth-contract"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p14": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:vercel-cron"
+      ],
+      "note": "Macro-phase evidence"
+    },
+    "p15": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p16": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p17": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p18": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p19": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p20": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p21": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p22": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p23": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p24": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p25": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p26": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p27": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p28": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p29": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p30": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p31": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p32": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p33": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p34": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p35": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p36": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p37": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p38": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p39": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p40": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p41": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p42": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p43": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p44": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p45": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p46": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p47": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p48": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p49": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p50": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p51": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p52": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p53": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p54": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p55": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p56": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p57": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p58": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p59": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p60": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p61": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p62": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p63": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p64": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p65": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p66": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p67": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p68": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p69": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p70": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p71": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p72": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p73": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p74": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p75": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p76": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p77": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p78": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p79": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p80": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p81": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p82": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p83": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p84": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p85": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p86": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p87": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p88": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p89": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p90": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p91": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p92": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p93": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p94": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p95": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p96": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p97": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p98": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p99": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p100": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p101": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p102": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p103": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p104": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p105": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p106": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p107": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p108": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p109": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p110": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p111": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p112": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p113": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p114": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p115": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p116": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p117": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p118": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p119": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p120": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p121": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p122": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p123": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p124": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p125": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p126": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p127": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p128": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p129": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p130": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p131": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p132": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p133": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p134": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p135": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p136": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p137": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p138": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p139": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p140": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p141": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p142": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p143": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p144": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p145": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p146": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p147": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p148": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p149": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p150": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p151": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p152": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p153": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p154": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p155": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p156": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p157": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p158": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p159": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p160": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p161": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p162": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p163": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p164": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p165": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p166": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p167": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p168": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p169": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p170": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p171": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p172": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p173": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p174": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p175": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p176": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p177": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p178": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p179": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p180": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p181": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p182": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p183": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p184": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p185": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p186": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p187": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p188": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p189": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p190": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p191": {
+      "npm": [
+        "check:openapi-route-coverage",
+        "check:dependency-policy",
+        "check:qa-waiver-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p192": {
+      "npm": [
+        "check:artifact-json-matrix",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p193": {
+      "npm": [
+        "check:security-enforcement-matrix:strict",
+        "report:qa-coverage-tier",
+        "check:cron-route-auth",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p194": {
+      "npm": [
+        "check:e2e-quarantine:strict",
+        "check:tier-coverage:strict",
+        "check:server-action-exports",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p195": {
+      "npm": [
+        "check:github-workflows-security",
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p196": {
+      "npm": [
+        "check:dependency-policy",
+        "check:qa-maximal-bundle",
+        "check:api-route-auth-contract",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p197": {
+      "npm": [
+        "check:lockfile-integrity-drift",
+        "check:qa-waiver-registry",
+        "check:api-route-rate-limit-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p198": {
+      "npm": [
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity",
+        "check:api-route-tests"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p199": {
+      "npm": [
+        "check:tier-coverage:strict",
+        "check:cron-route-auth",
+        "check:openapi-route-coverage",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p200": {
+      "npm": [
+        "check:workflow-tier-coverage:strict",
+        "check:server-action-exports",
+        "check:artifact-json-matrix",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p201": {
+      "npm": [
+        "check:qa-maximal-bundle",
+        "check:server-action-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p202": {
+      "npm": [
+        "check:qa-waiver-registry",
+        "check:api-route-auth-contract",
+        "check:e2e-quarantine:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p203": {
+      "npm": [
+        "check:command-reference-integrity",
+        "check:api-route-rate-limit-coverage",
+        "check:github-workflows-security"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p204": {
+      "npm": [
+        "check:cron-route-auth",
+        "check:api-route-tests",
+        "check:dependency-policy",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p205": {
+      "npm": [
+        "check:server-action-exports",
+        "check:openapi-route-coverage",
+        "check:lockfile-integrity-drift",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p206": {
+      "npm": [
+        "check:server-action-auth-contract",
+        "check:artifact-json-matrix",
+        "report:qa-coverage-tier",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p207": {
+      "npm": [
+        "check:api-route-auth-contract",
+        "check:security-enforcement-matrix:strict",
+        "check:tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p208": {
+      "npm": [
+        "check:api-route-rate-limit-coverage",
+        "check:e2e-quarantine:strict",
+        "check:workflow-tier-coverage:strict",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p209": {
+      "npm": [
+        "check:api-route-tests",
+        "check:github-workflows-security",
+        "check:qa-maximal-bundle",
+        "check:command-reference-integrity"
+      ],
+      "note": "Rotating maximal QA script bundle (plan P15+)"
+    },
+    "p210": {
+      "npm": [
+        "write:qa-universe-attestation",
+        "check:qa-maximal-sweep-track-registry",
+        "check:command-reference-integrity"
+      ],
+      "note": "P210 attestation artifact + track-registry integrity"
+    }
+  }
+}

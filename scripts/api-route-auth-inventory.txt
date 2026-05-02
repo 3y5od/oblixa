@@ -1,5 +1,9 @@
 # API route authentication inventory (maintenance helper)
 #
+# Canonical route path list (machine-checked): scripts/api-route-auth-route-index.txt
+#   npm run check:api-route-auth-route-index
+# Closure map (all plan phase ids → evidence): config/maximal-security-closure-register.json
+#
 # Invariant: src/proxy.ts does NOT enforce auth on /api/*. Every route.ts must implement
 # its own model: session (Supabase getUser), CRON_SECRET, inbound automation token,
 # Stripe webhook signature, integration API key, capability token in URL, etc.

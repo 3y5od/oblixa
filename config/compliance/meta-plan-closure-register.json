@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "description": "Meta closure chain: phase80 / phase91 / phase101 / phase112 machine-readable anchors (RepoPolicy).",
+  "closures": [
+    {
+      "id": "phase80",
+      "label": "Seventh meta dashboard",
+      "evidence": "config/compliance/asvs-nist-csf-map.json"
+    },
+    {
+      "id": "phase91",
+      "label": "Eighth meta horizon",
+      "evidence": "config/compliance/cwe-api-sans-map.json"
+    },
+    {
+      "id": "phase101",
+      "label": "Ninth meta closure register",
+      "evidence": "config/compliance/samm-bsimm-map.json"
+    },
+    {
+      "id": "phase112",
+      "label": "Tenth meta plan integrity",
+      "evidence": "config/phase112-integrity-manifest.json"
+    }
+  ]
+}

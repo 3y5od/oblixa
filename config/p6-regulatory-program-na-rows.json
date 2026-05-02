@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "description": "Jurisdiction-specific programs where obligation is EXT legal/ops or N/A to current product scope.",
+  "rows": [
+    {
+      "program": "EU_AI_Act",
+      "applicability": "n_a",
+      "n_a_rationale": "No in-product autonomous legal decisioning or high-risk AI system as defined by EU AI Act in this repo snapshot.",
+      "n_a_reviewed_at": "2026-04-30",
+      "evidence_ref": "artifacts/ml-lineage-stub.json"
+    },
+    {
+      "program": "HIPAA",
+      "applicability": "ext",
+      "n_a_rationale": "B2B contract workspace; HIPAA BAA and PHI handling are operator/vendor posture outside application code.",
+      "n_a_reviewed_at": "2026-04-30",
+      "evidence_ref": "artifacts/pci-cde-inventory.json"
+    },
+    {
+      "program": "FERPA",
+      "applicability": "n_a",
+      "n_a_rationale": "No student education records workflow in product surface.",
+      "n_a_reviewed_at": "2026-04-30",
+      "evidence_ref": "config/vertical-compliance-matrix.json"
+    },
+    {
+      "program": "PSD2_SCA",
+      "applicability": "ext",
+      "n_a_rationale": "PSD2 SCA enforced by Stripe; app does not implement issuer SCA flows directly.",
+      "n_a_reviewed_at": "2026-04-30",
+      "evidence_ref": "src/app/api/stripe/"
+    },
+    {
+      "program": "UK_Online_Safety_Act",
+      "applicability": "ext",
+      "n_a_rationale": "UKG regulatory evidence and UGC policies are operator/legal artifacts, not encoded in-repo.",
+      "n_a_reviewed_at": "2026-04-30",
+      "evidence_ref": "artifacts/subprocessors.json"
+    }
+  ]
+}

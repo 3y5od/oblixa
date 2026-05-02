@@ -38,6 +38,7 @@ vi.mock("@/lib/import-jobs", () => ({
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
   emitProductTelemetryEvent: vi.fn(async () => {}),
 }));
 
@@ -48,25 +49,42 @@ describe("POST /api/import/contracts/[jobId] retry idempotency (V9)", () => {
     createClient.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
     });
+    const query = {
+      select: vi.fn(() => query),
+      eq: vi.fn(() => query),
+      order: vi.fn(() => query),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      insert: vi.fn().mockResolvedValue({ error: null }),
+      limit: vi.fn().mockResolvedValue({
+        data: [
+          {
+            organization_id: "550e8400-e29b-41d4-a716-446655440001",
+            role: "editor",
+            created_at: "2026-01-01T00:00:00Z",
+          },
+        ],
+        error: null,
+      }),
+    };
     createAdminClient.mockResolvedValue({
-      from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            order: vi.fn(() => ({
-              limit: vi.fn().mockResolvedValue({
-                data: [
-                  {
-                    organization_id: "550e8400-e29b-41d4-a716-446655440001",
-                    role: "editor",
-                    created_at: "2026-01-01T00:00:00Z",
-                  },
-                ],
-                error: null,
-              }),
-            })),
-          })),
-        })),
-      })),
+      from: vi.fn(() => query),
+      rpc: vi.fn((fn: string, args: Record<string, unknown>) => {
+        if (fn === "claim_v10_mutation_idempotency") {
+          return Promise.resolve({
+            data: [
+              {
+                claim_result: "claimed",
+                request_hash: args.p_request_hash,
+                response_json: args.p_pending_response_json,
+                claim_status: "in_progress",
+              },
+            ],
+            error: null,
+          });
+        }
+        if (fn === "complete_v10_mutation_idempotency") return Promise.resolve({ data: true, error: null });
+        return Promise.resolve({ data: null, error: { message: `unexpected rpc ${fn}` } });
+      }),
     });
   });
 
@@ -78,12 +96,21 @@ describe("POST /api/import/contracts/[jobId] retry idempotency (V9)", () => {
     });
 
     const { POST } = await import("@/app/api/import/contracts/[jobId]/route");
-    const res = await POST(new Request("http://localhost/api/import/contracts/missing-job", { method: "POST" }), {
+    const res = await POST(new Request("http://localhost/api/import/contracts/missing-job", {
+      method: "POST",
+      headers: { "x-idempotency-key": "import_retry_missing_12345", "x-v10-expected-version": "missing-job" },
+    }), {
       params: Promise.resolve({ jobId: "missing-job" }),
     });
     expect(res.status).toBe(404);
     const body = await res.json();
-    expect(body).toEqual({ error: "Job not found" });
+    expect(body).toMatchObject({
+      error: "Job not found",
+      v10: {
+        outcome: "not_found",
+        diagnostic_id: "v10_import_retry_job_not_found",
+      },
+    });
     expect(runContractCsvImport).not.toHaveBeenCalled();
   });
 
@@ -95,7 +122,10 @@ describe("POST /api/import/contracts/[jobId] retry idempotency (V9)", () => {
     });
 
     const { POST } = await import("@/app/api/import/contracts/[jobId]/route");
-    const res = await POST(new Request("http://localhost/api/import/contracts/old-job", { method: "POST" }), {
+    const res = await POST(new Request("http://localhost/api/import/contracts/old-job", {
+      method: "POST",
+      headers: { "x-idempotency-key": "import_retry_old_12345", "x-v10-expected-version": "old-job" },
+    }), {
       params: Promise.resolve({ jobId: "old-job" }),
     });
     expect(res.status).toBe(409);

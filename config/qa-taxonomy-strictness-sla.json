@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "milestones": [
+    {
+      "id": "q1-waiver-cap",
+      "label": "Q1",
+      "maxWaiverRatio": 0.3,
+      "effective": "2026-06-30"
+    },
+    {
+      "id": "q2-waiver-cap",
+      "label": "Q2",
+      "maxWaiverRatio": 0.1,
+      "effective": "2026-09-30"
+    },
+    {
+      "id": "q3-zero-waiver-release",
+      "label": "Q3",
+      "maxWaiverRatio": 0,
+      "disallowWaivers": true,
+      "effective": "2026-12-31"
+    }
+  ],
+  "formula": "coverageScoreV1 = sum(P0 non-waiver) * 3 + sum(P1 non-waiver) * 2 + sum(P2 non-waiver) * 1 + sum(P3 non-waiver) * 0.5 - executionGapCount * 0.25"
+}

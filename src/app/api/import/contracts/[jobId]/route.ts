@@ -9,6 +9,43 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { importJobCanRetry, getImportJobDetail, getImportJobHeadline, getImportJobTone } from "@/lib/import-job-visibility";
 import { loadRetryableImportRows, runContractCsvImport } from "@/lib/import-jobs";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import {
+  buildV10MutationResponse,
+  buildV10MutationResponseInit,
+  validateV10IdempotencyKey,
+  type V10MutationResponse,
+} from "@/lib/v10-mutation-envelope";
+import { executeV10IdempotentMutation, getV10ExpectedVersionFromRequest, getV10IdempotencyKeyFromRequest, recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+
+const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+
+type ImportRetryMutationResponse = V10MutationResponse & {
+  success?: boolean;
+  retriedJobId?: string;
+  jobId?: string;
+  created?: number;
+  errors?: number;
+  durationMs?: number;
+};
+
+function statusForV10ImportRetryOutcome(outcome: V10MutationResponse["outcome"]): number {
+  switch (outcome) {
+    case "not_found":
+      return 404;
+    case "conflict":
+    case "job_not_retryable":
+      return 409;
+    case "validation_failed":
+      return 400;
+    case "audit_write_failed":
+    case "server_error":
+      return 500;
+    default:
+      return 400;
+  }
+}
 
 export async function GET(
   request: Request,
@@ -20,15 +57,16 @@ export async function GET(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
     role: membership.role,
     apiPath: "/api/import/contracts/[jobId]",
+    v10MutationResponse: false,
   });
   if (modeGate) return modeGate;
 
@@ -39,12 +77,12 @@ export async function GET(
       { error: "Too many requests" },
       {
         status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+        headers: { ...PRIVATE_NO_STORE_HEADERS, "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
       }
     );
   }
 
-  const [{ data: job }, { data: rows }] = await Promise.all([
+  const [{ data: job }, { data: rows }, { data: v10Visibility }] = await Promise.all([
     admin
       .from("contract_import_jobs")
       .select(
@@ -60,21 +98,35 @@ export async function GET(
       .eq("organization_id", membership.organization_id)
       .order("row_index", { ascending: true })
       .limit(300),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_job_run_visibility")
+        .select("job_id, job_class, status, failure_category, diagnostic_id, user_visible_detail, retry_action, completed_count, failed_count, retryable_count, started_at, completed_at, updated_at"),
+      { organizationId: membership.organization_id, role: membership.role, includeWorkspaceMode: false }
+    )
+      .eq("job_id", jobId)
+      .maybeSingle(),
   ]);
-  if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS });
 
   const visible = {
     headline: getImportJobHeadline(job),
     detail: getImportJobDetail(job),
     tone: getImportJobTone(job),
     canRetry: importJobCanRetry(job),
+    diagnosticId: v10Visibility?.diagnostic_id ?? null,
+    retryAction: v10Visibility?.retry_action ?? null,
   };
 
-  return NextResponse.json({
-    job,
-    visible,
-    rows: rows ?? [],
-  });
+  return NextResponse.json(
+    {
+      job,
+      visible,
+      v10_job_visibility: v10Visibility ?? null,
+      rows: rows ?? [],
+    },
+    { headers: PRIVATE_NO_STORE_HEADERS }
+  );
 }
 
 export async function POST(
@@ -87,71 +139,176 @@ export async function POST(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
     role: membership.role,
     apiPath: "/api/import/contracts/[jobId]",
+    v10MutationResponse: true,
   });
   if (modeGate) return modeGate;
 
-  const retryInfo = await loadRetryableImportRows(admin, membership.organization_id, jobId);
-  if (retryInfo.status == null) {
-    return NextResponse.json({ error: "Job not found" }, { status: 404 });
-  }
-  if (retryInfo.supersededByJobId) {
+  const idempotencyKey = getV10IdempotencyKeyFromRequest(request);
+  if (!idempotencyKey || !validateV10IdempotencyKey(idempotencyKey)) {
     return NextResponse.json(
-      { error: "A newer retry already replaced this import attempt." },
-      { status: 409 }
-    );
-  }
-  if (retryInfo.rows.length === 0) {
-    return NextResponse.json(
-      { error: "No retryable rows remain for this import job." },
-      { status: 400 }
+      { error: "A valid x-idempotency-key header is required for this V10 import retry.", diagnostic_id: "v10_import_retry_idempotency_key_invalid" },
+      { status: 400, headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
 
-  await emitProductTelemetryEvent(admin, {
-    organizationId: membership.organization_id,
-    userId: user.id,
-    action: "product.v9.import_retry_started",
-    details: { priorJobId: jobId, rowCount: retryInfo.rows.length },
-  });
-
-  const result = await runContractCsvImport({
+  const { response: retryMutation, replayed } = await executeV10IdempotentMutation<ImportRetryMutationResponse>(
     admin,
-    membership,
-    userId: user.id,
-    rows: retryInfo.rows,
-    source: "retry",
-    retryOfJobId: jobId,
-  });
+    {
+      organizationId: membership.organization_id,
+      actorUserId: user.id,
+      mutationName: "retry_failed_job",
+      targetType: "import_job",
+      targetId: jobId,
+      idempotencyKey,
+      expectedVersion: getV10ExpectedVersionFromRequest(request),
+      currentVersion: jobId,
+      payload: { prior_job_id: jobId },
+    },
+    async () => {
+      const retryInfo = await loadRetryableImportRows(admin, membership.organization_id, jobId);
+      if (retryInfo.status == null) {
+        return buildV10MutationResponse({
+          outcome: "not_found",
+          message: "Job not found",
+          changedObjectType: "import_job",
+          changedObjectId: jobId,
+          diagnosticId: "v10_import_retry_job_not_found",
+        });
+      }
+      if (retryInfo.supersededByJobId) {
+        return buildV10MutationResponse({
+          outcome: "conflict",
+          message: "A newer retry already replaced this import attempt.",
+          changedObjectType: "import_job",
+          changedObjectId: jobId,
+          nextDestinationHref: `/api/import/contracts/${retryInfo.supersededByJobId}`,
+          diagnosticId: "v10_import_retry_superseded",
+        });
+      }
+      if (retryInfo.rows.length === 0) {
+        return buildV10MutationResponse({
+          outcome: "job_not_retryable",
+          message: "No retryable rows remain for this import job.",
+          changedObjectType: "import_job",
+          changedObjectId: jobId,
+          diagnosticId: "v10_import_retry_no_retryable_rows",
+        });
+      }
 
-  if (!result.jobId) {
+      await emitProductTelemetryEvent(admin, {
+        organizationId: membership.organization_id,
+        userId: user.id,
+        action: "product.v9.import_retry_started",
+        details: { priorJobId: jobId, rowCount: retryInfo.rows.length },
+      });
+
+      const result = await runContractCsvImport({
+        admin,
+        membership,
+        userId: user.id,
+        rows: retryInfo.rows,
+        source: "retry",
+        retryOfJobId: jobId,
+      });
+
+      if (!result.jobId) {
+        return buildV10MutationResponse({
+          outcome: "validation_failed",
+          message: result.error ?? "Could not create retry job",
+          changedObjectType: "import_job",
+          changedObjectId: null,
+          diagnosticId: "v10_import_retry_job_missing",
+        });
+      }
+
+      if (!result.success) {
+        return buildV10MutationResponse({
+          outcome: "server_error",
+          message: result.error ?? "Retry failed",
+          changedObjectType: "import_job",
+          changedObjectId: result.jobId,
+          nextDestinationHref: `/api/import/contracts/${result.jobId}`,
+          diagnosticId: "v10_import_retry_failed",
+        });
+      }
+
+      const auditEventId = await recordV10AuditEvent(admin, {
+        organizationId: membership.organization_id,
+        actorUserId: user.id,
+        action: "import_job.retry_created",
+        targetType: "import_job",
+        targetId: result.jobId,
+        outcome: "success",
+        safeMetadata: { prior_job_id: jobId, row_count: retryInfo.rows.length },
+      });
+      await emitProductTelemetryEvent(admin, {
+        organizationId: membership.organization_id,
+        userId: user.id,
+        action: "product.v10.failed_job_retry_succeeded",
+        details: {
+          job_class: "import_job",
+          retry_status: "created",
+          row_count: retryInfo.rows.length,
+          errors: result.errors,
+        },
+      });
+      await refreshV10ReadModelsForOrganization(admin, membership.organization_id, {
+        refreshScope: "one_model",
+        reason: "contract_import_retry_mutation",
+        modelKeys: ["activation_state", "work_items", "job_run_visibility", "contract_activity_events", "audit_events", "command_search_index"],
+      });
+
+      return {
+        ...buildV10MutationResponse({
+          outcome: auditEventId ? "success" : "audit_write_failed",
+          message: auditEventId ? "Import retry job created." : "Import retry job created, but audit confirmation is missing.",
+          changedObjectType: "import_job",
+          changedObjectId: result.jobId,
+          newVersion: result.created,
+          nextDestinationHref: `/api/import/contracts/${result.jobId}`,
+          auditEventId,
+          diagnosticId: auditEventId ? null : "v10_import_retry_audit_missing",
+        }),
+        success: true,
+        retriedJobId: jobId,
+        jobId: result.jobId,
+        created: result.created,
+        errors: result.errors,
+        durationMs: result.durationMs,
+      };
+    }
+  );
+
+  if (retryMutation.outcome !== "success") {
     return NextResponse.json(
-      { error: result.error ?? "Could not create retry job" },
-      { status: 400 }
+      { error: retryMutation.user_visible_message, replayed, v10: retryMutation },
+      {
+        ...buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS }),
+        status: statusForV10ImportRetryOutcome(retryMutation.outcome),
+      }
     );
   }
 
-  if (!result.success) {
-    return NextResponse.json(
-      { error: result.error ?? "Retry failed", jobId: result.jobId },
-      { status: 400 }
-    );
-  }
-
-  return NextResponse.json({
-    success: true,
-    retriedJobId: jobId,
-    jobId: result.jobId,
-    created: result.created,
-    errors: result.errors,
-    durationMs: result.durationMs,
-  });
+  return NextResponse.json(
+    {
+      success: retryMutation.success ?? true,
+      retriedJobId: retryMutation.retriedJobId ?? jobId,
+      jobId: retryMutation.jobId ?? retryMutation.changed_object_id,
+      created: retryMutation.created ?? (typeof retryMutation.new_version === "number" ? retryMutation.new_version : null),
+      errors: retryMutation.errors ?? 0,
+      durationMs: retryMutation.durationMs ?? null,
+      replayed,
+      v10: retryMutation,
+    },
+    buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS })
+  );
 }

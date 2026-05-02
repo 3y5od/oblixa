@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "checkpoints": [
+    { "id": "reading_level", "mode": "manual_checklist" },
+    { "id": "focus_mode", "mode": "browser_prefers_reduced_motion" },
+    { "id": "timeout_budget", "mode": "e2e/a11y-cognitive-timeout-hints.spec.ts" }
+  ]
+}

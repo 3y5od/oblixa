@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { shouldTreat404AsOptionalMatrix } from "./fixtures/surface-availability";
 // skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=v6_assurance_smokes_are_fixture_gated
 
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL;
@@ -40,15 +41,21 @@ test.describe("V6 assurance hub", () => {
 
     const hub = await page.goto("/assurance", { waitUntil: "domcontentloaded" });
     if (hub?.status() === 404) {
-      test.skip(true, "V6 /assurance not enabled or not deployed in this environment (404).");
-      return;
+      if (shouldTreat404AsOptionalMatrix("/assurance")) {
+        test.skip(true, "V6 /assurance not mounted in this matrix (fixture).");
+        return;
+      }
+      throw new Error("Unexpected 404 for /assurance");
     }
     await expect(page.getByRole("heading", { name: /continuous assurance/i })).toBeVisible();
 
     const findings = await page.goto("/assurance/findings", { waitUntil: "domcontentloaded" });
     if (findings?.status() === 404) {
-      test.skip(true, "V6 /assurance/findings not enabled (404).");
-      return;
+      if (shouldTreat404AsOptionalMatrix("/assurance/findings")) {
+        test.skip(true, "V6 /assurance/findings not mounted in this matrix (fixture).");
+        return;
+      }
+      throw new Error("Unexpected 404 for /assurance/findings");
     }
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
@@ -65,8 +72,11 @@ test.describe("V6 assurance hub", () => {
     for (const path of paths) {
       const res = await page.goto(path, { waitUntil: "domcontentloaded" });
       if (res?.status() === 404) {
-        test.skip(true, `V6 ${path} not enabled or not deployed (404).`);
-        return;
+        if (shouldTreat404AsOptionalMatrix(path)) {
+          test.skip(true, `V6 ${path} not mounted in this matrix (fixture).`);
+          return;
+        }
+        throw new Error(`Unexpected 404 for ${path}`);
       }
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 15_000 });
     }
@@ -84,8 +94,11 @@ test.describe("V6 assurance hub", () => {
     for (const path of paths) {
       const res = await page.goto(path, { waitUntil: "domcontentloaded" });
       if (res?.status() === 404) {
-        test.skip(true, `V6 ${path} not enabled or not deployed (404).`);
-        return;
+        if (shouldTreat404AsOptionalMatrix(path)) {
+          test.skip(true, `V6 ${path} not mounted in this matrix (fixture).`);
+          return;
+        }
+        throw new Error(`Unexpected 404 for ${path}`);
       }
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 15_000 });
     }
@@ -94,7 +107,14 @@ test.describe("V6 assurance hub", () => {
   test("reports outcome and assurance anchor sections exist when page loads", async ({ page }) => {
     await loginAsTestUser(page);
     const res = await page.goto("/reports", { waitUntil: "domcontentloaded" });
-    if (res?.status() === 404 || res?.status() === 403) {
+    if (res?.status() === 404) {
+      if (shouldTreat404AsOptionalMatrix("/reports")) {
+        test.skip(true, "/reports not mounted in this matrix (fixture).");
+        return;
+      }
+      throw new Error("Unexpected 404 for /reports");
+    }
+    if (res?.status() === 403) {
       test.skip(true, "/reports not available in this environment.");
       return;
     }

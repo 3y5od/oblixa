@@ -1,0 +1,7 @@
+{
+  "performance": 0.85,
+  "accessibility": 0.9,
+  "bestPractices": 0.85,
+  "seo": 0.8,
+  "note": "Nightly compares extracted Lighthouse JSON vs these floors when RUN_LIGHTHOUSE_NIGHTLY=1."
+}

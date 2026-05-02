@@ -88,7 +88,7 @@ const AUTH_SIGNALS = [
   /\brequireV6ApiFeature\b/,
   /\bcanManageCapability\b/,
   // Machine auth helpers/secrets
-  /\bauthorizeCronRequest\b|\bensureCronAuthorized\b|\brequireV[56]CronAuth\b|\bCRON_SECRET\b/,
+  /\bauthorizeCronRequest\b|\bensureCronAuthorized\b|\brequireCronAuthorized\b|\brequireV[56]CronAuth\b|\bCRON_SECRET\b/,
   /\bisInboundAutomationAuthorized\b/,
   /\bconstructEvent\b|stripe-signature/i,
   /\bparseBearerToken\b|\bx-api-key\b/i,

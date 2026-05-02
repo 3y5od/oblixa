@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
@@ -24,7 +25,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const raw = await request.json().catch(() => ({}));
+  const _limitedBody = await readJsonBodyLimited(request);
+  if (!_limitedBody.ok) return _limitedBody.response;
+  const raw = _limitedBody.body ?? {};
   const body = readJsonBody<{
     segmentKey?: string | null;
     assignedTeam?: string | null;

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "references": ["CWE Top 25", "OWASP API Security Top 10", "SANS Top 25 Software Errors"],
+  "rows": [
+    { "ledgerSection": "D", "cweFamily": "IDOR", "apiTop10": "API1:2023 BOLA" },
+    { "ledgerSection": "G", "cweFamily": "CWE-798", "apiTop10": "API2:2023 Auth" },
+    { "ledgerSection": "K", "cweFamily": "CWE-918", "apiTop10": "API7:2023 SSRF" }
+  ]
+}

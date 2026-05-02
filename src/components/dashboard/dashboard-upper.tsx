@@ -53,16 +53,16 @@ import { buildContractsListHref } from "@/lib/contracts-search-url";
 const COMMAND_LANE_ICONS = [ClipboardList, Scale, ShieldAlert] as const;
 
 function shortcutActionLabel(href: string): string {
-  if (href.includes("/approvals")) return "View approvals";
-  if (href.includes("/exceptions")) return "View exceptions";
-  if (href.includes("/renewals")) return "View renewals";
-  if (href.includes("/reports")) return "Open reports";
-  if (href.includes("/review")) return "Open review queue";
-  if (href.includes("/maintenance")) return "Open maintenance";
-  if (href.startsWith("/work")) return "View work queue";
-  if (href.includes("/health")) return "Open health";
-  if (href.includes("/persona")) return "Open persona";
-  return "Open destination";
+  if (href.includes("/approvals")) return "Review approvals";
+  if (href.includes("/exceptions")) return "Triage exceptions";
+  if (href.includes("/renewals")) return "Review renewals";
+  if (href.includes("/reports")) return "Review reports";
+  if (href.includes("/review")) return "Continue review";
+  if (href.includes("/maintenance")) return "Review maintenance";
+  if (href.startsWith("/work")) return "Review work queue";
+  if (href.includes("/health")) return "Inspect health";
+  if (href.includes("/persona")) return "Configure persona";
+  return "Review destination";
 }
 
 type DashboardDeadlineField = {

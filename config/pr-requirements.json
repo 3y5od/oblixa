@@ -1,0 +1,5 @@
+{
+  "requiredSubstrings": [],
+  "branchProtectionBaseline": "artifacts/baseline/branch-protection-snapshot.json",
+  "note": "When check:pr-body-json runs with PR_BODY set, each requiredSubstrings entry must appear (case-sensitive). Leave requiredSubstrings empty for no-op. branchProtectionBaseline is the path consumed by check:branch-protection-drift / report drift tooling; keep it aligned with the repo baseline artifact."
+}

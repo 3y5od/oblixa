@@ -34,6 +34,8 @@ describe("API workspace route policy matrix", () => {
       "/api/attestations/": "/api/attestations/run",
       "/api/approvals/": "/api/approvals/sla-metrics",
       "/api/report-packs/": "/api/report-packs",
+      "/api/export/contracts": "/api/export/contracts",
+      "/api/command-palette/": "/api/command-palette/contracts",
       "/api/evidence/": "/api/evidence/submit",
       "/api/exceptions/": "/api/exceptions",
       "/api/renewals/": "/api/renewals/portfolio-signals",

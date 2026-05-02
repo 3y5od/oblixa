@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
@@ -18,7 +19,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as {
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as {
     organizationId?: string;
     action?:
       | "create_task"

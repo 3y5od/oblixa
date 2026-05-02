@@ -1,0 +1,4 @@
+{
+  "files": [],
+  "note": "Quarantine list empty — optional skip specs remain file-local; check-e2e-quarantine --strict validates rows when non-empty."
+}

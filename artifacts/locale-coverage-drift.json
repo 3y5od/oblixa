@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "defaultLocales": [
+    "en"
+  ],
+  "note": "Extend with Intl coverage matrix when i18n ships."
+}

@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -19,6 +21,20 @@ vi.mock("@/lib/integrations/events", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentMutation: async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({
+    response: await execute(),
+    replayed: false,
+  }),
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  getV10ExpectedVersionFromRequest: (request: Request) => request.headers.get("x-v10-expected-version")?.trim() || undefined,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 function adminExceptions(row: Record<string, unknown> | null, ownerExists: boolean) {
@@ -75,6 +91,8 @@ describe("POST /api/exceptions/[id]/[action]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
     getApiAuthContext.mockResolvedValue({
       admin: adminExceptions(exceptionRow, true),
       userId: "user-1",
@@ -149,13 +167,27 @@ describe("POST /api/exceptions/[id]/[action]", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/exceptions/ex-1/assign", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-exception-assign" },
         body: JSON.stringify({ ownerId: "owner-1" }),
       }),
       { params: Promise.resolve({ id: "ex-1", action: "assign" }) }
     );
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(await res.json()).toMatchObject({
+      outcome: "success",
+      changed_object_type: "exception",
+      changed_object_id: "ex-1",
+      audit_event_id: "v10-audit-1",
+    });
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "exception.owner_changed",
+        targetType: "exception",
+        targetId: "ex-1",
+        safeMetadata: expect.objectContaining({ owner_assigned: true }),
+      })
+    );
   });
 
   it("returns 404 for unsupported action", async () => {

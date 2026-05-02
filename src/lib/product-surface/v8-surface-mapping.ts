@@ -138,7 +138,10 @@ function inferFeatureFamilyFromActionIdentifier(
   const base = actionFileBaseName(normalized);
 
   const byFileName: Record<string, FeatureFamilyKey> = {
+    mfa: "settings",
+    sessions: "settings",
     contracts: "contracts",
+    "v10-bulk-compatible-work": "work",
     tasks: "work",
     obligations: "work",
     approvals: "work",

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "dora": {
+    "deploymentFrequency": "weekly",
+    "leadTimeForChanges": "hours",
+    "changeFailureRate": "tracked",
+    "timeToRestore": "tracked"
+  },
+  "space": { "satisfaction": "survey_stub", "performance": "ci_duration" }
+}

@@ -1,23 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { V9_RELIABILITY_STATES } from "./v9-release-contract";
 
-/** §27.2 bullets must remain documented; UI anchors are distributed across job copy + health. */
+/** §27.2 bullets must remain codified; UI anchors are distributed across job copy + health. */
 describe("V9 §27.2 reliability states map", () => {
-  it("retains required state vocabulary in docs", () => {
-    const doc = readFileSync(join(process.cwd(), "docs", "v9.md"), "utf8");
-    for (const phrase of [
-      "extraction in progress",
-      "extraction failed",
-      "import in progress",
-      "import failed or partial",
-      "reminder active",
-      "reminder inactive due to missing approved dates",
-      "report generation in progress",
-      "report generation failed",
-    ]) {
-      expect(doc.toLowerCase()).toContain(phrase);
-    }
+  it("retains required state vocabulary", () => {
+    expect(V9_RELIABILITY_STATES).toHaveLength(8);
+    expect(V9_RELIABILITY_STATES).toContain("reminder inactive due to missing approved dates");
   });
 
   it("anchors job lifecycle copy + health diagnostics surfaces", () => {

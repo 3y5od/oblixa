@@ -1,0 +1,152 @@
+name: QA code maximal
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      subset:
+        description: "QA_MAXIMAL_SUBSET=1 fast gate vs full maximal"
+        type: boolean
+        default: true
+      discover_union:
+        description: "QA_MAXIMAL_DISCOVER_CHECK_UNION=1 (requires batch env on static job)"
+        type: boolean
+        default: false
+      discover_batch_total:
+        description: "QA_MAXIMAL_DISCOVER_BATCH_TOTAL when discover_union"
+        type: string
+        default: "4"
+      discover_batch_index:
+        description: "QA_MAXIMAL_DISCOVER_BATCH_INDEX (1-based shard for static discover leg)"
+        type: string
+        default: "1"
+      include_ultimate:
+        description: "Also run reusable QA ultimate nightly (adds manifest checks beyond P4)"
+        type: boolean
+        default: false
+      shard_total:
+        description: "Playwright shard denominator for maximal Playwright job"
+        type: string
+        default: "4"
+  schedule:
+    - cron: "0 5 * * 0"
+
+jobs:
+  code_maximal_static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: Maximal static (P4 + governance bundle; no Playwright)
+        run: npm run qa:sweep:code:maximal
+        env:
+          CI: "true"
+          QA_MAXIMAL_SUBSET: ${{ github.event_name == 'schedule' && '0' || (github.event.inputs.subset == false && '0' || '1') }}
+          QA_MAXIMAL_SKIP_PLAYWRIGHT: "1"
+          QA_MAXIMAL_DISCOVER_CHECK_UNION: ${{ github.event.inputs.discover_union == true && '1' || '0' }}
+          QA_MAXIMAL_DISCOVER_BATCH_TOTAL: ${{ github.event.inputs.discover_batch_total || '4' }}
+          QA_MAXIMAL_DISCOVER_BATCH_INDEX: ${{ github.event.inputs.discover_batch_index || '1' }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: qa-maximal-static-${{ github.run_id }}
+          path: |
+            artifacts/qa-ultimate-run.json
+            test-results/junit.xml
+          if-no-files-found: ignore
+
+  qa_ultimate_reuse:
+    needs: code_maximal_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.include_ultimate == true
+    uses: ./.github/workflows/reusable-qa-ultimate.yml
+    secrets: inherit
+    with:
+      tier: nightly
+      ultimate_strict: "0"
+
+  code_maximal_playwright:
+    needs: code_maximal_static
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.subset == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 540
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Maximal Playwright shard
+        run: npm run qa:sweep:code:maximal
+        env:
+          CI: "true"
+          QA_MAXIMAL_PLAYWRIGHT_ONLY: "1"
+          PLAYWRIGHT_MAXIMAL_CI: "1"
+          PLAYWRIGHT_SHARD_INDEX: ${{ matrix.shard }}
+          PLAYWRIGHT_SHARD_TOTAL: ${{ github.event.inputs.shard_total || '4' }}
+          PLAYWRIGHT_TRACE_FAILURE_ONLY: "1"
+          PLAYWRIGHT_BLOB_REPORT: "1"
+          PLAYWRIGHT_JUNIT_OUTPUT: test-results/junit-${{ matrix.shard }}.xml
+          PLAYWRIGHT_JSON_REPORT: test-results/playwright-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: qa-maximal-playwright-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+            blob-report/
+          if-no-files-found: ignore
+
+  staging_optional_matrix:
+    needs: code_maximal_static
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.subset == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        leg: [rls, lighthouse, openapi, synthetic_slo]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: RLS smoke (stub unless DB wired)
+        if: matrix.leg == 'rls'
+        run: npm run test:rls-smoke
+        env:
+          RLS_SMOKE_STRICT: ${{ secrets.RLS_SMOKE_STRICT }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Lighthouse nightly gate
+        if: matrix.leg == 'lighthouse'
+        run: npm run test:lighthouse:nightly
+        env:
+          RUN_LIGHTHOUSE_NIGHTLY: "1"
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      - name: OpenAPI contract smoke
+        if: matrix.leg == 'openapi'
+        run: npm run check:openapi-contract-smoke
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      - name: SLO budgets compare (strict optional via SLO_BUDGETS_STRICT)
+        if: matrix.leg == 'synthetic_slo'
+        run: npm run test:slo-budgets
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          SLO_BUDGETS_STRICT: ${{ secrets.SLO_BUDGETS_STRICT }}

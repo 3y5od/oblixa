@@ -12,10 +12,15 @@ import type {
 } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import {
+  emitProductTelemetryEvent,
   emitProductTelemetryIfFirstForOrgUser,
   emitVisibleMutationErrorTelemetry,
   emitWorkActionTelemetry,
 } from "@/lib/product-telemetry";
+import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { getV10CompatibleActionGroup } from "@/lib/v10-work-semantics";
 
 const TASK_STATUSES: ContractTaskStatus[] = ["open", "in_progress", "blocked", "done"];
 const TASK_PRIORITIES: ContractTaskPriority[] = ["low", "medium", "high"];
@@ -27,6 +32,32 @@ const MAX_TASK_COMMENT_LEN = 4000;
 const MAX_CHECKLIST_ITEM_LEN = 240;
 const MAX_ARTIFACT_LABEL_LEN = 240;
 const MAX_ARTIFACT_URL_LEN = 2000;
+const MAX_BULK_TASK_MUTATION_ITEMS = 50;
+
+function resolveReplayedBulkTaskItemOutcomes<
+  T extends { task: { id: string }; compatibleActionGroup: string; outcome: "success" | "no_action" | "validation_failed"; reason: string },
+>(replayed: boolean, response: V10MutationResponse, itemOutcomes: T[]): T[] {
+  const snaps = response.bulk_item_outcomes;
+  if (!replayed || !snaps?.length) return itemOutcomes;
+  return itemOutcomes.map((item) => {
+    const snap = snaps.find((s) => s.target_id === item.task.id);
+    if (!snap) return item;
+    return {
+      ...item,
+      compatibleActionGroup: snap.compatible_action_group ?? item.compatibleActionGroup,
+      outcome: snap.outcome,
+      reason: snap.reason ?? item.reason,
+    };
+  });
+}
+
+const V10_TASK_REFRESH_MODEL_KEYS = [
+  "work_items",
+  "contract_health_snapshots",
+  "contract_activity_events",
+  "audit_events",
+  "command_search_index",
+] as const;
 
 const VALID_TASK_TRANSITIONS: Record<ContractTaskStatus, ContractTaskStatus[]> = {
   open: ["in_progress", "blocked", "done"],
@@ -43,11 +74,66 @@ function isTaskPriority(v: string): v is ContractTaskPriority {
   return TASK_PRIORITIES.includes(v as ContractTaskPriority);
 }
 
+async function refreshV10TaskReadModels(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: { organizationId: string; contractId?: string | null; reason: string }
+) {
+  await refreshV10ReadModelsForOrganization(admin, input.organizationId, {
+    refreshScope: input.contractId ? "one_contract" : "one_model",
+    contractId: input.contractId ?? undefined,
+    reason: input.reason,
+    modelKeys: V10_TASK_REFRESH_MODEL_KEYS,
+  });
+}
+
 type MembershipCtx = {
   userId: string;
   orgId: string;
   role: OrgRole | null;
 };
+
+function buildTaskMutationEnvelope(input: {
+  outcome: "success" | "audit_write_failed";
+  message: string;
+  taskId: string;
+  contractId: string;
+  auditEventId: string | null;
+}) {
+  return buildV10MutationResponse({
+    outcome: input.outcome,
+    message: input.message,
+    changedObjectType: "work_item",
+    changedObjectId: input.taskId,
+    nextDestinationHref: `/contracts/${input.contractId}?tab=tasks`,
+    auditEventId: input.auditEventId,
+    diagnosticId: input.outcome === "audit_write_failed" ? "v10_task_audit_missing" : null,
+  });
+}
+
+type V10WorkMutationOptions = {
+  idempotencyKey: string | null;
+  expectedVersion?: string | number | null;
+  clientRequestId?: string | null;
+};
+
+function buildWorkMutationError(input: {
+  outcome: "unauthorized" | "forbidden" | "not_found" | "validation_failed" | "server_error";
+  message: string;
+  diagnosticId: string;
+  changedObjectId?: string | null;
+}) {
+  return {
+    error: input.message,
+    v10: buildV10MutationResponse({
+      outcome: input.outcome,
+      message: input.message,
+      changedObjectType: "work_item",
+      changedObjectId: input.changedObjectId ?? null,
+      nextDestinationHref: "/work",
+      diagnosticId: input.diagnosticId,
+    }),
+  };
+}
 
 async function importTaskAutomation() {
   return await import("@/actions/tasks-automation");
@@ -286,6 +372,16 @@ export async function createContractTask(input: {
     action: "task.created",
     details: { task_id: task.id, title, priority, due_date: dueDate },
   });
+  const v10AuditEventId = await recordV10AuditEvent(admin, {
+    organizationId: membership.ctx.orgId,
+    actorUserId: user.id,
+    action: "work_item.created",
+    targetType: "contract",
+    targetId: task.id,
+    contractId: input.contractId,
+    outcome: "success",
+    safeMetadata: { type: "contract_task", priority, has_due_date: Boolean(dueDate), assigned: Boolean(assigneeId) },
+  });
   await appendTaskEvent(admin, {
     organizationId: membership.ctx.orgId,
     contractId: input.contractId,
@@ -295,6 +391,11 @@ export async function createContractTask(input: {
     details: { title, status: "open", priority },
   });
   await recomputeContractSignals(admin, input.contractId);
+  await refreshV10TaskReadModels(admin, {
+    organizationId: membership.ctx.orgId,
+    contractId: input.contractId,
+    reason: "task_create_mutation",
+  });
 
   if (assigneeId === user.id) {
     await emitProductTelemetryIfFirstForOrgUser(admin, {
@@ -306,7 +407,18 @@ export async function createContractTask(input: {
     });
   }
 
-  return { success: true as const, taskId: task.id };
+  return {
+    success: true as const,
+    taskId: task.id,
+    v10AuditEventId,
+    v10: buildTaskMutationEnvelope({
+      outcome: v10AuditEventId ? "success" : "audit_write_failed",
+      message: v10AuditEventId ? "Task created." : "Task created, but audit confirmation is missing.",
+      taskId: task.id,
+      contractId: input.contractId,
+      auditEventId: v10AuditEventId,
+    }),
+  };
 }
 
 export async function createClarificationTask(input: {
@@ -445,6 +557,641 @@ export async function createRuleGeneratedTask(input: {
   });
 }
 
+export async function assignWorkItemOwner(input: {
+  taskId: string;
+  ownerUserId: string;
+  expectedCompatibleActionGroup?: string | null;
+} & V10WorkMutationOptions) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return buildWorkMutationError({
+      outcome: "unauthorized",
+      message: "Not authenticated",
+      diagnosticId: "v10_work_owner_unauthenticated",
+    });
+  }
+
+  const taskId = input.taskId.trim();
+  const ownerUserId = input.ownerUserId.trim();
+  if (!isUuid(taskId) || !isUuid(ownerUserId)) {
+    return buildWorkMutationError({
+      outcome: "validation_failed",
+      message: "A valid work item and owner are required.",
+      diagnosticId: "v10_work_owner_invalid_input",
+      changedObjectId: isUuid(taskId) ? taskId : null,
+    });
+  }
+
+  const { data: task } = await admin
+    .from("contract_tasks")
+    .select("id, contract_id, organization_id, status, assignee_id, priority, updated_at")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) {
+    return buildWorkMutationError({
+      outcome: "not_found",
+      message: "Work item not found.",
+      diagnosticId: "v10_work_owner_task_not_found",
+      changedObjectId: taskId,
+    });
+  }
+
+  const role = await getOrgMemberRole(admin, user.id, task.organization_id);
+  if (!role) {
+    return buildWorkMutationError({
+      outcome: "forbidden",
+      message: "Access denied.",
+      diagnosticId: "v10_work_owner_membership_missing",
+      changedObjectId: taskId,
+    });
+  }
+
+  const selfAssignAllowed = !task.assignee_id && ownerUserId === user.id;
+  if (!canEditContracts(role) && !selfAssignAllowed) {
+    return buildWorkMutationError({
+      outcome: "forbidden",
+      message: "You cannot assign this work item.",
+      diagnosticId: "v10_work_owner_role_forbidden",
+      changedObjectId: taskId,
+    });
+  }
+
+  if (!(await ensureAssigneeMember(admin, task.organization_id, ownerUserId))) {
+    return buildWorkMutationError({
+      outcome: "validation_failed",
+      message: "Owner must be an active member of this workspace.",
+      diagnosticId: "v10_work_owner_not_member",
+      changedObjectId: taskId,
+    });
+  }
+
+  const compatibleActionGroup = getV10CompatibleActionGroup({
+    id: task.id,
+    type: "contract_task",
+    status: task.status,
+    ownerUserId: task.assignee_id,
+    updatedAt: task.updated_at,
+  });
+  const expectedCompatibleActionGroup = input.expectedCompatibleActionGroup?.trim() || null;
+  if (expectedCompatibleActionGroup && compatibleActionGroup !== expectedCompatibleActionGroup) {
+    return {
+      error: "This work item is no longer compatible with the selected bulk action.",
+      v10: buildV10MutationResponse({
+        outcome: "validation_failed",
+        message: "This work item is no longer compatible with the selected action.",
+        changedObjectType: "work_item",
+        changedObjectId: taskId,
+        currentVersion: task.updated_at,
+        nextDestinationHref: "/work",
+        diagnosticId: "v10_work_owner_incompatible_action_group",
+        validationFailures: [
+          {
+            field: taskId,
+            code: "incompatible_action_group",
+            user_visible_message: "Refresh the Work queue and select compatible items again.",
+            self_fixable: true,
+          },
+        ],
+      }),
+    };
+  }
+
+  const { response, replayed } = await executeV10IdempotentMutation(
+    admin,
+    {
+      organizationId: task.organization_id,
+      actorUserId: user.id,
+      mutationName: "assign_work_item_owner",
+      targetType: "work_item",
+      targetId: taskId,
+      idempotencyKey: input.idempotencyKey,
+      clientRequestId: input.clientRequestId,
+      expectedVersion: input.expectedVersion,
+      currentVersion: task.updated_at,
+      payload: { taskId, ownerUserId, expectedCompatibleActionGroup },
+    },
+    async () => {
+      if (task.assignee_id === ownerUserId) {
+        return buildV10MutationResponse({
+          outcome: "no_action",
+          message: "This work item is already assigned to that owner.",
+          changedObjectType: "work_item",
+          changedObjectId: taskId,
+          currentVersion: task.updated_at,
+          nextDestinationHref: "/work",
+        });
+      }
+
+      const { error } = await admin
+        .from("contract_tasks")
+        .update({ assignee_id: ownerUserId })
+        .eq("id", taskId)
+        .eq("organization_id", task.organization_id);
+      if (error) {
+        return buildV10MutationResponse({
+          outcome: "server_error",
+          message: mapDataSourceError(error.message),
+          changedObjectType: "work_item",
+          changedObjectId: taskId,
+          currentVersion: task.updated_at,
+          nextDestinationHref: "/work",
+          diagnosticId: "v10_work_owner_update_failed",
+        });
+      }
+
+      const auditEventId = await recordV10AuditEvent(admin, {
+        organizationId: task.organization_id,
+        actorUserId: user.id,
+        action: "work_item.owner_changed",
+        targetType: "work_item",
+        targetId: taskId,
+        contractId: task.contract_id,
+        outcome: "success",
+        beforeStateHash: task.assignee_id ?? "unassigned",
+        afterStateHash: ownerUserId,
+        safeMetadata: {
+          type: "contract_task",
+          self_assign: selfAssignAllowed,
+          prior_owner_assigned: Boolean(task.assignee_id),
+        },
+      });
+      if (!auditEventId) {
+        await admin
+          .from("contract_tasks")
+          .update({ assignee_id: task.assignee_id })
+          .eq("id", taskId)
+          .eq("organization_id", task.organization_id);
+        return buildV10MutationResponse({
+          outcome: "audit_write_failed",
+          message: "Work item owner was not changed because audit evidence could not be recorded.",
+          changedObjectType: "work_item",
+          changedObjectId: taskId,
+          currentVersion: task.updated_at,
+          nextDestinationHref: "/work",
+          diagnosticId: "v10_work_owner_audit_missing",
+        });
+      }
+
+      await appendTaskEvent(admin, {
+        organizationId: task.organization_id,
+        contractId: task.contract_id,
+        taskId,
+        actorId: user.id,
+        eventType: "reassigned",
+        details: { assignee_id: ownerUserId, reason: "v10_work_owner_changed" },
+      });
+      await recomputeContractSignals(admin, task.contract_id);
+      await refreshV10TaskReadModels(admin, {
+        organizationId: task.organization_id,
+        contractId: task.contract_id,
+        reason: "task_owner_mutation",
+      });
+      return buildV10MutationResponse({
+        outcome: "success",
+        message: "Work item owner updated.",
+        changedObjectType: "work_item",
+        changedObjectId: taskId,
+        currentVersion: task.updated_at,
+        nextDestinationHref: "/work",
+        auditEventId,
+      });
+    }
+  );
+
+  return {
+    success: response.outcome === "success" || response.outcome === "no_action",
+    replayed,
+    taskId,
+    ownerUserId,
+    v10: response,
+  };
+}
+
+export async function bulkAssignCompatibleContractTasks(input: {
+  taskIds: string[];
+  ownerUserId: string;
+  expectedCompatibleActionGroup: string;
+  idempotencyKey: string | null;
+  expectedVersion?: string | number | null;
+  clientRequestId?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+  const taskIds = [...new Set(input.taskIds.map((id) => id.trim()).filter(Boolean))].slice(0, MAX_BULK_TASK_MUTATION_ITEMS);
+  const ownerUserId = input.ownerUserId.trim();
+  const expectedCompatibleActionGroup = input.expectedCompatibleActionGroup.trim();
+  if (taskIds.length === 0 || taskIds.some((id) => !isUuid(id))) return { error: "Invalid tasks" };
+  if (!isUuid(ownerUserId)) return { error: "Invalid owner" };
+  if (!expectedCompatibleActionGroup) return { error: "Compatible action group is required" };
+
+  const { data: tasks } = await admin
+    .from("contract_tasks")
+    .select("id, contract_id, organization_id, status, assignee_id, priority, updated_at")
+    .in("id", taskIds);
+  const taskRows = tasks ?? [];
+  if (taskRows.length !== taskIds.length) return { error: "One or more tasks were not found." };
+  const organizationIds = [...new Set(taskRows.map((task) => task.organization_id))];
+  if (organizationIds.length !== 1) return { error: "Bulk work must belong to one organization." };
+  const organizationId = organizationIds[0];
+  const role = await getOrgMemberRole(admin, user.id, organizationId);
+  if (!canEditContracts(role)) return { error: "Viewers cannot bulk-assign work." };
+  if (!(await ensureAssigneeMember(admin, organizationId, ownerUserId))) {
+    return { error: "Owner must be an active member of this workspace." };
+  }
+
+  const itemOutcomes = taskRows.map((task) => {
+    const compatibleActionGroup = getV10CompatibleActionGroup({
+      id: task.id,
+      type: "contract_task",
+      status: task.status,
+      ownerUserId: task.assignee_id,
+      updatedAt: task.updated_at,
+    });
+    const compatible = compatibleActionGroup === expectedCompatibleActionGroup;
+    return {
+      task,
+      compatibleActionGroup,
+      outcome: task.assignee_id === ownerUserId ? "no_action" as const : compatible ? "success" as const : "validation_failed" as const,
+      reason: task.assignee_id === ownerUserId ? "already_assigned" : compatible ? "assigned" : "incompatible_action_group",
+    };
+  });
+  const eligibleTaskIds = itemOutcomes
+    .filter((item) => item.outcome === "success")
+    .map((item) => item.task.id);
+
+  const { response, replayed } = await executeV10IdempotentMutation(
+    admin,
+    {
+      organizationId,
+      actorUserId: user.id,
+      mutationName: "bulk_assign_compatible_work_items",
+      targetType: "work_item",
+      targetId: `bulk:${taskIds.length}`,
+      idempotencyKey: input.idempotencyKey,
+      clientRequestId: input.clientRequestId,
+      expectedVersion: input.expectedVersion,
+      currentVersion: `bulk:${taskRows.map((task) => task.updated_at).sort().join("|")}`,
+      payload: { taskIds, ownerUserId, expectedCompatibleActionGroup },
+    },
+    async () => {
+      if (eligibleTaskIds.length > 0) {
+        const { error } = await admin
+          .from("contract_tasks")
+          .update({ assignee_id: ownerUserId })
+          .in("id", eligibleTaskIds)
+          .eq("organization_id", organizationId);
+        if (error) {
+          return buildV10MutationResponse({
+            outcome: "server_error",
+            message: mapDataSourceError(error.message),
+            diagnosticId: "v10_bulk_task_assign_failed",
+            nextDestinationHref: "/work",
+          });
+        }
+      }
+
+      const auditEventId = await recordV10AuditEvent(admin, {
+        organizationId,
+        actorUserId: user.id,
+        action: "work_item.bulk_owner_changed",
+        targetType: "work_item",
+        targetId: `bulk:${taskIds.length}`,
+        outcome: eligibleTaskIds.length === taskIds.length ? "success" : eligibleTaskIds.length > 0 ? "dependency_blocked" : "validation_failed",
+        safeMetadata: {
+          requested_count: taskIds.length,
+          assigned_count: eligibleTaskIds.length,
+          compatible_group_match_count: itemOutcomes.filter((item) => item.compatibleActionGroup === expectedCompatibleActionGroup).length,
+          already_assigned_count: itemOutcomes.filter((item) => item.reason === "already_assigned").length,
+        },
+      });
+      if (!auditEventId && eligibleTaskIds.length > 0) {
+        for (const item of itemOutcomes.filter((row) => row.outcome === "success")) {
+          await admin
+            .from("contract_tasks")
+            .update({ assignee_id: item.task.assignee_id })
+            .eq("id", item.task.id)
+            .eq("organization_id", organizationId);
+        }
+        return buildV10MutationResponse({
+          outcome: "audit_write_failed",
+          message: "Bulk work assignment was rolled back because audit evidence could not be recorded.",
+          changedObjectType: "work_item",
+          changedObjectId: `bulk:${taskIds.length}`,
+          nextDestinationHref: "/work",
+          diagnosticId: "v10_bulk_task_assign_audit_missing",
+        });
+      }
+
+      if (eligibleTaskIds.length > 0) {
+        await admin.from("contract_task_events").insert(
+          itemOutcomes
+            .filter((item) => item.outcome === "success")
+            .map((item) => ({
+              organization_id: organizationId,
+              contract_id: item.task.contract_id,
+              task_id: item.task.id,
+              actor_id: user.id,
+              event_type: "reassigned",
+              details: { assignee_id: ownerUserId, reason: "v10_bulk_work_owner_changed" },
+            }))
+        );
+        for (const contractId of [...new Set(taskRows.map((task) => task.contract_id).filter(Boolean))]) {
+          await recomputeContractSignals(admin, contractId);
+        }
+        await refreshV10TaskReadModels(admin, {
+          organizationId,
+          reason: "bulk_task_owner_mutation",
+        });
+      }
+
+      return buildV10MutationResponse({
+        outcome: eligibleTaskIds.length === taskIds.length ? "success" : eligibleTaskIds.length > 0 ? "dependency_blocked" : "validation_failed",
+        message:
+          eligibleTaskIds.length === taskIds.length
+            ? "Bulk-compatible work assigned."
+            : eligibleTaskIds.length > 0
+              ? "Some compatible work was assigned; review item outcomes for blocked rows."
+              : "No compatible work could be assigned.",
+        changedObjectType: "work_item",
+        changedObjectId: `bulk:${taskIds.length}`,
+        nextDestinationHref: "/work",
+        auditEventId,
+        diagnosticId: auditEventId ? null : "v10_bulk_task_assign_audit_missing",
+        validationFailures: itemOutcomes
+          .filter((item) => item.outcome === "validation_failed")
+          .map((item) => ({
+            field: item.task.id,
+            code: item.reason,
+            user_visible_message: "This task is not eligible for the selected bulk assignment.",
+            self_fixable: item.reason === "incompatible_action_group",
+          })),
+        bulkItemOutcomes: itemOutcomes.map((item) => ({
+          target_id: item.task.id,
+          outcome: item.outcome,
+          reason: item.reason,
+          compatible_action_group: item.compatibleActionGroup,
+        })),
+      });
+    }
+  );
+
+  const resolvedAssignOutcomes = resolveReplayedBulkTaskItemOutcomes(replayed, response, itemOutcomes);
+
+  return {
+    success: response.outcome === "success" || response.outcome === "dependency_blocked",
+    replayed,
+    assignedTaskIds: eligibleTaskIds,
+    itemOutcomes: resolvedAssignOutcomes.map(({ task, compatibleActionGroup, outcome, reason }) => ({
+      taskId: task.id,
+      compatibleActionGroup,
+      outcome,
+      reason,
+    })),
+    v10: response,
+  };
+}
+
+export async function completeWorkItem(input: {
+  taskId: string;
+  completionNote?: string | null;
+} & V10WorkMutationOptions) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return buildWorkMutationError({
+      outcome: "unauthorized",
+      message: "Not authenticated",
+      diagnosticId: "v10_work_complete_unauthenticated",
+    });
+  }
+
+  const taskId = input.taskId.trim();
+  if (!isUuid(taskId)) {
+    return buildWorkMutationError({
+      outcome: "validation_failed",
+      message: "A valid work item is required.",
+      diagnosticId: "v10_work_complete_invalid_task",
+      changedObjectId: null,
+    });
+  }
+
+  const completionNote = input.completionNote?.trim() ?? "";
+  if (completionNote.length > MAX_TASK_COMMENT_LEN) {
+    return buildWorkMutationError({
+      outcome: "validation_failed",
+      message: "Completion note is too long.",
+      diagnosticId: "v10_work_complete_note_too_long",
+      changedObjectId: taskId,
+    });
+  }
+
+  const { data: task } = await admin
+    .from("contract_tasks")
+    .select("id, contract_id, organization_id, status, assignee_id, recurrence_interval_days, recurrence_anchor_date, title, details, priority, team_key, updated_at")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) {
+    return buildWorkMutationError({
+      outcome: "not_found",
+      message: "Work item not found.",
+      diagnosticId: "v10_work_complete_task_not_found",
+      changedObjectId: taskId,
+    });
+  }
+
+  const role = await getOrgMemberRole(admin, user.id, task.organization_id);
+  if (!role) {
+    return buildWorkMutationError({
+      outcome: "forbidden",
+      message: "Access denied.",
+      diagnosticId: "v10_work_complete_membership_missing",
+      changedObjectId: taskId,
+    });
+  }
+  const assignedOwnerAllowed = task.assignee_id === user.id;
+  if (!assignedOwnerAllowed && !canEditContracts(role)) {
+    return buildWorkMutationError({
+      outcome: "forbidden",
+      message: "Only the assigned owner or workspace editors can complete this work item.",
+      diagnosticId: "v10_work_complete_role_forbidden",
+      changedObjectId: taskId,
+    });
+  }
+
+  const currentStatus = task.status as ContractTaskStatus;
+  if (currentStatus === "done") {
+    return {
+      success: true as const,
+      replayed: false,
+      taskId,
+      v10: buildV10MutationResponse({
+        outcome: "no_action",
+        message: "This work item is already complete.",
+        changedObjectType: "work_item",
+        changedObjectId: taskId,
+        currentVersion: task.updated_at,
+        nextDestinationHref: "/work",
+      }),
+    };
+  }
+  if (!VALID_TASK_TRANSITIONS[currentStatus]?.includes("done")) {
+    return {
+      error: "This work item cannot be completed from its current state.",
+      v10: buildV10MutationResponse({
+        outcome: "validation_failed",
+        message: "This work item cannot be completed from its current state.",
+        changedObjectType: "work_item",
+        changedObjectId: taskId,
+        currentVersion: task.updated_at,
+        nextDestinationHref: "/work",
+        diagnosticId: "v10_work_complete_transition_invalid",
+        validationFailures: [
+          {
+            field: "status",
+            code: "transition_not_allowed",
+            user_visible_message: "Resolve blockers or reopen the item before completing it.",
+            self_fixable: true,
+          },
+        ],
+      }),
+    };
+  }
+
+  const { response, replayed } = await executeV10IdempotentMutation(
+    admin,
+    {
+      organizationId: task.organization_id,
+      actorUserId: user.id,
+      mutationName: "complete_work_item",
+      targetType: "work_item",
+      targetId: taskId,
+      idempotencyKey: input.idempotencyKey,
+      clientRequestId: input.clientRequestId,
+      expectedVersion: input.expectedVersion,
+      currentVersion: task.updated_at,
+      payload: { taskId, completionNote },
+    },
+    async () => {
+      const completedAt = new Date().toISOString();
+      const { error } = await admin
+        .from("contract_tasks")
+        .update({
+          status: "done",
+          completed_at: completedAt,
+          blocked_reason: null,
+          last_auto_transition_at: completedAt,
+        })
+        .eq("id", taskId)
+        .eq("organization_id", task.organization_id);
+      if (error) {
+        return buildV10MutationResponse({
+          outcome: "server_error",
+          message: mapDataSourceError(error.message),
+          changedObjectType: "work_item",
+          changedObjectId: taskId,
+          currentVersion: task.updated_at,
+          nextDestinationHref: "/work",
+          diagnosticId: "v10_work_complete_update_failed",
+        });
+      }
+
+      const auditEventId = await recordV10AuditEvent(admin, {
+        organizationId: task.organization_id,
+        actorUserId: user.id,
+        action: "work_item.completed",
+        targetType: "work_item",
+        targetId: taskId,
+        contractId: task.contract_id,
+        outcome: "success",
+        beforeStateHash: currentStatus,
+        afterStateHash: "done",
+        safeMetadata: {
+          type: "contract_task",
+          note_provided: completionNote.length > 0,
+        },
+      });
+      if (!auditEventId) {
+        await admin
+          .from("contract_tasks")
+          .update({
+            status: currentStatus,
+            completed_at: null,
+            last_auto_transition_at: null,
+          })
+          .eq("id", taskId)
+          .eq("organization_id", task.organization_id);
+        return buildV10MutationResponse({
+          outcome: "audit_write_failed",
+          message: "Work item was not completed because audit evidence could not be recorded.",
+          changedObjectType: "work_item",
+          changedObjectId: taskId,
+          currentVersion: task.updated_at,
+          nextDestinationHref: "/work",
+          diagnosticId: "v10_work_complete_audit_missing",
+        });
+      }
+
+      await appendTaskEvent(admin, {
+        organizationId: task.organization_id,
+        contractId: task.contract_id,
+        taskId,
+        actorId: user.id,
+        eventType: "status_changed",
+        details: { status: "done", note_provided: completionNote.length > 0 },
+      });
+      await recomputeContractSignals(admin, task.contract_id);
+      await refreshV10TaskReadModels(admin, {
+        organizationId: task.organization_id,
+        contractId: task.contract_id,
+        reason: "task_completion_mutation",
+      });
+      await emitProductTelemetryEvent(admin, {
+        organizationId: task.organization_id,
+        userId: user.id,
+        contractId: task.contract_id,
+        action: "product.v10.work_item_completed",
+        details: {
+          source_type: "contract_task",
+          completion_state: "done",
+          note_provided: completionNote.length > 0,
+        },
+      });
+      return buildV10MutationResponse({
+        outcome: "success",
+        message: "Work item completed.",
+        changedObjectType: "work_item",
+        changedObjectId: taskId,
+        currentVersion: task.updated_at,
+        nextDestinationHref: "/work",
+        auditEventId,
+      });
+    }
+  );
+
+  return {
+    success: response.outcome === "success" || response.outcome === "no_action",
+    replayed,
+    taskId,
+    v10: response,
+  };
+}
+
 export async function updateContractTaskStatus(
   taskId: string,
   status: ContractTaskStatus
@@ -527,6 +1274,18 @@ export async function updateContractTaskStatus(
     user_id: user.id,
     action: "task.status_updated",
     details: { task_id: taskId, status },
+  });
+  const v10AuditEventId = await recordV10AuditEvent(admin, {
+    organizationId: task.organization_id,
+    actorUserId: user.id,
+    action: status === "done" ? "work_item.completed" : "work_item.status_changed",
+    targetType: "work_item",
+    targetId: taskId,
+    contractId: task.contract_id,
+    outcome: "success",
+    beforeStateHash: currentStatus,
+    afterStateHash: status,
+    safeMetadata: { type: "contract_task", status },
   });
   await appendTaskEvent(admin, {
     organizationId: task.organization_id,
@@ -631,6 +1390,11 @@ export async function updateContractTaskStatus(
     }
   }
   await recomputeContractSignals(admin, task.contract_id);
+  await refreshV10TaskReadModels(admin, {
+    organizationId: task.organization_id,
+    contractId: task.contract_id,
+    reason: "task_status_mutation",
+  });
 
   await emitWorkActionTelemetry(
     admin,
@@ -657,6 +1421,168 @@ export async function updateContractTaskStatus(
     success: true as const,
     reopenedDependencyCount,
     generatedRecurringTask,
+    v10AuditEventId,
+    v10: buildTaskMutationEnvelope({
+      outcome: v10AuditEventId ? "success" : "audit_write_failed",
+      message: v10AuditEventId ? "Task status updated." : "Task status updated, but audit confirmation is missing.",
+      taskId,
+      contractId: task.contract_id,
+      auditEventId: v10AuditEventId,
+    }),
+  };
+}
+
+export async function bulkCompleteCompatibleContractTasks(input: {
+  taskIds: string[];
+  expectedCompatibleActionGroup: string;
+  idempotencyKey: string | null;
+  expectedVersion?: string | number | null;
+  clientRequestId?: string | null;
+}) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+  const taskIds = [...new Set(input.taskIds.map((id) => id.trim()).filter(Boolean))].slice(0, MAX_BULK_TASK_MUTATION_ITEMS);
+  if (taskIds.length === 0 || taskIds.some((id) => !isUuid(id))) return { error: "Invalid tasks" };
+  if (!input.expectedCompatibleActionGroup.trim()) return { error: "Compatible action group is required" };
+
+  const { data: tasks } = await admin
+    .from("contract_tasks")
+    .select("id, contract_id, organization_id, status, assignee_id, priority, updated_at")
+    .in("id", taskIds);
+  const taskRows = tasks ?? [];
+  if (taskRows.length !== taskIds.length) return { error: "One or more tasks were not found." };
+  const organizationIds = [...new Set(taskRows.map((task) => task.organization_id))];
+  if (organizationIds.length !== 1) return { error: "Bulk work must belong to one organization." };
+  const organizationId = organizationIds[0];
+  const role = await getOrgMemberRole(admin, user.id, organizationId);
+  if (!canEditContracts(role)) return { error: "Viewers cannot bulk-complete work." };
+
+  const itemOutcomes = taskRows.map((task) => {
+    const compatibleActionGroup = getV10CompatibleActionGroup({
+      id: task.id,
+      type: "contract_task",
+      status: task.status,
+      ownerUserId: task.assignee_id,
+      updatedAt: task.updated_at,
+    });
+    const transitionAllowed = VALID_TASK_TRANSITIONS[task.status as ContractTaskStatus]?.includes("done") ?? false;
+    const compatible = compatibleActionGroup === input.expectedCompatibleActionGroup;
+    const outcome: "success" | "no_action" | "validation_failed" =
+      task.status === "done" ? "no_action" : compatible && transitionAllowed ? "success" : "validation_failed";
+    return {
+      task,
+      compatibleActionGroup,
+      outcome,
+      reason: task.status === "done" ? "already_done" : compatible ? "transition_not_allowed" : "incompatible_action_group",
+    };
+  });
+  const eligibleTaskIds = itemOutcomes
+    .filter((item) => item.outcome === "success")
+    .map((item) => item.task.id);
+
+  const { response, replayed } = await executeV10IdempotentMutation(
+    admin,
+    {
+      organizationId,
+      actorUserId: user.id,
+      mutationName: "bulkCompleteCompatibleContractTasks",
+      targetType: "work_item",
+      targetId: `bulk:${taskIds.length}`,
+      idempotencyKey: input.idempotencyKey,
+      clientRequestId: input.clientRequestId,
+      expectedVersion: input.expectedVersion,
+      currentVersion: `bulk:${taskRows.map((task) => task.updated_at).sort().join("|")}`,
+      payload: { taskIds, expectedCompatibleActionGroup: input.expectedCompatibleActionGroup },
+    },
+    async () => {
+      if (eligibleTaskIds.length > 0) {
+        const { error } = await admin
+          .from("contract_tasks")
+          .update({
+            status: "done",
+            completed_at: new Date().toISOString(),
+            last_auto_transition_at: new Date().toISOString(),
+          })
+          .in("id", eligibleTaskIds)
+          .eq("organization_id", organizationId);
+        if (error) {
+          return buildV10MutationResponse({
+            outcome: "server_error",
+            message: mapDataSourceError(error.message),
+            diagnosticId: "v10_bulk_task_update_failed",
+            nextDestinationHref: "/work",
+          });
+        }
+      }
+      const auditEventId = await recordV10AuditEvent(admin, {
+        organizationId,
+        actorUserId: user.id,
+        action: "work_item.bulk_completed",
+        targetType: "work_item",
+        targetId: `bulk:${taskIds.length}`,
+        outcome: eligibleTaskIds.length === taskIds.length ? "success" : eligibleTaskIds.length > 0 ? "dependency_blocked" : "validation_failed",
+        safeMetadata: {
+          requested_count: taskIds.length,
+          completed_count: eligibleTaskIds.length,
+          compatible_group_match_count: itemOutcomes.filter((item) => item.compatibleActionGroup === input.expectedCompatibleActionGroup).length,
+        },
+      });
+      for (const contractId of [...new Set(taskRows.map((task) => task.contract_id).filter(Boolean))]) {
+        await recomputeContractSignals(admin, contractId);
+      }
+      await refreshV10TaskReadModels(admin, {
+        organizationId,
+        reason: "bulk_task_completion_mutation",
+      });
+      return buildV10MutationResponse({
+        outcome: eligibleTaskIds.length === taskIds.length ? "success" : eligibleTaskIds.length > 0 ? "dependency_blocked" : "validation_failed",
+        message:
+          eligibleTaskIds.length === taskIds.length
+            ? "Bulk-compatible work completed."
+            : eligibleTaskIds.length > 0
+              ? "Some compatible work was completed; review item outcomes for blocked rows."
+              : "No compatible work could be completed.",
+        changedObjectType: "work_item",
+        changedObjectId: `bulk:${taskIds.length}`,
+        nextDestinationHref: "/work",
+        auditEventId,
+        diagnosticId: auditEventId ? null : "v10_bulk_task_audit_missing",
+        validationFailures: itemOutcomes
+          .filter((item) => item.outcome === "validation_failed")
+          .map((item) => ({
+            field: item.task.id,
+            code: item.reason,
+            user_visible_message: "This task is not eligible for the selected bulk action.",
+            self_fixable: item.reason === "incompatible_action_group",
+          })),
+        bulkItemOutcomes: itemOutcomes.map((item) => ({
+          target_id: item.task.id,
+          outcome: item.outcome,
+          reason: item.reason,
+          compatible_action_group: item.compatibleActionGroup,
+        })),
+      });
+    }
+  );
+
+  const resolvedCompleteOutcomes = resolveReplayedBulkTaskItemOutcomes(replayed, response, itemOutcomes);
+
+  return {
+    success: response.outcome === "success" || response.outcome === "dependency_blocked",
+    replayed,
+    completedTaskIds: eligibleTaskIds,
+    itemOutcomes: resolvedCompleteOutcomes.map(({ task, compatibleActionGroup, outcome, reason }) => ({
+      taskId: task.id,
+      compatibleActionGroup,
+      outcome,
+      reason,
+    })),
+    v10: response,
   };
 }
 

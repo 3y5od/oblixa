@@ -32,6 +32,12 @@ type ContractsPageSnapshot = {
   total?: unknown;
 };
 
+export type ContractsPageResult = {
+  contracts: Contract[];
+  total: number;
+  error?: string | null;
+};
+
 function canUseContractsPageSnapshot(filters: ContractListFilterInput): boolean {
   return filters.intersectIds === null && filters.fieldSearchIds.length === 0;
 }
@@ -79,7 +85,7 @@ export async function fetchContractsPage(
   admin: Admin,
   filters: ContractListFilterInput,
   page: number
-): Promise<{ contracts: Contract[]; total: number }> {
+): Promise<ContractsPageResult> {
   const snapshot = await fetchContractsPageSnapshot(admin, filters, page);
   if (snapshot) return snapshot;
 
@@ -132,7 +138,7 @@ export async function fetchContractsPage(
 
   if (error) {
     console.error("fetchContractsPage", error);
-    return { contracts: [], total: 0 };
+    return { contracts: [], total: 0, error: error.message };
   }
 
   return {

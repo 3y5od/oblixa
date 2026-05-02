@@ -1,0 +1,50 @@
+name: qa-debugging-sweep
+
+on:
+  pull_request:
+    paths:
+      - "scripts/debugging-sweep/**"
+      - "scripts/generate-debugging-sweep-catalog.mjs"
+      - "scripts/validate-debugging-sweep-provenance.mjs"
+      - "src/lib/debugging-sweep/**"
+      - "src/proxy.ts"
+      - "src/instrumentation.ts"
+      - "src/app/api/internal/debugging-sweep/**"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/debugging-sweep/**"
+      - "scripts/generate-debugging-sweep-catalog.mjs"
+      - "scripts/validate-debugging-sweep-provenance.mjs"
+      - "src/lib/debugging-sweep/**"
+      - "src/proxy.ts"
+      - "src/instrumentation.ts"
+      - "src/app/api/internal/debugging-sweep/**"
+
+permissions:
+  contents: read
+
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: node scripts/validate-debugging-sweep-provenance.mjs
+      - run: node scripts/debugging-sweep/validate-revision-chain.mjs
+      - run: node scripts/generate-debugging-sweep-catalog.mjs --check
+      - run: node scripts/write-debugging-sweep-closure.mjs
+      - run: node scripts/validate-debugging-sweep-closure.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: debugging-sweep-meta
+          path: |
+            src/lib/debugging-sweep/catalog-generated.meta.json
+            scripts/debugging-sweep/provenance.json
+            artifacts/debugging-sweep-closure.json

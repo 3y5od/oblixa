@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "samm": { "version": "2.0", "businessFunctions": ["Governance", "Design", "Implementation", "Verification", "Operations"] },
+  "bsimm": { "note": "External assessment schedule; maturity evidence tracked outside repo per control owner." },
+  "ledgerAnchors": ["A", "P", "Q", "Y", "DV", "EF"]
+}

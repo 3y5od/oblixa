@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import { safeFetch } from "@/lib/security/safe-fetch";
@@ -6,6 +7,7 @@ import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { isKillWebhookDispatch, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 
 export const runtime = "nodejs";
@@ -67,6 +69,15 @@ export async function GET(request: Request) {
       durationMs: Date.now() - startedAt,
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (isKillWebhookDispatch()) {
+    pingCronHealthcheck("webhooks/dispatch", {
+      ok: false,
+      status: 503,
+      reason: "kill_switch",
+      durationMs: Date.now() - startedAt,
+    });
+    return killSwitchJsonResponse("webhook_dispatch");
   }
   const cronRate = await rateLimitCheck("cron:webhooks:dispatch", RATE_LIMITS.webhooksDispatchCron);
   if (!cronRate.ok) {
@@ -341,7 +352,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const admin = await createAdminClient();
-  const body = (await request.json().catch(() => ({}))) as {
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as {
     action?: "replay_event";
     eventId?: string;
   };

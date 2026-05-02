@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -14,10 +15,43 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
+import {
+  executeV10IdempotentResponseMutation,
+  getV10IdempotencyKeyFromRequest,
+  recordV10AuditEvent,
+} from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { buildV10MutationResponse, buildV10MutationResponseInit, validateV10IdempotencyKey } from "@/lib/v10-mutation-envelope";
+
+const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+
+function exportMutationValidationResponse(input: {
+  message: string;
+  diagnosticId: string;
+  field: string;
+  code: string;
+  userVisibleMessage: string;
+}) {
+  const response = buildV10MutationResponse({
+    outcome: "validation_failed",
+    message: input.message,
+    diagnosticId: input.diagnosticId,
+    validationFailures: [
+      {
+        field: input.field,
+        code: input.code,
+        user_visible_message: input.userVisibleMessage,
+        self_fixable: true,
+      },
+    ],
+  });
+  return NextResponse.json(response, buildV10MutationResponseInit(response, { headers: PRIVATE_NO_STORE_HEADERS }));
+}
 
 type ExportCsvOptions = {
   /** Shallow-merged into contract_export_jobs.filter_json after contract_ids (client cannot override contract_ids). */
   filterJsonExtension?: Record<string, unknown>;
+  createExportJob?: boolean;
 };
 
 async function runExportContractsCsv(request: Request, options?: ExportCsvOptions): Promise<Response> {
@@ -28,12 +62,12 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
   }
 
   const orgIdParam = new URL(request.url).searchParams.get("orgId")?.trim() ?? "";
   if (orgIdParam && !isUuid(orgIdParam)) {
-    return NextResponse.json({ error: "Invalid orgId" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid orgId" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
   }
 
   const { data: memberships, error: membershipError } = await admin
@@ -45,21 +79,21 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
   if (membershipError) {
     return NextResponse.json(
       { error: mapDataSourceError(membershipError.message) },
-      { status: 500 }
+      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
 
   const orgIds = [...new Set((memberships ?? []).map((m) => m.organization_id).filter(Boolean))];
 
   if (orgIds.length === 0) {
-    return NextResponse.json({ error: "No organization" }, { status: 400 });
+    return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
   }
 
   let orgId: string;
   let memberRole: WorkspaceRole = "viewer";
   if (orgIdParam) {
     if (!orgIds.includes(orgIdParam)) {
-      return NextResponse.json({ error: "Access denied for orgId" }, { status: 403 });
+      return NextResponse.json({ error: "Access denied for orgId" }, { status: 403, headers: PRIVATE_NO_STORE_HEADERS });
     }
     orgId = orgIdParam;
     const row = (memberships ?? []).find((m) => m.organization_id === orgIdParam);
@@ -74,7 +108,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
         error:
           "Multiple organizations found. Include ?orgId=<organization-id> to export a specific organization.",
       },
-      { status: 400 }
+      { status: 400, headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
   const modeGate = await requireApiWorkspaceEligibility({
@@ -82,6 +116,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
     orgId,
     role: memberRole,
     apiPath: "/api/export/contracts",
+    v10MutationResponse: options?.createExportJob === true,
   });
   if (modeGate) return modeGate;
 
@@ -100,7 +135,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
       },
       {
         status: 429,
-        headers: { "Retry-After": String(retryAfterSec) },
+        headers: { ...PRIVATE_NO_STORE_HEADERS, "Retry-After": String(retryAfterSec) },
       }
     );
   }
@@ -114,41 +149,44 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
         .slice(0, 200)
     : [];
   const exportScope = selectedIds.length > 0 ? "selected" : "workspace";
+  const createExportJob = options?.createExportJob === true;
   let exportJobId: string | null = null;
 
-  try {
-    const { data: exportJob } = await admin
-      .from("contract_export_jobs")
-      .insert({
-        organization_id: orgId,
-        created_by: user.id,
-        scope: exportScope,
-        status: "processing",
-        export_format: "csv",
-        selected_contract_count: selectedIds.length,
-        filter_json: {
-          ...(options?.filterJsonExtension ?? {}),
-          contract_ids: selectedIds,
-        },
-        started_at: new Date().toISOString(),
-      })
-      .select("id")
-      .maybeSingle();
-    exportJobId = exportJob?.id ?? null;
-  } catch (error) {
-    console.error("[export-contracts] could not create export job:", error);
-  }
+  if (createExportJob) {
+    try {
+      const { data: exportJob } = await admin
+        .from("contract_export_jobs")
+        .insert({
+          organization_id: orgId,
+          created_by: user.id,
+          scope: exportScope,
+          status: "processing",
+          export_format: "csv",
+          selected_contract_count: selectedIds.length,
+          filter_json: {
+            ...(options?.filterJsonExtension ?? {}),
+            contract_ids: selectedIds,
+          },
+          started_at: new Date().toISOString(),
+        })
+        .select("id")
+        .maybeSingle();
+      exportJobId = exportJob?.id ?? null;
+    } catch (error) {
+      console.error("[export-contracts] could not create export job:", error);
+    }
 
-  await emitProductTelemetryEvent(admin, {
-    organizationId: orgId,
-    userId: user.id,
-    action: "product.v9.export_started",
-    details: {
-      scope: exportScope,
-      selected_contract_count: selectedIds.length,
-      export_job_created: Boolean(exportJobId),
-    },
-  });
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_started",
+      details: {
+        scope: exportScope,
+        selected_contract_count: selectedIds.length,
+        export_job_created: Boolean(exportJobId),
+      },
+    });
+  }
 
   const {
     rows: contracts,
@@ -198,18 +236,42 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
         })
         .eq("id", exportJobId);
     }
-    await emitProductTelemetryEvent(admin, {
-      organizationId: orgId,
-      userId: user.id,
-      action: "product.v9.export_failed",
-      details: {
-        scope: exportScope,
-        reason: "contracts_query_failed",
-      },
-    });
+    if (createExportJob) {
+      await emitProductTelemetryEvent(admin, {
+        organizationId: orgId,
+        userId: user.id,
+        action: "product.v9.export_failed",
+        details: {
+          scope: exportScope,
+          reason: "contracts_query_failed",
+        },
+      });
+      await emitProductTelemetryEvent(admin, {
+        organizationId: orgId,
+        userId: user.id,
+        action: "product.v10.export_job_completed",
+        details: {
+          scope: exportScope,
+          outcome: "failed_retryable",
+          export_job_created: Boolean(exportJobId),
+        },
+      });
+    }
+    if (exportJobId) {
+      await recordV10AuditEvent(admin, {
+        organizationId: orgId,
+        actorUserId: user.id,
+        action: "export_job.completed",
+        targetType: "export_job",
+        targetId: exportJobId,
+        outcome: "server_error",
+        diagnosticId: "v10_export_contracts_query_failed",
+        safeMetadata: { scope: exportScope, row_count: 0 },
+      });
+    }
     return NextResponse.json(
       { error: mapDataSourceError(error.message) },
-      { status: 500 }
+      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
   if (truncated) {
@@ -225,23 +287,47 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
         })
         .eq("id", exportJobId);
     }
-    await emitProductTelemetryEvent(admin, {
-      organizationId: orgId,
-      userId: user.id,
-      action: "product.v9.export_partially_completed",
-      details: {
-        scope: exportScope,
-        reason: "row_budget_exceeded",
-        export_job_id: exportJobId,
-      },
-    });
+    if (createExportJob) {
+      await emitProductTelemetryEvent(admin, {
+        organizationId: orgId,
+        userId: user.id,
+        action: "product.v9.export_partially_completed",
+        details: {
+          scope: exportScope,
+          reason: "row_budget_exceeded",
+          export_job_id: exportJobId,
+        },
+      });
+      await emitProductTelemetryEvent(admin, {
+        organizationId: orgId,
+        userId: user.id,
+        action: "product.v10.export_job_completed",
+        details: {
+          scope: exportScope,
+          outcome: "partial",
+          export_job_id: exportJobId,
+        },
+      });
+    }
+    if (exportJobId) {
+      await recordV10AuditEvent(admin, {
+        organizationId: orgId,
+        actorUserId: user.id,
+        action: "export_job.completed",
+        targetType: "export_job",
+        targetId: exportJobId,
+        outcome: "dependency_blocked",
+        diagnosticId: "v10_export_row_budget_exceeded",
+        safeMetadata: { scope: exportScope, truncated: true },
+      });
+    }
     return NextResponse.json(
       {
         error: partialError,
         kind: "row_budget_exceeded",
         partial: true,
       },
-      { status: 413 }
+      { status: 413, headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
 
@@ -328,20 +414,56 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
       .eq("id", exportJobId);
   }
 
-  await emitProductTelemetryEvent(admin, {
-    organizationId: orgId,
-    userId: user.id,
-    action: "product.v9.export_completed",
-    details: {
-      scope: exportScope,
-      row_count: contracts?.length ?? 0,
-    },
-  });
+  if (createExportJob) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_completed",
+      details: {
+        scope: exportScope,
+        row_count: contracts?.length ?? 0,
+      },
+    });
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v10.export_job_completed",
+      details: {
+        scope: exportScope,
+        outcome: "success",
+        row_count: contracts?.length ?? 0,
+        export_job_created: Boolean(exportJobId),
+      },
+    });
+  }
+  if (exportJobId) {
+    await recordV10AuditEvent(admin, {
+      organizationId: orgId,
+      actorUserId: user.id,
+      action: "export_job.completed",
+      targetType: "export_job",
+      targetId: exportJobId,
+      outcome: "success",
+      safeMetadata: {
+        scope: exportScope,
+        selected_row_count: selectedIds.length,
+        exported_row_count: contracts?.length ?? 0,
+      },
+    });
+  }
+  if (createExportJob) {
+    await refreshV10ReadModelsForOrganization(admin, orgId, {
+      refreshScope: "one_model",
+      reason: "contract_export_completed",
+      modelKeys: ["job_run_visibility", "report_run_visibility", "contract_activity_events", "audit_events"],
+    });
+  }
 
   return new NextResponse(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
+      "Cache-Control": "private, no-store",
       "Content-Disposition": `attachment; filename="${filename}"`,
       ...(exportJobId ? { "X-Export-Job-Id": exportJobId } : {}),
     },
@@ -358,41 +480,86 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
+  const idempotencyKey = getV10IdempotencyKeyFromRequest(request);
+  if (!idempotencyKey || !validateV10IdempotencyKey(idempotencyKey)) {
+    return exportMutationValidationResponse({
+      message: "A valid x-idempotency-key header is required for this V10 export mutation.",
+      diagnosticId: "v10_export_idempotency_key_invalid",
+      field: "x-idempotency-key",
+      code: "invalid_format",
+      userVisibleMessage: "Use a unique retry key for this export.",
+    });
+  }
   if (!contentType.includes("application/json")) {
-    return NextResponse.json(
-      { error: "Use Content-Type: application/json with an object body for this export request." },
-      { status: 400 }
-    );
+    return exportMutationValidationResponse({
+      message: "Use Content-Type: application/json with an object body for this export request.",
+      diagnosticId: "v10_export_content_type_invalid",
+      field: "content-type",
+      code: "application_json_required",
+      userVisibleMessage: "Send this export request as JSON.",
+    });
   }
 
-  let raw: unknown;
-  try {
-    raw = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Could not read export settings: the body is not valid JSON." },
-      { status: 400 }
-    );
+  const _limRaw = await readJsonBodyLimited(request);
+  if (!_limRaw.ok) {
+    return exportMutationValidationResponse({
+      message: "Could not read export settings: the body is not valid JSON or is too large.",
+      diagnosticId: "v10_export_json_invalid",
+      field: "body",
+      code: "invalid_json",
+      userVisibleMessage: "Fix the JSON body and retry.",
+    });
   }
+  const raw = _limRaw.body;
 
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return NextResponse.json({ error: "The export request body must be a JSON object." }, { status: 400 });
+    return exportMutationValidationResponse({
+      message: "The export request body must be a JSON object.",
+      diagnosticId: "v10_export_body_object_required",
+      field: "body",
+      code: "object_required",
+      userVisibleMessage: "Send a JSON object for export settings.",
+    });
   }
 
   const obj = raw as Record<string, unknown>;
   if ("filter_json" in obj) {
     const fj = obj.filter_json;
     if (fj !== undefined && (typeof fj !== "object" || fj === null || Array.isArray(fj))) {
-      return NextResponse.json(
-        { error: "filter_json must be a JSON object. Remove the field or send an empty object {}." },
-        { status: 400 }
-      );
+      return exportMutationValidationResponse({
+        message: "filter_json must be a JSON object. Remove the field or send an empty object {}.",
+        diagnosticId: "v10_export_filter_json_invalid",
+        field: "filter_json",
+        code: "object_required",
+        userVisibleMessage: "Remove filter_json or send an empty object.",
+      });
     }
   }
 
   const orgId = typeof obj.orgId === "string" ? obj.orgId.trim() : "";
   if (!orgId || !isUuid(orgId)) {
-    return NextResponse.json({ error: "orgId must be a valid organization UUID." }, { status: 400 });
+    return exportMutationValidationResponse({
+      message: "orgId must be a valid organization UUID.",
+      diagnosticId: "v10_export_org_id_invalid",
+      field: "orgId",
+      code: "invalid_uuid",
+      userVisibleMessage: "Select a valid workspace before exporting.",
+    });
+  }
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    const response = buildV10MutationResponse({
+      outcome: "unauthorized",
+      message: "Not authenticated.",
+      diagnosticId: "v10_export_unauthorized",
+      nextDestinationHref: "/login",
+    });
+    return NextResponse.json(response, buildV10MutationResponseInit(response, { headers: PRIVATE_NO_STORE_HEADERS }));
   }
 
   let contractIdsParam = "";
@@ -420,5 +587,26 @@ export async function POST(request: Request) {
     headers: request.headers,
   });
 
-  return runExportContractsCsv(forward, filterJsonExtension ? { filterJsonExtension } : undefined);
+  const { response } = await executeV10IdempotentResponseMutation(
+    admin,
+    {
+      organizationId: orgId,
+      actorUserId: user.id,
+      mutationName: "create_export_job",
+      targetType: "export_job",
+      targetId: orgId,
+      idempotencyKey,
+      payload: {
+        org_id: orgId,
+        contract_ids: contractIdsParam,
+        filter_json: filterJsonExtension ?? null,
+      },
+    },
+    () => runExportContractsCsv(forward, {
+      ...(filterJsonExtension ? { filterJsonExtension } : {}),
+      createExportJob: true,
+    })
+  );
+
+  return response;
 }

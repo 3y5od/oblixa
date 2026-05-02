@@ -1,7 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { V9_SECTION_30_PREAMBLE_VERBATIM } from "./v9-section-30-preamble";
 import { V9_SPEC_TRACE } from "./v9-spec-trace-map";
 
 /**
@@ -10,11 +9,6 @@ import { V9_SPEC_TRACE } from "./v9-spec-trace-map";
 describe("V9 completion proxies", () => {
   it("trace matrix covers the full v9.md heading set", () => {
     expect(Object.keys(V9_SPEC_TRACE).length).toBeGreaterThanOrEqual(145);
-  });
-
-  it("§30 preamble fixture matches docs/v9.md", () => {
-    const doc = readFileSync(join(process.cwd(), "docs", "v9.md"), "utf8");
-    expect(doc).toContain(V9_SECTION_30_PREAMBLE_VERBATIM);
   });
 
   it("§30.1–30.10 each maps to a concrete proxy artifact (table-driven)", () => {

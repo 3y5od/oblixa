@@ -11,6 +11,8 @@ import { isUuid } from "@/lib/security/validation";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryIfFirstInOrganization } from "@/lib/product-telemetry";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   draft: ["pending_review"],
@@ -25,6 +27,41 @@ const MAX_SOURCE_SYSTEM_LEN = 80;
 const MAX_EXTERNAL_REF_LEN = 160;
 const MAX_REGION_LEN = 40;
 const MAX_ANNUAL_VALUE = 999999999999.99;
+
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+
+async function recordV10LifecycleMutation(
+  admin: Admin,
+  input: {
+    organizationId: string;
+    actorUserId: string;
+    action: string;
+    targetType: string;
+    targetId: string;
+    contractId?: string | null;
+    beforeStateHash?: string | null;
+    afterStateHash?: string | null;
+    safeMetadata?: Record<string, string | number | boolean | null>;
+  }
+) {
+  const auditEventId = await recordV10AuditEvent(admin, {
+    organizationId: input.organizationId,
+    actorUserId: input.actorUserId,
+    action: input.action,
+    targetType: input.targetType,
+    targetId: input.targetId,
+    contractId: input.contractId ?? null,
+    outcome: "success",
+    beforeStateHash: input.beforeStateHash,
+    afterStateHash: input.afterStateHash,
+    safeMetadata: input.safeMetadata,
+  });
+  await refreshV10ReadModelsForOrganization(admin, input.organizationId, {
+    reason: input.action,
+    refreshScope: "incremental",
+  });
+  return auditEventId;
+}
 
 export async function updateContractStatus(
   contractId: string,
@@ -144,6 +181,17 @@ export async function updateContractStatus(
   if (newStatus === "active") {
     await applyContractTemplatePack(contractId);
   }
+  await recordV10LifecycleMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.status_changed",
+    targetType: "contract",
+    targetId: contractId,
+    contractId,
+    beforeStateHash: currentStatus,
+    afterStateHash: newStatus,
+    safeMetadata: { from_status: currentStatus, to_status: newStatus },
+  });
 
   return { success: true };
 }
@@ -259,6 +307,22 @@ export async function updateContractOperationalState(input: {
       required_next_step: requiredNextStep,
       intake_owner_id: intakeOwnerId,
       intake_source: intakeSource,
+      intake_completeness_score: intakeCompletenessScore,
+    },
+  });
+  await recordV10LifecycleMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.operational_state_updated",
+    targetType: "contract",
+    targetId: input.contractId,
+    contractId: input.contractId,
+    beforeStateHash: contract.intake_status,
+    afterStateHash: input.intakeStatus,
+    safeMetadata: {
+      intake_status: input.intakeStatus,
+      health_status: input.healthStatus,
+      intake_owner_assigned: Boolean(intakeOwnerId),
       intake_completeness_score: intakeCompletenessScore,
     },
   });
@@ -381,6 +445,21 @@ export async function upsertContractIntakeRequest(input: {
     },
     schemaVersion: "v1",
   });
+  await recordV10LifecycleMutation(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    action: "intake.request_upserted",
+    targetType: "setting",
+    targetId: row.id,
+    contractId,
+    afterStateHash: status,
+    safeMetadata: {
+      status,
+      source,
+      completeness_score: completenessScore,
+      assigned: Boolean(assignedTo),
+    },
+  });
 
   return { success: true as const, intakeRequestId: row.id };
 }
@@ -460,6 +539,21 @@ export async function updateContractExternalLink(input: {
       external_reference_id: externalReferenceId,
     },
   });
+  await recordV10LifecycleMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.external_link_updated",
+    targetType: "contract",
+    targetId: input.contractId,
+    contractId: input.contractId,
+    afterStateHash: externalReferenceId ?? sourceSystem ?? region ?? "cleared",
+    safeMetadata: {
+      source_system_state: sourceSystem ? "provided" : "missing",
+      region_state: region ? "provided" : "missing",
+      annual_value_state: annualValue == null ? "missing" : "provided",
+      external_reference_state: externalReferenceId ? "provided" : "missing",
+    },
+  });
 
   return { success: true as const };
 }
@@ -507,6 +601,17 @@ export async function deleteContract(contractId: string) {
     user_id: user.id,
     action: "contract.deleted",
     details: { title: contract.title },
+  });
+  await recordV10LifecycleMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.deleted",
+    targetType: "contract",
+    targetId: contractId,
+    contractId,
+    beforeStateHash: String(contract.title ?? contractId),
+    afterStateHash: "deleted",
+    safeMetadata: { file_count: files?.length ?? 0 },
   });
 
   if (files?.length) {

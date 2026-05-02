@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oblixa.local/config/debugging-sweep-closure.schema.json",
+  "title": "debugging-sweep-closure",
+  "type": "object",
+  "required": ["version", "repo_head", "generated_at_utc", "rows"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "repo_head": { "type": "string", "description": "git SHA" },
+    "generated_at_utc": { "type": "string", "format": "date-time" },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "command_or_workflow", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "kind": {
+            "enum": [
+              "npm_script",
+              "github_workflow",
+              "playwright_profile",
+              "playwright_config_axis",
+              "ifEnv_gate",
+              "manual_doc_review",
+              "manual_security_surface_review",
+              "deploy_config_review",
+              "dependency_policy_review",
+              "toolchain_config_file",
+              "repo_policy_file",
+              "node_smoke_test",
+              "telemetry_report",
+              "fixture_or_fixture_policy"
+            ]
+          },
+          "command_or_workflow": { "type": "string" },
+          "manifest_tier": { "type": ["string", "null"] },
+          "status": {
+            "enum": ["pass", "fail", "skipped_waiver", "skipped_missing_secret"]
+          },
+          "waiver_id": { "type": ["string", "null"] },
+          "owner": { "type": ["string", "null"] },
+          "log_uri": { "type": ["string", "null"] },
+          "duration_ms": { "type": ["integer", "null"] },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

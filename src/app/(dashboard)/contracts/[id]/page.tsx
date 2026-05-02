@@ -56,6 +56,8 @@ import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metrics";
 import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { emitProductTelemetryIfFirstForOrgUser } from "@/lib/product-telemetry";
 import {
   getReminderDeliveryState,
   groupReminderDeliveriesByReminderId,
@@ -69,6 +71,7 @@ import {
 } from "@/lib/contract-detail-summary";
 import { isEvidenceGapStatus } from "@/lib/evidence-status";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -95,12 +98,33 @@ export default async function ContractDetailPage(props: {
     reviewPage: reviewPageParam,
   } = await props.searchParams;
   const activeTab = (
-    ["overview", "dates", "tasks", "obligations", "notes", "audit"].includes(
+    ["overview", "fields", "dates", "tasks", "obligations", "approvals", "exceptions", "evidence", "files", "notes", "audit", "reports"].includes(
       rawTab ?? ""
     )
       ? rawTab
       : "overview"
-  ) as "overview" | "dates" | "tasks" | "obligations" | "notes" | "audit";
+  ) as "overview" | "fields" | "dates" | "tasks" | "obligations" | "approvals" | "exceptions" | "evidence" | "files" | "notes" | "audit" | "reports";
+  const primaryTabGroups = [
+    { value: "overview", label: "Overview", tabs: ["overview"] },
+    { value: "tasks", label: "Work", tabs: ["tasks", "obligations", "approvals", "exceptions"] },
+    { value: "evidence", label: "Evidence", tabs: ["evidence", "files"] },
+    { value: "fields", label: "Record", tabs: ["fields", "dates"] },
+    { value: "audit", label: "History", tabs: ["notes", "audit", "reports"] },
+  ] as const;
+  const allTabLinks = [
+    ["overview", "Overview"],
+    ["fields", "Fields"],
+    ["dates", "Dates"],
+    ["tasks", "Tasks"],
+    ["obligations", "Obligations"],
+    ["approvals", "Approvals"],
+    ["exceptions", "Exceptions"],
+    ["evidence", "Evidence"],
+    ["files", "Files"],
+    ["reports", "Reports"],
+    ["notes", "Notes"],
+    ["audit", "Audit"],
+  ] as const;
   const ctx = await getAuthContext();
   if (!ctx) {
     return (
@@ -284,6 +308,16 @@ export default async function ContractDetailPage(props: {
   ]);
 
   if (!contractData) notFound();
+  await emitProductTelemetryIfFirstForOrgUser(admin, {
+    organizationId: orgId,
+    userId: ctx.user.id,
+    contractId: contractData.id,
+    action: "product.v10.contract_record_opened",
+    details: {
+      source: "contract_detail",
+      health_state: contractData.health_status ?? "unknown",
+    },
+  });
   const reminders = remindersData ?? [];
 
   type OwnerProfileRow = { full_name: string | null; email: string | null };
@@ -347,6 +381,15 @@ export default async function ContractDetailPage(props: {
     { data: reminderDeliveriesData },
     { data: evidenceSubmissionsData },
     { data: workflowSettingsData },
+    { data: v10HealthSnapshotData },
+    { data: v10WorkItemsData },
+    { data: v10ActivationData },
+    { data: v10FieldProvenanceData },
+    { data: v10RenewalPostureData },
+    { data: v10EvidenceStatusData },
+    { data: v10ApprovalRecordsData },
+    { data: v10ExceptionRecordsData },
+    { data: v10AuditData },
   ] = await Promise.all([
     admin
       .from("execution_graph_edges")
@@ -384,6 +427,85 @@ export default async function ContractDetailPage(props: {
       .select("role_policy_json")
       .eq("organization_id", orgId)
       .maybeSingle(),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_contract_health_snapshots")
+        .select("score, band, next_action, deductions, computed_at, stale_owner, missing_required_field_count, missing_critical_date_count, overdue_work_count, open_high_or_critical_exception_count, outstanding_evidence_count, failed_or_partial_job_count"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .order("computed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_work_items")
+        .select("source_id, type, title, status, due_state, due_at, blocked_reason, primary_action, updated_at"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .neq("status", "done")
+      .order("updated_at", { ascending: false })
+      .limit(6),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_activation_state")
+        .select("state, owner_state, required_fields_total, required_fields_approved, blocked_reason, next_action"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(1)
+      .maybeSingle(),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_field_provenance_records")
+        .select("field_key, state, confidence_state, source_label, reviewed_at, rejection_reason"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(12),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_renewal_posture_snapshots")
+        .select("posture, horizon, reminder_eligible, blocked_reason, computed_at"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(1)
+      .maybeSingle(),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_evidence_request_statuses")
+        .select("evidence_request_id, status, submission_count, external_link_state, resubmission_allowed"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(12),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_approval_records")
+        .select("approval_id, approval_type, status, due_state, sla_state, decision_note_state, decided_at"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(12),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_exception_records")
+        .select("exception_id, title, severity, status, owner_state, due_state, resolution_action"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .limit(12),
+    applyV10ReadModelVisibility(
+      admin
+        .from("v10_contract_activity_events")
+        .select("source_id, action, outcome, occurred_at"),
+      { organizationId: orgId, role, workspaceMode: productSurface.mode }
+    )
+      .eq("contract_id", id)
+      .order("occurred_at", { ascending: false })
+      .limit(5),
   ]);
 
   const contract = { ...contractData, owner: ownerProfile as OwnerProfileRow | null };
@@ -672,6 +794,60 @@ export default async function ContractDetailPage(props: {
     hasOwner: Boolean(ownerLabel),
     approvedFieldsCount,
   });
+  const v10HealthSnapshot = v10HealthSnapshotData as {
+    score: number;
+    band: string;
+    next_action: string;
+    deductions: Array<{
+      key?: string;
+      label?: string;
+      points?: number;
+      source_type?: string | null;
+      source_id?: string | null;
+    }> | unknown;
+    computed_at: string;
+    stale_owner: boolean;
+    missing_required_field_count: number;
+    missing_critical_date_count: number;
+    overdue_work_count: number;
+    open_high_or_critical_exception_count: number;
+    outstanding_evidence_count: number;
+    failed_or_partial_job_count: number;
+  } | null;
+  const v10Deductions = Array.isArray(v10HealthSnapshot?.deductions) ? v10HealthSnapshot.deductions : [];
+  const v10DeductionCount = v10Deductions.length;
+  const v10WorkItems = v10WorkItemsData ?? [];
+  const v10Activation = v10ActivationData as {
+    state: string;
+    owner_state: string;
+    required_fields_total: number;
+    required_fields_approved: number;
+    blocked_reason: string | null;
+    next_action: string;
+  } | null;
+  const v10FieldProvenance = v10FieldProvenanceData ?? [];
+  const v10RenewalPosture = v10RenewalPostureData as {
+    posture: string;
+    horizon: string | null;
+    reminder_eligible: boolean;
+    blocked_reason: string | null;
+    computed_at: string;
+  } | null;
+  const v10EvidenceStatuses = v10EvidenceStatusData ?? [];
+  const v10ApprovalRecords = v10ApprovalRecordsData ?? [];
+  const v10ExceptionRecords = v10ExceptionRecordsData ?? [];
+  const v10AuditEvents = v10AuditData ?? [];
+  const v10HasAnyTrustSignal = Boolean(
+    v10HealthSnapshot ||
+      v10Activation ||
+      v10WorkItems.length > 0 ||
+      v10FieldProvenance.length > 0 ||
+      v10RenewalPosture ||
+      v10EvidenceStatuses.length > 0 ||
+      v10ApprovalRecords.length > 0 ||
+      v10ExceptionRecords.length > 0 ||
+      v10AuditEvents.length > 0
+  );
 
   const iconByKey: Record<ContractDetailIconKey, typeof User> = {
     owner: User,
@@ -685,6 +861,93 @@ export default async function ContractDetailPage(props: {
     attention: "text-amber-700",
     secondary: "text-[var(--text-secondary)]",
   } as const;
+  const ownerWorkHref = !contract.owner_id
+    ? "/work?lens=unassigned"
+    : contract.owner_id === ctx.user.id
+      ? "/work?lens=assigned_to_me"
+      : "/work?lens=assigned_to_my_team";
+  const v10HeaderCards = [
+    {
+      label: "Owner",
+      value: ownerLabel ?? "Unassigned",
+      href: ownerWorkHref,
+      sourceObject: "contract",
+    },
+    {
+      label: "Next action",
+      value: (v10HealthSnapshot?.next_action ?? v10Activation?.next_action ?? contract.required_next_step ?? "no_action_required").replace(/_/g, " "),
+      href: v10WorkItems.length > 0 ? "/work" : `/contracts/${contract.id}`,
+      sourceObject: "work_item",
+    },
+    {
+      label: "Health",
+      value: v10HealthSnapshot
+        ? `${v10HealthSnapshot.score} · ${v10HealthSnapshot.band.replace(/_/g, " ")}`
+        : "Not materialized",
+      href: `/contracts/${contract.id}#v10-contract-record-trust-title`,
+      sourceObject: "contract",
+    },
+    {
+      label: "Renewal",
+      value: v10RenewalPosture ? v10RenewalPosture.posture.replace(/_/g, " ") : "Not materialized",
+      href: "/contracts/renewals",
+      sourceObject: "renewal_checkpoint",
+    },
+    {
+      label: "Critical dates",
+      value: v10HealthSnapshot
+        ? `${v10HealthSnapshot.missing_critical_date_count} missing or unapproved`
+        : "Needs read model",
+      href: `/contracts/${contract.id}?tab=overview#extracted-fields`,
+      sourceObject: "field",
+    },
+    {
+      label: "Exceptions",
+      value: `${v10ExceptionRecords.filter((item) => item.status !== "resolved").length || openExceptionsCount} open`,
+      href: `/contracts/exceptions?status=open&contract=${contract.id}`,
+      sourceObject: "exception",
+    },
+    {
+      label: "Evidence",
+      value: `${v10EvidenceStatuses.length || outstandingEvidenceCount} outstanding`,
+      href: `/contracts/${contract.id}?tab=overview#contract-evidence`,
+      sourceObject: "evidence_request",
+    },
+    {
+      label: "Approvals",
+      value: `${v10ApprovalRecords.filter((item) => item.status === "pending").length || pendingApprovalsCount} pending`,
+      href: `/contracts/${contract.id}?tab=overview#renewal-approvals`,
+      sourceObject: "approval",
+    },
+    {
+      label: "Field review",
+      value: `${pendingFieldsCount} pending`,
+      href: `/contracts/${contract.id}?tab=overview#extracted-fields`,
+      sourceObject: "field",
+    },
+    {
+      label: "Latest audit",
+      value: v10AuditEvents[0]?.action ? String(v10AuditEvents[0].action).replace(/_/g, " ") : "None",
+      href: `/contracts/${contract.id}#contract-audit-trail`,
+      sourceObject: "audit_event",
+    },
+  ] as const;
+
+  await emitProductTelemetryIfFirstForOrgUser(admin, {
+    organizationId: orgId,
+    userId: ctx.user.id,
+    contractId: contract.id,
+    action: "product.v10.contract_record_trust_viewed",
+    details: {
+      source: "contract_detail_trust_header",
+      has_health_snapshot: Boolean(v10HealthSnapshot),
+      has_activation_state: Boolean(v10Activation),
+      work_item_count: v10WorkItems.length,
+      field_provenance_count: v10FieldProvenance.length,
+      audit_event_state: v10AuditEvents.length > 0 ? "present" : "empty",
+      renewal_posture_state: v10RenewalPosture ? "present" : "missing",
+    },
+  });
 
   return (
     <div className="space-y-7 md:space-y-8">
@@ -742,6 +1005,27 @@ export default async function ContractDetailPage(props: {
                   )}
                 </p>
               )}
+              <section className="mt-5 rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] p-4">
+                <p className="ui-eyebrow">Record header</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                  {v10HeaderCards.map((card) => (
+                    <Link
+                      key={card.label}
+                      href={card.href}
+                      data-v10-surface="contract_record"
+                      data-v10-section="record_header"
+                      data-v10-action={card.label}
+                      data-v10-source-object={card.sourceObject}
+                      className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-sm hover:border-[var(--accent)]"
+                    >
+                      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        {card.label}
+                      </span>
+                      <span className="mt-1 block font-medium text-[var(--text-primary)]">{card.value}</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
               {canEdit && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   {isWatchlisted ? (
@@ -815,6 +1099,258 @@ export default async function ContractDetailPage(props: {
             filesCount={filesCount}
             upcomingRemindersCount={upcomingReminders.length}
           />
+          <section
+            aria-labelledby="v10-contract-record-trust-title"
+            data-v10-surface="contract_record"
+            data-v10-section="trust_header"
+            data-v10-state={v10HasAnyTrustSignal ? undefined : "partial"}
+            data-v10-visibility-state={v10HasAnyTrustSignal ? "visible" : "missing_trust_signal"}
+            data-v10-source-object="contract"
+            className="mt-5 rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-4 py-3 text-sm"
+          >
+            <p className="ui-eyebrow">Contract record trust</p>
+            <h2 id="v10-contract-record-trust-title" className="mt-1 text-base font-semibold text-[var(--text-primary)]">
+              Contract record trust
+            </h2>
+            {v10HasAnyTrustSignal ? (
+              <div className="mt-2 space-y-4 text-[var(--text-secondary)]">
+                {v10HealthSnapshot ? (
+                  <p>
+                    Health score{" "}
+                    <span className="font-semibold text-[var(--text-primary)]">{v10HealthSnapshot.score}</span>{" "}
+                    ({v10HealthSnapshot.band.replace(/_/g, " ")}) with {v10DeductionCount} active deduction
+                    {v10DeductionCount === 1 ? "" : "s"}. Next action:{" "}
+                    <span className="font-medium text-[var(--text-primary)]">
+                      {v10HealthSnapshot.next_action.replace(/_/g, " ")}
+                    </span>
+                    .
+                  </p>
+                ) : (
+                  <V10RecoverableState
+                    state="partial"
+                    title="Contract health read model has not materialized"
+                    reason="Related activation, work, renewal, evidence, approval, exception, and audit signals are shown below so the record remains recoverable while health is rebuilt."
+                    accessibleName="Contract health read model partial state"
+                    nextActionLabel="Review workspace health"
+                    surface="contract_record"
+                    section="trust_header"
+                    sourceObject="contract"
+                    nextAction={
+                      <Link href="/settings/health" className="ui-link">
+                        Review workspace health
+                      </Link>
+                    }
+                  />
+                )}
+                <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+                  {v10HealthSnapshot ? (
+                    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        Health blockers
+                      </p>
+                      <p className="mt-1 font-medium text-[var(--text-primary)]">
+                        {v10HealthSnapshot.missing_required_field_count} required ·{" "}
+                        {v10HealthSnapshot.missing_critical_date_count} critical dates
+                      </p>
+                      <p className="mt-1 text-xs">
+                        {v10HealthSnapshot.overdue_work_count} overdue ·{" "}
+                        {v10HealthSnapshot.failed_or_partial_job_count} failed or partial jobs
+                      </p>
+                    </div>
+                  ) : null}
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Activation
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10Activation ? v10Activation.state.replace(/_/g, " ") : "not materialized"}
+                    </p>
+                    {v10Activation ? (
+                      <p className="mt-1 text-xs">
+                        {v10Activation.required_fields_approved}/{v10Activation.required_fields_total} required fields approved
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Work
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10WorkItems.length} open linked item{v10WorkItems.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10WorkItems.filter((item) => item.due_state === "overdue").length} overdue ·{" "}
+                      {v10WorkItems.filter((item) => item.status === "blocked").length} blocked
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Audit
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10AuditEvents.length} recent event{v10AuditEvents.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      Latest: {v10AuditEvents[0]?.action ? String(v10AuditEvents[0].action).replace(/_/g, " ") : "none"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Field provenance
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10FieldProvenance.length} field record{v10FieldProvenance.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10FieldProvenance[0]?.field_key
+                        ? `${String(v10FieldProvenance[0].field_key).replace(/_/g, " ")} · ${String(v10FieldProvenance[0].state).replace(/_/g, " ")}`
+                        : "none materialized"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Renewal posture
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10RenewalPosture ? v10RenewalPosture.posture.replace(/_/g, " ") : "not materialized"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10RenewalPosture?.reminder_eligible ? "Reminder eligible" : v10RenewalPosture?.blocked_reason ?? "No reminder action"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Evidence status
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10EvidenceStatuses.length} request{v10EvidenceStatuses.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10EvidenceStatuses.filter((item) => item.resubmission_allowed).length} resubmission path
+                      {v10EvidenceStatuses.filter((item) => item.resubmission_allowed).length === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Approvals
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10ApprovalRecords.length} approval{v10ApprovalRecords.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10ApprovalRecords.filter((item) => item.status === "pending").length} pending ·{" "}
+                      {v10ApprovalRecords.filter((item) => item.due_state === "overdue").length} overdue
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Exceptions
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--text-primary)]">
+                      {v10ExceptionRecords.length} exception{v10ExceptionRecords.length === 1 ? "" : "s"}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {v10ExceptionRecords.filter((item) => item.severity === "critical" || item.severity === "high").length} high risk ·{" "}
+                      {v10ExceptionRecords.filter((item) => item.owner_state === "unassigned").length} unassigned
+                    </p>
+                  </div>
+                </div>
+                {v10Deductions.length > 0 ? (
+                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Health deductions
+                    </p>
+                    <ul className="mt-2 grid gap-2 md:grid-cols-2">
+                      {v10Deductions.map((deduction, index) => {
+                        const sourceHref =
+                          deduction.source_type === "contract" || !deduction.source_type
+                            ? `/contracts/${contract.id}`
+                            : deduction.source_type === "evidence_request"
+                              ? `/contracts/${contract.id}?tab=overview#contract-evidence`
+                              : deduction.source_type === "approval"
+                                ? `/contracts/${contract.id}?tab=overview#renewal-approvals`
+                                : deduction.source_type === "obligation"
+                                  ? `/contracts/${contract.id}?tab=obligations`
+                                  : `/work`;
+                        return (
+                          <li key={`${deduction.key ?? "deduction"}:${index}`} className="rounded-xl border border-[var(--border-subtle)] p-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <p className="font-medium text-[var(--text-primary)]">
+                                {String(deduction.label ?? deduction.key ?? "health deduction").replace(/_/g, " ")}
+                              </p>
+                              <span className="text-xs font-semibold text-[var(--danger)]">
+                                -{Number(deduction.points ?? 0)}
+                              </span>
+                            </div>
+                            <Link
+                              href={sourceHref}
+                              aria-label={`Open source for ${String(deduction.label ?? deduction.key ?? "health deduction").replace(/_/g, " ")}`}
+                              className="mt-2 inline-flex text-xs font-medium text-[var(--text-link)] underline underline-offset-2"
+                            >
+                              Open source
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
+                {v10WorkItems.length > 0 ? (
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {v10WorkItems.slice(0, 4).map((item) => {
+                      const workHref =
+                        item.type === "approval"
+                          ? `/contracts/${contract.id}?tab=overview#renewal-approvals`
+                          : item.type === "obligation"
+                            ? `/contracts/${contract.id}?tab=obligations`
+                            : item.type === "evidence_request"
+                              ? `/contracts/${contract.id}?tab=overview#contract-evidence`
+                              : item.type === "exception"
+                                ? `/contracts/exceptions?status=open&contract=${contract.id}`
+                                : `/contracts/${contract.id}`;
+                      return (
+                      <Link
+                        key={`${item.type}:${item.source_id}`}
+                        href={workHref}
+                        className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3 hover:border-[var(--accent)]"
+                      >
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                          {String(item.type).replace(/_/g, " ")}
+                        </p>
+                        <p className="mt-1 font-medium text-[var(--text-primary)]">{item.title}</p>
+                        <p className="mt-1 text-xs">
+                          {String(item.status).replace(/_/g, " ")}
+                          {item.due_state && item.due_state !== "none"
+                            ? ` · ${String(item.due_state).replace(/_/g, " ")}`
+                            : ""}
+                        </p>
+                      </Link>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-2 space-y-3 text-[var(--text-secondary)]">
+                <p>
+                  This contract is visible, but no health snapshot is available yet. The legacy header,
+                  reminders, approvals, evidence, and audit state remain available, and workspace health can
+                  show whether refresh, extraction, import, report, or export jobs are blocking the read model.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link href="/settings/health" className="ui-link">
+                    Review workspace health
+                  </Link>
+                  <Link href={`/work?lens=blocked`} className="ui-link">
+                    Open blocked work
+                  </Link>
+                  <Link href={`/contracts/${contract.id}?tab=audit`} className="ui-link">
+                    Open audit trail
+                  </Link>
+                </div>
+              </div>
+            )}
+          </section>
           {immediateActions.length > 0 ? (
             <div className="mt-6 border-t border-[var(--border-subtle)] pt-6 sm:mt-8 sm:pt-8">
               <div className="flex flex-col gap-2">
@@ -844,14 +1380,30 @@ export default async function ContractDetailPage(props: {
       <div className="ui-card overflow-hidden">
         <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3">
           <div className="flex flex-wrap gap-1.5">
-            {[
-              ["overview", "Overview"],
-              ["dates", "Dates"],
-              ["tasks", "Tasks"],
-              ["obligations", "Obligations"],
-              ["notes", "Notes"],
-              ["audit", "Audit"],
-            ].map(([value, label]) => (
+            {primaryTabGroups.map(({ value, label, tabs }) => {
+              const activeGroup = (tabs as readonly string[]).includes(activeTab);
+              return (
+                <Link
+                  key={value}
+                  href={`/contracts/${contract.id}?tab=${value}`}
+                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12px] ${
+                    activeGroup
+                      ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
+                      : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
+                  }`}
+                  aria-current={activeGroup ? "page" : undefined}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+          <details className="mt-3">
+            <summary className="cursor-pointer text-[12px] font-semibold text-[var(--text-secondary)]">
+              More sections
+            </summary>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {allTabLinks.map(([value, label]) => (
               <Link
                 key={value}
                 href={`/contracts/${contract.id}?tab=${value}`}
@@ -863,14 +1415,15 @@ export default async function ContractDetailPage(props: {
               >
                 {label}
               </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          </details>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-7 md:gap-8 lg:grid-cols-3">
         <div className="space-y-7 md:space-y-8 lg:col-span-2">
-          {(activeTab === "overview" || activeTab === "dates") && (
+          {(activeTab === "overview" || activeTab === "fields" || activeTab === "dates") && (
           <div id="extracted-fields" className="scroll-mt-28 ui-card overflow-hidden">
             <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div>
@@ -924,7 +1477,7 @@ export default async function ContractDetailPage(props: {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
-                        Open queue
+                        Review queue
                       </Link>
                       {reviewQueueContinuity.nextContractId ? (
                         <ReviewSaveNextTelemetryLink
@@ -991,7 +1544,7 @@ export default async function ContractDetailPage(props: {
               </div>
             )}
 
-          {(activeTab === "overview" || activeTab === "dates") && (
+          {(activeTab === "overview" || activeTab === "files" || activeTab === "dates") && (
           <div id="source-documents" className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-3.5 md:px-8 md:py-4">
               <h2 className="ui-section-title text-base">Source documents</h2>
@@ -1140,7 +1693,7 @@ export default async function ContractDetailPage(props: {
         </div>
 
         <div className="space-y-7 md:space-y-8">
-          {activeTab === "overview" && (
+          {["overview", "evidence", "files", "reports"].includes(activeTab) && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Workflow status</h3>
@@ -1349,7 +1902,7 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {activeTab === "overview" && (
+          {(activeTab === "overview" || activeTab === "approvals") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Renewal scenario & approvals</h3>
@@ -1661,7 +2214,7 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "audit") && (
+          {(activeTab === "overview" || activeTab === "exceptions" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Operational casefile</h3>

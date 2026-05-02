@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "surfaces": [
+    { "path": "/api/cron/v10/read-model-refresh", "stride": { "spoofing": "medium", "tampering": "high" } }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "regions": [
+    { "code": "US", "marketingConsent": "opt_out", "ageGate": "coppa_mode_optional" },
+    { "code": "EU", "marketingConsent": "opt_in", "ageGate": "16_plus" },
+    { "code": "region_not_sold", "marketingConsent": "blocked", "ageGate": "n_a" }
+  ]
+}

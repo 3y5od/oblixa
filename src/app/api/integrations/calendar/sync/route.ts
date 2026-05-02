@@ -4,6 +4,7 @@ import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 
@@ -88,19 +89,16 @@ export async function GET(request: Request) {
         includeRenewalCheckpoints: cfg.includeRenewalCheckpoints ?? true,
         includeRenewalDecisions: cfg.includeRenewalDecisions ?? true,
       });
-      const controller = new AbortController();
       const timeoutMs = Math.min(Math.max(Number(cfg.timeoutMs ?? 10000), 2000), 30000);
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(pushUrl.toString(), {
+      const res = await safeFetch(pushUrl.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "text/calendar; charset=utf-8",
           ...(cfg.authHeader ? { Authorization: cfg.authHeader } : {}),
         },
         body: ics,
-        signal: controller.signal,
+        timeoutMs,
       });
-      clearTimeout(timeout);
       if (!res.ok) {
         failed++;
         await admin

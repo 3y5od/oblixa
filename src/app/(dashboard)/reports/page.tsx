@@ -18,7 +18,7 @@ export const metadata = { title: "Operational reports" };
 function ReportsAdvancedFallback() {
   return (
     <div className="ui-page-stack" aria-hidden>
-      <div className="ui-page-header space-y-3">
+      <div className="ui-page-header-compact space-y-3">
         <div className="ui-skeleton h-4 w-40 rounded" />
         <div className="ui-skeleton h-10 w-72 rounded" />
         <div className="ui-skeleton h-4 max-w-xl rounded" />
@@ -54,12 +54,12 @@ export default async function ReportsControlRoomPage() {
   if (productSurface.mode === "core") {
     return (
       <div className="ui-page-stack">
-        <header className="ui-page-header">
+        <header className="ui-page-header-compact">
           <div>
             <p className="ui-eyebrow">Reports</p>
-            <h1 className="ui-display-title mt-2">Operational reports</h1>
+            <h1 className="ui-page-title-compact mt-2">Operational reports</h1>
             <p className="ui-page-lead mt-2 max-w-2xl">
-              Standard report packs, execution summaries, and workspace-safe reporting entry points.
+              Report failures, partial outputs, and scheduled-summary delivery issues appear before routine report destinations.
             </p>
           </div>
           <Link href="/contracts/reports" className="ui-btn-secondary px-4 py-2.5 text-[13px]">

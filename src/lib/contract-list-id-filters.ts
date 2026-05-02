@@ -2,6 +2,7 @@ import type { createAdminClient } from "@/lib/supabase/server";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
+import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -103,6 +104,30 @@ export async function getContractIdsWithOutstandingEvidence(
   return [...new Set((data ?? []).map((r) => r.contract_id as string))];
 }
 
+export async function getContractIdsWithV10HealthWatch(
+  admin: Admin,
+  orgId: string,
+  viewer: { role?: string | null; workspaceMode?: string | null } = {}
+): Promise<string[]> {
+  const query = applyV10ReadModelVisibility(
+    admin.from("v10_contract_health_snapshots").select("contract_id"),
+    {
+      organizationId: orgId,
+      role: viewer.role ?? "admin",
+      workspaceMode: viewer.workspaceMode ?? "assurance",
+    }
+  );
+  const { data, error } = await query
+    .lt("score", 85)
+    .not("contract_id", "is", null);
+
+  if (error) {
+    console.error("[contract-list-id-filters] v10_contract_health_snapshots:", formatUnknownForServerLog(error.message));
+    return [];
+  }
+  return [...new Set((data ?? []).map((r) => r.contract_id as string))];
+}
+
 export async function getContractIdsMissingCriticalDates(
   admin: Admin,
   orgId: string
@@ -116,6 +141,7 @@ export interface ContractListAuxFilterParams {
   review?: string;
   data_quality?: string;
   evidence?: string;
+  health?: string;
 }
 
 export async function resolveAuxiliaryContractListIntersectIds(
@@ -136,6 +162,9 @@ export async function resolveAuxiliaryContractListIntersectIds(
   }
   if (params.evidence === "outstanding") {
     parts.push(await getContractIdsWithOutstandingEvidence(admin, orgId));
+  }
+  if (params.health === "watch") {
+    parts.push(await getContractIdsWithV10HealthWatch(admin, orgId));
   }
 
   return combineContractListIntersectIds(parts);

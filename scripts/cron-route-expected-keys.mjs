@@ -55,4 +55,16 @@ export const CRON_ROUTE_EXPECTED_KEYS = new Map([
       "errors_count",
     ],
   ],
+  [
+    "/api/cron/v10/read-model-refresh",
+    ["ok", "scanned_organizations", "next_cursor", "refresh_scope", "results", "duration_ms"],
+  ],
+  [
+    "/api/cron/v10/idempotency-cleanup",
+    ["ok", "deleted_count", "retention_cutoff"],
+  ],
+  [
+    "/api/cron/v10/runtime-artifact-cleanup",
+    ["ok", "archived_count", "retention_cutoff"],
+  ],
 ]);

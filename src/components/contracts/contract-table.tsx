@@ -18,7 +18,8 @@ import type { Contract } from "@/lib/types";
 import type { ContractReviewStats } from "@/lib/contract-review-stats";
 import type { ContractListRowSignals } from "@/lib/contract-list-row-signals";
 import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
-import { EmptyState } from "@/components/ui/empty-state";
+import { V10EmptyStateTelemetryLink } from "@/components/ui/v10-empty-state-telemetry-link";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
@@ -37,6 +38,12 @@ interface ContractTableProps {
   footer?: ReactNode;
   /** Used only for explanatory copy when selection spans filters/pages. */
   filterFingerprint?: string;
+  emptyState?: {
+    title: string;
+    copy: string;
+    actionHref: string;
+    actionLabel: string;
+  };
   bulkActions?: {
     canEdit: boolean;
     members: { id: string; label: string }[];
@@ -51,6 +58,7 @@ export function ContractTable({
   showContinuityLinks,
   footer,
   filterFingerprint,
+  emptyState,
   bulkActions,
 }: ContractTableProps) {
   const router = useRouter();
@@ -130,19 +138,53 @@ export function ContractTable({
   };
 
   if (contracts.length === 0) {
+    if (emptyState) {
+      return (
+        <V10RecoverableState
+          state="empty"
+          title={emptyState.title}
+          reason={emptyState.copy}
+          accessibleName="Filtered contracts empty state"
+          surface="contracts"
+          section="contract_table"
+          sourceObject="contract"
+          nextActionLabel={emptyState.actionLabel}
+          nextAction={
+            <V10EmptyStateTelemetryLink
+              href={emptyState.actionHref}
+              className="ui-btn-primary px-6"
+              surface="contracts"
+              section="contract_table"
+              sourceObject="contract"
+              actionLabel={emptyState.actionLabel}
+            >
+              {emptyState.actionLabel}
+            </V10EmptyStateTelemetryLink>
+          }
+        />
+      );
+    }
     return (
-      <EmptyState
+      <V10RecoverableState
+        state="empty"
         title="No contracts yet"
-        copy="Upload an agreement to extract dates and build your operational record."
-        icon={
-          <div className="ui-icon-tile">
-            <FileText className="h-7 w-7 text-[var(--text-tertiary)]" strokeWidth={1.25} aria-hidden />
-          </div>
-        }
-        action={
-          <Link href="/contracts/new" className="ui-btn-primary px-6">
+        reason="Upload an agreement to extract dates and build your operational record."
+        accessibleName="Contracts empty state"
+        surface="contracts"
+        section="contract_table"
+        sourceObject="contract"
+        nextActionLabel="Upload contract"
+        nextAction={
+          <V10EmptyStateTelemetryLink
+            href="/contracts/new"
+            className="ui-btn-primary px-6"
+            surface="contracts"
+            section="contract_table"
+            sourceObject="contract"
+            actionLabel="Upload contract"
+          >
             Upload contract
-          </Link>
+          </V10EmptyStateTelemetryLink>
         }
       />
     );
@@ -166,6 +208,64 @@ export function ContractTable({
       default:
         return "Date";
     }
+  };
+  const nextActionForContract = (
+    contract: Contract,
+    sig: ContractListRowSignals | undefined,
+    stats: ContractReviewStats | undefined
+  ): { label: string; href: string; detail: string } => {
+    if (stats && stats.pending > 0) {
+      return {
+        label: "Continue field review",
+        href: `/contracts/${contract.id}#extracted-fields`,
+        detail: `${stats.pending} pending field${stats.pending === 1 ? "" : "s"}`,
+      };
+    }
+    if (sig?.missingCriticalDates) {
+      return {
+        label: "Review approved dates",
+        href: `/contracts/${contract.id}#dates`,
+        detail: "Critical dates are missing",
+      };
+    }
+    if ((sig?.openExceptionCount ?? 0) > 0) {
+      return {
+        label: "Resolve exceptions",
+        href: `/contracts/exceptions?status=open&contract=${contract.id}`,
+        detail: `${sig?.openExceptionCount ?? 0} open exception${sig?.openExceptionCount === 1 ? "" : "s"}`,
+      };
+    }
+    if ((sig?.outstandingEvidenceCount ?? 0) > 0) {
+      return {
+        label: "Review evidence",
+        href: `/contracts/${contract.id}?tab=overview#contract-evidence`,
+        detail: `${sig?.outstandingEvidenceCount ?? 0} evidence request${sig?.outstandingEvidenceCount === 1 ? "" : "s"}`,
+      };
+    }
+    if (!contract.owner_id) {
+      return {
+        label: "Assign owner",
+        href: `/contracts/${contract.id}#ownership-record`,
+        detail: "Ownership missing",
+      };
+    }
+    if (sig?.nextHorizonDays != null && sig.nextHorizonDays <= 14) {
+      return {
+        label: "Review deadline",
+        href: `/contracts/${contract.id}`,
+        detail:
+          sig.nextHorizonDays < 0
+            ? `${horizonLabel(sig.nextHorizonField)} overdue`
+            : sig.nextHorizonDays === 0
+              ? `${horizonLabel(sig.nextHorizonField)} due today`
+              : `${horizonLabel(sig.nextHorizonField)} in ${sig.nextHorizonDays}d`,
+      };
+    }
+    return {
+      label: "Review contract",
+      href: `/contracts/${contract.id}`,
+      detail: "No active exception",
+    };
   };
 
   return (
@@ -291,6 +391,7 @@ export function ContractTable({
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5 first:pl-6 lg:pl-8">
                 Contract
               </th>
+              <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Next action</th>
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Counterparty</th>
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Status</th>
               {reviewStats && <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Review</th>}
@@ -298,7 +399,6 @@ export function ContractTable({
               {rowSignals ? <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Signals</th> : null}
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Owner</th>
               <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Updated</th>
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Created</th>
               <th className="relative whitespace-nowrap px-5 py-2.5 pr-6 lg:pr-8">
                 <span className="sr-only">Open</span>
               </th>
@@ -308,6 +408,7 @@ export function ContractTable({
             {contracts.map((contract) => {
               const stats = reviewStats?.[contract.id];
               const sig = rowSignals?.[contract.id];
+              const nextAction = nextActionForContract(contract, sig, stats);
               const updatedDate = new Date(contract.updated_at);
               const updatedLabel = isValid(updatedDate)
                 ? formatDistanceToNowStrict(updatedDate, { addSuffix: true })
@@ -354,6 +455,15 @@ export function ContractTable({
                         ) : null}
                       </div>
                     </div>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 align-middle">
+                    <Link
+                      href={nextAction.href}
+                      className="inline-flex min-w-[10rem] flex-col rounded-[1rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_78%,white)] px-3 py-2 text-[12px] shadow-[var(--shadow-1)] transition-colors hover:border-[var(--accent)]"
+                    >
+                      <span className="font-semibold text-[var(--text-primary)]">{nextAction.label}</span>
+                      <span className="mt-1 text-[11px] text-[var(--text-tertiary)]">{nextAction.detail}</span>
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-5 py-4">
                     <span className="inline-flex min-h-8 items-center rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] px-3 text-[12px] font-semibold text-[var(--text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
@@ -432,13 +542,13 @@ export function ContractTable({
                             className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning-soft)_60%,transparent)] bg-[var(--warning-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--warning-ink)] transition-colors hover:border-[var(--warning-ink)]"
                           >
                             <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
-                            {sig.openExceptionCount} ex
+                            {sig.openExceptionCount} exception{sig.openExceptionCount === 1 ? "" : "s"}
                           </Link>
                         ) : null}
                         {sig.outstandingEvidenceCount > 0 ? (
                           <span className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--info-soft)_62%,transparent)] bg-[var(--info-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--info-ink)]">
                             <FileWarning className="h-3 w-3 shrink-0" aria-hidden />
-                            {sig.outstandingEvidenceCount} ev
+                            {sig.outstandingEvidenceCount} evidence request{sig.outstandingEvidenceCount === 1 ? "" : "s"}
                           </span>
                         ) : null}
                         {sig.missingCriticalDates ? (
@@ -453,7 +563,7 @@ export function ContractTable({
                         {sig.openExceptionCount === 0 &&
                         sig.outstandingEvidenceCount === 0 &&
                         !sig.missingCriticalDates ? (
-                          <span className="text-[var(--text-tertiary)]">—</span>
+                          <span className="text-[var(--text-tertiary)]" aria-label="No active row signals" />
                         ) : null}
                       </div>
                     </td>
@@ -474,9 +584,6 @@ export function ContractTable({
                         {updatedLabel}
                       </span>
                     </div>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-[13px] tabular-nums text-[var(--text-tertiary)]">
-                    {format(new Date(contract.created_at), "MMM d, yyyy")}
                   </td>
                   <td className="whitespace-nowrap px-5 py-4 pr-6 text-right lg:pr-8">
                     <Link

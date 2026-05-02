@@ -5,6 +5,33 @@ const mergeV6OrgSettingsJson = vi.fn();
 const getV6OrgSettingsJson = vi.fn();
 const requireServerActionEligibility = vi.fn();
 const applyWorkspaceProductTransitionSideEffects = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
+
+function makeV10Rpc() {
+  return vi.fn((fn: string, args: Record<string, unknown>) => {
+    if (fn === "claim_v10_mutation_idempotency") {
+      return Promise.resolve({
+        data: [
+          {
+            claim_result: "claimed",
+            request_hash: args.p_request_hash,
+            response_json: args.p_pending_response_json,
+            claim_status: "in_progress",
+          },
+        ],
+        error: null,
+      });
+    }
+    if (fn === "complete_v10_mutation_idempotency") {
+      return Promise.resolve({ data: true, error: null });
+    }
+    return Promise.resolve({ data: null, error: { message: `unexpected rpc ${fn}` } });
+  });
+}
+
+function makeAdmin(from: ReturnType<typeof vi.fn>) {
+  return { from, rpc: makeV10Rpc() };
+}
 
 vi.mock("@/lib/supabase/server", () => ({
   getAuthContext: (...args: unknown[]) => getAuthContext(...args),
@@ -28,6 +55,10 @@ vi.mock("@/lib/product-surface/workspace-transition", () => ({
     applyWorkspaceProductTransitionSideEffects(...args),
 }));
 
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
+}));
+
 vi.mock("@/lib/product-surface/landing-eligibility", () => ({
   isValidDefaultLandingPath: (path: string, mode: string) =>
     !(mode === "core" && ["/decisions", "/campaigns"].includes(path)),
@@ -40,6 +71,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     getV6OrgSettingsJson.mockReset();
     requireServerActionEligibility.mockReset();
     applyWorkspaceProductTransitionSideEffects.mockReset();
+    refreshV10ReadModelsForOrganization.mockReset();
     getV6OrgSettingsJson.mockResolvedValue({});
     mergeV6OrgSettingsJson.mockResolvedValue({ error: null });
     requireServerActionEligibility.mockResolvedValue({ ok: true });
@@ -106,7 +138,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
       })),
     }));
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -119,7 +151,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("search_scope", "core_only");
     await updateWorkspaceProductSurfaceForm(fd);
     expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
-      { from },
+      expect.objectContaining({ from }),
       "org-1",
       expect.objectContaining({
         workspace_mode: "core",
@@ -148,21 +180,32 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   });
 
   it("resetWorkspaceProductSurfaceDefaultsForm resets to conservative core defaults", async () => {
-    const from = vi.fn(() => ({
-      insert: vi.fn(() => Promise.resolve({ error: null })),
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: null })),
+    const from = vi.fn((table: string) => {
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-reset-audit" }, error: null })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert: vi.fn(() => Promise.resolve({ error: null })),
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null })),
+          })),
+          in: vi.fn(async () => ({ data: [] })),
         })),
-        in: vi.fn(async () => ({ data: [] })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(async () => ({ error: null })),
-        in: vi.fn(async () => ({ error: null })),
-      })),
-    }));
+        update: vi.fn(() => ({
+          eq: vi.fn(async () => ({ error: null })),
+          in: vi.fn(async () => ({ error: null })),
+        })),
+      };
+    });
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -170,13 +213,23 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const { resetWorkspaceProductSurfaceDefaultsForm } = await import(
       "@/actions/product-surface-settings"
     );
-    await resetWorkspaceProductSurfaceDefaultsForm();
+    const result = await resetWorkspaceProductSurfaceDefaultsForm();
+    expect(result).toEqual({ success: true });
     expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
-      { from },
+      expect.objectContaining({ from }),
       "org-1",
       expect.objectContaining({
         workspace_mode: "core",
         search_scope: "match_mode",
+      })
+    );
+    expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledWith(
+      expect.objectContaining({ from }),
+      "org-1",
+      expect.objectContaining({
+        refreshScope: "one_model",
+        reason: "product_surface_settings_mutation",
+        modelKeys: expect.arrayContaining(["notification_deliveries", "audit_events", "command_search_index"]),
       })
     );
   });
@@ -202,6 +255,18 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
           }),
         };
       }
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn((row: Record<string, unknown>) => {
+            inserts.push({ ...row, action: row.action ?? "v10.audit" });
+            return {
+              select: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-audit-1" }, error: null })),
+              })),
+            };
+          }),
+        };
+      }
       return {
         select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
         update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
@@ -211,7 +276,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     });
 
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -222,6 +287,14 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "core");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
+    expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledWith(
+      expect.objectContaining({ from }),
+      "org-1",
+      expect.objectContaining({
+        refreshScope: "one_model",
+        reason: "product_surface_settings_mutation",
+      })
+    );
 
     const surfaceAudit = inserts.find((row) => row.action === "workspace.product_surface_updated") as
       | { details?: Record<string, unknown> }
@@ -237,13 +310,14 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
   beforeEach(() => {
     getAuthContext.mockReset();
     requireServerActionEligibility.mockReset();
+    refreshV10ReadModelsForOrganization.mockReset();
     requireServerActionEligibility.mockResolvedValue({ ok: true });
   });
 
   it("returns error when caller is not admin", async () => {
     const from = vi.fn();
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "editor",
       user: { id: "u1" },
@@ -265,25 +339,36 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
   it("updates organization_workflow_settings.notification_policy_json for admin org only", async () => {
     const eqLog: { col: string; val: string }[] = [];
     const insert = vi.fn(() => Promise.resolve({ error: null }));
-    const from = vi.fn(() => ({
-      select: () => ({
-        eq: () => ({
-          maybeSingle: vi.fn(async () => ({
-            data: { notification_policy_json: { email: { blocked_types: [] } } },
-            error: null,
+    const from = vi.fn((table: string) => {
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-notification-audit" }, error: null })),
+            })),
           })),
+        };
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: vi.fn(async () => ({
+              data: { notification_policy_json: { email: { blocked_types: [] } } },
+              error: null,
+            })),
+          }),
         }),
-      }),
-      update: () => ({
-        eq: (col: string, val: string) => {
-          eqLog.push({ col, val });
-          return Promise.resolve({ error: null });
-        },
-      }),
-      insert,
-    }));
+        update: () => ({
+          eq: (col: string, val: string) => {
+            eqLog.push({ col, val });
+            return Promise.resolve({ error: null });
+          },
+        }),
+        insert,
+      };
+    });
     getAuthContext.mockResolvedValue({
-      admin: { from },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -291,7 +376,8 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
     const { updateProductEmailNotificationCategoriesForm } = await import("@/actions/product-surface-settings");
     const fd = new FormData();
     fd.set("mute_email_reminder_due", "on");
-    await updateProductEmailNotificationCategoriesForm(fd);
+    const result = await updateProductEmailNotificationCategoriesForm(fd);
+    expect(result).toEqual({ success: true });
     expect(from).toHaveBeenCalled();
     expect(eqLog[0]).toEqual({ col: "organization_id", val: "org-1" });
     expect(from).toHaveBeenCalledWith("audit_events");
@@ -302,6 +388,14 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
           channel: "email",
           affected_known_categories: ["reminder_due"],
         }),
+      })
+    );
+    expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledWith(
+      expect.objectContaining({ from }),
+      "org-1",
+      expect.objectContaining({
+        refreshScope: "one_model",
+        reason: "product_surface_settings_mutation",
       })
     );
   });

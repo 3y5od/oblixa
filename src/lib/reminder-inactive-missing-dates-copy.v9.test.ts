@@ -4,9 +4,7 @@ import { join } from "node:path";
 import { REMINDER_INACTIVE_MISSING_APPROVED_DATES_COPY } from "@/lib/reminder-delivery-visibility";
 
 describe("§27.2 reminder inactive (missing approved dates) copy", () => {
-  it("uses docs-aligned vocabulary for the shared constant", () => {
-    const doc = readFileSync(join(process.cwd(), "docs", "v9.md"), "utf8");
-    expect(doc.toLowerCase()).toContain("reminder inactive due to missing approved dates");
+  it("uses the shared vocabulary for the copy constant", () => {
     expect(REMINDER_INACTIVE_MISSING_APPROVED_DATES_COPY.toLowerCase()).toContain(
       "reminder inactive due to missing approved dates"
     );

@@ -1,0 +1,18 @@
+---
+description: Enterprise UI operating model for future product UI changes
+alwaysApply: true
+---
+
+# Enterprise UI Design
+
+Before changing authenticated product UI, route states, reusable UI components, operator copy, diagnostics, command palette results, shell navigation, or UI tests, read `docs/enterprise-ui-design-principles.md` and apply it.
+
+Core rules:
+
+- Exceptions earn space; normalcy compresses; diagnostics disclose.
+- Active risk, deadlines, ownership gaps, blocked work, failed automation, and decisions must outrank routine metrics and healthy counts.
+- Default operator surfaces must use operational language before implementation language. Keep `read-model`, `durable work index`, `source object`, raw table names, raw enum values, and support-only identifiers inside diagnostics.
+- Replace generic repeated `Open`/`View` links with specific actions such as `Review`, `Resolve`, `Retry`, `Assign`, `Approve`, `Request`, `Continue`, `Inspect`, `Configure`, or `Browse`.
+- Preserve role/product-mode gating, URLs, anchors, telemetry attributes, accessibility, keyboard behavior, mobile ordering, privacy/redaction, and test coverage.
+
+When in doubt, add or update a static/component test rather than relying on prose.

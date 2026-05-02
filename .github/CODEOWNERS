@@ -1,12 +1,24 @@
 # Optional ownership hints for high-risk areas. Replace @YOUR_ORG/team with a real GitHub team or usernames.
 # Lines starting with # are ignored by CODEOWNERS; uncomment to enforce review assignment.
 
-# supabase/migrations/ @YOUR_ORG/backend
-# src/app/api/ @YOUR_ORG/backend
-# src/lib/security/ @YOUR_ORG/backend
-# semgrep/ @YOUR_ORG/backend
+supabase/migrations/ @YOUR_ORG/backend
+src/app/api/ @YOUR_ORG/backend
+src/actions/ @YOUR_ORG/backend
+src/lib/auth/ @YOUR_ORG/backend
+src/lib/security/ @YOUR_ORG/backend
+src/lib/debugging-sweep/ @YOUR_ORG/backend
+scripts/debugging-sweep/ @YOUR_ORG/backend
+src/proxy.ts @YOUR_ORG/backend
+semgrep/ @YOUR_ORG/backend
+.github/workflows/ @YOUR_ORG/backend
+config/qa-tier-manifest.json @YOUR_ORG/backend
+config/pr-requirements.json @YOUR_ORG/backend
+config/qa-tier-manifest.schema.json @YOUR_ORG/backend
+config/e2e-env-matrix.json @YOUR_ORG/backend
+scripts/pipelines/pipeline-qa-ultimate.mjs @YOUR_ORG/backend
+scripts/lib/qa-discover-check-scripts.mjs @YOUR_ORG/backend
+scripts/check-qa-workflow-fleet.mjs @YOUR_ORG/backend
 # next.config.ts @YOUR_ORG/backend
-# .github/workflows/ @YOUR_ORG/backend
 
 # Maximal UI QA plan (Tier 39) — e2e + governance tests
 e2e/ @YOUR_ORG/frontend-qa

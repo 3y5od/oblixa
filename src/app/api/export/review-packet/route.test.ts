@@ -28,6 +28,7 @@ vi.mock("@/lib/missing-critical-fields", () => ({
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
   emitProductTelemetryEvent,
 }));
 

@@ -9,7 +9,7 @@ export type OperationalTone = "healthy" | "neutral" | "attention" | "risk";
 
 export const OPERATIONAL_SHELL_BY_TONE: Record<OperationalTone, string> = {
   healthy:
-    "border-l-[0.35rem] border-l-[color:var(--success-ink)] bg-[color:color-mix(in_oklab,var(--success-soft)_78%,transparent)]",
+    "border-l-[0.2rem] border-l-[color:color-mix(in_oklab,var(--success-ink)_38%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)]",
   neutral:
     "border-l-[0.35rem] border-l-[color:color-mix(in_oklab,var(--border-contrast)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)]",
   attention:
@@ -20,7 +20,7 @@ export const OPERATIONAL_SHELL_BY_TONE: Record<OperationalTone, string> = {
 
 export const OPERATIONAL_ICON_WRAP_BY_TONE: Record<OperationalTone, string> = {
   healthy:
-    "bg-[color:color-mix(in_oklab,var(--success-soft)_64%,white)] text-[color:var(--success-ink)] ring-1 ring-[color:color-mix(in_oklab,var(--success-soft)_42%,transparent)]",
+    "bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,white)] text-[color:color-mix(in_oklab,var(--success-ink)_70%,var(--text-secondary))] ring-1 ring-[color:color-mix(in_oklab,var(--border-subtle)_78%,transparent)]",
   neutral:
     "bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,white)] text-[color:var(--text-secondary)] ring-1 ring-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)]",
   attention:

@@ -5,6 +5,7 @@ import {
   emitProductTelemetryEvent,
   emitProductTelemetryIfFirstInOrganization,
   emitProductTelemetryIfFirstForOrgUser,
+  emitV10ObjectiveTelemetryEvent,
   emitVisibleMutationErrorTelemetry,
 } from "@/lib/product-telemetry";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
@@ -22,6 +23,9 @@ import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { autoTransitionTasksForField } from "@/actions/tasks";
 import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
+import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
 import {
   updateContractStatus as updateContractStatusImpl,
   updateContractOperationalState as updateContractOperationalStateImpl,
@@ -56,6 +60,41 @@ const MAX_SOURCE_SYSTEM_LEN = 80;
 const MAX_EXTERNAL_REF_LEN = 160;
 const MAX_REGION_LEN = 40;
 const MAX_ANNUAL_VALUE = 999999999999.99;
+
+type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+
+async function recordV10ContractMutation(
+  admin: Admin,
+  input: {
+    organizationId: string;
+    actorUserId: string;
+    action: string;
+    targetType: string;
+    targetId: string;
+    contractId?: string | null;
+    beforeStateHash?: string | null;
+    afterStateHash?: string | null;
+    safeMetadata?: Record<string, string | number | boolean | null>;
+  }
+) {
+  const auditEventId = await recordV10AuditEvent(admin, {
+    organizationId: input.organizationId,
+    actorUserId: input.actorUserId,
+    action: input.action,
+    targetType: input.targetType,
+    targetId: input.targetId,
+    contractId: input.contractId ?? null,
+    outcome: "success",
+    beforeStateHash: input.beforeStateHash,
+    afterStateHash: input.afterStateHash,
+    safeMetadata: input.safeMetadata,
+  });
+  await refreshV10ReadModelsForOrganization(admin, input.organizationId, {
+    reason: input.action,
+    refreshScope: "incremental",
+  });
+  return auditEventId;
+}
 
 type CreateContractResult =
   | { error: string }
@@ -263,6 +302,35 @@ export async function createContract(formData: FormData): Promise<CreateContract
   });
   await recomputeContractSignals(admin, contract.id);
   await applyContractTemplatePack(contract.id);
+  await recordV10ContractMutation(admin, {
+    organizationId,
+    actorUserId: user.id,
+    action: "contract.created",
+    targetType: "contract",
+    targetId: contract.id,
+    contractId: contract.id,
+    afterStateHash: String(contract.updated_at ?? contract.status ?? "created"),
+    safeMetadata: {
+      intake_source: sourceSystem || "manual",
+      file_count: uploadedFiles,
+      skipped_invalid_files: skippedInvalidFiles,
+      failed_upload_files: failedUploadFiles,
+    },
+  });
+  await emitV10ObjectiveTelemetryEvent(admin, {
+    organizationId,
+    userId: user.id,
+    contractId: contract.id,
+    objectiveKey: "activation_first_work_item",
+    action: "product.v10.activation_completed",
+    details: {
+      organization_id: organizationId,
+      contract_id: contract.id,
+      job_id: null,
+      duration_ms: null,
+      state: uploadedFiles > 0 ? "contract_created_with_files" : "contract_created_metadata_only",
+    },
+  });
 
   await autoAttachProgramsForContract({
     admin,
@@ -335,7 +403,7 @@ export async function updateContractField(
   const { data: field } = await admin
     .from("extracted_fields")
     .select(
-      "field_name, field_value, source_snippet, source, contracts!inner(id, organization_id, owner_id)"
+      "field_name, field_value, source_snippet, source, updated_at, contracts!inner(id, organization_id, owner_id)"
     )
     .eq("id", fieldId)
     .single();
@@ -380,6 +448,42 @@ export async function updateContractField(
     }
     updateData.field_value = newValue;
     updateData.source = "human";
+  }
+
+  const mutationName =
+    action === "approved"
+      ? "approve_field"
+      : action === "rejected"
+        ? "reject_field"
+        : "edit_and_approve_field";
+  const v10MutationStart = await executeV10IdempotentMutation(
+    admin,
+    {
+      organizationId: contract.organization_id,
+      actorUserId: user.id,
+      mutationName,
+      targetType: "field",
+      targetId: fieldId,
+      idempotencyKey: `v10-server-action:${crypto.randomUUID()}`,
+      expectedVersion: String(field.updated_at ?? "unknown"),
+      currentVersion: String(field.updated_at ?? "unknown"),
+      payload: {
+        fieldId,
+        action,
+        value_state: action === "edited" && newValue !== undefined ? "changed" : "unchanged",
+      },
+    },
+    async () =>
+      buildV10MutationResponse({
+        outcome: "success",
+        message: "Field review mutation reserved.",
+        changedObjectType: "field",
+        changedObjectId: fieldId,
+        nextDestinationHref: `/contracts/${contract.id}`,
+      })
+  );
+  if (v10MutationStart.response.outcome !== "success") {
+    return { error: v10MutationStart.response.user_visible_message, v10: v10MutationStart.response };
   }
 
   const { error } = await admin
@@ -451,6 +555,13 @@ export async function updateContractField(
     action: "product.v9.review_started",
     details: { surface: "field_review" },
   });
+  await emitProductTelemetryIfFirstForOrgUser(admin, {
+    organizationId: contract.organization_id,
+    userId: user.id,
+    contractId: contract.id,
+    action: "product.v10.field_review_completed",
+    details: { field_name: field.field_name, decision: action },
+  });
   if (action === "approved") {
     await emitProductTelemetryEvent(admin, {
       organizationId: contract.organization_id,
@@ -466,6 +577,55 @@ export async function updateContractField(
       contractId: contract.id,
       action: "product.v9.review_item_edited",
       details: { fieldId },
+    });
+  }
+
+  await recordV10ContractMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action:
+      action === "approved"
+        ? "contract_field.approved"
+        : action === "rejected"
+          ? "contract_field.rejected"
+          : "contract_field.edited_and_approved",
+    targetType: "field",
+    targetId: fieldId,
+    contractId: contract.id,
+    beforeStateHash: String(field.field_value ?? "missing"),
+    afterStateHash: String(resolvedValue ?? action),
+    safeMetadata: {
+      field_name: field.field_name,
+      decision: action,
+      source_state: field.source ? "provided" : "missing",
+    },
+  });
+  await emitProductTelemetryEvent(admin, {
+    organizationId: contract.organization_id,
+    userId: user.id,
+    contractId: contract.id,
+    action: "product.v10.field_review_completed",
+    details: {
+      field_state: action,
+      source_state: field.source ? "provided" : "missing",
+      required_field: DATE_FIELDS.has(field.field_name) || field.field_name === "title",
+    },
+  });
+  const { count: remainingPendingFields } = await admin
+    .from("extracted_fields")
+    .select("id", { count: "exact", head: true })
+    .eq("contract_id", contract.id)
+    .eq("status", "pending");
+  if ((remainingPendingFields ?? 0) === 0) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: contract.organization_id,
+      userId: user.id,
+      contractId: contract.id,
+      action: "product.v10.review_queue_cleared",
+      details: {
+        queue_type: "contract_field_review",
+        source_state: "read_model_refresh_requested",
+      },
     });
   }
 
@@ -516,6 +676,16 @@ export async function updateContractSecondaryOwner(contractId: string, secondary
     details: { secondary_owner_id: secondaryOwnerId },
   });
   await recomputeContractSignals(admin, contractId);
+  await recordV10ContractMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.secondary_owner_changed",
+    targetType: "contract",
+    targetId: contractId,
+    contractId,
+    afterStateHash: secondaryOwnerId ?? "unassigned",
+    safeMetadata: { secondary_owner_assigned: Boolean(secondaryOwnerId) },
+  });
 
   return { success: true as const };
 }
@@ -1009,6 +1179,15 @@ export async function runExtraction(contractId: string) {
   }
 
   if (res.status === 202 && data.accepted && data.async) {
+    await recordV10ContractMutation(admin, {
+      organizationId: contract.organization_id,
+      actorUserId: user.id,
+      action: "extraction.queued",
+      targetType: "contract",
+      targetId: contractId,
+      contractId,
+      safeMetadata: { async: true },
+    });
     return {
       success: true,
       async: true as const,
@@ -1029,6 +1208,20 @@ export async function runExtraction(contractId: string) {
     }
     return { error: data.error || `Extraction failed (${res.status})` };
   }
+
+  await recordV10ContractMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "extraction.completed",
+    targetType: "contract",
+    targetId: contractId,
+    contractId,
+    safeMetadata: {
+      async: false,
+      extracted: data.extracted ?? 0,
+      inserted: data.inserted ?? 0,
+    },
+  });
 
   return {
     success: true,
@@ -1308,6 +1501,21 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     });
   }
 
+  await recordV10ContractMutation(admin, {
+    organizationId,
+    actorUserId: user.id,
+    action: "import.files_completed",
+    targetType: "import_job",
+    targetId: job.id,
+    contractId: createdIds[0] ?? null,
+    afterStateHash: rowErrors.length ? "partial" : "succeeded",
+    safeMetadata: {
+      file_count: validFiles.length,
+      inserted_row_count: createdIds.length,
+      error_row_count: rowErrors.length,
+    },
+  });
+
   return {
     success: createdIds.length > 0,
     created: createdIds.length,
@@ -1432,6 +1640,20 @@ export async function updateContractOwner(contractId: string, newOwnerId: string
     entityType: "contract",
     entityId: contractId,
     payload: { new_owner_id: newOwnerId },
+  });
+  await recordV10ContractMutation(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "contract.owner_changed",
+    targetType: "contract",
+    targetId: contractId,
+    contractId,
+    beforeStateHash: contract.owner_id ?? "unassigned",
+    afterStateHash: newOwnerId,
+    safeMetadata: {
+      prior_owner_assigned: Boolean(contract.owner_id),
+      reassigned_task_count: reassignedTasks?.length ?? 0,
+    },
   });
 
   return { success: true };

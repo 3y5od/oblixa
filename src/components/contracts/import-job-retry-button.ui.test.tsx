@@ -17,7 +17,25 @@ describe("ImportJobRetryButton", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        json: async () => ({ jobId: "retry-1" }),
+        status: 200,
+        headers: new Headers({ "x-v10-idempotent-replay": "false" }),
+        json: async () => ({
+          outcome: "success",
+          user_visible_message: "Retry started.",
+          changed_object_type: "import_job",
+          changed_object_id: "retry-1",
+          new_version: "1",
+          version_metadata: {
+            expected_version: null,
+            current_version: null,
+            new_version: "1",
+          },
+          next_destination_href: "/api/import/contracts/retry-1",
+          audit_event_id: "audit-1",
+          diagnostic_id: null,
+          retry_eligible: false,
+          replay_state: "not_replayed",
+        }),
       }))
     );
 
@@ -28,6 +46,13 @@ describe("ImportJobRetryButton", () => {
     await waitFor(() => {
       expect(screen.getByRole("status").textContent).toMatch(/retry started/i);
     });
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(init.credentials).toBe("same-origin");
+    expect(init.headers).toBeInstanceOf(Headers);
+    expect((init.headers as Headers).get("x-idempotency-key")).toMatch(/^v10:/);
+    expect((init.headers as Headers).get("x-client-request-id")).toMatch(/^v10-client:/);
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
 
@@ -37,6 +62,7 @@ describe("ImportJobRetryButton", () => {
       vi.fn(async () => ({
         ok: false,
         status: 429,
+        headers: new Headers(),
         json: async () => ({ error: "Too many requests" }),
       }))
     );

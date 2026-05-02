@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { LegalFooter } from "@/components/layout/legal-footer";
 import { CommandPaletteLoader } from "@/components/layout/command-palette-loader";
 import { RefetchOnWindowFocus } from "@/components/layout/refetch-on-window-focus";
 import { V9PageLoadReporter } from "@/components/layout/v9-page-load-reporter";
-import { getAuthContext } from "@/lib/supabase/server";
+import { createClient, getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
@@ -46,6 +46,14 @@ export default async function DashboardLayout({
   const guardedSurface = await assertPagePathEligibleForContextOrNotFound(pathname, ctx);
   const user = ctx?.user ?? null;
   const role = (ctx?.role as WorkspaceRole | undefined) ?? "viewer";
+
+  if (ctx?.mfaRequired && pathname && !pathname.startsWith("/settings/security")) {
+    const supabase = await createClient();
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aalData?.currentLevel !== "aal2") {
+      redirect("/settings/security?mfa=required");
+    }
+  }
 
   const v5Flags = getFeatureFlags();
 

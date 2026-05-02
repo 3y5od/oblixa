@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-23T00:19:45.622Z",
+  "generatedAt": "2026-04-28T21:13:44.987Z",
   "offenders": [
     {
       "file": "src/actions/approvals.ts",
-      "lines": 686
+      "lines": 782
     },
     {
       "file": "src/actions/automation.ts",
@@ -11,31 +11,39 @@
     },
     {
       "file": "src/actions/contracts-lifecycle.ts",
-      "lines": 694
+      "lines": 799
     },
     {
       "file": "src/actions/contracts.ts",
-      "lines": 1690
+      "lines": 1912
     },
     {
       "file": "src/actions/obligations.ts",
-      "lines": 682
+      "lines": 830
     },
     {
       "file": "src/actions/onboarding-calibration.ts",
       "lines": 698
     },
     {
+      "file": "src/actions/product-surface-settings.ts",
+      "lines": 521
+    },
+    {
       "file": "src/actions/tasks.ts",
-      "lines": 1153
+      "lines": 2079
+    },
+    {
+      "file": "src/actions/v10-bulk-compatible-work.ts",
+      "lines": 589
     },
     {
       "file": "src/actions/v4.ts",
-      "lines": 811
+      "lines": 839
     },
     {
       "file": "src/actions/workflow-config.ts",
-      "lines": 767
+      "lines": 808
     }
   ]
 }

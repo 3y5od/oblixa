@@ -24,6 +24,7 @@ vi.mock("@/lib/permissions", () => ({
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
   emitVisibleMutationErrorTelemetry,
 }));
 

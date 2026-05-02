@@ -1,0 +1,4 @@
+{
+  "eventTypes": [],
+  "note": "Versioned outbox payloads when async dispatch ships."
+}

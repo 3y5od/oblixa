@@ -1,0 +1,21 @@
+name: QA merge queue canary
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  expected_checks:
+    if: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - run: |
+          echo '{"jobs":["CI / quality_static","CI / quality_unit"]}' > expected-checks.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: expected-checks
+          path: expected-checks.json

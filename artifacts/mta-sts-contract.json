@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "mode": "delegated_dns_provider",
+  "mta_sts_txt_host": "mta-sts.oblixa.io",
+  "max_age_seconds": 604800,
+  "mx_patterns": ["*.oblixa.io"],
+  "renewal_owner": "@platform",
+  "expiry_review": "2027-06-30"
+}

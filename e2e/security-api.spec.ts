@@ -24,6 +24,15 @@ test.describe("security API smokes", () => {
     expect(res.status()).toBeLessThan(500);
   });
 
+  test("POST /api/extract without session returns 401 (not 5xx)", async ({ request }) => {
+    const res = await request.post("/api/extract", {
+      headers: { "content-type": "application/json" },
+      data: JSON.stringify({ contractId: "00000000-0000-0000-0000-000000000000" }),
+    });
+    expect(res.status()).toBe(401);
+    expect(res.status()).toBeLessThan(500);
+  });
+
   test("external action status with garbage token returns 4xx (not 500)", async ({ request }) => {
     const res = await request.get("/api/external-actions/00000000-0000-0000-0000-000000000000/status");
     expect(res.status()).toBeGreaterThanOrEqual(400);

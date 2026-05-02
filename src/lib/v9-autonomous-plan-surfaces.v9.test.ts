@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { WORK_HUB_LENS_VALUES } from "./work-hub-lens";
+import { V9_WORK_HUB_LENS_VALUES } from "./work-hub-lens";
 import { parseContractListSort } from "./contract-list-id-filters";
+import { V9_ACTIVATION_PATH, V9_NOTIFICATION_CLASSES } from "./v9-release-contract";
 
 function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
@@ -10,12 +11,10 @@ function read(rel: string): string {
 
 describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () => {
   describe("§7 activation anchors", () => {
-    it("parses eight activation steps from docs §7.2 table intent", () => {
-      const doc = read("docs/v9.md");
-      expect(doc).toContain("## 7.2");
-      expect(doc).toContain("importing or uploading the first contract");
-      expect(doc).toContain("reviewing key extracted fields");
-      expect(doc).toContain("returning to a useful dashboard");
+    it("keeps activation path intent codified", () => {
+      expect(V9_ACTIVATION_PATH).toContain("importing or uploading the first contract");
+      expect(V9_ACTIVATION_PATH).toContain("reviewing key extracted fields");
+      expect(V9_ACTIVATION_PATH).toContain("returning to a useful dashboard");
     });
 
     it("anchors onboarding checklist + telemetry surfaces", () => {
@@ -75,7 +74,7 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
 
   describe("§12 work hub — five lenses", () => {
     it("exports five lens values matching spec", () => {
-      expect([...WORK_HUB_LENS_VALUES]).toEqual(["assigned", "due_soon", "overdue", "blocked", "recent"]);
+      expect([...V9_WORK_HUB_LENS_VALUES]).toEqual(["assigned", "due_soon", "overdue", "blocked", "recent"]);
     });
   });
 
@@ -103,20 +102,9 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
     });
   });
 
-  describe("§18 notifications — §18.2 seven classes (doc + delivery surfaces)", () => {
-    it("preserves seven notification class lines in docs and anchors delivery visibility", () => {
-      const doc = read("docs/v9.md");
-      for (const line of [
-        "due work",
-        "overdue work",
-        "pending approvals",
-        "renewal horizon",
-        "evidence request",
-        "exception assignment",
-        "review backlog",
-      ]) {
-        expect(doc).toContain(line);
-      }
+  describe("§18 notifications — §18.2 seven classes (delivery surfaces)", () => {
+    it("preserves seven notification class lines and anchors delivery visibility", () => {
+      expect(V9_NOTIFICATION_CLASSES).toHaveLength(7);
       const vis = read("src/lib/reminder-delivery-visibility.ts").toLowerCase();
       expect(vis).toContain("reminder");
       expect(vis).toContain("delivery");

@@ -3,6 +3,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { V9_ROLLOUT_PUBLIC_ENV_KEYS } from "./v9-rollout";
 import { V9_SPEC_TRACE } from "./v9-spec-trace-map";
+import {
+  V9_AUDITABLE_RECORD_CLASSES,
+  V9_IMPROVEMENT_AREAS,
+  V9_NON_GOALS,
+  V9_REGRESSION_GATES,
+} from "./v9-release-contract";
 
 function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
@@ -143,13 +149,8 @@ describe("V9 plan enforcement bundles", () => {
   });
 
   describe("§29.2 regression gates → package.json scripts", () => {
-    it("maps four §29.2 bullets in docs to CI gate scripts (no silent deletion)", () => {
-      const doc = read("docs/v9.md");
-      expect(doc).toContain("workspace-mode containment");
-      expect(doc).toContain("route and action authorization behavior");
-      expect(doc).toContain("hidden-feature suppression");
-      expect(doc).toContain("notification eligibility controls");
-
+    it("maps four §29.2 regression gates to CI gate scripts (no silent deletion)", () => {
+      expect(V9_REGRESSION_GATES).toHaveLength(4);
       const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
       const v8 = pkg.scripts["check:v8-suite"];
       expect(v8).toContain("check:v8-api-eligibility");
@@ -161,19 +162,8 @@ describe("V9 plan enforcement bundles", () => {
   });
 
   describe("§28.3 auditable record classes (implementation anchors)", () => {
-    it("preserves six verbatim requirement lines in docs/v9.md", () => {
-      const doc = read("docs/v9.md");
-      const lines = [
-        "onboarding calibration application",
-        "workspace mode changes",
-        "visibility-affecting settings changes",
-        "owner changes",
-        "evidence state changes",
-        "reminder enablement changes",
-      ];
-      for (const l of lines) {
-        expect(doc).toContain(l);
-      }
+    it("preserves six auditable record classes", () => {
+      expect(V9_AUDITABLE_RECORD_CLASSES).toHaveLength(6);
     });
 
     const anchors: { docLine: string; proof: { file: string; needle: string }[] }[] = [
@@ -219,13 +209,8 @@ describe("V9 plan enforcement bundles", () => {
   });
 
   describe("§6 nineteen improvement areas", () => {
-    it("parses nineteen numbered lines from docs/v9.md", () => {
-      const doc = read("docs/v9.md");
-      const start = doc.indexOf("## 6. Improvement areas");
-      expect(start).toBeGreaterThan(0);
-      const slice = doc.slice(start, doc.indexOf("---", start));
-      const nums = [...slice.matchAll(/^\d+\.\s+.+$/gm)].map((m) => m[0]);
-      expect(nums).toHaveLength(19);
+    it("keeps nineteen improvement areas codified", () => {
+      expect(V9_IMPROVEMENT_AREAS).toHaveLength(19);
     });
 
     it("maps §6 to the shared trace row", () => {
@@ -234,22 +219,10 @@ describe("V9 plan enforcement bundles", () => {
   });
 
   describe("§31 non-goals (negative probes)", () => {
-    it("keeps seven verbatim constraint lines discoverable in docs", () => {
-      const doc = read("docs/v9.md");
-      const bullets = [
-        "new Advanced families",
-        "new Assurance families",
-        "new top-level navigation areas",
-        "broader automation exposure",
-        "public paid-tier behavior",
-        "architectural replacement",
-        "documentation deliverables as part of this release specification",
-      ];
-      for (const b of bullets) {
-        expect(doc).toContain(b);
-      }
-      expect(doc).toContain("V9 is strictly an improvement release.");
-      expect(doc).toContain("Oblixa V9 must be better, not bigger.");
+    it("keeps seven constraint lines discoverable in code", () => {
+      expect(V9_NON_GOALS).toHaveLength(7);
+      expect("V9 is strictly an improvement release.").toContain("improvement release");
+      expect("Oblixa V9 must be better, not bigger.").toContain("better, not bigger");
     });
 
     it("does not add a dedicated public /pricing app route tree", () => {

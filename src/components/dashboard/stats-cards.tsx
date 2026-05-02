@@ -51,7 +51,7 @@ const metricsConfig = [
     valueKey: "activeContracts" as const,
     primaryUnit: "active agreements",
     href: "/contracts?status=active" as const,
-    actionLabel: "View active",
+    actionLabel: "Review active",
     icon: CheckCircle2,
   },
   {

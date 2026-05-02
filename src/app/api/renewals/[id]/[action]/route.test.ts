@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
+const emitProductTelemetryEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -22,6 +25,25 @@ vi.mock("@/lib/v4/renewal-decision-packet", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
+  emitProductTelemetryEvent,
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentMutation: async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({
+    response: await execute(),
+    replayed: false,
+  }),
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  getV10ExpectedVersionFromRequest: (request: Request) => request.headers.get("x-v10-expected-version")?.trim() || undefined,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
 }));
 
 const checkpoint = {
@@ -86,6 +108,9 @@ describe("POST /api/renewals/[id]/[action]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
+    emitProductTelemetryEvent.mockResolvedValue(undefined);
     getApiAuthContext.mockResolvedValue({
       admin: adminRenewals(checkpoint),
       userId: "user-1",
@@ -160,13 +185,52 @@ describe("POST /api/renewals/[id]/[action]", () => {
     const res = await POST(
       new Request("http://localhost:3000/api/renewals/chk-1/generate-decision-packet", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-renewal-packet" },
         body: JSON.stringify({ summary: "Q2 review" }),
       }),
       { params: Promise.resolve({ id: "chk-1", action: "generate-decision-packet" }) }
     );
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.packet.id).toBe("pkt-1");
+    expect(body).toMatchObject({
+      outcome: "success",
+      changed_object_type: "renewal_checkpoint",
+      changed_object_id: "chk-1",
+      audit_event_id: "v10-audit-1",
+    });
+  });
+
+  it("completes renewal checkpoint actions with audit and telemetry", async () => {
+    const { POST } = await import("@/app/api/renewals/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/renewals/chk-1/complete", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-renewal-complete" },
+        body: JSON.stringify({ note: "Notice sent" }),
+      }),
+      { params: Promise.resolve({ id: "chk-1", action: "complete" }) }
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({
+      outcome: "success",
+      changed_object_type: "renewal_checkpoint",
+      changed_object_id: "chk-1",
+      audit_event_id: "v10-audit-1",
+    });
+    expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "product.v10.renewal_checkpoint_completed",
+      })
+    );
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "renewal_checkpoint.completed",
+        afterStateHash: "completed",
+      })
+    );
   });
 });

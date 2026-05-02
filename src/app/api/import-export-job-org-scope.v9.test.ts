@@ -32,6 +32,15 @@ vi.mock("@/lib/rate-limit", () => ({
 
 type EqLog = { table: string; col: string; val: string };
 
+function makeNullableSingleChain() {
+  const chain = {
+    eq: vi.fn(() => chain),
+    in: vi.fn(() => chain),
+    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+  };
+  return chain;
+}
+
 function adminForImportGet(eqLog: EqLog[]) {
   return {
     from: (table: string) => {
@@ -104,6 +113,11 @@ function adminForImportGet(eqLog: EqLog[]) {
           }),
         };
       }
+      if (table === "v10_job_run_visibility") {
+        return {
+          select: () => makeNullableSingleChain(),
+        };
+      }
       return { select: () => ({ eq: () => ({}) }) };
     },
   };
@@ -160,6 +174,11 @@ function adminForExportGet(eqLog: EqLog[]) {
               };
             },
           }),
+        };
+      }
+      if (table === "v10_job_run_visibility") {
+        return {
+          select: () => makeNullableSingleChain(),
         };
       }
       return { select: () => ({ eq: () => ({}) }) };

@@ -1,0 +1,6 @@
+{
+  "version": "STSv1",
+  "mode": "testing",
+  "mx": ["mail.example.invalid"],
+  "maxAgeSeconds": 86400
+}

@@ -7,6 +7,8 @@ import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import type { RenewalCheckpointStatus } from "@/lib/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 const CHECKPOINT_STATUSES: RenewalCheckpointStatus[] = [
   "pending",
@@ -151,6 +153,16 @@ export async function seedRenewalPlaybook(contractId: string) {
     action: "renewal.playbook_seeded",
     details: { checkpoint_count: rows.length },
   });
+  await recordV10AuditEvent(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    action: "renewal.posture_changed",
+    targetType: "contract",
+    targetId: contract.id,
+    contractId: contract.id,
+    outcome: "success",
+    safeMetadata: { posture: "playbook_seeded", checkpoint_count: rows.length },
+  });
 
   await emitProductTelemetryEvent(admin, {
     organizationId: contract.organization_id,
@@ -158,6 +170,20 @@ export async function seedRenewalPlaybook(contractId: string) {
     contractId,
     action: "product.v9.renewal_action_taken",
     details: { action: "playbook_seeded", checkpoint_count: rows.length },
+  });
+  await refreshV10ReadModelsForOrganization(admin, contract.organization_id, {
+    refreshScope: "one_contract",
+    contractId: contract.id,
+    reason: "renewal_playbook_seed_mutation",
+    modelKeys: [
+      "work_items",
+      "contract_health_snapshots",
+      "contract_activity_events",
+      "renewal_posture_snapshots",
+      "renewal_checkpoint_records",
+      "audit_events",
+      "command_search_index",
+    ],
   });
 
   await revalidateRenewalPaths(contractId);
@@ -215,6 +241,18 @@ export async function updateRenewalCheckpointStatus(input: {
     action: "renewal.checkpoint_updated",
     details: { checkpoint_id: input.checkpointId, status: input.status },
   });
+  await recordV10AuditEvent(admin, {
+    organizationId: checkpoint.organization_id,
+    actorUserId: user.id,
+    action: "renewal.posture_changed",
+    targetType: "contract",
+    targetId: checkpoint.contract_id,
+    contractId: checkpoint.contract_id,
+    outcome: "success",
+    beforeStateHash: currentStatus,
+    afterStateHash: input.status,
+    safeMetadata: { checkpoint_id: input.checkpointId },
+  });
 
   await emitProductTelemetryEvent(admin, {
     organizationId: checkpoint.organization_id,
@@ -222,6 +260,20 @@ export async function updateRenewalCheckpointStatus(input: {
     contractId: checkpoint.contract_id,
     action: "product.v9.renewal_action_taken",
     details: { action: "checkpoint_updated", checkpoint_id: input.checkpointId, status: input.status },
+  });
+  await refreshV10ReadModelsForOrganization(admin, checkpoint.organization_id, {
+    refreshScope: "one_contract",
+    contractId: checkpoint.contract_id,
+    reason: "renewal_checkpoint_status_mutation",
+    modelKeys: [
+      "work_items",
+      "contract_health_snapshots",
+      "contract_activity_events",
+      "renewal_posture_snapshots",
+      "renewal_checkpoint_records",
+      "audit_events",
+      "command_search_index",
+    ],
   });
 
   await revalidateRenewalPaths(checkpoint.contract_id);

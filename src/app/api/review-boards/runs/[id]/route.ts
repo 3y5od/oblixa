@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { nowIso, readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -6,9 +7,11 @@ import { requireV6Context } from "@/lib/v6/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 
 function csvEscape(value: string): string {
-  const v = value.replace(/"/g, '""');
+  const safe = escapeCsvCellForSpreadsheet(value);
+  const v = safe.replace(/"/g, '""');
   return `"${v}"`;
 }
 
@@ -112,11 +115,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (modeGate) return modeGate;
 
   const runId = toSafeString((await params).id);
-  const body = readJsonBody<{
-    status?: string;
-    actionCapture?: Record<string, unknown>;
-    decisionLog?: Record<string, unknown>;
-  }>(await request.json().catch(() => ({})), {});
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{
+      status?: string;
+      actionCapture?: Record<string, unknown>;
+      decisionLog?: Record<string, unknown>;
+    }>(raw ?? {}, {})
+  );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
 
   const patch: Record<string, unknown> = {};
   if (body.status === "reviewed" || body.status === "closed") {

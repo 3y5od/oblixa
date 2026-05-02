@@ -4,6 +4,7 @@ import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 
 function isAuthorized(request: Request): boolean {
@@ -90,7 +91,7 @@ export async function GET(request: Request) {
     }
     attempted++;
     try {
-      const res = await fetch(refreshUrl.toString(), {
+      const res = await safeFetch(refreshUrl.toString(), {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -100,6 +101,7 @@ export async function GET(request: Request) {
           client_secret: cfg.clientSecret,
           ...(cfg.scope ? { scope: cfg.scope } : {}),
         }).toString(),
+        timeoutMs: 20_000,
       });
       if (!res.ok) {
         failed++;

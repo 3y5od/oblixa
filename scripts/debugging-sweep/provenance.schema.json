@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://oblixa.local/schemas/debugging-sweep-provenance.json",
+  "title": "Debugging sweep provenance rows",
+  "type": "array",
+  "items": { "$ref": "#/definitions/sweepItem" },
+  "definitions": {
+    "sweepItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "list", "sectionPath", "layer", "implementation"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "list": {
+          "type": "string",
+          "enum": ["1", "2", "3", "1+2", "1+3", "2+3", "1+2+3"]
+        },
+        "sectionPath": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "layer": {
+          "type": "string",
+          "enum": ["product", "protocol", "platform", "people", "pathology", "meta"]
+        },
+        "implementation": {
+          "type": "string",
+          "enum": ["native", "stub", "partial"]
+        },
+        "partition": {
+          "type": "string",
+          "enum": [
+            "pass5",
+            "pass6",
+            "pass7",
+            "pass8",
+            "pass9",
+            "pass10",
+            "pass11",
+            "meta",
+            "native",
+            "middleware-matrix"
+          ]
+        },
+        "provenanceMeta": { "type": "boolean" },
+        "deprecated": { "type": "boolean" },
+        "equivalenceGroup": { "type": "string", "maxLength": 128 },
+        "deprecatedBy": { "type": "string", "maxLength": 128 },
+        "supersedes": { "type": "string", "maxLength": 128 },
+        "notes": { "type": "string", "maxLength": 2048 },
+        "stubClass": { "type": "string", "maxLength": 128 },
+        "implementationHint": { "type": "string", "maxLength": 512 },
+        "detectability": { "type": "string", "enum": ["auto", "manual", "hybrid"] },
+        "blastRadius": { "type": "string", "enum": ["low", "med", "high"] },
+        "privacyRisk": { "type": "string", "enum": ["low", "med", "high"] },
+        "tags": { "type": "array", "maxItems": 32, "items": { "type": "string", "maxLength": 64 } },
+        "cweIds": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "pattern": "^CWE-[0-9]+$" }
+        },
+        "owaspCategory": { "type": "string", "maxLength": 64 },
+        "e2eSpecPaths": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "maxLength": 256 }
+        },
+        "relatedArtifactIds": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "maxLength": 128 }
+        },
+        "sbomFormat": {
+          "type": "string",
+          "enum": ["SPDX", "CycloneDX", "SWID", "unknown"]
+        },
+        "referenceUrls": {
+          "type": "array",
+          "maxItems": 5,
+          "items": { "type": "string", "maxLength": 512, "pattern": "^https://[^\\s]+$" }
+        },
+        "npmPackageName": {
+          "type": "string",
+          "maxLength": 214,
+          "pattern": "^(@[a-z0-9-~][a-z0-9-._~]*/)?[a-z0-9-~][a-z0-9-._~]*$"
+        },
+        "jurisdictionTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "pattern": "^[A-Z]{2}$" }
+        },
+        "aiGovernanceFramework": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "contentAuthenticityHint": {
+          "type": "string",
+          "enum": ["C2PA", "none", "unknown"]
+        },
+        "languageRuntimeTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "peripheralApiTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "filesystemStorageTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "mlOpsToolTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "formalMethodTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "serializationFormatTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "rpcContractTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "nodeRuntimeTags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string", "maxLength": 64 }
+        },
+        "artifactsPath": { "type": "string", "maxLength": 512 },
+        "configPath": { "type": "string", "maxLength": 512 }
+      }
+    }
+  }
+}

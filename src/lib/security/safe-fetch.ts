@@ -1,97 +1,117 @@
-import { validateOutboundHttpUrl } from "./url-policy";
+import dns from "node:dns/promises";
+import net from "node:net";
 
-/**
- * Bounded server-side fetch: timeout, response size cap, redirect limit.
- * Use for outbound integration and webhook-style calls (defense in depth vs SSRF abuse).
- */
-const DEFAULT_TIMEOUT_MS = 30_000;
-const DEFAULT_MAX_BYTES = 8 * 1024 * 1024;
-const DEFAULT_MAX_REDIRECTS = 5;
-
-export type SafeFetchOptions = RequestInit & {
-  maxBytes?: number;
+export type SafeFetchInit = RequestInit & {
+  /** Abort after ms (defaults 15000). */
   timeoutMs?: number;
-  maxRedirects?: number;
 };
 
-export class SafeFetchError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "SafeFetchError";
-  }
+function ipv4ToInt(ip: string): number | null {
+  const parts = ip.split(".").map((x) => Number(x));
+  if (parts.length !== 4 || parts.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+  return (parts[0]! << 24) | (parts[1]! << 16) | (parts[2]! << 8) | parts[3]!;
 }
 
-export async function safeFetch(input: RequestInfo | URL, options: SafeFetchOptions = {}): Promise<Response> {
-  const {
-    maxBytes = DEFAULT_MAX_BYTES,
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-    maxRedirects = DEFAULT_MAX_REDIRECTS,
-    ...init
-  } = options;
+/** Returns true if IPv4 should not be reached from server-side fetch (SSRF guard). */
+export function isBlockedOutboundIpv4(ip: string): boolean {
+  const n = ipv4ToInt(ip);
+  if (n === null) return true;
+  const inRange = (base: string, bits: number) => {
+    const bn = ipv4ToInt(base);
+    if (bn === null) return false;
+    const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0;
+    return (n & mask) === (bn & mask);
+  };
+  if (inRange("0.0.0.0", 8)) return true;
+  if (inRange("10.0.0.0", 8)) return true;
+  if (inRange("127.0.0.0", 8)) return true;
+  if (inRange("169.254.0.0", 16)) return true;
+  if (inRange("172.16.0.0", 12)) return true;
+  if (inRange("192.168.0.0", 16)) return true;
+  if (inRange("100.64.0.0", 10)) return true;
+  if (inRange("192.0.0.0", 24)) return true;
+  if (inRange("192.0.2.0", 24)) return true;
+  if (inRange("198.18.0.0", 15)) return true;
+  if (inRange("198.51.100.0", 24)) return true;
+  if (inRange("203.0.113.0", 24)) return true;
+  if (inRange("224.0.0.0", 4)) return true;
+  if (inRange("240.0.0.0", 4)) return true;
+  return false;
+}
 
-  let url = typeof input === "string" || input instanceof URL ? String(input) : (input as Request).url;
-  let redirectCount = 0;
+/** Returns true if IP string should not be reached from server-side fetch (SSRF guard). */
+export function isBlockedOutboundIp(ip: string): boolean {
+  if (!ip) return true;
+  if (net.isIPv4(ip)) return isBlockedOutboundIpv4(ip);
+  if (!net.isIPv6(ip)) return true;
+  const lower = ip.toLowerCase();
+  if (lower === "::1") return true;
+  if (lower.startsWith("::ffff:")) {
+    const tail = lower.slice(7);
+    if (net.isIPv4(tail)) return isBlockedOutboundIpv4(tail);
+  }
+  if (lower.startsWith("fe80:")) return true;
+  if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
+  if (lower.startsWith("ff")) return true;
+  return false;
+}
 
-  for (;;) {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), timeoutMs);
-    let res: Response;
-    try {
-      res = await fetch(url, {
-        ...init,
-        signal: controller.signal,
-        redirect: "manual",
-      });
-    } catch (e) {
-      clearTimeout(t);
-      const msg = e instanceof Error ? e.message : String(e);
-      throw new SafeFetchError(`fetch failed: ${msg}`);
-    }
-    clearTimeout(t);
+function hostnameLooksSafe(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  if (h === "localhost" || h.endsWith(".localhost")) return false;
+  if (net.isIPv4(h)) return !isBlockedOutboundIpv4(h);
+  if (net.isIPv6(h)) return !isBlockedOutboundIp(h);
+  return true;
+}
 
-    if (res.status >= 300 && res.status < 400) {
-      const loc = res.headers.get("location");
-      if (!loc || redirectCount >= maxRedirects) {
-        throw new SafeFetchError("redirect limit exceeded or missing Location");
+function combineSignals(user: AbortSignal | null | undefined, inner: AbortSignal): AbortSignal {
+  if (!user) return inner;
+  const c = new AbortController();
+  const onAbort = () => c.abort();
+  if (user.aborted) {
+    c.abort();
+    return c.signal;
+  }
+  user.addEventListener("abort", onAbort, { once: true });
+  inner.addEventListener("abort", onAbort, { once: true });
+  return c.signal;
+}
+
+/**
+ * Fetch only http(s) URLs whose resolved addresses are not private/metadata ranges.
+ * Throws on policy violation or blocked resolution.
+ */
+export async function safeFetch(input: string | URL, init: SafeFetchInit = {}): Promise<Response> {
+  const url = typeof input === "string" ? new URL(input) : new URL(input.href);
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`safeFetch: disallowed protocol ${url.protocol}`);
+  }
+  if (!hostnameLooksSafe(url.hostname)) {
+    throw new Error("safeFetch: disallowed host");
+  }
+
+  const { timeoutMs: explicitTimeout, ...rest } = init;
+  const timeoutMs = explicitTimeout ?? 15_000;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const lookup = await dns.lookup(url.hostname, { all: true, verbatim: true });
+    if (lookup.length === 0) throw new Error("safeFetch: no addresses");
+    for (const { address } of lookup) {
+      if (isBlockedOutboundIp(address)) {
+        throw new Error(`safeFetch: resolved to blocked IP ${address}`);
       }
-      redirectCount++;
-      const resolved = new URL(loc, url).toString();
-      if (!validateOutboundHttpUrl(resolved)) {
-        throw new SafeFetchError("redirect target failed URL policy validation");
-      }
-      url = resolved;
-      continue;
     }
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
 
-    if (!res.body) return res;
-
-    const reader = res.body.getReader();
-    const chunks: Uint8Array[] = [];
-    let total = 0;
-    try {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          total += value.byteLength;
-          if (total > maxBytes) {
-            reader.cancel().catch(() => undefined);
-            throw new SafeFetchError(`response exceeded maxBytes (${maxBytes})`);
-          }
-          chunks.push(value);
-        }
-      }
-    } catch (e) {
-      if (e instanceof SafeFetchError) throw e;
-      const msg = e instanceof Error ? e.message : String(e);
-      throw new SafeFetchError(`read failed: ${msg}`);
-    }
-
-    const blob = new Blob(chunks as BlobPart[], { type: res.headers.get("content-type") ?? undefined });
-    return new Response(blob, {
-      status: res.status,
-      statusText: res.statusText,
-      headers: res.headers,
-    });
+  const signal = combineSignals(rest.signal ?? undefined, controller.signal);
+  try {
+    return await fetch(url, { ...rest, signal });
+  } finally {
+    clearTimeout(timer);
   }
 }

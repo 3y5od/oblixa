@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -23,7 +24,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (modeGate) return modeGate;
 
-  const body = readJsonBody<{ sourceFindingId?: string }>(await request.json().catch(() => ({})), {});
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = readJsonBody<{ sourceFindingId?: string }>(_lb_body.body ?? {}, {});
   const playbookId = toSafeString((await params).id);
   const result = await runPlaybook(ctx.admin, ctx.orgId, playbookId, ctx.userId, {
     sourceFindingId: body.sourceFindingId ? toSafeString(body.sourceFindingId) : null,

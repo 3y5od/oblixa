@@ -23,14 +23,14 @@ describe("pingCronHealthcheck", () => {
     globalThis.fetch = fetchSpy;
     pingCronHealthcheck("/api/cron/v5/foo", { ok: true });
     await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalled());
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://example.com/ping",
-      expect.objectContaining({
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-    );
-    const body = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
+    const [url, init] = fetchSpy.mock.calls[0] as [string | URL, RequestInit];
+    expect(String(url)).toBe("https://example.com/ping");
+    expect(init).toMatchObject({
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    const body = JSON.parse(String(init.body));
     expect(body).toMatchObject({ route: "/api/cron/v5/foo", ok: true });
   });
 

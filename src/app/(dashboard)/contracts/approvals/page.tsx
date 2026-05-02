@@ -7,9 +7,11 @@ import {
   updateContractApprovalStatusForm,
 } from "@/actions/approvals";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { EmptyState } from "@/components/ui/empty-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+
+export const metadata = { title: "Approvals" };
 
 export default async function ApprovalsPage(props: {
   searchParams: Promise<{ status?: string }>;
@@ -55,10 +57,10 @@ export default async function ApprovalsPage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Decision controls</p>
-          <h1 className="ui-display-title mt-2">Approvals & scenarios</h1>
+          <h1 className="ui-page-title-compact mt-2">Approvals & scenarios</h1>
           <p className="ui-page-lead mt-2">
             Approval signoff and renewal scenario status.
           </p>
@@ -81,7 +83,7 @@ export default async function ApprovalsPage(props: {
           icon={Clock3}
           primaryValue={pendingApprovals}
           primaryUnit="awaiting signoff"
-          action={{ href: "/contracts/approvals?status=pending", label: "Open pending" }}
+          action={{ href: "/contracts/approvals?status=pending", label: "Review pending" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -148,7 +150,15 @@ export default async function ApprovalsPage(props: {
         </div>
         {(approvals?.length ?? 0) === 0 ? (
           <div className="px-6 py-6">
-            <EmptyState title="No approvals found" copy="No approval rows match this filter." />
+            <V10RecoverableState
+              state="empty"
+              title="No approvals found"
+              reason="No approval records match this filter. Clear filters or review unified Work for other decision pressure."
+              accessibleName="No contract approvals match this filter"
+              nextAction={<Link href="/work" className="ui-btn-secondary px-3 py-2 text-xs">Review unified Work</Link>}
+              nextActionLabel="Review unified Work"
+              density="compact"
+            />
           </div>
         ) : (
           <ul className="space-y-3 px-4 py-4 md:px-6">
@@ -251,7 +261,15 @@ export default async function ApprovalsPage(props: {
         </div>
         {(scenarios?.length ?? 0) === 0 ? (
           <div className="px-6 py-6">
-            <EmptyState title="No renewal scenarios" copy="No scenario rows recorded yet." />
+            <V10RecoverableState
+              state="empty"
+              title="No renewal scenarios"
+              reason="No renewal scenarios are available for this approval workspace."
+              accessibleName="No renewal scenarios are available"
+              nextAction={<Link href="/contracts/renewals" className="ui-btn-secondary px-3 py-2 text-xs">Review renewals</Link>}
+              nextActionLabel="Review renewals"
+              density="compact"
+            />
           </div>
         ) : (
           <ul className="space-y-3 px-4 py-4 md:px-6">

@@ -8,6 +8,8 @@ import { applyProgramToContract } from "@/lib/v4/execution-engine";
 import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
 import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-packet";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import {
   ensureProgramsSurfaceAccess,
   ensureReportPackReportTypeAllowed,
@@ -455,6 +457,32 @@ export async function submitEvidenceNoteAction(formData: FormData) {
         ? "product.v9.evidence_resubmitted"
         : "product.v9.evidence_submitted",
     details: { requirementId },
+  });
+  await recordV10AuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    action: requirement.status === "rejected" ? "evidence_request.resubmitted" : "evidence_request.submitted",
+    targetType: "evidence_request",
+    targetId: requirementId,
+    contractId: cid,
+    outcome: "success",
+    beforeStateHash: String(requirement.status),
+    afterStateHash: "submitted",
+    safeMetadata: { note_state: "provided" },
+  });
+  await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
+    refreshScope: cid ? "one_contract" : "one_model",
+    contractId: cid ?? undefined,
+    reason: "evidence_submission_action",
+    modelKeys: [
+      "work_items",
+      "contract_health_snapshots",
+      "contract_activity_events",
+      "evidence_request_statuses",
+      "external_evidence_submissions",
+      "audit_events",
+      "command_search_index",
+    ],
   });
   revalidatePath("/contracts");
   if (cid) revalidatePath(`/contracts/${cid}`);

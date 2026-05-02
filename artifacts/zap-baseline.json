@@ -1,0 +1,4 @@
+{
+  "rules": [],
+  "note": "OWASP ZAP baseline allowlist; populate when DAST runs against STAGING_BASE_URL."
+}

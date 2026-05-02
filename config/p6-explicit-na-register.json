@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "description": "Explicit N/A controls for surfaces absent from this repository (machine register).",
+  "rows": [
+    {
+      "control_id": "graphql_api_surface",
+      "n_a_rationale": "No GraphQL server or schema in this Next.js + Supabase codebase.",
+      "n_a_reviewed_at": "2026-04-30",
+      "domain_tags": ["P"]
+    },
+    {
+      "control_id": "native_mobile_binary_distribution",
+      "n_a_rationale": "No iOS/Android native apps in-repo; web-only surface.",
+      "n_a_reviewed_at": "2026-04-30",
+      "domain_tags": ["P"]
+    },
+    {
+      "control_id": "ldap_xpath_injection",
+      "n_a_rationale": "No LDAP or XPath query paths; Postgres via Supabase client only.",
+      "n_a_reviewed_at": "2026-04-30",
+      "domain_tags": ["P"]
+    },
+    {
+      "control_id": "nosql_injection",
+      "n_a_rationale": "No MongoDB or document DB query API in application code.",
+      "n_a_reviewed_at": "2026-04-30",
+      "domain_tags": ["P"]
+    },
+    {
+      "control_id": "stryker_mutation_pr_required_kill_rate",
+      "n_a_rationale": "Stryker mutation testing is opt-in (qa-max-nightly workflow_dispatch run_stryker, optional stryker.conf); default CI does not enforce a PR kill-rate gate.",
+      "n_a_reviewed_at": "2026-04-30",
+      "domain_tags": ["P"]
+    }
+  ]
+}

@@ -1,0 +1,565 @@
+name: QA max nightly
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      qa_tier:
+        description: "QA_SWEEP_TIER for Playwright shard job (legacy)"
+        type: choice
+        options: [P0, P1, P2, P3, P4]
+        default: P2
+      ultimate_tier:
+        description: "QA_ULTIMATE_TIER for static job"
+        type: choice
+        options: [pr, nightly, release, postmerge, pr_strict]
+        default: nightly
+      shard_total:
+        description: "Playwright shard denominator"
+        type: string
+        default: "4"
+      run_lighthouse:
+        description: "Set 1 to run lighthouse smoke"
+        type: string
+        default: "0"
+      run_visual:
+        description: "Set 1 to run full visual suite (Linux snapshots)"
+        type: string
+        default: "0"
+      run_soak:
+        description: "Set 1 to run k6 smoke (requires k6 + optional STAGING_BASE_URL)"
+        type: string
+        default: "0"
+      run_stryker:
+        description: "Set 1 to enable mutation job"
+        type: string
+        default: "0"
+      run_chaos:
+        description: "Set 1 to run docker compose chaos smoke"
+        type: string
+        default: "0"
+      run_memory:
+        description: "Set 1 for PLAYWRIGHT_MEASURE_MEMORY on smoke shard"
+        type: string
+        default: "0"
+      run_multibrowser:
+        description: "Set 1 for PLAYWRIGHT_MULTI_BROWSER smoke"
+        type: string
+        default: "0"
+      run_mobile:
+        description: "Set 1 for PLAYWRIGHT_MOBILE smoke"
+        type: string
+        default: "0"
+      run_openapi:
+        description: "Set 1 to run OpenAPI contract smoke (strict) against STAGING_BASE_URL"
+        type: string
+        default: "0"
+      run_npm_audit:
+        description: "Set 1 to run npm audit --audit-level=moderate"
+        type: string
+        default: "0"
+      run_semgrep_full:
+        description: "Set 1 to install Semgrep and run security:semgrep:full (SEMGREP_FULL=1)"
+        type: string
+        default: "0"
+      run_v10_migration_smoke:
+        description: "Set 1 to run V10 migration smoke on disposable Postgres (matches CI quality_static_surface)"
+        type: string
+        default: "0"
+      run_har_redact:
+        description: "Set 1 to smoke-run redact:har (no-op without a .har path)"
+        type: string
+        default: "0"
+      run_reproducible_build_hash:
+        description: "Set 1 for expensive double next build + trace hash parity (REPRODUCIBLE_BUILD_STRICT=1)"
+        type: string
+        default: "0"
+      run_i18n_matrix:
+        description: "Set 1 to run RTL / pseudo-locale / Intl matrix (test:e2e:i18n-matrix)"
+        type: string
+        default: "0"
+      run_slsa_verify:
+        description: "Set 1 to run verify-slsa-attestation with SLSA_VERIFY_STRICT=1"
+        type: string
+        default: "0"
+      ultimate_strict:
+        description: "QA_ULTIMATE_STRICT=1 for reusable static job (requires ifEnv secrets when tier steps need them)"
+        type: string
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  qa_static:
+    uses: ./.github/workflows/reusable-qa-ultimate.yml
+    secrets: inherit
+    with:
+      tier: ${{ github.event.inputs.ultimate_tier || 'nightly' }}
+      ultimate_strict: ${{ github.event.inputs.ultimate_strict || '0' }}
+
+  check_batch_matrix:
+    needs: qa_static
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        batch_index: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: Autodiscovered check shard
+        run: npm run qa:sweep:checks:batch
+        env:
+          CI: "true"
+          QA_CHECK_BATCH_TOTAL: "4"
+          QA_CHECK_BATCH_INDEX: ${{ matrix.batch_index }}
+
+  next_config_surface:
+    needs: qa_static
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run check:next-config-surface
+
+  ratchet_snapshot_nightly:
+    needs: qa_static
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run report:ratchet-snapshot
+
+  integration_contracts:
+    needs: qa_static
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration:ai-webhook
+
+  openapi_contract_nightly:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_openapi == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run check:openapi-contract-smoke
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          OPENAPI_CONTRACT_STRICT: "1"
+          OPENAPI_CONTRACT_BEARER: ${{ secrets.OPENAPI_CONTRACT_BEARER }}
+
+  memory_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_memory == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test e2e/memory-budget-smoke.spec.ts
+        env:
+          CI: "true"
+          PLAYWRIGHT_MEASURE_MEMORY: "1"
+
+  playwright_shard:
+    needs: qa_static
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard_index: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Playwright nightly shard (full suite)
+        run: npm run test:e2e:nightly:shard
+        env:
+          CI: "true"
+          SHARD_INDEX: ${{ matrix.shard_index }}
+          SHARD_TOTAL: ${{ github.event.inputs.shard_total || '4' }}
+          PLAYWRIGHT_BLOB_REPORT: "1"
+          PLAYWRIGHT_JUNIT_OUTPUT: test-results/junit-${{ matrix.shard_index }}.xml
+          PLAYWRIGHT_MEASURE_MEMORY: ${{ github.event.inputs.run_memory == '1' && '1' || '' }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: playwright-junit-${{ matrix.shard_index }}
+          path: test-results/junit-*.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: playwright-blob-${{ matrix.shard_index }}
+          path: blob-report/
+
+  playwright_merge:
+    needs: playwright_shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: all-blobs
+          pattern: playwright-blob-*
+          merge-multiple: true
+      - name: Merge Playwright reports
+        run: |
+          set -e
+          dirs=$(ls -d all-blobs/playwright-blob-* 2>/dev/null || true)
+          if [ -z "$dirs" ]; then echo "No blob artifacts; skip merge"; exit 0; fi
+          npx playwright merge-reports --reporter html $dirs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+
+  junit_merge:
+    needs: playwright_shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: junit-all
+          pattern: playwright-junit-*
+          merge-multiple: true
+      - name: Merge JUnit shards
+        run: npm run merge:junit
+        env:
+          JUNIT_INPUT_ROOT: junit-all
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: junit-merged
+          path: test-results/junit-merged.xml
+          if-no-files-found: ignore
+
+  lighthouse_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_lighthouse == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:lighthouse:nightly
+        env:
+          RUN_LIGHTHOUSE_NIGHTLY: "1"
+
+  k6_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_soak == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:k6:smoke
+        env:
+          K6_PATHS: "/"
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+
+  stryker_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_stryker == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:stryker
+
+  chaos_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_chaos == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - run: docker compose -f docker-compose.chaos.yml up -d
+      - run: sleep 6 && curl -fsS http://127.0.0.1:13999/
+
+  visual_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_visual == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:visual:full
+        env:
+          CI: "true"
+          PLAYWRIGHT_VISUAL: "1"
+
+  multibrowser_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_multibrowser == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e:multi-browser
+        env:
+          CI: "true"
+          PLAYWRIGHT_MULTI_BROWSER: "1"
+
+  slsa_verify_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_slsa_verify == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run verify-slsa-attestation
+        env:
+          SLSA_VERIFY_STRICT: "1"
+
+  i18n_matrix_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_i18n_matrix == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:i18n-matrix
+        env:
+          CI: "true"
+
+  mobile_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_mobile == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:smoke
+        env:
+          CI: "true"
+          PLAYWRIGHT_MOBILE: "1"
+
+  npm_audit_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_npm_audit == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=moderate
+
+  semgrep_full_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_semgrep_full == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-python@0b9366ef6a0cdd62d9abac2b2de1819d50a075db
+        with:
+          python-version: "3.12"
+      - run: pip install "semgrep>=1.90.0"
+      - run: SEMGREP_FULL=1 npm run security:semgrep:full
+
+  v10_migration_smoke_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_v10_migration_smoke == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+      - name: V10 migration smoke (disposable PostgreSQL)
+        env:
+          V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
+        run: npm run check:v10-migration-smoke -- --strict
+      - name: V10 read-models rebuild dry-run (same disposable DB)
+        env:
+          V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
+        run: npm run check:rebuild-v10-read-models-nightly-gate
+
+  har_redact_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_har_redact == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: HAR redact smoke (no path => no-op)
+        run: node scripts/redact-har.mjs
+
+  reproducible_build_hash_optional:
+    needs: qa_static
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_reproducible_build_hash == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CI: "true"
+      REPRODUCIBLE_BUILD_STRICT: "1"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: Pin SOURCE_DATE_EPOCH to last commit (reproducible builds)
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+      - run: npm run check:reproducible-build-hash
+
+  merge_queue_canary_note:
+    needs: qa_static
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Merge-queue canary parity
+        run: node scripts/check-merge-queue-canary-parity.mjs
+
+  flake_classify_optional:
+    needs: playwright_shard
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - run: npm run classify:playwright-flakes
+        continue-on-error: true

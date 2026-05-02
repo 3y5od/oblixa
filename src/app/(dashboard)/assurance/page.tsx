@@ -26,49 +26,49 @@ const hubItems = [
     href: "/assurance/findings",
     title: "Findings queue",
     hint: "Drift signals and escalations.",
-    action: "View findings",
+    action: "Review findings",
     icon: ClipboardList,
   },
   {
     href: "/assurance/control-policies",
     title: "Control policies",
     hint: "Published machine-readable controls.",
-    action: "View policies",
+    action: "Review policies",
     icon: ShieldCheck,
   },
   {
     href: "/assurance/scorecards",
     title: "Scorecards",
     hint: "Health by segment and team.",
-    action: "View scorecards",
+    action: "Review scorecards",
     icon: Scale,
   },
   {
     href: "/assurance/health-graph",
     title: "Health graph",
     hint: "Concentration and propagation.",
-    action: "View graph",
+    action: "Review graph",
     icon: Share2,
   },
   {
     href: "/assurance/review-boards",
     title: "Review boards",
     hint: "Recurring assurance packets.",
-    action: "View boards",
+    action: "Review boards",
     icon: ListOrdered,
   },
   {
     href: "/assurance/playbooks",
     title: "Adaptive playbooks",
     hint: "Preview and execute interventions.",
-    action: "View playbooks",
+    action: "Review playbooks",
     icon: PlayCircle,
   },
   {
     href: "/assurance/autopilot",
     title: "Autopilot",
     hint: "Bounded automation with audit trail.",
-    action: "View autopilot",
+    action: "Review autopilot",
     icon: Radio,
   },
   {
@@ -134,10 +134,10 @@ export default async function AssurancePage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Assurance command center</p>
-          <h1 className="ui-display-title mt-2">Continuous assurance</h1>
+          <h1 className="ui-page-title-compact mt-2">Continuous assurance</h1>
           <p className="ui-page-lead mt-2 max-w-2xl">
             Detect drift, route interventions, and measure operational effect across the governed assurance surface.
           </p>
@@ -161,7 +161,7 @@ export default async function AssurancePage() {
               breakdown={[
                 { label: "Recurrence types", value: String(analytics.open_finding_type_recurrence_count) },
               ]}
-              action={{ href: "/assurance/findings", label: "View findings queue" }}
+              action={{ href: "/assurance/findings", label: "Review findings" }}
               variant="compact"
             />
             <OperationalSummaryCard
@@ -172,7 +172,7 @@ export default async function AssurancePage() {
               primaryValue={`${(analytics.policy_pass_rate * 100).toFixed(1)}%`}
               primaryUnit="policy evaluations"
               breakdown={[{ label: "Units", value: String(analytics.policy_evaluation_units) }]}
-              action={{ href: "/assurance/control-policies", label: "View policies" }}
+              action={{ href: "/assurance/control-policies", label: "Review policies" }}
               variant="compact"
             />
             <OperationalSummaryCard
@@ -183,7 +183,7 @@ export default async function AssurancePage() {
               primaryValue={analytics.playbook_runs_last_30d.completed}
               primaryUnit="completed runs"
               breakdown={[{ label: "Failed", value: String(analytics.playbook_runs_last_30d.failed) }]}
-              action={{ href: "/assurance/playbooks", label: "View playbooks" }}
+              action={{ href: "/assurance/playbooks", label: "Review playbooks" }}
               variant="compact"
             />
           </div>

@@ -154,6 +154,7 @@ describe("refinement §10 route inventory", () => {
   it("includes appendix edge paths and every §10.1 core pattern", () => {
     const patterns = new Set(ROUTE_INVENTORY.map((e) => e.pattern));
     expect(patterns.has("/dashboard/persona")).toBe(true);
+    expect(patterns.has("/settings/security")).toBe(true);
     expect(patterns.has("/settings/health")).toBe(true);
     expect(patterns.has("/settings/policy")).toBe(true);
     expect(patterns.has("/settings/product")).toBe(true);

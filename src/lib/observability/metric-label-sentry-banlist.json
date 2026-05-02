@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "description": "Sentry tag keys that must never be set (high-cardinality PII / secret-shaped labels).",
+  "deny_tag_keys": [
+    "email",
+    "user_email",
+    "userEmail",
+    "phone",
+    "ssn",
+    "tax_id",
+    "password",
+    "secret",
+    "token",
+    "access_token",
+    "refresh_token",
+    "authorization",
+    "cookie",
+    "session_id",
+    "credit_card",
+    "pan"
+  ]
+}

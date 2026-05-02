@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "organizationId": { "type": "string" },
+    "beneficialOwners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "ownershipPercent": { "type": "number", "minimum": 0, "maximum": 100 }
+        },
+        "required": ["name"]
+      }
+    }
+  },
+  "required": ["organizationId"]
+}

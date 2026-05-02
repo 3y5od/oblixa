@@ -11,7 +11,10 @@ import {
   type CampaignType,
 } from "@/lib/v5/campaign-types";
 import { CampaignSimulationPromote } from "@/components/campaigns/campaign-simulation-promote";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import {
+  DiagnosticDisclosure,
+  OperationalSummaryCard,
+} from "@/components/ui/operational-summary-card";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { SIMULATION_TYPE_FOCUS, type SimulationType } from "@/lib/v5/simulation-types";
 
@@ -84,10 +87,10 @@ export default async function CampaignsPage({
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
+      <header className="ui-page-header-compact">
         <div>
           <p className="ui-eyebrow">Records</p>
-          <h1 className="ui-display-title mt-2">Campaign Queue</h1>
+          <h1 className="ui-page-title-compact mt-2">Campaign queue</h1>
           <p className="ui-page-lead mt-2 max-w-2xl">
             Campaign state, processed volume, simulation readiness, and next action.
             {statusFilter || typeFilter ? (
@@ -112,15 +115,17 @@ export default async function CampaignsPage({
             ) : null}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/api/campaigns" className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
-            View campaigns JSON
+      </header>
+      <DiagnosticDisclosure title="Campaign diagnostics">
+        <div className="flex flex-wrap gap-3">
+          <Link href="/api/campaigns" className="ui-link text-xs" target="_blank">
+            Inspect campaign payload
           </Link>
-          <Link href="/api/intelligence/portfolio-signals" className="ui-btn-ghost px-4 py-2.5 text-[13px]" target="_blank">
-            Signals JSON
+          <Link href="/api/intelligence/portfolio-signals" className="ui-link text-xs" target="_blank">
+            Inspect signal payload
           </Link>
         </div>
-      </header>
+      </DiagnosticDisclosure>
 
       <section className="ui-page-shell space-y-3">
         <div>
@@ -138,7 +143,7 @@ export default async function CampaignsPage({
             icon={Megaphone}
             primaryValue={activeCount}
             primaryUnit="campaigns running"
-            action={{ href: "/campaigns?status=active", label: "View active" }}
+            action={{ href: "/campaigns?status=active", label: "Review active" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -148,7 +153,7 @@ export default async function CampaignsPage({
             icon={PauseCircle}
             primaryValue={pausedCount}
             primaryUnit="paused campaigns"
-            action={{ href: "/campaigns?status=paused", label: "View paused" }}
+            action={{ href: "/campaigns?status=paused", label: "Review paused" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -158,7 +163,7 @@ export default async function CampaignsPage({
             icon={ListOrdered}
             primaryValue={totalProcessed}
             primaryUnit="under current filters"
-            action={{ href: "/campaigns", label: "View campaigns" }}
+            action={{ href: "/campaigns", label: "Review campaigns" }}
             variant="compact"
           />
         </div>
@@ -307,7 +312,7 @@ export default async function CampaignsPage({
                     <td className="px-5 py-4 text-[var(--text-secondary)]">{Number(progress["processed"] ?? 0)}</td>
                     <td className="px-5 py-4">
                       <Link href={`/campaigns/${campaign.id}`} className="ui-link">
-                        Open campaign
+                        Review campaign
                       </Link>
                     </td>
                   </tr>

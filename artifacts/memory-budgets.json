@@ -1,0 +1,4 @@
+{
+  "playwrightHeapMbWarn": 900,
+  "note": "Used when RUN_MEMORY=1 and heap parser is wired."
+}

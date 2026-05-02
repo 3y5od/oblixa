@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -24,7 +25,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (modeGate) return modeGate;
 
   const policyId = toSafeString((await params).id);
-  const body = readJsonBody<{ remediationPlaybookId?: string | null }>(await request.json().catch(() => ({})), {});
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = readJsonBody<{ remediationPlaybookId?: string | null }>(_lb_body.body ?? {}, {});
 
   let remediationPlaybookId: string | null | undefined;
   if ("remediationPlaybookId" in body) {

@@ -23,7 +23,7 @@ describe("Core route metadata + heading anchors (V9 §24)", () => {
     {
       pagePath: "src/app/(dashboard)/settings/health/page.tsx",
       title: "System health",
-      h1: "System health transparency",
+      h1: "System health",
     },
     { pagePath: "src/app/(dashboard)/settings/product/page.tsx", title: "Product experience", h1: "Product experience" },
     { pagePath: "src/app/(dashboard)/settings/operations/page.tsx", title: "Workflow configuration", h1: "Workflow configuration" },

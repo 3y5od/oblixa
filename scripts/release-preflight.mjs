@@ -47,7 +47,12 @@ execSync("npm run check:performance-static:strict", { stdio: "inherit", cwd });
 execSync("npm run check:bundle-budget", { stdio: "inherit", cwd });
 execSync("npm run check:incident-readiness:strict", { stdio: "inherit", cwd });
 execSync("npm run check:artifact-integrity", { stdio: "inherit", cwd });
+execSync("npm run check:v10-migration-smoke", { stdio: "inherit", cwd });
+execSync("npm run check:v10-release-evidence", { stdio: "inherit", cwd });
+execSync("npm run check:v10-privacy-scan", { stdio: "inherit", cwd });
+execSync("npm run check:v10-zero-exclusion-report", { stdio: "inherit", cwd });
+execSync("npm run check:v10-suite", { stdio: "inherit", cwd });
 execSync("npm run report:ci-provenance", { stdio: "inherit", cwd });
 
-console.log("Optional (surface contract): npm run check:v8-suite before shipping nav, cmd-K, or API guard changes.");
+console.log("Release preflight includes V10 release evidence, privacy, and suite checks.");
 

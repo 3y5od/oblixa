@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OblixaSecurityEnforcementMatrix",
+  "type": "object",
+  "required": ["version", "controls"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1, "maximum": 2 },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["control_id", "priority", "bucket", "status", "owner"],
+        "properties": {
+          "control_id": { "type": "string", "minLength": 3 },
+          "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3", "P4"] },
+          "bucket": { "type": "string", "enum": ["A", "B", "C", "D", "E"] },
+          "status": {
+            "type": "string",
+            "enum": ["implemented", "enforced", "waiver", "pending", "not_applicable_product"]
+          },
+          "owner": { "type": "string" },
+          "expiry": { "type": "string", "format": "date" },
+          "enforce_script": { "type": ["string", "null"] },
+          "enforce_test": { "type": ["string", "null"] },
+          "cwe_ids": { "type": "array", "items": { "type": "string" } },
+          "nist_csf_function": { "type": "string" },
+          "owasp_api_ref": { "type": "string" },
+          "asvs_ref": { "type": "string" },
+          "renewal_expiry": { "type": "string", "format": "date" },
+          "pen_finding_ids": { "type": "array", "items": { "type": "string" } },
+          "masvs_ref": { "type": "string" },
+          "pci_saq_ref": { "type": "string" },
+          "gdpr_tech_article": { "type": "string" },
+          "iso27001_annex_a_ref": { "type": "string" },
+          "samm_practice": { "type": "string" },
+          "ssdf_activity": { "type": "string" },
+          "enisa_threat_class": { "type": "string" },
+          "slsa_level_target": { "type": "string" },
+          "vex_status": { "type": "string" },
+          "soc2_cc_ref": { "type": "string" },
+          "hipaa_safeguard_ref": { "type": "string" },
+          "cmmc_practice": { "type": "string" },
+          "itar_eccn_ref": { "type": "string" },
+          "ofac_screening_mode": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

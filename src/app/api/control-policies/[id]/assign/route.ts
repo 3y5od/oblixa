@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -23,10 +24,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (modeGate) return modeGate;
 
-  const body = readJsonBody<{ assignmentType?: string; segmentId?: string; targetRefType?: string; targetRefId?: string }>(
-    await request.json().catch(() => ({})),
-    {}
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{ assignmentType?: string; segmentId?: string; targetRefType?: string; targetRefId?: string }>(
+      raw ?? {},
+      {}
+    )
   );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
   const policyId = toSafeString((await params).id);
   const assignmentType = toSafeString(body.assignmentType) || "global";
 

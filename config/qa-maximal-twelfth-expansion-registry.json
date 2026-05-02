@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "canonicalIdsModule": "scripts/lib/qa-maximal-canonical-todo-ids.mjs",
+  "closureArtifact": "artifacts/qa-maximal-twelfth-expansion-closure.json",
+  "pendingList": "config/qa-maximal-pending-todos.json",
+  "behaviorTests": "src/lib/qa/maximal-twelfth-expansion-behavior.test.ts",
+  "note": "Twelfth expansion plan todos: closure artifact enumerates all ids; behavior tests cover pending domains."
+}

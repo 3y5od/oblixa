@@ -1,0 +1,971 @@
+{
+  "version": 2,
+  "controls": [
+    {
+      "control_id": "api_route_auth_contract",
+      "priority": "P0",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:api-route-auth-contract",
+      "enforce_test": "src/lib/security/api-guards.test.ts",
+      "asvs_ref": "V13",
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "outbound_safe_fetch_integrations",
+      "priority": "P0",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:outbound-fetch",
+      "cwe_ids": [
+        "CWE-918"
+      ],
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "strict_env_secrets",
+      "priority": "P0",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/observability/instrumentation-env-warn.test.ts",
+      "asvs_ref": "V14",
+      "nist_csf_function": "PR",
+      "gdpr_tech_article": "Art32",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "csp_trusted_types_report_only",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/csp-builders.test.ts",
+      "asvs_ref": "V9",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "security_audit_api_keys",
+      "priority": "P1",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/audit-write.ts",
+      "asvs_ref": "V7",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "security_audit_session_signout",
+      "priority": "P1",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/actions/auth.ts",
+      "asvs_ref": "V7",
+      "nist_csf_function": "DE",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "jwt_custom_verify_absent",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/jwt-policy.test.ts",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "iso21434_not_applicable",
+      "priority": "P4",
+      "bucket": "C",
+      "status": "not_applicable_product",
+      "owner": "@security",
+      "expiry": "2099-12-31",
+      "renewal_expiry": "2099-12-31",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "n_a"
+    },
+    {
+      "control_id": "aws_imds_v2_external",
+      "priority": "P2",
+      "bucket": "E",
+      "status": "waiver",
+      "owner": "@platform",
+      "expiry": "2099-12-31",
+      "enforce_script": null,
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "E"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "sec_fetch_site_cookie_mutations",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/sec-fetch-policy.test.ts",
+      "cwe_ids": [
+        "CWE-352"
+      ],
+      "owasp_api_ref": "API8",
+      "masvs_ref": "PLATFORM-2",
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "dangerously_set_inner_html_inventory",
+      "priority": "P3",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:dangerously-set-inner-html",
+      "asvs_ref": "V5",
+      "cwe_ids": [
+        "CWE-79"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "sbom_spdx_allowlist_ci",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:license-sbom",
+      "pci_saq_ref": "A-1.2",
+      "ssdf_activity": "PO.3",
+      "nist_csf_function": "GV",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "subprocessors_registry_drift",
+      "priority": "P2",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:subprocessors-drift",
+      "gdpr_tech_article": "Art28",
+      "iso27001_annex_a_ref": "A.5.21",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "security_enforcement_matrix_lint",
+      "priority": "P4",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:security-enforcement-matrix",
+      "samm_practice": "SM",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "next_public_env_surface",
+      "priority": "P3",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:next-public-surface",
+      "asvs_ref": "V14",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "unsafe_deserialization_import_grep",
+      "priority": "P2",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:unsafe-deserialization",
+      "cwe_ids": [
+        "CWE-502"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "server_action_auth_parity",
+      "priority": "P2",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:server-action-auth-contract",
+      "asvs_ref": "V13",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "money_integer_minor_units",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/money/integer-cents.test.ts",
+      "pci_saq_ref": "P2PE-N/A",
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "public_seo_robots_surface",
+      "priority": "P2",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:public-seo-surface",
+      "asvs_ref": "V14",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "upload_mime_extension_banlist",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:upload-banlist",
+      "asvs_ref": "V12",
+      "cwe_ids": [
+        "CWE-434"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "codeowners_security_paths",
+      "priority": "P3",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:codeowners-security-paths",
+      "nist_csf_function": "GV",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "dockerfile_hardening_policy",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:docker-hardening",
+      "slsa_level_target": "L1",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "npm_lifecycle_script_audit",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:npm-lifecycle",
+      "ssdf_activity": "PS.2",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "certificate_transparency_script",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:certificate-transparency",
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "sbom_diff_report_optional",
+      "priority": "P4",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:sbom-diff",
+      "vex_status": "not_required_until_release_gate",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "jupyter_notebook_ci_execution_ban",
+      "priority": "P4",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:no-executable-notebooks",
+      "enisa_threat_class": "malware",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "trusted_forwarded_headers_module",
+      "priority": "P3",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/trusted-forwarded.test.ts",
+      "cwe_ids": [
+        "CWE-918"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "json_body_size_helpers",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:json-body-limited-adoption",
+      "enforce_test": "src/lib/security/read-json-body-limited.ts",
+      "owasp_api_ref": "API4",
+      "cwe_ids": [
+        "CWE-770"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "webauthn_advanced_surface",
+      "priority": "P3",
+      "bucket": "C",
+      "status": "not_applicable_product",
+      "owner": "@security",
+      "expiry": "2099-12-31",
+      "renewal_expiry": "2099-12-31",
+      "soc2_cc_ref": "CC6.1",
+      "notes": "PRF/largeBlob/enterprise attestation not in current product surface.",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "n_a"
+    },
+    {
+      "control_id": "navigator_beacon_timing_leak_audit",
+      "priority": "P3",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@security",
+      "expiry": "2027-06-30",
+      "renewal_expiry": "2027-03-31",
+      "cwe_ids": [
+        "CWE-200"
+      ],
+      "notes": "Manual audit + matrix tracking; strip Server-Timing in prod if introduced.",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "shellcheck_bandit_optional",
+      "priority": "P1",
+      "bucket": "C",
+      "status": "not_applicable_product",
+      "owner": "@security",
+      "expiry": "2099-12-31",
+      "renewal_expiry": "2099-12-31",
+      "notes": "No scripts/**/*.sh or scripts/**/*.py in repo; gate N/A.",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "n_a"
+    },
+    {
+      "control_id": "ofac_screening_mode",
+      "priority": "P4",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@compliance",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "itar_eccn_ref": "EAR99-delegated-vendor",
+      "ofac_screening_mode": "vendor_kyb_stack",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "hipaa_minimum_necessary_ui",
+      "priority": "P3",
+      "bucket": "C",
+      "status": "waiver",
+      "owner": "@security",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "hipaa_safeguard_ref": "164.502(b)",
+      "notes": "B2B contract workspace; PHI workflows delegated to customer policy.",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "cmmc_practice_deferred",
+      "priority": "P4",
+      "bucket": "C",
+      "status": "not_applicable_product",
+      "owner": "@security",
+      "expiry": "2099-12-31",
+      "renewal_expiry": "2099-12-31",
+      "cmmc_practice": "AC.L2-3.1.1-not-targeted",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "n_a"
+    },
+    {
+      "control_id": "csp_frame_ancestors_self",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/csp-builders.test.ts",
+      "asvs_ref": "V14",
+      "cwe_ids": [
+        "CWE-1021"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "svg_css_remote_subresource_guard",
+      "priority": "P2",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/svg-css-subresource-guard.test.ts",
+      "asvs_ref": "V12",
+      "cwe_ids": [
+        "CWE-918"
+      ],
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "postmessage_origin_inventory",
+      "priority": "P3",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:postmessage-origins",
+      "asvs_ref": "V5",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "next_script_integrity_inventory",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:next-script-integrity",
+      "asvs_ref": "V14",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "supply_chain_scan_waiver_registry",
+      "priority": "P1",
+      "bucket": "C",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_script": "check:supply-chain-waivers",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "nist_csf_function": "GV",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "C"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "ct_monitor_hosts_configured",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@platform",
+      "enforce_script": "check:certificate-transparency",
+      "expiry": "2027-12-31",
+      "renewal_expiry": "2027-06-30",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "mta_sts_tls_reporting_contract",
+      "priority": "P4",
+      "bucket": "D",
+      "status": "implemented",
+      "owner": "@platform",
+      "notes": "Machine contract artifacts/mta-sts-contract.json for DNS-hosted MTA-STS / TLS reporting (delegated).",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "D"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "browser_gpc_permissions_policy",
+      "priority": "P3",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "next.config.ts",
+      "notes": "Permissions-Policy baseline in buildSecurityHeaders; GPC honored client-side where applicable.",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "aws_gcp_azure_imds_static_keys_absent",
+      "priority": "P2",
+      "bucket": "B",
+      "status": "enforced",
+      "owner": "@security",
+      "enforce_script": "check:github-workflows-security",
+      "cwe_ids": [
+        "CWE-798"
+      ],
+      "nist_csf_function": "PR",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "operator_kill_switches_env",
+      "priority": "P3",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/kill-switches.test.ts",
+      "asvs_ref": "V14",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "mfa_totp_org_gate",
+      "priority": "P1",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/app/(dashboard)/layout.tsx",
+      "asvs_ref": "V2",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "step_up_sensitive_api_surface",
+      "priority": "P1",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/app/api/settings/step-up/route.ts",
+      "asvs_ref": "V7",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "dsr_self_export_delete_hooks",
+      "priority": "P3",
+      "bucket": "A",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/app/api/me/export/route.ts",
+      "gdpr_tech_article": "Art20",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "A"
+      ],
+      "closure_status": "closed"
+    },
+    {
+      "control_id": "slack_optional_request_signing",
+      "priority": "P1",
+      "bucket": "B",
+      "status": "implemented",
+      "owner": "@security",
+      "enforce_test": "src/lib/security/slack-signing.ts",
+      "asvs_ref": "V10",
+      "mitre_refs": [],
+      "regulatory_refs": [
+        "SOC2-CC6.1",
+        "NIST-CSF-PR.DS-1",
+        "OWASP-ASVS-2.4.1"
+      ],
+      "domain_tags": [
+        "B"
+      ],
+      "closure_status": "closed"
+    }
+  ]
+}

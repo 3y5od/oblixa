@@ -6,21 +6,41 @@ import {
   unauthenticatedAccessAllowed,
 } from "@/lib/auth/proxy-path-policy";
 import { resolveBlockingCalibrationPathForUserClient } from "@/lib/onboarding/calibration-gate";
+import { applyCorrelationHeadersToResponse, resolveCorrelationIds } from "@/lib/observability/request-id";
 import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
 
+/**
+ * Edge proxy notes (see debugging sweep catalog):
+ * - `request.ip` / `geo` are sensitive; never log raw values here.
+ * - Correlation headers are attached to responses only (see `resolveCorrelationIds`).
+ */
 function withOblixaPathname(res: NextResponse, pathname: string): NextResponse {
   res.headers.set(OBLIXA_PATHNAME_HEADER, pathname);
   return res;
 }
 
+function passThroughResponse(
+  request: NextRequest,
+  pathname: string,
+  correlationIds: ReturnType<typeof resolveCorrelationIds>
+) {
+  return applyCorrelationHeadersToResponse(
+    withOblixaPathname(NextResponse.next({ request }), pathname),
+    correlationIds
+  );
+}
+
 // Marketing surfaces are GET-only for anonymous users; auth mutations stay on server actions with existing limits.
 // Keep branches cheap: avoid extra DB or network work here beyond Supabase session refresh for protected paths.
+// Cookie refresh: mutate the existing NextResponse + request cookies instead of allocating a fresh NextResponse.next
+// on every setAll (Supabase SSR may batch several cookie writes per getUser/session refresh).
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const { url: supabaseUrl, anonKey } = getSupabasePublicEnv();
+  const correlationIds = resolveCorrelationIds(request);
 
-  let supabaseResponse = withOblixaPathname(NextResponse.next({ request }), pathname);
+  const supabaseResponse = passThroughResponse(request, pathname, correlationIds);
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -31,13 +51,12 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = withOblixaPathname(NextResponse.next({ request }), pathname);
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          for (const { name, value } of cookiesToSet) {
+            request.cookies.set(name, value);
+          }
+          for (const { name, value, options } of cookiesToSet) {
+            supabaseResponse.cookies.set(name, value, options);
+          }
         },
       },
     }
@@ -50,7 +69,7 @@ export async function proxy(request: NextRequest) {
   if (!user && !unauthenticatedAccessAllowed(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return applyCorrelationHeadersToResponse(NextResponse.redirect(url), correlationIds);
   }
 
   if (user && request.method === "GET") {
@@ -67,21 +86,21 @@ export async function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = calPath;
       url.search = "";
-      return NextResponse.redirect(url);
+      return applyCorrelationHeadersToResponse(NextResponse.redirect(url), correlationIds);
     }
   }
 
   if (user && isPublicAuthSurfacePath(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return applyCorrelationHeadersToResponse(NextResponse.redirect(url), correlationIds);
   }
 
   if (user && pathname === "/") {
     const url = request.nextUrl.clone();
     // Default app entry; org-specific landing is applied after OAuth in auth/callback (default_landing_path).
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return applyCorrelationHeadersToResponse(NextResponse.redirect(url), correlationIds);
   }
 
   return supabaseResponse;

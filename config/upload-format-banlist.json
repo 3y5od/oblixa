@@ -1,0 +1,4 @@
+{
+  "version": 1,
+  "extensions": [".exe", ".dll", ".bat", ".cmd", ".sh", ".deb", ".rpm", ".lnk", ".scr", ".app", ".dmg", ".7z", ".rar", ".cab"]
+}

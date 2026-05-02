@@ -8,6 +8,8 @@ const SETTINGS_ACTION_MODULES = new Set([
   "settings",
   "workflow-config",
   "product-surface-settings",
+  "mfa",
+  "sessions",
 ]);
 
 /** Intentionally empty; add basenames here if a module is infra-only (non-feature-governed) server actions land in-repo. */
@@ -101,6 +103,7 @@ const AUTH_MARKERS = [
 ] as const;
 const ORG_SCOPE_MARKERS = [
   "getOrgMemberRole(",
+  "getAuthContext(",
   '.eq("organization_id"',
   ".eq('organization_id'",
   "organization_members",

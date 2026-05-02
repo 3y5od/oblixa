@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -24,12 +25,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (modeGate) return modeGate;
 
   const boardId = toSafeString((await params).id);
-  const body = readJsonBody<{
-    subscriptions?: unknown[];
-    agendaTemplate?: Record<string, unknown>;
-    active?: boolean;
-    cadence?: string;
-  }>(await request.json().catch(() => ({})), {});
+  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
+    readJsonBody<{
+      subscriptions?: unknown[];
+      agendaTemplate?: Record<string, unknown>;
+      active?: boolean;
+      cadence?: string;
+    }>(raw ?? {}, {})
+  );
+  if (!parsedBody.ok) return parsedBody.response;
+  const body = parsedBody.data;
 
   const result = await patchReviewBoard(ctx.admin, ctx.orgId, boardId, {
     subscriptions: body.subscriptions,

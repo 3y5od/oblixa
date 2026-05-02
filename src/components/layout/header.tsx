@@ -4,7 +4,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Command, PanelLeftOpen, Search, Sparkles } from "lucide-react";
+import { Command, Search, Sparkles } from "lucide-react";
 import {
   NAV_ITEMS,
   CONTRACTS_SUBROUTES,
@@ -92,9 +92,6 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
     <header className="ui-footer-shell relative z-20 shrink-0 px-4 py-3.5 md:px-6 md:py-4">
       <div className="flex flex-col gap-3.5 xl:flex-row xl:items-center xl:gap-4">
         <div className="flex min-w-0 flex-1 items-start gap-3">
-          <div className="ui-icon-button hidden lg:flex">
-            <PanelLeftOpen size={16} aria-hidden />
-          </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="ui-meta truncate">

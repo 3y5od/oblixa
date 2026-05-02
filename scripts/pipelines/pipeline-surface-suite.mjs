@@ -20,10 +20,13 @@ const steps = [
   "check:v8-acceptance-criteria",
   "v8:inventory-report",
   "check:api-route-tests",
+  "check:api-route-auth-contract",
+  "check:api-route-auth-route-index",
   "check:api-route-rate-limit-coverage",
   "check:server-lib-admin",
   "check:cron-route-auth",
   "check:v9-suite",
+  "check:v10-suite",
 ];
 
 const results = await runSequential(steps);

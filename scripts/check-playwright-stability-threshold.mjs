@@ -16,7 +16,9 @@ const current = JSON.parse(
 
 const found = Boolean(current.found);
 const violations = [];
-if (!found) {
+// Only enforce JSON report presence on real GitHub Actions (after Playwright uploads).
+// Local `CI=1` QA batch shards may run this check without a prior Playwright invocation.
+if (!found && process.env.GITHUB_ACTIONS === "true") {
   violations.push({
     metric: "report_presence",
     current: 0,

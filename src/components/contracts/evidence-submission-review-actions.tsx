@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { interpretHttpMutationFailure } from "@/lib/v9-api-client-errors";
+import { mutateV10 } from "@/lib/v10-api-client";
 
+// mutateV10 centralizes interpretHttpMutationFailure for HTTP, rate-limit, and network copy.
 export function EvidenceSubmissionReviewActions({
   submissionId,
 }: {
@@ -19,23 +20,17 @@ export function EvidenceSubmissionReviewActions({
   function runReviewAction(action: "approve" | "reject", reason?: string) {
     setMessage(null);
     startTransition(async () => {
-      const response = await fetch(`/api/evidence/${submissionId}/${action}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: action === "reject" ? JSON.stringify({ reason: reason?.trim() || undefined }) : undefined,
+      const result = await mutateV10({
+        url: `/api/evidence/${submissionId}/${action}`,
+        body: action === "reject" ? { reason: reason?.trim() || undefined } : undefined,
       });
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
+      if (!result.ok) {
         setMessageTone("error");
-        const mapped = interpretHttpMutationFailure({
-          status: response.status,
-          message: payload?.error ?? null,
-        });
-        setMessage(mapped.userMessage);
+        setMessage(result.userMessage);
         return;
       }
       setMessageTone("success");
-      setMessage(action === "approve" ? "Evidence approved." : "Evidence rejected with feedback.");
+      setMessage(result.response.user_visible_message || (action === "approve" ? "Evidence approved." : "Evidence rejected with feedback."));
       setShowReject(false);
       setRejectReason("");
       router.refresh();

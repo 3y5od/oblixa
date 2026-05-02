@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { toSafeString } from "@/lib/v5/api";
 import {
@@ -27,7 +28,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { campaignName?: string; campaignType?: string };
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as { campaignName?: string; campaignType?: string };
   const campaignName = toSafeString(body.campaignName) || `Campaign from simulation ${id.slice(0, 8)}`;
   const rawCampaignType = toSafeString(body.campaignType) || "policy_rollout";
   if (!isValidCampaignType(rawCampaignType)) {

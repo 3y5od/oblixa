@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { ensureCronAuthorized } from "@/lib/v4/cron";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+import { captureServerMessage } from "@/lib/observability/sentry";
 import { upsertDetectedExceptions, type DetectedExceptionInput } from "@/lib/v4/exceptions";
 import { recordAutomationEvent } from "@/lib/v4/automation-audit";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
@@ -182,6 +183,27 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
   }
 
+  try {
+    return await runExceptionsDetect(startedAt);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[cron/v4/exceptions-detect] failed:", message);
+    captureServerMessage(message, {
+      level: "error",
+      extra: { route: "cron/v4/exceptions-detect" },
+    });
+    const payload = {
+      detected: 0,
+      durationMs: Date.now() - startedAt,
+      ok: false,
+      error: "detector_failed",
+    };
+    pingCronHealthcheck("cron/v4/exceptions-detect", { ...payload, rowsScanned: 0 });
+    return NextResponse.json(payload);
+  }
+}
+
+async function runExceptionsDetect(startedAt: number) {
   const admin = await createAdminClient();
   const [{ data: overdueTasks }, { data: overdueObligations }, { data: missingOwnerContracts }] =
     await Promise.all([
@@ -263,3 +285,4 @@ export async function GET(request: Request) {
   pingCronHealthcheck("cron/v4/exceptions-detect", payload);
   return NextResponse.json(payload);
 }
+

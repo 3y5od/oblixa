@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
+import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation-token";
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
+import {
+  EMAIL_TASK_BODY_MAX,
+  EMAIL_TASK_EXTERNAL_MESSAGE_ID_RE,
+  EMAIL_TASK_FROM_MAX,
+  EMAIL_TASK_SUBJECT_MAX,
+} from "@/lib/email/email-inbound-limits";
+import { isKillInboundAutomation, killSwitchJsonResponse } from "@/lib/security/kill-switches";
+import { verifyInboundEmailHmac } from "@/lib/security/inbound-email-signing";
 
 type EmailTaskPayload = {
   organizationId: string;
@@ -16,8 +25,6 @@ type EmailTaskPayload = {
   from?: string;
   dueDate?: string;
 };
-
-const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
 
 function isAuthorized(request: Request): boolean {
   return isInboundAutomationAuthorized(request, "email");
@@ -37,13 +44,39 @@ export async function POST(request: Request) {
       }
     );
   }
+  if (isKillInboundAutomation()) {
+    return killSwitchJsonResponse("inbound_automation");
+  }
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const payload = (await request.json().catch(() => null)) as
-    | EmailTaskPayload
-    | null;
+  const hmacSecret = process.env.EMAIL_INBOUND_HMAC_SECRET?.trim();
+  let payload: EmailTaskPayload | null = null;
+  if (hmacSecret) {
+    const raw = await request.text();
+    if (raw.length > 262_144) {
+      return NextResponse.json({ error: "Body too large" }, { status: 413 });
+    }
+    const mac = verifyInboundEmailHmac({
+      secret: hmacSecret,
+      rawBody: raw,
+      signatureHeader: request.headers.get("x-oblixa-email-signature"),
+    });
+    if (!mac.ok) {
+      return NextResponse.json({ error: "Invalid email inbound signature" }, { status: 401 });
+    }
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      payload = parsed && typeof parsed === "object" ? (parsed as EmailTaskPayload) : null;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+  } else {
+    const _lb_payload = await readJsonBodyLimited(request);
+    if (!_lb_payload.ok) return _lb_payload.response;
+    payload = (_lb_payload.body ?? null) as EmailTaskPayload | null;
+  }
   if (!payload || typeof payload !== "object") {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -76,19 +109,28 @@ export async function POST(request: Request) {
   }
   const orgBlocked = inboundOrgNotAllowedResponse(payload.organizationId);
   if (orgBlocked) return orgBlocked;
-  if (payload.subject.trim().length > 240) {
-    return NextResponse.json({ error: "subject must be 240 characters or fewer" }, { status: 400 });
+  if (payload.subject.trim().length > EMAIL_TASK_SUBJECT_MAX) {
+    return NextResponse.json(
+      { error: `subject must be ${EMAIL_TASK_SUBJECT_MAX} characters or fewer` },
+      { status: 400 }
+    );
   }
-  if (payload.body && payload.body.length > 10_000) {
-    return NextResponse.json({ error: "body must be 10000 characters or fewer" }, { status: 400 });
+  if (payload.body && payload.body.length > EMAIL_TASK_BODY_MAX) {
+    return NextResponse.json(
+      { error: `body must be ${EMAIL_TASK_BODY_MAX} characters or fewer` },
+      { status: 400 }
+    );
   }
-  if (payload.from && payload.from.length > 320) {
-    return NextResponse.json({ error: "from must be 320 characters or fewer" }, { status: 400 });
+  if (payload.from && payload.from.length > EMAIL_TASK_FROM_MAX) {
+    return NextResponse.json(
+      { error: `from must be ${EMAIL_TASK_FROM_MAX} characters or fewer` },
+      { status: 400 }
+    );
   }
   if (payload.dueDate && !isIsoDateOnly(payload.dueDate)) {
     return NextResponse.json({ error: "dueDate must be ISO date (YYYY-MM-DD)" }, { status: 400 });
   }
-  if (payload.externalMessageId && !EXTERNAL_MESSAGE_ID_RE.test(payload.externalMessageId.trim())) {
+  if (payload.externalMessageId && !EMAIL_TASK_EXTERNAL_MESSAGE_ID_RE.test(payload.externalMessageId.trim())) {
     return NextResponse.json(
       { error: "externalMessageId contains invalid characters or is too long" },
       { status: 400 }
