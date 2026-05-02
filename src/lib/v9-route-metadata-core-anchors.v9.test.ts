@@ -26,7 +26,12 @@ describe("Core route metadata + heading anchors (V9 §24)", () => {
       h1: "System health",
     },
     { pagePath: "src/app/(dashboard)/settings/product/page.tsx", title: "Product experience", h1: "Product experience" },
-    { pagePath: "src/app/(dashboard)/settings/operations/page.tsx", title: "Workflow configuration", h1: "Workflow configuration" },
+    {
+      pagePath: "src/app/(dashboard)/settings/operations/page.tsx",
+      title: "Workflow configuration",
+      h1: "Workflow configuration",
+      h1Path: "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
+    },
   ];
 
   it("each listed page exports metadata.title and the primary h1 matches (page or hero component)", () => {
