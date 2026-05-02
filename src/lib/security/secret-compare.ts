@@ -13,6 +13,9 @@ export function secureCompareUtf8(a: string, b: string): boolean {
 /** Returns the token after `Bearer `, or null. */
 export function parseBearerToken(authorization: string | null): string | null {
   if (!authorization || typeof authorization !== "string") return null;
-  const m = /^Bearer\s+(\S+)/i.exec(authorization.trim());
-  return m?.[1] ?? null;
+  const trimmed = authorization.trim();
+  const lower = trimmed.toLowerCase();
+  if (!lower.startsWith("bearer ")) return null;
+  const token = trimmed.slice(7).trim();
+  return token.length > 0 ? token : null;
 }

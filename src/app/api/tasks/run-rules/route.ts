@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorizeCronRequest } from "@/lib/security/cron-auth";
 import { createAdminClient } from "@/lib/supabase/server";
-import { runTaskAutomationRulesForOrg } from "@/actions/automation";
+import { runTaskAutomationRulesForOrg } from "@/lib/tasks/run-task-automation-rules-for-org";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";

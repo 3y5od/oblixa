@@ -24,4 +24,9 @@ describe("parseBearerToken", () => {
     expect(parseBearerToken(null)).toBeNull();
     expect(parseBearerToken("Basic x")).toBeNull();
   });
+
+  it("accepts Bearer prefix case-insensitively and trims token", () => {
+    expect(parseBearerToken("bearer  abc")).toBe("abc");
+    expect(parseBearerToken("Bearer   spaced-secret ")).toBe("spaced-secret");
+  });
 });

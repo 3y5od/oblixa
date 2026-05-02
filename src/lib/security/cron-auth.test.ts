@@ -11,6 +11,13 @@ describe("authorizeCronRequest", () => {
     expect(authorizeCronRequest(req, secret)).toBe(true);
   });
 
+  it("accepts lowercase bearer prefix and extra whitespace", () => {
+    const req = new Request("http://localhost/api/cron/x", {
+      headers: { authorization: `bearer   ${secret}` },
+    });
+    expect(authorizeCronRequest(req, secret)).toBe(true);
+  });
+
   it("rejects wrong bearer", () => {
     const req = new Request("http://localhost/api/cron/x", {
       headers: { authorization: "Bearer wrong" },

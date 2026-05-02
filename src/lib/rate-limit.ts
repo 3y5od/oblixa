@@ -64,12 +64,17 @@ export async function rateLimitCheck(
   if (!upstash) {
     return rateLimitTake(key, config);
   }
-  const result = await upstash.limit(key);
-  if (result.success) {
-    return { ok: true };
+  try {
+    const result = await upstash.limit(key);
+    if (result.success) {
+      return { ok: true };
+    }
+    const retryAfterMs = Math.max(0, result.reset - Date.now());
+    return { ok: false, retryAfterMs };
+  } catch (err) {
+    console.error("[rate-limit] Upstash limit() failed; falling back to in-process window", err);
+    return rateLimitTake(key, config);
   }
-  const retryAfterMs = Math.max(0, result.reset - Date.now());
-  return { ok: false, retryAfterMs };
 }
 
 export const RATE_LIMITS = {
