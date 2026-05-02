@@ -14,6 +14,7 @@ import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
 import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 async function getMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -717,6 +718,52 @@ export async function createIntegrationApiKey(input: {
     });
   }
   return { success: true as const, token, keyPrefix };
+}
+
+/** Form wrapper for Settings → Workflow configuration; resolves org server-side (no client org id). */
+export async function createIntegrationApiKeyFromOperationsForm(formData: FormData) {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership) return;
+
+  const label = String(formData.get("label") ?? "").trim();
+  const scopesRaw = String(formData.get("scopes") ?? "").trim();
+  const expiresAtRaw = String(formData.get("expiresAt") ?? "").trim();
+  if (!label) return;
+
+  const res = await createIntegrationApiKey({
+    organizationId: membership.organization_id,
+    label,
+    scopes: scopesRaw
+      .split(",")
+      .map((scope) => scope.trim())
+      .filter(Boolean),
+    expiresAt: expiresAtRaw || null,
+  });
+
+  if (res && "error" in res && res.error) {
+    console.error(
+      "[workflow-config] createIntegrationApiKeyFromOperationsForm",
+      formatUnknownForServerLog(res.error)
+    );
+    return;
+  }
+  if (res && "success" in res && res.success) {
+    const cookieStore = await cookies();
+    cookieStore.set("oblixa_new_api_key_token", res.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 300,
+      path: "/settings/operations",
+    });
+  }
 }
 
 export async function revokeIntegrationApiKeyForm(formData: FormData) {

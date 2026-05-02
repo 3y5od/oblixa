@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAuthContext } from "@/lib/supabase/server";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import {
   createTaskAutomationRuleForm,
   toggleTaskAutomationRuleForm,
@@ -7,7 +8,7 @@ import {
 import {
   createApprovalPolicyForm,
   createFieldTemplateForm,
-  createIntegrationApiKey,
+  createIntegrationApiKeyFromOperationsForm,
   revokeIntegrationApiKeyForm,
   createReminderTemplateForm,
   createRenewalPlaybookTemplateForm,
@@ -29,7 +30,7 @@ export const metadata = { title: "Workflow configuration" };
 
 export default async function OperationsSettingsPage() {
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId } = ctx;
   const cookieStore = await cookies();
   const newlyIssuedApiKey = cookieStore.get("oblixa_new_api_key_token")?.value ?? null;
@@ -669,35 +670,7 @@ export default async function OperationsSettingsPage() {
               </div>
             )}
             <form
-              action={async (formData) => {
-                "use server";
-                const cookieStore = await cookies();
-                const label = String(formData.get("label") ?? "").trim();
-                const scopesRaw = String(formData.get("scopes") ?? "").trim();
-                const expiresAtRaw = String(formData.get("expiresAt") ?? "").trim();
-                if (!label) return;
-                const res = await createIntegrationApiKey({
-                  organizationId: orgId,
-                  label,
-                  scopes: scopesRaw
-                    .split(",")
-                    .map((scope) => scope.trim())
-                    .filter(Boolean),
-                  expiresAt: expiresAtRaw || null,
-                });
-                if (res && "error" in res && res.error) {
-                  const { formatUnknownForServerLog } = await import("@/lib/observability/log-redaction");
-                  console.error("[workflow-config] createIntegrationApiKey", formatUnknownForServerLog(res.error));
-                } else if (res && "success" in res && res.success) {
-                  cookieStore.set("oblixa_new_api_key_token", res.token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
-                    maxAge: 300,
-                    path: "/settings/operations",
-                  });
-                }
-              }}
+              action={createIntegrationApiKeyFromOperationsForm}
               className="mt-2 grid gap-2 md:grid-cols-[minmax(14rem,1fr)_minmax(12rem,1fr)_auto]"
             >
               <input name="label" required placeholder="Events consumer key" className="ui-input min-w-[16rem]" />

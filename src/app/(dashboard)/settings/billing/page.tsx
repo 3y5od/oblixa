@@ -1,4 +1,5 @@
 import { getAuthContext } from "@/lib/supabase/server";
+import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getStripeClient, resolveSubscriptionStatus } from "@/lib/stripe";
 import { SubscribeButton, ManageSubscriptionButton } from "@/components/settings/billing-actions";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
@@ -9,7 +10,7 @@ export default async function BillingPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx) return <WorkspaceRequiredState />;
 
   const { user, orgId, admin } = ctx;
 
@@ -21,7 +22,7 @@ export default async function BillingPage(props: {
     .limit(1)
     .single();
 
-  if (!membership) return null;
+  if (!membership) return <WorkspaceRequiredState />;
 
   const org = membership.organizations as unknown as {
     id: string;
