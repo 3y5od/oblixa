@@ -15,6 +15,7 @@ const LINE_COUNT_ALLOWLIST = new Set([
   "scripts/check-v10-release-evidence.mjs",
   "scripts/generate-debugging-sweep-catalog.mjs",
   "scripts/report-qa-closure-manifest.mjs",
+  "scripts/write-debugging-sweep-closure.mjs",
 ]);
 
 const offenders = [];

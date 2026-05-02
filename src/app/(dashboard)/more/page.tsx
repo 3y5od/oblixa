@@ -113,7 +113,9 @@ export default async function MoreToolsPage(props: {
       <header className="ui-page-header">
         <div className="min-w-0 flex-1">
           <p className="ui-eyebrow">{pageChrome.eyebrow}</p>
-          <h1 className="ui-display-title mt-2">{pageChrome.title}</h1>
+          <h1 className="ui-display-title mt-2" data-page-heading-contract="Tools index">
+            {pageChrome.title}
+          </h1>
           <p className="ui-page-lead mt-3 max-w-2xl">
             {pageChrome.lead}
           </p>

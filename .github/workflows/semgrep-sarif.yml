@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - uses: actions/setup-python@0b9366ef6a0cdd62d9abac2b2de1819d50a075db
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.12"
 
@@ -40,6 +40,6 @@ jobs:
             .
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@9c646c91e31ab31d6e812b6d6ff31848c0bbc637
+        uses: github/codeql-action/upload-sarif@a723e99345b89ee0bbcbd68ee4e63f9a56b42a25
         with:
           sarif_file: semgrep.sarif
