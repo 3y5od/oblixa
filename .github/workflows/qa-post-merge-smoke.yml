@@ -29,11 +29,7 @@ jobs:
       - run: npm run test:e2e:smoke
         env:
           CI: "true"
-      - name: Set QA check batch index
-        run: echo "QA_CHECK_BATCH_INDEX=$(( GITHUB_RUN_NUMBER % 4 + 1 ))" >> "$GITHUB_ENV"
       - name: QA ultimate post-merge tier
         run: npm run qa:sweep:ultimate:postmerge
         env:
           CI: "true"
-          QA_CHECK_BATCH_TOTAL: "4"
-          QA_CHECK_BATCH_SIZE: "4"

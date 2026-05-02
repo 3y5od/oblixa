@@ -4,9 +4,8 @@ import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { createAdminClient } from "@/lib/supabase/server";
 import { ensureCronAuthorized } from "@/lib/v4/cron";
 
-const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
-
 export async function GET(request: Request) {
+  const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
   const startedAt = Date.now();
   const unauthorized = ensureCronAuthorized(request);
   if (unauthorized) return unauthorized;

@@ -43,7 +43,16 @@ jobs:
       - name: Normalize SARIF artifact URIs for GitHub
         run: node scripts/normalize-semgrep-sarif-uris.mjs semgrep.sarif
 
-      - name: Upload SARIF
+      - name: Upload Semgrep SARIF artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          if-no-files-found: error
+
+      # Requires GitHub Code Scanning enabled on the repository; do not fail the workflow otherwise.
+      - name: Upload SARIF to Code Scanning
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@a723e99345b89ee0bbcbd68ee4e63f9a56b42a25
         with:
           sarif_file: semgrep.sarif

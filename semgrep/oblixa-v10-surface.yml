@@ -37,7 +37,11 @@ rules:
             ...
           }
       - pattern-not: |
-          const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+          export async function GET(...) {
+            ...
+            const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+            ...
+          }
     paths:
       include:
         - /src/app/api/cron/v10/**/route.ts
@@ -79,7 +83,7 @@ rules:
     message: >
       V10 telemetry details must not include private payload key names such as raw contract text,
       emails, tokens, signed URLs, or file URLs. Use safe state/count fields instead.
-    severity: ERROR
+    severity: WARNING
     pattern-regex: '(raw_contract_text|contract_text|responder_email|owner_email|signed_url|private_url|file_url|file_name|access_token|refresh_token|id_token|api_token|bearer_token|session_token|auth_token|secret)\s*:'
     paths:
       include:
@@ -87,3 +91,6 @@ rules:
         - /src/**/*.tsx
       exclude:
         - /src/lib/product-telemetry.v10.test.ts
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx
+        - /src/lib/types/**

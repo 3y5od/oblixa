@@ -11,7 +11,6 @@ import {
 import { V10_REQUIRED_READ_MODEL_KEYS } from "@/lib/v10-read-models";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 
-const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const DEFAULT_ORG_LIMIT = 50;
 const MAX_ORG_LIMIT = 250;
 
@@ -88,6 +87,7 @@ function getModelKeys(request: Request): V10ReadModelKey[] | undefined {
 }
 
 export async function GET(request: Request) {
+  const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
   const startedAt = Date.now();
   const unauthorized = ensureCronAuthorized(request);
   if (unauthorized) return unauthorized;

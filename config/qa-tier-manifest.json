@@ -1,6 +1,6 @@
 {
   "_documentation": {
-    "tierSemantics": "pr: fail-fast gate. nightly_fast: nightly without env-gated staging legs. nightly_deep: nightly + heavy meta checks. pr_maximal_dev: same gates as pr_strict for qa-maximal-sweep branch experiments. release_ultimate: release tier with report steps marked required under REPORT_GATE_STRICT. checks_batch_strict: autodiscover with empty denylist (shard via QA_CHECK_BATCH_*). ifEnv steps use required:true so QA_ULTIMATE_STRICT=1 fails when env is unset; without strict they are skipped when env is unset.",
+    "tierSemantics": "pr: fail-fast gate. nightly_fast: nightly without env-gated staging legs. nightly_deep: nightly + heavy meta checks. pr_maximal_dev: same gates as pr_strict for qa-maximal-sweep branch experiments. release_ultimate: release tier with report steps marked required under REPORT_GATE_STRICT. postmerge: fleet + env parity only (full check matrix already ran in CI on the same commit). checks_batch_strict: autodiscover with empty denylist (shard via QA_CHECK_BATCH_*). ifEnv steps use required:true so QA_ULTIMATE_STRICT=1 fails when env is unset; without strict they are skipped when env is unset.",
     "batching": "mergeAutodiscoverChecks appends discovered npm check:* after explicit steps (minus denylist, minus duplicates). QA_CHECK_BATCH_TOTAL (aliases QA_CHECK_BATCH_SIZE, QA_CHECK_BATCH_COUNT) and QA_CHECK_BATCH_INDEX (1-based) shard the discovered set via stable hash. QA_ULTIMATE_STRICT=1 fails when a step has ifEnv + required true and the env is unset. For QA_MAXIMAL_DISCOVER_CHECK_UNION=1, scripts/run-qa-discovered-checks-union.mjs accepts the same QA_CHECK_BATCH_* totals as QA_MAXIMAL_DISCOVER_BATCH_* (see script header)."
   },
   "version": 1,
@@ -291,7 +291,6 @@
         "check:qa-workflow-fleet",
         "check:env-matrix",
         "check:e2e-env-matrix",
-        "qa:sweep:checks:batch",
         { "script": "pipeline:verify", "required": true, "ifEnv": "POSTMERGE_VERIFY_STRICT" }
       ]
     },
