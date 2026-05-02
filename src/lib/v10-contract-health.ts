@@ -8,7 +8,7 @@ import {
 } from "./v10-release-contract";
 
 export type V10HealthDeduction = {
-  key: V10HealthDeductionKey;
+  key: V10HealthDeductionKey; // gitleaks:allow type field name, not a secret
   points: number;
   sourceType?: string;
   sourceId?: string;

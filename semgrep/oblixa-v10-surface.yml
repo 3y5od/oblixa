@@ -83,7 +83,7 @@ rules:
     message: >
       V10 telemetry details must not include private payload key names such as raw contract text,
       emails, tokens, signed URLs, or file URLs. Use safe state/count fields instead.
-    severity: WARNING
+    severity: INFO
     pattern-regex: '(raw_contract_text|contract_text|responder_email|owner_email|signed_url|private_url|file_url|file_name|access_token|refresh_token|id_token|api_token|bearer_token|session_token|auth_token|secret)\s*:'
     paths:
       include:

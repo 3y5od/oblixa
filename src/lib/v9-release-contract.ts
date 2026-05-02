@@ -137,7 +137,7 @@ export const V9_SUPERSESSION_RECORDS = [
     status: "superseded_bridge_preserved",
     reason: "V10 is the active release contract; V9 remains as a compatibility bridge for regression gates.",
     testsPreserved: true,
-    releaseEvidenceKey: "v10_deprecation_policy",
+    releaseEvidenceKey: "v10_deprecation_policy", // gitleaks:allow evidence catalog key, not a secret
   },
   {
     artifact: "logs 1.zip",

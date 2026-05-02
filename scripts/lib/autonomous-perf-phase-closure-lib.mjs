@@ -74,7 +74,7 @@ export const AUTONOMOUS_PERF_PHASE_IDS = [
   "phase-47-marketing-third-party",
   "phase-48-jwt-jwks-cache",
   "phase-49-openai-prompts",
-  "phase-4-api-gets",
+  "phase-4-api-gets", // gitleaks:allow phase id string, not a credential
   "phase-4-api-mutations",
   "phase-4-contract-filters",
   "phase-4-rpc-audit",

@@ -1128,7 +1128,7 @@ export const V10_DEPRECATION_CANDIDATES: readonly V10DeprecationCandidate[] = [
     removalGate: "objective-measurement",
   },
   {
-    key: "v10_semgrep_warning_only",
+    key: "v10_semgrep_warning_only", // gitleaks:allow gap-audit catalog id, not a secret
     category: "placeholder_gate",
     artifact: "semgrep/oblixa-v10-surface.yml",
     replacement: "CI-failing V10 guardrails",
@@ -1221,7 +1221,7 @@ export const V10_DEPRECATION_CLEANUP_DECISIONS: readonly V10DeprecationCleanupDe
     cleanupCommand: "npm run check:v10-suite -- --cleanup descriptor_only_rc_fixtures",
   },
   {
-    candidateKey: "v10_semgrep_warning_only",
+    candidateKey: "v10_semgrep_warning_only", // gitleaks:allow deprecation catalog id, not a secret
     action: "retire",
     supersededBy: "CI-failing V10 guardrails",
     runtimeReplacementProof: "semgrep/oblixa-v10-surface.yml",
