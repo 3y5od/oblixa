@@ -128,8 +128,13 @@ async function main() {
     heartbeatAgeMin,
   });
 
-  if (heartbeatAgeMin > 30) {
+  // Vercel cron is */15; allow several windows of drift, cold starts, or deploy gaps
+  // before treating the worker as missing. 31–60m is a warning only.
+  if (heartbeatAgeMin > 60) {
     throw new Error(`critical: retry-worker heartbeat stale (${heartbeatAgeMin}m)`);
+  }
+  if (heartbeatAgeMin > 30) {
+    warn(`retry-worker heartbeat ${heartbeatAgeMin}m (warn if >30m; critical if >60m)`);
   }
 
   pass("slo-monitor completed");
