@@ -7,6 +7,12 @@ on:
 permissions:
   contents: read
 
+# Match CI global env so `next start` + Playwright have Supabase public + service env (see src/lib/supabase/server.ts).
+env:
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
 jobs:
   smoke:
     runs-on: ubuntu-latest

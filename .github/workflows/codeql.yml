@@ -27,4 +27,10 @@ jobs:
         with:
           languages: ${{ matrix.language }}
       - uses: github/codeql-action/autobuild@a723e99345b89ee0bbcbd68ee4e63f9a56b42a25
+      # Skip SARIF/Code Scanning API upload when Code Scanning is not enabled (or on fork PRs).
+      # After enabling Code Scanning for the repo, set upload to "always" and upload-database to "true".
       - uses: github/codeql-action/analyze@a723e99345b89ee0bbcbd68ee4e63f9a56b42a25
+        with:
+          upload: never
+          upload-database: "false"
+          wait-for-processing: "false"
