@@ -593,7 +593,7 @@
     "stripe": "^22.0.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.1",
+    "@axe-core/playwright": "^4.11.3",
     "@next/bundle-analyzer": "16.2.3",
     "@playwright/test": "^1.59.1",
     "@stryker-mutator/core": "^9.6.1",
