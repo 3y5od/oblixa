@@ -1,5 +1,5 @@
 /**
- * Reorder onboarding banner checklist rows from persisted calibration hints (docs/onboarding.md §6).
+ * Reorder onboarding banner checklist rows from persisted calibration hints (onboarding spec §6).
  */
 export function checklistRowOrderFromSetupChecklist(
   checklist: string[] | undefined

@@ -1,5 +1,5 @@
 /**
- * docs/onboarding.md traceability (§1–§24) — implementation anchors for reviewers.
+ * onboarding spec traceability (§1–§24) — implementation anchors for reviewers.
  * Do not duplicate the spec here; map sections to code entry points.
  */
 export const ONBOARDING_SPEC_IMPLEMENTATION_TRACE = {

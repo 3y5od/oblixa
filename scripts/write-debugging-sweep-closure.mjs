@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { runCommand } from "./lib/process.mjs";
+import { SECURITY_REPORT_FILES, SECURITY_REPORTS_RELATIVE_DIR } from "./lib/security-report-paths.mjs";
 
 /**
  * @typedef {{
@@ -506,9 +507,9 @@ function appendExtendedPlanInventory(rows) {
     }
   }
 
-  const p11 = "docs/qa-maximal-sweep-p11-closure.md";
+  const p11 = "artifacts/qa-maximal-twelfth-expansion-closure.json";
   rows.push({
-    id: "manual-doc-qa-maximal-sweep-p11-closure",
+    id: "artifact-qa-maximal-twelfth-expansion-closure",
     kind: "manual_doc_review",
     command_or_workflow: p11,
     manifest_tier: null,
@@ -518,8 +519,8 @@ function appendExtendedPlanInventory(rows) {
     log_uri: null,
     duration_ms: null,
     notes: fs.existsSync(path.join(root, p11))
-      ? "attestation-bundle / P11 — follow when org enables maximal bundle signing"
-      : "optional doc path; waiver until added",
+      ? "P11 maximal bundle closure artifact — regenerate via npm run write:qa-maximal-twelfth-closure"
+      : "run npm run write:qa-maximal-twelfth-closure to materialize",
   });
 
   rows.push({
@@ -654,30 +655,39 @@ function appendPlaywrightAndDocInventory(rows) {
     notes: "inventory AK — shard/blob CI parity",
   });
 
+  const secDir = SECURITY_REPORTS_RELATIVE_DIR;
   const docs = [
-    "docs/v10.md",
-    "docs/v10-spec-trace-matrix.md",
-    "docs/workspace-modes-core-advanced-assurance.md",
-    "docs/SECURITY_API_ROUTE_COVERAGE.md",
-    "docs/SECURITY_API_AUTH_HEURISTICS.md",
-    "docs/SECURITY_SERVER_ACTIONS_HEURISTICS.md",
-    "docs/SECURITY_LIB_ADMIN_CLIENT_INDEX.md",
+    "src/lib/spec-artifact-ids.ts",
+    "src/lib/v10-spec-trace-map.ts",
+    "src/lib/v10-release-contract.ts",
+    `${secDir}/${SECURITY_REPORT_FILES.routeCoverage}`,
+    `${secDir}/${SECURITY_REPORT_FILES.apiAuthHeuristics}`,
+    `${secDir}/${SECURITY_REPORT_FILES.serverActions}`,
+    `${secDir}/${SECURITY_REPORT_FILES.libAdmin}`,
     "README.md",
   ];
   for (const rel of docs) {
+    const exists = fs.existsSync(path.join(root, rel));
+    const isGeneratedSecurity = rel.startsWith(`${SECURITY_REPORTS_RELATIVE_DIR}/`);
     rows.push({
       id: `manual-doc-${rel.replace(/[^a-zA-Z0-9]+/g, "-")}`,
       kind: "manual_doc_review",
       command_or_workflow: rel,
       manifest_tier: null,
-      status: fs.existsSync(path.join(root, rel)) ? "skipped_waiver" : "fail",
-      waiver_id: fs.existsSync(path.join(root, rel)) ? WAIVE_INVENTORY : null,
+      status:
+        isGeneratedSecurity || exists ? "skipped_waiver" : "fail",
+      waiver_id:
+        isGeneratedSecurity || exists ? WAIVE_INVENTORY : null,
       owner: null,
       log_uri: null,
       duration_ms: null,
-      notes: fs.existsSync(path.join(root, rel))
-        ? "present; diff vs code in maximal sweep / preconditions"
-        : "missing file",
+      notes: isGeneratedSecurity
+        ? exists
+          ? "generated security report; refresh via npm run report:security-docs"
+          : "run npm run report:security-docs before strict inventory / release tiers"
+        : exists
+          ? "present; diff vs code in maximal sweep / preconditions"
+          : "missing file",
     });
   }
 

@@ -16,6 +16,7 @@ import {
 import { V10_IMPLEMENTATION_REQUIREMENTS } from "./v10-implementation-checklist";
 import { V10_REQUIRED_MUTATION_CONTRACTS } from "./v10-mutation-envelope";
 import { V10_ROUTE_API_CATALOG } from "./v10-route-api-catalog";
+import { SPEC_ARTIFACT_V10 } from "./spec-artifact-ids";
 import { V10_SOURCE_OBJECT_INVENTORY } from "./v10-source-object-inventory";
 
 export type V10ProofKind =
@@ -1067,7 +1068,7 @@ export const V10_FROZEN_IMPLEMENTATION_MATRIX: readonly V10FrozenImplementationM
 ] as const;
 
 export const V10_FILE_OWNERSHIP_MAP: readonly V10FileOwnershipRow[] = [
-  { area: "spec", pathPrefix: "docs/v10.md", owner: "product", requiredProof: ["release_evidence"] },
+  { area: "spec", pathPrefix: SPEC_ARTIFACT_V10, owner: "product", requiredProof: ["release_evidence"] },
   { area: "database", pathPrefix: "supabase/migrations/", owner: "engineering", requiredProof: ["authorization", "read_model_freshness", "fixture_or_e2e"] },
   { area: "read_models", pathPrefix: "src/lib/v10-read-model", owner: "engineering", requiredProof: ["read_model_freshness", "runtime_behavior"] },
   { area: "mutations", pathPrefix: "src/lib/v10-mutation", owner: "engineering", requiredProof: ["idempotency", "audit", "authorization"] },

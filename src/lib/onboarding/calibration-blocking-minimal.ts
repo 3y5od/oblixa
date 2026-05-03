@@ -1,5 +1,5 @@
 /**
- * Shared first-run blocking → Core minimal path (docs/onboarding.md §4.4, §24.2).
+ * Shared first-run blocking → Core minimal path (onboarding spec §4.4, §24.2).
  * Used by server actions and stale-expiry cron so merge / transition / suppress order cannot drift.
  * §24.2: org JSON stays authoritative; `safeSuppressNotificationTypesForModeDowngradeCalibration` swallows
  * notification_policy upsert failures (Sentry org id only, no questionnaire payload) on every caller path.

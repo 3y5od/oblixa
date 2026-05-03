@@ -1,7 +1,7 @@
 import type { V9_MANUAL_SMOKE_PATHS } from "./v9-manual-smoke-matrix";
 
 /**
- * Primary `docs/v9.md` `##` section anchor for each manual smoke path (crosswalk: no orphans).
+ * Primary `v9 spec` `##` section anchor for each manual smoke path (crosswalk: no orphans).
  */
 export const V9_MANUAL_SMOKE_PRIMARY_SECTION: Record<(typeof V9_MANUAL_SMOKE_PATHS)[number], string> = {
   "first-value onboarding empty → dashboard usefulness": "7",

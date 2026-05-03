@@ -1,42 +1,328 @@
 {
   "ok": true,
   "pipeline": "qa-ultimate",
-  "tier": "postmerge",
+  "tier": "nightly",
   "mergeAutodiscoverChecks": false,
   "ultimateStrict": false,
   "batchTotal": null,
   "batchIndex": null,
   "skippedIfEnv": [
-    "pipeline:verify"
+    "check:openapi-contract-smoke",
+    "test:staging-env-parity",
+    "test:rls-smoke",
+    "test:lighthouse:nightly",
+    "test:synthetic-p0",
+    "test:slo-budgets",
+    "check:synthetic-slo-env",
+    "security:semgrep:full",
+    "report:sbom-diff-stub",
+    "dns-caa-smoke",
+    "dnssec-privacy-smoke",
+    "cert-expiry-smoke",
+    "readability-smoke",
+    "email-auth-dns-smoke",
+    "verify-cosign-artifact",
+    "verify-slsa-attestation",
+    "check:dr-drill-smoke",
+    "report:knip-supply-chain-stub",
+    "report:jscpd-supply-chain-stub",
+    "report:carbon-wallclock-stub",
+    "check:k8s-conftest-stub"
   ],
   "results": [
     {
-      "script": "report:ci-provenance",
+      "script": "report:qa-coverage-tier",
       "required": true,
       "ok": true,
       "code": 0,
-      "durationMs": 143
+      "durationMs": 95
+    },
+    {
+      "script": "qa:sweep:max:p4",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 99917
+    },
+    {
+      "script": "pipeline:ci-parity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 266
+    },
+    {
+      "script": "check:command-reference-integrity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 118
+    },
+    {
+      "script": "license:allowlist-verify",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "verify:ofac-sample-hash",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
     },
     {
       "script": "check:qa-workflow-fleet",
       "required": true,
       "ok": true,
       "code": 0,
-      "durationMs": 189
+      "durationMs": 92
+    },
+    {
+      "script": "check:next-config-surface",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:dependabot-config",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:vercel-cron",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 93
     },
     {
       "script": "check:env-matrix",
       "required": true,
       "ok": true,
       "code": 0,
-      "durationMs": 141
+      "durationMs": 93
     },
     {
       "script": "check:e2e-env-matrix",
       "required": true,
       "ok": true,
       "code": 0,
-      "durationMs": 166
+      "durationMs": 111
+    },
+    {
+      "script": "check:merge-queue-canary-parity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 91
+    },
+    {
+      "script": "check:artifact-json-matrix",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 95
+    },
+    {
+      "script": "check:artifact-integrity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 10247
+    },
+    {
+      "script": "check:e2e-po-route-coverage",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:qa-injection-class-matrix",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 91
+    },
+    {
+      "script": "check:jurisdiction-artifact-coverage",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:absent-protocol-evidence",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:ofac-screening-stub-parity",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 93
+    },
+    {
+      "script": "check:robots-crawler-policy",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 94
+    },
+    {
+      "script": "check:reporting-endpoints",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 89
+    },
+    {
+      "script": "check:pen-test-findings-closure",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 90
+    },
+    {
+      "script": "check:subprocessor-change-sla",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:src-tree-coverage",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 99
+    },
+    {
+      "script": "check:pr-body-json",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 93
+    },
+    {
+      "script": "check:api-problem-json",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 97
+    },
+    {
+      "script": "check:api-sunset-deprecation",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 98
+    },
+    {
+      "script": "check:sharp-svgo-versions",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 92
+    },
+    {
+      "script": "check:suppress-hydration-warning",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 106
+    },
+    {
+      "script": "check:kyb-beneficial-owner-schema",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 90
+    },
+    {
+      "script": "check:rebuild-v10-read-models-nightly-gate",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 94
+    },
+    {
+      "script": "check:eslint-custom-rules-optional",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 91
+    },
+    {
+      "script": "test:scripts",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 1908
+    },
+    {
+      "script": "test:integration:ai-webhook",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 801
+    },
+    {
+      "script": "security:sweep:comprehensive",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 76931
+    },
+    {
+      "script": "perf:sweep:quarterly",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 25118
+    },
+    {
+      "script": "test:e2e:ui-qa-plan",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 3380
+    },
+    {
+      "script": "test:e2e:adversarial",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 36048
+    },
+    {
+      "script": "test:e2e:resilience:all",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 1835
+    },
+    {
+      "script": "test:vitest:v10",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 2317
+    },
+    {
+      "script": "report:test-heatmap",
+      "required": true,
+      "ok": true,
+      "code": 0,
+      "durationMs": 141
     }
   ]
 }

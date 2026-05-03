@@ -1,6 +1,6 @@
 /**
  * V9 §32 — When tension exists between adding capability vs improving the visible product,
- * choose improvement (see `docs/v9.md` §32). Prefer these toggles over new Core surface flags.
+ * choose improvement (see `v9 spec` §32). Prefer these toggles over new Core surface flags.
  *
  * **Public env inventory (`NEXT_PUBLIC_V9_*`)** — each must default safe-on for Core (omit or non-`0`):
  * - `NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS` — inline work/renewal row actions (see `v9InlineQueueActionsEnabled`).

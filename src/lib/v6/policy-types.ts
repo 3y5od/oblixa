@@ -1,6 +1,6 @@
 /**
  * Machine-readable control policy payload (stored in control_policy_versions.policy_json).
- * Aligned with docs/v6.md §9.1 — extended fields merge with column JSON on the version row.
+ * Aligned with v6 spec §9.1 — extended fields merge with column JSON on the version row.
  */
 export type ControlPolicyJsonV1 = {
   schema: "v6.control_policy.v1";

@@ -1,5 +1,5 @@
 /**
- * docs/onboarding.md §11.1 / §24.8 — explicit four-dimension scores + auditable weight table.
+ * onboarding spec §11.1 / §24.8 — explicit four-dimension scores + auditable weight table.
  *
  * `scoreAdvancedSignals` (calibration-map) decomposes exactly as:
  *   execution_depth + coordination_complexity + complexity_escalation

@@ -3762,6 +3762,21 @@
       "bindings": [
         {
           "kind": "npmScript",
+          "ref": "check:github-workflows-yaml"
+        }
+      ],
+      "id": "bind-check-check-github-workflows-yaml",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:github-workflows-yaml",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
           "ref": "check:graphql-cost-depth-guards"
         }
       ],

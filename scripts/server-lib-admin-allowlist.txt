@@ -25,6 +25,7 @@ src/lib/security/audit-write.ts
 src/lib/actions/access.ts
 src/lib/actions/contracts-access.ts
 src/lib/supabase/server.ts
+src/lib/tasks/run-task-automation-rules-for-org.ts
 src/lib/usage-stats.ts
 src/lib/v4/api-auth.ts
 src/lib/v4/automation-audit.ts

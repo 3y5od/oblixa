@@ -1,5 +1,5 @@
 /**
- * Maps docs/v9.md ## section ids to ≥1 concrete repo path (Tier A trace matrix).
+ * Maps v9 spec ## section ids to ≥1 concrete repo path (Tier A trace matrix).
  * Generated/maintained for v9-spec-trace.v9.test.ts.
  */
 export const V9_SPEC_TRACE: Record<string, readonly string[]> = {

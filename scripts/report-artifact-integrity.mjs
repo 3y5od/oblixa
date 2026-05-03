@@ -20,7 +20,8 @@ const reports = [
     script: "report-release-readiness.mjs",
     required: false,
     requiredKeys: ["generatedAt", "schemaVersion", "traceId", "ok", "checks", "nextActions"],
-    timeoutMs: 1_800_000,
+    /** Enough for nested npm checks; avoids blocking local/QA sweeps on accidental hangs. */
+    timeoutMs: 600_000,
   },
   {
     script: "report-dependency-risk.mjs",

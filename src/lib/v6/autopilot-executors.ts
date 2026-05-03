@@ -46,7 +46,7 @@ function withRevert(
 }
 
 /**
- * Bounded autopilot actions (docs/v6.md §9.4). Each case maps to the “Autopilot-suitable actions” list there;
+ * Bounded autopilot actions (v6 spec §9.4). Each case maps to the “Autopilot-suitable actions” list there;
  * unknown `action_type` values fall through to `logged_only`. When dryRun is true, no mutating side effects.
  */
 export async function executeAutopilotAction(

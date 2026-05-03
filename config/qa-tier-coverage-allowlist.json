@@ -91,6 +91,7 @@
     "check:git-history-secret-exposure",
     "check:github-actions-permissions",
     "check:github-workflows-security",
+    "check:github-workflows-yaml",
     "check:graphql-cost-depth-guards",
     "check:graphql-cost-surface",
     "check:graphql-introspection-exposure",

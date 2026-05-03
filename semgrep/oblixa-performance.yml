@@ -4,7 +4,7 @@ rules:
     severity: WARNING
     message:
       Prefer explicit Supabase .select columns over select("*") to reduce payload size and
-      sequential scan pressure (see docs/PERFORMANCE_OPTIMIZATION_SWEEP.md).
+      sequential scan pressure (see scripts/performance-static-audit.mjs and src/lib/supabase/range-pagination.ts).
     pattern-regex: \.select\s*\(\s*['"]\*['"]\s*\)
     paths:
       exclude:

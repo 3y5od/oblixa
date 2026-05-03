@@ -1,5 +1,5 @@
 /**
- * docs/onboarding.md §24.17 — server-safe step index parsing/clamping (no client boundary).
+ * onboarding spec §24.17 — server-safe step index parsing/clamping (no client boundary).
  */
 import type { CalibrationAnswersRequired } from "@/lib/onboarding/calibration-types";
 

@@ -138,6 +138,10 @@
       "lines": 1150
     },
     {
+      "file": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
+      "lines": 750
+    },
+    {
       "file": "src/app/(dashboard)/settings/operations/page.tsx",
       "lines": 834
     },

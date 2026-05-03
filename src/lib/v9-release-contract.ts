@@ -1,3 +1,5 @@
+import { SPEC_ARTIFACT_V10, SPEC_ARTIFACT_V9_ARCHIVE } from "./spec-artifact-ids";
+
 export const V9_ACTIVATION_PATH = [
   "importing or uploading the first contract",
   "reviewing key extracted fields",
@@ -132,8 +134,8 @@ export const V9_NON_GOALS = [
 
 export const V9_SUPERSESSION_RECORDS = [
   {
-    artifact: "docs/v9.md",
-    supersededBy: "docs/v10.md",
+    artifact: SPEC_ARTIFACT_V9_ARCHIVE,
+    supersededBy: SPEC_ARTIFACT_V10,
     status: "superseded_bridge_preserved",
     reason: "V10 is the active release contract; V9 remains as a compatibility bridge for regression gates.",
     testsPreserved: true,

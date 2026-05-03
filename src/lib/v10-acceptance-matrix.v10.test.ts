@@ -330,9 +330,16 @@ describe("V10 acceptance matrix", () => {
   });
 
   it("keeps concrete acceptance artifacts and gate files present", () => {
+    const specArtifactIds = readFileSync(join(process.cwd(), "src/lib/spec-artifact-ids.ts"), "utf8");
     for (const row of V10_ACCEPTANCE_MATRIX) {
       for (const artifact of row.artifacts) {
         if (artifact.includes("*")) continue;
+        if (artifact.startsWith("spec:") || artifact.startsWith("ops:")) {
+          expect(specArtifactIds.includes(`"${artifact}"`), `${row.id}:${artifact} codified in spec-artifact-ids.ts`).toBe(
+            true
+          );
+          continue;
+        }
         expect(existsSync(join(process.cwd(), artifact)), `${row.id}:${artifact}`).toBe(true);
       }
       for (const gate of row.gates) {

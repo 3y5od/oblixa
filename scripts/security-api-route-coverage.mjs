@@ -1,15 +1,17 @@
 #!/usr/bin/env node
-// Emits docs/SECURITY_API_ROUTE_COVERAGE.md — every api route.ts vs colocated test or allowlist.
+// Emits artifacts/generated/security/SECURITY_API_ROUTE_COVERAGE.md — every api route.ts vs colocated test or allowlist.
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { ensureSecurityReportsDir, securityReportFilePath, SECURITY_REPORT_FILES } from "./lib/security-report-paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const apiRoot = path.join(root, "src", "app", "api");
 const allowlistPath = path.join(__dirname, "api-route-test-allowlist.txt");
-const outPath = path.join(root, "docs", "SECURITY_API_ROUTE_COVERAGE.md");
+ensureSecurityReportsDir(root);
+const outPath = securityReportFilePath(root, SECURITY_REPORT_FILES.routeCoverage);
 
 function walkRoutes(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;

@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-02T02:44:28.097Z",
-  "tier": "P0",
+  "generatedAt": "2026-05-03T15:41:49.414Z",
+  "tier": "P4",
   "skipped": [],
   "reasons": [],
   "env": {
-    "CI": true,
-    "QA_SWEEP_TIER": null,
+    "CI": false,
+    "QA_SWEEP_TIER": "P4",
     "STAGING_BASE_URL": null,
     "E2E_TEST_EMAIL": null
   }

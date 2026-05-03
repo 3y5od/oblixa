@@ -1,3 +1,5 @@
+import { OPS_ARTIFACT_V10_RUNBOOK } from "./spec-artifact-ids";
+
 export type V10HardeningContract = {
   key: string;
   requirements: readonly string[];
@@ -486,7 +488,7 @@ export const V10_LEGACY_PROOF_CUTOVER_CONTRACTS: readonly V10LegacyProofCutoverC
     replacementCommand: "npm run check:v10-release-evidence -- --external-blockers none",
     allowedOnlyAfterRuntimeProof: true,
     testsPreserved: true,
-    rollbackArtifact: "docs/v10-ops-runbook.md",
+    rollbackArtifact: OPS_ARTIFACT_V10_RUNBOOK,
   },
 ] as const;
 

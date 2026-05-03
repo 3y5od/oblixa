@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "repo_head": "88f2d292f93228023b71636c560497aa0121a0a0",
-  "generated_at_utc": "2026-05-02T01:21:20.866Z",
+  "repo_head": "02cbe085bff78d41f775ae2ea1e976829024a5a5",
+  "generated_at_utc": "2026-05-03T02:33:06.685Z",
   "rows": [
     {
       "id": "workflow-ci-yml",
@@ -1747,6 +1747,18 @@
       "id": "check-check-github-workflows-security",
       "kind": "npm_script",
       "command_or_workflow": "npm run check:github-workflows-security",
+      "manifest_tier": null,
+      "status": "skipped_waiver",
+      "waiver_id": "LOCAL_RUNSET_V1",
+      "owner": null,
+      "log_uri": null,
+      "duration_ms": null,
+      "notes": "pass --execute to run LOCAL_RUNSET; full matrix in CI"
+    },
+    {
+      "id": "check-check-github-workflows-yaml",
+      "kind": "npm_script",
+      "command_or_workflow": "npm run check:github-workflows-yaml",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "LOCAL_RUNSET_V1",
@@ -6112,16 +6124,16 @@
       "notes": "inventory AG — included in vitest default run"
     },
     {
-      "id": "manual-doc-qa-maximal-sweep-p11-closure",
+      "id": "artifact-qa-maximal-twelfth-expansion-closure",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/qa-maximal-sweep-p11-closure.md",
+      "command_or_workflow": "artifacts/qa-maximal-twelfth-expansion-closure.json",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
       "owner": null,
       "log_uri": null,
       "duration_ms": null,
-      "notes": "attestation-bundle / P11 — follow when org enables maximal bundle signing"
+      "notes": "P11 maximal bundle closure artifact — regenerate via npm run write:qa-maximal-twelfth-closure"
     },
     {
       "id": "governance-codemod-zinc-sweep-tokens",
@@ -6412,9 +6424,9 @@
       "notes": "inventory AK — shard/blob CI parity"
     },
     {
-      "id": "manual-doc-docs-v10-md",
+      "id": "manual-doc-src-lib-spec-artifact-ids-ts",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/v10.md",
+      "command_or_workflow": "src/lib/spec-artifact-ids.ts",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
@@ -6424,9 +6436,9 @@
       "notes": "present; diff vs code in maximal sweep / preconditions"
     },
     {
-      "id": "manual-doc-docs-v10-spec-trace-matrix-md",
+      "id": "manual-doc-src-lib-v10-spec-trace-map-ts",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/v10-spec-trace-matrix.md",
+      "command_or_workflow": "src/lib/v10-spec-trace-map.ts",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
@@ -6436,9 +6448,9 @@
       "notes": "present; diff vs code in maximal sweep / preconditions"
     },
     {
-      "id": "manual-doc-docs-workspace-modes-core-advanced-assurance-md",
+      "id": "manual-doc-src-lib-v10-release-contract-ts",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/workspace-modes-core-advanced-assurance.md",
+      "command_or_workflow": "src/lib/v10-release-contract.ts",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
@@ -6448,52 +6460,52 @@
       "notes": "present; diff vs code in maximal sweep / preconditions"
     },
     {
-      "id": "manual-doc-docs-SECURITY-API-ROUTE-COVERAGE-md",
+      "id": "manual-doc-artifacts-generated-security-SECURITY-API-ROUTE-COVERAGE-md",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/SECURITY_API_ROUTE_COVERAGE.md",
+      "command_or_workflow": "artifacts/generated/security/SECURITY_API_ROUTE_COVERAGE.md",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
       "owner": null,
       "log_uri": null,
       "duration_ms": null,
-      "notes": "present; diff vs code in maximal sweep / preconditions"
+      "notes": "generated security report; refresh via npm run report:security-docs"
     },
     {
-      "id": "manual-doc-docs-SECURITY-API-AUTH-HEURISTICS-md",
+      "id": "manual-doc-artifacts-generated-security-SECURITY-API-AUTH-HEURISTICS-md",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/SECURITY_API_AUTH_HEURISTICS.md",
+      "command_or_workflow": "artifacts/generated/security/SECURITY_API_AUTH_HEURISTICS.md",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
       "owner": null,
       "log_uri": null,
       "duration_ms": null,
-      "notes": "present; diff vs code in maximal sweep / preconditions"
+      "notes": "generated security report; refresh via npm run report:security-docs"
     },
     {
-      "id": "manual-doc-docs-SECURITY-SERVER-ACTIONS-HEURISTICS-md",
+      "id": "manual-doc-artifacts-generated-security-SECURITY-SERVER-ACTIONS-HEURISTICS-md",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/SECURITY_SERVER_ACTIONS_HEURISTICS.md",
+      "command_or_workflow": "artifacts/generated/security/SECURITY_SERVER_ACTIONS_HEURISTICS.md",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
       "owner": null,
       "log_uri": null,
       "duration_ms": null,
-      "notes": "present; diff vs code in maximal sweep / preconditions"
+      "notes": "generated security report; refresh via npm run report:security-docs"
     },
     {
-      "id": "manual-doc-docs-SECURITY-LIB-ADMIN-CLIENT-INDEX-md",
+      "id": "manual-doc-artifacts-generated-security-SECURITY-LIB-ADMIN-CLIENT-INDEX-md",
       "kind": "manual_doc_review",
-      "command_or_workflow": "docs/SECURITY_LIB_ADMIN_CLIENT_INDEX.md",
+      "command_or_workflow": "artifacts/generated/security/SECURITY_LIB_ADMIN_CLIENT_INDEX.md",
       "manifest_tier": null,
       "status": "skipped_waiver",
       "waiver_id": "CLOSURE_INVENTORY_DEFER",
       "owner": null,
       "log_uri": null,
       "duration_ms": null,
-      "notes": "present; diff vs code in maximal sweep / preconditions"
+      "notes": "generated security report; refresh via npm run report:security-docs"
     },
     {
       "id": "manual-doc-README-md",
@@ -6986,7 +6998,7 @@
     ],
     "waiverDeferred": "LOCAL_RUNSET_V1",
     "inventoryDefer": "CLOSURE_INVENTORY_DEFER",
-    "checkScriptsTotal": 346,
+    "checkScriptsTotal": 347,
     "workflowsTotal": 37
   }
 }

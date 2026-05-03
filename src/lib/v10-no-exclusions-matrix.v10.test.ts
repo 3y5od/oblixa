@@ -32,7 +32,7 @@ import {
 
 const PATH_LIKE_PREFIXES = [
   ".github/",
-  "docs/",
+  "artifacts/generated/security/",
   "e2e/",
   "package.json",
   "scripts/",
@@ -137,7 +137,7 @@ describe("V10 no-exclusions matrix", () => {
     });
     expect(matrix.find((row) => row.coverageKey === "spec_section:4.2")).toMatchObject({
       coverageKind: "spec_section",
-      sourceArtifacts: expect.arrayContaining(["docs/v10.md", "src/app/(dashboard)/work/page.tsx"]),
+      sourceArtifacts: expect.arrayContaining(["spec:v10", "src/app/(dashboard)/work/page.tsx"]),
     });
     expect(matrix.find((row) => row.coverageKey === "inventory_file:api_route:command_palette_contracts")).toMatchObject({
       coverageKind: "inventory_file",

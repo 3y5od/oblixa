@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
  * Lists src/lib TypeScript files (excluding tests) that reference createAdminClient (manual IDOR review).
- * Writes docs/SECURITY_LIB_ADMIN_CLIENT_INDEX.md
+ * Writes artifacts/generated/security/SECURITY_LIB_ADMIN_CLIENT_INDEX.md
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureSecurityReportsDir, securityReportFilePath, SECURITY_REPORT_FILES } from "./lib/security-report-paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const libRoot = path.join(root, "src", "lib");
-const outPath = path.join(root, "docs", "SECURITY_LIB_ADMIN_CLIENT_INDEX.md");
+ensureSecurityReportsDir(root);
+const outPath = securityReportFilePath(root, SECURITY_REPORT_FILES.libAdmin);
 
 function walkLibTs(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;

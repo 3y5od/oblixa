@@ -171,9 +171,15 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-const result = spawnSync("npx", ["vitest", "run", ...files], {
-  stdio: "inherit",
-  cwd: root,
-  shell: false,
-});
+// After heavy upstream steps (e.g. full coverage), many parallel fork workers can hit
+// vitest-pool "Timeout waiting for worker to respond". Cap parallelism for this suite.
+const result = spawnSync(
+  "npx",
+  ["vitest", "run", "--no-file-parallelism", "--max-workers=4", ...files],
+  {
+    stdio: "inherit",
+    cwd: root,
+    shell: false,
+  }
+);
 process.exit(result.status ?? 1);

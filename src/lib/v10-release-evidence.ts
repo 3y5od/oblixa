@@ -524,7 +524,7 @@ export const V10_NON_AUTONOMOUS_EVIDENCE_GATES: readonly V10NonAutonomousEvidenc
     captured_at: "2026-04-27T12:00:00.000Z",
     expires_at: null,
     blocker_reason: null,
-    mitigation: "docs/v10-ops-runbook.md + V10_OPERATOR_RUNBOOK_CONTRACTS validated in release-evidence tests.",
+    mitigation: "ops:v10-runbook + V10_OPERATOR_RUNBOOK_CONTRACTS validated in release-evidence tests.",
     approver: "v10_repo_implementation_agent",
     waiver_reason: null,
   },

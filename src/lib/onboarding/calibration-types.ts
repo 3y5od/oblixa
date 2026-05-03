@@ -1,5 +1,5 @@
 /**
- * Onboarding questionnaire types (docs/onboarding.md §6, §9–§10, §16).
+ * Onboarding questionnaire types (onboarding spec §6, §9–§10, §16).
  * Persisted under organizations.v6_org_settings_json.onboarding_calibration.
  */
 import type {
@@ -103,7 +103,7 @@ export type CalibrationRecommendation = {
     suppress_advanced_tiers: boolean;
   };
   /**
-   * Report-pack / subscription alignment (docs/onboarding.md §5–§6). Runtime enforcement on downgrade:
+   * Report-pack / subscription alignment (onboarding spec §5–§6). Runtime enforcement on downgrade:
    * `src/lib/product-surface/workspace-transition.ts`.
    */
   recommended_report_profile: {
@@ -139,7 +139,7 @@ export type OnboardingCalibrationState = {
   /**
    * True only for orgs created via ensureUserOrg (new workspace admin).
    * Invite acceptance does not set this. Typical RLS: any org member may read `organizations` and thus
-   * this JSON; UI must not expose answers on non-admin surfaces (docs/onboarding.md §21).
+   * this JSON; UI must not expose answers on non-admin surfaces (onboarding spec §21).
    */
   blocking_required: boolean;
   status: OnboardingCalibrationStatus;

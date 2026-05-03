@@ -67,7 +67,7 @@ function labelForUtilityKey(key: string): string {
 export function CalibrationWizard(props: {
   initialRequired: Partial<CalibrationAnswersRequired>;
   initialOptional: CalibrationAnswersOptional;
-  /** docs/onboarding.md §24.17 — from `?step=`; clamped on server. */
+  /** onboarding spec §24.17 — from `?step=`; clamped on server. */
   initialStep?: number;
 }) {
   const router = useRouter();

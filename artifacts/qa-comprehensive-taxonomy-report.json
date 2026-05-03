@@ -2,18 +2,18 @@
   "ok": true,
   "catalogVersion": 1,
   "taxonomyVersion": 1,
-  "generatedAt": "2026-05-02T01:16:21.207Z",
+  "generatedAt": "2026-05-03T15:43:19.215Z",
   "counts": {
-    "items": 494,
+    "items": 495,
     "waiverBindingEvents": 99,
     "itemsWithWaiverBinding": 99,
-    "uniqueNpmRefs": 347
+    "uniqueNpmRefs": 348
   },
-  "waiverDebtRatio": 0.20040485829959515,
+  "waiverDebtRatio": 0.2,
   "executionDebtRatio": 0,
   "executionGaps": [],
   "orphanWorkflows": [],
   "orphanChecks": [],
-  "coverageScoreV1": 416,
+  "coverageScoreV1": 417,
   "formula": "coverageScoreV1 = sum(P0 non-waiver)*3 + sum(P1 non-waiver)*2 + sum(P2 non-waiver)*1 + sum(P3 non-waiver)*0.5 - executionGapCount*0.25"
 }

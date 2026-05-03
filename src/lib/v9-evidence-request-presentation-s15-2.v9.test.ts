@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/v9.md §15.2 — what, why, linked-to, who, due/overdue, current status
+ * v9 spec §15.2 — what, why, linked-to, who, due/overdue, current status
  * for each evidence requirement row.
  */
 describe("V9 §15.2 evidence request presentation (ContractEvidenceRequirementsPanel)", () => {

@@ -27,7 +27,7 @@ function baseAnswers(overrides: Partial<CalibrationAnswersRequired> = {}): Calib
   };
 }
 
-describe("docs/onboarding.md acceptance (§22)", () => {
+describe("onboarding spec acceptance (§22)", () => {
   it("§22.1 — coreFallbackV6Patch is core-safe (workspace_mode core, conservative search_scope)", () => {
     const p = coreFallbackV6Patch();
     expect(p.workspace_mode).toBe("core");

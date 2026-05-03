@@ -1,5 +1,5 @@
 /**
- * Env parsing for onboarding calibration stale cron (docs/onboarding.md §4.4).
+ * Env parsing for onboarding calibration stale cron (onboarding spec §4.4).
  * Invalid numeric env falls back to defaults (fail-open for operators).
  */
 

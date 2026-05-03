@@ -1,3 +1,5 @@
+import { OPS_ARTIFACT_V10_RUNBOOK, SPEC_ARTIFACT_V10 } from "../spec-artifact-ids";
+
 export type EnterpriseUiSweepTodoId =
   | "advanced-surfaces"
   | "copy-and-terminology"
@@ -400,7 +402,7 @@ export const ENTERPRISE_UI_SWEEP_LEDGER: readonly EnterpriseUiSweepLedgerRow[] =
   {
     id: "telemetry-docs-release",
     status: "verified",
-    artifacts: ["docs/v10-ops-runbook.md", "docs/v10.md", "src/lib/product-telemetry.ts"],
+    artifacts: [OPS_ARTIFACT_V10_RUNBOOK, SPEC_ARTIFACT_V10, "src/lib/product-telemetry.ts"],
     gates: ["src/lib/product-telemetry.v10.test.ts", "npm run check:v10-release-evidence"],
     acceptanceEvidence: ["release and runbook artifacts carry the new operating principle"],
   },
@@ -428,7 +430,7 @@ export const ENTERPRISE_UI_SWEEP_LEDGER: readonly EnterpriseUiSweepLedgerRow[] =
   {
     id: "rollout-monitoring",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "docs/v10-ops-runbook.md"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", OPS_ARTIFACT_V10_RUNBOOK],
     gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "npm run check:v10-suite"],
     acceptanceEvidence: ["rollout monitoring keys and compatibility shims are tracked outside the plan file"],
   },

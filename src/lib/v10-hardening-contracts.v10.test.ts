@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { SPEC_ARTIFACT_V10, SPEC_ARTIFACT_V9_ARCHIVE } from "./spec-artifact-ids";
 import {
   V10_ADVERSARIAL_TEST_CONTRACTS,
   V10_ADVERSARIAL_ROUTE_ACTION_SCENARIOS,
@@ -591,8 +592,8 @@ describe("V10 final hardening contracts", () => {
   it("validates deprecation decisions and keeps support docs non-authoritative", () => {
     expect(
       validateV10DeprecationCleanupDecision({
-        artifact: "docs/v9.md",
-        supersededBy: "docs/v10.md",
+        artifact: SPEC_ARTIFACT_V9_ARCHIVE,
+        supersededBy: SPEC_ARTIFACT_V10,
         retirementReason: "V10 release contract supersedes V9 documentation.",
         testsPreserved: true,
         releaseEvidenceKey: "v10_deprecation_policy",
@@ -611,14 +612,14 @@ describe("V10 final hardening contracts", () => {
     );
     expect(
       validateV10SupportDocBoundary({
-        docPath: "docs/v10.md",
+        docPath: "src/lib/v10-release-contract.ts",
         referencesShippedBehavior: true,
         referencesDiagnostics: true,
         referencesRecoveryPath: true,
         referencesReleaseEvidence: true,
       })
     ).toEqual([]);
-    expect(validateV10SupportDocBoundary({ docPath: "docs/support.md", claimsCompletionProof: true, containsPrivatePayload: true })).toEqual(
+    expect(validateV10SupportDocBoundary({ docPath: "support-runbook-draft.md", claimsCompletionProof: true, containsPrivatePayload: true })).toEqual(
       expect.arrayContaining(["shipped_behavior_reference_required", "docs_cannot_claim_completion_proof", "private_payload_forbidden"])
     );
   });

@@ -1,5 +1,5 @@
 /**
- * Deterministic onboarding scoring and V6 patch builder (docs/onboarding.md §7, §11–§13, §19.3).
+ * Deterministic onboarding scoring and V6 patch builder (onboarding spec §7, §11–§13, §19.3).
  *
  * §1–2: Calibrates visible complexity only; admins override via V6 + product settings (reversible).
  * §11 / §24: `scoreAdvancedSignals` and `scoreAssuranceSignals` encode contribution increments; see also
@@ -242,7 +242,7 @@ function setupChecklist(a: CalibrationAnswersRequired, opt?: CalibrationAnswersO
   if (a.setup_intent === "configure_workflows_advanced") {
     steps.push("product_settings");
   }
-  // docs/onboarding.md §10.1 — copy/checklist only; does not affect mode scoring.
+  // onboarding spec §10.1 — copy/checklist only; does not affect mode scoring.
   if (opt?.industry_emphasis === "regulated" || opt?.industry_emphasis === "professional_services") {
     steps.unshift("compliance_alignment");
   }
@@ -311,7 +311,7 @@ const CORE_FALLBACK_ANSWERS: CalibrationAnswersRequired = {
 };
 
 /**
- * Maps a finalized recommendation to a V6 merge patch (docs/onboarding.md §12–§13, §18).
+ * Maps a finalized recommendation to a V6 merge patch (onboarding spec §12–§13, §18).
  *
  * **§24.1 — keys this patch must never include** (leave absent so merge preserves prior values):
  * `assurance_nav_admin_testing`, `advanced_nav_roles`, `assurance_nav_roles`,

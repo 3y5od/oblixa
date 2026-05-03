@@ -20,6 +20,7 @@ import {
   getV10RouteTestArtifact,
 } from "./v10-route-api-catalog";
 import { V10_SOURCE_OBJECT_INVENTORY } from "./v10-source-object-inventory";
+import { SPEC_ARTIFACT_V10 } from "./spec-artifact-ids";
 import { V10_SPEC_TRACE } from "./v10-spec-trace-map";
 import { V10_UI_STATE_CONTRACTS } from "./v10-ui-state-contracts";
 import {
@@ -206,7 +207,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       status: "automated_gate",
       owner: "product",
       dimensions: ["test", "release_evidence", "compatibility"],
-      sourceArtifacts: ["docs/v10.md", ...artifacts],
+      sourceArtifacts: [SPEC_ARTIFACT_V10, ...artifacts],
       testArtifacts: artifacts.filter((artifact) => artifact.endsWith(".test.ts") || artifact.endsWith(".test.tsx") || artifact.startsWith("e2e/")),
       releaseEvidenceKey: `v10-release:spec-section:${section.replace(/\./g, "_")}`,
       residualRisk: null,

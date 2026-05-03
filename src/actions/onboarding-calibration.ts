@@ -41,7 +41,7 @@ import {
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 /**
- * docs/onboarding.md §17.3 / §19 — after V6 or workflow policy changes, invalidate the same surfaces as
+ * onboarding spec §17.3 / §19 — after V6 or workflow policy changes, invalidate the same surfaces as
  * product settings (`updateWorkspaceProductSurfaceForm`, `resetWorkspaceProductSurfaceDefaultsForm`).
  * Paths: `/dashboard`, `/more`, `/settings`, `/settings/product`, `/onboarding/calibration` (not `/settings/operations`).
  * Default landing path validity is enforced in {@link recommendationToV6Patch} / merge, not here.

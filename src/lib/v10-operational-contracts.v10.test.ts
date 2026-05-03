@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SPEC_ARTIFACT_V10 } from "./spec-artifact-ids";
 import {
   V10_ACTIVATION_STATES,
   V10_JOB_STATUSES,
@@ -630,8 +631,8 @@ describe("V10 operational contracts", () => {
         {
           key: "cache_policy",
           owner: "security",
-          runtimeArtifact: "docs/v10.md",
-          negativeTestArtifact: "docs/v10.md",
+          runtimeArtifact: SPEC_ARTIFACT_V10,
+          negativeTestArtifact: SPEC_ARTIFACT_V10,
           cachePolicy: "private_no_store",
           requiredEnvKeys: ["NEXT_PUBLIC_SECRET_KEY"],
           compatibilityBoundary: "cache",

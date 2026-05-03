@@ -2,7 +2,8 @@
 
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { resolveAppBaseUrl } from "@/lib/app-url";
-import { mapDataSourceError } from "@/lib/errors/user-facing";
+import { sendWorkspaceInviteLinkEmail } from "@/lib/email";
+import { mapAuthError, mapDataSourceError } from "@/lib/errors/user-facing";
 import type { OrgRole } from "@/lib/types";
 import { isReasonableEmail, isUuid } from "@/lib/security/validation";
 import {
@@ -15,6 +16,16 @@ import { isKillInvites } from "@/lib/security/kill-switches";
 const MAX_PROFILE_NAME_LEN = 200;
 const MAX_ORG_NAME_LEN = 200;
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Supabase rejects admin invite-by-email when the address already exists in Auth. */
+function isExistingAuthUserInviteConflict(message: string): boolean {
+  const m = message.toLowerCase();
+  if (m.includes("already been registered")) return true;
+  if (m.includes("user already registered")) return true;
+  if (m.includes("users_email_partial_key")) return true;
+  if (m.includes("duplicate key") && m.includes("users") && m.includes("email")) return true;
+  return false;
+}
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
@@ -185,16 +196,44 @@ export async function inviteOrgMember(formData: FormData) {
 
   const appUrl = await resolveAppBaseUrl();
 
-  const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+  const redirectTo = `${appUrl}/auth/callback`;
+  const { error: inviteMailErr } = await admin.auth.admin.inviteUserByEmail(email, {
     data: {
       invite_id: inviteRow.id,
     },
-    redirectTo: `${appUrl}/auth/callback`,
+    redirectTo,
   });
 
-  if (error) {
-    await admin.from("organization_invites").delete().eq("id", inviteRow.id);
-    return { error: mapDataSourceError(error.message) };
+  if (inviteMailErr) {
+    if (isExistingAuthUserInviteConflict(inviteMailErr.message)) {
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options: {
+          redirectTo,
+          data: { invite_id: inviteRow.id },
+        },
+      });
+      const actionUrl = linkData?.properties?.action_link;
+      if (linkErr || !actionUrl) {
+        await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+        return { error: mapAuthError(linkErr?.message ?? inviteMailErr.message) };
+      }
+      const sent = await sendWorkspaceInviteLinkEmail({ to: email, actionUrl });
+      if (sent.error) {
+        await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+        console.error("[settings] invite magic-link email:", sent.error.message);
+        return {
+          error:
+            sent.error.message === "Email provider is not configured"
+              ? "This email already has an account. Set RESEND_API_KEY so we can send a sign-in link, or ask them to sign in with that address."
+              : "Could not send the invite email. Try again later.",
+        };
+      }
+    } else {
+      await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+      return { error: mapAuthError(inviteMailErr.message) };
+    }
   }
 
   await admin.from("audit_events").insert({
@@ -305,15 +344,46 @@ export async function resendOrgInvite(inviteId: string) {
   if (expErr) return { error: mapDataSourceError(expErr.message) };
 
   const appUrl = await resolveAppBaseUrl();
+  const redirectTo = `${appUrl}/auth/callback`;
 
-  const { error } = await admin.auth.admin.inviteUserByEmail(inv.email, {
+  const { error: inviteMailErr } = await admin.auth.admin.inviteUserByEmail(inv.email, {
     data: {
       invite_id: inviteId,
     },
-    redirectTo: `${appUrl}/auth/callback`,
+    redirectTo,
   });
 
-  if (error) return { error: mapDataSourceError(error.message) };
+  if (inviteMailErr) {
+    if (isExistingAuthUserInviteConflict(inviteMailErr.message)) {
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email: inv.email,
+        options: {
+          redirectTo,
+          data: { invite_id: inviteId },
+        },
+      });
+      const actionUrl = linkData?.properties?.action_link;
+      if (linkErr || !actionUrl) {
+        return { error: mapAuthError(linkErr?.message ?? inviteMailErr.message) };
+      }
+      const sent = await sendWorkspaceInviteLinkEmail({
+        to: inv.email,
+        actionUrl,
+      });
+      if (sent.error) {
+        console.error("[settings] resend invite magic-link email:", sent.error.message);
+        return {
+          error:
+            sent.error.message === "Email provider is not configured"
+              ? "This email already has an account. Set RESEND_API_KEY to resend a sign-in link."
+              : "Could not send the invite email. Try again later.",
+        };
+      }
+    } else {
+      return { error: mapAuthError(inviteMailErr.message) };
+    }
+  }
 
   await admin.from("audit_events").insert({
     organization_id: inv.organization_id,

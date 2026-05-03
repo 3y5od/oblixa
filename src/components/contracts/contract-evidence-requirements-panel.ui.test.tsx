@@ -10,7 +10,7 @@ vi.mock("@/actions/v4", () => ({
 }));
 
 describe("ContractEvidenceRequirementsPanel", () => {
-  /** docs/v9.md §15.2 — one row must expose all six presentation bullets */
+  /** v9 spec §15.2 — one row must expose all six presentation bullets */
   it("§15.2: single requirement shows what, why, linked-to, who, due, and status", () => {
     renderWithProviders(
       <ContractEvidenceRequirementsPanel

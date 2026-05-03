@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-/** docs/v9.md §14.2 — severity, cause, owner, age/due, related contract, next action path */
+/** v9 spec §14.2 — severity, cause, owner, age/due, related contract, next action path */
 describe("V9 §14.2 exception list required content (exceptions/page.tsx)", () => {
   const page = readFileSync(
     join(process.cwd(), "src/app/(dashboard)/contracts/exceptions/page.tsx"),

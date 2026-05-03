@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/v9.md §13.2 — each renewal row must surface horizon, owner, stage, blockers,
+ * v9 spec §13.2 — each renewal row must surface horizon, owner, stage, blockers,
  * exception involvement, missing evidence, and next recommended action.
  */
 describe("V9 §13.2 renewal row signals (renewals/page.tsx)", () => {

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * docs/onboarding.md §20.1 — lifecycle strings recorded as audit_events (not outbound_events).
+ * onboarding spec §20.1 — lifecycle strings recorded as audit_events (not outbound_events).
  */
 const ONBOARDING_AUDIT_ACTIONS = [
   "onboarding.questionnaire_started",

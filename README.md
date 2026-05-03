@@ -83,7 +83,6 @@ e2e/         Playwright specs, fixtures, and route matrices
 scripts/     CI pipelines, audits, reports, and release helpers
 semgrep/     Custom Semgrep rules for security, performance, and surface policies
 supabase/    Migrations and local Supabase configuration
-docs/        Optional contributor guides and generated reports
 public/      Static assets and well-known files
 ```
 

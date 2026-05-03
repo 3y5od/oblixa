@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Heuristic scan of src/actions/*.ts (excluding *.test.ts).
- * Writes docs/SECURITY_SERVER_ACTIONS_HEURISTICS.md
+ * Writes artifacts/generated/security/SECURITY_SERVER_ACTIONS_HEURISTICS.md
  *
  * V7: Advanced/Assurance mutations should use the same surface guards as APIs; prefer colocated
  * `*.test.ts` next to each action module (see src/actions/*scope*.test.ts patterns).
@@ -9,11 +9,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureSecurityReportsDir, securityReportFilePath, SECURITY_REPORT_FILES } from "./lib/security-report-paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const actionsRoot = path.join(root, "src", "actions");
-const outPath = path.join(root, "docs", "SECURITY_SERVER_ACTIONS_HEURISTICS.md");
+ensureSecurityReportsDir(root);
+const outPath = securityReportFilePath(root, SECURITY_REPORT_FILES.serverActions);
 
 function walkActionFiles(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;

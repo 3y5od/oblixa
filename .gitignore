@@ -26,6 +26,7 @@ coverage/
 cyclonedx-sbom.json
 artifacts/carbon-ci-stub.runtime.json
 artifacts/autonomous-perf-run.json
+artifacts/generated/
 test-results/
 playwright-report/
 blob-report/

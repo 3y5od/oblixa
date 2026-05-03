@@ -64,7 +64,7 @@ if (postGaWindow != null) {
             "External blocker review completed for provider and support incidents",
           ],
           operatorNote:
-            "Set V10_POST_GA_EVIDENCE_CAPTURE_OK=1 only after persisting dashboard URLs and evidence rows per docs/v10-ops-runbook.md.",
+            "Set V10_POST_GA_EVIDENCE_CAPTURE_OK=1 only after persisting dashboard URLs and evidence rows per ops:v10-runbook (V10_OPERATOR_RUNBOOK_CONTRACTS + release-evidence tests).",
         },
         null,
         2
@@ -323,8 +323,7 @@ const requiredFiles = [
   "scripts/check-v10-inventory-lock.mjs",
   "scripts/check-v10-migration-smoke.mjs",
   "scripts/rebuild-v10-read-models.mjs",
-  "docs/v10.md",
-  "docs/v10-ops-runbook.md",
+  "src/lib/spec-artifact-ids.ts",
   "supabase/migrations/057_v10_runtime_contracts.sql",
   "e2e/v10-core-smoke.spec.ts",
   "semgrep/oblixa-v10-surface.yml",
@@ -881,19 +880,15 @@ for (const evidenceGate of [
   if (!evidence.includes(`key: "${evidenceGate}"`)) failures.push(`missing-non-autonomous-evidence-gate:${evidenceGate}`);
 }
 
-const docs = readFileSync(join(root, "docs/v10.md"), "utf8");
 const traceMap = readFileSync(join(root, "src/lib/v10-spec-trace-map.ts"), "utf8");
-const docSections = [...docs.matchAll(/^#{2,6}\s+(\d+(?:\.\d+)*)(?:\.\s+|\s+|$)/gm)]
-  .map((match) => match[1])
-  .filter(Boolean);
 const traceSections = [...traceMap.matchAll(/"(\d+(?:\.\d+)*)"\s*:/g)]
   .map((match) => match[1])
   .filter(Boolean);
-for (const section of docSections) {
-  if (!traceMap.includes(`"${section}"`)) failures.push(`missing-spec-trace-section:${section}`);
-}
-for (const section of traceSections) {
-  if (!docSections.includes(section)) failures.push(`stale-spec-trace-section:${section}`);
+const traceKeySet = new Set(traceSections);
+if (traceKeySet.size < 50) failures.push(`spec-trace-key-count-too-low:${traceKeySet.size}`);
+if (traceSections.length !== traceKeySet.size) failures.push("duplicate-spec-trace-keys");
+for (const section of traceKeySet) {
+  if (!/^\d+(\.\d+)*$/.test(section)) failures.push(`invalid-spec-trace-key:${section}`);
 }
 
 if (failures.length > 0) {

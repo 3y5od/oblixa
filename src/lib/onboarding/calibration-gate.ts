@@ -15,7 +15,7 @@ export function isOnboardingCalibrationGateDisabled(): boolean {
 const CALIBRATION_PATH = "/onboarding/calibration";
 
 /**
- * Admin + org JSON indicates first-run blocking questionnaire (docs/onboarding.md §4).
+ * Admin + org JSON indicates first-run blocking questionnaire (onboarding spec §4).
  */
 export async function resolveBlockingCalibrationPathForAdminOrg(input: {
   admin: AdminClient;

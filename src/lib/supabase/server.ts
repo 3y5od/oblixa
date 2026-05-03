@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { cache } from "react";
+import { cache as reactCache } from "react";
 import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
@@ -54,8 +54,12 @@ export async function createClient() {
   );
 }
 
-/** One service-role client per request (safe to reuse; avoids duplicate handshakes). */
-export const createAdminClient = cache(async () => {
+/**
+ * Service-role Supabase client (bypasses RLS). Not wrapped in `react.cache`:
+ * App Router route handlers (including Vercel Cron `GET`) can run outside the React
+ * request cache context; `cache()` there has caused opaque 5xx in production.
+ */
+export async function createAdminClient() {
   const { url } = getSupabasePublicEnv();
   const serviceRoleKey = getSupabaseServiceRoleKey();
   return createServerClient(
@@ -68,7 +72,7 @@ export const createAdminClient = cache(async () => {
       },
     }
   );
-});
+}
 
 /**
  * Picks one org per user for server-side resolution (dashboard, API routes, server actions).
@@ -133,10 +137,10 @@ export async function getUserOrgId(userId: string): Promise<string | null> {
  * data queries, bypassing RLS which can fail when the JWT isn't properly
  * propagated to PostgREST in Server Components.
  *
- * Deduplicated per React request via `cache` so parallel layouts / imports
+ * Deduplicated per React request via `reactCache` so parallel layouts / imports
  * don’t repeat `getUser()` and membership lookups.
  */
-export const getAuthContext = cache(async () => {
+export const getAuthContext = reactCache(async () => {
   const supabase = await createClient();
   const {
     data: { user },

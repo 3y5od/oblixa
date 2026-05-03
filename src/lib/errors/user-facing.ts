@@ -53,6 +53,18 @@ export function mapAuthError(message: string): string {
   if (lower.includes("user already registered")) {
     return "An account with this email already exists.";
   }
+  if (
+    lower.includes("redirect") &&
+    (lower.includes("not allowed") ||
+      lower.includes("not valid") ||
+      lower.includes("must use https") ||
+      lower.includes("url configuration"))
+  ) {
+    return "This site URL is not allowed for auth redirects. Add it in Supabase under Authentication → URL Configuration.";
+  }
+  if (lower.includes("rate limit") || lower.includes("too many requests")) {
+    return "Too many attempts. Wait a few minutes and try again.";
+  }
   if (lower.includes("password")) {
     return mapDataSourceError(message);
   }

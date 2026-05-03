@@ -5,7 +5,7 @@ import { STATUS_LABELS, STATUS_SEMANTICS } from "./contracts";
 import { NAV_ITEMS } from "./navigation";
 import type { ContractStatus } from "@/lib/types";
 
-/** docs/v9.md §24.1 — stable Core nouns (exact primary nav labels). */
+/** v9 spec §24.1 — stable Core nouns (exact primary nav labels). */
 const V9_CORE_VOCAB = [
   "Contracts",
   "Review",

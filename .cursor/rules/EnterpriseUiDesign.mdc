@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Enterprise UI Design
 
-Before changing authenticated product UI, route states, reusable UI components, operator copy, diagnostics, command palette results, shell navigation, or UI tests, read `docs/enterprise-ui-design-principles.md` and apply it.
+Before changing authenticated product UI, route states, reusable UI components, operator copy, diagnostics, command palette results, shell navigation, or UI tests, read `src/lib/ui/enterprise-ui-sweep-contract.ts` and apply the same principles in that module.
 
 Core rules:
 

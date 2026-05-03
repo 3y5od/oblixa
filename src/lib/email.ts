@@ -130,6 +130,42 @@ export async function sendReviewBoardPacketEmail({
   return { error };
 }
 
+/** Sent when Supabase invite-by-email fails because the address already has an auth user. */
+export async function sendWorkspaceInviteLinkEmail(opts: {
+  to: string;
+  actionUrl: string;
+}): Promise<{ error: Error | null }> {
+  const resendClient = getResendClient();
+  if (!resendClient) {
+    return { error: new Error("Email provider is not configured") };
+  }
+  const safeUrl = escapeHtml(opts.actionUrl);
+  const { error } = await resendClient.emails.send({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to: opts.to,
+    subject: sanitizeSubject("You're invited to an Oblixa workspace"),
+    html: `
+      <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
+        <h2 style="color: #111827; font-size: 18px;">Workspace invitation</h2>
+        <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+          You were invited to join a workspace on Oblixa. Use the button below to sign in and accept
+          the invitation. The link expires soon.
+        </p>
+        <a href="${safeUrl}"
+           style="display: inline-block; margin-top: 16px; padding: 10px 20px;
+                  background-color: #2563eb; color: #ffffff; text-decoration: none;
+                  border-radius: 6px; font-size: 14px; font-weight: 500;">
+          Accept invitation
+        </a>
+        <p style="margin-top: 24px; color: #9ca3af; font-size: 12px;">
+          If you did not expect this, you can ignore this email.
+        </p>
+      </div>
+    `,
+  });
+  return { error: error ? new Error(error.message) : null };
+}
+
 interface SavedViewSummaryEmailParams {
   to: string | string[];
   viewName: string;

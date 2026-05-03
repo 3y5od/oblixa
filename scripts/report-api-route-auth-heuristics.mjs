@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
  * Heuristic scan of src/app/api route.ts files (substring signals only; not proof of correct auth).
- * Writes docs/SECURITY_API_AUTH_HEURISTICS.md
+ * Writes artifacts/generated/security/SECURITY_API_AUTH_HEURISTICS.md
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureSecurityReportsDir, securityReportFilePath, SECURITY_REPORT_FILES } from "./lib/security-report-paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const apiRoot = path.join(root, "src", "app", "api");
-const outPath = path.join(root, "docs", "SECURITY_API_AUTH_HEURISTICS.md");
+ensureSecurityReportsDir(root);
+const outPath = securityReportFilePath(root, SECURITY_REPORT_FILES.apiAuthHeuristics);
 
 /** @type {{ id: string, re: RegExp }[]} */
 const SIGNALS = [

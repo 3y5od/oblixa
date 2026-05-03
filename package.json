@@ -507,6 +507,7 @@
     "check:script-registry-integrity": "node scripts/check-script-registry-integrity.mjs",
     "check:command-reference-integrity": "node scripts/check-command-reference-integrity.mjs",
     "check:qa-workflow-fleet": "node scripts/check-qa-workflow-fleet.mjs",
+    "check:github-workflows-yaml": "node scripts/validate-github-workflows-yaml.mjs",
     "check:openapi-contract-smoke": "node scripts/openapi-contract-smoke.mjs",
     "check:next-config-surface": "node scripts/check-next-config-surface.mjs",
     "check:artifact-json-matrix": "node scripts/check-artifact-json-matrix.mjs",

@@ -60,6 +60,12 @@ describe("mapAuthError", () => {
     expect(mapAuthError("Invalid login credentials")).toBe("Invalid email or password.");
     expect(mapAuthError("Email not confirmed")).toBe("Confirm your email before signing in.");
     expect(mapAuthError("User already registered")).toBe("An account with this email already exists.");
+    expect(mapAuthError("redirect_uri is not allowed")).toBe(
+      "This site URL is not allowed for auth redirects. Add it in Supabase under Authentication → URL Configuration."
+    );
+    expect(mapAuthError("Rate limit exceeded")).toBe(
+      "Too many attempts. Wait a few minutes and try again."
+    );
   });
 
   it("routes password-related errors through mapDataSourceError", () => {

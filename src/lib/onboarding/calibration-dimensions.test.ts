@@ -52,7 +52,7 @@ const SETUPS: SetupIntentId[] = [
 ];
 const ASSURANCE: AssuranceIntentId[] = ["not_now", "maybe_later", "yes_workspace"];
 
-describe("calibration-dimensions (docs/onboarding.md §11.1)", () => {
+describe("calibration-dimensions (onboarding spec §11.1)", () => {
   it("exported CALIBRATION_SCORING_WEIGHTS is structurally complete for every enum value", () => {
     for (const p of PRIMARIES) expect(CALIBRATION_SCORING_WEIGHTS.primary_use_case[p]).toBeDefined();
     for (const t of TEAMS) expect(CALIBRATION_SCORING_WEIGHTS.team_model[t]).toBeDefined();

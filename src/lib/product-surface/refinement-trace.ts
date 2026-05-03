@@ -28,7 +28,7 @@ export const REFINEMENT_OBJECTIVES = [
   "Stronger quality/polish on visible surfaces",
 ] as const;
 
-/** docs/v7.md §23–§25 — acceptance trace points for product-surface control. */
+/** v7 spec §23–§25 — acceptance trace points for product-surface control. */
 export const REFINEMENT_V7_TRACE_STRINGS = [
   "Registry-first feature ownership",
   "Eligibility-driven discoverability",

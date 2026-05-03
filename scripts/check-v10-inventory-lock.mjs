@@ -6,7 +6,7 @@ const root = process.cwd();
 
 const SCAN_ROOTS = [
   ".github/workflows",
-  "docs",
+  "artifacts/generated/security",
   "e2e",
   "scripts",
   "semgrep",
@@ -105,7 +105,9 @@ function parseInventoryArtifacts() {
     "src/lib/v10-source-object-inventory.ts",
   ]) {
     const source = readFileSync(join(root, file), "utf8");
-    for (const match of source.matchAll(/"((?:\.github|docs|e2e|package\.json|scripts|semgrep|src|supabase|vercel\.json|vitest)[^"]+)"/g)) {
+    for (const match of source.matchAll(
+      /"((?:\.github|artifacts|e2e|package\.json|scripts|semgrep|src|supabase|vercel\.json|vitest)[^"]+)"/g
+    )) {
       artifacts.add(match[1]);
     }
   }
@@ -146,7 +148,7 @@ function classifyRouteBoundary(routePath) {
 function classifyFile(file, catalogPaths, inventoryArtifacts) {
   const inInventory = inventoryArtifacts.has(file);
   if (file.startsWith(".github/workflows/")) return { kind: "ci_workflow", inInventory };
-  if (file.startsWith("docs/")) return { kind: "documentation", inInventory };
+  if (file.startsWith("artifacts/generated/security/")) return { kind: "generated_security_report", inInventory };
   if (file.startsWith("e2e/")) return { kind: "browser_evidence", inInventory };
   if (file.startsWith("scripts/")) return { kind: "release_or_ops_script", inInventory };
   if (file.startsWith("semgrep/")) return { kind: "security_rulepack", inInventory };

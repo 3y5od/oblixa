@@ -1,3 +1,5 @@
+import { SPEC_ARTIFACT_V10 } from "./spec-artifact-ids";
+
 export type V10AcceptanceDisposition =
   | "shipped"
   | "automated_gate"
@@ -373,7 +375,7 @@ export const V10_ACCEPTANCE_MATRIX: readonly V10AcceptanceMatrixRow[] = [
     id: "release-handoff",
     category: "release",
     disposition: "automated_gate",
-    artifacts: ["docs/v10.md", "src/lib/v10-release-evidence.ts"],
+    artifacts: [SPEC_ARTIFACT_V10, "src/lib/v10-release-evidence.ts"],
     gates: ["npm run check:v10-release-evidence"],
   },
   {
@@ -539,14 +541,14 @@ export const V10_ACCEPTANCE_MATRIX: readonly V10AcceptanceMatrixRow[] = [
     id: "deprecation-cleanup-policy",
     category: "release",
     disposition: "automated_gate",
-    artifacts: ["docs/v10.md", "src/lib/v9-release-contract.ts"],
+    artifacts: [SPEC_ARTIFACT_V10, "src/lib/v9-release-contract.ts"],
     gates: ["src/lib/v9-*.v9.test.ts", "npm run check:v10-suite"],
   },
   {
     id: "support-docs-boundaries",
     category: "operations",
     disposition: "automated_gate",
-    artifacts: ["docs/v10.md", "src/lib/v10-hardening-contracts.ts"],
+    artifacts: [SPEC_ARTIFACT_V10, "src/lib/v10-hardening-contracts.ts"],
     gates: ["src/lib/v10-hardening-contracts.v10.test.ts"],
   },
   {
@@ -789,7 +791,10 @@ export function getV10AcceptanceProof(row: V10AcceptanceMatrixRow): V10Acceptanc
     releaseEvidence: [
       row.disposition,
       ...row.gates.filter((gate) => gate.includes("release-evidence")),
-      ...row.artifacts.filter((artifact) => artifact.includes("release-evidence") || artifact.startsWith("docs/")),
+      ...row.artifacts.filter(
+        (artifact) =>
+          artifact.includes("release-evidence") || artifact.startsWith("spec:") || artifact.startsWith("ops:")
+      ),
     ],
     releaseEvidenceOwner,
     verificationCommands: getV10AcceptanceVerificationCommands(row),

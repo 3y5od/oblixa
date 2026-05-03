@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const adr = path.join(root, "docs", "adr");
+const adr = path.join(root, "adr");
 const strict = process.env.ADR_REQUIRED_STRICT === "1";
 const hasAdr = fs.existsSync(adr);
 console.log(JSON.stringify({ checkId: "adr-required-paths-lint", strict, hasAdr }, null, 2));

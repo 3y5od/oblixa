@@ -1,4 +1,4 @@
-/** User-visible copy for onboarding calibration (docs/onboarding.md §8–§14). */
+/** User-visible copy for onboarding calibration (onboarding spec §8–§14). */
 
 import type { CalibrationHistoryEntry } from "@/lib/onboarding/calibration-types";
 import type { SetupChecklistStepKey } from "@/lib/onboarding/calibration-map";
@@ -8,7 +8,7 @@ export const calibrationFlowTitle = "Set up your workspace";
 export const calibrationFlowSubtitle =
   "A few quick choices so we show the right parts of Oblixa. You can change this anytime in Settings.";
 
-/** docs/onboarding.md §10.3 — optional org role nudge on dashboard after calibration (copy-only; does not change mode). */
+/** onboarding spec §10.3 — optional org role nudge on dashboard after calibration (copy-only; does not change mode). */
 export const dashboardOrgRoleCalibrationNudge =
   "Your optional role answer helped set the suggested landing path and getting-started checklist order.";
 

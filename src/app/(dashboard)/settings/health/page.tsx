@@ -645,7 +645,7 @@ export default async function SettingsHealthPage() {
               Operational SLO windows need attention
             </h2>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              Per docs/v10.md section 2.2, post-GA misses surface here until production dashboards and mitigations are recorded.
+              Per the V10 release contract post-GA operational SLO policy, misses surface here until production dashboards and mitigations are recorded.
             </p>
           </div>
           <ul className="divide-y divide-[var(--border-subtle)]">

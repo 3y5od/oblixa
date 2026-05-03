@@ -46,7 +46,9 @@ execSync("npm run check:onboarding-stale-env-parity", { stdio: "inherit", cwd })
 execSync("npm run check:performance-static:strict", { stdio: "inherit", cwd });
 execSync("npm run check:bundle-budget", { stdio: "inherit", cwd });
 execSync("npm run check:incident-readiness:strict", { stdio: "inherit", cwd });
-execSync("npm run check:artifact-integrity", { stdio: "inherit", cwd });
+// Do not run check:artifact-integrity here: release-preflight is invoked from
+// report-release-readiness.mjs, which is spawned by report-artifact-integrity.mjs —
+// nesting artifact-integrity would recurse until timeout.
 execSync("npm run check:v10-migration-smoke", { stdio: "inherit", cwd });
 execSync("npm run check:v10-release-evidence", { stdio: "inherit", cwd });
 execSync("npm run check:v10-privacy-scan", { stdio: "inherit", cwd });

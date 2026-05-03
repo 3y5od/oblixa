@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-01T23:36:46.340Z",
+  "generated_at": "2026-05-03T15:38:21.742Z",
   "sources": [
     "src/lib/auth/proxy-path-policy.ts",
     "src/lib/marketing/public-paths.ts"

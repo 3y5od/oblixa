@@ -46,7 +46,7 @@ export type V6OrgSettingsJson = {
   home_hidden_sections?: string[];
   /** Search scope policy for command/global search eligibility. */
   search_scope?: ProductSearchScope;
-  /** Post-signup questionnaire state + answers (docs/onboarding.md); separate from applied surface fields. */
+  /** Post-signup questionnaire state + answers (onboarding spec); separate from applied surface fields. */
   onboarding_calibration?: OnboardingCalibrationState;
 };
 

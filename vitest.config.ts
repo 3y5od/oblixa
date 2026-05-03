@@ -52,9 +52,9 @@ export default defineConfig({
     exclude: [...UI_TEST_EXCLUDES],
     // Forks keep large suites + jsdom tests stable (threads occasionally OOM locally).
     pool: "forks",
-    // CI ran into timeout flakes when many async route tests contend.
-    maxWorkers: process.env.CI ? "75%" : "50%",
-    testTimeout: 10000,
+    // Keep worker count conservative under coverage + large route suites (avoids vitest-pool fork startup timeouts).
+    maxWorkers: process.env.CI ? "50%" : "25%",
+    testTimeout: 20000,
     coverage: {
       provider: "v8",
       include: [

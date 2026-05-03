@@ -77,7 +77,7 @@ describe("calibration-map", () => {
     "autopilot_allow_execution",
   ]);
 
-  it("recommendationToV6Patch and coreFallbackV6Patch only set allowed V6 keys (docs/onboarding.md §24.1)", () => {
+  it("recommendationToV6Patch and coreFallbackV6Patch only set allowed V6 keys (onboarding spec §24.1)", () => {
     const rec = finalizeRecommendation(
       baseAnswers({ complexity_preference: "full_visibility", assurance_intent: "yes_workspace" }),
       flags
@@ -90,7 +90,7 @@ describe("calibration-map", () => {
     }
   });
 
-  it("optional industry_emphasis does not change mode or surface patch (docs/onboarding.md §10.1)", () => {
+  it("optional industry_emphasis does not change mode or surface patch (onboarding spec §10.1)", () => {
     const a = baseAnswers({ complexity_preference: "more_if_helps" });
     const r1 = finalizeRecommendation(a, flags, { industry_emphasis: "saas" });
     const r2 = finalizeRecommendation(a, flags, { industry_emphasis: "regulated" });
