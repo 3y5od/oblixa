@@ -7,6 +7,15 @@ export const CRON_DENY_RESPONSE_HEADERS = {
   Pragma: "no-cache",
 } as const;
 
+function safeRouteFromRequest(request?: Request): string | undefined {
+  if (!request) return undefined;
+  try {
+    return new URL(request.url).pathname;
+  } catch {
+    return undefined;
+  }
+}
+
 /** True when an unsigned cron probe got an auth-layer rejection (401 bad caller, 503 misconfigured). */
 export function isCronAuthProbeRejectStatus(status: number): boolean {
   return status === 401 || status === 503;
@@ -27,21 +36,31 @@ function mergeDenyHeaders(init?: HeadersInit): Headers {
  * JSON deny when CRON_SECRET is unset. Prefer 503 so operators distinguish
  * misconfiguration from 401 bad/missing caller credentials.
  */
-export function respondCronMissingEnv(init?: { headers?: HeadersInit }): NextResponse {
+export function respondCronMissingEnv(init?: { headers?: HeadersInit; request?: Request }): NextResponse {
   console.error("[cron] denied reason=missing_env CRON_SECRET unset_or_blank");
+  const route = safeRouteFromRequest(init?.request);
   return NextResponse.json(
     {
       error: "Server misconfigured: scheduled routes require CRON_SECRET",
       code: "cron_secret_missing",
+      diagnostic_id: "cron_secret_missing",
+      missing_env: "CRON_SECRET",
+      ...(route ? { route } : {}),
     },
     { status: 503, headers: mergeDenyHeaders(init?.headers) }
   );
 }
 
-export function respondCronUnauthorized(init?: { headers?: HeadersInit }): NextResponse {
+export function respondCronUnauthorized(init?: { headers?: HeadersInit; request?: Request }): NextResponse {
   console.warn("[cron] denied reason=bad_bearer_or_header");
+  const route = safeRouteFromRequest(init?.request);
   return NextResponse.json(
-    { error: "Unauthorized", code: "cron_unauthorized" },
+    {
+      error: "Unauthorized",
+      code: "cron_unauthorized",
+      diagnostic_id: "cron_unauthorized",
+      ...(route ? { route } : {}),
+    },
     { status: 401, headers: mergeDenyHeaders(init?.headers) }
   );
 }
@@ -53,10 +72,10 @@ export function respondCronUnauthorized(init?: { headers?: HeadersInit }): NextR
 export function gateCronRequest(request: Request, init?: { headers?: HeadersInit }): NextResponse | null {
   const cronSecret = process.env.CRON_SECRET?.trim();
   if (!cronSecret) {
-    return respondCronMissingEnv(init);
+    return respondCronMissingEnv({ ...init, request });
   }
   if (!authorizeCronRequest(request, cronSecret)) {
-    return respondCronUnauthorized(init);
+    return respondCronUnauthorized({ ...init, request });
   }
   return null;
 }

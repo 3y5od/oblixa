@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "tables": [],
+  "notes": "Epic 5 — populate via migration review + codegen; empty means human queue has not classified candidate tables yet."
+}

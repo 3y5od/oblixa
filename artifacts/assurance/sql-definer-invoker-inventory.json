@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "program": "maximal-assurance-epic25",
+  "generatedAt": "2026-05-03T17:56:54.119Z",
+  "migrationDir": "supabase/migrations",
+  "filesWithHits": 7,
+  "rows": [
+    {
+      "file": "supabase/migrations/001_initial_schema.sql",
+      "hits": [
+        {
+          "line": 119,
+          "kind": "SECURITY_DEFINER",
+          "text": "$$ language plpgsql security definer;"
+        },
+        {
+          "line": 331,
+          "kind": "SECURITY_DEFINER",
+          "text": "$$ language plpgsql security definer;"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/035_fix_rls_recursion_org_members.sql",
+      "hits": [
+        {
+          "line": 1,
+          "kind": "SECURITY_DEFINER",
+          "text": "-- Fix RLS recursion on organization_members by using a SECURITY DEFINER helper."
+        },
+        {
+          "line": 8,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/041_v4_security_hardening.sql",
+      "hits": [
+        {
+          "line": 2,
+          "kind": "SECURITY_DEFINER",
+          "text": "-- and tighter SECURITY DEFINER function safeguards."
+        },
+        {
+          "line": 46,
+          "kind": "SECURITY_DEFINER",
+          "text": "-- SECURITY DEFINER hardening: always bind the requested user to auth.uid()."
+        },
+        {
+          "line": 50,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 66,
+          "kind": "SECURITY_DEFINER",
+          "text": "-- SECURITY DEFINER hardening: pin search_path explicitly."
+        },
+        {
+          "line": 70,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/042_dashboard_metrics_and_perf_indexes.sql",
+      "hits": [
+        {
+          "line": 16,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 52,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/056_v9_performance_snapshots.sql",
+      "hits": [
+        {
+          "line": 58,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 143,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 206,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 219,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 252,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/057_v10_runtime_contracts.sql",
+      "hits": [
+        {
+          "line": 76,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 116,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 202,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 233,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 260,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 1253,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 1354,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        },
+        {
+          "line": 1489,
+          "kind": "SECURITY_DEFINER",
+          "text": "security definer"
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/063_contract_operational_dates_security_invoker.sql",
+      "hits": [
+        {
+          "line": 1,
+          "kind": "SECURITY_DEFINER",
+          "text": "-- Supabase advisor: default view behavior is SECURITY DEFINER (owner privileges on"
+        },
+        {
+          "line": 5,
+          "kind": "VIEW_SECURITY_INVOKER_OPTION",
+          "text": "with (security_invoker = true)"
+        }
+      ]
+    }
+  ]
+}

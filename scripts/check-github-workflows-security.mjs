@@ -2,6 +2,7 @@
 /**
  * Fails on high-risk GitHub Actions patterns (e.g. pull_request_target).
  * Paths listed in scripts/github-workflows-security-allowlist.txt are skipped (one basename per line).
+ * Epic 39 extends this file over time (permissions matrix, dangerous triggers inventory).
  */
 import fs from "node:fs";
 import path from "node:path";

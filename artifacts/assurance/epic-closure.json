@@ -1,0 +1,1064 @@
+{
+  "version": 1,
+  "program": "maximal-assurance-epic-closure",
+  "generatedAt": "2026-05-03T17:56:56.993Z",
+  "notes": "Each epic is either evidence (automated command) or explicit bulk N/A. NA set reviewed quarterly; promote rows to evidence when shipping scope.",
+  "closures": [
+    {
+      "epicNumber": 1,
+      "todoKey": "epic1-cron-dual-auth",
+      "mode": "evidence",
+      "evidence": "npm run check:cron-route-auth"
+    },
+    {
+      "epicNumber": 2,
+      "todoKey": "epic2-ci-fail-closed",
+      "mode": "evidence",
+      "evidence": "npm run check:github-scheduled-workflows-secrets"
+    },
+    {
+      "epicNumber": 3,
+      "todoKey": "epic3-api-runtime-smoke",
+      "mode": "evidence",
+      "evidence": "npm run check:api-runtime-smoke-registry"
+    },
+    {
+      "epicNumber": 4,
+      "todoKey": "epic4-route-action-depth",
+      "mode": "evidence",
+      "evidence": "npm run check:api-route-tests"
+    },
+    {
+      "epicNumber": 5,
+      "todoKey": "epic5-data-plane",
+      "mode": "evidence",
+      "evidence": "npm run check:rls-sanity-tables"
+    },
+    {
+      "epicNumber": 6,
+      "todoKey": "epic6-obs-hooks",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/observability/api-route-instrumentation.test.ts"
+    },
+    {
+      "epicNumber": 7,
+      "todoKey": "epic7-playwright-registry",
+      "mode": "evidence",
+      "evidence": "npm run test:e2e:adversarial"
+    },
+    {
+      "epicNumber": 8,
+      "todoKey": "epic8-load-scaffold",
+      "mode": "evidence",
+      "evidence": "node scripts/check-load-smoke-scaffold.mjs"
+    },
+    {
+      "epicNumber": 9,
+      "todoKey": "epic9-chaos-mocks",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/dev-fault-injection.test.ts"
+    },
+    {
+      "epicNumber": 10,
+      "todoKey": "epic10-a11y-nightly",
+      "mode": "evidence",
+      "evidence": "npm run test:ui:a11y"
+    },
+    {
+      "epicNumber": 11,
+      "todoKey": "epic11-stripe-fixtures",
+      "mode": "evidence",
+      "evidence": "vitest run src/app/api/stripe/webhook/route.test.ts"
+    },
+    {
+      "epicNumber": 12,
+      "todoKey": "epic12-waiver-registry",
+      "mode": "evidence",
+      "evidence": "npm run check:assurance-waivers"
+    },
+    {
+      "epicNumber": 13,
+      "todoKey": "epic13-catalog-script-index",
+      "mode": "evidence",
+      "evidence": "npm run check:catalog-script-index"
+    },
+    {
+      "epicNumber": 14,
+      "todoKey": "epic14-evidence-scripts",
+      "mode": "evidence",
+      "evidence": "npm run check:evidence-deepening-bundle"
+    },
+    {
+      "epicNumber": 15,
+      "todoKey": "epic15-http-semantics",
+      "mode": "evidence",
+      "evidence": "npm run test:assurance:epics15-24"
+    },
+    {
+      "epicNumber": 16,
+      "todoKey": "epic16-authn-authz-matrix",
+      "mode": "evidence",
+      "evidence": "npm run test:assurance:epics15-24"
+    },
+    {
+      "epicNumber": 17,
+      "todoKey": "epic17-middleware-config-drift",
+      "mode": "evidence",
+      "evidence": "node scripts/check-middleware-vercel-metadata.mjs"
+    },
+    {
+      "epicNumber": 18,
+      "todoKey": "epic18-rate-limit-idempotency",
+      "mode": "evidence",
+      "evidence": "vitest run src/app/api/webhooks/dispatch/route.test.ts src/app/api/reports/track/open/[token]/route.test.ts"
+    },
+    {
+      "epicNumber": 19,
+      "todoKey": "epic19-storage-realtime",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/assurance/epic19-storage-realtime-stub.test.ts"
+    },
+    {
+      "epicNumber": 20,
+      "todoKey": "epic20-oauth-integrations",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/integrations/oauth-config.test.ts"
+    },
+    {
+      "epicNumber": 21,
+      "todoKey": "epic21-extraction-ml-safety",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/extraction/extraction.test.ts"
+    },
+    {
+      "epicNumber": 22,
+      "todoKey": "epic22-email-messaging-sanitize",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/email/list-unsubscribe-header.test.ts"
+    },
+    {
+      "epicNumber": 23,
+      "todoKey": "epic23-import-export-evidence",
+      "mode": "evidence",
+      "evidence": "vitest run src/app/api/import/contracts/route.test.ts src/app/api/evidence/submit/route.test.ts"
+    },
+    {
+      "epicNumber": 24,
+      "todoKey": "epic24-feature-flags-cron",
+      "mode": "evidence",
+      "evidence": "npm run test:assurance:epics15-24"
+    },
+    {
+      "epicNumber": 25,
+      "todoKey": "epic25-db-rls-views-triggers",
+      "mode": "evidence",
+      "evidence": "npm run check:sql-security-migrations-bundle"
+    },
+    {
+      "epicNumber": 26,
+      "todoKey": "epic26-openapi-route-contract",
+      "mode": "evidence",
+      "evidence": "npm run check:openapi-spec-contract"
+    },
+    {
+      "epicNumber": 27,
+      "todoKey": "epic27-slo-workflows",
+      "mode": "evidence",
+      "evidence": "npm run test:slo-budgets"
+    },
+    {
+      "epicNumber": 28,
+      "todoKey": "epic28-mutation-diff-coverage",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/product-surface/refinement-contract.test.ts"
+    },
+    {
+      "epicNumber": 29,
+      "todoKey": "epic29-property-fuzz",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/http-path-sanitize.property.test.ts src/lib/export/csv-formula-guard.test.ts src/lib/money/integer-cents.test.ts src/lib/export/calendar-text-guard.test.ts"
+    },
+    {
+      "epicNumber": 30,
+      "todoKey": "epic30-multi-browser-visual-i18n",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/__tests__/i18n-rtl-intl.test.ts"
+    },
+    {
+      "epicNumber": 31,
+      "todoKey": "epic31-privacy-data-lifecycle",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/export-job-visibility.v9.test.ts"
+    },
+    {
+      "epicNumber": 32,
+      "todoKey": "epic32-session-cookie-tls-bridge",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/marketing/public-paths.security.test.ts"
+    },
+    {
+      "epicNumber": 33,
+      "todoKey": "epic33-abuse-resource-limits",
+      "mode": "evidence",
+      "evidence": "OBLIXA_STRICT_BODY_LIMITS=1 BODY_LIMIT_MIN_ROUTES=64 node scripts/check-json-body-limited-adoption.mjs"
+    },
+    {
+      "epicNumber": 34,
+      "todoKey": "epic34-time-money-calendars",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/money/integer-cents.test.ts src/lib/export/calendar-text-guard.test.ts"
+    },
+    {
+      "epicNumber": 35,
+      "todoKey": "epic35-public-seo-headers",
+      "mode": "evidence",
+      "evidence": "npm run check:public-seo-surface"
+    },
+    {
+      "epicNumber": 36,
+      "todoKey": "epic36-rsc-client-leakage",
+      "mode": "evidence",
+      "evidence": "npm run check:next-public-surface"
+    },
+    {
+      "epicNumber": 37,
+      "todoKey": "epic37-edge-node-runtime",
+      "mode": "evidence",
+      "evidence": "npm run check:server-action-exports"
+    },
+    {
+      "epicNumber": 38,
+      "todoKey": "epic38-stride-owasp-gates",
+      "mode": "evidence",
+      "evidence": "npm run check:threat-row-coverage"
+    },
+    {
+      "epicNumber": 39,
+      "todoKey": "epic39-workflow-permissions-matrix",
+      "mode": "evidence",
+      "evidence": "npm run check:github-workflows-security"
+    },
+    {
+      "epicNumber": 40,
+      "todoKey": "epic40-docker-compose-harness",
+      "mode": "evidence",
+      "evidence": "npm run check:docker-hardening"
+    },
+    {
+      "epicNumber": 41,
+      "todoKey": "epic41-a11y-naming-ratelint",
+      "mode": "evidence",
+      "evidence": "npm run check:dangerously-set-inner-html"
+    },
+    {
+      "epicNumber": 42,
+      "todoKey": "epic42-compliance-machine-artifacts",
+      "mode": "evidence",
+      "evidence": "npm run check:supply-chain-waivers"
+    },
+    {
+      "epicNumber": 43,
+      "todoKey": "epic43-read-after-write-ui",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/feature-flags.kill-switch.contract.test.ts"
+    },
+    {
+      "epicNumber": 44,
+      "todoKey": "epic44-canary-deploy-contracts",
+      "mode": "evidence",
+      "evidence": "node scripts/check-merge-queue-canary-parity.mjs"
+    },
+    {
+      "epicNumber": 45,
+      "todoKey": "epic45-incident-readiness-expansion",
+      "mode": "evidence",
+      "evidence": "npm run check:incident-readiness"
+    },
+    {
+      "epicNumber": 46,
+      "todoKey": "epic46-v8-surface-lockstep",
+      "mode": "evidence",
+      "evidence": "npm run check:route-inventory"
+    },
+    {
+      "epicNumber": 47,
+      "todoKey": "epic47-revalidation-cache-tags",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/onboarding/onboarding-revalidate-path-parity.test.ts src/lib/next-cache-rsc.contract.test.ts"
+    },
+    {
+      "epicNumber": 48,
+      "todoKey": "epic48-nightly-maximal-bundle",
+      "mode": "evidence",
+      "evidence": "node scripts/check-qa-workflow-fleet.mjs"
+    },
+    {
+      "epicNumber": 49,
+      "todoKey": "epic49-sbom-dual-format",
+      "mode": "evidence",
+      "evidence": "npm run check:sbom-diff"
+    },
+    {
+      "epicNumber": 50,
+      "todoKey": "epic50-renovate-semver-ratchet",
+      "mode": "evidence",
+      "evidence": "npm run check:dependency-policy-as-code"
+    },
+    {
+      "epicNumber": 51,
+      "todoKey": "epic51-provenance-cosign",
+      "mode": "evidence",
+      "evidence": "npm run check:container-signing-slsa-stub"
+    },
+    {
+      "epicNumber": 52,
+      "todoKey": "epic52-semgrep-sarif-blocking",
+      "mode": "evidence",
+      "evidence": "npm run check:semgrep-rulepack-integrity"
+    },
+    {
+      "epicNumber": 53,
+      "todoKey": "epic53-secret-scan-parity",
+      "mode": "evidence",
+      "evidence": "npm run check:tracked-secrets-hygiene"
+    },
+    {
+      "epicNumber": 54,
+      "todoKey": "epic54-pwa-offline-push",
+      "mode": "evidence",
+      "evidence": "npm run check:pwa-well-known"
+    },
+    {
+      "epicNumber": 55,
+      "todoKey": "epic55-sri-third-party",
+      "mode": "evidence",
+      "evidence": "npm run check:next-script-integrity"
+    },
+    {
+      "epicNumber": 56,
+      "todoKey": "epic56-clock-skew-tolerance",
+      "mode": "evidence",
+      "evidence": "vitest run src/app/api/stripe/webhook/route.test.ts"
+    },
+    {
+      "epicNumber": 57,
+      "todoKey": "epic57-audit-immutability",
+      "mode": "evidence",
+      "evidence": "npm run check:migrations"
+    },
+    {
+      "epicNumber": 58,
+      "todoKey": "epic58-intl-locale-matrix",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/qa/intl-format-sampling.v9.test.ts"
+    },
+    {
+      "epicNumber": 59,
+      "todoKey": "epic59-geo-latency-simulation",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 60,
+      "todoKey": "epic60-wasm-native-boundary",
+      "mode": "evidence",
+      "evidence": "npm run check:sharp-svgo-versions"
+    },
+    {
+      "epicNumber": 61,
+      "todoKey": "epic61-streaming-transports",
+      "mode": "evidence",
+      "evidence": "node scripts/check-absent-protocol-evidence.mjs"
+    },
+    {
+      "epicNumber": 62,
+      "todoKey": "epic62-field-encryption-kms",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 63,
+      "todoKey": "epic63-npm-lifecycle-allowlist",
+      "mode": "evidence",
+      "evidence": "npm run check:install-script-risk"
+    },
+    {
+      "epicNumber": 64,
+      "todoKey": "epic64-coverage-completeness-gate",
+      "mode": "evidence",
+      "evidence": "npm run report:coverage-completeness"
+    },
+    {
+      "epicNumber": 65,
+      "todoKey": "epic65-codeql-sarif",
+      "mode": "evidence",
+      "evidence": "node scripts/check-supply-chain-security-matrix.mjs"
+    },
+    {
+      "epicNumber": 66,
+      "todoKey": "epic66-trivy-fs-container",
+      "mode": "evidence",
+      "evidence": "node scripts/check-supply-chain-security-matrix.mjs"
+    },
+    {
+      "epicNumber": 67,
+      "todoKey": "epic67-dependency-review-gate",
+      "mode": "evidence",
+      "evidence": "node scripts/check-supply-chain-security-matrix.mjs"
+    },
+    {
+      "epicNumber": 68,
+      "todoKey": "epic68-typosquat-scope-packages",
+      "mode": "evidence",
+      "evidence": "npm run check:dependency-confusion-guards"
+    },
+    {
+      "epicNumber": 69,
+      "todoKey": "epic69-license-compatibility-graph",
+      "mode": "evidence",
+      "evidence": "npm run check:license-sbom"
+    },
+    {
+      "epicNumber": 70,
+      "todoKey": "epic70-export-control-crypto",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 71,
+      "todoKey": "epic71-ropa-codegen",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 72,
+      "todoKey": "epic72-dpia-migration-trigger",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 73,
+      "todoKey": "epic73-saml-enterprise-sso",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 74,
+      "todoKey": "epic74-scim-provisioning",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 75,
+      "todoKey": "epic75-desktop-extension-surface",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 76,
+      "todoKey": "epic76-formal-invariants",
+      "mode": "evidence",
+      "evidence": "vitest run src/lib/onboarding/calibration-map.property.test.ts src/lib/contracts-search-url.property.test.ts"
+    },
+    {
+      "epicNumber": 77,
+      "todoKey": "epic77-native-http-fuzz-optional",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 78,
+      "todoKey": "epic78-perf-budget-routes",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 79,
+      "todoKey": "epic79-status-page-upstream-monitor",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 80,
+      "todoKey": "epic80-assurance-aggregate-export",
+      "mode": "evidence",
+      "evidence": "npm run report:coverage-completeness"
+    },
+    {
+      "epicNumber": 81,
+      "todoKey": "epic81-ai-act-eu-checklist",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 82,
+      "todoKey": "epic82-soc2-control-map",
+      "mode": "evidence",
+      "evidence": "npm run check:security-enforcement-matrix:strict"
+    },
+    {
+      "epicNumber": 83,
+      "todoKey": "epic83-pci-scope-scanner",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 84,
+      "todoKey": "epic84-hipaa-phi-detector",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 85,
+      "todoKey": "epic85-coppa-age-marketing",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 86,
+      "todoKey": "epic86-wcag-aaa-machine-subset",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 87,
+      "todoKey": "epic87-wcag-experimental-metrics",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 88,
+      "todoKey": "epic88-npm-provenance-signatures",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 89,
+      "todoKey": "epic89-github-org-policy-api",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 90,
+      "todoKey": "epic90-repository-rulesets-drift",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 91,
+      "todoKey": "epic91-public-api-semver",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 92,
+      "todoKey": "epic92-db-pool-exhaustion-sim",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 93,
+      "todoKey": "epic93-cron-memory-leak-sample",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 94,
+      "todoKey": "epic94-samesite-none-matrix",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 95,
+      "todoKey": "epic95-shadow-dom-a11y",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 96,
+      "todoKey": "epic96-epic-registry-drift",
+      "mode": "evidence",
+      "evidence": "npm run check:assurance-epics-registry"
+    },
+    {
+      "epicNumber": 97,
+      "todoKey": "epic97-multi-jurisdiction-privacy",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 98,
+      "todoKey": "epic98-schrems-tia-scc",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 99,
+      "todoKey": "epic99-data-residency-enforcement",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 100,
+      "todoKey": "epic100-async-messaging-inventory",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 101,
+      "todoKey": "epic101-grpc-protobuf-surface",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 102,
+      "todoKey": "epic102-mobile-native-clients",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 103,
+      "todoKey": "epic103-voice-assistant-skills",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 104,
+      "todoKey": "epic104-embedded-tv-clients",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 105,
+      "todoKey": "epic105-pdf-ua-accessibility",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 106,
+      "todoKey": "epic106-pdf-digital-signature",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 107,
+      "todoKey": "epic107-document-watermarking",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 108,
+      "todoKey": "epic108-ml-model-card-ethics",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 109,
+      "todoKey": "epic109-continuous-profiler",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 110,
+      "todoKey": "epic110-ebpf-network-policy",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 111,
+      "todoKey": "epic111-physical-datacenter",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 112,
+      "todoKey": "epic112-sim-swap-telecom",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 113,
+      "todoKey": "epic113-assurance-meta-sbom",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 114,
+      "todoKey": "epic114-ropa-json-changelog",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 115,
+      "todoKey": "epic115-transfer-records-register",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 116,
+      "todoKey": "epic116-plan-document-integrity",
+      "mode": "evidence",
+      "evidence": "npm run check:maximal-assurance-plan-snapshot"
+    },
+    {
+      "epicNumber": 117,
+      "todoKey": "epic117-graphql-federation-inventory",
+      "mode": "evidence",
+      "evidence": "npm run check:graphql-surface"
+    },
+    {
+      "epicNumber": 118,
+      "todoKey": "epic118-mqtt-iot-brokers",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 119,
+      "todoKey": "epic119-webxr-immersive-web",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 120,
+      "todoKey": "epic120-blockchain-web3-surface",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 121,
+      "todoKey": "epic121-noncard-payment-rails",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 122,
+      "todoKey": "epic122-hris-payroll-connectors",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 123,
+      "todoKey": "epic123-indirect-tax-engines",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 124,
+      "todoKey": "epic124-sanctions-pep-screening",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 125,
+      "todoKey": "epic125-carrier-cpni-marketing",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 126,
+      "todoKey": "epic126-fda-21cfr11-style",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 127,
+      "todoKey": "epic127-fedramp-stateramp-posture",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 128,
+      "todoKey": "epic128-cmmc-itar-adjunct",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 129,
+      "todoKey": "epic129-pci-pin-p2pe",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 130,
+      "todoKey": "epic130-ai-synthetic-media-disclosure",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 131,
+      "todoKey": "epic131-biometric-template-processing",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 132,
+      "todoKey": "epic132-csam-hash-photoDNA",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 133,
+      "todoKey": "epic133-lawful-access-playbook",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 134,
+      "todoKey": "epic134-legal-hold-ediscovery",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 135,
+      "todoKey": "epic135-sla-breach-warranty-bundle",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 136,
+      "todoKey": "epic136-assurance-program-semver",
+      "mode": "evidence",
+      "evidence": "npm run check:assurance-program-semver"
+    },
+    {
+      "epicNumber": 137,
+      "todoKey": "epic137-ldap-active-directory",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 138,
+      "todoKey": "epic138-kerberos-spnego",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 139,
+      "todoKey": "epic139-email-domain-mta-sts-dmarc",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 140,
+      "todoKey": "epic140-redis-memcached-cache-abuse",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 141,
+      "todoKey": "epic141-search-backend-query-injection",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 142,
+      "todoKey": "epic142-postgres-replica-lag-consistency",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 143,
+      "todoKey": "epic143-warehouse-lakehouse-connectors",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 144,
+      "todoKey": "epic144-crm-connectors",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 145,
+      "todoKey": "epic145-cdn-waf-rules-drift",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 146,
+      "todoKey": "epic146-privacy-sandbox-chips-topics",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 147,
+      "todoKey": "epic147-session-replay-analytics",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 148,
+      "todoKey": "epic148-jit-breakglass-access-audit",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 149,
+      "todoKey": "epic149-secrets-rotation-evidence",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 150,
+      "todoKey": "epic150-openlineage-data-lineage",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 151,
+      "todoKey": "epic151-confidential-computing-tee",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 152,
+      "todoKey": "epic152-post-quantum-tls-readiness",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 153,
+      "todoKey": "epic153-ai-weights-provenance-sbom",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 154,
+      "todoKey": "epic154-wcag23-motion-vestibular",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 155,
+      "todoKey": "epic155-sovereign-airgap-cloud-bundle",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 156,
+      "todoKey": "epic156-signed-assurance-bundle-manifest",
+      "mode": "evidence",
+      "evidence": "npm run verify:assurance-bundle-signature"
+    },
+    {
+      "epicNumber": 157,
+      "todoKey": "epic157-sip-voip-webrtc-pstn",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 158,
+      "todoKey": "epic158-fax-paper-workflow",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 159,
+      "todoKey": "epic159-epub-accessible-exports",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 160,
+      "todoKey": "epic160-split-horizon-dns",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 161,
+      "todoKey": "epic161-ntp-ptp-precision-time",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 162,
+      "todoKey": "epic162-fix-iso20022-messaging",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 163,
+      "todoKey": "epic163-swift-correspondent-banking",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 164,
+      "todoKey": "epic164-scope3-carbon-machine-json",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 165,
+      "todoKey": "epic165-iso40500-wcag-mapping",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 166,
+      "todoKey": "epic166-unicode-tr39-confusables",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 167,
+      "todoKey": "epic167-iana-tzdata-drift",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 168,
+      "todoKey": "epic168-leap-second-smearing",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 169,
+      "todoKey": "epic169-captcha-bot-mitigation",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 170,
+      "todoKey": "epic170-pkcs11-hsm-app-crypto",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 171,
+      "todoKey": "epic171-mobile-attestation",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 172,
+      "todoKey": "epic172-crdt-multi-master",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 173,
+      "todoKey": "epic173-event-sourcing-projection-lag",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 174,
+      "todoKey": "epic174-schema-registry-evolution",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 175,
+      "todoKey": "epic175-dark-pattern-deceptive-ux",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    },
+    {
+      "epicNumber": 176,
+      "todoKey": "epic176-tamper-evident-audit-chain",
+      "mode": "na",
+      "naBulkId": "oblixa_maximal_na_residual_epics"
+    }
+  ]
+}

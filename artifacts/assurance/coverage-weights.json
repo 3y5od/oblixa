@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "weights": {
+    "threatEvidenceScore": 0.15,
+    "registryEvidenceScore": 0.1,
+    "scriptMappedScore": 0.18,
+    "npmScriptScheduledScore": 0.12,
+    "naWaiverHygieneScore": 0.08,
+    "securityFindingScore": 0.12,
+    "registryIntegrityScore": 0.15,
+    "vitestLineCoverage": 0.1
+  },
+  "notes": "Epic 64 — composite coverageScore is weighted sum of subscores (each 0–100)."
+}

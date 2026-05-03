@@ -1,12 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 
+const safeFetch = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/security/safe-fetch", () => ({
+  safeFetch,
+}));
+
 describe("pingCronHealthcheck", () => {
   const origFetch = globalThis.fetch;
 
   afterEach(() => {
     globalThis.fetch = origFetch;
     delete process.env.CRON_HEALTHCHECK_URL;
+    safeFetch.mockReset();
     vi.restoreAllMocks();
   });
 
@@ -19,17 +26,16 @@ describe("pingCronHealthcheck", () => {
 
   it("POSTs JSON to a validated HTTPS URL when set", async () => {
     process.env.CRON_HEALTHCHECK_URL = "https://example.com/ping";
-    const fetchSpy = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
-    globalThis.fetch = fetchSpy;
+    safeFetch.mockResolvedValue(new Response(null, { status: 200 }));
     pingCronHealthcheck("/api/cron/v5/foo", { ok: true });
-    await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalled());
-    const [url, init] = fetchSpy.mock.calls[0] as [string | URL, RequestInit];
+    await vi.waitFor(() => expect(safeFetch).toHaveBeenCalled());
+    const [url, init] = safeFetch.mock.calls[0] as [string | URL, RequestInit];
     expect(String(url)).toBe("https://example.com/ping");
     expect(init).toMatchObject({
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      timeoutMs: 5000,
     });
-    expect(init.signal).toBeInstanceOf(AbortSignal);
     const body = JSON.parse(String(init.body));
     expect(body).toMatchObject({ route: "/api/cron/v5/foo", ok: true });
   });
@@ -40,5 +46,6 @@ describe("pingCronHealthcheck", () => {
     globalThis.fetch = fetchSpy;
     pingCronHealthcheck("/r", {});
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(safeFetch).not.toHaveBeenCalled();
   });
 });

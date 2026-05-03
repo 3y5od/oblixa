@@ -1,6 +1,7 @@
 {
   "ok": true,
   "unknownSample": [],
-  "allowlistSize": 1,
-  "wildcard": true
+  "allowlistSize": 36,
+  "wildcard": false,
+  "wildcardAllowed": false
 }

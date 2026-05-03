@@ -22,13 +22,18 @@ describe("cron-route-gate", () => {
     expect(res!.status).toBe(503);
     const body = await res!.json();
     expect(body.code).toBe("cron_secret_missing");
+    expect(body.diagnostic_id).toBe("cron_secret_missing");
+    expect(body.route).toBe("/api/cron/x");
   });
 
-  it("gateCronRequest returns 401 when secret set but request unsigned", () => {
+  it("gateCronRequest returns 401 when secret set but request unsigned", async () => {
     process.env.CRON_SECRET = "s3cr3t";
     const res = gateCronRequest(new Request("https://example.test/api/cron/x"));
     expect(res).not.toBeNull();
     expect(res!.status).toBe(401);
+    const body = await res!.json();
+    expect(body.diagnostic_id).toBe("cron_unauthorized");
+    expect(body.route).toBe("/api/cron/x");
   });
 
   it("gateCronRequest returns null when Bearer matches", () => {
@@ -46,5 +51,6 @@ describe("cron-route-gate", () => {
     expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.code).toBe("cron_secret_missing");
+    expect(body.missing_env).toBe("CRON_SECRET");
   });
 });

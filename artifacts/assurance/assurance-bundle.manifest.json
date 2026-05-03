@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "signingPolicy": "na",
+  "signingNote": "ASSURANCE_BUNDLE_SIGNING not required — committed signing_na stub per Epic 156.",
+  "artifacts": [
+    { "path": "artifacts/assurance/maximal-assurance-program.plan.sha256", "role": "plan-checksum-epic116" },
+    { "path": "artifacts/assurance/epics.json", "role": "epic-registry-epic96" },
+    { "path": "artifacts/assurance/dashboard.json", "role": "dashboard-epic80" },
+    { "path": "artifacts/assurance/threat-rows.json", "role": "threat-rows-epic38" },
+    { "path": "artifacts/assurance/sql-definer-invoker-inventory.json", "role": "sql-definer-invoker-inventory-epic25" }
+  ]
+}

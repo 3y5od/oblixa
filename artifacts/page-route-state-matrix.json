@@ -1,0 +1,1310 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "rows": [
+    {
+      "route": "/",
+      "sourcePath": "src/app/page.tsx",
+      "shellFamily": "root",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "error",
+        "loading",
+        "error",
+        "loading",
+        "not_found",
+        "error",
+        "error",
+        "not_found"
+      ],
+      "inheritedShell": "root"
+    },
+    {
+      "route": "/accessibility",
+      "sourcePath": "src/app/(marketing)/accessibility/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/autopilot",
+      "sourcePath": "src/app/(dashboard)/assurance/autopilot/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/control-policies",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/control-policies/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/[id]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/findings",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/findings/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/[id]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/health-graph",
+      "sourcePath": "src/app/(dashboard)/assurance/health-graph/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/playbooks",
+      "sourcePath": "src/app/(dashboard)/assurance/playbooks/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/program-evolution",
+      "sourcePath": "src/app/(dashboard)/assurance/program-evolution/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/review-boards",
+      "sourcePath": "src/app/(dashboard)/assurance/review-boards/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/scorecards",
+      "sourcePath": "src/app/(dashboard)/assurance/scorecards/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/assurance/segments",
+      "sourcePath": "src/app/(dashboard)/assurance/segments/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/campaigns/[id]",
+      "sourcePath": "src/app/(dashboard)/campaigns/[id]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/campaigns/compare",
+      "sourcePath": "src/app/(dashboard)/campaigns/compare/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/approvals",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/approvals/sla-simulator",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/sla-simulator/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/new",
+      "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/obligations",
+      "sourcePath": "src/app/(dashboard)/contracts/obligations/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/cookies",
+      "sourcePath": "src/app/(marketing)/cookies/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/decisions/[id]",
+      "sourcePath": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/decisions/compare",
+      "sourcePath": "src/app/(dashboard)/decisions/compare/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/decisions/review",
+      "sourcePath": "src/app/(dashboard)/decisions/review/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/external/[token]",
+      "sourcePath": "src/app/external/[token]/page.tsx",
+      "shellFamily": "external",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "expired",
+        "revoked",
+        "completed"
+      ],
+      "present": [],
+      "inheritedShell": "external"
+    },
+    {
+      "route": "/forgot-password",
+      "sourcePath": "src/app/(auth)/forgot-password/page.tsx",
+      "shellFamily": "auth",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "auth"
+    },
+    {
+      "route": "/login",
+      "sourcePath": "src/app/(auth)/login/page.tsx",
+      "shellFamily": "auth",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "auth"
+    },
+    {
+      "route": "/more",
+      "sourcePath": "src/app/(dashboard)/more/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/onboarding/calibration",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/privacy",
+      "sourcePath": "src/app/(marketing)/privacy/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/reset-password",
+      "sourcePath": "src/app/(auth)/reset-password/page.tsx",
+      "shellFamily": "auth",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "auth"
+    },
+    {
+      "route": "/security",
+      "sourcePath": "src/app/(marketing)/security/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/health",
+      "sourcePath": "src/app/(dashboard)/settings/health/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/operations",
+      "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/policy",
+      "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/product",
+      "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/security",
+      "sourcePath": "src/app/(dashboard)/settings/security/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/signup",
+      "sourcePath": "src/app/(auth)/signup/page.tsx",
+      "shellFamily": "auth",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "auth"
+    },
+    {
+      "route": "/terms",
+      "sourcePath": "src/app/(marketing)/terms/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading"
+      ],
+      "inheritedShell": "dashboard"
+    }
+  ]
+}

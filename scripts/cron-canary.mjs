@@ -1,6 +1,13 @@
 import process from "node:process";
 import nextEnv from "@next/env";
 import { CRON_ROUTE_EXPECTED_KEYS } from "./cron-route-expected-keys.mjs";
+import {
+  assertJsonContentType,
+  cronAuthHeaders,
+  cronFailOnOkFalse,
+  cronStrictNoSkip404,
+  fetchCronWithMethodDiscovery,
+} from "./lib/cron-http-probe.mjs";
 
 const cwd = process.cwd();
 const { loadEnvConfig } = nextEnv;
@@ -184,10 +191,10 @@ async function run() {
   const cronSecret = requireEnv("CRON_SECRET");
 
   for (const [route, expectedKeys] of CRON_ROUTE_EXPECTED_KEYS.entries()) {
-    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route);
+    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route) && !cronStrictNoSkip404();
     const isV5Cron = route.startsWith("/api/cron/v5/");
 
-    const unsigned = await safeFetch(`${baseUrl}${route}`);
+    const unsigned = await fetchCronWithMethodDiscovery(safeFetch, `${baseUrl}${route}`);
     if (skipIf404 && unsigned.status === 404) {
       warn(`${route}: route unavailable on target base URL; skipping cron route check`);
       continue;
@@ -197,8 +204,8 @@ async function run() {
     }
     ok(`${route} unsigned check`);
 
-    const signed = await safeFetch(`${baseUrl}${route}`, {
-      headers: { "x-cron-secret": cronSecret },
+    const signed = await fetchCronWithMethodDiscovery(safeFetch, `${baseUrl}${route}`, {
+      headers: { ...cronAuthHeaders(cronSecret) },
     });
     if (skipIf404 && signed.status === 404) {
       warn(`${route}: route unavailable on target base URL; skipping cron route check`);
@@ -208,6 +215,7 @@ async function run() {
       const bodyText = await signed.text();
       throw new Error(`${route}: signed request failed ${signed.status} ${bodyText.slice(0, 300)}`);
     }
+    assertJsonContentType(signed, route);
     const body = await signed.json();
     if (isV5Cron) {
       if (body.ok !== true) {
@@ -229,6 +237,9 @@ async function run() {
         }
       }
       if ("ok" in body && body.ok !== true) {
+        if (cronFailOnOkFalse()) {
+          throw new Error(`${route}: ok=false (CRON_CANARY_FAIL_ON_OK_FALSE)`);
+        }
         warn(`${route}: ok=false (degraded business outcome)`);
       }
     }

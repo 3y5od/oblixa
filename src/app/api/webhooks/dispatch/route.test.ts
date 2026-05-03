@@ -52,6 +52,22 @@ describe("GET /api/webhooks/dispatch", () => {
     expect(body).toMatchObject({ error: "Unauthorized", code: "cron_unauthorized" });
   });
 
+  it("returns 429 with Retry-After when cron rate limited", async () => {
+    process.env.CRON_SECRET = "secret";
+    authorizeCronRequest.mockReturnValue(true);
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 4500 });
+
+    const { GET } = await import("@/app/api/webhooks/dispatch/route");
+    const req = new Request("http://localhost:3000/api/webhooks/dispatch", {
+      headers: { Authorization: "Bearer secret" },
+    });
+    const res = await GET(req);
+    expect(res.status).toBe(429);
+    expect(res.headers.get("retry-after")).toBe("5");
+    const body = await res.json();
+    expect(body.retryAfterMs).toBe(4500);
+  });
+
   it("returns diagnostics payload when authorized with eventId", async () => {
     process.env.CRON_SECRET = "secret";
     authorizeCronRequest.mockReturnValue(true);

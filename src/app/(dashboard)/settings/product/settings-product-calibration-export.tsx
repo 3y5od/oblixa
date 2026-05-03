@@ -22,33 +22,35 @@ export function SettingsProductCalibrationExport(props: { orgFingerprint: string
 
   const onExport = useCallback(() => {
     setMessage(null);
-    startTransition(async () => {
-      const res = await exportOnboardingCalibrationSupportJson();
-      if (!res.ok) {
-        setMessage(res.error);
-        return;
-      }
-      let fingerprint = props.orgFingerprint;
-      try {
-        const parsed = JSON.parse(res.json) as { organization_fingerprint?: string };
-        if (typeof parsed.organization_fingerprint === "string") {
-          fingerprint = parsed.organization_fingerprint;
+    startTransition(() => {
+      void (async () => {
+        const res = await exportOnboardingCalibrationSupportJson();
+        if (!res.ok) {
+          setMessage(res.error);
+          return;
         }
-      } catch {
-        /* use prop */
-      }
-      const filename = `onboarding-calibration-${fingerprint}-${utcCompactIso()}.json`;
-      const blob = new Blob([res.json], { type: "application/json;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setMessage("Download started.");
+        let fingerprint = props.orgFingerprint;
+        try {
+          const parsed = JSON.parse(res.json) as { organization_fingerprint?: string };
+          if (typeof parsed.organization_fingerprint === "string") {
+            fingerprint = parsed.organization_fingerprint;
+          }
+        } catch {
+          /* use prop */
+        }
+        const filename = `onboarding-calibration-${fingerprint}-${utcCompactIso()}.json`;
+        const blob = new Blob([res.json], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setMessage("Download started.");
+      })();
     });
   }, [props.orgFingerprint]);
 

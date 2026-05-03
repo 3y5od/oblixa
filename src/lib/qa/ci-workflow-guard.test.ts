@@ -75,6 +75,7 @@ describe(".github/workflows directory inventory", () => {
       "codeql.yml",
       "cron-canary.yml",
       "dependency-review.yml",
+      "load-smoke-optional.yml",
       "openssf-scorecard.yml",
       "pr-process-stub.yml",
       "qa-android-webview.yml",

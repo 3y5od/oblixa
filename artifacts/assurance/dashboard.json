@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "generatedAt": "2026-05-03T19:33:05.277Z",
+  "components": {
+    "coverageCompleteness": {
+      "score": 80.64,
+      "subscores": {
+        "threatEvidenceScore": 100,
+        "registryEvidenceScore": 40,
+        "scriptMappedScore": 100,
+        "npmScriptScheduledScore": 100,
+        "naWaiverHygieneScore": 100,
+        "securityFindingScore": 72,
+        "registryIntegrityScore": 100,
+        "vitestLineCoverage": 0
+      },
+      "artifactVersion": 2,
+      "generatedAt": "2026-05-03T19:33:05.277Z"
+    },
+    "semgrepBlocking": {
+      "openErrors": null,
+      "notes": "Epic 52 — populate from SARIF threshold job"
+    },
+    "apiRuntimeSmokeLastRun": {
+      "notes": "Epic 3 — see artifacts/assurance/api-runtime-smoke-last-run.json when nightly runs"
+    }
+  }
+}

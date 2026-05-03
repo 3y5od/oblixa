@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "mode": "report-only",
+  "notes": "Set COVERAGE_THRESHOLD_STRICT=1 (e.g. nightly) to enforce minimums. PR CI stays report-only.",
+  "minimums": {
+    "coverageScore": 0,
+    "threatEvidenceScore": 0,
+    "registryEvidenceScore": 0,
+    "scriptMappedScore": 85,
+    "npmScriptScheduledScore": 85,
+    "naWaiverHygieneScore": 0,
+    "securityFindingScore": 0,
+    "registryIntegrityScore": 100,
+    "vitestLineCoverage": 0
+  }
+}

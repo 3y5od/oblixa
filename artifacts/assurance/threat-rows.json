@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "rows": [
+    {
+      "id": "gov-epic-registry-sync",
+      "dimensionId": "epic96",
+      "status": "evidence",
+      "owner": "@assurance",
+      "evidenceScriptOrTest": "npm run check:assurance-epics-registry"
+    },
+    {
+      "id": "gov-plan-checksum",
+      "dimensionId": "epic116",
+      "status": "evidence",
+      "owner": "@assurance",
+      "evidenceScriptOrTest": "npm run check:maximal-assurance-plan-snapshot"
+    },
+    {
+      "id": "gov-workflow-secret-gates",
+      "dimensionId": "epic2-ci-fail-closed",
+      "status": "evidence",
+      "owner": "@assurance",
+      "evidenceScriptOrTest": "npm run check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "gov-api-route-test-depth",
+      "dimensionId": "epic4",
+      "status": "evidence",
+      "owner": "@assurance",
+      "evidenceScriptOrTest": "npm run check:api-route-tests"
+    },
+    {
+      "id": "gov-epic-program-closure",
+      "dimensionId": "epic176-program",
+      "status": "evidence",
+      "owner": "@assurance",
+      "evidenceScriptOrTest": "npm run check:assurance-epic-closure"
+    },
+    {
+      "id": "placeholder-no-grpc-surface",
+      "dimensionId": "epic101-grpc",
+      "status": "na",
+      "owner": "@assurance",
+      "naWaiverId": "grpc_na_stub",
+      "naJustification": "No gRPC/protobuf servers or generated stubs in repo; dimension tracked explicitly.",
+      "expiresAt": "2027-12-31"
+    }
+  ]
+}

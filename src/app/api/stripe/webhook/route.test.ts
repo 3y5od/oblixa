@@ -160,4 +160,52 @@ describe("POST /api/stripe/webhook", () => {
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "Server misconfigured" });
   });
+
+  it("handles customer.subscription.updated when subscription is canceled (terminal)", async () => {
+    process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
+    constructEvent.mockReturnValue({
+      id: "evt_sub_terminal",
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: "sub_terminal",
+          status: "canceled",
+          items: { data: [{ current_period_end: 1_700_000_000 }] },
+        },
+      },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "stripe_webhook_events") {
+          return {
+            insert: vi.fn(async () => ({ error: null })),
+            update: vi.fn(() => ({
+              eq: vi.fn(async () => ({ error: null })),
+            })),
+            delete: vi.fn(() => ({
+              eq: vi.fn(async () => ({ error: null })),
+            })),
+          };
+        }
+        if (table === "organizations") {
+          return {
+            update: vi.fn(() => ({
+              eq: vi.fn(async () => ({ error: null })),
+            })),
+          };
+        }
+        return {};
+      }),
+    });
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const req = new Request("http://localhost:3000/api/stripe/webhook", {
+      method: "POST",
+      body: "{}",
+      headers: { "stripe-signature": "sig" },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+  });
 });

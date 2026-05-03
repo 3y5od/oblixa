@@ -1,11 +1,5002 @@
 openapi: 3.0.3
 info:
-  title: Oblixa API surface (QA inventory)
-  version: "0.0.1"
+  title: Oblixa route contract
+  version: 0.1.0
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: sb-access-token
+    CronSecret:
+      type: http
+      scheme: bearer
+    WebhookSignature:
+      type: apiKey
+      in: header
+      name: stripe-signature
 paths:
-  /api/health:
+  /api/accounts/{key}/summary:
     get:
-      summary: Health probe placeholder
+      operationId: get_accounts_by_key_summary
+      summary: GET /api/accounts/{key}/summary
+      description: Generated route contract for src/app/api/accounts/[key]/summary/route.ts.
+      security:
+        - SessionCookie: []
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/approvals/{id}/{action}:
+    post:
+      operationId: post_approvals_by_id_by_action
+      summary: POST /api/approvals/{id}/{action}
+      description: Generated route contract for src/app/api/approvals/[id]/[action]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/approvals/sla-metrics:
+    get:
+      operationId: get_approvals_sla_metrics
+      summary: GET /api/approvals/sla-metrics
+      description: Generated route contract for src/app/api/approvals/sla-metrics/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/analytics/summary:
+    get:
+      operationId: get_assurance_analytics_summary
+      summary: GET /api/assurance/analytics/summary
+      description: Generated route contract for src/app/api/assurance/analytics/summary/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/check-runs/{id}:
+    get:
+      operationId: get_assurance_check_runs_by_id
+      summary: GET /api/assurance/check-runs/{id}
+      description: Generated route contract for src/app/api/assurance/check-runs/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/check-runs:
+    get:
+      operationId: get_assurance_check_runs
+      summary: GET /api/assurance/check-runs
+      description: Generated route contract for src/app/api/assurance/check-runs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/checks/run:
+    post:
+      operationId: post_assurance_checks_run
+      summary: POST /api/assurance/checks/run
+      description: Generated route contract for src/app/api/assurance/checks/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/external-links/{id}/response-pack:
+    post:
+      operationId: post_assurance_external_links_by_id_response_pack
+      summary: POST /api/assurance/external-links/{id}/response-pack
+      description: Generated route contract for src/app/api/assurance/external-links/[id]/response-pack/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/findings/{id}/events:
+    get:
+      operationId: get_assurance_findings_by_id_events
+      summary: GET /api/assurance/findings/{id}/events
+      description: Generated route contract for src/app/api/assurance/findings/[id]/events/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/findings/{id}/resolve:
+    post:
+      operationId: post_assurance_findings_by_id_resolve
+      summary: POST /api/assurance/findings/{id}/resolve
+      description: Generated route contract for src/app/api/assurance/findings/[id]/resolve/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/findings:
+    get:
+      operationId: get_assurance_findings
+      summary: GET /api/assurance/findings
+      description: Generated route contract for src/app/api/assurance/findings/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/health-graph:
+    get:
+      operationId: get_assurance_health_graph
+      summary: GET /api/assurance/health-graph
+      description: Generated route contract for src/app/api/assurance/health-graph/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/scorecards/{id}/snapshots:
+    get:
+      operationId: get_assurance_scorecards_by_id_snapshots
+      summary: GET /api/assurance/scorecards/{id}/snapshots
+      description: Generated route contract for src/app/api/assurance/scorecards/[id]/snapshots/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/scorecards:
+    get:
+      operationId: get_assurance_scorecards
+      summary: GET /api/assurance/scorecards
+      description: Generated route contract for src/app/api/assurance/scorecards/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/assurance/workflows/run-all:
+    post:
+      operationId: post_assurance_workflows_run_all
+      summary: POST /api/assurance/workflows/run-all
+      description: Generated route contract for src/app/api/assurance/workflows/run-all/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/attestations/{id}/respond:
+    post:
+      operationId: post_attestations_by_id_respond
+      summary: POST /api/attestations/{id}/respond
+      description: Generated route contract for src/app/api/attestations/[id]/respond/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/attestations/run:
+    get:
+      operationId: get_attestations_run
+      summary: GET /api/attestations/run
+      description: Generated route contract for src/app/api/attestations/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/auth/post-sign-out:
+    get:
+      operationId: get_auth_post_sign_out
+      summary: GET /api/auth/post-sign-out
+      description: Generated route contract for src/app/api/auth/post-sign-out/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/rules/{id}/dry-run:
+    post:
+      operationId: post_autopilot_rules_by_id_dry_run
+      summary: POST /api/autopilot/rules/{id}/dry-run
+      description: Generated route contract for src/app/api/autopilot/rules/[id]/dry-run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/rules/{id}/enable:
+    post:
+      operationId: post_autopilot_rules_by_id_enable
+      summary: POST /api/autopilot/rules/{id}/enable
+      description: Generated route contract for src/app/api/autopilot/rules/[id]/enable/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/rules/{id}:
+    patch:
+      operationId: patch_autopilot_rules_by_id
+      summary: PATCH /api/autopilot/rules/{id}
+      description: Generated route contract for src/app/api/autopilot/rules/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    delete:
+      operationId: delete_autopilot_rules_by_id
+      summary: DELETE /api/autopilot/rules/{id}
+      description: Generated route contract for src/app/api/autopilot/rules/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/rules:
+    get:
+      operationId: get_autopilot_rules
+      summary: GET /api/autopilot/rules
+      description: Generated route contract for src/app/api/autopilot/rules/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_autopilot_rules
+      summary: POST /api/autopilot/rules
+      description: Generated route contract for src/app/api/autopilot/rules/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/run-logs/{id}/revert:
+    post:
+      operationId: post_autopilot_run_logs_by_id_revert
+      summary: POST /api/autopilot/run-logs/{id}/revert
+      description: Generated route contract for src/app/api/autopilot/run-logs/[id]/revert/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/autopilot/runs:
+    get:
+      operationId: get_autopilot_runs
+      summary: GET /api/autopilot/runs
+      description: Generated route contract for src/app/api/autopilot/runs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/close:
+    post:
+      operationId: post_campaigns_by_id_close
+      summary: POST /api/campaigns/{id}/close
+      description: Generated route contract for src/app/api/campaigns/[id]/close/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/contracts/{rowId}:
+    patch:
+      operationId: patch_campaigns_by_id_contracts_by_rowId
+      summary: PATCH /api/campaigns/{id}/contracts/{rowId}
+      description: Generated route contract for src/app/api/campaigns/[id]/contracts/[rowId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/export:
+    get:
+      operationId: get_campaigns_by_id_export
+      summary: GET /api/campaigns/{id}/export
+      description: Generated route contract for src/app/api/campaigns/[id]/export/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/pause:
+    post:
+      operationId: post_campaigns_by_id_pause
+      summary: POST /api/campaigns/{id}/pause
+      description: Generated route contract for src/app/api/campaigns/[id]/pause/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/preview:
+    post:
+      operationId: post_campaigns_by_id_preview
+      summary: POST /api/campaigns/{id}/preview
+      description: Generated route contract for src/app/api/campaigns/[id]/preview/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/resume:
+    post:
+      operationId: post_campaigns_by_id_resume
+      summary: POST /api/campaigns/{id}/resume
+      description: Generated route contract for src/app/api/campaigns/[id]/resume/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/rollback:
+    post:
+      operationId: post_campaigns_by_id_rollback
+      summary: POST /api/campaigns/{id}/rollback
+      description: Generated route contract for src/app/api/campaigns/[id]/rollback/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}:
+    get:
+      operationId: get_campaigns_by_id
+      summary: GET /api/campaigns/{id}
+      description: Generated route contract for src/app/api/campaigns/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_campaigns_by_id
+      summary: PATCH /api/campaigns/{id}
+      description: Generated route contract for src/app/api/campaigns/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns/{id}/start:
+    post:
+      operationId: post_campaigns_by_id_start
+      summary: POST /api/campaigns/{id}/start
+      description: Generated route contract for src/app/api/campaigns/[id]/start/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/campaigns:
+    get:
+      operationId: get_campaigns
+      summary: GET /api/campaigns
+      description: Generated route contract for src/app/api/campaigns/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_campaigns
+      summary: POST /api/campaigns
+      description: Generated route contract for src/app/api/campaigns/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/capacity/forecast:
+    get:
+      operationId: get_capacity_forecast
+      summary: GET /api/capacity/forecast
+      description: Generated route contract for src/app/api/capacity/forecast/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/capacity/reassignment-plan:
+    post:
+      operationId: post_capacity_reassignment_plan
+      summary: POST /api/capacity/reassignment-plan
+      description: Generated route contract for src/app/api/capacity/reassignment-plan/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/command-centers/preferences:
+    get:
+      operationId: get_command_centers_preferences
+      summary: GET /api/command-centers/preferences
+      description: Generated route contract for src/app/api/command-centers/preferences/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_command_centers_preferences
+      summary: POST /api/command-centers/preferences
+      description: Generated route contract for src/app/api/command-centers/preferences/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/command-palette/contracts:
+    get:
+      operationId: get_command_palette_contracts
+      summary: GET /api/command-palette/contracts
+      description: Generated route contract for src/app/api/command-palette/contracts/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/contracts/recompute-signals:
+    get:
+      operationId: get_contracts_recompute_signals
+      summary: GET /api/contracts/recompute-signals
+      description: Generated route contract for src/app/api/contracts/recompute-signals/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/control-policies/{id}/assign:
+    post:
+      operationId: post_control_policies_by_id_assign
+      summary: POST /api/control-policies/{id}/assign
+      description: Generated route contract for src/app/api/control-policies/[id]/assign/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/control-policies/{id}/publish:
+    post:
+      operationId: post_control_policies_by_id_publish
+      summary: POST /api/control-policies/{id}/publish
+      description: Generated route contract for src/app/api/control-policies/[id]/publish/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/control-policies/{id}:
+    patch:
+      operationId: patch_control_policies_by_id
+      summary: PATCH /api/control-policies/{id}
+      description: Generated route contract for src/app/api/control-policies/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/control-policies/{id}/simulate:
+    post:
+      operationId: post_control_policies_by_id_simulate
+      summary: POST /api/control-policies/{id}/simulate
+      description: Generated route contract for src/app/api/control-policies/[id]/simulate/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/control-policies:
+    get:
+      operationId: get_control_policies
+      summary: GET /api/control-policies
+      description: Generated route contract for src/app/api/control-policies/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_control_policies
+      summary: POST /api/control-policies
+      description: Generated route contract for src/app/api/control-policies/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/counterparties/{key}/summary:
+    get:
+      operationId: get_counterparties_by_key_summary
+      summary: GET /api/counterparties/{key}/summary
+      description: Generated route contract for src/app/api/counterparties/[key]/summary/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/cron/stripe-webhook-events:
+    get:
+      operationId: get_cron_stripe_webhook_events
+      summary: GET /api/cron/stripe-webhook-events
+      description: Generated route contract for src/app/api/cron/stripe-webhook-events/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/idempotency-cleanup:
+    get:
+      operationId: get_cron_v10_idempotency_cleanup
+      summary: GET /api/cron/v10/idempotency-cleanup
+      description: Generated route contract for src/app/api/cron/v10/idempotency-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/read-model-refresh:
+    get:
+      operationId: get_cron_v10_read_model_refresh
+      summary: GET /api/cron/v10/read-model-refresh
+      description: Generated route contract for src/app/api/cron/v10/read-model-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/runtime-artifact-cleanup:
+    get:
+      operationId: get_cron_v10_runtime_artifact_cleanup
+      summary: GET /api/cron/v10/runtime-artifact-cleanup
+      description: Generated route contract for src/app/api/cron/v10/runtime-artifact-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/approvals-sla:
+    get:
+      operationId: get_cron_v4_approvals_sla
+      summary: GET /api/cron/v4/approvals-sla
+      description: Generated route contract for src/app/api/cron/v4/approvals-sla/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/attestations-issue:
+    get:
+      operationId: get_cron_v4_attestations_issue
+      summary: GET /api/cron/v4/attestations-issue
+      description: Generated route contract for src/app/api/cron/v4/attestations-issue/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/escalations-dispatch:
+    get:
+      operationId: get_cron_v4_escalations_dispatch
+      summary: GET /api/cron/v4/escalations-dispatch
+      description: Generated route contract for src/app/api/cron/v4/escalations-dispatch/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/evidence-followup:
+    get:
+      operationId: get_cron_v4_evidence_followup
+      summary: GET /api/cron/v4/evidence-followup
+      description: Generated route contract for src/app/api/cron/v4/evidence-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/exceptions-detect:
+    get:
+      operationId: get_cron_v4_exceptions_detect
+      summary: GET /api/cron/v4/exceptions-detect
+      description: Generated route contract for src/app/api/cron/v4/exceptions-detect/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/programs-reconcile:
+    get:
+      operationId: get_cron_v4_programs_reconcile
+      summary: GET /api/cron/v4/programs-reconcile
+      description: Generated route contract for src/app/api/cron/v4/programs-reconcile/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/renewals-recompute-signals:
+    get:
+      operationId: get_cron_v4_renewals_recompute_signals
+      summary: GET /api/cron/v4/renewals-recompute-signals
+      description: Generated route contract for src/app/api/cron/v4/renewals-recompute-signals/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/report-packs-generate:
+    get:
+      operationId: get_cron_v4_report_packs_generate
+      summary: GET /api/cron/v4/report-packs-generate
+      description: Generated route contract for src/app/api/cron/v4/report-packs-generate/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/campaign-progress:
+    get:
+      operationId: get_cron_v5_campaign_progress
+      summary: GET /api/cron/v5/campaign-progress
+      description: Generated route contract for src/app/api/cron/v5/campaign-progress/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/capacity-forecast-refresh:
+    get:
+      operationId: get_cron_v5_capacity_forecast_refresh
+      summary: GET /api/cron/v5/capacity-forecast-refresh
+      description: Generated route contract for src/app/api/cron/v5/capacity-forecast-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/decision-sla-monitor:
+    get:
+      operationId: get_cron_v5_decision_sla_monitor
+      summary: GET /api/cron/v5/decision-sla-monitor
+      description: Generated route contract for src/app/api/cron/v5/decision-sla-monitor/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/external-followup:
+    get:
+      operationId: get_cron_v5_external_followup
+      summary: GET /api/cron/v5/external-followup
+      description: Generated route contract for src/app/api/cron/v5/external-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/portfolio-risk-recompute:
+    get:
+      operationId: get_cron_v5_portfolio_risk_recompute
+      summary: GET /api/cron/v5/portfolio-risk-recompute
+      description: Generated route contract for src/app/api/cron/v5/portfolio-risk-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/recommendation-refresh:
+    get:
+      operationId: get_cron_v5_recommendation_refresh
+      summary: GET /api/cron/v5/recommendation-refresh
+      description: Generated route contract for src/app/api/cron/v5/recommendation-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/relationship-rollups:
+    get:
+      operationId: get_cron_v5_relationship_rollups
+      summary: GET /api/cron/v5/relationship-rollups
+      description: Generated route contract for src/app/api/cron/v5/relationship-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/simulation-snapshots:
+    get:
+      operationId: get_cron_v5_simulation_snapshots
+      summary: GET /api/cron/v5/simulation-snapshots
+      description: Generated route contract for src/app/api/cron/v5/simulation-snapshots/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/assurance-checks:
+    get:
+      operationId: get_cron_v6_assurance_checks
+      summary: GET /api/cron/v6/assurance-checks
+      description: Generated route contract for src/app/api/cron/v6/assurance-checks/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/autopilot-dry-run:
+    get:
+      operationId: get_cron_v6_autopilot_dry_run
+      summary: GET /api/cron/v6/autopilot-dry-run
+      description: Generated route contract for src/app/api/cron/v6/autopilot-dry-run/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/autopilot-execution:
+    get:
+      operationId: get_cron_v6_autopilot_execution
+      summary: GET /api/cron/v6/autopilot-execution
+      description: Generated route contract for src/app/api/cron/v6/autopilot-execution/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/control-policy-reevaluation:
+    get:
+      operationId: get_cron_v6_control_policy_reevaluation
+      summary: GET /api/cron/v6/control-policy-reevaluation
+      description: Generated route contract for src/app/api/cron/v6/control-policy-reevaluation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/external-workflow-deadlines:
+    get:
+      operationId: get_cron_v6_external_workflow_deadlines
+      summary: GET /api/cron/v6/external-workflow-deadlines
+      description: Generated route contract for src/app/api/cron/v6/external-workflow-deadlines/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/finding-refresh:
+    get:
+      operationId: get_cron_v6_finding_refresh
+      summary: GET /api/cron/v6/finding-refresh
+      description: Generated route contract for src/app/api/cron/v6/finding-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/health-graph-rollups:
+    get:
+      operationId: get_cron_v6_health_graph_rollups
+      summary: GET /api/cron/v6/health-graph-rollups
+      description: Generated route contract for src/app/api/cron/v6/health-graph-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/onboarding-calibration-stale:
+    get:
+      operationId: get_cron_v6_onboarding_calibration_stale
+      summary: GET /api/cron/v6/onboarding-calibration-stale
+      description: Generated route contract for src/app/api/cron/v6/onboarding-calibration-stale/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/outcome-effectiveness:
+    get:
+      operationId: get_cron_v6_outcome_effectiveness
+      summary: GET /api/cron/v6/outcome-effectiveness
+      description: Generated route contract for src/app/api/cron/v6/outcome-effectiveness/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/playbook-follow-up-assurance:
+    get:
+      operationId: get_cron_v6_playbook_follow_up_assurance
+      summary: GET /api/cron/v6/playbook-follow-up-assurance
+      description: Generated route contract for src/app/api/cron/v6/playbook-follow-up-assurance/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/review-board-packet-generation:
+    get:
+      operationId: get_cron_v6_review_board_packet_generation
+      summary: GET /api/cron/v6/review-board-packet-generation
+      description: Generated route contract for src/app/api/cron/v6/review-board-packet-generation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/scorecard-recompute:
+    get:
+      operationId: get_cron_v6_scorecard_recompute
+      summary: GET /api/cron/v6/scorecard-recompute
+      description: Generated route contract for src/app/api/cron/v6/scorecard-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/segment-recompute:
+    get:
+      operationId: get_cron_v6_segment_recompute
+      summary: GET /api/cron/v6/segment-recompute
+      description: Generated route contract for src/app/api/cron/v6/segment-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/decisions/{id}/approve:
+    post:
+      operationId: post_decisions_by_id_approve
+      summary: POST /api/decisions/{id}/approve
+      description: Generated route contract for src/app/api/decisions/[id]/approve/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/close:
+    post:
+      operationId: post_decisions_by_id_close
+      summary: POST /api/decisions/{id}/close
+      description: Generated route contract for src/app/api/decisions/[id]/close/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/context:
+    get:
+      operationId: get_decisions_by_id_context
+      summary: GET /api/decisions/{id}/context
+      description: Generated route contract for src/app/api/decisions/[id]/context/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/packet-runs/{runId}:
+    get:
+      operationId: get_decisions_by_id_packet_runs_by_runId
+      summary: GET /api/decisions/{id}/packet-runs/{runId}
+      description: Generated route contract for src/app/api/decisions/[id]/packet-runs/[runId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/packet:
+    post:
+      operationId: post_decisions_by_id_packet
+      summary: POST /api/decisions/{id}/packet
+      description: Generated route contract for src/app/api/decisions/[id]/packet/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/recommend:
+    post:
+      operationId: post_decisions_by_id_recommend
+      summary: POST /api/decisions/{id}/recommend
+      description: Generated route contract for src/app/api/decisions/[id]/recommend/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/review:
+    post:
+      operationId: post_decisions_by_id_review
+      summary: POST /api/decisions/{id}/review
+      description: Generated route contract for src/app/api/decisions/[id]/review/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}:
+    get:
+      operationId: get_decisions_by_id
+      summary: GET /api/decisions/{id}
+      description: Generated route contract for src/app/api/decisions/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_decisions_by_id
+      summary: PATCH /api/decisions/{id}
+      description: Generated route contract for src/app/api/decisions/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/{id}/stakeholders:
+    post:
+      operationId: post_decisions_by_id_stakeholders
+      summary: POST /api/decisions/{id}/stakeholders
+      description: Generated route contract for src/app/api/decisions/[id]/stakeholders/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/packet-templates/{id}:
+    get:
+      operationId: get_decisions_packet_templates_by_id
+      summary: GET /api/decisions/packet-templates/{id}
+      description: Generated route contract for src/app/api/decisions/packet-templates/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_decisions_packet_templates_by_id
+      summary: PATCH /api/decisions/packet-templates/{id}
+      description: Generated route contract for src/app/api/decisions/packet-templates/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    delete:
+      operationId: delete_decisions_packet_templates_by_id
+      summary: DELETE /api/decisions/packet-templates/{id}
+      description: Generated route contract for src/app/api/decisions/packet-templates/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions/packet-templates:
+    get:
+      operationId: get_decisions_packet_templates
+      summary: GET /api/decisions/packet-templates
+      description: Generated route contract for src/app/api/decisions/packet-templates/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_decisions_packet_templates
+      summary: POST /api/decisions/packet-templates
+      description: Generated route contract for src/app/api/decisions/packet-templates/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/decisions:
+    get:
+      operationId: get_decisions
+      summary: GET /api/decisions
+      description: Generated route contract for src/app/api/decisions/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_decisions
+      summary: POST /api/decisions
+      description: Generated route contract for src/app/api/decisions/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/events:
+    get:
+      operationId: get_events
+      summary: GET /api/events
+      description: Generated route contract for src/app/api/events/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/evidence/{id}/{action}:
+    post:
+      operationId: post_evidence_by_id_by_action
+      summary: POST /api/evidence/{id}/{action}
+      description: Generated route contract for src/app/api/evidence/[id]/[action]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/evidence/export/{contractId}:
+    get:
+      operationId: get_evidence_export_by_contractId
+      summary: GET /api/evidence/export/{contractId}
+      description: Generated route contract for src/app/api/evidence/export/[contractId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/evidence/requests:
+    post:
+      operationId: post_evidence_requests
+      summary: POST /api/evidence/requests
+      description: Generated route contract for src/app/api/evidence/requests/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/evidence/submit:
+    post:
+      operationId: post_evidence_submit
+      summary: POST /api/evidence/submit
+      description: Generated route contract for src/app/api/evidence/submit/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/exceptions/{id}/{action}:
+    post:
+      operationId: post_exceptions_by_id_by_action
+      summary: POST /api/exceptions/{id}/{action}
+      description: Generated route contract for src/app/api/exceptions/[id]/[action]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/exceptions:
+    get:
+      operationId: get_exceptions
+      summary: GET /api/exceptions
+      description: Generated route contract for src/app/api/exceptions/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/exceptions/run-detection:
+    post:
+      operationId: post_exceptions_run_detection
+      summary: POST /api/exceptions/run-detection
+      description: Generated route contract for src/app/api/exceptions/run-detection/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/calendar/feed/{token}:
+    get:
+      operationId: get_export_calendar_feed_by_token
+      summary: GET /api/export/calendar/feed/{token}
+      description: Generated route contract for src/app/api/export/calendar/feed/[token]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/calendar/feed:
+    get:
+      operationId: get_export_calendar_feed
+      summary: GET /api/export/calendar/feed
+      description: Generated route contract for src/app/api/export/calendar/feed/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/calendar:
+    get:
+      operationId: get_export_calendar
+      summary: GET /api/export/calendar
+      description: Generated route contract for src/app/api/export/calendar/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/contracts/{jobId}:
+    get:
+      operationId: get_export_contracts_by_jobId
+      summary: GET /api/export/contracts/{jobId}
+      description: Generated route contract for src/app/api/export/contracts/[jobId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/contracts:
+    get:
+      operationId: get_export_contracts
+      summary: GET /api/export/contracts
+      description: Generated route contract for src/app/api/export/contracts/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_export_contracts
+      summary: POST /api/export/contracts
+      description: Generated route contract for src/app/api/export/contracts/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/review-packet:
+    get:
+      operationId: get_export_review_packet
+      summary: GET /api/export/review-packet
+      description: Generated route contract for src/app/api/export/review-packet/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/external-actions/{token}/participant/workflow-step:
+    post:
+      operationId: post_external_actions_by_token_participant_workflow_step
+      summary: POST /api/external-actions/{token}/participant/workflow-step
+      description: Generated route contract for src/app/api/external-actions/[token]/participant/workflow-step/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/external-actions/{token}/status:
+    get:
+      operationId: get_external_actions_by_token_status
+      summary: GET /api/external-actions/{token}/status
+      description: Generated route contract for src/app/api/external-actions/[token]/status/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/external-actions/{token}/submit:
+    post:
+      operationId: post_external_actions_by_token_submit
+      summary: POST /api/external-actions/{token}/submit
+      description: Generated route contract for src/app/api/external-actions/[token]/submit/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/external-actions/{token}/workflow-step:
+    post:
+      operationId: post_external_actions_by_token_workflow_step
+      summary: POST /api/external-actions/{token}/workflow-step
+      description: Generated route contract for src/app/api/external-actions/[token]/workflow-step/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/external-actions/create-link:
+    post:
+      operationId: post_external_actions_create_link
+      summary: POST /api/external-actions/create-link
+      description: Generated route contract for src/app/api/external-actions/create-link/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/extract:
+    post:
+      operationId: post_extract
+      summary: POST /api/extract
+      description: Generated route contract for src/app/api/extract/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/extract/run:
+    post:
+      operationId: post_extract_run
+      summary: POST /api/extract/run
+      description: Generated route contract for src/app/api/extract/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/health:
+    get:
+      operationId: get_health
+      summary: GET /api/health
+      description: Generated route contract for src/app/api/health/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    head:
+      operationId: head_health
+      summary: HEAD /api/health
+      description: Generated route contract for src/app/api/health/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/import/contracts/{jobId}:
+    get:
+      operationId: get_import_contracts_by_jobId
+      summary: GET /api/import/contracts/{jobId}
+      description: Generated route contract for src/app/api/import/contracts/[jobId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_import_contracts_by_jobId
+      summary: POST /api/import/contracts/{jobId}
+      description: Generated route contract for src/app/api/import/contracts/[jobId]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/import/contracts:
+    post:
+      operationId: post_import_contracts
+      summary: POST /api/import/contracts
+      description: Generated route contract for src/app/api/import/contracts/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/actions/callback:
+    post:
+      operationId: post_integrations_actions_callback
+      summary: POST /api/integrations/actions/callback
+      description: Generated route contract for src/app/api/integrations/actions/callback/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/calendar/sync:
+    get:
+      operationId: get_integrations_calendar_sync
+      summary: GET /api/integrations/calendar/sync
+      description: Generated route contract for src/app/api/integrations/calendar/sync/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/crm/sync:
+    get:
+      operationId: get_integrations_crm_sync
+      summary: GET /api/integrations/crm/sync
+      description: Generated route contract for src/app/api/integrations/crm/sync/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/oauth/callback:
+    get:
+      operationId: get_integrations_oauth_callback
+      summary: GET /api/integrations/oauth/callback
+      description: Generated route contract for src/app/api/integrations/oauth/callback/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/oauth/start:
+    post:
+      operationId: post_integrations_oauth_start
+      summary: POST /api/integrations/oauth/start
+      description: Generated route contract for src/app/api/integrations/oauth/start/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/refresh-tokens:
+    get:
+      operationId: get_integrations_refresh_tokens
+      summary: GET /api/integrations/refresh-tokens
+      description: Generated route contract for src/app/api/integrations/refresh-tokens/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/slack/renewal-summary:
+    post:
+      operationId: post_integrations_slack_renewal_summary
+      summary: POST /api/integrations/slack/renewal-summary
+      description: Generated route contract for src/app/api/integrations/slack/renewal-summary/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/decision-queue:
+    get:
+      operationId: get_intelligence_decision_queue
+      summary: GET /api/intelligence/decision-queue
+      description: Generated route contract for src/app/api/intelligence/decision-queue/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/portfolio-by-counterparty:
+    get:
+      operationId: get_intelligence_portfolio_by_counterparty
+      summary: GET /api/intelligence/portfolio-by-counterparty
+      description: Generated route contract for src/app/api/intelligence/portfolio-by-counterparty/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/portfolio-by-program:
+    get:
+      operationId: get_intelligence_portfolio_by_program
+      summary: GET /api/intelligence/portfolio-by-program
+      description: Generated route contract for src/app/api/intelligence/portfolio-by-program/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/portfolio-signals:
+    get:
+      operationId: get_intelligence_portfolio_signals
+      summary: GET /api/intelligence/portfolio-signals
+      description: Generated route contract for src/app/api/intelligence/portfolio-signals/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/recommendations/{id}:
+    patch:
+      operationId: patch_intelligence_recommendations_by_id
+      summary: PATCH /api/intelligence/recommendations/{id}
+      description: Generated route contract for src/app/api/intelligence/recommendations/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/intelligence/recommendations:
+    get:
+      operationId: get_intelligence_recommendations
+      summary: GET /api/intelligence/recommendations
+      description: Generated route contract for src/app/api/intelligence/recommendations/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/internal/debugging-sweep:
+    get:
+      operationId: get_internal_debugging_sweep
+      summary: GET /api/internal/debugging-sweep
+      description: Generated route contract for src/app/api/internal/debugging-sweep/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/campaigns/{id}/preview:
+    get:
+      operationId: get_maintenance_campaigns_by_id_preview
+      summary: GET /api/maintenance/campaigns/{id}/preview
+      description: Generated route contract for src/app/api/maintenance/campaigns/[id]/preview/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/campaigns/{id}/rollback:
+    post:
+      operationId: post_maintenance_campaigns_by_id_rollback
+      summary: POST /api/maintenance/campaigns/{id}/rollback
+      description: Generated route contract for src/app/api/maintenance/campaigns/[id]/rollback/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/campaigns/{id}:
+    get:
+      operationId: get_maintenance_campaigns_by_id
+      summary: GET /api/maintenance/campaigns/{id}
+      description: Generated route contract for src/app/api/maintenance/campaigns/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/campaigns/{id}/run:
+    post:
+      operationId: post_maintenance_campaigns_by_id_run
+      summary: POST /api/maintenance/campaigns/{id}/run
+      description: Generated route contract for src/app/api/maintenance/campaigns/[id]/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/campaigns:
+    post:
+      operationId: post_maintenance_campaigns
+      summary: POST /api/maintenance/campaigns
+      description: Generated route contract for src/app/api/maintenance/campaigns/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/maintenance/prune-operational-data:
+    get:
+      operationId: get_maintenance_prune_operational_data
+      summary: GET /api/maintenance/prune-operational-data
+      description: Generated route contract for src/app/api/maintenance/prune-operational-data/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/me/account:
+    delete:
+      operationId: delete_me_account
+      summary: DELETE /api/me/account
+      description: Generated route contract for src/app/api/me/account/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/me/export:
+    get:
+      operationId: get_me_export
+      summary: GET /api/me/export
+      description: Generated route contract for src/app/api/me/export/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/notifications/retry-deliveries:
+    get:
+      operationId: get_notifications_retry_deliveries
+      summary: GET /api/notifications/retry-deliveries
+      description: Generated route contract for src/app/api/notifications/retry-deliveries/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/outcomes/control-effectiveness:
+    get:
+      operationId: get_outcomes_control_effectiveness
+      summary: GET /api/outcomes/control-effectiveness
+      description: Generated route contract for src/app/api/outcomes/control-effectiveness/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/outcomes/interventions:
+    get:
+      operationId: get_outcomes_interventions
+      summary: GET /api/outcomes/interventions
+      description: Generated route contract for src/app/api/outcomes/interventions/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/outcomes/program-effectiveness:
+    get:
+      operationId: get_outcomes_program_effectiveness
+      summary: GET /api/outcomes/program-effectiveness
+      description: Generated route contract for src/app/api/outcomes/program-effectiveness/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/playbooks/{id}/preview:
+    post:
+      operationId: post_playbooks_by_id_preview
+      summary: POST /api/playbooks/{id}/preview
+      description: Generated route contract for src/app/api/playbooks/[id]/preview/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/playbooks/{id}/run:
+    post:
+      operationId: post_playbooks_by_id_run
+      summary: POST /api/playbooks/{id}/run
+      description: Generated route contract for src/app/api/playbooks/[id]/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/playbooks:
+    get:
+      operationId: get_playbooks
+      summary: GET /api/playbooks
+      description: Generated route contract for src/app/api/playbooks/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_playbooks
+      summary: POST /api/playbooks
+      description: Generated route contract for src/app/api/playbooks/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/playbooks/runs/{id}/approve:
+    post:
+      operationId: post_playbooks_runs_by_id_approve
+      summary: POST /api/playbooks/runs/{id}/approve
+      description: Generated route contract for src/app/api/playbooks/runs/[id]/approve/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/playbooks/runs/{id}:
+    get:
+      operationId: get_playbooks_runs_by_id
+      summary: GET /api/playbooks/runs/{id}
+      description: Generated route contract for src/app/api/playbooks/runs/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/policy/simulate:
+    post:
+      operationId: post_policy_simulate
+      summary: POST /api/policy/simulate
+      description: Generated route contract for src/app/api/policy/simulate/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/product-telemetry/page-load:
+    post:
+      operationId: post_product_telemetry_page_load
+      summary: POST /api/product-telemetry/page-load
+      description: Generated route contract for src/app/api/product-telemetry/page-load/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/program-evolution/experiments/{id}/advance-rollout:
+    post:
+      operationId: post_program_evolution_experiments_by_id_advance_rollout
+      summary: POST /api/program-evolution/experiments/{id}/advance-rollout
+      description: Generated route contract for src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/program-evolution/experiments/{id}/results:
+    post:
+      operationId: post_program_evolution_experiments_by_id_results
+      summary: POST /api/program-evolution/experiments/{id}/results
+      description: Generated route contract for src/app/api/program-evolution/experiments/[id]/results/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/program-evolution/experiments/{id}/simulate:
+    post:
+      operationId: post_program_evolution_experiments_by_id_simulate
+      summary: POST /api/program-evolution/experiments/{id}/simulate
+      description: Generated route contract for src/app/api/program-evolution/experiments/[id]/simulate/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/program-evolution/experiments:
+    get:
+      operationId: get_program_evolution_experiments
+      summary: GET /api/program-evolution/experiments
+      description: Generated route contract for src/app/api/program-evolution/experiments/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_program_evolution_experiments
+      summary: POST /api/program-evolution/experiments
+      description: Generated route contract for src/app/api/program-evolution/experiments/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/programs/{id}/{action}:
+    post:
+      operationId: post_programs_by_id_by_action
+      summary: POST /api/programs/{id}/{action}
+      description: Generated route contract for src/app/api/programs/[id]/[action]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/programs:
+    get:
+      operationId: get_programs
+      summary: GET /api/programs
+      description: Generated route contract for src/app/api/programs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_programs
+      summary: POST /api/programs
+      description: Generated route contract for src/app/api/programs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reminders/send:
+    get:
+      operationId: get_reminders_send
+      summary: GET /api/reminders/send
+      description: Generated route contract for src/app/api/reminders/send/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/renewals/{id}/{action}:
+    post:
+      operationId: post_renewals_by_id_by_action
+      summary: POST /api/renewals/{id}/{action}
+      description: Generated route contract for src/app/api/renewals/[id]/[action]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/renewals/portfolio-signals:
+    get:
+      operationId: get_renewals_portfolio_signals
+      summary: GET /api/renewals/portfolio-signals
+      description: Generated route contract for src/app/api/renewals/portfolio-signals/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/report-packs/{id}/runs:
+    get:
+      operationId: get_report_packs_by_id_runs
+      summary: GET /api/report-packs/{id}/runs
+      description: Generated route contract for src/app/api/report-packs/[id]/runs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/report-packs:
+    get:
+      operationId: get_report_packs
+      summary: GET /api/report-packs
+      description: Generated route contract for src/app/api/report-packs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_report_packs
+      summary: POST /api/report-packs
+      description: Generated route contract for src/app/api/report-packs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reports/capture-metrics:
+    get:
+      operationId: get_reports_capture_metrics
+      summary: GET /api/reports/capture-metrics
+      description: Generated route contract for src/app/api/reports/capture-metrics/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reports/send-summaries:
+    get:
+      operationId: get_reports_send_summaries
+      summary: GET /api/reports/send-summaries
+      description: Generated route contract for src/app/api/reports/send-summaries/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reports/track/click/{token}:
+    get:
+      operationId: get_reports_track_click_by_token
+      summary: GET /api/reports/track/click/{token}
+      description: Generated route contract for src/app/api/reports/track/click/[token]/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reports/track/open/{token}:
+    get:
+      operationId: get_reports_track_open_by_token
+      summary: GET /api/reports/track/open/{token}
+      description: Generated route contract for src/app/api/reports/track/open/[token]/route.ts.
+      security: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/review-boards/{id}/generate-run:
+    post:
+      operationId: post_review_boards_by_id_generate_run
+      summary: POST /api/review-boards/{id}/generate-run
+      description: Generated route contract for src/app/api/review-boards/[id]/generate-run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/review-boards/{id}:
+    patch:
+      operationId: patch_review_boards_by_id
+      summary: PATCH /api/review-boards/{id}
+      description: Generated route contract for src/app/api/review-boards/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/review-boards/{id}/runs:
+    get:
+      operationId: get_review_boards_by_id_runs
+      summary: GET /api/review-boards/{id}/runs
+      description: Generated route contract for src/app/api/review-boards/[id]/runs/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/review-boards:
+    get:
+      operationId: get_review_boards
+      summary: GET /api/review-boards
+      description: Generated route contract for src/app/api/review-boards/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_review_boards
+      summary: POST /api/review-boards
+      description: Generated route contract for src/app/api/review-boards/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/review-boards/runs/{id}:
+    get:
+      operationId: get_review_boards_runs_by_id
+      summary: GET /api/review-boards/runs/{id}
+      description: Generated route contract for src/app/api/review-boards/runs/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_review_boards_runs_by_id
+      summary: PATCH /api/review-boards/runs/{id}
+      description: Generated route contract for src/app/api/review-boards/runs/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/segments/{id}/recompute:
+    post:
+      operationId: post_segments_by_id_recompute
+      summary: POST /api/segments/{id}/recompute
+      description: Generated route contract for src/app/api/segments/[id]/recompute/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/segments:
+    get:
+      operationId: get_segments
+      summary: GET /api/segments
+      description: Generated route contract for src/app/api/segments/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_segments
+      summary: POST /api/segments
+      description: Generated route contract for src/app/api/segments/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/settings/step-up:
+    post:
+      operationId: post_settings_step_up
+      summary: POST /api/settings/step-up
+      description: Generated route contract for src/app/api/settings/step-up/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/simulations/{id}/promote-to-campaign:
+    post:
+      operationId: post_simulations_by_id_promote_to_campaign
+      summary: POST /api/simulations/{id}/promote-to-campaign
+      description: Generated route contract for src/app/api/simulations/[id]/promote-to-campaign/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/simulations/{id}:
+    get:
+      operationId: get_simulations_by_id
+      summary: GET /api/simulations/{id}
+      description: Generated route contract for src/app/api/simulations/[id]/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/simulations/run:
+    post:
+      operationId: post_simulations_run
+      summary: POST /api/simulations/run
+      description: Generated route contract for src/app/api/simulations/run/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/stripe/checkout:
+    post:
+      operationId: post_stripe_checkout
+      summary: POST /api/stripe/checkout
+      description: Generated route contract for src/app/api/stripe/checkout/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/stripe/portal:
+    post:
+      operationId: post_stripe_portal
+      summary: POST /api/stripe/portal
+      description: Generated route contract for src/app/api/stripe/portal/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/stripe/webhook:
+    post:
+      operationId: post_stripe_webhook
+      summary: POST /api/stripe/webhook
+      description: Generated route contract for src/app/api/stripe/webhook/route.ts.
+      security:
+        - WebhookSignature: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/tasks/from-email:
+    post:
+      operationId: post_tasks_from_email
+      summary: POST /api/tasks/from-email
+      description: Generated route contract for src/app/api/tasks/from-email/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/tasks/from-slack:
+    post:
+      operationId: post_tasks_from_slack
+      summary: POST /api/tasks/from-slack
+      description: Generated route contract for src/app/api/tasks/from-slack/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/tasks/run-rules:
+    get:
+      operationId: get_tasks_run_rules
+      summary: GET /api/tasks/run-rules
+      description: Generated route contract for src/app/api/tasks/run-rules/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/templates/preview:
+    get:
+      operationId: get_templates_preview
+      summary: GET /api/templates/preview
+      description: Generated route contract for src/app/api/templates/preview/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/webhooks/dispatch:
+    get:
+      operationId: get_webhooks_dispatch
+      summary: GET /api/webhooks/dispatch
+      description: Generated route contract for src/app/api/webhooks/dispatch/route.ts.
+      security:
+        - WebhookSignature: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    post:
+      operationId: post_webhooks_dispatch
+      summary: POST /api/webhooks/dispatch
+      description: Generated route contract for src/app/api/webhooks/dispatch/route.ts.
+      security:
+        - WebhookSignature: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/workspace/nav-badges:
+    get:
+      operationId: get_workspace_nav_badges
+      summary: GET /api/workspace/nav-badges
+      description: Generated route contract for src/app/api/workspace/nav-badges/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/workspace/v6-settings:
+    get:
+      operationId: get_workspace_v6_settings
+      summary: GET /api/workspace/v6-settings
+      description: Generated route contract for src/app/api/workspace/v6-settings/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_workspace_v6_settings
+      summary: PATCH /api/workspace/v6-settings
+      description: Generated route contract for src/app/api/workspace/v6-settings/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error

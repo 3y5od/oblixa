@@ -1,15 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const createAdminClient = vi.fn();
+const safeFetch = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
+}));
+
+vi.mock("@/lib/security/safe-fetch", () => ({
+  safeFetch,
 }));
 
 describe("GET /api/integrations/oauth/callback", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    safeFetch.mockReset();
     // Force in-memory rate-limit path in tests to avoid Upstash client calls.
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -105,17 +111,14 @@ describe("GET /api/integrations/oauth/callback", () => {
       }),
       update: vi.fn().mockReturnThis(),
     };
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          access_token: "access_token",
-          refresh_token: "refresh_token",
-          expires_in: 3600,
-        }),
-      })
-    );
+    safeFetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        access_token: "access_token",
+        refresh_token: "refresh_token",
+        expires_in: 3600,
+      }),
+    });
     const upsert = vi.fn().mockResolvedValue({ error: { message: "upsert failed" } });
     const integrationConnectionQuery = {
       select: vi.fn().mockReturnThis(),

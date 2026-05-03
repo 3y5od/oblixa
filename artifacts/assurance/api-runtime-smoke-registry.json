@@ -1,0 +1,1871 @@
+{
+  "version": 1,
+  "program": "maximal-assurance-epic3",
+  "generatedAt": "2026-05-03T19:32:41.303Z",
+  "routeCount": 184,
+  "routes": [
+    {
+      "routeFile": "src/app/api/accounts/[key]/summary/route.ts",
+      "pathTemplate": "/api/accounts/[key]/summary",
+      "samplePath": "/api/accounts/smoke-key/summary",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/approvals/[id]/[action]/route.ts",
+      "pathTemplate": "/api/approvals/[id]/[action]",
+      "samplePath": "/api/approvals/00000000-0000-0000-0000-000000000001/smoke-action",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/approvals/sla-metrics/route.ts",
+      "pathTemplate": "/api/approvals/sla-metrics",
+      "samplePath": "/api/approvals/sla-metrics",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/analytics/summary/route.ts",
+      "pathTemplate": "/api/assurance/analytics/summary",
+      "samplePath": "/api/assurance/analytics/summary",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/check-runs/[id]/route.ts",
+      "pathTemplate": "/api/assurance/check-runs/[id]",
+      "samplePath": "/api/assurance/check-runs/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/check-runs/route.ts",
+      "pathTemplate": "/api/assurance/check-runs",
+      "samplePath": "/api/assurance/check-runs",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/checks/run/route.ts",
+      "pathTemplate": "/api/assurance/checks/run",
+      "samplePath": "/api/assurance/checks/run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/external-links/[id]/response-pack/route.ts",
+      "pathTemplate": "/api/assurance/external-links/[id]/response-pack",
+      "samplePath": "/api/assurance/external-links/00000000-0000-0000-0000-000000000001/response-pack",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/findings/[id]/events/route.ts",
+      "pathTemplate": "/api/assurance/findings/[id]/events",
+      "samplePath": "/api/assurance/findings/00000000-0000-0000-0000-000000000001/events",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/findings/[id]/resolve/route.ts",
+      "pathTemplate": "/api/assurance/findings/[id]/resolve",
+      "samplePath": "/api/assurance/findings/00000000-0000-0000-0000-000000000001/resolve",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/findings/route.ts",
+      "pathTemplate": "/api/assurance/findings",
+      "samplePath": "/api/assurance/findings",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/health-graph/route.ts",
+      "pathTemplate": "/api/assurance/health-graph",
+      "samplePath": "/api/assurance/health-graph",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/scorecards/[id]/snapshots/route.ts",
+      "pathTemplate": "/api/assurance/scorecards/[id]/snapshots",
+      "samplePath": "/api/assurance/scorecards/00000000-0000-0000-0000-000000000001/snapshots",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/scorecards/route.ts",
+      "pathTemplate": "/api/assurance/scorecards",
+      "samplePath": "/api/assurance/scorecards",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/assurance/workflows/run-all/route.ts",
+      "pathTemplate": "/api/assurance/workflows/run-all",
+      "samplePath": "/api/assurance/workflows/run-all",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/attestations/[id]/respond/route.ts",
+      "pathTemplate": "/api/attestations/[id]/respond",
+      "samplePath": "/api/attestations/00000000-0000-0000-0000-000000000001/respond",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/attestations/run/route.ts",
+      "pathTemplate": "/api/attestations/run",
+      "samplePath": "/api/attestations/run",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/auth/post-sign-out/route.ts",
+      "pathTemplate": "/api/auth/post-sign-out",
+      "samplePath": "/api/auth/post-sign-out",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/rules/[id]/dry-run/route.ts",
+      "pathTemplate": "/api/autopilot/rules/[id]/dry-run",
+      "samplePath": "/api/autopilot/rules/00000000-0000-0000-0000-000000000001/dry-run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/rules/[id]/enable/route.ts",
+      "pathTemplate": "/api/autopilot/rules/[id]/enable",
+      "samplePath": "/api/autopilot/rules/00000000-0000-0000-0000-000000000001/enable",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/rules/[id]/route.ts",
+      "pathTemplate": "/api/autopilot/rules/[id]",
+      "samplePath": "/api/autopilot/rules/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/rules/route.ts",
+      "pathTemplate": "/api/autopilot/rules",
+      "samplePath": "/api/autopilot/rules",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/run-logs/[id]/revert/route.ts",
+      "pathTemplate": "/api/autopilot/run-logs/[id]/revert",
+      "samplePath": "/api/autopilot/run-logs/00000000-0000-0000-0000-000000000001/revert",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/autopilot/runs/route.ts",
+      "pathTemplate": "/api/autopilot/runs",
+      "samplePath": "/api/autopilot/runs",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/close/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/close",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/close",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/contracts/[rowId]",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/contracts/smoke-rowId",
+      "methods": [
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/export/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/export",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/export",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/pause/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/pause",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/pause",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/preview/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/preview",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/preview",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/resume/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/resume",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/resume",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/rollback/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/rollback",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/rollback",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/route.ts",
+      "pathTemplate": "/api/campaigns/[id]",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/[id]/start/route.ts",
+      "pathTemplate": "/api/campaigns/[id]/start",
+      "samplePath": "/api/campaigns/00000000-0000-0000-0000-000000000001/start",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/campaigns/route.ts",
+      "pathTemplate": "/api/campaigns",
+      "samplePath": "/api/campaigns",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/capacity/forecast/route.ts",
+      "pathTemplate": "/api/capacity/forecast",
+      "samplePath": "/api/capacity/forecast",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/capacity/reassignment-plan/route.ts",
+      "pathTemplate": "/api/capacity/reassignment-plan",
+      "samplePath": "/api/capacity/reassignment-plan",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/command-centers/preferences/route.ts",
+      "pathTemplate": "/api/command-centers/preferences",
+      "samplePath": "/api/command-centers/preferences",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/command-palette/contracts/route.ts",
+      "pathTemplate": "/api/command-palette/contracts",
+      "samplePath": "/api/command-palette/contracts",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/contracts/recompute-signals/route.ts",
+      "pathTemplate": "/api/contracts/recompute-signals",
+      "samplePath": "/api/contracts/recompute-signals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/control-policies/[id]/assign/route.ts",
+      "pathTemplate": "/api/control-policies/[id]/assign",
+      "samplePath": "/api/control-policies/00000000-0000-0000-0000-000000000001/assign",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/control-policies/[id]/publish/route.ts",
+      "pathTemplate": "/api/control-policies/[id]/publish",
+      "samplePath": "/api/control-policies/00000000-0000-0000-0000-000000000001/publish",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/control-policies/[id]/route.ts",
+      "pathTemplate": "/api/control-policies/[id]",
+      "samplePath": "/api/control-policies/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/control-policies/[id]/simulate/route.ts",
+      "pathTemplate": "/api/control-policies/[id]/simulate",
+      "samplePath": "/api/control-policies/00000000-0000-0000-0000-000000000001/simulate",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/control-policies/route.ts",
+      "pathTemplate": "/api/control-policies",
+      "samplePath": "/api/control-policies",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/counterparties/[key]/summary/route.ts",
+      "pathTemplate": "/api/counterparties/[key]/summary",
+      "samplePath": "/api/counterparties/smoke-key/summary",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/cron/stripe-webhook-events/route.ts",
+      "pathTemplate": "/api/cron/stripe-webhook-events",
+      "samplePath": "/api/cron/stripe-webhook-events",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+      "pathTemplate": "/api/cron/v10/idempotency-cleanup",
+      "samplePath": "/api/cron/v10/idempotency-cleanup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v10/read-model-refresh/route.ts",
+      "pathTemplate": "/api/cron/v10/read-model-refresh",
+      "samplePath": "/api/cron/v10/read-model-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+      "pathTemplate": "/api/cron/v10/runtime-artifact-cleanup",
+      "samplePath": "/api/cron/v10/runtime-artifact-cleanup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/approvals-sla/route.ts",
+      "pathTemplate": "/api/cron/v4/approvals-sla",
+      "samplePath": "/api/cron/v4/approvals-sla",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/attestations-issue/route.ts",
+      "pathTemplate": "/api/cron/v4/attestations-issue",
+      "samplePath": "/api/cron/v4/attestations-issue",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+      "pathTemplate": "/api/cron/v4/escalations-dispatch",
+      "samplePath": "/api/cron/v4/escalations-dispatch",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/evidence-followup/route.ts",
+      "pathTemplate": "/api/cron/v4/evidence-followup",
+      "samplePath": "/api/cron/v4/evidence-followup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/exceptions-detect/route.ts",
+      "pathTemplate": "/api/cron/v4/exceptions-detect",
+      "samplePath": "/api/cron/v4/exceptions-detect",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/programs-reconcile/route.ts",
+      "pathTemplate": "/api/cron/v4/programs-reconcile",
+      "samplePath": "/api/cron/v4/programs-reconcile",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+      "pathTemplate": "/api/cron/v4/renewals-recompute-signals",
+      "samplePath": "/api/cron/v4/renewals-recompute-signals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "pathTemplate": "/api/cron/v4/report-packs-generate",
+      "samplePath": "/api/cron/v4/report-packs-generate",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/campaign-progress/route.ts",
+      "pathTemplate": "/api/cron/v5/campaign-progress",
+      "samplePath": "/api/cron/v5/campaign-progress",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+      "pathTemplate": "/api/cron/v5/capacity-forecast-refresh",
+      "samplePath": "/api/cron/v5/capacity-forecast-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+      "pathTemplate": "/api/cron/v5/decision-sla-monitor",
+      "samplePath": "/api/cron/v5/decision-sla-monitor",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/external-followup/route.ts",
+      "pathTemplate": "/api/cron/v5/external-followup",
+      "samplePath": "/api/cron/v5/external-followup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+      "pathTemplate": "/api/cron/v5/portfolio-risk-recompute",
+      "samplePath": "/api/cron/v5/portfolio-risk-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+      "pathTemplate": "/api/cron/v5/recommendation-refresh",
+      "samplePath": "/api/cron/v5/recommendation-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/relationship-rollups/route.ts",
+      "pathTemplate": "/api/cron/v5/relationship-rollups",
+      "samplePath": "/api/cron/v5/relationship-rollups",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+      "pathTemplate": "/api/cron/v5/simulation-snapshots",
+      "samplePath": "/api/cron/v5/simulation-snapshots",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/assurance-checks/route.ts",
+      "pathTemplate": "/api/cron/v6/assurance-checks",
+      "samplePath": "/api/cron/v6/assurance-checks",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
+      "pathTemplate": "/api/cron/v6/autopilot-dry-run",
+      "samplePath": "/api/cron/v6/autopilot-dry-run",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/autopilot-execution/route.ts",
+      "pathTemplate": "/api/cron/v6/autopilot-execution",
+      "samplePath": "/api/cron/v6/autopilot-execution",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
+      "pathTemplate": "/api/cron/v6/control-policy-reevaluation",
+      "samplePath": "/api/cron/v6/control-policy-reevaluation",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
+      "pathTemplate": "/api/cron/v6/external-workflow-deadlines",
+      "samplePath": "/api/cron/v6/external-workflow-deadlines",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/finding-refresh/route.ts",
+      "pathTemplate": "/api/cron/v6/finding-refresh",
+      "samplePath": "/api/cron/v6/finding-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/health-graph-rollups/route.ts",
+      "pathTemplate": "/api/cron/v6/health-graph-rollups",
+      "samplePath": "/api/cron/v6/health-graph-rollups",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
+      "pathTemplate": "/api/cron/v6/onboarding-calibration-stale",
+      "samplePath": "/api/cron/v6/onboarding-calibration-stale",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
+      "pathTemplate": "/api/cron/v6/outcome-effectiveness",
+      "samplePath": "/api/cron/v6/outcome-effectiveness",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
+      "pathTemplate": "/api/cron/v6/playbook-follow-up-assurance",
+      "samplePath": "/api/cron/v6/playbook-follow-up-assurance",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
+      "pathTemplate": "/api/cron/v6/review-board-packet-generation",
+      "samplePath": "/api/cron/v6/review-board-packet-generation",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/scorecard-recompute/route.ts",
+      "pathTemplate": "/api/cron/v6/scorecard-recompute",
+      "samplePath": "/api/cron/v6/scorecard-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/v6/segment-recompute/route.ts",
+      "pathTemplate": "/api/cron/v6/segment-recompute",
+      "samplePath": "/api/cron/v6/segment-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/approve/route.ts",
+      "pathTemplate": "/api/decisions/[id]/approve",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/approve",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/close/route.ts",
+      "pathTemplate": "/api/decisions/[id]/close",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/close",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/context/route.ts",
+      "pathTemplate": "/api/decisions/[id]/context",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/context",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "pathTemplate": "/api/decisions/[id]/packet-runs/[runId]",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/packet-runs/smoke-runId",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/packet/route.ts",
+      "pathTemplate": "/api/decisions/[id]/packet",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/packet",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/recommend/route.ts",
+      "pathTemplate": "/api/decisions/[id]/recommend",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/recommend",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/review/route.ts",
+      "pathTemplate": "/api/decisions/[id]/review",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/review",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/route.ts",
+      "pathTemplate": "/api/decisions/[id]",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/[id]/stakeholders/route.ts",
+      "pathTemplate": "/api/decisions/[id]/stakeholders",
+      "samplePath": "/api/decisions/00000000-0000-0000-0000-000000000001/stakeholders",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/packet-templates/[id]/route.ts",
+      "pathTemplate": "/api/decisions/packet-templates/[id]",
+      "samplePath": "/api/decisions/packet-templates/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/packet-templates/route.ts",
+      "pathTemplate": "/api/decisions/packet-templates",
+      "samplePath": "/api/decisions/packet-templates",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/decisions/route.ts",
+      "pathTemplate": "/api/decisions",
+      "samplePath": "/api/decisions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/events/route.ts",
+      "pathTemplate": "/api/events",
+      "samplePath": "/api/events",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/evidence/[id]/[action]/route.ts",
+      "pathTemplate": "/api/evidence/[id]/[action]",
+      "samplePath": "/api/evidence/00000000-0000-0000-0000-000000000001/smoke-action",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/evidence/export/[contractId]/route.ts",
+      "pathTemplate": "/api/evidence/export/[contractId]",
+      "samplePath": "/api/evidence/export/smoke-contractId",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/evidence/requests/route.ts",
+      "pathTemplate": "/api/evidence/requests",
+      "samplePath": "/api/evidence/requests",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/evidence/submit/route.ts",
+      "pathTemplate": "/api/evidence/submit",
+      "samplePath": "/api/evidence/submit",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/exceptions/[id]/[action]/route.ts",
+      "pathTemplate": "/api/exceptions/[id]/[action]",
+      "samplePath": "/api/exceptions/00000000-0000-0000-0000-000000000001/smoke-action",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/exceptions/route.ts",
+      "pathTemplate": "/api/exceptions",
+      "samplePath": "/api/exceptions",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/exceptions/run-detection/route.ts",
+      "pathTemplate": "/api/exceptions/run-detection",
+      "samplePath": "/api/exceptions/run-detection",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/calendar/feed/[token]/route.ts",
+      "pathTemplate": "/api/export/calendar/feed/[token]",
+      "samplePath": "/api/export/calendar/feed/smoke-token",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "public_or_token_surface",
+      "smokeTier": "ci"
+    },
+    {
+      "routeFile": "src/app/api/export/calendar/feed/route.ts",
+      "pathTemplate": "/api/export/calendar/feed",
+      "samplePath": "/api/export/calendar/feed",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/calendar/route.ts",
+      "pathTemplate": "/api/export/calendar",
+      "samplePath": "/api/export/calendar",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/contracts/[jobId]/route.ts",
+      "pathTemplate": "/api/export/contracts/[jobId]",
+      "samplePath": "/api/export/contracts/00000000-0000-0000-0000-000000000002",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/contracts/route.ts",
+      "pathTemplate": "/api/export/contracts",
+      "samplePath": "/api/export/contracts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/review-packet/route.ts",
+      "pathTemplate": "/api/export/review-packet",
+      "samplePath": "/api/export/review-packet",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/external-actions/[token]/participant/workflow-step/route.ts",
+      "pathTemplate": "/api/external-actions/[token]/participant/workflow-step",
+      "samplePath": "/api/external-actions/smoke-token/participant/workflow-step",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/external-actions/[token]/status/route.ts",
+      "pathTemplate": "/api/external-actions/[token]/status",
+      "samplePath": "/api/external-actions/smoke-token/status",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/external-actions/[token]/submit/route.ts",
+      "pathTemplate": "/api/external-actions/[token]/submit",
+      "samplePath": "/api/external-actions/smoke-token/submit",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/external-actions/[token]/workflow-step/route.ts",
+      "pathTemplate": "/api/external-actions/[token]/workflow-step",
+      "samplePath": "/api/external-actions/smoke-token/workflow-step",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/external-actions/create-link/route.ts",
+      "pathTemplate": "/api/external-actions/create-link",
+      "samplePath": "/api/external-actions/create-link",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/extract/route.ts",
+      "pathTemplate": "/api/extract",
+      "samplePath": "/api/extract",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/extract/run/route.ts",
+      "pathTemplate": "/api/extract/run",
+      "samplePath": "/api/extract/run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/health/route.ts",
+      "pathTemplate": "/api/health",
+      "samplePath": "/api/health",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "runnerHint": "public_or_token_surface",
+      "smokeTier": "ci"
+    },
+    {
+      "routeFile": "src/app/api/import/contracts/[jobId]/route.ts",
+      "pathTemplate": "/api/import/contracts/[jobId]",
+      "samplePath": "/api/import/contracts/00000000-0000-0000-0000-000000000002",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/import/contracts/route.ts",
+      "pathTemplate": "/api/import/contracts",
+      "samplePath": "/api/import/contracts",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/actions/callback/route.ts",
+      "pathTemplate": "/api/integrations/actions/callback",
+      "samplePath": "/api/integrations/actions/callback",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/calendar/sync/route.ts",
+      "pathTemplate": "/api/integrations/calendar/sync",
+      "samplePath": "/api/integrations/calendar/sync",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/crm/sync/route.ts",
+      "pathTemplate": "/api/integrations/crm/sync",
+      "samplePath": "/api/integrations/crm/sync",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/oauth/callback/route.ts",
+      "pathTemplate": "/api/integrations/oauth/callback",
+      "samplePath": "/api/integrations/oauth/callback",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/oauth/start/route.ts",
+      "pathTemplate": "/api/integrations/oauth/start",
+      "samplePath": "/api/integrations/oauth/start",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/refresh-tokens/route.ts",
+      "pathTemplate": "/api/integrations/refresh-tokens",
+      "samplePath": "/api/integrations/refresh-tokens",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/integrations/slack/renewal-summary/route.ts",
+      "pathTemplate": "/api/integrations/slack/renewal-summary",
+      "samplePath": "/api/integrations/slack/renewal-summary",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/decision-queue/route.ts",
+      "pathTemplate": "/api/intelligence/decision-queue",
+      "samplePath": "/api/intelligence/decision-queue",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/portfolio-by-counterparty/route.ts",
+      "pathTemplate": "/api/intelligence/portfolio-by-counterparty",
+      "samplePath": "/api/intelligence/portfolio-by-counterparty",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/portfolio-by-program/route.ts",
+      "pathTemplate": "/api/intelligence/portfolio-by-program",
+      "samplePath": "/api/intelligence/portfolio-by-program",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/portfolio-signals/route.ts",
+      "pathTemplate": "/api/intelligence/portfolio-signals",
+      "samplePath": "/api/intelligence/portfolio-signals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/recommendations/[id]/route.ts",
+      "pathTemplate": "/api/intelligence/recommendations/[id]",
+      "samplePath": "/api/intelligence/recommendations/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/intelligence/recommendations/route.ts",
+      "pathTemplate": "/api/intelligence/recommendations",
+      "samplePath": "/api/intelligence/recommendations",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/internal/debugging-sweep/route.ts",
+      "pathTemplate": "/api/internal/debugging-sweep",
+      "samplePath": "/api/internal/debugging-sweep",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/campaigns/[id]/preview/route.ts",
+      "pathTemplate": "/api/maintenance/campaigns/[id]/preview",
+      "samplePath": "/api/maintenance/campaigns/00000000-0000-0000-0000-000000000001/preview",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+      "pathTemplate": "/api/maintenance/campaigns/[id]/rollback",
+      "samplePath": "/api/maintenance/campaigns/00000000-0000-0000-0000-000000000001/rollback",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/campaigns/[id]/route.ts",
+      "pathTemplate": "/api/maintenance/campaigns/[id]",
+      "samplePath": "/api/maintenance/campaigns/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+      "pathTemplate": "/api/maintenance/campaigns/[id]/run",
+      "samplePath": "/api/maintenance/campaigns/00000000-0000-0000-0000-000000000001/run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/campaigns/route.ts",
+      "pathTemplate": "/api/maintenance/campaigns",
+      "samplePath": "/api/maintenance/campaigns",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/maintenance/prune-operational-data/route.ts",
+      "pathTemplate": "/api/maintenance/prune-operational-data",
+      "samplePath": "/api/maintenance/prune-operational-data",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/me/account/route.ts",
+      "pathTemplate": "/api/me/account",
+      "samplePath": "/api/me/account",
+      "methods": [
+        "DELETE"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/me/export/route.ts",
+      "pathTemplate": "/api/me/export",
+      "samplePath": "/api/me/export",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/notifications/retry-deliveries/route.ts",
+      "pathTemplate": "/api/notifications/retry-deliveries",
+      "samplePath": "/api/notifications/retry-deliveries",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/outcomes/control-effectiveness/route.ts",
+      "pathTemplate": "/api/outcomes/control-effectiveness",
+      "samplePath": "/api/outcomes/control-effectiveness",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/outcomes/interventions/route.ts",
+      "pathTemplate": "/api/outcomes/interventions",
+      "samplePath": "/api/outcomes/interventions",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/outcomes/program-effectiveness/route.ts",
+      "pathTemplate": "/api/outcomes/program-effectiveness",
+      "samplePath": "/api/outcomes/program-effectiveness",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/playbooks/[id]/preview/route.ts",
+      "pathTemplate": "/api/playbooks/[id]/preview",
+      "samplePath": "/api/playbooks/00000000-0000-0000-0000-000000000001/preview",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/playbooks/[id]/run/route.ts",
+      "pathTemplate": "/api/playbooks/[id]/run",
+      "samplePath": "/api/playbooks/00000000-0000-0000-0000-000000000001/run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/playbooks/route.ts",
+      "pathTemplate": "/api/playbooks",
+      "samplePath": "/api/playbooks",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/playbooks/runs/[id]/approve/route.ts",
+      "pathTemplate": "/api/playbooks/runs/[id]/approve",
+      "samplePath": "/api/playbooks/runs/00000000-0000-0000-0000-000000000001/approve",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/playbooks/runs/[id]/route.ts",
+      "pathTemplate": "/api/playbooks/runs/[id]",
+      "samplePath": "/api/playbooks/runs/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/policy/simulate/route.ts",
+      "pathTemplate": "/api/policy/simulate",
+      "samplePath": "/api/policy/simulate",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/product-telemetry/page-load/route.ts",
+      "pathTemplate": "/api/product-telemetry/page-load",
+      "samplePath": "/api/product-telemetry/page-load",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts",
+      "pathTemplate": "/api/program-evolution/experiments/[id]/advance-rollout",
+      "samplePath": "/api/program-evolution/experiments/00000000-0000-0000-0000-000000000001/advance-rollout",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/program-evolution/experiments/[id]/results/route.ts",
+      "pathTemplate": "/api/program-evolution/experiments/[id]/results",
+      "samplePath": "/api/program-evolution/experiments/00000000-0000-0000-0000-000000000001/results",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/program-evolution/experiments/[id]/simulate/route.ts",
+      "pathTemplate": "/api/program-evolution/experiments/[id]/simulate",
+      "samplePath": "/api/program-evolution/experiments/00000000-0000-0000-0000-000000000001/simulate",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/program-evolution/experiments/route.ts",
+      "pathTemplate": "/api/program-evolution/experiments",
+      "samplePath": "/api/program-evolution/experiments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/programs/[id]/[action]/route.ts",
+      "pathTemplate": "/api/programs/[id]/[action]",
+      "samplePath": "/api/programs/00000000-0000-0000-0000-000000000001/smoke-action",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/programs/route.ts",
+      "pathTemplate": "/api/programs",
+      "samplePath": "/api/programs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/reminders/send/route.ts",
+      "pathTemplate": "/api/reminders/send",
+      "samplePath": "/api/reminders/send",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/renewals/[id]/[action]/route.ts",
+      "pathTemplate": "/api/renewals/[id]/[action]",
+      "samplePath": "/api/renewals/00000000-0000-0000-0000-000000000001/smoke-action",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/renewals/portfolio-signals/route.ts",
+      "pathTemplate": "/api/renewals/portfolio-signals",
+      "samplePath": "/api/renewals/portfolio-signals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/report-packs/[id]/runs/route.ts",
+      "pathTemplate": "/api/report-packs/[id]/runs",
+      "samplePath": "/api/report-packs/00000000-0000-0000-0000-000000000001/runs",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/report-packs/route.ts",
+      "pathTemplate": "/api/report-packs",
+      "samplePath": "/api/report-packs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/reports/capture-metrics/route.ts",
+      "pathTemplate": "/api/reports/capture-metrics",
+      "samplePath": "/api/reports/capture-metrics",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/reports/send-summaries/route.ts",
+      "pathTemplate": "/api/reports/send-summaries",
+      "samplePath": "/api/reports/send-summaries",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/reports/track/click/[token]/route.ts",
+      "pathTemplate": "/api/reports/track/click/[token]",
+      "samplePath": "/api/reports/track/click/smoke-token",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/reports/track/open/[token]/route.ts",
+      "pathTemplate": "/api/reports/track/open/[token]",
+      "samplePath": "/api/reports/track/open/smoke-token",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/review-boards/[id]/generate-run/route.ts",
+      "pathTemplate": "/api/review-boards/[id]/generate-run",
+      "samplePath": "/api/review-boards/00000000-0000-0000-0000-000000000001/generate-run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/review-boards/[id]/route.ts",
+      "pathTemplate": "/api/review-boards/[id]",
+      "samplePath": "/api/review-boards/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/review-boards/[id]/runs/route.ts",
+      "pathTemplate": "/api/review-boards/[id]/runs",
+      "samplePath": "/api/review-boards/00000000-0000-0000-0000-000000000001/runs",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/review-boards/route.ts",
+      "pathTemplate": "/api/review-boards",
+      "samplePath": "/api/review-boards",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/review-boards/runs/[id]/route.ts",
+      "pathTemplate": "/api/review-boards/runs/[id]",
+      "samplePath": "/api/review-boards/runs/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/segments/[id]/recompute/route.ts",
+      "pathTemplate": "/api/segments/[id]/recompute",
+      "samplePath": "/api/segments/00000000-0000-0000-0000-000000000001/recompute",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/segments/route.ts",
+      "pathTemplate": "/api/segments",
+      "samplePath": "/api/segments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/settings/step-up/route.ts",
+      "pathTemplate": "/api/settings/step-up",
+      "samplePath": "/api/settings/step-up",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/simulations/[id]/promote-to-campaign/route.ts",
+      "pathTemplate": "/api/simulations/[id]/promote-to-campaign",
+      "samplePath": "/api/simulations/00000000-0000-0000-0000-000000000001/promote-to-campaign",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/simulations/[id]/route.ts",
+      "pathTemplate": "/api/simulations/[id]",
+      "samplePath": "/api/simulations/00000000-0000-0000-0000-000000000001",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/simulations/run/route.ts",
+      "pathTemplate": "/api/simulations/run",
+      "samplePath": "/api/simulations/run",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/stripe/checkout/route.ts",
+      "pathTemplate": "/api/stripe/checkout",
+      "samplePath": "/api/stripe/checkout",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/stripe/portal/route.ts",
+      "pathTemplate": "/api/stripe/portal",
+      "samplePath": "/api/stripe/portal",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/stripe/webhook/route.ts",
+      "pathTemplate": "/api/stripe/webhook",
+      "samplePath": "/api/stripe/webhook",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "signature_or_unsigned_reject",
+      "smokeTier": "ci"
+    },
+    {
+      "routeFile": "src/app/api/tasks/from-email/route.ts",
+      "pathTemplate": "/api/tasks/from-email",
+      "samplePath": "/api/tasks/from-email",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/tasks/from-slack/route.ts",
+      "pathTemplate": "/api/tasks/from-slack",
+      "samplePath": "/api/tasks/from-slack",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/tasks/run-rules/route.ts",
+      "pathTemplate": "/api/tasks/run-rules",
+      "samplePath": "/api/tasks/run-rules",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/templates/preview/route.ts",
+      "pathTemplate": "/api/templates/preview",
+      "samplePath": "/api/templates/preview",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/webhooks/dispatch/route.ts",
+      "pathTemplate": "/api/webhooks/dispatch",
+      "samplePath": "/api/webhooks/dispatch",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "runnerHint": "signature_or_unsigned_reject",
+      "smokeTier": "ci"
+    },
+    {
+      "routeFile": "src/app/api/workspace/nav-badges/route.ts",
+      "pathTemplate": "/api/workspace/nav-badges",
+      "samplePath": "/api/workspace/nav-badges",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/workspace/v6-settings/route.ts",
+      "pathTemplate": "/api/workspace/v6-settings",
+      "samplePath": "/api/workspace/v6-settings",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/auth/callback/route.ts",
+      "pathTemplate": "/auth/callback",
+      "samplePath": "/auth/callback",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "public_or_token_surface",
+      "smokeTier": "ci"
+    }
+  ]
+}

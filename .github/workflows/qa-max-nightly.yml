@@ -539,6 +539,39 @@ jobs:
         run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
       - run: npm run check:reproducible-build-hash
 
+  api_runtime_smoke_nightly:
+    needs: qa_static
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+      - run: npm ci
+      - name: API runtime smoke (Epic 3 nightly tier)
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          API_RUNTIME_SMOKE_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          API_RUNTIME_SMOKE_TIER: nightly
+        run: |
+          if [ -z "${STAGING_BASE_URL}" ]; then
+            echo "::notice::Skipping api-runtime-smoke (STAGING_BASE_URL not configured)."
+            exit 0
+          fi
+          export API_RUNTIME_SMOKE_STRICT=1
+          npm run check:api-runtime-smoke
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: api-runtime-smoke-artifacts
+          path: |
+            artifacts/assurance/api-runtime-smoke-last-run.json
+            artifacts/assurance/api-runtime-smoke-junit.xml
+          if-no-files-found: ignore
+
   merge_queue_canary_note:
     needs: qa_static
     if: always()

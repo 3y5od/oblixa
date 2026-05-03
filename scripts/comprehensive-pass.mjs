@@ -6,6 +6,13 @@ import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
 import { CRON_ROUTE_EXPECTED_KEYS } from "./cron-route-expected-keys.mjs";
+import {
+  assertJsonContentType,
+  cronAuthHeaders,
+  cronFailOnOkFalse,
+  cronStrictNoSkip404,
+  fetchCronWithMethodDiscovery,
+} from "./lib/cron-http-probe.mjs";
 
 const cwd = process.cwd();
 const { loadEnvConfig } = nextEnv;
@@ -243,8 +250,8 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
   const cronRoutes = [...CRON_ROUTE_EXPECTED_KEYS.keys()];
 
   for (const route of cronRoutes) {
-    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route);
-    const unsigned = await safeFetch(`${baseUrl}${route}`, {
+    const skipIf404 = /^\/api\/cron\/v\d+\//.test(route) && !cronStrictNoSkip404();
+    const unsigned = await fetchCronWithMethodDiscovery(safeFetch, `${baseUrl}${route}`, {
       cache: "no-store",
       headers: { "Cache-Control": "no-store" },
     });
@@ -264,9 +271,9 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
     }
     ok(`${route} rejects unsigned access`);
 
-    const signed = await safeFetch(`${baseUrl}${route}`, {
+    const signed = await fetchCronWithMethodDiscovery(safeFetch, `${baseUrl}${route}`, {
       cache: "no-store",
-      headers: { "Cache-Control": "no-store", "x-cron-secret": cronSecret },
+      headers: { "Cache-Control": "no-store", ...cronAuthHeaders(cronSecret) },
     });
     if (skipIf404 && signed.status === 404) {
       warn(`${route}: route unavailable on target base URL; skipping cron route check`);
@@ -276,10 +283,7 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
       const bodyText = await signed.text();
       throw new Error(`${route}: signed request failed ${signed.status} ${bodyText.slice(0, 300)}`);
     }
-    const contentType = signed.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      throw new Error(`${route}: expected JSON response, got content-type ${contentType}`);
-    }
+    assertJsonContentType(signed, route);
     const body = await signed.json();
     const expectedKeys = CRON_ROUTE_EXPECTED_KEYS.get(route) ?? [];
     const isV5Cron = route.startsWith("/api/cron/v5/");
@@ -303,6 +307,9 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
         }
       }
       if ("ok" in body && body.ok !== true) {
+        if (cronFailOnOkFalse()) {
+          throw new Error(`${route}: ok=false (CRON_CANARY_FAIL_ON_OK_FALSE)`);
+        }
         warn(`${route}: response reported ok=false (degraded business outcome)`);
       }
     }

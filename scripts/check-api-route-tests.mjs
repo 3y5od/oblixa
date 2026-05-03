@@ -25,14 +25,14 @@ function walkRoutes(dir, acc = []) {
   return acc;
 }
 
-function loadAllowlist() {
+function loadAllowlist(srcRoot) {
   if (!fs.existsSync(allowlistPath)) return { routes: new Set(), metadataIssues: [] };
   const raw = fs.readFileSync(allowlistPath, "utf8");
   const routes = new Set();
   const metadataIssues = [];
   let currentMeta = null;
   const metaRe =
-    /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
+    /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+?)\s+bundleProofTest=([^\s]+)$/;
   const isExpired = (dateStr) => {
     const parsed = Date.parse(dateStr);
     return Number.isNaN(parsed) || parsed < Date.now();
@@ -48,7 +48,16 @@ function loadAllowlist() {
           owner: m[1],
           expiry: m[2],
           reason: m[3].trim(),
+          bundleProofTest: m[4],
         };
+        const proofFsPath = path.join(srcRoot, m[4]);
+        if (!fs.existsSync(proofFsPath)) {
+          metadataIssues.push({
+            line: idx + 1,
+            issue: "bundle_proof_missing",
+            bundleProofTest: m[4],
+          });
+        }
         if (isExpired(currentMeta.expiry)) {
           metadataIssues.push({
             line: idx + 1,
@@ -76,7 +85,8 @@ function toApiRelative(abs) {
 }
 
 const routes = walkRoutes(apiRoot).sort();
-const allowlist = loadAllowlist();
+const srcRoot = path.join(root, "src");
+const allowlist = loadAllowlist(srcRoot);
 const violations = [];
 const staleAllowlistEntries = [];
 let colocatedCount = 0;

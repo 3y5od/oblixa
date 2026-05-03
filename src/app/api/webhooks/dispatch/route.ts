@@ -73,9 +73,10 @@ export async function GET(request: Request) {
   }
   const cronRate = await rateLimitCheck("cron:webhooks:dispatch", RATE_LIMITS.webhooksDispatchCron);
   if (!cronRate.ok) {
+    const retryAfterSec = Math.max(1, Math.ceil((cronRate.retryAfterMs ?? 1000) / 1000));
     return NextResponse.json(
       { error: "Too many requests", retryAfterMs: cronRate.retryAfterMs },
-      { status: 429 }
+      { status: 429, headers: { "retry-after": String(retryAfterSec) } }
     );
   }
 

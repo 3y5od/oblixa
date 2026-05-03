@@ -1,0 +1,1599 @@
+{
+  "version": 1,
+  "program": "maximal-assurance-appendix-d",
+  "generatedAt": "2026-05-03T19:32:41.281Z",
+  "checkScripts": [
+    {
+      "path": "scripts/check-absent-protocol-evidence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-account-recovery-abuse-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-adr-required-paths-lint.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-context-redaction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-prompt-injection-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-tool-call-authz.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-allowlist-metadata.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-cors-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-problem-json.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-admin-org-scope.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-auth-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-auth-route-index.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-rate-limit-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-tests.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-runtime-smoke-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-sunset-deprecation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-surface-contract-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-workspace-eligibility.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-archaeology-legacy-touch-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-artifact-json-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-assurance-catalog-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-assurance-epic-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-assurance-epics-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-assurance-program-semver.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-assurance-waivers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-auth-callback-guardrails.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-auth-cookie-attributes.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-auth-error-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-authenticated-a11y-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-autonomous-perf-phase-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-autonomous-perf-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-autonomous-perf-registry.smoke.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-autonomous-security-program.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-binary-metadata-stripping.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-branch-protection-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-browser-isolation-headers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-bundle-budget.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-cache-poisoning-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-callback-destination-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-callback-domain-strictness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-catalog-script-index.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-certificate-transparency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-checks-integrity-meta.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ci-artifact-secret-leakage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ci-change-impact.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-circuit-breaker-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-cla-dco-signed-commits-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-client-bundle-secret-leakage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-client-cache-sensitivity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-client-hash-details.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-client-storage-sensitivity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-codeowners-security-paths.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-command-reference-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-concurrency-cap-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-concurrency-hotspots-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-config-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-confusable-identifier-escalation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-constant-time-spectre-doc-grep.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-container-signing-slsa-stub.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-content-sniffing-defenses.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-control-traceability.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-copyleft-transitive-license-graph.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-coverage-completeness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-cron-route-auth.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-crypto-misuse.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-csp-nonce-hash-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-csrf-surface-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-custom-scheme-abuse.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dangerous-node-patterns.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dangerously-set-inner-html.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dashboard-start-transition-async.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-data-lifecycle-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-decompression-bomb-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-deeplink-destination-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependabot-config.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependency-confusion-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependency-cycles-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependency-cycles.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependency-policy-as-code.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dependency-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-destructive-operation-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dns-rebinding-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-docker-hardening.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dockerfile-presence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-duplicate-execution-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-env-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-generated-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-po-route-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-quarantine.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-skip-baseline.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-email-dns-fixtures.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-email-identity-spoof-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-env-example-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-env-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-executable-masquerade-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-feature-flag-lifecycle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-feature-flag-security-bypass.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-filter-shape-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-flake-stabilization-note.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-forwarded-header-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-frontend-component-complexity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-git-history-secret-exposure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-github-actions-permissions.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-github-scheduled-workflows-secrets.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-github-workflows-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-graphql-cost-depth-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-graphql-cost-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-graphql-introspection-exposure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-graphql-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-hardening-debt-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-http-method-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-idempotency-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-import-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-inbound-identity-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-incident-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-install-script-risk.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-internal-api-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-job-lock-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-json-body-limited-adoption.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-jurisdiction-artifact-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-kyb-beneficial-owner-schema.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-license-sbom.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-load-smoke-scaffold.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-locale-coverage-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-locale-route-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-lockfile-integrity-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-lockout-reset-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-maximal-assurance-plan-snapshot.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-merge-queue-canary-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-method-override-abuse.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-middleware-vercel-metadata.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-security-patterns.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migrations.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ml-lineage-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-mutation-fuzz-load-stub.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-mutation-race-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-next-config-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-next-public-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-next-script-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-no-executable-notebooks.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-notices-bundle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-notification-payload-scrub-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-npm-lifecycle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-npm-script-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-oauth-par-jar-dpop-stub.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-oauth-pkce-enforcement.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-oauth-state-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ofac-screening-stub-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-onboarding-qa-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-onboarding-stale-env-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-open-redirect-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-openapi-route-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-openapi-yaml-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-optimization-operating-model.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-origin-referrer-enforcement.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-domain-allowlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-events-context.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-fetch.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-message-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-owner-metadata.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-p6-na-register.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-page-heading-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pagination-guardrails.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pan-in-client-bundle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-parser-risk-controls.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-path-traversal-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pci-cde-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pci-row-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pen-test-findings-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-permissions-policy-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-phase112-plan-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-plan-ia.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-playwright-project-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-playwright-stability-threshold.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-playwright-tag-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-poison-message-containment.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-postmessage-origins.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pr-body-json.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-private-network-egress-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-prototype-pollution-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-seo-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pull-request-target-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-pwa-well-known-allowlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-bug-log.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-comprehensive-taxonomy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-loading-routes.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-maximal-bundle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-maximal-sweep-track-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-maximal-twelfth-expansion-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-route-coverage-tsv.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-taxonomy-strictness-sla.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-waiver-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-qa-workflow-fleet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-query-cost-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-queue-message-authenticity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-queue-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rate-limit-distribution-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rate-limit-key-cardinality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-realtime-auth-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-red-metrics-json.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-redaction-coverage-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-refinement-acceptance-commands.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-refinement-api-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-regex-dos-risk.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-artifact-provenance.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-metadata-leakage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-replay-window-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-report-redaction-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-reporting-endpoints.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-request-framing-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-required-security-checkset.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rls-policy-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rls-sanity-tables.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-robots-crawler-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-route-state-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-route-universe.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-runtime.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sanctions-export-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sanctions-residency-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sar-surface-absent.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sbom-diff.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sbom-formats-vex-sarif.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sbom-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-script-complexity-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-script-registry-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-secret-rotation-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-control-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-control-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-enforcement-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-env-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-event-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-fallback-paths.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-fetch-sinks.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-headers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-report-checksums.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-telemetry-suppression.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-semgrep-rulepack-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sensitive-cache-controls.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sentry-tag-banlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-action-auth-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-action-complexity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-action-exports.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-action-org-scope.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-actions-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-lib-admin.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-session-fixation-defenses.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-session-lifecycle-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sharp-svgo-versions.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-shell-landmarks.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-signed-link-nonce-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-signed-link-scope-narrowing.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-signed-request-freshness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-definer-invoker-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-src-tree-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ssrf-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-storage-path-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-stream-payload-sensitivity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-stream-scope-isolation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-subprocessor-change-sla.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-subprocessors-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-subprocessors-privacy-alignment.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supply-chain-security-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supply-chain-waivers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-suppress-hydration-warning.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-synthetic-slo-env.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-template-injection-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-test-credential-reuse.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-test-fixture-pii-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-test-fixture-secrets.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-third-party-script-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-threat-row-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-tier-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-timeout-budget-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-timestamp-source-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-timing-sidechannel-risk.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-token-security-quality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-tracked-secrets-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-trojan-source-unicode-controls.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-trusted-host-handling.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-type-lint-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ui-surface-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-unicode-confusable-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-unsafe-deserialization.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-unsafe-inline-regressions.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-unused-script-files.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-upload-banlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-upload-security-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-url-canonicalization-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v10-inventory-lock.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v10-migration-smoke.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v10-promotable.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v10-release-evidence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v10-suite.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v7-vocabulary.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v8-vocabulary.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-v9-suite.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-vendor-geo-blocklist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-vercel-cron-alignment.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-vercel-cron-canary-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-wasm-csp-thirdparty.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-web3-surface-absent.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-workflow-tier-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-wrapper-reintroduction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-zinc-budget.mjs",
+      "primaryEpicNumber": null
+    }
+  ],
+  "reportScripts": [
+    {
+      "path": "scripts/report-api-route-auth-and-scope-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-api-route-auth-heuristics.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-api-workspace-route-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-artifact-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-bus-factor-codeowners.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-canary-blast-radius.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-chaos-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-ci-provenance.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-concurrency-hotspots.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-control-efficacy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-db-privilege-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-dependency-risk.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-dependency-sunset-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-governance-auditability.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-governance-owners.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-hardening-debt.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-integration-contract-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-performance-baseline.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-playwright-stability.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-policy-conformance-score.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-qa-closure-manifest.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-qa-coverage-tier.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-ratchet-snapshot.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-release-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-rpo-rto-status.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-security-proxy-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-security-route-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-security-scorecard.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-server-action-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-server-lib-admin-usage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-test-heatmap.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-test-skip-governance.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-type-lint-strictness.mjs",
+      "primaryEpicNumber": null
+    }
+  ],
+  "npmTestScripts": [
+    {
+      "name": "test",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:assurance:epics15-24",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:chaos-local-smoke",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:coverage",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:a11y",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:adversarial",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:i18n-matrix",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:maximal-playwright-bundle",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:multi-browser",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:nightly:full",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:nightly:route-a11y",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:nightly:shard",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:onboarding",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:onboarding-deep",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:onboarding:grep",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:resilience",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:resilience:all",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:shard",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:smoke",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:teardown",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:ui-qa-plan",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:v10",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:v10:matrix",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:v9",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:v9:visual",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:v9:visual:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:advanced",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:advanced:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:assurance",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:assurance:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:auth",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:auth:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:full",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:full:continue",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:full:continue:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:full:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:integration:ai-webhook",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:k6:smoke",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:k6:soak",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:lighthouse",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:lighthouse:nightly",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:logic",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:logic:coverage",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:logic:watch",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:rls-smoke",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:scripts",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:slo-budgets",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:staging-env-parity",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:stryker",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:synthetic-p0",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:ui",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:ui:a11y",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:ui:coverage",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:ui:watch",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:vitest:v10",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:watch",
+      "primaryEpicNumber": null
+    }
+  ]
+}

@@ -1,0 +1,4622 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "rows": [
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/layout.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/not-found.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/global-error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/not-found.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/accessibility",
+      "sourcePath": "src/app/(marketing)/accessibility/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/accounts/[key]/summary",
+      "sourcePath": "src/app/api/accounts/[key]/summary/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/approvals/[id]/[action]",
+      "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/approvals/sla-metrics",
+      "sourcePath": "src/app/api/approvals/sla-metrics/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/analytics/summary",
+      "sourcePath": "src/app/api/assurance/analytics/summary/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/check-runs",
+      "sourcePath": "src/app/api/assurance/check-runs/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/check-runs/[id]",
+      "sourcePath": "src/app/api/assurance/check-runs/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/checks/run",
+      "sourcePath": "src/app/api/assurance/checks/run/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/external-links/[id]/response-pack",
+      "sourcePath": "src/app/api/assurance/external-links/[id]/response-pack/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/findings",
+      "sourcePath": "src/app/api/assurance/findings/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/findings/[id]/events",
+      "sourcePath": "src/app/api/assurance/findings/[id]/events/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/findings/[id]/resolve",
+      "sourcePath": "src/app/api/assurance/findings/[id]/resolve/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/health-graph",
+      "sourcePath": "src/app/api/assurance/health-graph/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/scorecards",
+      "sourcePath": "src/app/api/assurance/scorecards/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/assurance/scorecards/[id]/snapshots",
+      "sourcePath": "src/app/api/assurance/scorecards/[id]/snapshots/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/assurance/workflows/run-all",
+      "sourcePath": "src/app/api/assurance/workflows/run-all/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/attestations/[id]/respond",
+      "sourcePath": "src/app/api/attestations/[id]/respond/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/attestations/run",
+      "sourcePath": "src/app/api/attestations/run/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/auth/post-sign-out",
+      "sourcePath": "src/app/api/auth/post-sign-out/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/rules",
+      "sourcePath": "src/app/api/autopilot/rules/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/rules/[id]",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/rules/[id]/dry-run",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/dry-run/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/rules/[id]/enable",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/enable/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/run-logs/[id]/revert",
+      "sourcePath": "src/app/api/autopilot/run-logs/[id]/revert/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/autopilot/runs",
+      "sourcePath": "src/app/api/autopilot/runs/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/campaigns",
+      "sourcePath": "src/app/api/campaigns/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]",
+      "sourcePath": "src/app/api/campaigns/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/close",
+      "sourcePath": "src/app/api/campaigns/[id]/close/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/contracts/[rowId]",
+      "sourcePath": "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/export",
+      "sourcePath": "src/app/api/campaigns/[id]/export/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/pause",
+      "sourcePath": "src/app/api/campaigns/[id]/pause/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/campaigns/[id]/preview/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/resume",
+      "sourcePath": "src/app/api/campaigns/[id]/resume/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/campaigns/[id]/rollback/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/campaigns/[id]/start",
+      "sourcePath": "src/app/api/campaigns/[id]/start/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/capacity/forecast",
+      "sourcePath": "src/app/api/capacity/forecast/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/capacity/reassignment-plan",
+      "sourcePath": "src/app/api/capacity/reassignment-plan/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/command-centers/preferences",
+      "sourcePath": "src/app/api/command-centers/preferences/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/command-palette/contracts",
+      "sourcePath": "src/app/api/command-palette/contracts/route.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/contracts/recompute-signals",
+      "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/control-policies",
+      "sourcePath": "src/app/api/control-policies/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/control-policies/[id]",
+      "sourcePath": "src/app/api/control-policies/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/control-policies/[id]/assign",
+      "sourcePath": "src/app/api/control-policies/[id]/assign/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/control-policies/[id]/publish",
+      "sourcePath": "src/app/api/control-policies/[id]/publish/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/control-policies/[id]/simulate",
+      "sourcePath": "src/app/api/control-policies/[id]/simulate/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/counterparties/[key]/summary",
+      "sourcePath": "src/app/api/counterparties/[key]/summary/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/stripe-webhook-events",
+      "sourcePath": "src/app/api/cron/stripe-webhook-events/route.ts",
+      "providers": [
+        "sentry",
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v10/idempotency-cleanup",
+      "sourcePath": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v10/read-model-refresh",
+      "sourcePath": "src/app/api/cron/v10/read-model-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v10/runtime-artifact-cleanup",
+      "sourcePath": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/approvals-sla",
+      "sourcePath": "src/app/api/cron/v4/approvals-sla/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/attestations-issue",
+      "sourcePath": "src/app/api/cron/v4/attestations-issue/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/escalations-dispatch",
+      "sourcePath": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/evidence-followup",
+      "sourcePath": "src/app/api/cron/v4/evidence-followup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/exceptions-detect",
+      "sourcePath": "src/app/api/cron/v4/exceptions-detect/route.ts",
+      "providers": [
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/programs-reconcile",
+      "sourcePath": "src/app/api/cron/v4/programs-reconcile/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/renewals-recompute-signals",
+      "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v4/report-packs-generate",
+      "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "providers": [
+        "openai",
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/campaign-progress",
+      "sourcePath": "src/app/api/cron/v5/campaign-progress/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/capacity-forecast-refresh",
+      "sourcePath": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/decision-sla-monitor",
+      "sourcePath": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/external-followup",
+      "sourcePath": "src/app/api/cron/v5/external-followup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/portfolio-risk-recompute",
+      "sourcePath": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/recommendation-refresh",
+      "sourcePath": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/relationship-rollups",
+      "sourcePath": "src/app/api/cron/v5/relationship-rollups/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v5/simulation-snapshots",
+      "sourcePath": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/assurance-checks",
+      "sourcePath": "src/app/api/cron/v6/assurance-checks/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/autopilot-dry-run",
+      "sourcePath": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/autopilot-execution",
+      "sourcePath": "src/app/api/cron/v6/autopilot-execution/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/control-policy-reevaluation",
+      "sourcePath": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/external-workflow-deadlines",
+      "sourcePath": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/finding-refresh",
+      "sourcePath": "src/app/api/cron/v6/finding-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/health-graph-rollups",
+      "sourcePath": "src/app/api/cron/v6/health-graph-rollups/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/onboarding-calibration-stale",
+      "sourcePath": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/outcome-effectiveness",
+      "sourcePath": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/playbook-follow-up-assurance",
+      "sourcePath": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/review-board-packet-generation",
+      "sourcePath": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/scorecard-recompute",
+      "sourcePath": "src/app/api/cron/v6/scorecard-recompute/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/v6/segment-recompute",
+      "sourcePath": "src/app/api/cron/v6/segment-recompute/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions",
+      "sourcePath": "src/app/api/decisions/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]",
+      "sourcePath": "src/app/api/decisions/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/approve",
+      "sourcePath": "src/app/api/decisions/[id]/approve/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/close",
+      "sourcePath": "src/app/api/decisions/[id]/close/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/context",
+      "sourcePath": "src/app/api/decisions/[id]/context/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/packet-runs/[runId]",
+      "sourcePath": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "providers": [
+        "storage",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/packet",
+      "sourcePath": "src/app/api/decisions/[id]/packet/route.ts",
+      "providers": [
+        "storage",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/recommend",
+      "sourcePath": "src/app/api/decisions/[id]/recommend/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/review",
+      "sourcePath": "src/app/api/decisions/[id]/review/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/[id]/stakeholders",
+      "sourcePath": "src/app/api/decisions/[id]/stakeholders/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/packet-templates",
+      "sourcePath": "src/app/api/decisions/packet-templates/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/decisions/packet-templates/[id]",
+      "sourcePath": "src/app/api/decisions/packet-templates/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/events",
+      "sourcePath": "src/app/api/events/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/evidence/[id]/[action]",
+      "sourcePath": "src/app/api/evidence/[id]/[action]/route.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/evidence/export/[contractId]",
+      "sourcePath": "src/app/api/evidence/export/[contractId]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/evidence/requests",
+      "sourcePath": "src/app/api/evidence/requests/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/evidence/submit",
+      "sourcePath": "src/app/api/evidence/submit/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/exceptions",
+      "sourcePath": "src/app/api/exceptions/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/exceptions/[id]/[action]",
+      "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/exceptions/run-detection",
+      "sourcePath": "src/app/api/exceptions/run-detection/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/calendar",
+      "sourcePath": "src/app/api/export/calendar/route.ts",
+      "providers": [
+        "calendar",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/calendar/feed",
+      "sourcePath": "src/app/api/export/calendar/feed/route.ts",
+      "providers": [
+        "calendar",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/calendar/feed/[token]",
+      "sourcePath": "src/app/api/export/calendar/feed/[token]/route.ts",
+      "providers": [
+        "calendar",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/contracts",
+      "sourcePath": "src/app/api/export/contracts/route.ts",
+      "providers": [
+        "openai",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/contracts/[jobId]",
+      "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/review-packet",
+      "sourcePath": "src/app/api/export/review-packet/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/external-actions/[token]/participant/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/participant/workflow-step/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/external-actions/[token]/status",
+      "sourcePath": "src/app/api/external-actions/[token]/status/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/external-actions/[token]/submit",
+      "sourcePath": "src/app/api/external-actions/[token]/submit/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/external-actions/[token]/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/workflow-step/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/external-actions/create-link",
+      "sourcePath": "src/app/api/external-actions/create-link/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/extract",
+      "sourcePath": "src/app/api/extract/route.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/extract/run",
+      "sourcePath": "src/app/api/extract/run/route.ts",
+      "providers": [
+        "openai",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/health",
+      "sourcePath": "src/app/api/health/route.ts",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/import/contracts",
+      "sourcePath": "src/app/api/import/contracts/route.ts",
+      "providers": [
+        "openai",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/import/contracts/[jobId]",
+      "sourcePath": "src/app/api/import/contracts/[jobId]/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/actions/callback",
+      "sourcePath": "src/app/api/integrations/actions/callback/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/calendar/sync",
+      "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
+      "providers": [
+        "calendar",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/crm/sync",
+      "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
+      "providers": [
+        "crm",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/oauth/callback",
+      "sourcePath": "src/app/api/integrations/oauth/callback/route.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/oauth/start",
+      "sourcePath": "src/app/api/integrations/oauth/start/route.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/refresh-tokens",
+      "sourcePath": "src/app/api/integrations/refresh-tokens/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/integrations/slack/renewal-summary",
+      "sourcePath": "src/app/api/integrations/slack/renewal-summary/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/intelligence/decision-queue",
+      "sourcePath": "src/app/api/intelligence/decision-queue/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/intelligence/portfolio-by-counterparty",
+      "sourcePath": "src/app/api/intelligence/portfolio-by-counterparty/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/intelligence/portfolio-by-program",
+      "sourcePath": "src/app/api/intelligence/portfolio-by-program/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/intelligence/portfolio-signals",
+      "sourcePath": "src/app/api/intelligence/portfolio-signals/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/intelligence/recommendations",
+      "sourcePath": "src/app/api/intelligence/recommendations/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/intelligence/recommendations/[id]",
+      "sourcePath": "src/app/api/intelligence/recommendations/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/internal/debugging-sweep",
+      "sourcePath": "src/app/api/internal/debugging-sweep/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/campaigns",
+      "sourcePath": "src/app/api/maintenance/campaigns/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/preview/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/run",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/maintenance/prune-operational-data",
+      "sourcePath": "src/app/api/maintenance/prune-operational-data/route.ts",
+      "providers": [
+        "calendar",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/me/account",
+      "sourcePath": "src/app/api/me/account/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/me/export",
+      "sourcePath": "src/app/api/me/export/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/notifications/retry-deliveries",
+      "sourcePath": "src/app/api/notifications/retry-deliveries/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/outcomes/control-effectiveness",
+      "sourcePath": "src/app/api/outcomes/control-effectiveness/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/outcomes/interventions",
+      "sourcePath": "src/app/api/outcomes/interventions/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/outcomes/program-effectiveness",
+      "sourcePath": "src/app/api/outcomes/program-effectiveness/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/playbooks",
+      "sourcePath": "src/app/api/playbooks/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/playbooks/[id]/preview",
+      "sourcePath": "src/app/api/playbooks/[id]/preview/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/playbooks/[id]/run",
+      "sourcePath": "src/app/api/playbooks/[id]/run/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/playbooks/runs/[id]",
+      "sourcePath": "src/app/api/playbooks/runs/[id]/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/playbooks/runs/[id]/approve",
+      "sourcePath": "src/app/api/playbooks/runs/[id]/approve/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/policy/simulate",
+      "sourcePath": "src/app/api/policy/simulate/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/product-telemetry/page-load",
+      "sourcePath": "src/app/api/product-telemetry/page-load/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/program-evolution/experiments",
+      "sourcePath": "src/app/api/program-evolution/experiments/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/advance-rollout",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/results",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/results/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/simulate",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/simulate/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/programs",
+      "sourcePath": "src/app/api/programs/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/programs/[id]/[action]",
+      "sourcePath": "src/app/api/programs/[id]/[action]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/reminders/send",
+      "sourcePath": "src/app/api/reminders/send/route.ts",
+      "providers": [
+        "openai",
+        "resend",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/renewals/[id]/[action]",
+      "sourcePath": "src/app/api/renewals/[id]/[action]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/renewals/portfolio-signals",
+      "sourcePath": "src/app/api/renewals/portfolio-signals/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/report-packs",
+      "sourcePath": "src/app/api/report-packs/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/report-packs/[id]/runs",
+      "sourcePath": "src/app/api/report-packs/[id]/runs/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/reports/capture-metrics",
+      "sourcePath": "src/app/api/reports/capture-metrics/route.ts",
+      "providers": [
+        "openai",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/reports/send-summaries",
+      "sourcePath": "src/app/api/reports/send-summaries/route.ts",
+      "providers": [
+        "resend",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/reports/track/click/[token]",
+      "sourcePath": "src/app/api/reports/track/click/[token]/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/reports/track/open/[token]",
+      "sourcePath": "src/app/api/reports/track/open/[token]/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/review-boards",
+      "sourcePath": "src/app/api/review-boards/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/review-boards/[id]",
+      "sourcePath": "src/app/api/review-boards/[id]/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/review-boards/[id]/generate-run",
+      "sourcePath": "src/app/api/review-boards/[id]/generate-run/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/review-boards/[id]/runs",
+      "sourcePath": "src/app/api/review-boards/[id]/runs/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/review-boards/runs/[id]",
+      "sourcePath": "src/app/api/review-boards/runs/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/segments",
+      "sourcePath": "src/app/api/segments/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/segments/[id]/recompute",
+      "sourcePath": "src/app/api/segments/[id]/recompute/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/settings/step-up",
+      "sourcePath": "src/app/api/settings/step-up/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/simulations/[id]",
+      "sourcePath": "src/app/api/simulations/[id]/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/simulations/[id]/promote-to-campaign",
+      "sourcePath": "src/app/api/simulations/[id]/promote-to-campaign/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/simulations/run",
+      "sourcePath": "src/app/api/simulations/run/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/stripe/checkout",
+      "sourcePath": "src/app/api/stripe/checkout/route.ts",
+      "providers": [
+        "sentry",
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/stripe/portal",
+      "sourcePath": "src/app/api/stripe/portal/route.ts",
+      "providers": [
+        "sentry",
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/stripe/webhook",
+      "sourcePath": "src/app/api/stripe/webhook/route.ts",
+      "providers": [
+        "sentry",
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/tasks/from-email",
+      "sourcePath": "src/app/api/tasks/from-email/route.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/tasks/from-slack",
+      "sourcePath": "src/app/api/tasks/from-slack/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/tasks/run-rules",
+      "sourcePath": "src/app/api/tasks/run-rules/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/templates/preview",
+      "sourcePath": "src/app/api/templates/preview/route.ts",
+      "providers": [
+        "openai",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/webhooks/dispatch",
+      "sourcePath": "src/app/api/webhooks/dispatch/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/workspace/nav-badges",
+      "sourcePath": "src/app/api/workspace/nav-badges/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/workspace/v6-settings",
+      "sourcePath": "src/app/api/workspace/v6-settings/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/layout.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/autopilot",
+      "sourcePath": "src/app/(dashboard)/assurance/autopilot/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/control-policies",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/control-policies/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/[id]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/findings",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/findings/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/[id]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/health-graph",
+      "sourcePath": "src/app/(dashboard)/assurance/health-graph/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/playbooks",
+      "sourcePath": "src/app/(dashboard)/assurance/playbooks/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/program-evolution",
+      "sourcePath": "src/app/(dashboard)/assurance/program-evolution/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/review-boards",
+      "sourcePath": "src/app/(dashboard)/assurance/review-boards/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/scorecards",
+      "sourcePath": "src/app/(dashboard)/assurance/scorecards/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/assurance/segments",
+      "sourcePath": "src/app/(dashboard)/assurance/segments/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/auth/callback",
+      "sourcePath": "src/app/auth/callback/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/campaigns/[id]",
+      "sourcePath": "src/app/(dashboard)/campaigns/[id]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/campaigns/compare",
+      "sourcePath": "src/app/(dashboard)/campaigns/compare/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/not-found.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "providers": [
+        "calendar",
+        "crm",
+        "openai",
+        "storage",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/approvals",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/approvals/sla-simulator",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/sla-simulator/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/approvals/sla-simulator",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/sla-simulator/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/new",
+      "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/obligations",
+      "sourcePath": "src/app/(dashboard)/contracts/obligations/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "providers": [
+        "calendar",
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/cookies",
+      "sourcePath": "src/app/(marketing)/cookies/page.tsx",
+      "providers": [
+        "storage"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/decisions/[id]",
+      "sourcePath": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/decisions/compare",
+      "sourcePath": "src/app/(dashboard)/decisions/compare/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/decisions/review",
+      "sourcePath": "src/app/(dashboard)/decisions/review/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/external/[token]",
+      "sourcePath": "src/app/external/[token]/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/forgot-password",
+      "sourcePath": "src/app/(auth)/forgot-password/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/login",
+      "sourcePath": "src/app/(auth)/login/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/more",
+      "sourcePath": "src/app/(dashboard)/more/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/more",
+      "sourcePath": "src/app/(dashboard)/more/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/onboarding",
+      "sourcePath": "src/app/(dashboard)/onboarding/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/onboarding",
+      "sourcePath": "src/app/(dashboard)/onboarding/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/onboarding/calibration",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/onboarding/calibration",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/privacy",
+      "sourcePath": "src/app/(marketing)/privacy/page.tsx",
+      "providers": [
+        "openai"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+      "providers": [
+        "openai",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/reset-password",
+      "sourcePath": "src/app/(auth)/reset-password/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/security",
+      "sourcePath": "src/app/(marketing)/security/page.tsx",
+      "providers": [
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
+      "providers": [
+        "openai",
+        "stripe",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/health",
+      "sourcePath": "src/app/(dashboard)/settings/health/page.tsx",
+      "providers": [
+        "calendar",
+        "openai",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/operations",
+      "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/policy",
+      "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/product",
+      "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/security",
+      "sourcePath": "src/app/(dashboard)/settings/security/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/signup",
+      "sourcePath": "src/app/(auth)/signup/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/terms",
+      "sourcePath": "src/app/(marketing)/terms/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/page.tsx",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addContractTaskDependency",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addFieldComment",
+      "sourcePath": "src/actions/field-comments.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addFieldCommentForm",
+      "sourcePath": "src/actions/field-comments.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addManualField",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addRenewalWorkspaceNote",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:addRenewalWorkspaceNoteForm",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyContractTemplatePackForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyObligationTemplatesToContract",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyObligationTemplatesToContractForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyPolicyPackForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:applyProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:approvals.test",
+      "sourcePath": "src/actions/approvals.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:archiveContractAsDuplicateForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:assignException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:assignWorkItemOwner",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:auth-actions.test",
+      "sourcePath": "src/actions/auth-actions.test.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:automation.test",
+      "sourcePath": "src/actions/automation.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:batchApproveReadyFields",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:beginRecalibration",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkAssignCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkAssignCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkAssignContractOwners",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkCompleteCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkCompleteCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkCreateContractsFromFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeProductOnboarding",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeQuestionnaireAcceptRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeQuestionnaireAcceptRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeQuestionnaireOpenAdvancedSettings",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeQuestionnaireSimplerSetup",
+      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeQuestionnaireSimplerSetup",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:completeWorkItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:contracts-action-scope.test",
+      "sourcePath": "src/actions/contracts-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:contracts-bulk-import-telemetry.v9.test",
+      "sourcePath": "src/actions/contracts-bulk-import-telemetry.v9.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:createApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createCheckpointClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createCheckpointClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContractsSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContractsSavedViewWithFeedback",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createEvidenceTemplateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createExceptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createFieldTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createIntegrationApiKey",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createIntegrationApiKeyFromOperationsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createObligationClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createObligationTemplate",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createObligationTemplateForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createReminderTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createReportPackAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createReportPackSubscriptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createRuleGeneratedTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createTaskTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:createWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:dashboard-action-scope.test",
+      "sourcePath": "src/actions/dashboard-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:delegateContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:delegateContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteOrphanFileRecordForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:deleteSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:demo-action-scope.test",
+      "sourcePath": "src/actions/demo-action-scope.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:emitCmdkPaletteOpenedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitCmdkResultSelectedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitCmdkSearchFailedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitCmdkZeroResultsTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitPageLoadMeasuredTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitReviewSaveNextUsedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:emitV10EmptyStateCtaClickedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:ensureProgramsSurfaceAccess",
+      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:ensureReportPackReportTypeAllowed",
+      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:exceptions-action-scope.test",
+      "sourcePath": "src/actions/exceptions-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:exportOnboardingCalibrationSupportJson",
+      "sourcePath": "src/actions/onboarding-calibration-export-chunk-static.test.ts",
+      "providers": [
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:exportOnboardingCalibrationSupportJson",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:field-comments-action-scope.test",
+      "sourcePath": "src/actions/field-comments-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:forgotPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:getFileDownloadUrl",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:inviteOrgMember",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:is",
+      "sourcePath": "src/actions/onboarding-calibration-action-registry.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:listMySessions",
+      "sourcePath": "src/actions/sessions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:logContractChangeEventForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:maintenance-scope.test",
+      "sourcePath": "src/actions/maintenance-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:markNotificationRead",
+      "sourcePath": "src/actions/field-comments.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:markNotificationReadVoid",
+      "sourcePath": "src/actions/field-comments.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:mfa.test",
+      "sourcePath": "src/actions/mfa.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:notes-action-scope.test",
+      "sourcePath": "src/actions/notes-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:obligations.test",
+      "sourcePath": "src/actions/obligations.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:onboarding-audit-inventory.test",
+      "sourcePath": "src/actions/onboarding-audit-inventory.test.ts",
+      "providers": [
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:onboarding-calibration-audit.test",
+      "sourcePath": "src/actions/onboarding-calibration-audit.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:onboarding-calibration-export.test",
+      "sourcePath": "src/actions/onboarding-calibration-export.test.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:onboarding-calibration-rate-limit.test",
+      "sourcePath": "src/actions/onboarding-calibration-rate-limit.test.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:onboarding-calibration-server-invariants.test",
+      "sourcePath": "src/actions/onboarding-calibration-server-invariants.test.ts",
+      "providers": [
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:onboarding-calibration-workflow-static.test",
+      "sourcePath": "src/actions/onboarding-calibration-workflow-static.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:onboarding-calibration-zod-adversarial.test",
+      "sourcePath": "src/actions/onboarding-calibration-zod-adversarial.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:onboarding-no-org-id-from-client.test",
+      "sourcePath": "src/actions/onboarding-no-org-id-from-client.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:onboarding-outbound-scope.test",
+      "sourcePath": "src/actions/onboarding-outbound-scope.test.ts",
+      "providers": [
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:previewCalibrationRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:processContractChangeEventsForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:product-surface-audit-events.test",
+      "sourcePath": "src/actions/product-surface-audit-events.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:product-surface-settings.test",
+      "sourcePath": "src/actions/product-surface-settings.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:publishProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:reassignOwnerForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:recordQuestionnaireStarted",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:removeWatchlistEntry",
+      "sourcePath": "src/actions/watchlists.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:renewal-playbook-action-scope.test",
+      "sourcePath": "src/actions/renewal-playbook-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:reopenException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:reorderContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:requestContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:requestContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:resendOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:resetPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:resolveException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:revokeIntegrationApiKeyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:revokeOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:revokeOtherSessions",
+      "sourcePath": "src/actions/sessions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:runCorrectionCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:runDateBackfillCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:runExtraction",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:runTaskAutomationRulesForOrg",
+      "sourcePath": "src/actions/automation.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:saved-views-scope.test",
+      "sourcePath": "src/actions/saved-views-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:savePolicyRegistryAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:saveProgramVersionDefinitionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:saveQuestionnaireProgress",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:saveReportPackAnnotationsAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:seedDemoWorkspace",
+      "sourcePath": "src/actions/demo.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:seedRenewalPlaybook",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:sessions.test",
+      "sourcePath": "src/actions/sessions.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setDashboardQueuePinForm",
+      "sourcePath": "src/actions/dashboard.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setIntegrationTokenForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setSavedViewMonthlySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setSavedViewPinned",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setSavedViewWeeklyRecipients",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:setSavedViewWeeklySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:settings-action-scope.test",
+      "sourcePath": "src/actions/settings-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:signIn",
+      "sourcePath": "src/actions/auth.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:signOut",
+      "sourcePath": "src/actions/auth.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:signUp",
+      "sourcePath": "src/actions/auth.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:skipQuestionnaireExplicitMinimal",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:startRecalibrationFromSettingsForm",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "providers": [
+        "openai",
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:startTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:submitEvidenceNoteAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:supersedeContractFile",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:supersedeContractFileForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:tasks.test",
+      "sourcePath": "src/actions/tasks.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleContractNotePin",
+      "sourcePath": "src/actions/notes.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplate",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleWebhookSubscription",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:toggleWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:unenrollTotpFactor",
+      "sourcePath": "src/actions/mfa.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractApprovalStatus",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractApprovalStatusForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractExternalLinkForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractField",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatusForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractOperationalStateForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractSecondaryOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateContractTaskStatus",
+      "sourcePath": "src/actions/tasks.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateIntegrationApiKeyPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateOrganization",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateOrganizationMfaRequired",
+      "sourcePath": "src/actions/mfa.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateProductEmailNotificationCategoriesForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateProfile",
+      "sourcePath": "src/actions/settings.ts",
+      "providers": [
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateProgramRoutingAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointStatus",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:updateWorkspaceProductSurfaceForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:uploadAdditionalFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertContractHandoffChecklist",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertContractHandoffChecklistForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "providers": [
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequestForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "storage",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertRenewalScenario",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertRenewalScenarioForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertWatchlistEntryForm",
+      "sourcePath": "src/actions/watchlists.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:upsertWorkflowSettingsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:v10-bulk-compatible-work.v10.test",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.v10.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:v4-program-surface-guard.test",
+      "sourcePath": "src/actions/v4-program-surface-guard.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "action:verifyTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:watchlists-action-scope.test",
+      "sourcePath": "src/actions/watchlists-action-scope.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:workflow-config-sanitize.test",
+      "sourcePath": "src/actions/workflow-config-sanitize.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    }
+  ]
+}

@@ -1,0 +1,5169 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "rows": [
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/page.tsx",
+      "tables": [
+        "account_workspaces",
+        "contracts",
+        "relationship_timeline_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/accounts/[key]/summary",
+      "sourcePath": "src/app/api/accounts/[key]/summary/route.ts",
+      "tables": [
+        "account_workspaces",
+        "contracts",
+        "relationship_timeline_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/approvals/[id]/[action]",
+      "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
+      "tables": [
+        "contract_approval_events",
+        "contract_approvals",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/approvals/sla-metrics",
+      "sourcePath": "src/app/api/approvals/sla-metrics/route.ts",
+      "tables": [
+        "approval_slas",
+        "contract_approvals"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/assurance/check-runs",
+      "sourcePath": "src/app/api/assurance/check-runs/route.ts",
+      "tables": [
+        "assurance_check_runs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/assurance/check-runs/[id]",
+      "sourcePath": "src/app/api/assurance/check-runs/[id]/route.ts",
+      "tables": [
+        "assurance_check_runs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/assurance/external-links/[id]/response-pack",
+      "sourcePath": "src/app/api/assurance/external-links/[id]/response-pack/route.ts",
+      "tables": [
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/assurance/findings/[id]/events",
+      "sourcePath": "src/app/api/assurance/findings/[id]/events/route.ts",
+      "tables": [
+        "assurance_finding_events",
+        "assurance_findings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/assurance/scorecards/[id]/snapshots",
+      "sourcePath": "src/app/api/assurance/scorecards/[id]/snapshots/route.ts",
+      "tables": [
+        "assurance_scorecards",
+        "scorecard_snapshots"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/attestations/[id]/respond",
+      "sourcePath": "src/app/api/attestations/[id]/respond/route.ts",
+      "tables": [
+        "attestation_requests",
+        "attestation_responses"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/attestations/run",
+      "sourcePath": "src/app/api/attestations/run/route.ts",
+      "tables": [
+        "attestation_requests",
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns",
+      "sourcePath": "src/app/api/campaigns/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]",
+      "sourcePath": "src/app/api/campaigns/[id]/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/close",
+      "sourcePath": "src/app/api/campaigns/[id]/close/route.ts",
+      "tables": [
+        "outcome_intervention_analyses",
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/contracts/[rowId]",
+      "sourcePath": "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/export",
+      "sourcePath": "src/app/api/campaigns/[id]/export/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/pause",
+      "sourcePath": "src/app/api/campaigns/[id]/pause/route.ts",
+      "tables": [
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/campaigns/[id]/preview/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/resume",
+      "sourcePath": "src/app/api/campaigns/[id]/resume/route.ts",
+      "tables": [
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/campaigns/[id]/rollback/route.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_tasks",
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/campaigns/[id]/start",
+      "sourcePath": "src/app/api/campaigns/[id]/start/route.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_tasks",
+        "portfolio_campaign_contracts",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/capacity/forecast",
+      "sourcePath": "src/app/api/capacity/forecast/route.ts",
+      "tables": [
+        "capacity_forecasts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/capacity/reassignment-plan",
+      "sourcePath": "src/app/api/capacity/reassignment-plan/route.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/command-centers/preferences",
+      "sourcePath": "src/app/api/command-centers/preferences/route.ts",
+      "tables": [
+        "role_command_center_preferences"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/command-palette/contracts",
+      "sourcePath": "src/app/api/command-palette/contracts/route.ts",
+      "tables": [
+        "contracts",
+        "v10_command_search_index"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/contracts/recompute-signals",
+      "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
+      "tables": [
+        "contracts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/control-policies/[id]",
+      "sourcePath": "src/app/api/control-policies/[id]/route.ts",
+      "tables": [
+        "adaptive_playbooks"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/counterparties/[key]/summary",
+      "sourcePath": "src/app/api/counterparties/[key]/summary/route.ts",
+      "tables": [
+        "contracts",
+        "counterparty_workspaces",
+        "relationship_timeline_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/stripe-webhook-events",
+      "sourcePath": "src/app/api/cron/stripe-webhook-events/route.ts",
+      "tables": [
+        "stripe_webhook_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/cron/v10/idempotency-cleanup",
+      "sourcePath": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+      "tables": [],
+      "rpcs": [
+        "cleanup_expired_v10_mutation_idempotency"
+      ],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/cron/v10/read-model-refresh",
+      "sourcePath": "src/app/api/cron/v10/read-model-refresh/route.ts",
+      "tables": [
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v10/runtime-artifact-cleanup",
+      "sourcePath": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+      "tables": [
+        "profiles"
+      ],
+      "rpcs": [
+        "cleanup_expired_v10_runtime_artifacts",
+        "cleanup_old_v10_read_model_refresh_jobs"
+      ],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/cron/v4/approvals-sla",
+      "sourcePath": "src/app/api/cron/v4/approvals-sla/route.ts",
+      "tables": [
+        "approval_slas",
+        "contract_approval_events",
+        "contract_approvals",
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/attestations-issue",
+      "sourcePath": "src/app/api/cron/v4/attestations-issue/route.ts",
+      "tables": [
+        "attestation_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/escalations-dispatch",
+      "sourcePath": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+      "tables": [
+        "exceptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/evidence-followup",
+      "sourcePath": "src/app/api/cron/v4/evidence-followup/route.ts",
+      "tables": [
+        "audit_events",
+        "contract_tasks",
+        "evidence_requirements",
+        "notification_deliveries"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/exceptions-detect",
+      "sourcePath": "src/app/api/cron/v4/exceptions-detect/route.ts",
+      "tables": [
+        "contract_approvals",
+        "contract_obligations",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_tasks",
+        "contracts",
+        "integration_connections",
+        "notification_deliveries",
+        "organization_workflow_settings",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/programs-reconcile",
+      "sourcePath": "src/app/api/cron/v4/programs-reconcile/route.ts",
+      "tables": [
+        "contract_program_versions",
+        "contract_programs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/renewals-recompute-signals",
+      "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+      "tables": [
+        "contract_renewal_checkpoints"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v4/report-packs-generate",
+      "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "tables": [
+        "report_pack_runs",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/campaign-progress",
+      "sourcePath": "src/app/api/cron/v5/campaign-progress/route.ts",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/capacity-forecast-refresh",
+      "sourcePath": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+      "tables": [
+        "capacity_forecasts",
+        "contract_approvals",
+        "contract_tasks",
+        "contracts",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/decision-sla-monitor",
+      "sourcePath": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/external-followup",
+      "sourcePath": "src/app/api/cron/v5/external-followup/route.ts",
+      "tables": [
+        "external_action_events",
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/portfolio-risk-recompute",
+      "sourcePath": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+      "tables": [
+        "capacity_snapshots",
+        "contract_obligations",
+        "decision_workspaces",
+        "exceptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/recommendation-refresh",
+      "sourcePath": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+      "tables": [
+        "contracts",
+        "decision_workspaces",
+        "operational_recommendations",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/relationship-rollups",
+      "sourcePath": "src/app/api/cron/v5/relationship-rollups/route.ts",
+      "tables": [
+        "account_workspaces",
+        "contract_obligations",
+        "contracts",
+        "counterparty_workspaces",
+        "exceptions",
+        "relationship_timeline_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/v5/simulation-snapshots",
+      "sourcePath": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+      "tables": [
+        "change_simulation_runs",
+        "change_simulations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions",
+      "sourcePath": "src/app/api/decisions/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]",
+      "sourcePath": "src/app/api/decisions/[id]/route.ts",
+      "tables": [
+        "decision_packet_runs",
+        "decision_recommendations",
+        "decision_workspace_events",
+        "decision_workspace_stakeholders",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/approve",
+      "sourcePath": "src/app/api/decisions/[id]/approve/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/close",
+      "sourcePath": "src/app/api/decisions/[id]/close/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/context",
+      "sourcePath": "src/app/api/decisions/[id]/context/route.ts",
+      "tables": [
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/packet-runs/[runId]",
+      "sourcePath": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "tables": [
+        "decision_packet_runs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/packet",
+      "sourcePath": "src/app/api/decisions/[id]/packet/route.ts",
+      "tables": [
+        "contracts",
+        "decision_packet_runs",
+        "decision_packet_templates",
+        "decision_workspace_events",
+        "decision_workspaces",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/recommend",
+      "sourcePath": "src/app/api/decisions/[id]/recommend/route.ts",
+      "tables": [
+        "decision_recommendations",
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/review",
+      "sourcePath": "src/app/api/decisions/[id]/review/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/[id]/stakeholders",
+      "sourcePath": "src/app/api/decisions/[id]/stakeholders/route.ts",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspace_stakeholders",
+        "decision_workspaces",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/packet-templates",
+      "sourcePath": "src/app/api/decisions/packet-templates/route.ts",
+      "tables": [
+        "decision_packet_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/decisions/packet-templates/[id]",
+      "sourcePath": "src/app/api/decisions/packet-templates/[id]/route.ts",
+      "tables": [
+        "decision_packet_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/events",
+      "sourcePath": "src/app/api/events/route.ts",
+      "tables": [
+        "audit_events",
+        "integration_api_keys"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/evidence/[id]/[action]",
+      "sourcePath": "src/app/api/evidence/[id]/[action]/route.ts",
+      "tables": [
+        "evidence_requirements",
+        "evidence_submissions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/evidence/export/[contractId]",
+      "sourcePath": "src/app/api/evidence/export/[contractId]/route.ts",
+      "tables": [
+        "attestation_requests",
+        "attestation_responses",
+        "contracts",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/evidence/requests",
+      "sourcePath": "src/app/api/evidence/requests/route.ts",
+      "tables": [
+        "contracts",
+        "evidence_requirements"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/evidence/submit",
+      "sourcePath": "src/app/api/evidence/submit/route.ts",
+      "tables": [
+        "evidence_requirements",
+        "evidence_submissions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/exceptions",
+      "sourcePath": "src/app/api/exceptions/route.ts",
+      "tables": [
+        "exceptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/exceptions/[id]/[action]",
+      "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
+      "tables": [
+        "exception_events",
+        "exceptions",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/exceptions/run-detection",
+      "sourcePath": "src/app/api/exceptions/run-detection/route.ts",
+      "tables": [
+        "contract_obligations",
+        "contract_tasks",
+        "contracts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/export/calendar/feed",
+      "sourcePath": "src/app/api/export/calendar/feed/route.ts",
+      "tables": [
+        "calendar_feeds"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/export/calendar/feed/[token]",
+      "sourcePath": "src/app/api/export/calendar/feed/[token]/route.ts",
+      "tables": [
+        "calendar_feeds"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/export/contracts",
+      "sourcePath": "src/app/api/export/contracts/route.ts",
+      "tables": [
+        "contract_export_jobs",
+        "contracts",
+        "organization_members",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/export/contracts/[jobId]",
+      "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
+      "tables": [
+        "contract_export_jobs",
+        "v10_job_run_visibility"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/export/review-packet",
+      "sourcePath": "src/app/api/export/review-packet/route.ts",
+      "tables": [
+        "contract_approvals",
+        "contract_renewal_checkpoints"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/external-actions/[token]/participant/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/participant/workflow-step/route.ts",
+      "tables": [
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/external-actions/[token]/status",
+      "sourcePath": "src/app/api/external-actions/[token]/status/route.ts",
+      "tables": [
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/external-actions/[token]/submit",
+      "sourcePath": "src/app/api/external-actions/[token]/submit/route.ts",
+      "tables": [
+        "decision_workspaces",
+        "evidence_requirements",
+        "evidence_submissions",
+        "external_action_events",
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/external-actions/[token]/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/workflow-step/route.ts",
+      "tables": [
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/external-actions/create-link",
+      "sourcePath": "src/app/api/external-actions/create-link/route.ts",
+      "tables": [
+        "external_action_events",
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/extract",
+      "sourcePath": "src/app/api/extract/route.ts",
+      "tables": [
+        "contracts",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/import/contracts/[jobId]",
+      "sourcePath": "src/app/api/import/contracts/[jobId]/route.ts",
+      "tables": [
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "v10_job_run_visibility"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/actions/callback",
+      "sourcePath": "src/app/api/integrations/actions/callback/route.ts",
+      "tables": [
+        "contract_approvals",
+        "contract_tasks",
+        "evidence_submissions",
+        "exceptions",
+        "operational_casefile_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/calendar/sync",
+      "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
+      "tables": [
+        "audit_events",
+        "integration_connections"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/crm/sync",
+      "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
+      "tables": [
+        "audit_events",
+        "contract_renewal_scenarios",
+        "contracts",
+        "exceptions",
+        "integration_connections"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/oauth/callback",
+      "sourcePath": "src/app/api/integrations/oauth/callback/route.ts",
+      "tables": [
+        "integration_connections",
+        "integration_oauth_states"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/oauth/start",
+      "sourcePath": "src/app/api/integrations/oauth/start/route.ts",
+      "tables": [
+        "integration_connections",
+        "integration_oauth_states"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/integrations/refresh-tokens",
+      "sourcePath": "src/app/api/integrations/refresh-tokens/route.ts",
+      "tables": [
+        "integration_connections"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/integrations/slack/renewal-summary",
+      "sourcePath": "src/app/api/integrations/slack/renewal-summary/route.ts",
+      "tables": [
+        "contracts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/intelligence/decision-queue",
+      "sourcePath": "src/app/api/intelligence/decision-queue/route.ts",
+      "tables": [
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/intelligence/recommendations",
+      "sourcePath": "src/app/api/intelligence/recommendations/route.ts",
+      "tables": [
+        "operational_recommendations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/intelligence/recommendations/[id]",
+      "sourcePath": "src/app/api/intelligence/recommendations/[id]/route.ts",
+      "tables": [
+        "audit_events",
+        "operational_recommendations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/campaigns",
+      "sourcePath": "src/app/api/maintenance/campaigns/route.ts",
+      "tables": [
+        "contracts",
+        "maintenance_campaign_rows",
+        "maintenance_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/route.ts",
+      "tables": [
+        "maintenance_campaign_rows",
+        "maintenance_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/preview/route.ts",
+      "tables": [
+        "maintenance_campaign_rows",
+        "maintenance_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+      "tables": [
+        "maintenance_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/run",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+      "tables": [
+        "maintenance_campaign_rows",
+        "maintenance_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/maintenance/prune-operational-data",
+      "sourcePath": "src/app/api/maintenance/prune-operational-data/route.ts",
+      "tables": [
+        "audit_events",
+        "notification_deliveries"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/me/account",
+      "sourcePath": "src/app/api/me/account/route.ts",
+      "tables": [
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/me/export",
+      "sourcePath": "src/app/api/me/export/route.ts",
+      "tables": [
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/notifications/retry-deliveries",
+      "sourcePath": "src/app/api/notifications/retry-deliveries/route.ts",
+      "tables": [
+        "audit_events",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/policy/simulate",
+      "sourcePath": "src/app/api/policy/simulate/route.ts",
+      "tables": [
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/advance-rollout",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts",
+      "tables": [
+        "program_evolution_experiments"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/results",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/results/route.ts",
+      "tables": [
+        "assurance_scorecards"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/programs",
+      "sourcePath": "src/app/api/programs/route.ts",
+      "tables": [
+        "audit_events",
+        "contract_program_versions",
+        "contract_programs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/programs/[id]/[action]",
+      "sourcePath": "src/app/api/programs/[id]/[action]/route.ts",
+      "tables": [
+        "audit_events",
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contracts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/reminders/send",
+      "sourcePath": "src/app/api/reminders/send/route.ts",
+      "tables": [
+        "notification_deliveries",
+        "outbound_events",
+        "profiles",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/renewals/[id]/[action]",
+      "sourcePath": "src/app/api/renewals/[id]/[action]/route.ts",
+      "tables": [
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "renewal_decision_packets"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/renewals/portfolio-signals",
+      "sourcePath": "src/app/api/renewals/portfolio-signals/route.ts",
+      "tables": [
+        "contract_renewal_checkpoints"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/report-packs",
+      "sourcePath": "src/app/api/report-packs/route.ts",
+      "tables": [
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/report-packs/[id]/runs",
+      "sourcePath": "src/app/api/report-packs/[id]/runs/route.ts",
+      "tables": [
+        "report_pack_runs",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/reports/capture-metrics",
+      "sourcePath": "src/app/api/reports/capture-metrics/route.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_obligations",
+        "contract_renewal_checkpoints",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "org_behavior_metrics",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "report_run_recipients"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/reports/send-summaries",
+      "sourcePath": "src/app/api/reports/send-summaries/route.ts",
+      "tables": [
+        "contract_intake_history",
+        "contract_obligations",
+        "contract_renewal_scenarios",
+        "contract_tasks",
+        "contracts",
+        "profiles",
+        "report_run_recipients",
+        "report_runs",
+        "report_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/reports/track/click/[token]",
+      "sourcePath": "src/app/api/reports/track/click/[token]/route.ts",
+      "tables": [
+        "report_run_recipients"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/reports/track/open/[token]",
+      "sourcePath": "src/app/api/reports/track/open/[token]/route.ts",
+      "tables": [
+        "report_run_recipients"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/review-boards/runs/[id]",
+      "sourcePath": "src/app/api/review-boards/runs/[id]/route.ts",
+      "tables": [
+        "review_board_runs",
+        "review_boards"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/simulations/[id]",
+      "sourcePath": "src/app/api/simulations/[id]/route.ts",
+      "tables": [
+        "change_simulation_runs",
+        "change_simulations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/simulations/[id]/promote-to-campaign",
+      "sourcePath": "src/app/api/simulations/[id]/promote-to-campaign/route.ts",
+      "tables": [
+        "change_simulation_runs",
+        "change_simulations",
+        "portfolio_campaign_events",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/simulations/run",
+      "sourcePath": "src/app/api/simulations/run/route.ts",
+      "tables": [
+        "change_simulation_runs",
+        "change_simulations",
+        "contract_obligations",
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/stripe/checkout",
+      "sourcePath": "src/app/api/stripe/checkout/route.ts",
+      "tables": [
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/stripe/portal",
+      "sourcePath": "src/app/api/stripe/portal/route.ts",
+      "tables": [
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/stripe/webhook",
+      "sourcePath": "src/app/api/stripe/webhook/route.ts",
+      "tables": [
+        "audit_events",
+        "organizations",
+        "stripe_webhook_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/tasks/from-email",
+      "sourcePath": "src/app/api/tasks/from-email/route.ts",
+      "tables": [
+        "contract_task_events",
+        "contract_tasks",
+        "contracts",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/tasks/from-slack",
+      "sourcePath": "src/app/api/tasks/from-slack/route.ts",
+      "tables": [
+        "contract_task_events",
+        "contract_tasks",
+        "contracts",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/tasks/run-rules",
+      "sourcePath": "src/app/api/tasks/run-rules/route.ts",
+      "tables": [
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
+    },
+    {
+      "route": "/api/templates/preview",
+      "sourcePath": "src/app/api/templates/preview/route.ts",
+      "tables": [
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "organization_members",
+        "reminder_templates",
+        "reminders",
+        "task_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/webhooks/dispatch",
+      "sourcePath": "src/app/api/webhooks/dispatch/route.ts",
+      "tables": [
+        "outbound_event_deliveries",
+        "outbound_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/page.tsx",
+      "tables": [],
+      "rpcs": [
+        "assurance_hub_snapshot"
+      ],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/autopilot",
+      "sourcePath": "src/app/(dashboard)/assurance/autopilot/page.tsx",
+      "tables": [
+        "autopilot_rules",
+        "autopilot_run_logs",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/control-policies",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/page.tsx",
+      "tables": [
+        "control_policies"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/control-policies/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/[id]/page.tsx",
+      "tables": [
+        "adaptive_playbooks",
+        "control_policies",
+        "control_policy_assignments",
+        "control_policy_versions",
+        "segment_definitions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/findings",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/page.tsx",
+      "tables": [
+        "assurance_check_runs",
+        "assurance_findings",
+        "segment_definitions",
+        "segment_memberships"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/findings/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/[id]/page.tsx",
+      "tables": [
+        "adaptive_playbooks",
+        "assurance_finding_events",
+        "assurance_findings",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/health-graph",
+      "sourcePath": "src/app/(dashboard)/assurance/health-graph/page.tsx",
+      "tables": [
+        "portfolio_health_graph_edges",
+        "portfolio_health_graph_nodes"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/playbooks",
+      "sourcePath": "src/app/(dashboard)/assurance/playbooks/page.tsx",
+      "tables": [
+        "adaptive_playbook_runs",
+        "adaptive_playbook_steps",
+        "adaptive_playbooks"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/program-evolution",
+      "sourcePath": "src/app/(dashboard)/assurance/program-evolution/page.tsx",
+      "tables": [
+        "program_evolution_experiments",
+        "program_evolution_results"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/review-boards",
+      "sourcePath": "src/app/(dashboard)/assurance/review-boards/page.tsx",
+      "tables": [
+        "review_board_runs",
+        "review_boards"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/scorecards",
+      "sourcePath": "src/app/(dashboard)/assurance/scorecards/page.tsx",
+      "tables": [
+        "assurance_scorecards",
+        "scorecard_snapshots"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/assurance/segments",
+      "sourcePath": "src/app/(dashboard)/assurance/segments/page.tsx",
+      "tables": [
+        "segment_definitions",
+        "segment_memberships"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/auth/callback",
+      "sourcePath": "src/app/auth/callback/route.ts",
+      "tables": [
+        "organization_invites",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/page.tsx",
+      "tables": [
+        "change_simulation_runs",
+        "change_simulations",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/campaigns/[id]",
+      "sourcePath": "src/app/(dashboard)/campaigns/[id]/page.tsx",
+      "tables": [
+        "portfolio_campaign_contracts",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/campaigns/compare",
+      "sourcePath": "src/app/(dashboard)/campaigns/compare/page.tsx",
+      "tables": [
+        "change_simulations",
+        "portfolio_campaigns"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+      "tables": [
+        "contract_export_jobs",
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "tables": [
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_change_events",
+        "contract_extraction_jobs",
+        "contract_field_comments",
+        "contract_handoff_checklists",
+        "contract_notes",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contract_program_assignments",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_renewal_workspace_notes",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "execution_graph_edges",
+        "notification_deliveries",
+        "operational_casefile_events",
+        "organization_members",
+        "organization_workflow_settings",
+        "profiles",
+        "reminders",
+        "v10_activation_state",
+        "v10_approval_records",
+        "v10_contract_activity_events",
+        "v10_contract_health_snapshots",
+        "v10_evidence_request_statuses",
+        "v10_exception_records",
+        "v10_field_provenance_records",
+        "v10_renewal_posture_snapshots",
+        "v10_work_items"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_data_quality_snapshots",
+        "contract_obligations",
+        "contract_renewal_checkpoints",
+        "contract_tasks",
+        "contracts",
+        "org_behavior_metrics",
+        "report_run_recipients",
+        "report_runs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/approvals",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_renewal_scenarios",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/page.tsx",
+      "tables": [
+        "contract_approvals"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
+      "tables": [
+        "contract_import_jobs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_field_comments",
+        "internal_notifications"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/page.tsx",
+      "tables": [
+        "contract_data_quality_snapshots",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+      "tables": [
+        "evidence_requirement_templates",
+        "evidence_requirements"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      "tables": [
+        "contracts",
+        "exception_events",
+        "exceptions",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_obligations",
+        "contract_tasks",
+        "contracts",
+        "execution_graph_edges"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/page.tsx",
+      "tables": [
+        "contract_intake_history",
+        "contracts",
+        "organization_members",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "tables": [
+        "contract_change_events",
+        "contract_files",
+        "contracts",
+        "maintenance_campaign_rows",
+        "maintenance_campaigns",
+        "organization_members",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/new",
+      "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
+      "tables": [
+        "contract_files"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/obligations",
+      "sourcePath": "src/app/(dashboard)/contracts/obligations/page.tsx",
+      "tables": [
+        "contract_obligations",
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contracts",
+        "operational_casefile_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "tables": [
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contracts",
+        "evidence_requirements",
+        "exceptions",
+        "extracted_fields",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "tables": [
+        "report_pack_runs",
+        "report_pack_subscriptions",
+        "report_packs",
+        "report_run_recipients",
+        "report_runs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_renewal_checkpoints",
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
+      "tables": [
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "tables": [
+        "contract_tasks",
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/page.tsx",
+      "tables": [
+        "contract_watchlists"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/page.tsx",
+      "tables": [
+        "contracts",
+        "counterparty_workspaces",
+        "relationship_timeline_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/page.tsx",
+      "tables": [
+        "adaptive_playbook_runs",
+        "assurance_check_runs",
+        "assurance_findings",
+        "assurance_scorecards",
+        "control_policies",
+        "org_behavior_metrics",
+        "portfolio_health_graph_edges",
+        "v10_contract_activity_events",
+        "v10_contract_health_snapshots",
+        "v10_evidence_request_statuses",
+        "v10_job_run_visibility",
+        "v10_renewal_posture_snapshots",
+        "v10_report_run_visibility",
+        "v10_work_items"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_obligations",
+        "contract_renewal_scenarios",
+        "contract_tasks",
+        "contracts"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/page.tsx",
+      "tables": [
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/decisions/[id]",
+      "sourcePath": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "tables": [
+        "decision_packet_runs",
+        "decision_recommendations",
+        "decision_workspace_events",
+        "decision_workspace_stakeholders",
+        "decision_workspaces",
+        "external_action_links"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/decisions/compare",
+      "sourcePath": "src/app/(dashboard)/decisions/compare/page.tsx",
+      "tables": [
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/decisions/review",
+      "sourcePath": "src/app/(dashboard)/decisions/review/page.tsx",
+      "tables": [
+        "decision_workspace_events",
+        "decision_workspaces"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+      "tables": [],
+      "rpcs": [
+        "reports_control_room_snapshot"
+      ],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/page.tsx",
+      "tables": [
+        "organization_invites",
+        "organization_members",
+        "organization_workflow_settings",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
+      "tables": [
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/health",
+      "sourcePath": "src/app/(dashboard)/settings/health/page.tsx",
+      "tables": [
+        "audit_events",
+        "contract_export_jobs",
+        "contract_extraction_jobs",
+        "contract_import_jobs",
+        "notification_deliveries",
+        "organization_workflow_settings",
+        "outbound_event_deliveries",
+        "report_runs",
+        "v10_external_blocker_records",
+        "v10_job_run_visibility",
+        "v10_mutation_idempotency",
+        "v10_read_model_refresh_jobs",
+        "v10_report_run_visibility",
+        "v10_runtime_artifacts",
+        "v10_runtime_coverage_ledger"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/policy",
+      "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "tables": [
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/product",
+      "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+      "tables": [
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/page.tsx",
+      "tables": [
+        "contract_approvals",
+        "contract_obligations",
+        "contract_tasks",
+        "exceptions",
+        "execution_graph_edges",
+        "organization_members",
+        "v10_work_items"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addContractTaskDependency",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addFieldComment",
+      "sourcePath": "src/actions/field-comments.ts",
+      "tables": [
+        "audit_events",
+        "contract_field_comments",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addFieldCommentForm",
+      "sourcePath": "src/actions/field-comments.ts",
+      "tables": [
+        "audit_events",
+        "contract_field_comments",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addManualField",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addRenewalWorkspaceNote",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "tables": [
+        "audit_events",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_renewal_workspace_notes",
+        "contracts",
+        "extracted_fields",
+        "renewal_playbook_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:addRenewalWorkspaceNoteForm",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "tables": [
+        "audit_events",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_renewal_workspace_notes",
+        "contracts",
+        "extracted_fields",
+        "renewal_playbook_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyContractTemplatePackForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyObligationTemplatesToContract",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyObligationTemplatesToContractForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyPolicyPackForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:applyProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:archiveContractAsDuplicateForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:assignException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "tables": [
+        "audit_events",
+        "exception_events",
+        "exceptions",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:assignWorkItemOwner",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "tables": [
+        "contract_task_events",
+        "contract_tasks"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "tables": [
+        "contract_task_events",
+        "contract_tasks"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:batchApproveReadyFields",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:beginRecalibration",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkAssignCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkAssignCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "tables": [
+        "contract_obligations",
+        "organization_members",
+        "v10_work_items"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkAssignContractOwners",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkCompleteCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkCompleteCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "tables": [
+        "contract_obligations",
+        "organization_members",
+        "v10_work_items"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:bulkCreateContractsFromFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:completeProductOnboarding",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:completeQuestionnaireAcceptRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:completeQuestionnaireOpenAdvancedSettings",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:completeQuestionnaireSimplerSetup",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:completeWorkItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createCheckpointClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createCheckpointClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "tables": [
+        "audit_events",
+        "contract_notes"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContractsSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContractsSavedViewWithFeedback",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createEvidenceTemplateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createExceptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createFieldTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createIntegrationApiKey",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createIntegrationApiKeyFromOperationsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createObligationClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createObligationTemplate",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createObligationTemplateForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createReminderTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createReportPackAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createReportPackSubscriptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createRuleGeneratedTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "tables": [
+        "task_automation_rules"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "tables": [
+        "task_automation_rules"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createTaskTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:createWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:delegateContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:delegateContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "tables": [
+        "audit_events",
+        "contract_notes"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteOrphanFileRecordForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:deleteSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:exportOnboardingCalibrationSupportJson",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:getFileDownloadUrl",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:inviteOrgMember",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:logContractChangeEventForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:markNotificationRead",
+      "sourcePath": "src/actions/field-comments.ts",
+      "tables": [
+        "audit_events",
+        "contract_field_comments",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:markNotificationReadVoid",
+      "sourcePath": "src/actions/field-comments.ts",
+      "tables": [
+        "audit_events",
+        "contract_field_comments",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:previewCalibrationRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:processContractChangeEventsForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:publishProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:reassignOwnerForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:recordQuestionnaireStarted",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:removeWatchlistEntry",
+      "sourcePath": "src/actions/watchlists.ts",
+      "tables": [
+        "contract_watchlists"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:reopenException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "tables": [
+        "audit_events",
+        "exception_events",
+        "exceptions",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:reorderContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:requestContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:requestContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:resendOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:resolveException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "tables": [
+        "audit_events",
+        "exception_events",
+        "exceptions",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:revokeIntegrationApiKeyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:revokeOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:runCorrectionCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:runDateBackfillCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "tables": [
+        "audit_events",
+        "contract_change_events",
+        "contract_files",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:runExtraction",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:runTaskAutomationRulesForOrg",
+      "sourcePath": "src/actions/automation.ts",
+      "tables": [
+        "task_automation_rules"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:savePolicyRegistryAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:saveProgramVersionDefinitionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:saveQuestionnaireProgress",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:saveReportPackAnnotationsAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:seedDemoWorkspace",
+      "sourcePath": "src/actions/demo.ts",
+      "tables": [
+        "audit_events",
+        "contracts",
+        "extracted_fields"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:seedRenewalPlaybook",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "tables": [
+        "audit_events",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_renewal_workspace_notes",
+        "contracts",
+        "extracted_fields",
+        "renewal_playbook_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setDashboardQueuePinForm",
+      "sourcePath": "src/actions/dashboard.ts",
+      "tables": [
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setIntegrationTokenForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setSavedViewMonthlySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setSavedViewPinned",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setSavedViewWeeklyRecipients",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:setSavedViewWeeklySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "tables": [
+        "organization_members",
+        "report_subscriptions",
+        "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:skipQuestionnaireExplicitMinimal",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:startRecalibrationFromSettingsForm",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "tables": [
+        "audit_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:startTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "tables": [
+        "organization_members",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:submitEvidenceNoteAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:supersedeContractFile",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:supersedeContractFileForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleContractNotePin",
+      "sourcePath": "src/actions/notes.ts",
+      "tables": [
+        "audit_events",
+        "contract_notes"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplate",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "tables": [
+        "task_automation_rules"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "tables": [
+        "task_automation_rules"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleWebhookSubscription",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:toggleWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:unenrollTotpFactor",
+      "sourcePath": "src/actions/mfa.ts",
+      "tables": [
+        "organization_members",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractApprovalStatus",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractApprovalStatusForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractExternalLinkForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractField",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatusForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "tables": [
+        "audit_events",
+        "contract_obligation_events",
+        "contract_obligations",
+        "contracts",
+        "obligation_templates",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractOperationalStateForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractSecondaryOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateContractTaskStatus",
+      "sourcePath": "src/actions/tasks.ts",
+      "tables": [
+        "audit_events",
+        "contract_task_artifacts",
+        "contract_task_checklist_items",
+        "contract_task_comments",
+        "contract_task_dependencies",
+        "contract_task_events",
+        "contract_tasks",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateIntegrationApiKeyPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateOrganization",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateOrganizationMfaRequired",
+      "sourcePath": "src/actions/mfa.ts",
+      "tables": [
+        "organization_members",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateProductEmailNotificationCategoriesForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateProfile",
+      "sourcePath": "src/actions/settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_invites",
+        "organization_members",
+        "organizations",
+        "profiles"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateProgramRoutingAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointStatus",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "tables": [
+        "audit_events",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "contract_renewal_workspace_notes",
+        "contracts",
+        "extracted_fields",
+        "renewal_playbook_templates"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "tables": [
+        "contract_program_assignments",
+        "contract_program_versions",
+        "contract_programs",
+        "contract_renewal_checkpoints",
+        "contract_renewal_scenarios",
+        "evidence_requirement_templates",
+        "evidence_requirements",
+        "evidence_submissions",
+        "exceptions",
+        "organization_workflow_settings",
+        "renewal_decision_packets",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:updateWorkspaceProductSurfaceForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "tables": [
+        "audit_events",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:uploadAdditionalFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertContractHandoffChecklist",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertContractHandoffChecklistForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "tables": [
+        "audit_events",
+        "contract_files",
+        "contract_intake_history",
+        "contract_intake_requests",
+        "contract_tasks",
+        "contracts",
+        "extracted_fields",
+        "field_templates",
+        "reminder_templates",
+        "reminders",
+        "task_templates",
+        "template_change_events"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertContractIntakeRequestForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "tables": [
+        "audit_events",
+        "contract_approvals",
+        "contract_files",
+        "contract_handoff_checklists",
+        "contract_import_job_rows",
+        "contract_import_jobs",
+        "contract_notes",
+        "contract_task_events",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "extracted_fields",
+        "reminders"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertRenewalScenario",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertRenewalScenarioForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "contract_approval_events",
+        "contract_approvals",
+        "contract_notes",
+        "contract_renewal_scenarios",
+        "contracts",
+        "internal_notifications",
+        "organization_members"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertWatchlistEntryForm",
+      "sourcePath": "src/actions/watchlists.ts",
+      "tables": [
+        "contract_watchlists"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:upsertWorkflowSettingsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "tables": [
+        "approval_policies",
+        "audit_events",
+        "field_templates",
+        "integration_api_keys",
+        "integration_connections",
+        "organization_workflow_settings",
+        "reminder_templates",
+        "renewal_playbook_templates",
+        "task_templates",
+        "template_change_events",
+        "webhook_subscriptions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:verifyTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "tables": [
+        "organization_members",
+        "organizations"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    }
+  ]
+}

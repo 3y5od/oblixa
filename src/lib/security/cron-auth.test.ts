@@ -32,6 +32,13 @@ describe("authorizeCronRequest", () => {
     expect(authorizeCronRequest(req, secret)).toBe(true);
   });
 
+  it("accepts x-vercel-cron-secret header", () => {
+    const req = new Request("http://localhost/api/cron/x", {
+      headers: { "x-vercel-cron-secret": secret },
+    });
+    expect(authorizeCronRequest(req, secret)).toBe(true);
+  });
+
   it("rejects missing credentials", () => {
     const req = new Request("http://localhost/api/cron/x");
     expect(authorizeCronRequest(req, secret)).toBe(false);

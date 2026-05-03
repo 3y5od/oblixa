@@ -1,0 +1,701 @@
+{
+  "version": 1,
+  "program": "maximal-assurance-epic13",
+  "generatedAt": "2026-05-03T17:31:40.198Z",
+  "catalogCount": 63,
+  "catalogs": [
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-a11y-at-engines.ts",
+      "catalogId": "catalog-a11y-at-engines",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-a11y-standards-matrix.ts",
+      "catalogId": "catalog-a11y-standards-matrix",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-ai-governance-standards.ts",
+      "catalogId": "catalog-ai-governance-standards",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-airgap-sovereign.ts",
+      "catalogId": "catalog-airgap-sovereign",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-alt-e2e-visual-grid.ts",
+      "catalogId": "catalog-alt-e2e-visual-grid",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-build-monorepo-bundlers.ts",
+      "catalogId": "catalog-build-monorepo-bundlers",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-chaos-vendors.ts",
+      "catalogId": "catalog-chaos-vendors",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-ci-media-retention.ts",
+      "catalogId": "catalog-ci-media-retention",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-cloud-iam-secrets-gateways.ts",
+      "catalogId": "catalog-cloud-iam-secrets-gateways",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-compliance-frameworks.ts",
+      "catalogId": "catalog-compliance-frameworks",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-container-k8s-admission.ts",
+      "catalogId": "catalog-container-k8s-admission",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-cryptography-pki.ts",
+      "catalogId": "catalog-cryptography-pki",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-dast-fuzz-proxy.ts",
+      "catalogId": "catalog-dast-fuzz-proxy",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-data-engineering-distributed.ts",
+      "catalogId": "catalog-data-engineering-distributed",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-data-lineage-warehouse.ts",
+      "catalogId": "catalog-data-lineage-warehouse",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-device-attestation-os.ts",
+      "catalogId": "catalog-device-attestation-os",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-devtools-debug-protocols.ts",
+      "catalogId": "catalog-devtools-debug-protocols",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-edge-ml-serving.ts",
+      "catalogId": "catalog-edge-ml-serving",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-email-dns-security.ts",
+      "catalogId": "catalog-email-dns-security",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-enterprise-idp-netfs.ts",
+      "catalogId": "catalog-enterprise-idp-netfs",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-erp-hr-enterprise.ts",
+      "catalogId": "catalog-erp-hr-enterprise",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-filesystems-block-storage.ts",
+      "catalogId": "catalog-filesystems-block-storage",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-financial-calendars.ts",
+      "catalogId": "catalog-financial-calendars",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-forensics-debug-symbols.ts",
+      "catalogId": "catalog-forensics-debug-symbols",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-formal-methods-property-testing.ts",
+      "catalogId": "catalog-formal-methods-property-testing",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-fringe-physical-network-time.ts",
+      "catalogId": "catalog-fringe-physical-network-time",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-humans-change-management.ts",
+      "catalogId": "catalog-humans-change-management",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-ide-lsp-arch.ts",
+      "catalogId": "catalog-ide-lsp-arch",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-incident-comms-status.ts",
+      "catalogId": "catalog-incident-comms-status",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-jurisdictions-data-residency.ts",
+      "catalogId": "catalog-jurisdictions-data-residency",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-language-runtimes-gc.ts",
+      "catalogId": "catalog-language-runtimes-gc",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-licensing-notices.ts",
+      "catalogId": "catalog-licensing-notices",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-llm-safety-multimodal.ts",
+      "catalogId": "catalog-llm-safety-multimodal",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-log-formats-siem.ts",
+      "catalogId": "catalog-log-formats-siem",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-media-drm-fonts-typography.ts",
+      "catalogId": "catalog-media-drm-fonts-typography",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-ml-experiment-monitoring.ts",
+      "catalogId": "catalog-ml-experiment-monitoring",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-native-sanitizers-profilers.ts",
+      "catalogId": "catalog-native-sanitizers-profilers",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-nix-reproducible-builds.ts",
+      "catalogId": "catalog-nix-reproducible-builds",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-node-streams-process-managers.ts",
+      "catalogId": "catalog-node-streams-process-managers",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-observability-semconv-slo.ts",
+      "catalogId": "catalog-observability-semconv-slo",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-offline-crdt-local-first.ts",
+      "catalogId": "catalog-offline-crdt-local-first",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-orchestration-etl.ts",
+      "catalogId": "catalog-orchestration-etl",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-os-hardware-pathology.ts",
+      "catalogId": "catalog-os-hardware-pathology",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-os-host-security-fs.ts",
+      "catalogId": "catalog-os-host-security-fs",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-owasp-asvs-ssdf.ts",
+      "catalogId": "catalog-owasp-asvs-ssdf",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-package-registries.ts",
+      "catalogId": "catalog-package-registries",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-payments-rails-global.ts",
+      "catalogId": "catalog-payments-rails-global",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-privacy-sandbox-identity.ts",
+      "catalogId": "catalog-privacy-sandbox-identity",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-product-analytics-experimentation.ts",
+      "catalogId": "catalog-product-analytics-experimentation",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-routing-rpki-bgp.ts",
+      "catalogId": "catalog-routing-rpki-bgp",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-rpc-schema-contracts.ts",
+      "catalogId": "catalog-rpc-schema-contracts",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-sbom-formats-i18n-tax.ts",
+      "catalogId": "catalog-sbom-formats-i18n-tax",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-scientific-niche-domains.ts",
+      "catalogId": "catalog-scientific-niche-domains",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-serialization-parsing-matrix.ts",
+      "catalogId": "catalog-serialization-parsing-matrix",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-supabase-cdn-vercel.ts",
+      "catalogId": "catalog-supabase-cdn-vercel",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-supply-chain-provenance.ts",
+      "catalogId": "catalog-supply-chain-provenance",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-threat-stride-internal.ts",
+      "catalogId": "catalog-threat-stride-internal",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-time-determinism-simulation.ts",
+      "catalogId": "catalog-time-determinism-simulation",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-vertical-regulated-industry.ts",
+      "catalogId": "catalog-vertical-regulated-industry",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-wasm-alternate-runtimes.ts",
+      "catalogId": "catalog-wasm-alternate-runtimes",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-web-payment-vc-did-c2pa.ts",
+      "catalogId": "catalog-web-payment-vc-did-c2pa",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-web-peripheral-apis.ts",
+      "catalogId": "catalog-web-peripheral-apis",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    },
+    {
+      "catalogFile": "src/lib/debugging-sweep/catalog-partitions/catalog-webrtc-realtime.ts",
+      "catalogId": "catalog-webrtc-realtime",
+      "npmScripts": [
+        "check:debugging-sweep",
+        "generate:debugging-sweep-catalog"
+      ],
+      "tests": [
+        "src/lib/debugging-sweep/debugging-sweep-catalog.test.ts"
+      ]
+    }
+  ]
+}

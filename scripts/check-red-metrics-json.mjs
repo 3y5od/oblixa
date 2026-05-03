@@ -25,8 +25,9 @@ function walk(dir) {
 walk(srcRoot);
 const unknown = wildcard ? [] : [...new Set(found)].filter((n) => !names.has(n));
 const strict = process.argv.includes("--strict");
-const ok = !strict || unknown.length === 0;
-const payload = { ok, unknownSample: unknown.slice(0, 20), allowlistSize: names.size, wildcard };
+const wildcardAllowed = !strict && process.env.RED_METRICS_ALLOW_WILDCARD === "1";
+const ok = (!strict || unknown.length === 0) && (!wildcard || wildcardAllowed);
+const payload = { ok, unknownSample: unknown.slice(0, 20), allowlistSize: names.size, wildcard, wildcardAllowed };
 fs.mkdirSync(path.join(ROOT, "artifacts"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "artifacts", "red-metrics-scan.json"), `${JSON.stringify(payload, null, 2)}\n`);
 console.log(JSON.stringify(payload, null, 2));

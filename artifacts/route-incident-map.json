@@ -1,0 +1,3821 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "rows": [
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(dashboard)/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/(marketing)/not-found.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/global-error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/not-found.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/",
+      "sourcePath": "src/app/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/accessibility",
+      "sourcePath": "src/app/(marketing)/accessibility/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "accessibility"
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "accounts"
+    },
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "accounts_key"
+    },
+    {
+      "route": "/accounts/[key]",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "accounts_key"
+    },
+    {
+      "route": "/api/accounts/[key]/summary",
+      "sourcePath": "src/app/api/accounts/[key]/summary/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_accounts_key_summary"
+    },
+    {
+      "route": "/api/approvals/[id]/[action]",
+      "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_approvals_id_action"
+    },
+    {
+      "route": "/api/approvals/sla-metrics",
+      "sourcePath": "src/app/api/approvals/sla-metrics/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_approvals_sla_metrics"
+    },
+    {
+      "route": "/api/assurance/analytics/summary",
+      "sourcePath": "src/app/api/assurance/analytics/summary/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_analytics_summary"
+    },
+    {
+      "route": "/api/assurance/check-runs",
+      "sourcePath": "src/app/api/assurance/check-runs/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_check_runs"
+    },
+    {
+      "route": "/api/assurance/check-runs/[id]",
+      "sourcePath": "src/app/api/assurance/check-runs/[id]/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_check_runs_id"
+    },
+    {
+      "route": "/api/assurance/checks/run",
+      "sourcePath": "src/app/api/assurance/checks/run/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_assurance_checks_run"
+    },
+    {
+      "route": "/api/assurance/external-links/[id]/response-pack",
+      "sourcePath": "src/app/api/assurance/external-links/[id]/response-pack/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_assurance_external_links_id_response_pack"
+    },
+    {
+      "route": "/api/assurance/findings",
+      "sourcePath": "src/app/api/assurance/findings/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_findings"
+    },
+    {
+      "route": "/api/assurance/findings/[id]/events",
+      "sourcePath": "src/app/api/assurance/findings/[id]/events/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_findings_id_events"
+    },
+    {
+      "route": "/api/assurance/findings/[id]/resolve",
+      "sourcePath": "src/app/api/assurance/findings/[id]/resolve/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_assurance_findings_id_resolve"
+    },
+    {
+      "route": "/api/assurance/health-graph",
+      "sourcePath": "src/app/api/assurance/health-graph/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_health_graph"
+    },
+    {
+      "route": "/api/assurance/scorecards",
+      "sourcePath": "src/app/api/assurance/scorecards/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_scorecards"
+    },
+    {
+      "route": "/api/assurance/scorecards/[id]/snapshots",
+      "sourcePath": "src/app/api/assurance/scorecards/[id]/snapshots/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_assurance_scorecards_id_snapshots"
+    },
+    {
+      "route": "/api/assurance/workflows/run-all",
+      "sourcePath": "src/app/api/assurance/workflows/run-all/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_assurance_workflows_run_all"
+    },
+    {
+      "route": "/api/attestations/[id]/respond",
+      "sourcePath": "src/app/api/attestations/[id]/respond/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_attestations_id_respond"
+    },
+    {
+      "route": "/api/attestations/run",
+      "sourcePath": "src/app/api/attestations/run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_attestations_run"
+    },
+    {
+      "route": "/api/auth/post-sign-out",
+      "sourcePath": "src/app/api/auth/post-sign-out/route.ts",
+      "owner": "security",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_auth_post_sign_out"
+    },
+    {
+      "route": "/api/autopilot/rules",
+      "sourcePath": "src/app/api/autopilot/rules/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_autopilot_rules"
+    },
+    {
+      "route": "/api/autopilot/rules/[id]",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_autopilot_rules_id"
+    },
+    {
+      "route": "/api/autopilot/rules/[id]/dry-run",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/dry-run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_autopilot_rules_id_dry_run"
+    },
+    {
+      "route": "/api/autopilot/rules/[id]/enable",
+      "sourcePath": "src/app/api/autopilot/rules/[id]/enable/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_autopilot_rules_id_enable"
+    },
+    {
+      "route": "/api/autopilot/run-logs/[id]/revert",
+      "sourcePath": "src/app/api/autopilot/run-logs/[id]/revert/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_autopilot_run_logs_id_revert"
+    },
+    {
+      "route": "/api/autopilot/runs",
+      "sourcePath": "src/app/api/autopilot/runs/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_autopilot_runs"
+    },
+    {
+      "route": "/api/campaigns",
+      "sourcePath": "src/app/api/campaigns/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns"
+    },
+    {
+      "route": "/api/campaigns/[id]",
+      "sourcePath": "src/app/api/campaigns/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id"
+    },
+    {
+      "route": "/api/campaigns/[id]/close",
+      "sourcePath": "src/app/api/campaigns/[id]/close/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_close"
+    },
+    {
+      "route": "/api/campaigns/[id]/contracts/[rowId]",
+      "sourcePath": "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_contracts_rowid"
+    },
+    {
+      "route": "/api/campaigns/[id]/export",
+      "sourcePath": "src/app/api/campaigns/[id]/export/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_campaigns_id_export"
+    },
+    {
+      "route": "/api/campaigns/[id]/pause",
+      "sourcePath": "src/app/api/campaigns/[id]/pause/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_pause"
+    },
+    {
+      "route": "/api/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/campaigns/[id]/preview/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_preview"
+    },
+    {
+      "route": "/api/campaigns/[id]/resume",
+      "sourcePath": "src/app/api/campaigns/[id]/resume/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_resume"
+    },
+    {
+      "route": "/api/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/campaigns/[id]/rollback/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_rollback"
+    },
+    {
+      "route": "/api/campaigns/[id]/start",
+      "sourcePath": "src/app/api/campaigns/[id]/start/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_campaigns_id_start"
+    },
+    {
+      "route": "/api/capacity/forecast",
+      "sourcePath": "src/app/api/capacity/forecast/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_capacity_forecast"
+    },
+    {
+      "route": "/api/capacity/reassignment-plan",
+      "sourcePath": "src/app/api/capacity/reassignment-plan/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_capacity_reassignment_plan"
+    },
+    {
+      "route": "/api/command-centers/preferences",
+      "sourcePath": "src/app/api/command-centers/preferences/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_command_centers_preferences"
+    },
+    {
+      "route": "/api/command-palette/contracts",
+      "sourcePath": "src/app/api/command-palette/contracts/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_command_palette_contracts"
+    },
+    {
+      "route": "/api/contracts/recompute-signals",
+      "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_contracts_recompute_signals"
+    },
+    {
+      "route": "/api/control-policies",
+      "sourcePath": "src/app/api/control-policies/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_control_policies"
+    },
+    {
+      "route": "/api/control-policies/[id]",
+      "sourcePath": "src/app/api/control-policies/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_control_policies_id"
+    },
+    {
+      "route": "/api/control-policies/[id]/assign",
+      "sourcePath": "src/app/api/control-policies/[id]/assign/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_control_policies_id_assign"
+    },
+    {
+      "route": "/api/control-policies/[id]/publish",
+      "sourcePath": "src/app/api/control-policies/[id]/publish/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_control_policies_id_publish"
+    },
+    {
+      "route": "/api/control-policies/[id]/simulate",
+      "sourcePath": "src/app/api/control-policies/[id]/simulate/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_control_policies_id_simulate"
+    },
+    {
+      "route": "/api/counterparties/[key]/summary",
+      "sourcePath": "src/app/api/counterparties/[key]/summary/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_counterparties_key_summary"
+    },
+    {
+      "route": "/api/cron/stripe-webhook-events",
+      "sourcePath": "src/app/api/cron/stripe-webhook-events/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_stripe_webhook_events"
+    },
+    {
+      "route": "/api/cron/v10/idempotency-cleanup",
+      "sourcePath": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v10_idempotency_cleanup"
+    },
+    {
+      "route": "/api/cron/v10/read-model-refresh",
+      "sourcePath": "src/app/api/cron/v10/read-model-refresh/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v10_read_model_refresh"
+    },
+    {
+      "route": "/api/cron/v10/runtime-artifact-cleanup",
+      "sourcePath": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v10_runtime_artifact_cleanup"
+    },
+    {
+      "route": "/api/cron/v4/approvals-sla",
+      "sourcePath": "src/app/api/cron/v4/approvals-sla/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_approvals_sla"
+    },
+    {
+      "route": "/api/cron/v4/attestations-issue",
+      "sourcePath": "src/app/api/cron/v4/attestations-issue/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_attestations_issue"
+    },
+    {
+      "route": "/api/cron/v4/escalations-dispatch",
+      "sourcePath": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_escalations_dispatch"
+    },
+    {
+      "route": "/api/cron/v4/evidence-followup",
+      "sourcePath": "src/app/api/cron/v4/evidence-followup/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_evidence_followup"
+    },
+    {
+      "route": "/api/cron/v4/exceptions-detect",
+      "sourcePath": "src/app/api/cron/v4/exceptions-detect/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_exceptions_detect"
+    },
+    {
+      "route": "/api/cron/v4/programs-reconcile",
+      "sourcePath": "src/app/api/cron/v4/programs-reconcile/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_programs_reconcile"
+    },
+    {
+      "route": "/api/cron/v4/renewals-recompute-signals",
+      "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_renewals_recompute_signals"
+    },
+    {
+      "route": "/api/cron/v4/report-packs-generate",
+      "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v4_report_packs_generate"
+    },
+    {
+      "route": "/api/cron/v5/campaign-progress",
+      "sourcePath": "src/app/api/cron/v5/campaign-progress/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_campaign_progress"
+    },
+    {
+      "route": "/api/cron/v5/capacity-forecast-refresh",
+      "sourcePath": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_capacity_forecast_refresh"
+    },
+    {
+      "route": "/api/cron/v5/decision-sla-monitor",
+      "sourcePath": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_decision_sla_monitor"
+    },
+    {
+      "route": "/api/cron/v5/external-followup",
+      "sourcePath": "src/app/api/cron/v5/external-followup/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_external_followup"
+    },
+    {
+      "route": "/api/cron/v5/portfolio-risk-recompute",
+      "sourcePath": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_portfolio_risk_recompute"
+    },
+    {
+      "route": "/api/cron/v5/recommendation-refresh",
+      "sourcePath": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_recommendation_refresh"
+    },
+    {
+      "route": "/api/cron/v5/relationship-rollups",
+      "sourcePath": "src/app/api/cron/v5/relationship-rollups/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_relationship_rollups"
+    },
+    {
+      "route": "/api/cron/v5/simulation-snapshots",
+      "sourcePath": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v5_simulation_snapshots"
+    },
+    {
+      "route": "/api/cron/v6/assurance-checks",
+      "sourcePath": "src/app/api/cron/v6/assurance-checks/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_assurance_checks"
+    },
+    {
+      "route": "/api/cron/v6/autopilot-dry-run",
+      "sourcePath": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_autopilot_dry_run"
+    },
+    {
+      "route": "/api/cron/v6/autopilot-execution",
+      "sourcePath": "src/app/api/cron/v6/autopilot-execution/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_autopilot_execution"
+    },
+    {
+      "route": "/api/cron/v6/control-policy-reevaluation",
+      "sourcePath": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_control_policy_reevaluation"
+    },
+    {
+      "route": "/api/cron/v6/external-workflow-deadlines",
+      "sourcePath": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_external_workflow_deadlines"
+    },
+    {
+      "route": "/api/cron/v6/finding-refresh",
+      "sourcePath": "src/app/api/cron/v6/finding-refresh/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_finding_refresh"
+    },
+    {
+      "route": "/api/cron/v6/health-graph-rollups",
+      "sourcePath": "src/app/api/cron/v6/health-graph-rollups/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_health_graph_rollups"
+    },
+    {
+      "route": "/api/cron/v6/onboarding-calibration-stale",
+      "sourcePath": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_onboarding_calibration_stale"
+    },
+    {
+      "route": "/api/cron/v6/outcome-effectiveness",
+      "sourcePath": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_outcome_effectiveness"
+    },
+    {
+      "route": "/api/cron/v6/playbook-follow-up-assurance",
+      "sourcePath": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_playbook_follow_up_assurance"
+    },
+    {
+      "route": "/api/cron/v6/review-board-packet-generation",
+      "sourcePath": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_review_board_packet_generation"
+    },
+    {
+      "route": "/api/cron/v6/scorecard-recompute",
+      "sourcePath": "src/app/api/cron/v6/scorecard-recompute/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_scorecard_recompute"
+    },
+    {
+      "route": "/api/cron/v6/segment-recompute",
+      "sourcePath": "src/app/api/cron/v6/segment-recompute/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_v6_segment_recompute"
+    },
+    {
+      "route": "/api/decisions",
+      "sourcePath": "src/app/api/decisions/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions"
+    },
+    {
+      "route": "/api/decisions/[id]",
+      "sourcePath": "src/app/api/decisions/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id"
+    },
+    {
+      "route": "/api/decisions/[id]/approve",
+      "sourcePath": "src/app/api/decisions/[id]/approve/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_approve"
+    },
+    {
+      "route": "/api/decisions/[id]/close",
+      "sourcePath": "src/app/api/decisions/[id]/close/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_close"
+    },
+    {
+      "route": "/api/decisions/[id]/context",
+      "sourcePath": "src/app/api/decisions/[id]/context/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_decisions_id_context"
+    },
+    {
+      "route": "/api/decisions/[id]/packet-runs/[runId]",
+      "sourcePath": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_decisions_id_packet_runs_runid"
+    },
+    {
+      "route": "/api/decisions/[id]/packet",
+      "sourcePath": "src/app/api/decisions/[id]/packet/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_packet"
+    },
+    {
+      "route": "/api/decisions/[id]/recommend",
+      "sourcePath": "src/app/api/decisions/[id]/recommend/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_recommend"
+    },
+    {
+      "route": "/api/decisions/[id]/review",
+      "sourcePath": "src/app/api/decisions/[id]/review/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_review"
+    },
+    {
+      "route": "/api/decisions/[id]/stakeholders",
+      "sourcePath": "src/app/api/decisions/[id]/stakeholders/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_id_stakeholders"
+    },
+    {
+      "route": "/api/decisions/packet-templates",
+      "sourcePath": "src/app/api/decisions/packet-templates/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_packet_templates"
+    },
+    {
+      "route": "/api/decisions/packet-templates/[id]",
+      "sourcePath": "src/app/api/decisions/packet-templates/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_decisions_packet_templates_id"
+    },
+    {
+      "route": "/api/events",
+      "sourcePath": "src/app/api/events/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_events"
+    },
+    {
+      "route": "/api/evidence/[id]/[action]",
+      "sourcePath": "src/app/api/evidence/[id]/[action]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_evidence_id_action"
+    },
+    {
+      "route": "/api/evidence/export/[contractId]",
+      "sourcePath": "src/app/api/evidence/export/[contractId]/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_evidence_export_contractid"
+    },
+    {
+      "route": "/api/evidence/requests",
+      "sourcePath": "src/app/api/evidence/requests/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_evidence_requests"
+    },
+    {
+      "route": "/api/evidence/submit",
+      "sourcePath": "src/app/api/evidence/submit/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_evidence_submit"
+    },
+    {
+      "route": "/api/exceptions",
+      "sourcePath": "src/app/api/exceptions/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_exceptions"
+    },
+    {
+      "route": "/api/exceptions/[id]/[action]",
+      "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_exceptions_id_action"
+    },
+    {
+      "route": "/api/exceptions/run-detection",
+      "sourcePath": "src/app/api/exceptions/run-detection/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_exceptions_run_detection"
+    },
+    {
+      "route": "/api/export/calendar",
+      "sourcePath": "src/app/api/export/calendar/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_export_calendar"
+    },
+    {
+      "route": "/api/export/calendar/feed",
+      "sourcePath": "src/app/api/export/calendar/feed/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_export_calendar_feed"
+    },
+    {
+      "route": "/api/export/calendar/feed/[token]",
+      "sourcePath": "src/app/api/export/calendar/feed/[token]/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_export_calendar_feed_token"
+    },
+    {
+      "route": "/api/export/contracts",
+      "sourcePath": "src/app/api/export/contracts/route.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_export_contracts"
+    },
+    {
+      "route": "/api/export/contracts/[jobId]",
+      "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_export_contracts_jobid"
+    },
+    {
+      "route": "/api/export/review-packet",
+      "sourcePath": "src/app/api/export/review-packet/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_export_review_packet"
+    },
+    {
+      "route": "/api/external-actions/[token]/participant/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/participant/workflow-step/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_external_actions_token_participant_workflow_step"
+    },
+    {
+      "route": "/api/external-actions/[token]/status",
+      "sourcePath": "src/app/api/external-actions/[token]/status/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_external_actions_token_status"
+    },
+    {
+      "route": "/api/external-actions/[token]/submit",
+      "sourcePath": "src/app/api/external-actions/[token]/submit/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_external_actions_token_submit"
+    },
+    {
+      "route": "/api/external-actions/[token]/workflow-step",
+      "sourcePath": "src/app/api/external-actions/[token]/workflow-step/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_external_actions_token_workflow_step"
+    },
+    {
+      "route": "/api/external-actions/create-link",
+      "sourcePath": "src/app/api/external-actions/create-link/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_external_actions_create_link"
+    },
+    {
+      "route": "/api/extract",
+      "sourcePath": "src/app/api/extract/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_extract"
+    },
+    {
+      "route": "/api/extract/run",
+      "sourcePath": "src/app/api/extract/run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_extract_run"
+    },
+    {
+      "route": "/api/health",
+      "sourcePath": "src/app/api/health/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_health"
+    },
+    {
+      "route": "/api/import/contracts",
+      "sourcePath": "src/app/api/import/contracts/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_import_contracts"
+    },
+    {
+      "route": "/api/import/contracts/[jobId]",
+      "sourcePath": "src/app/api/import/contracts/[jobId]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_import_contracts_jobid"
+    },
+    {
+      "route": "/api/integrations/actions/callback",
+      "sourcePath": "src/app/api/integrations/actions/callback/route.ts",
+      "owner": "integrations",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_integrations_actions_callback"
+    },
+    {
+      "route": "/api/integrations/calendar/sync",
+      "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_integrations_calendar_sync"
+    },
+    {
+      "route": "/api/integrations/crm/sync",
+      "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_integrations_crm_sync"
+    },
+    {
+      "route": "/api/integrations/oauth/callback",
+      "sourcePath": "src/app/api/integrations/oauth/callback/route.ts",
+      "owner": "security",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_integrations_oauth_callback"
+    },
+    {
+      "route": "/api/integrations/oauth/start",
+      "sourcePath": "src/app/api/integrations/oauth/start/route.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_integrations_oauth_start"
+    },
+    {
+      "route": "/api/integrations/refresh-tokens",
+      "sourcePath": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_integrations_refresh_tokens"
+    },
+    {
+      "route": "/api/integrations/slack/renewal-summary",
+      "sourcePath": "src/app/api/integrations/slack/renewal-summary/route.ts",
+      "owner": "integrations",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_integrations_slack_renewal_summary"
+    },
+    {
+      "route": "/api/intelligence/decision-queue",
+      "sourcePath": "src/app/api/intelligence/decision-queue/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_intelligence_decision_queue"
+    },
+    {
+      "route": "/api/intelligence/portfolio-by-counterparty",
+      "sourcePath": "src/app/api/intelligence/portfolio-by-counterparty/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_intelligence_portfolio_by_counterparty"
+    },
+    {
+      "route": "/api/intelligence/portfolio-by-program",
+      "sourcePath": "src/app/api/intelligence/portfolio-by-program/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_intelligence_portfolio_by_program"
+    },
+    {
+      "route": "/api/intelligence/portfolio-signals",
+      "sourcePath": "src/app/api/intelligence/portfolio-signals/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_intelligence_portfolio_signals"
+    },
+    {
+      "route": "/api/intelligence/recommendations",
+      "sourcePath": "src/app/api/intelligence/recommendations/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_intelligence_recommendations"
+    },
+    {
+      "route": "/api/intelligence/recommendations/[id]",
+      "sourcePath": "src/app/api/intelligence/recommendations/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_intelligence_recommendations_id"
+    },
+    {
+      "route": "/api/internal/debugging-sweep",
+      "sourcePath": "src/app/api/internal/debugging-sweep/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_internal_debugging_sweep"
+    },
+    {
+      "route": "/api/maintenance/campaigns",
+      "sourcePath": "src/app/api/maintenance/campaigns/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_maintenance_campaigns"
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_maintenance_campaigns_id"
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/preview",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/preview/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_maintenance_campaigns_id_preview"
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/rollback",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_maintenance_campaigns_id_rollback"
+    },
+    {
+      "route": "/api/maintenance/campaigns/[id]/run",
+      "sourcePath": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_maintenance_campaigns_id_run"
+    },
+    {
+      "route": "/api/maintenance/prune-operational-data",
+      "sourcePath": "src/app/api/maintenance/prune-operational-data/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_maintenance_prune_operational_data"
+    },
+    {
+      "route": "/api/me/account",
+      "sourcePath": "src/app/api/me/account/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_me_account"
+    },
+    {
+      "route": "/api/me/export",
+      "sourcePath": "src/app/api/me/export/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_me_export"
+    },
+    {
+      "route": "/api/notifications/retry-deliveries",
+      "sourcePath": "src/app/api/notifications/retry-deliveries/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_notifications_retry_deliveries"
+    },
+    {
+      "route": "/api/outcomes/control-effectiveness",
+      "sourcePath": "src/app/api/outcomes/control-effectiveness/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_outcomes_control_effectiveness"
+    },
+    {
+      "route": "/api/outcomes/interventions",
+      "sourcePath": "src/app/api/outcomes/interventions/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_outcomes_interventions"
+    },
+    {
+      "route": "/api/outcomes/program-effectiveness",
+      "sourcePath": "src/app/api/outcomes/program-effectiveness/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_outcomes_program_effectiveness"
+    },
+    {
+      "route": "/api/playbooks",
+      "sourcePath": "src/app/api/playbooks/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_playbooks"
+    },
+    {
+      "route": "/api/playbooks/[id]/preview",
+      "sourcePath": "src/app/api/playbooks/[id]/preview/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_playbooks_id_preview"
+    },
+    {
+      "route": "/api/playbooks/[id]/run",
+      "sourcePath": "src/app/api/playbooks/[id]/run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_playbooks_id_run"
+    },
+    {
+      "route": "/api/playbooks/runs/[id]",
+      "sourcePath": "src/app/api/playbooks/runs/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_playbooks_runs_id"
+    },
+    {
+      "route": "/api/playbooks/runs/[id]/approve",
+      "sourcePath": "src/app/api/playbooks/runs/[id]/approve/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_playbooks_runs_id_approve"
+    },
+    {
+      "route": "/api/policy/simulate",
+      "sourcePath": "src/app/api/policy/simulate/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_policy_simulate"
+    },
+    {
+      "route": "/api/product-telemetry/page-load",
+      "sourcePath": "src/app/api/product-telemetry/page-load/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_product_telemetry_page_load"
+    },
+    {
+      "route": "/api/program-evolution/experiments",
+      "sourcePath": "src/app/api/program-evolution/experiments/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_program_evolution_experiments"
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/advance-rollout",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_program_evolution_experiments_id_advance_rollout"
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/results",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/results/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_program_evolution_experiments_id_results"
+    },
+    {
+      "route": "/api/program-evolution/experiments/[id]/simulate",
+      "sourcePath": "src/app/api/program-evolution/experiments/[id]/simulate/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_program_evolution_experiments_id_simulate"
+    },
+    {
+      "route": "/api/programs",
+      "sourcePath": "src/app/api/programs/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_programs"
+    },
+    {
+      "route": "/api/programs/[id]/[action]",
+      "sourcePath": "src/app/api/programs/[id]/[action]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_programs_id_action"
+    },
+    {
+      "route": "/api/reminders/send",
+      "sourcePath": "src/app/api/reminders/send/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_reminders_send"
+    },
+    {
+      "route": "/api/renewals/[id]/[action]",
+      "sourcePath": "src/app/api/renewals/[id]/[action]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_renewals_id_action"
+    },
+    {
+      "route": "/api/renewals/portfolio-signals",
+      "sourcePath": "src/app/api/renewals/portfolio-signals/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_renewals_portfolio_signals"
+    },
+    {
+      "route": "/api/report-packs",
+      "sourcePath": "src/app/api/report-packs/route.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_report_packs"
+    },
+    {
+      "route": "/api/report-packs/[id]/runs",
+      "sourcePath": "src/app/api/report-packs/[id]/runs/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_report_packs_id_runs"
+    },
+    {
+      "route": "/api/reports/capture-metrics",
+      "sourcePath": "src/app/api/reports/capture-metrics/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_reports_capture_metrics"
+    },
+    {
+      "route": "/api/reports/send-summaries",
+      "sourcePath": "src/app/api/reports/send-summaries/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_reports_send_summaries"
+    },
+    {
+      "route": "/api/reports/track/click/[token]",
+      "sourcePath": "src/app/api/reports/track/click/[token]/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_reports_track_click_token"
+    },
+    {
+      "route": "/api/reports/track/open/[token]",
+      "sourcePath": "src/app/api/reports/track/open/[token]/route.ts",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_reports_track_open_token"
+    },
+    {
+      "route": "/api/review-boards",
+      "sourcePath": "src/app/api/review-boards/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_review_boards"
+    },
+    {
+      "route": "/api/review-boards/[id]",
+      "sourcePath": "src/app/api/review-boards/[id]/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_review_boards_id"
+    },
+    {
+      "route": "/api/review-boards/[id]/generate-run",
+      "sourcePath": "src/app/api/review-boards/[id]/generate-run/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_review_boards_id_generate_run"
+    },
+    {
+      "route": "/api/review-boards/[id]/runs",
+      "sourcePath": "src/app/api/review-boards/[id]/runs/route.ts",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_review_boards_id_runs"
+    },
+    {
+      "route": "/api/review-boards/runs/[id]",
+      "sourcePath": "src/app/api/review-boards/runs/[id]/route.ts",
+      "owner": "assurance",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_review_boards_runs_id"
+    },
+    {
+      "route": "/api/segments",
+      "sourcePath": "src/app/api/segments/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_segments"
+    },
+    {
+      "route": "/api/segments/[id]/recompute",
+      "sourcePath": "src/app/api/segments/[id]/recompute/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_segments_id_recompute"
+    },
+    {
+      "route": "/api/settings/step-up",
+      "sourcePath": "src/app/api/settings/step-up/route.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_settings_step_up"
+    },
+    {
+      "route": "/api/simulations/[id]",
+      "sourcePath": "src/app/api/simulations/[id]/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_simulations_id"
+    },
+    {
+      "route": "/api/simulations/[id]/promote-to-campaign",
+      "sourcePath": "src/app/api/simulations/[id]/promote-to-campaign/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_simulations_id_promote_to_campaign"
+    },
+    {
+      "route": "/api/simulations/run",
+      "sourcePath": "src/app/api/simulations/run/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_simulations_run"
+    },
+    {
+      "route": "/api/stripe/checkout",
+      "sourcePath": "src/app/api/stripe/checkout/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_stripe_checkout"
+    },
+    {
+      "route": "/api/stripe/portal",
+      "sourcePath": "src/app/api/stripe/portal/route.ts",
+      "owner": "engineering",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_stripe_portal"
+    },
+    {
+      "route": "/api/stripe/webhook",
+      "sourcePath": "src/app/api/stripe/webhook/route.ts",
+      "owner": "integrations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_stripe_webhook"
+    },
+    {
+      "route": "/api/tasks/from-email",
+      "sourcePath": "src/app/api/tasks/from-email/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_tasks_from_email"
+    },
+    {
+      "route": "/api/tasks/from-slack",
+      "sourcePath": "src/app/api/tasks/from-slack/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_tasks_from_slack"
+    },
+    {
+      "route": "/api/tasks/run-rules",
+      "sourcePath": "src/app/api/tasks/run-rules/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_tasks_run_rules"
+    },
+    {
+      "route": "/api/templates/preview",
+      "sourcePath": "src/app/api/templates/preview/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_templates_preview"
+    },
+    {
+      "route": "/api/webhooks/dispatch",
+      "sourcePath": "src/app/api/webhooks/dispatch/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_webhooks_dispatch"
+    },
+    {
+      "route": "/api/workspace/nav-badges",
+      "sourcePath": "src/app/api/workspace/nav-badges/route.ts",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "api_workspace_nav_badges"
+    },
+    {
+      "route": "/api/workspace/v6-settings",
+      "sourcePath": "src/app/api/workspace/v6-settings/route.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_workspace_v6_settings"
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/layout.tsx",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "assurance"
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/loading.tsx",
+      "owner": "assurance",
+      "riskTier": "P3",
+      "diagnosticPrefix": "assurance"
+    },
+    {
+      "route": "/assurance",
+      "sourcePath": "src/app/(dashboard)/assurance/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance"
+    },
+    {
+      "route": "/assurance/autopilot",
+      "sourcePath": "src/app/(dashboard)/assurance/autopilot/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_autopilot"
+    },
+    {
+      "route": "/assurance/control-policies",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_control_policies"
+    },
+    {
+      "route": "/assurance/control-policies/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/control-policies/[id]/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_control_policies_id"
+    },
+    {
+      "route": "/assurance/findings",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_findings"
+    },
+    {
+      "route": "/assurance/findings/[id]",
+      "sourcePath": "src/app/(dashboard)/assurance/findings/[id]/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_findings_id"
+    },
+    {
+      "route": "/assurance/health-graph",
+      "sourcePath": "src/app/(dashboard)/assurance/health-graph/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_health_graph"
+    },
+    {
+      "route": "/assurance/playbooks",
+      "sourcePath": "src/app/(dashboard)/assurance/playbooks/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_playbooks"
+    },
+    {
+      "route": "/assurance/program-evolution",
+      "sourcePath": "src/app/(dashboard)/assurance/program-evolution/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_program_evolution"
+    },
+    {
+      "route": "/assurance/review-boards",
+      "sourcePath": "src/app/(dashboard)/assurance/review-boards/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_review_boards"
+    },
+    {
+      "route": "/assurance/scorecards",
+      "sourcePath": "src/app/(dashboard)/assurance/scorecards/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_scorecards"
+    },
+    {
+      "route": "/assurance/segments",
+      "sourcePath": "src/app/(dashboard)/assurance/segments/page.tsx",
+      "owner": "assurance",
+      "riskTier": "P2",
+      "diagnosticPrefix": "assurance_segments"
+    },
+    {
+      "route": "/auth/callback",
+      "sourcePath": "src/app/auth/callback/route.ts",
+      "owner": "security",
+      "riskTier": "P3",
+      "diagnosticPrefix": "auth_callback"
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "campaigns"
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "campaigns"
+    },
+    {
+      "route": "/campaigns",
+      "sourcePath": "src/app/(dashboard)/campaigns/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "campaigns"
+    },
+    {
+      "route": "/campaigns/[id]",
+      "sourcePath": "src/app/(dashboard)/campaigns/[id]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "campaigns_id"
+    },
+    {
+      "route": "/campaigns/compare",
+      "sourcePath": "src/app/(dashboard)/campaigns/compare/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "campaigns_compare"
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts"
+    },
+    {
+      "route": "/contracts",
+      "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts"
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_id"
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/not-found.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_id"
+    },
+    {
+      "route": "/contracts/[id]",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_id"
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_analytics"
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_analytics"
+    },
+    {
+      "route": "/contracts/analytics",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_analytics"
+    },
+    {
+      "route": "/contracts/approvals",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_approvals"
+    },
+    {
+      "route": "/contracts/approvals/sla-simulator",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/sla-simulator/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_approvals_sla_simulator"
+    },
+    {
+      "route": "/contracts/approvals/sla-simulator",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/sla-simulator/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_approvals_sla_simulator"
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_approvals_workload"
+    },
+    {
+      "route": "/contracts/approvals/workload",
+      "sourcePath": "src/app/(dashboard)/contracts/approvals/workload/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_approvals_workload"
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_bulk"
+    },
+    {
+      "route": "/contracts/bulk",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_bulk"
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_collaboration"
+    },
+    {
+      "route": "/contracts/collaboration",
+      "sourcePath": "src/app/(dashboard)/contracts/collaboration/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_collaboration"
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_data_quality"
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_data_quality"
+    },
+    {
+      "route": "/contracts/data-quality",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_data_quality"
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_evidence_studio"
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_evidence_studio"
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_exceptions"
+    },
+    {
+      "route": "/contracts/exceptions",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_exceptions"
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_execution_graph"
+    },
+    {
+      "route": "/contracts/execution-graph",
+      "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_execution_graph"
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_intake"
+    },
+    {
+      "route": "/contracts/intake",
+      "sourcePath": "src/app/(dashboard)/contracts/intake/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_intake"
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_maintenance"
+    },
+    {
+      "route": "/contracts/maintenance",
+      "sourcePath": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_maintenance"
+    },
+    {
+      "route": "/contracts/new",
+      "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_new"
+    },
+    {
+      "route": "/contracts/obligations",
+      "sourcePath": "src/app/(dashboard)/contracts/obligations/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_obligations"
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_programs"
+    },
+    {
+      "route": "/contracts/programs",
+      "sourcePath": "src/app/(dashboard)/contracts/programs/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_programs"
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_renewals"
+    },
+    {
+      "route": "/contracts/renewals",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_renewals"
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_reports"
+    },
+    {
+      "route": "/contracts/reports",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/page.tsx",
+      "owner": "release",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_reports"
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_review_cadence"
+    },
+    {
+      "route": "/contracts/review-cadence",
+      "sourcePath": "src/app/(dashboard)/contracts/review-cadence/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_review_cadence"
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_review"
+    },
+    {
+      "route": "/contracts/review",
+      "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_review"
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_tasks"
+    },
+    {
+      "route": "/contracts/tasks",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_tasks"
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_watchlists"
+    },
+    {
+      "route": "/contracts/watchlists",
+      "sourcePath": "src/app/(dashboard)/contracts/watchlists/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_watchlists"
+    },
+    {
+      "route": "/cookies",
+      "sourcePath": "src/app/(marketing)/cookies/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "cookies"
+    },
+    {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "counterparties"
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "counterparties_key"
+    },
+    {
+      "route": "/counterparties/[key]",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "counterparties_key"
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "dashboard"
+    },
+    {
+      "route": "/dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "dashboard"
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "dashboard_persona"
+    },
+    {
+      "route": "/dashboard/persona",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "dashboard_persona"
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "decisions"
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "decisions"
+    },
+    {
+      "route": "/decisions",
+      "sourcePath": "src/app/(dashboard)/decisions/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "decisions"
+    },
+    {
+      "route": "/decisions/[id]",
+      "sourcePath": "src/app/(dashboard)/decisions/[id]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "decisions_id"
+    },
+    {
+      "route": "/decisions/compare",
+      "sourcePath": "src/app/(dashboard)/decisions/compare/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "decisions_compare"
+    },
+    {
+      "route": "/decisions/review",
+      "sourcePath": "src/app/(dashboard)/decisions/review/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "decisions_review"
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "external"
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "external"
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "external"
+    },
+    {
+      "route": "/external/[token]",
+      "sourcePath": "src/app/external/[token]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "external_token"
+    },
+    {
+      "route": "/forgot-password",
+      "sourcePath": "src/app/(auth)/forgot-password/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "forgot_password"
+    },
+    {
+      "route": "/login",
+      "sourcePath": "src/app/(auth)/login/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "login"
+    },
+    {
+      "route": "/more",
+      "sourcePath": "src/app/(dashboard)/more/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "more"
+    },
+    {
+      "route": "/more",
+      "sourcePath": "src/app/(dashboard)/more/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "more"
+    },
+    {
+      "route": "/onboarding",
+      "sourcePath": "src/app/(dashboard)/onboarding/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "onboarding"
+    },
+    {
+      "route": "/onboarding",
+      "sourcePath": "src/app/(dashboard)/onboarding/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "onboarding"
+    },
+    {
+      "route": "/onboarding/calibration",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "onboarding_calibration"
+    },
+    {
+      "route": "/onboarding/calibration",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "onboarding_calibration"
+    },
+    {
+      "route": "/privacy",
+      "sourcePath": "src/app/(marketing)/privacy/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "privacy"
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/layout.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "relationship_workspaces"
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "relationship_workspaces"
+    },
+    {
+      "route": "/relationship-workspaces",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "relationship_workspaces"
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
+      "owner": "release",
+      "riskTier": "P3",
+      "diagnosticPrefix": "reports"
+    },
+    {
+      "route": "/reports",
+      "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+      "owner": "release",
+      "riskTier": "P2",
+      "diagnosticPrefix": "reports"
+    },
+    {
+      "route": "/reset-password",
+      "sourcePath": "src/app/(auth)/reset-password/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "reset_password"
+    },
+    {
+      "route": "/security",
+      "sourcePath": "src/app/(marketing)/security/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "security"
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+      "owner": "security",
+      "riskTier": "P3",
+      "diagnosticPrefix": "settings"
+    },
+    {
+      "route": "/settings",
+      "sourcePath": "src/app/(dashboard)/settings/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings"
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_billing"
+    },
+    {
+      "route": "/settings/health",
+      "sourcePath": "src/app/(dashboard)/settings/health/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_health"
+    },
+    {
+      "route": "/settings/operations",
+      "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_operations"
+    },
+    {
+      "route": "/settings/policy",
+      "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_policy"
+    },
+    {
+      "route": "/settings/product",
+      "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_product"
+    },
+    {
+      "route": "/settings/security",
+      "sourcePath": "src/app/(dashboard)/settings/security/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_security"
+    },
+    {
+      "route": "/signup",
+      "sourcePath": "src/app/(auth)/signup/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "signup"
+    },
+    {
+      "route": "/terms",
+      "sourcePath": "src/app/(marketing)/terms/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "terms"
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "work"
+    },
+    {
+      "route": "/work",
+      "sourcePath": "src/app/(dashboard)/work/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "work"
+    },
+    {
+      "route": "action:addContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addcontracttaskartifact"
+    },
+    {
+      "route": "action:addContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addcontracttaskchecklistitem"
+    },
+    {
+      "route": "action:addContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addcontracttaskcomment"
+    },
+    {
+      "route": "action:addContractTaskDependency",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addcontracttaskdependency"
+    },
+    {
+      "route": "action:addFieldComment",
+      "sourcePath": "src/actions/field-comments.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addfieldcomment"
+    },
+    {
+      "route": "action:addFieldCommentForm",
+      "sourcePath": "src/actions/field-comments.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addfieldcommentform"
+    },
+    {
+      "route": "action:addManualField",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addmanualfield"
+    },
+    {
+      "route": "action:addRenewalWorkspaceNote",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addrenewalworkspacenote"
+    },
+    {
+      "route": "action:addRenewalWorkspaceNoteForm",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_addrenewalworkspacenoteform"
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applycontracttemplatepack"
+    },
+    {
+      "route": "action:applyContractTemplatePack",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applycontracttemplatepack"
+    },
+    {
+      "route": "action:applyContractTemplatePackForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applycontracttemplatepackform"
+    },
+    {
+      "route": "action:applyObligationTemplatesToContract",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applyobligationtemplatestocontract"
+    },
+    {
+      "route": "action:applyObligationTemplatesToContractForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applyobligationtemplatestocontractform"
+    },
+    {
+      "route": "action:applyPolicyPackForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applypolicypackform"
+    },
+    {
+      "route": "action:applyProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_applyprogramaction"
+    },
+    {
+      "route": "action:approvals.test",
+      "sourcePath": "src/actions/approvals.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_approvals_test"
+    },
+    {
+      "route": "action:archiveContractAsDuplicateForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_archivecontractasduplicateform"
+    },
+    {
+      "route": "action:assignException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_assignexception"
+    },
+    {
+      "route": "action:assignWorkItemOwner",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_assignworkitemowner"
+    },
+    {
+      "route": "action:auth-actions.test",
+      "sourcePath": "src/actions/auth-actions.test.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_auth_actions_test"
+    },
+    {
+      "route": "action:automation.test",
+      "sourcePath": "src/actions/automation.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_automation_test"
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_autotransitiontasksforapproval"
+    },
+    {
+      "route": "action:autoTransitionTasksForApproval",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_autotransitiontasksforapproval"
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks-automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_autotransitiontasksforfield"
+    },
+    {
+      "route": "action:autoTransitionTasksForField",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_autotransitiontasksforfield"
+    },
+    {
+      "route": "action:batchApproveReadyFields",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_batchapprovereadyfields"
+    },
+    {
+      "route": "action:beginRecalibration",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_beginrecalibration"
+    },
+    {
+      "route": "action:bulkAssignCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkassigncompatiblecontracttasks"
+    },
+    {
+      "route": "action:bulkAssignCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkassigncompatiblev10workitems"
+    },
+    {
+      "route": "action:bulkAssignContractOwners",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkassigncontractowners"
+    },
+    {
+      "route": "action:bulkCompleteCompatibleContractTasks",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkcompletecompatiblecontracttasks"
+    },
+    {
+      "route": "action:bulkCompleteCompatibleV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkcompletecompatiblev10workitems"
+    },
+    {
+      "route": "action:bulkCreateContractsFromFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulkcreatecontractsfromfiles"
+    },
+    {
+      "route": "action:completeProductOnboarding",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completeproductonboarding"
+    },
+    {
+      "route": "action:completeQuestionnaireAcceptRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completequestionnaireacceptrecommendation"
+    },
+    {
+      "route": "action:completeQuestionnaireAcceptRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completequestionnaireacceptrecommendation"
+    },
+    {
+      "route": "action:completeQuestionnaireOpenAdvancedSettings",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completequestionnaireopenadvancedsettings"
+    },
+    {
+      "route": "action:completeQuestionnaireSimplerSetup",
+      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completequestionnairesimplersetup"
+    },
+    {
+      "route": "action:completeQuestionnaireSimplerSetup",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completequestionnairesimplersetup"
+    },
+    {
+      "route": "action:completeWorkItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_completeworkitem"
+    },
+    {
+      "route": "action:contracts-action-scope.test",
+      "sourcePath": "src/actions/contracts-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_contracts_action_scope_test"
+    },
+    {
+      "route": "action:contracts-bulk-import-telemetry.v9.test",
+      "sourcePath": "src/actions/contracts-bulk-import-telemetry.v9.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_contracts_bulk_import_telemetry_v9_test"
+    },
+    {
+      "route": "action:createApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createapprovalpolicyform"
+    },
+    {
+      "route": "action:createCheckpointClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcheckpointclarificationtask"
+    },
+    {
+      "route": "action:createCheckpointClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcheckpointclarificationtaskform"
+    },
+    {
+      "route": "action:createClarificationTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createclarificationtask"
+    },
+    {
+      "route": "action:createClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createclarificationtaskform"
+    },
+    {
+      "route": "action:createContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontract"
+    },
+    {
+      "route": "action:createContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontractnote"
+    },
+    {
+      "route": "action:createContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontractobligation"
+    },
+    {
+      "route": "action:createContractsSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontractssavedview"
+    },
+    {
+      "route": "action:createContractsSavedViewWithFeedback",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontractssavedviewwithfeedback"
+    },
+    {
+      "route": "action:createContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createcontracttask"
+    },
+    {
+      "route": "action:createEvidenceTemplateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createevidencetemplateaction"
+    },
+    {
+      "route": "action:createExceptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createexceptionaction"
+    },
+    {
+      "route": "action:createFieldTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createfieldtemplateform"
+    },
+    {
+      "route": "action:createIntegrationApiKey",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createintegrationapikey"
+    },
+    {
+      "route": "action:createIntegrationApiKeyFromOperationsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createintegrationapikeyfromoperationsform"
+    },
+    {
+      "route": "action:createObligationClarificationTaskForm",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createobligationclarificationtaskform"
+    },
+    {
+      "route": "action:createObligationTemplate",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createobligationtemplate"
+    },
+    {
+      "route": "action:createObligationTemplateForm",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createobligationtemplateform"
+    },
+    {
+      "route": "action:createProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createprogramaction"
+    },
+    {
+      "route": "action:createReminderTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createremindertemplateform"
+    },
+    {
+      "route": "action:createRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createrenewalplaybooktemplateform"
+    },
+    {
+      "route": "action:createReportPackAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createreportpackaction"
+    },
+    {
+      "route": "action:createReportPackSubscriptionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createreportpacksubscriptionaction"
+    },
+    {
+      "route": "action:createRuleGeneratedTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createrulegeneratedtask"
+    },
+    {
+      "route": "action:createSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createsavedview"
+    },
+    {
+      "route": "action:createTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createtaskautomationrule"
+    },
+    {
+      "route": "action:createTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createtaskautomationruleform"
+    },
+    {
+      "route": "action:createTaskTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createtasktemplateform"
+    },
+    {
+      "route": "action:createWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_createwebhooksubscriptionform"
+    },
+    {
+      "route": "action:dashboard-action-scope.test",
+      "sourcePath": "src/actions/dashboard-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_dashboard_action_scope_test"
+    },
+    {
+      "route": "action:delegateContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_delegatecontractapproval"
+    },
+    {
+      "route": "action:delegateContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_delegatecontractapprovalform"
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontract"
+    },
+    {
+      "route": "action:deleteContract",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontract"
+    },
+    {
+      "route": "action:deleteContractNote",
+      "sourcePath": "src/actions/notes.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontractnote"
+    },
+    {
+      "route": "action:deleteContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontractobligation"
+    },
+    {
+      "route": "action:deleteContractTask",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontracttask"
+    },
+    {
+      "route": "action:deleteContractTaskArtifact",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontracttaskartifact"
+    },
+    {
+      "route": "action:deleteContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontracttaskchecklistitem"
+    },
+    {
+      "route": "action:deleteContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletecontracttaskcomment"
+    },
+    {
+      "route": "action:deleteOrphanFileRecordForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deleteorphanfilerecordform"
+    },
+    {
+      "route": "action:deleteSavedView",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_deletesavedview"
+    },
+    {
+      "route": "action:demo-action-scope.test",
+      "sourcePath": "src/actions/demo-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_demo_action_scope_test"
+    },
+    {
+      "route": "action:emitCmdkPaletteOpenedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitcmdkpaletteopenedtelemetry"
+    },
+    {
+      "route": "action:emitCmdkResultSelectedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitcmdkresultselectedtelemetry"
+    },
+    {
+      "route": "action:emitCmdkSearchFailedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitcmdksearchfailedtelemetry"
+    },
+    {
+      "route": "action:emitCmdkZeroResultsTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitcmdkzeroresultstelemetry"
+    },
+    {
+      "route": "action:emitPageLoadMeasuredTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitpageloadmeasuredtelemetry"
+    },
+    {
+      "route": "action:emitReviewSaveNextUsedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitreviewsavenextusedtelemetry"
+    },
+    {
+      "route": "action:emitV10EmptyStateCtaClickedTelemetry",
+      "sourcePath": "src/actions/product-telemetry.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_emitv10emptystatectaclickedtelemetry"
+    },
+    {
+      "route": "action:ensureProgramsSurfaceAccess",
+      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_ensureprogramssurfaceaccess"
+    },
+    {
+      "route": "action:ensureReportPackReportTypeAllowed",
+      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_ensurereportpackreporttypeallowed"
+    },
+    {
+      "route": "action:exceptions-action-scope.test",
+      "sourcePath": "src/actions/exceptions-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_exceptions_action_scope_test"
+    },
+    {
+      "route": "action:exportOnboardingCalibrationSupportJson",
+      "sourcePath": "src/actions/onboarding-calibration-export-chunk-static.test.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_exportonboardingcalibrationsupportjson"
+    },
+    {
+      "route": "action:exportOnboardingCalibrationSupportJson",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_exportonboardingcalibrationsupportjson"
+    },
+    {
+      "route": "action:field-comments-action-scope.test",
+      "sourcePath": "src/actions/field-comments-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_field_comments_action_scope_test"
+    },
+    {
+      "route": "action:forgotPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_forgotpassword"
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_generaterenewaldecisionpacketaction"
+    },
+    {
+      "route": "action:generateRenewalDecisionPacketFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_generaterenewaldecisionpacketformaction"
+    },
+    {
+      "route": "action:getFileDownloadUrl",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_getfiledownloadurl"
+    },
+    {
+      "route": "action:inviteOrgMember",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_inviteorgmember"
+    },
+    {
+      "route": "action:is",
+      "sourcePath": "src/actions/onboarding-calibration-action-registry.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_is"
+    },
+    {
+      "route": "action:listMySessions",
+      "sourcePath": "src/actions/sessions.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_listmysessions"
+    },
+    {
+      "route": "action:logContractChangeEventForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_logcontractchangeeventform"
+    },
+    {
+      "route": "action:maintenance-scope.test",
+      "sourcePath": "src/actions/maintenance-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_maintenance_scope_test"
+    },
+    {
+      "route": "action:markNotificationRead",
+      "sourcePath": "src/actions/field-comments.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_marknotificationread"
+    },
+    {
+      "route": "action:markNotificationReadVoid",
+      "sourcePath": "src/actions/field-comments.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_marknotificationreadvoid"
+    },
+    {
+      "route": "action:mfa.test",
+      "sourcePath": "src/actions/mfa.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_mfa_test"
+    },
+    {
+      "route": "action:notes-action-scope.test",
+      "sourcePath": "src/actions/notes-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_notes_action_scope_test"
+    },
+    {
+      "route": "action:obligations.test",
+      "sourcePath": "src/actions/obligations.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_obligations_test"
+    },
+    {
+      "route": "action:onboarding-audit-inventory.test",
+      "sourcePath": "src/actions/onboarding-audit-inventory.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_audit_inventory_test"
+    },
+    {
+      "route": "action:onboarding-calibration-audit.test",
+      "sourcePath": "src/actions/onboarding-calibration-audit.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_audit_test"
+    },
+    {
+      "route": "action:onboarding-calibration-export.test",
+      "sourcePath": "src/actions/onboarding-calibration-export.test.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_export_test"
+    },
+    {
+      "route": "action:onboarding-calibration-rate-limit.test",
+      "sourcePath": "src/actions/onboarding-calibration-rate-limit.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_rate_limit_test"
+    },
+    {
+      "route": "action:onboarding-calibration-server-invariants.test",
+      "sourcePath": "src/actions/onboarding-calibration-server-invariants.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_server_invariants_test"
+    },
+    {
+      "route": "action:onboarding-calibration-workflow-static.test",
+      "sourcePath": "src/actions/onboarding-calibration-workflow-static.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_workflow_static_test"
+    },
+    {
+      "route": "action:onboarding-calibration-zod-adversarial.test",
+      "sourcePath": "src/actions/onboarding-calibration-zod-adversarial.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_calibration_zod_adversarial_test"
+    },
+    {
+      "route": "action:onboarding-no-org-id-from-client.test",
+      "sourcePath": "src/actions/onboarding-no-org-id-from-client.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_no_org_id_from_client_test"
+    },
+    {
+      "route": "action:onboarding-outbound-scope.test",
+      "sourcePath": "src/actions/onboarding-outbound-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_onboarding_outbound_scope_test"
+    },
+    {
+      "route": "action:previewCalibrationRecommendation",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_previewcalibrationrecommendation"
+    },
+    {
+      "route": "action:processContractChangeEventsForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_processcontractchangeeventsform"
+    },
+    {
+      "route": "action:product-surface-audit-events.test",
+      "sourcePath": "src/actions/product-surface-audit-events.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_product_surface_audit_events_test"
+    },
+    {
+      "route": "action:product-surface-settings.test",
+      "sourcePath": "src/actions/product-surface-settings.test.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_product_surface_settings_test"
+    },
+    {
+      "route": "action:publishProgramAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_publishprogramaction"
+    },
+    {
+      "route": "action:reassignOwnerForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_reassignownerform"
+    },
+    {
+      "route": "action:recordQuestionnaireStarted",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_recordquestionnairestarted"
+    },
+    {
+      "route": "action:removeWatchlistEntry",
+      "sourcePath": "src/actions/watchlists.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_removewatchlistentry"
+    },
+    {
+      "route": "action:renewal-playbook-action-scope.test",
+      "sourcePath": "src/actions/renewal-playbook-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_renewal_playbook_action_scope_test"
+    },
+    {
+      "route": "action:reopenException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_reopenexception"
+    },
+    {
+      "route": "action:reorderContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_reordercontracttaskchecklistitem"
+    },
+    {
+      "route": "action:requestContractApproval",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_requestcontractapproval"
+    },
+    {
+      "route": "action:requestContractApprovalForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_requestcontractapprovalform"
+    },
+    {
+      "route": "action:resendOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_resendorginvite"
+    },
+    {
+      "route": "action:resetPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_resetpassword"
+    },
+    {
+      "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_resetworkspaceproductsurfacedefaultsform"
+    },
+    {
+      "route": "action:resolveException",
+      "sourcePath": "src/actions/exceptions.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_resolveexception"
+    },
+    {
+      "route": "action:revokeIntegrationApiKeyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_revokeintegrationapikeyform"
+    },
+    {
+      "route": "action:revokeOrgInvite",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_revokeorginvite"
+    },
+    {
+      "route": "action:revokeOtherSessions",
+      "sourcePath": "src/actions/sessions.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_revokeothersessions"
+    },
+    {
+      "route": "action:runCorrectionCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_runcorrectioncampaignform"
+    },
+    {
+      "route": "action:runDateBackfillCampaignForm",
+      "sourcePath": "src/actions/maintenance.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_rundatebackfillcampaignform"
+    },
+    {
+      "route": "action:runExtraction",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_runextraction"
+    },
+    {
+      "route": "action:runTaskAutomationRulesForOrg",
+      "sourcePath": "src/actions/automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_runtaskautomationrulesfororg"
+    },
+    {
+      "route": "action:saved-views-scope.test",
+      "sourcePath": "src/actions/saved-views-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_saved_views_scope_test"
+    },
+    {
+      "route": "action:savePolicyRegistryAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_savepolicyregistryaction"
+    },
+    {
+      "route": "action:saveProgramVersionDefinitionAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_saveprogramversiondefinitionaction"
+    },
+    {
+      "route": "action:saveQuestionnaireProgress",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_savequestionnaireprogress"
+    },
+    {
+      "route": "action:saveReportPackAnnotationsAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_savereportpackannotationsaction"
+    },
+    {
+      "route": "action:seedDemoWorkspace",
+      "sourcePath": "src/actions/demo.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_seeddemoworkspace"
+    },
+    {
+      "route": "action:seedRenewalPlaybook",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_seedrenewalplaybook"
+    },
+    {
+      "route": "action:sessions.test",
+      "sourcePath": "src/actions/sessions.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_sessions_test"
+    },
+    {
+      "route": "action:setDashboardQueuePinForm",
+      "sourcePath": "src/actions/dashboard.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setdashboardqueuepinform"
+    },
+    {
+      "route": "action:setIntegrationTokenForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setintegrationtokenform"
+    },
+    {
+      "route": "action:setSavedViewMonthlySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setsavedviewmonthlysummary"
+    },
+    {
+      "route": "action:setSavedViewPinned",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setsavedviewpinned"
+    },
+    {
+      "route": "action:setSavedViewWeeklyRecipients",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setsavedviewweeklyrecipients"
+    },
+    {
+      "route": "action:setSavedViewWeeklySummary",
+      "sourcePath": "src/actions/saved-views.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_setsavedviewweeklysummary"
+    },
+    {
+      "route": "action:settings-action-scope.test",
+      "sourcePath": "src/actions/settings-action-scope.test.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_settings_action_scope_test"
+    },
+    {
+      "route": "action:signIn",
+      "sourcePath": "src/actions/auth.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_signin"
+    },
+    {
+      "route": "action:signOut",
+      "sourcePath": "src/actions/auth.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_signout"
+    },
+    {
+      "route": "action:signUp",
+      "sourcePath": "src/actions/auth.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_signup"
+    },
+    {
+      "route": "action:skipQuestionnaireExplicitMinimal",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_skipquestionnaireexplicitminimal"
+    },
+    {
+      "route": "action:startRecalibrationFromSettingsForm",
+      "sourcePath": "src/actions/onboarding-calibration.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_startrecalibrationfromsettingsform"
+    },
+    {
+      "route": "action:startTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_starttotpenrollment"
+    },
+    {
+      "route": "action:submitEvidenceNoteAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_submitevidencenoteaction"
+    },
+    {
+      "route": "action:supersedeContractFile",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_supersedecontractfile"
+    },
+    {
+      "route": "action:supersedeContractFileForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_supersedecontractfileform"
+    },
+    {
+      "route": "action:tasks.test",
+      "sourcePath": "src/actions/tasks.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_tasks_test"
+    },
+    {
+      "route": "action:toggleApprovalPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_toggleapprovalpolicyform"
+    },
+    {
+      "route": "action:toggleContractNotePin",
+      "sourcePath": "src/actions/notes.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglecontractnotepin"
+    },
+    {
+      "route": "action:toggleContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglecontracttaskchecklistitem"
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplate",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglerenewalplaybooktemplate"
+    },
+    {
+      "route": "action:toggleRenewalPlaybookTemplateForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglerenewalplaybooktemplateform"
+    },
+    {
+      "route": "action:toggleTaskAutomationRule",
+      "sourcePath": "src/actions/automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_toggletaskautomationrule"
+    },
+    {
+      "route": "action:toggleTaskAutomationRuleForm",
+      "sourcePath": "src/actions/automation.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_toggletaskautomationruleform"
+    },
+    {
+      "route": "action:toggleWebhookSubscription",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglewebhooksubscription"
+    },
+    {
+      "route": "action:toggleWebhookSubscriptionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_togglewebhooksubscriptionform"
+    },
+    {
+      "route": "action:unenrollTotpFactor",
+      "sourcePath": "src/actions/mfa.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_unenrolltotpfactor"
+    },
+    {
+      "route": "action:updateContractApprovalStatus",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractapprovalstatus"
+    },
+    {
+      "route": "action:updateContractApprovalStatusForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractapprovalstatusform"
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractexternallink"
+    },
+    {
+      "route": "action:updateContractExternalLink",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractexternallink"
+    },
+    {
+      "route": "action:updateContractExternalLinkForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractexternallinkform"
+    },
+    {
+      "route": "action:updateContractField",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractfield"
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontracthandoffcheckliststatus"
+    },
+    {
+      "route": "action:updateContractHandoffChecklistStatusForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontracthandoffcheckliststatusform"
+    },
+    {
+      "route": "action:updateContractObligation",
+      "sourcePath": "src/actions/obligations.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractobligation"
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractoperationalstate"
+    },
+    {
+      "route": "action:updateContractOperationalState",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractoperationalstate"
+    },
+    {
+      "route": "action:updateContractOperationalStateForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractoperationalstateform"
+    },
+    {
+      "route": "action:updateContractOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractowner"
+    },
+    {
+      "route": "action:updateContractSecondaryOwner",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractsecondaryowner"
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractstatus"
+    },
+    {
+      "route": "action:updateContractStatus",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontractstatus"
+    },
+    {
+      "route": "action:updateContractTaskChecklistItem",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontracttaskchecklistitem"
+    },
+    {
+      "route": "action:updateContractTaskComment",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontracttaskcomment"
+    },
+    {
+      "route": "action:updateContractTaskStatus",
+      "sourcePath": "src/actions/tasks.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updatecontracttaskstatus"
+    },
+    {
+      "route": "action:updateIntegrationApiKeyPolicyForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateintegrationapikeypolicyform"
+    },
+    {
+      "route": "action:updateOrganization",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateorganization"
+    },
+    {
+      "route": "action:updateOrganizationMfaRequired",
+      "sourcePath": "src/actions/mfa.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateorganizationmfarequired"
+    },
+    {
+      "route": "action:updateProductEmailNotificationCategoriesForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateproductemailnotificationcategoriesform"
+    },
+    {
+      "route": "action:updateProfile",
+      "sourcePath": "src/actions/settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateprofile"
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateprogramassignmentoverrideaction"
+    },
+    {
+      "route": "action:updateProgramAssignmentOverrideFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateprogramassignmentoverrideformaction"
+    },
+    {
+      "route": "action:updateProgramRoutingAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateprogramroutingaction"
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updaterenewalcheckpointrenewalstateaction"
+    },
+    {
+      "route": "action:updateRenewalCheckpointRenewalStateFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updaterenewalcheckpointrenewalstateformaction"
+    },
+    {
+      "route": "action:updateRenewalCheckpointStatus",
+      "sourcePath": "src/actions/renewal-playbook.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updaterenewalcheckpointstatus"
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updaterenewalcheckpointworkspaceaction"
+    },
+    {
+      "route": "action:updateRenewalCheckpointWorkspaceFormAction",
+      "sourcePath": "src/actions/v4.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updaterenewalcheckpointworkspaceformaction"
+    },
+    {
+      "route": "action:updateWorkspaceProductSurfaceForm",
+      "sourcePath": "src/actions/product-surface-settings.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_updateworkspaceproductsurfaceform"
+    },
+    {
+      "route": "action:uploadAdditionalFiles",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_uploadadditionalfiles"
+    },
+    {
+      "route": "action:upsertContractHandoffChecklist",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertcontracthandoffchecklist"
+    },
+    {
+      "route": "action:upsertContractHandoffChecklistForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertcontracthandoffchecklistform"
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts-lifecycle.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertcontractintakerequest"
+    },
+    {
+      "route": "action:upsertContractIntakeRequest",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertcontractintakerequest"
+    },
+    {
+      "route": "action:upsertContractIntakeRequestForm",
+      "sourcePath": "src/actions/contracts.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertcontractintakerequestform"
+    },
+    {
+      "route": "action:upsertIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertintegrationconnectionform"
+    },
+    {
+      "route": "action:upsertRenewalScenario",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertrenewalscenario"
+    },
+    {
+      "route": "action:upsertRenewalScenarioForm",
+      "sourcePath": "src/actions/approvals.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertrenewalscenarioform"
+    },
+    {
+      "route": "action:upsertWatchlistEntryForm",
+      "sourcePath": "src/actions/watchlists.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertwatchlistentryform"
+    },
+    {
+      "route": "action:upsertWorkflowSettingsForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_upsertworkflowsettingsform"
+    },
+    {
+      "route": "action:v10-bulk-compatible-work.v10.test",
+      "sourcePath": "src/actions/v10-bulk-compatible-work.v10.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_v10_bulk_compatible_work_v10_test"
+    },
+    {
+      "route": "action:v4-program-surface-guard.test",
+      "sourcePath": "src/actions/v4-program-surface-guard.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_v4_program_surface_guard_test"
+    },
+    {
+      "route": "action:verifyTotpEnrollment",
+      "sourcePath": "src/actions/mfa.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_verifytotpenrollment"
+    },
+    {
+      "route": "action:watchlists-action-scope.test",
+      "sourcePath": "src/actions/watchlists-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_watchlists_action_scope_test"
+    },
+    {
+      "route": "action:workflow-config-sanitize.test",
+      "sourcePath": "src/actions/workflow-config-sanitize.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_workflow_config_sanitize_test"
+    }
+  ]
+}

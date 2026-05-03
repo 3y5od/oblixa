@@ -1,0 +1,432 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "vercelCrons": [
+    {
+      "path": "/api/reminders/send",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/reports/send-summaries",
+      "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/reports/capture-metrics",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/webhooks/dispatch",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/tasks/run-rules",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/contracts/recompute-signals",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/integrations/calendar/sync",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/integrations/crm/sync",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/integrations/refresh-tokens",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/notifications/retry-deliveries",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/maintenance/prune-operational-data",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/stripe-webhook-events",
+      "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/v4/exceptions-detect",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/attestations-issue",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/approvals-sla",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/escalations-dispatch",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/report-packs-generate",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/evidence-followup",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/programs-reconcile",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/cron/v4/renewals-recompute-signals",
+      "schedule": "25 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/campaign-progress",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/simulation-snapshots",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/capacity-forecast-refresh",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/portfolio-risk-recompute",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/external-followup",
+      "schedule": "50 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/decision-sla-monitor",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/recommendation-refresh",
+      "schedule": "40 * * * *"
+    },
+    {
+      "path": "/api/cron/v5/relationship-rollups",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/assurance-checks",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/finding-refresh",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/autopilot-dry-run",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/autopilot-execution",
+      "schedule": "40 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/scorecard-recompute",
+      "schedule": "25 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/health-graph-rollups",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/control-policy-reevaluation",
+      "schedule": "45 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/outcome-effectiveness",
+      "schedule": "50 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/review-board-packet-generation",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/segment-recompute",
+      "schedule": "55 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/playbook-follow-up-assurance",
+      "schedule": "8 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/external-workflow-deadlines",
+      "schedule": "*/25 * * * *"
+    },
+    {
+      "path": "/api/cron/v6/onboarding-calibration-stale",
+      "schedule": "18 4 * * *"
+    },
+    {
+      "path": "/api/cron/v10/read-model-refresh",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/v10/idempotency-cleanup",
+      "schedule": "12 3 * * *"
+    },
+    {
+      "path": "/api/cron/v10/runtime-artifact-cleanup",
+      "schedule": "27 3 * * *"
+    }
+  ],
+  "openApiPaths": [
+    "/api/accounts/{key}/summary",
+    "/api/approvals/sla-metrics",
+    "/api/approvals/{id}/{action}",
+    "/api/assurance/analytics/summary",
+    "/api/assurance/check-runs",
+    "/api/assurance/check-runs/{id}",
+    "/api/assurance/checks/run",
+    "/api/assurance/external-links/{id}/response-pack",
+    "/api/assurance/findings",
+    "/api/assurance/findings/{id}/events",
+    "/api/assurance/findings/{id}/resolve",
+    "/api/assurance/health-graph",
+    "/api/assurance/scorecards",
+    "/api/assurance/scorecards/{id}/snapshots",
+    "/api/assurance/workflows/run-all",
+    "/api/attestations/run",
+    "/api/attestations/{id}/respond",
+    "/api/auth/post-sign-out",
+    "/api/autopilot/rules",
+    "/api/autopilot/rules/{id}",
+    "/api/autopilot/rules/{id}/dry-run",
+    "/api/autopilot/rules/{id}/enable",
+    "/api/autopilot/run-logs/{id}/revert",
+    "/api/autopilot/runs",
+    "/api/campaigns",
+    "/api/campaigns/{id}",
+    "/api/campaigns/{id}/close",
+    "/api/campaigns/{id}/contracts/{rowId}",
+    "/api/campaigns/{id}/export",
+    "/api/campaigns/{id}/pause",
+    "/api/campaigns/{id}/preview",
+    "/api/campaigns/{id}/resume",
+    "/api/campaigns/{id}/rollback",
+    "/api/campaigns/{id}/start",
+    "/api/capacity/forecast",
+    "/api/capacity/reassignment-plan",
+    "/api/command-centers/preferences",
+    "/api/command-palette/contracts",
+    "/api/contracts/recompute-signals",
+    "/api/control-policies",
+    "/api/control-policies/{id}",
+    "/api/control-policies/{id}/assign",
+    "/api/control-policies/{id}/publish",
+    "/api/control-policies/{id}/simulate",
+    "/api/counterparties/{key}/summary",
+    "/api/cron/stripe-webhook-events",
+    "/api/cron/v10/idempotency-cleanup",
+    "/api/cron/v10/read-model-refresh",
+    "/api/cron/v10/runtime-artifact-cleanup",
+    "/api/cron/v4/approvals-sla",
+    "/api/cron/v4/attestations-issue",
+    "/api/cron/v4/escalations-dispatch",
+    "/api/cron/v4/evidence-followup",
+    "/api/cron/v4/exceptions-detect",
+    "/api/cron/v4/programs-reconcile",
+    "/api/cron/v4/renewals-recompute-signals",
+    "/api/cron/v4/report-packs-generate",
+    "/api/cron/v5/campaign-progress",
+    "/api/cron/v5/capacity-forecast-refresh",
+    "/api/cron/v5/decision-sla-monitor",
+    "/api/cron/v5/external-followup",
+    "/api/cron/v5/portfolio-risk-recompute",
+    "/api/cron/v5/recommendation-refresh",
+    "/api/cron/v5/relationship-rollups",
+    "/api/cron/v5/simulation-snapshots",
+    "/api/cron/v6/assurance-checks",
+    "/api/cron/v6/autopilot-dry-run",
+    "/api/cron/v6/autopilot-execution",
+    "/api/cron/v6/control-policy-reevaluation",
+    "/api/cron/v6/external-workflow-deadlines",
+    "/api/cron/v6/finding-refresh",
+    "/api/cron/v6/health-graph-rollups",
+    "/api/cron/v6/onboarding-calibration-stale",
+    "/api/cron/v6/outcome-effectiveness",
+    "/api/cron/v6/playbook-follow-up-assurance",
+    "/api/cron/v6/review-board-packet-generation",
+    "/api/cron/v6/scorecard-recompute",
+    "/api/cron/v6/segment-recompute",
+    "/api/decisions",
+    "/api/decisions/packet-templates",
+    "/api/decisions/packet-templates/{id}",
+    "/api/decisions/{id}",
+    "/api/decisions/{id}/approve",
+    "/api/decisions/{id}/close",
+    "/api/decisions/{id}/context",
+    "/api/decisions/{id}/packet",
+    "/api/decisions/{id}/packet-runs/{runId}",
+    "/api/decisions/{id}/recommend",
+    "/api/decisions/{id}/review",
+    "/api/decisions/{id}/stakeholders",
+    "/api/events",
+    "/api/evidence/export/{contractId}",
+    "/api/evidence/requests",
+    "/api/evidence/submit",
+    "/api/evidence/{id}/{action}",
+    "/api/exceptions",
+    "/api/exceptions/run-detection",
+    "/api/exceptions/{id}/{action}",
+    "/api/export/calendar",
+    "/api/export/calendar/feed",
+    "/api/export/calendar/feed/{token}",
+    "/api/export/contracts",
+    "/api/export/contracts/{jobId}",
+    "/api/export/review-packet",
+    "/api/external-actions/create-link",
+    "/api/external-actions/{token}/participant/workflow-step",
+    "/api/external-actions/{token}/status",
+    "/api/external-actions/{token}/submit",
+    "/api/external-actions/{token}/workflow-step",
+    "/api/extract",
+    "/api/extract/run",
+    "/api/health",
+    "/api/import/contracts",
+    "/api/import/contracts/{jobId}",
+    "/api/integrations/actions/callback",
+    "/api/integrations/calendar/sync",
+    "/api/integrations/crm/sync",
+    "/api/integrations/oauth/callback",
+    "/api/integrations/oauth/start",
+    "/api/integrations/refresh-tokens",
+    "/api/integrations/slack/renewal-summary",
+    "/api/intelligence/decision-queue",
+    "/api/intelligence/portfolio-by-counterparty",
+    "/api/intelligence/portfolio-by-program",
+    "/api/intelligence/portfolio-signals",
+    "/api/intelligence/recommendations",
+    "/api/intelligence/recommendations/{id}",
+    "/api/internal/debugging-sweep",
+    "/api/maintenance/campaigns",
+    "/api/maintenance/campaigns/{id}",
+    "/api/maintenance/campaigns/{id}/preview",
+    "/api/maintenance/campaigns/{id}/rollback",
+    "/api/maintenance/campaigns/{id}/run",
+    "/api/maintenance/prune-operational-data",
+    "/api/me/account",
+    "/api/me/export",
+    "/api/notifications/retry-deliveries",
+    "/api/outcomes/control-effectiveness",
+    "/api/outcomes/interventions",
+    "/api/outcomes/program-effectiveness",
+    "/api/playbooks",
+    "/api/playbooks/runs/{id}",
+    "/api/playbooks/runs/{id}/approve",
+    "/api/playbooks/{id}/preview",
+    "/api/playbooks/{id}/run",
+    "/api/policy/simulate",
+    "/api/product-telemetry/page-load",
+    "/api/program-evolution/experiments",
+    "/api/program-evolution/experiments/{id}/advance-rollout",
+    "/api/program-evolution/experiments/{id}/results",
+    "/api/program-evolution/experiments/{id}/simulate",
+    "/api/programs",
+    "/api/programs/{id}/{action}",
+    "/api/reminders/send",
+    "/api/renewals/portfolio-signals",
+    "/api/renewals/{id}/{action}",
+    "/api/report-packs",
+    "/api/report-packs/{id}/runs",
+    "/api/reports/capture-metrics",
+    "/api/reports/send-summaries",
+    "/api/reports/track/click/{token}",
+    "/api/reports/track/open/{token}",
+    "/api/review-boards",
+    "/api/review-boards/runs/{id}",
+    "/api/review-boards/{id}",
+    "/api/review-boards/{id}/generate-run",
+    "/api/review-boards/{id}/runs",
+    "/api/segments",
+    "/api/segments/{id}/recompute",
+    "/api/settings/step-up",
+    "/api/simulations/run",
+    "/api/simulations/{id}",
+    "/api/simulations/{id}/promote-to-campaign",
+    "/api/stripe/checkout",
+    "/api/stripe/portal",
+    "/api/stripe/webhook",
+    "/api/tasks/from-email",
+    "/api/tasks/from-slack",
+    "/api/tasks/run-rules",
+    "/api/templates/preview",
+    "/api/webhooks/dispatch",
+    "/api/workspace/nav-badges",
+    "/api/workspace/v6-settings"
+  ],
+  "hrefDestinations": [
+    "/",
+    "/assurance",
+    "/assurance/autopilot",
+    "/assurance/control-policies",
+    "/assurance/findings",
+    "/assurance/health-graph",
+    "/assurance/playbooks",
+    "/assurance/program-evolution",
+    "/assurance/review-boards",
+    "/assurance/scorecards",
+    "/assurance/segments",
+    "/campaigns",
+    "/campaigns#simulations",
+    "/campaigns/compare",
+    "/campaigns?status=active",
+    "/campaigns?status=closed",
+    "/campaigns?type=remediation_push",
+    "/contracts",
+    "/contracts/analytics",
+    "/contracts/approvals",
+    "/contracts/collaboration",
+    "/contracts/data-quality",
+    "/contracts/evidence-studio",
+    "/contracts/evidence-studio#live-request-queue",
+    "/contracts/exceptions",
+    "/contracts/exceptions?status=open",
+    "/contracts/execution-graph",
+    "/contracts/intake",
+    "/contracts/maintenance",
+    "/contracts/obligations",
+    "/contracts/programs",
+    "/contracts/renewals",
+    "/contracts/renewals?horizon=renewal_90",
+    "/contracts/reports",
+    "/contracts/review",
+    "/contracts/review-cadence",
+    "/contracts/tasks",
+    "/contracts/watchlists",
+    "/dashboard",
+    "/dashboard/persona",
+    "/decisions",
+    "/decisions/compare",
+    "/decisions/review",
+    "/decisions?queue=active",
+    "/decisions?type=amendment_request",
+    "/decisions?type=policy_exception",
+    "/decisions?type=renewal",
+    "/decisions?type=waiver_exception",
+    "/more",
+    "/relationship-workspaces",
+    "/reports",
+    "/reports#assurance-analytics",
+    "/reports#campaign-drift",
+    "/reports#capacity-forecasts",
+    "/reports#outcome-intelligence",
+    "/reports#portfolio-analytics",
+    "/reports#portfolio-signals",
+    "/settings",
+    "/settings/billing",
+    "/settings/health",
+    "/settings/policy",
+    "/work",
+    "/work?lens=overdue"
+  ]
+}
