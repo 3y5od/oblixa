@@ -46,11 +46,11 @@ describe("api-guards", () => {
       process.env.CRON_SECRET = prev;
     });
 
-    it("401 when CRON_SECRET unset", () => {
+    it("503 when CRON_SECRET unset (misconfiguration, not caller fault)", () => {
       delete process.env.CRON_SECRET;
       const req = new Request("https://x.test/cron", { headers: { authorization: "Bearer x" } });
       const res = requireCronAuthorized(req);
-      expect(res?.status).toBe(401);
+      expect(res?.status).toBe(503);
     });
 
     it("401 when secret wrong", () => {

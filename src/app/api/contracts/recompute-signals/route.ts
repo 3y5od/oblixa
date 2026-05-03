@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   if (cronDenied) {
     pingCronHealthcheck("contracts/recompute-signals", {
       ok: false,
-      status: 401,
+      status: cronDenied.status,
       durationMs: Date.now() - startedAt,
     });
     return cronDenied;

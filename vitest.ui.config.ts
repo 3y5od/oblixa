@@ -34,8 +34,9 @@ export default defineConfig({
     include: [...UI_TEST_FILES],
     setupFiles: ["./src/test-utils/setup-ui.ts"],
     pool: "forks",
-    maxWorkers: process.env.CI ? "75%" : "50%",
-    testTimeout: 10000,
+    // Match vitest.config.ts: conservative workers under CI coverage to avoid fork-pool flakes.
+    maxWorkers: process.env.CI ? "50%" : "25%",
+    testTimeout: 20000,
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage/ui",

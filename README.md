@@ -93,5 +93,6 @@ public/      Static assets and well-known files
 3. Add the required environment variables from `.env.example`.
 4. Deploy.
 5. Update Supabase auth redirects, Stripe webhooks, and any cron/callback destinations to match the deployed URL.
+6. For scheduled routes and GitHub cron canary secrets, follow [docs/ops-cron-production-assurance.md](docs/ops-cron-production-assurance.md).
 
 Contributors touching dashboard composition, navigation, command palette behavior, or workspace visibility should align with the team's surface conventions and run `npm run check:v8-suite`.

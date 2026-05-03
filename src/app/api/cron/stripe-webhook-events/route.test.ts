@@ -18,15 +18,15 @@ describe("GET /api/cron/stripe-webhook-events", () => {
     rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
-  it("returns 500 when CRON_SECRET is missing", async () => {
+  it("returns 503 when CRON_SECRET is missing", async () => {
     delete process.env.CRON_SECRET;
     const { GET } = await import("@/app/api/cron/stripe-webhook-events/route");
     const req = new Request("http://localhost:3000/api/cron/stripe-webhook-events");
 
     const res = await GET(req);
     const body = await res.json();
-    expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Server misconfigured: CRON_SECRET is not set" });
+    expect(res.status).toBe(503);
+    expect(body.code).toBe("cron_secret_missing");
   });
 
   it("returns 401 when auth header is missing", async () => {
@@ -37,7 +37,7 @@ describe("GET /api/cron/stripe-webhook-events", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "cron_unauthorized" });
   });
 
   it("returns 429 when rate limited", async () => {

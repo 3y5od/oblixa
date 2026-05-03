@@ -12,6 +12,11 @@ const { loadEnvConfig } = nextEnv;
 loadEnvConfig(cwd);
 const traceId = process.env.COMPREHENSIVE_PASS_TRACE_ID?.trim() || `cp_${Date.now()}`;
 
+/** Unsigned cron probe: 401 bad caller, or 503 when CRON_SECRET is unset (misconfigured). */
+function isCronUnsignedRejectStatus(status) {
+  return status === 401 || status === 503;
+}
+
 function env(name) {
   return (process.env[name] ?? "").trim();
 }
@@ -92,27 +97,27 @@ async function resolveReachableBaseUrl() {
     firstErr = e;
   }
 
-  if (firstRes && firstRes.status === 401) {
+  if (firstRes && isCronUnsignedRejectStatus(firstRes.status)) {
     return configured;
   }
 
   if (
     secondary &&
     secondary !== configured &&
-    (firstErr || !firstRes || firstRes.status !== 401)
+    (firstErr || !firstRes || !isCronUnsignedRejectStatus(firstRes.status))
   ) {
     warn(
       `COMPREHENSIVE_PASS_BASE_URL=${configured} cron probe ${
-        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes.status} (expected 401 unsigned)`
+        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes.status} (expected 401/503 unsigned)`
       }; retrying COMPREHENSIVE_PASS_SECONDARY_BASE_URL=${secondary}`
     );
     try {
       const secRes = await probeCronUnsigned(secondary);
-      if (secRes.status === 401) {
+      if (isCronUnsignedRejectStatus(secRes.status)) {
         return secondary;
       }
       warn(
-        `COMPREHENSIVE_PASS_SECONDARY_BASE_URL probe returned ${secRes.status} (expected 401 unsigned); continuing fallbacks`
+        `COMPREHENSIVE_PASS_SECONDARY_BASE_URL probe returned ${secRes.status} (expected 401/503 unsigned); continuing fallbacks`
       );
     } catch (e) {
       warn(`COMPREHENSIVE_PASS_SECONDARY_BASE_URL probe failed: ${String(e?.message || e)}`);
@@ -123,19 +128,19 @@ async function resolveReachableBaseUrl() {
     publicApp &&
     publicApp !== configured &&
     isLocalhostUrl(publicApp) &&
-    (firstErr || !firstRes || firstRes.status !== 401)
+    (firstErr || !firstRes || !isCronUnsignedRejectStatus(firstRes.status))
   ) {
     warn(
       `COMPREHENSIVE_PASS_BASE_URL=${configured} cron probe ${
-        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes.status} (expected 401 unsigned)`
+        firstErr ? `failed (${String(firstErr?.message || firstErr)})` : `returned ${firstRes.status} (expected 401/503 unsigned)`
       }; retrying NEXT_PUBLIC_APP_URL=${publicApp}`
     );
     try {
       const second = await probeCronUnsigned(publicApp);
-      if (second.status === 401) {
+      if (isCronUnsignedRejectStatus(second.status)) {
         return publicApp;
       }
-      warn(`NEXT_PUBLIC_APP_URL probe returned ${second.status} (expected 401 unsigned); keeping configured base for downstream errors`);
+      warn(`NEXT_PUBLIC_APP_URL probe returned ${second.status} (expected 401/503 unsigned); keeping configured base for downstream errors`);
     } catch (e) {
       warn(`NEXT_PUBLIC_APP_URL probe failed: ${String(e?.message || e)}`);
     }
@@ -144,7 +149,7 @@ async function resolveReachableBaseUrl() {
   // If the configured deployment returns HTML 5xx (preview/WAF) instead of cron 401,
   // fall back to a local `next start` so `npm run check:comprehensive-pass` and
   // autodiscovered union runs succeed without mutating COMPREHENSIVE_PASS_BASE_URL.
-  if (firstRes && firstRes.status !== 401) {
+  if (firstRes && !isCronUnsignedRejectStatus(firstRes.status)) {
     const snippet = (await firstRes.clone().text().catch(() => "")).slice(0, 500);
     const looksLikeHtmlError = /<!DOCTYPE html|<html/i.test(snippet);
     if (firstRes.status >= 500 && looksLikeHtmlError) {
@@ -159,7 +164,7 @@ async function resolveReachableBaseUrl() {
       for (const localBase of localCandidates) {
         try {
           const lr = await probeCronUnsigned(localBase);
-          if (lr.status === 401) {
+          if (isCronUnsignedRejectStatus(lr.status)) {
             warn(
               `cron probe using ${localBase} (configured URL returned ${firstRes.status} HTML error; set COMPREHENSIVE_PASS_BASE_URL to a healthy target for production gates)`
             );
@@ -171,8 +176,8 @@ async function resolveReachableBaseUrl() {
       }
       throw new Error(
         `COMPREHENSIVE_PASS_BASE_URL=${configured} returned ${firstRes.status} (HTML error page). ` +
-          `Start Next locally (\`npm run build && npm run start\`) so ${probeRoute} returns 401 without auth, ` +
-          `or point COMPREHENSIVE_PASS_BASE_URL at a deployment where unsigned cron routes return 401.`
+          `Start Next locally (\`npm run build && npm run start\`) so ${probeRoute} returns 401/503 without auth, ` +
+          `or point COMPREHENSIVE_PASS_BASE_URL at a deployment where unsigned cron routes reject with 401 or 503.`
       );
     }
   }
@@ -247,14 +252,14 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
       warn(`${route}: route unavailable on target base URL; skipping cron route check`);
       continue;
     }
-    if (unsigned.status !== 401) {
+    if (!isCronUnsignedRejectStatus(unsigned.status)) {
       const snippet = (await unsigned.text().catch(() => "")).slice(0, 240).replace(/\s+/g, " ");
       const hint =
         unsigned.status === 500 && /<!DOCTYPE html|<html/i.test(snippet)
           ? " (HTML error page: target may be a protected/stale deployment; run `next start` locally and set NEXT_PUBLIC_APP_URL to that http://127.0.0.1:PORT so resolveReachableBaseUrl can fall back, or fix COMPREHENSIVE_PASS_BASE_URL.)"
           : "";
       throw new Error(
-        `${route}: expected unsigned 401, got ${unsigned.status}${snippet ? ` body=${snippet}` : ""}${hint}`
+        `${route}: expected unsigned 401 or 503, got ${unsigned.status}${snippet ? ` body=${snippet}` : ""}${hint}`
       );
     }
     ok(`${route} rejects unsigned access`);

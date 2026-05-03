@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-03T02:33:10.953Z",
+  "generatedAt": "2026-05-03T16:48:45.698Z",
   "verifyPipeline": [
     "check:migrations:strict",
     "check:v10-migration-smoke:strict",
@@ -1121,6 +1121,7 @@
     "scripts/v8-inventory-report.mjs",
     "scripts/validate-debugging-sweep-closure.mjs",
     "scripts/validate-debugging-sweep-provenance.mjs",
+    "scripts/validate-github-workflows-yaml.mjs",
     "scripts/validate-mta-sts-bimi.mjs",
     "scripts/verify-cosign-artifact.mjs",
     "scripts/verify-ofac-sample-hash.mjs",
@@ -1731,6 +1732,7 @@
     "check:v9-suite",
     "check:vendor-geo-blocklist",
     "check:vercel-cron",
+    "check:vercel-cron-canary-parity",
     "check:wasm-csp-thirdparty",
     "check:web3-surface-absent",
     "check:workflow-destinations",
@@ -1973,6 +1975,7 @@
     "scripts/lib/scheduler.mjs",
     "scripts/lib/security-control-coverage-rows.mjs",
     "scripts/lib/security-program-checks.mjs",
+    "scripts/lib/security-report-paths.mjs",
     "scripts/lib/timing.mjs",
     "scripts/lib/v10-required-indexes.mjs"
   ],
@@ -2175,7 +2178,9 @@
     "supabase/migrations/059_security_program_timeout_guidance.sql",
     "supabase/migrations/060_security_program_rls_wave_marker.sql",
     "supabase/migrations/061_org_mfa_required.sql",
-    "supabase/migrations/062_profile_legal_hold.sql"
+    "supabase/migrations/062_profile_legal_hold.sql",
+    "supabase/migrations/063_contract_operational_dates_security_invoker.sql",
+    "supabase/migrations/064_public_auth_users_fk_on_delete.sql"
   ],
   "appRouterPageFiles": [
     "src/app/(auth)/forgot-password/page.tsx",
@@ -2490,15 +2495,15 @@
     "srcLibInternalTestFiles": 26,
     "scriptsCheckMjsFiles": 285,
     "scriptsTopLevelSmokeTestMjsFiles": 5,
-    "scriptsTopLevelNonCheckMjsFiles": 120,
+    "scriptsTopLevelNonCheckMjsFiles": 121,
     "scriptsPipelineMjsFiles": 10,
     "debuggingSweepLibFiles": 80,
     "apiFolderSupportTsFiles": 142,
     "actionsAllTsFiles": 63,
-    "packageJsonScriptsKeys": 563,
+    "packageJsonScriptsKeys": 564,
     "githubWorkflowYamlFiles": 37,
     "componentsUiFiles": 20,
-    "scriptsLibMjsFiles": 19,
+    "scriptsLibMjsFiles": 20,
     "e2ePlaywrightSpecFiles": 80,
     "productSurfaceTestFiles": 72,
     "serverActionModules": 24

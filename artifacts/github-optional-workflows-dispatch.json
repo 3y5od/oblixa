@@ -1,0 +1,240 @@
+{
+  "_documentation": "Optional workflows (primarily workflow_dispatch and/or schedule). Prove locally where a script exists; otherwise validate YAML + pins via npm run check:github-workflows-yaml and check:qa-workflow-fleet.",
+  "workflows": [
+    {
+      "file": "qa-code-maximal.yml",
+      "triggers": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    },
+    {
+      "file": "qa-max-nightly.yml",
+      "triggers": [
+        "schedule",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-merge-queue-canary.yml",
+      "triggers": [
+        "merge_group",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-post-merge-smoke.yml",
+      "triggers": [
+        "push",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-release-candidate.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-visual-update.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-macos-a11y-optional.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ],
+      "runner": "macos"
+    },
+    {
+      "file": "qa-windows-edge-optional.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ],
+      "runner": "windows"
+    },
+    {
+      "file": "qa-android-webview.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-ios-wkwebview.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-ipv6-smoke.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-k8s-smoke.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-helm-lint.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-terraform-plan.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-cdn-purge.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-dast-zap.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-external-stubs.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-game-day.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-ofac-hash-verify.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-secrets-rotation-drill.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "qa-secrets-history-scan-optional.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "secretlint-optional.yml",
+      "triggers": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "cron-canary.yml",
+      "triggers": [
+        "schedule"
+      ]
+    },
+    {
+      "file": "slo-monitor.yml",
+      "triggers": [
+        "schedule"
+      ]
+    },
+    {
+      "file": "security-audit-weekly.yml",
+      "triggers": [
+        "schedule"
+      ]
+    },
+    {
+      "file": "qa-stryker-monthly.yml",
+      "triggers": [
+        "schedule"
+      ]
+    },
+    {
+      "file": "openssf-scorecard.yml",
+      "triggers": [
+        "schedule"
+      ]
+    },
+    {
+      "file": "semgrep-sarif.yml",
+      "triggers": [
+        "push",
+        "schedule",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": "trivy-fs.yml",
+      "triggers": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    },
+    {
+      "file": "reusable-qa-ultimate.yml",
+      "triggers": [
+        "workflow_call"
+      ]
+    },
+    {
+      "file": "qa-taxonomy-closure.yml",
+      "triggers": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    }
+  ],
+  "allWorkflowFiles": [
+    "ci.yml",
+    "codeql.yml",
+    "cron-canary.yml",
+    "dependency-review.yml",
+    "openssf-scorecard.yml",
+    "pr-process-stub.yml",
+    "qa-android-webview.yml",
+    "qa-cdn-purge.yml",
+    "qa-code-maximal.yml",
+    "qa-dast-zap.yml",
+    "qa-debugging-sweep.yml",
+    "qa-external-stubs.yml",
+    "qa-game-day.yml",
+    "qa-helm-lint.yml",
+    "qa-ios-wkwebview.yml",
+    "qa-ipv6-smoke.yml",
+    "qa-k8s-smoke.yml",
+    "qa-macos-a11y-optional.yml",
+    "qa-max-nightly.yml",
+    "qa-merge-queue-canary.yml",
+    "qa-ofac-hash-verify.yml",
+    "qa-post-merge-smoke.yml",
+    "qa-release-candidate.yml",
+    "qa-secrets-history-scan-optional.yml",
+    "qa-secrets-rotation-drill.yml",
+    "qa-stryker-monthly.yml",
+    "qa-taxonomy-closure.yml",
+    "qa-terraform-plan.yml",
+    "qa-visual-update.yml",
+    "qa-windows-edge-optional.yml",
+    "refinement-deletion-notice.yml",
+    "reusable-qa-ultimate.yml",
+    "secretlint-optional.yml",
+    "security-audit-weekly.yml",
+    "semgrep-sarif.yml",
+    "slo-monitor.yml",
+    "trivy-fs.yml"
+  ]
+}

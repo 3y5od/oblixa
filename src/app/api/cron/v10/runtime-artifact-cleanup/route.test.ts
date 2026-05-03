@@ -101,6 +101,6 @@ describe("GET /api/cron/v10/runtime-artifact-cleanup", () => {
     const response = await GET(new Request("https://oblixa.test/api/cron/v10/runtime-artifact-cleanup"));
 
     expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
+    expect(await response.json()).toMatchObject({ error: "Unauthorized", code: "cron_unauthorized" });
   });
 });

@@ -65,10 +65,10 @@ jobs:
           set -euo pipefail
           base="${COMPREHENSIVE_PASS_BASE_URL%/}"
           probe=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 20 "${base}/api/reminders/send" || echo "000")
-          if [ "$probe" = "401" ]; then
+          if [ "$probe" = "401" ] || [ "$probe" = "503" ]; then
             npm run check:cron-canary
           else
-            echo "WARN staging cron probe returned HTTP ${probe} (expected 401); building local Next for cron-canary fallback"
+            echo "WARN staging cron probe returned HTTP ${probe} (expected 401 or 503); building local Next for cron-canary fallback"
             npm run build
             PORT=3000 npm run start &
             start_pid=$!
@@ -76,11 +76,11 @@ jobs:
             code="000"
             for _ in $(seq 1 90); do
               code=$(curl -g -s -o /dev/null -w "%{http_code}" --max-time 8 http://127.0.0.1:3000/api/reminders/send || echo "000")
-              if [ "$code" = "401" ]; then break; fi
+              if [ "$code" = "401" ] || [ "$code" = "503" ]; then break; fi
               sleep 2
             done
-            if [ "$code" != "401" ]; then
-              echo "::error::Local next start never returned HTTP 401 for unsigned GET /api/reminders/send (last status ${code})"
+            if [ "$code" != "401" ] && [ "$code" != "503" ]; then
+              echo "::error::Local next start never returned HTTP 401/503 for unsigned GET /api/reminders/send (last status ${code})"
               exit 1
             fi
             export NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000

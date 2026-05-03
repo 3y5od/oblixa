@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+There should be no dependency on documentation for anything. Documentation is permitted, but should only be used as reference.

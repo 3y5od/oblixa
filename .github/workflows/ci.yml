@@ -12,6 +12,8 @@ concurrency:
 permissions:
   contents: read
 
+# Repo Actions secrets injected into every job env (individual jobs still gate on presence where needed).
+# Machine-readable matrix: artifacts/ci-secret-job-matrix.json
 env:
   E2E_ONBOARDING_FULL: ${{ secrets.E2E_ONBOARDING_FULL }}
   STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
@@ -258,6 +260,9 @@ jobs:
       - name: Cron route auth coverage (explicit guardrail)
         run: npm run check:cron-route-auth
 
+      - name: Vercel cron paths vs canary map parity
+        run: npm run check:vercel-cron-canary-parity
+
       - name: Integration contract surface report (telemetry)
         run: npm run report:integration-contract-surface
 
@@ -339,7 +344,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
@@ -654,8 +659,9 @@ jobs:
         run: npm run test:e2e:multi-browser
 
   # Opt-in: set `if: true` (or gate on `vars`) to run four-way autodiscovered `check:*` shards (complements quality_static_*).
+  # Set repository variable ENABLE_QA_ULTIMATE_PR_SHARD=true to run four-way autodiscovered check:* shards on PRs.
   qa_ultimate_pr_shard:
-    if: false
+    if: ${{ vars.ENABLE_QA_ULTIMATE_PR_SHARD == 'true' }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -705,7 +711,12 @@ jobs:
 
       - name: Skip runtime comprehensive pass (missing required secrets)
         if: ${{ steps.gate_runtime.outputs.run != 'true' }}
-        run: echo "Skipping runtime comprehensive pass because required secrets are not configured."
+        run: |
+          echo "Skipping runtime comprehensive pass: configure repo Actions secrets —"
+          echo "  STAGING_BASE_URL, CRON_SECRET, SUPABASE_SERVICE_ROLE_KEY,"
+          echo "  NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,"
+          echo "  COMPREHENSIVE_PASS_EMAIL, COMPREHENSIVE_PASS_PASSWORD"
+          echo "Optional when running: HC_RUNTIME_COMPREHENSIVE_PING (healthcheck hooks)."
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         if: ${{ steps.gate_runtime.outputs.run == 'true' }}

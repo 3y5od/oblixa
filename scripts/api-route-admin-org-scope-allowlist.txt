@@ -6,3 +6,7 @@
 # when OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID is set; access is gated by env flag, bearer secret,
 # rate limit, and IP allowlist (no session org context on this internal diagnostics surface).
 internal/debugging-sweep/route.ts
+# Cron batch jobs: CRON_SECRET-gated; service role scans all organizations by design (no single org context).
+integrations/refresh-tokens/route.ts
+maintenance/prune-operational-data/route.ts
+tasks/run-rules/route.ts

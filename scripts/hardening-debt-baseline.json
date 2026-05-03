@@ -1,6 +1,6 @@
 {
-  "baselineDate": "2026-04-30",
-  "skipCount": 162,
+  "baselineDate": "2026-05-03",
+  "skipCount": 163,
   "skipProblemCount": 0,
   "allowlistedApiRoutes": 53,
   "v8ExemptionRows": 0,

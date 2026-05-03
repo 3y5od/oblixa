@@ -1,0 +1,32 @@
+{
+  "_documentation": "Workflows under .github/workflows that include pull_request (directly or under branches) against mainline. Use for parity reviews with local npm scripts and hosted-only exceptions.",
+  "pullRequestWorkflows": [
+    {
+      "file": "ci.yml",
+      "localMirror": "npm run verify, npm run test:coverage, npm run pipeline:ci:static, npm run pipeline:surface:suite (see ci.yml jobs)"
+    },
+    {
+      "file": "codeql.yml",
+      "hostedOnly": true,
+      "note": "CodeQL analysis runs on GitHub runners; local mirror is semgrep + npm audit in quality_security / quality_static_security"
+    },
+    {
+      "file": "dependency-review.yml",
+      "hostedOnly": true,
+      "note": "Requires Dependency graph; private repos may need GHAS. Complements npm audit in CI."
+    },
+    {
+      "file": "pr-process-stub.yml",
+      "localMirror": "noop — documentation only"
+    },
+    {
+      "file": "refinement-deletion-notice.yml",
+      "hostedOnly": true,
+      "note": "PR path filter for refinement deletion policy"
+    },
+    {
+      "file": "qa-debugging-sweep.yml",
+      "localMirror": "npm run check:debugging-sweep, validate:* debugging sweep scripts when paths match"
+    }
+  ]
+}

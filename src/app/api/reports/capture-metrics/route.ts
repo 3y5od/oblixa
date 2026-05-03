@@ -1,24 +1,19 @@
 import { NextResponse } from "next/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 
-function isAuthorized(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) return false;
-  return authorizeCronRequest(request, cronSecret);
-}
-
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  if (!isAuthorized(request)) {
+  const deny = gateCronRequest(request);
+  if (deny) {
     pingCronHealthcheck("reports/capture-metrics", {
       ok: false,
-      status: 401,
+      status: deny.status,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
 
   const rate = await rateLimitCheck("cron:reports:capture-metrics", RATE_LIMITS.reportsCaptureMetricsCron);

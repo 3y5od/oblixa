@@ -1,6 +1,8 @@
 name: Dependency review
 
-# Policy template for orgs: see artifacts/dependency-review-policy.json (fail-on-severity wiring is org-specific).
+# Policy: artifacts/dependency-review-policy.json. Requires Dependency graph on the repo; private repos need
+# GitHub Advanced Security for full API support — see https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review
+# Permissions: contents:read only (add pull-requests:write only if enabling comment-summary-in-pr).
 
 on:
   pull_request:
@@ -8,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   dependency-review:
@@ -19,3 +20,5 @@ jobs:
       - uses: actions/dependency-review-action@f5b971718edcbb31275a1db40004592335c0e031
         with:
           fail-on-severity: high
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 300

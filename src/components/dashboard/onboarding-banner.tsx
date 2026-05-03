@@ -84,12 +84,17 @@ export function OnboardingBanner({
   function dismiss() {
     setError(null);
     startTransition(async () => {
-      const result = await completeProductOnboarding();
-      if (result && "error" in result && result.error) {
-        setError(describeRecoverableMutationError(result.error));
-        return;
+      try {
+        const result = await completeProductOnboarding();
+        if (result && "error" in result && result.error) {
+          setError(describeRecoverableMutationError(result.error));
+          return;
+        }
+        setDismissed(true);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(describeRecoverableMutationError(message));
       }
-      setDismissed(true);
     });
   }
 

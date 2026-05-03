@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 describe("GET /api/integrations/crm/sync", () => {
-  it("returns 401 when cron auth is missing", async () => {
+  it("returns 503 when cron auth env is missing", async () => {
     delete process.env.CRON_SECRET;
     const { GET } = await import("@/app/api/integrations/crm/sync/route");
     const req = new Request("http://localhost:3000/api/integrations/crm/sync");
     const res = await GET(req);
     const body = await res.json();
-    expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(res.status).toBe(503);
+    expect(body.code).toBe("cron_secret_missing");
   });
 });
 

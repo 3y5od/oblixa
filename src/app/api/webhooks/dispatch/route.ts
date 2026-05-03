@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
@@ -51,24 +51,16 @@ async function processWithConcurrency<T>(
 
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) {
+  const deny = gateCronRequest(request);
+  if (deny) {
+    const reason = deny.status === 503 ? "cron_secret_missing" : "unauthorized";
     pingCronHealthcheck("webhooks/dispatch", {
       ok: false,
-      status: 500,
-      reason: "cron_secret_missing",
+      status: deny.status,
+      reason,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json({ error: "CRON_SECRET missing" }, { status: 500 });
-  }
-  if (!authorizeCronRequest(request, cronSecret)) {
-    pingCronHealthcheck("webhooks/dispatch", {
-      ok: false,
-      status: 401,
-      reason: "unauthorized",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
   if (isKillWebhookDispatch()) {
     pingCronHealthcheck("webhooks/dispatch", {
@@ -347,10 +339,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret || !authorizeCronRequest(request, cronSecret)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const deny = gateCronRequest(request);
+  if (deny) return deny;
   const admin = await createAdminClient();
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;

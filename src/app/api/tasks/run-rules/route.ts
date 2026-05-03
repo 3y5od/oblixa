@@ -1,26 +1,21 @@
 import { NextResponse } from "next/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { createAdminClient } from "@/lib/supabase/server";
 import { runTaskAutomationRulesForOrg } from "@/lib/tasks/run-task-automation-rules-for-org";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
-function isAuthorized(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) return false;
-  return authorizeCronRequest(request, cronSecret);
-}
-
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  if (!isAuthorized(request)) {
+  const deny = gateCronRequest(request);
+  if (deny) {
     pingCronHealthcheck("tasks/run-rules", {
       ok: false,
-      status: 401,
+      status: deny.status,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
   const cronRate = await rateLimitCheck("cron:tasks:run-rules", RATE_LIMITS.tasksRunRulesCron);
   if (!cronRate.ok) {

@@ -31,14 +31,14 @@ describe("GET /api/webhooks/dispatch", () => {
     rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
-  it("returns 500 when CRON_SECRET is missing", async () => {
+  it("returns 503 when CRON_SECRET is missing", async () => {
     delete process.env.CRON_SECRET;
     const { GET } = await import("@/app/api/webhooks/dispatch/route");
     const req = new Request("http://localhost:3000/api/webhooks/dispatch");
     const res = await GET(req);
     const body = await res.json();
-    expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "CRON_SECRET missing" });
+    expect(res.status).toBe(503);
+    expect(body.code).toBe("cron_secret_missing");
   });
 
   it("returns 401 when authorization header is missing", async () => {
@@ -49,7 +49,7 @@ describe("GET /api/webhooks/dispatch", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "cron_unauthorized" });
   });
 
   it("returns diagnostics payload when authorized with eventId", async () => {
@@ -92,7 +92,7 @@ describe("POST /api/webhooks/dispatch", () => {
     rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
-  it("returns 401 when CRON_SECRET is missing", async () => {
+  it("returns 503 when CRON_SECRET is missing", async () => {
     delete process.env.CRON_SECRET;
     const { POST } = await import("@/app/api/webhooks/dispatch/route");
     const req = new Request("http://localhost:3000/api/webhooks/dispatch", {
@@ -102,8 +102,8 @@ describe("POST /api/webhooks/dispatch", () => {
     });
     const res = await POST(req);
     const body = await res.json();
-    expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(res.status).toBe(503);
+    expect(body.code).toBe("cron_secret_missing");
   });
 
   it("returns 400 for unsupported actions even when authorized", async () => {

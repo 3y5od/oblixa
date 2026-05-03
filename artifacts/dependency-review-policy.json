@@ -1,4 +1,5 @@
 {
   "failOnSeverity": "high",
-  "comment": "Wire actions/dependency-review-action fail-on-severity when org enables; workflow may stay permissive until policy is adopted."
+  "comment": "Wire actions/dependency-review-action fail-on-severity when org enables; workflow may stay permissive until policy is adopted.",
+  "dependencyGraphNote": "Private repos need Dependency graph + GitHub Advanced Security for dependency-review API; otherwise use warn-only in workflow or enable org features."
 }

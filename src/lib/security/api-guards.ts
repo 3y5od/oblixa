@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { OrgRole } from "@/lib/types";
 import { getApiAuthContext, type AuthContext } from "@/lib/v4/api-auth";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 
 export const API_PRIVATE_NO_STORE_HEADERS = {
@@ -22,16 +22,9 @@ export async function requireSessionApiContext(): Promise<
   return ctx;
 }
 
-/** JSON 401 when CRON_SECRET is missing or request is not authorized (Bearer or x-cron-secret). */
+/** JSON 503 when CRON_SECRET missing; JSON 401 when not authorized (Bearer or x-cron-secret). */
 export function requireCronAuthorized(request: Request): NextResponse | null {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS });
-  }
-  if (!authorizeCronRequest(request, cronSecret)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS });
-  }
-  return null;
+  return gateCronRequest(request, { headers: API_PRIVATE_NO_STORE_HEADERS });
 }
 
 /** JSON 401 when env secret missing or Authorization Bearer mismatch. */

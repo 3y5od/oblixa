@@ -1,6 +1,7 @@
 name: PR process stub
 
-# Phase 14 — wire Danger, label bots, or required reviewers in org settings; this file documents intent without blocking PRs.
+# Phase 14 — placeholder for Danger, label bots, or required reviewers in org settings.
+# This job stays green so the workflow does not appear cancelled when branch protection lists it.
 
 on:
   pull_request:
@@ -11,11 +12,11 @@ permissions:
   pull-requests: read
 
 jobs:
-  migrations_and_generated_hints:
-    if: false
+  noop_documentation:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - run: |
-          echo "Optional: fail if migrations/ without label; e2e/generated touched without generate:*"
-          echo "See CODEOWNERS and branch protection for enforcement."
+      - name: Stub (see workflow header)
+        run: |
+          echo "PR process stub: optional migrations/generated/label gates live in org automation or branch protection."
+          echo "See CODEOWNERS and ci.yml for enforced checks."

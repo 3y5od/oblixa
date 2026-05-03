@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { createAdminClient } from "@/lib/supabase/server";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 
 const DEFAULT_DELIVERY_RETENTION_DAYS = 120;
 const DEFAULT_AUDIT_RETENTION_DAYS = 180;
-
-function isAuthorized(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) return false;
-  return authorizeCronRequest(request, cronSecret);
-}
 
 function cutoffIso(days: number): string {
   const safe = Math.max(7, Math.min(3650, Math.trunc(days)));
@@ -20,13 +14,14 @@ function cutoffIso(days: number): string {
 
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  if (!isAuthorized(request)) {
+  const deny = gateCronRequest(request);
+  if (deny) {
     pingCronHealthcheck("maintenance/prune-operational-data", {
       ok: false,
-      status: 401,
+      status: deny.status,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
 
   const cronRate = await rateLimitCheck(

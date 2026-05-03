@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
@@ -14,42 +14,22 @@ const RETENTION_DAYS = 90;
 const DELETE_BATCH_SIZE = 500;
 const MAX_DELETE_ROWS_PER_RUN = 5_000;
 
-function authorizeCron(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) {
-    return false;
-  }
-  return authorizeCronRequest(request, cronSecret);
-}
-
 /**
  * GET — periodic cleanup of processed Stripe webhook event ids (same auth as /api/reminders/send).
  * Schedule in Vercel Cron or external ping with Authorization: Bearer CRON_SECRET.
  */
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) {
+  const deny = gateCronRequest(request);
+  if (deny) {
+    const reason = deny.status === 503 ? "cron_secret_missing" : "unauthorized";
     pingCronHealthcheck("cron/stripe-webhook-events", {
       ok: false,
-      status: 500,
-      reason: "cron_secret_missing",
+      status: deny.status,
+      reason,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json(
-      { error: "Server misconfigured: CRON_SECRET is not set" },
-      { status: 500 }
-    );
-  }
-
-  if (!authorizeCron(request)) {
-    pingCronHealthcheck("cron/stripe-webhook-events", {
-      ok: false,
-      status: 401,
-      reason: "unauthorized",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
 
   const cronRate = await rateLimitCheck(

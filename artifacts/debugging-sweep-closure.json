@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "repo_head": "02cbe085bff78d41f775ae2ea1e976829024a5a5",
-  "generated_at_utc": "2026-05-03T02:33:06.685Z",
+  "repo_head": "f36f601d45e9956abec976c8d66881a78d3aa4b7",
+  "generated_at_utc": "2026-05-03T16:46:22.717Z",
   "rows": [
     {
       "id": "workflow-ci-yml",
@@ -4564,6 +4564,18 @@
       "notes": "pass --execute to run LOCAL_RUNSET; full matrix in CI"
     },
     {
+      "id": "check-check-vercel-cron-canary-parity",
+      "kind": "npm_script",
+      "command_or_workflow": "npm run check:vercel-cron-canary-parity",
+      "manifest_tier": null,
+      "status": "skipped_waiver",
+      "waiver_id": "LOCAL_RUNSET_V1",
+      "owner": null,
+      "log_uri": null,
+      "duration_ms": null,
+      "notes": "pass --execute to run LOCAL_RUNSET; full matrix in CI"
+    },
+    {
       "id": "check-check-wasm-csp-thirdparty",
       "kind": "npm_script",
       "command_or_workflow": "npm run check:wasm-csp-thirdparty",
@@ -6998,7 +7010,7 @@
     ],
     "waiverDeferred": "LOCAL_RUNSET_V1",
     "inventoryDefer": "CLOSURE_INVENTORY_DEFER",
-    "checkScriptsTotal": 347,
+    "checkScriptsTotal": 348,
     "workflowsTotal": 37
   }
 }

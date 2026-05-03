@@ -268,7 +268,9 @@ describe("V10 route and API catalog", () => {
         expect(source, `${contract.path}:private-cache`).toContain("Cache-Control");
       }
       if (contract.path.includes("/api/cron/") || resolveV10RoutePostContract(contract) === "cron_secret_json") {
-        expect(source, `${contract.path}:cron-auth`).toMatch(/ensureCronAuthorized|authorizeCronRequest/);
+        expect(source, `${contract.path}:cron-auth`).toMatch(
+          /ensureCronAuthorized|authorizeCronRequest|gateCronRequest/
+        );
       }
       const resolved = resolveV10RoutePostContract(contract);
       if (contract.idempotencyRequired) {

@@ -88,7 +88,7 @@ const AUTH_SIGNALS = [
   /\brequireV6ApiFeature\b/,
   /\bcanManageCapability\b/,
   // Machine auth helpers/secrets
-  /\bauthorizeCronRequest\b|\bensureCronAuthorized\b|\brequireCronAuthorized\b|\brequireV[56]CronAuth\b|\bCRON_SECRET\b/,
+  /\bauthorizeCronRequest\b|\bgateCronRequest\b|\bensureCronAuthorized\b|\brequireCronAuthorized\b|\brequireV[56]CronAuth\b|\bCRON_SECRET\b/,
   /\bisInboundAutomationAuthorized\b/,
   /\bconstructEvent\b|stripe-signature/i,
   /\bparseBearerToken\b|\bx-api-key\b/i,
@@ -101,10 +101,22 @@ const AUTH_SIGNALS = [
 const DENY_SIGNALS = [
   /status:\s*401\b/,
   /status:\s*403\b/,
+  /status:\s*400\b/,
+  /status:\s*404\b/,
+  /status:\s*503\b/,
+  /status:\s*429\b/,
+  /\bpixelResponse\s*\(\s*429\b/,
+  /\bnew\s+Response\s*\([^)]*status:\s*204/,
   /\bNextResponse\.redirect\b[\s\S]{0,200}\/login/,
   /\bnotFound\s*\(/,
   /\bunauthorized\b/i,
   /\bforbidden\b/i,
+  /** Cron/service gates that return a prebuilt deny response (see `cron-route-gate`). */
+  /\breturn\s+deny\b/,
+  /\breturn\s+cronDenied\b/,
+  /\bif\s*\(\s*auth\s*\)\s*return\s+auth\b/,
+  /\breturn\s+errorResponse\b/,
+  /\breturn\s+modeGate\b/,
 ];
 
 const routes = walkRoutes(apiRoot).sort();

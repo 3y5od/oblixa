@@ -1,13 +1,6 @@
-import { NextResponse } from "next/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 
+/** JSON 503 when CRON_SECRET missing; JSON 401 when caller auth invalid; null when OK. */
 export function ensureCronAuthorized(request: Request) {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) {
-    return NextResponse.json({ error: "CRON_SECRET missing" }, { status: 500 });
-  }
-  if (!authorizeCronRequest(request, cronSecret)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
+  return gateCronRequest(request);
 }

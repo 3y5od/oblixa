@@ -80,13 +80,19 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     return section;
   }
 
+  /** Preview loads in a `useEffect` after `previewCalibrationRecommendation` resolves — await DOM, not only the mock call. */
+  async function waitForReviewPreviewRoot() {
+    await waitFor(() =>
+      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
+    );
+    await screen.findByTestId(calibrationReviewTestIds.root);
+  }
+
   it("review step shows recommended mode label, landing, and three primary actions", async () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     expect(screen.getByRole("heading", { level: 1, name: reviewStepTitle })).toBeTruthy();
     expect(screen.getByText(/Recommended workspace mode/i)).toBeTruthy();
     expect(screen.getByText(/\(recommended\)/)).toBeTruthy();
@@ -112,9 +118,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     await user.click(within(reviewSection()).getByRole("button", { name: actionApply }));
     await waitFor(() =>
       expect(actionMocks.completeQuestionnaireAcceptRecommendation).toHaveBeenCalled()
@@ -175,9 +179,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     const section = reviewSection();
     await user.click(within(section).getByRole("button", { name: actionSimpler }));
     await waitFor(() => {
@@ -198,20 +200,18 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     const { container } = render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     await user.click(within(reviewSection()).getByRole("button", { name: actionApply }));
-    const live = await waitFor(() => container.querySelector('[aria-live="polite"]'));
-    expect(live?.textContent).toContain("Server rejected apply.");
+    await waitFor(() => {
+      const live = container.querySelector('[aria-live="polite"]');
+      expect(live?.textContent).toContain("Server rejected apply.");
+    });
   });
 
   it("review snapshot has no serious or critical axe wcag2a violations", async () => {
     actionMocks.previewCalibrationRecommendation.mockResolvedValue({ ok: true, recommendation: mockRec });
     render(<CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />);
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     await screen.findByText(/Recommended workspace mode/i);
     const results = await axe.run(reviewSection(), {
       runOnly: { type: "tag", values: ["wcag2a"] },
@@ -226,16 +226,18 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
+    await waitForReviewPreviewRoot();
     expect(screen.getByTestId(calibrationReviewTestIds.root)).toBeTruthy();
     expect(screen.getByTestId(calibrationReviewTestIds.setup)).toBeTruthy();
     expect(screen.getByRole("heading", { name: reviewSectionHeadings.setup })).toBeTruthy();
     expect(screen.getByText(setupChecklistKeyLabels.upload_contract)).toBeTruthy();
-    expect(screen.getByText(labelForSearchScope("match_mode"))).toBeTruthy();
+    const searchRegion = screen.getByTestId(calibrationReviewTestIds.searchScope);
     expect(
-      screen.getByText(labelForNotificationSuppressAdvanced(false))
+      within(searchRegion).getByText(labelForSearchScope("match_mode"))
+    ).toBeTruthy();
+    const notifyRegion = screen.getByTestId(calibrationReviewTestIds.notifications);
+    expect(
+      within(notifyRegion).getByText(labelForNotificationSuppressAdvanced(false))
     ).toBeTruthy();
   });
 
@@ -259,13 +261,16 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
-    await waitFor(() =>
-      expect(actionMocks.previewCalibrationRecommendation).toHaveBeenCalled()
-    );
-    expect(screen.getByText(labelForSearchScope("core_only"))).toBeTruthy();
-    expect(screen.getByText(/Hidden: Intake/)).toBeTruthy();
+    await waitForReviewPreviewRoot();
+    const searchRegion = await screen.findByTestId(calibrationReviewTestIds.searchScope);
     expect(
-      screen.getByText(labelForNotificationSuppressAdvanced(true))
+      within(searchRegion).getByText(labelForSearchScope("core_only"))
+    ).toBeTruthy();
+    const utilRegion = screen.getByTestId(calibrationReviewTestIds.utilities);
+    expect(within(utilRegion).getByText(/Hidden: Intake/)).toBeTruthy();
+    const notifyRegion = screen.getByTestId(calibrationReviewTestIds.notifications);
+    expect(
+      within(notifyRegion).getByText(labelForNotificationSuppressAdvanced(true))
     ).toBeTruthy();
   });
 });

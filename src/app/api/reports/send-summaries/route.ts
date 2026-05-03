@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/lib/supabase/server";
-import { authorizeCronRequest } from "@/lib/security/cron-auth";
+import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { getRequestOrigin } from "@/lib/app-url";
 import { sendSavedViewSummaryEmail } from "@/lib/email";
 import {
@@ -44,12 +44,6 @@ async function refreshV10ReportDeliveryReadModels(
   });
 }
 
-function authorizeCron(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return false;
-  return authorizeCronRequest(request, cronSecret);
-}
-
 function parseViewQuery(
   query: Record<string, unknown>
 ): { status?: string; owner?: string; region?: string; search?: string; deadline?: DeadlinePreset } {
@@ -66,27 +60,16 @@ function parseViewQuery(
 
 export async function GET(request: Request) {
   const startedAt = Date.now();
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) {
+  const deny = gateCronRequest(request);
+  if (deny) {
+    const reason = deny.status === 503 ? "cron_secret_missing" : "unauthorized";
     pingCronHealthcheck("reports/send-summaries", {
       ok: false,
-      status: 500,
-      reason: "cron_secret_missing",
+      status: deny.status,
+      reason,
       durationMs: Date.now() - startedAt,
     });
-    return NextResponse.json(
-      { error: "Server misconfigured: CRON_SECRET is not set" },
-      { status: 500 }
-    );
-  }
-  if (!authorizeCron(request)) {
-    pingCronHealthcheck("reports/send-summaries", {
-      ok: false,
-      status: 401,
-      reason: "unauthorized",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return deny;
   }
   const cronRate = await rateLimitCheck("cron:reports:send-summaries", RATE_LIMITS.reportsSummariesCron);
   if (!cronRate.ok) {
