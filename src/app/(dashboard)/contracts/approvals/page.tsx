@@ -13,6 +13,12 @@ import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 
 export const metadata = { title: "Approvals" };
 
+function formatOperatorLabel(value: string | null | undefined) {
+  return String(value ?? "")
+    .replace(/_/g, " ")
+    .trim();
+}
+
 export default async function ApprovalsPage(props: {
   searchParams: Promise<{ status?: string }>;
 }) {
@@ -28,7 +34,7 @@ export default async function ApprovalsPage(props: {
     .order("created_at", { ascending: false })
     .limit(200);
 
-  if (status && ["pending", "approved", "rejected"].includes(status)) {
+  if (status && ["pending", "approved", "rejected", "changes_requested"].includes(status)) {
     query.eq("status", status);
   }
 
@@ -134,6 +140,7 @@ export default async function ApprovalsPage(props: {
               <option value="pending">Pending</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
+              <option value="changes_requested">Changes requested</option>
             </select>
           </div>
           <button className="ui-btn-primary px-5 py-2.5 text-[13px]" type="submit">
@@ -172,7 +179,7 @@ export default async function ApprovalsPage(props: {
                     <div className="min-w-0 flex-1">
                       <p className="ui-kicker">Approval</p>
                       <p className="mt-1.5 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
-                        {row.approval_type.replace(/_/g, " ")} ·{" "}
+                        {formatOperatorLabel(row.approval_type)} ·{" "}
                         {contract ? (
                           <Link className="ui-link" href={`/contracts/${contract.id}`}>
                             {contract.title}
@@ -185,7 +192,7 @@ export default async function ApprovalsPage(props: {
                         {format(new Date(row.created_at), "MMM d, yyyy h:mm a")}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-2" role="list">
-                        {row.category ? <span className="ui-metric-chip"><span className="ui-meta">Category</span><span>{row.category}</span></span> : null}
+                        {row.category ? <span className="ui-metric-chip"><span className="ui-meta">Category</span><span>{formatOperatorLabel(row.category)}</span></span> : null}
                         {row.due_at ? (
                           <span className="ui-metric-chip">
                             <span className="ui-meta">SLA due</span>
@@ -207,24 +214,33 @@ export default async function ApprovalsPage(props: {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <StatusBadge status={row.status === "rejected" ? "blocked" : row.status === "approved" ? "healthy" : "in_review"}>
-                        {row.status}
+                      <StatusBadge status={row.status === "approved" ? "healthy" : row.status === "pending" ? "in_review" : "blocked"}>
+                        {formatOperatorLabel(row.status)}
                       </StatusBadge>
                       {row.status === "pending" && (
-                        <div className="flex flex-wrap items-center justify-end gap-2">
-                          <form action={updateContractApprovalStatusForm}>
+                        <div className="flex max-w-[24rem] flex-col items-end gap-2">
+                          <form action={updateContractApprovalStatusForm} className="flex w-full flex-col items-end gap-2">
                             <input type="hidden" name="approvalId" value={row.id} />
-                            <input type="hidden" name="status" value="approved" />
-                            <button type="submit" className="ui-btn-secondary px-2.5 py-1 text-xs">
-                              Approve
-                            </button>
-                          </form>
-                          <form action={updateContractApprovalStatusForm}>
-                            <input type="hidden" name="approvalId" value={row.id} />
-                            <input type="hidden" name="status" value="rejected" />
-                            <button type="submit" className="ui-btn-secondary px-2.5 py-1 text-xs">
-                              Reject
-                            </button>
+                            <label className="ui-label-caps w-full text-left" htmlFor={`approval-note-${row.id}`}>
+                              Decision note
+                            </label>
+                            <textarea
+                              id={`approval-note-${row.id}`}
+                              name="notes"
+                              className="ui-input min-h-[58px] w-full text-xs"
+                              placeholder="Required for reject and request changes"
+                            />
+                            <div className="flex flex-wrap items-center justify-end gap-2">
+                              <button type="submit" name="status" value="approved" className="ui-btn-secondary px-2.5 py-1 text-xs">
+                                Approve
+                              </button>
+                              <button type="submit" name="status" value="rejected" className="ui-btn-secondary px-2.5 py-1 text-xs">
+                                Reject
+                              </button>
+                              <button type="submit" name="status" value="changes_requested" className="ui-btn-secondary px-2.5 py-1 text-xs">
+                                Request changes
+                              </button>
+                            </div>
                           </form>
                           {ctx.role === "admin" && (
                             <form action={delegateContractApprovalForm} className="flex items-center gap-1">

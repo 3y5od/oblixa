@@ -51,6 +51,6 @@ describe("GET /api/cron/stripe-webhook-events", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(429);
-    expect(body).toEqual({ error: "Too many requests", retryAfterMs: 10_000 });
+    expect(body).toMatchObject({ error: "Too many requests", code: "rate_limited", retryAfterMs: 10_000 });
   });
 });

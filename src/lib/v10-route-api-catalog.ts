@@ -7,6 +7,7 @@ import {
   validateV10ApiResponseSchema,
   type V10MutationResponse,
 } from "./v10-mutation-envelope";
+import { V10_PERFORMANCE_BUDGETS } from "./v10-ui-state-contracts";
 
 export type V10HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 export type V10RouteSurface =
@@ -85,8 +86,27 @@ export type V10RouteApiInventoryRow = V10RouteApiContract & {
   rateLimitPolicy: "standard_user" | "mutation" | "cron" | "external_link";
   cachePolicy: "private_no_store";
   paginationPolicy: "not_applicable" | "cursor_required" | "bounded_limit";
+  performanceBudgetKind: "not_applicable" | "dashboard" | "contract_list" | "command_palette" | "work_review_queue" | "report_export";
+  pageSizeExpectation: number | null;
+  virtualizationThresholdRows: number | null;
+  debounceWindowMs: { min: number; max: number } | null;
+  asyncHandoffThresholds: { rowCount: number; jsonBytes: number; estimatedExecutionMs: number } | null;
+  queryPlanExpectation: "not_applicable" | "core_mode_excludes_advanced_assurance_tables";
   responseSchema: "page_html" | "v10_mutation_envelope" | "job_visibility" | "collection";
   recoveryBehavior: "recoverable_state" | "retryable_job" | "external_resubmission" | "settings_health";
+};
+
+export type V10RoutePerformanceSmokeContract = {
+  budgetKind: Extract<
+    V10RouteApiInventoryRow["performanceBudgetKind"],
+    "dashboard" | "contract_list" | "command_palette" | "work_review_queue"
+  >;
+  route: string;
+  proofArtifact: string;
+  measurement: "integration_smoke" | "unit_integration" | "k6_optional";
+  seededFixtureRequired: boolean;
+  optionalLoadSmokeScript: string | null;
+  loadSmokePaths: readonly string[];
 };
 
 export type V10RouteActionInventoryRow = {
@@ -111,6 +131,94 @@ export type V10RouterJobsReportsBoundaryDomain =
   | "support_diagnostics"
   | "provider_boundary"
   | "billing_boundary";
+
+function getV10RoutePerformanceMetadata(contract: V10RouteApiContract): Pick<
+  V10RouteApiInventoryRow,
+  | "performanceBudgetKind"
+  | "pageSizeExpectation"
+  | "virtualizationThresholdRows"
+  | "debounceWindowMs"
+  | "asyncHandoffThresholds"
+  | "queryPlanExpectation"
+> {
+  if (contract.path === "/dashboard") {
+    return {
+      performanceBudgetKind: "dashboard",
+      pageSizeExpectation: null,
+      virtualizationThresholdRows: null,
+      debounceWindowMs: null,
+      asyncHandoffThresholds: null,
+      queryPlanExpectation: "core_mode_excludes_advanced_assurance_tables",
+    };
+  }
+  if (contract.path === "/contracts") {
+    return {
+      performanceBudgetKind: "contract_list",
+      pageSizeExpectation: V10_PERFORMANCE_BUDGETS.contract_list_pagination_threshold_rows,
+      virtualizationThresholdRows: V10_PERFORMANCE_BUDGETS.visible_row_virtualization_threshold_rows,
+      debounceWindowMs: null,
+      asyncHandoffThresholds: null,
+      queryPlanExpectation: "not_applicable",
+    };
+  }
+  if (contract.path === "/api/command-palette/contracts") {
+    return {
+      performanceBudgetKind: "command_palette",
+      pageSizeExpectation: V10_PERFORMANCE_BUDGETS.contract_list_pagination_threshold_rows,
+      virtualizationThresholdRows: null,
+      debounceWindowMs: {
+        min: V10_PERFORMANCE_BUDGETS.command_palette_debounce_min_ms,
+        max: V10_PERFORMANCE_BUDGETS.command_palette_debounce_max_ms,
+      },
+      asyncHandoffThresholds: null,
+      queryPlanExpectation: "not_applicable",
+    };
+  }
+  if (["/work", "/contracts/tasks", "/contracts/review", "/contracts/obligations", "/contracts/approvals", "/contracts/exceptions"].includes(contract.path)) {
+    return {
+      performanceBudgetKind: "work_review_queue",
+      pageSizeExpectation: V10_PERFORMANCE_BUDGETS.contract_list_pagination_threshold_rows,
+      virtualizationThresholdRows: null,
+      debounceWindowMs: null,
+      asyncHandoffThresholds: null,
+      queryPlanExpectation: "not_applicable",
+    };
+  }
+  if (["/api/export/contracts", "/api/report-packs"].includes(contract.path)) {
+    return {
+      performanceBudgetKind: "report_export",
+      pageSizeExpectation: null,
+      virtualizationThresholdRows: null,
+      debounceWindowMs: null,
+      asyncHandoffThresholds: {
+        rowCount: V10_PERFORMANCE_BUDGETS.report_export_async_row_threshold,
+        jsonBytes: V10_PERFORMANCE_BUDGETS.report_export_async_json_bytes_threshold,
+        estimatedExecutionMs: V10_PERFORMANCE_BUDGETS.report_export_async_execution_ms_threshold,
+      },
+      queryPlanExpectation: "not_applicable",
+    };
+  }
+  return {
+    performanceBudgetKind: "not_applicable",
+    pageSizeExpectation: null,
+    virtualizationThresholdRows: null,
+    debounceWindowMs: null,
+    asyncHandoffThresholds: null,
+    queryPlanExpectation: "not_applicable",
+  };
+}
+
+function getV10RoutePaginationPolicy(contract: V10RouteApiContract): V10RouteApiInventoryRow["paginationPolicy"] {
+  if (
+    contract.surface === "contracts" ||
+    contract.surface === "work" ||
+    contract.surface === "command_search" ||
+    ["/contracts/review", "/contracts/approvals", "/contracts/exceptions"].includes(contract.path)
+  ) {
+    return "bounded_limit";
+  }
+  return "not_applicable";
+}
 
 export type V10RouterJobsReportsBoundaryContract = {
   domain: V10RouterJobsReportsBoundaryDomain;
@@ -508,6 +616,32 @@ export const V10_ROUTE_API_CATALOG: readonly V10RouteApiContract[] = [
     authRequired: true,
     idempotencyRequired: false,
     auditRequired: false,
+    privateCacheRequired: true,
+  },
+  {
+    surface: "exports",
+    path: "/api/export/contracts/[jobId]",
+    methods: ["POST"],
+    featureFamily: "reports",
+    minimumMode: "core",
+    minimumRole: "viewer",
+    minimumPlan: "core",
+    authRequired: true,
+    idempotencyRequired: true,
+    auditRequired: true,
+    privateCacheRequired: true,
+  },
+  {
+    surface: "reports",
+    path: "/api/report-runs/[runId]/retry",
+    methods: ["POST"],
+    featureFamily: "reports",
+    minimumMode: "core",
+    minimumRole: "viewer",
+    minimumPlan: "core",
+    authRequired: true,
+    idempotencyRequired: true,
+    auditRequired: true,
     privateCacheRequired: true,
   },
   {
@@ -2451,6 +2585,45 @@ export const V10_ROUTER_JOBS_REPORTS_BOUNDARY_CONTRACTS: readonly V10RouterJobsR
   },
 ] as const;
 
+export const V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS: readonly V10RoutePerformanceSmokeContract[] = [
+  {
+    budgetKind: "dashboard",
+    route: "/dashboard",
+    proofArtifact: "e2e/v10-core-smoke.spec.ts",
+    measurement: "integration_smoke",
+    seededFixtureRequired: true,
+    optionalLoadSmokeScript: "k6/smoke.js",
+    loadSmokePaths: ["/dashboard"],
+  },
+  {
+    budgetKind: "contract_list",
+    route: "/contracts",
+    proofArtifact: "e2e/v10-core-smoke.spec.ts",
+    measurement: "integration_smoke",
+    seededFixtureRequired: true,
+    optionalLoadSmokeScript: "k6/smoke.js",
+    loadSmokePaths: ["/contracts"],
+  },
+  {
+    budgetKind: "command_palette",
+    route: "/api/command-palette/contracts",
+    proofArtifact: "src/components/layout/command-palette.ui.test.tsx",
+    measurement: "unit_integration",
+    seededFixtureRequired: false,
+    optionalLoadSmokeScript: null,
+    loadSmokePaths: [],
+  },
+  {
+    budgetKind: "work_review_queue",
+    route: "/work",
+    proofArtifact: "e2e/v10-core-smoke.spec.ts",
+    measurement: "integration_smoke",
+    seededFixtureRequired: true,
+    optionalLoadSmokeScript: "k6/smoke.js",
+    loadSmokePaths: ["/work"],
+  },
+] as const;
+
 export function getV10RouteContractsForSurface(surface: V10RouteSurface): V10RouteApiContract[] {
   return V10_ROUTE_API_CATALOG.filter((contract) => contract.surface === surface);
 }
@@ -2590,6 +2763,7 @@ export function buildV10RouteApiInventory(
         workerBearer);
     const stateChanging = mutating;
     const mutationEnvelope = resolved === "v10_mutation_envelope" && stateChanging;
+    const performanceMetadata = getV10RoutePerformanceMetadata(contract);
     const diagnosticStem = contract.path
       .replace(/^\/api\//, "")
       .replace(/^\//, "")
@@ -2614,10 +2788,8 @@ export function buildV10RouteApiInventory(
             : ([401, 403, 404, 429, 500] as const),
       rateLimitPolicy: cron ? "cron" : external ? "external_link" : stateChanging ? "mutation" : "standard_user",
       cachePolicy: "private_no_store",
-      paginationPolicy:
-        contract.surface === "contracts" || contract.surface === "work" || contract.surface === "command_search"
-          ? "bounded_limit"
-          : "not_applicable",
+      paginationPolicy: getV10RoutePaginationPolicy(contract),
+      ...performanceMetadata,
       responseSchema: contract.path.startsWith("/api/")
         ? stateChanging
           ? mutationEnvelope
@@ -2658,6 +2830,72 @@ export function validateV10RouteApiInventory(rows: readonly V10RouteApiInventory
     if (row.paginationPolicy === "bounded_limit" && row.recoveryBehavior !== "recoverable_state") {
       failures.push(`${row.path}:bounded_lists_need_recoverable_state`);
     }
+    if (row.performanceBudgetKind === "contract_list") {
+      if (row.pageSizeExpectation !== V10_PERFORMANCE_BUDGETS.contract_list_pagination_threshold_rows) {
+        failures.push(`${row.path}:contract_list_page_size_required`);
+      }
+      if (row.virtualizationThresholdRows !== V10_PERFORMANCE_BUDGETS.visible_row_virtualization_threshold_rows) {
+        failures.push(`${row.path}:contract_list_virtualization_threshold_required`);
+      }
+      if (row.paginationPolicy !== "bounded_limit") failures.push(`${row.path}:contract_list_bounded_limit_required`);
+    }
+    if (row.performanceBudgetKind === "command_palette") {
+      if (row.debounceWindowMs?.min !== V10_PERFORMANCE_BUDGETS.command_palette_debounce_min_ms) {
+        failures.push(`${row.path}:command_palette_debounce_min_required`);
+      }
+      if (row.debounceWindowMs?.max !== V10_PERFORMANCE_BUDGETS.command_palette_debounce_max_ms) {
+        failures.push(`${row.path}:command_palette_debounce_max_required`);
+      }
+      if (row.paginationPolicy !== "bounded_limit") failures.push(`${row.path}:command_palette_bounded_limit_required`);
+    }
+    if (row.performanceBudgetKind === "work_review_queue" && row.paginationPolicy !== "bounded_limit") {
+      failures.push(`${row.path}:work_review_queue_bounded_limit_required`);
+    }
+    if (row.performanceBudgetKind === "report_export") {
+      if (row.asyncHandoffThresholds?.rowCount !== V10_PERFORMANCE_BUDGETS.report_export_async_row_threshold) {
+        failures.push(`${row.path}:report_export_async_row_threshold_required`);
+      }
+      if (row.asyncHandoffThresholds?.jsonBytes !== V10_PERFORMANCE_BUDGETS.report_export_async_json_bytes_threshold) {
+        failures.push(`${row.path}:report_export_async_json_threshold_required`);
+      }
+      if (row.asyncHandoffThresholds?.estimatedExecutionMs !== V10_PERFORMANCE_BUDGETS.report_export_async_execution_ms_threshold) {
+        failures.push(`${row.path}:report_export_async_execution_threshold_required`);
+      }
+    }
+    if (row.path === "/dashboard" && row.queryPlanExpectation !== "core_mode_excludes_advanced_assurance_tables") {
+      failures.push(`${row.path}:core_mode_query_plan_expectation_required`);
+    }
+  }
+  return failures;
+}
+
+export function validateV10RoutePerformanceSmokeContracts(
+  contracts: readonly V10RoutePerformanceSmokeContract[] = V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS,
+  inventory: readonly V10RouteApiInventoryRow[] = buildV10RouteApiInventory()
+): string[] {
+  const failures: string[] = [];
+  const inventoryByPath = new Map(inventory.map((row) => [row.path, row]));
+  const seen = new Set<V10RoutePerformanceSmokeContract["budgetKind"]>();
+  for (const contract of contracts) {
+    if (seen.has(contract.budgetKind)) failures.push(`duplicate_performance_smoke:${contract.budgetKind}`);
+    seen.add(contract.budgetKind);
+    const routeInventory = inventoryByPath.get(contract.route);
+    if (!routeInventory) failures.push(`${contract.budgetKind}:route_not_in_inventory`);
+    if (routeInventory && routeInventory.performanceBudgetKind !== contract.budgetKind) {
+      failures.push(`${contract.budgetKind}:budget_kind_mismatch`);
+    }
+    if (!contract.proofArtifact.trim() || !existsSync(join(process.cwd(), contract.proofArtifact))) {
+      failures.push(`${contract.budgetKind}:proof_artifact_required`);
+    }
+    if (contract.optionalLoadSmokeScript && !existsSync(join(process.cwd(), contract.optionalLoadSmokeScript))) {
+      failures.push(`${contract.budgetKind}:load_smoke_script_required`);
+    }
+    if ((contract.measurement === "integration_smoke" || contract.measurement === "k6_optional") && contract.loadSmokePaths.length === 0) {
+      failures.push(`${contract.budgetKind}:load_smoke_path_required`);
+    }
+  }
+  for (const required of ["dashboard", "contract_list", "command_palette", "work_review_queue"] as const) {
+    if (!seen.has(required)) failures.push(`performance_smoke_missing:${required}`);
   }
   return failures;
 }

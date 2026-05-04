@@ -49,6 +49,7 @@ const SCOPE_SIGNALS = [
   /\.match\(\s*\{[^}]*organization_id/,
   /\brequireV5ApiFeature\b|\brequireV6ApiFeature\b/,
   /\[token\]/,
+  /\bwith(?:V6)?CronRoute\b|\brunCronRoute\b/,
   /\brequireV5CronAuth\b|\brequireV6CronAuth\b|\bauthorizeCronRequest\b|\bensureCronAuthorized\b/,
 ];
 

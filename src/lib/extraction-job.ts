@@ -83,7 +83,8 @@ export async function startExtractionJob(
         started_at: now,
         completed_at: null,
       })
-      .eq("contract_id", contractId);
+      .eq("contract_id", contractId)
+      .eq("organization_id", organizationId);
 
     if (error) {
       return { ok: false as const, error: error.message, status: 500 };
@@ -100,7 +101,8 @@ export async function startExtractionJob(
         const { error: delErr } = await admin
           .from("contract_extraction_jobs")
           .delete()
-          .eq("contract_id", contractId);
+          .eq("contract_id", contractId)
+          .eq("organization_id", organizationId);
         if (delErr) {
           return {
             ok: false as const,
@@ -129,6 +131,7 @@ export async function startExtractionJob(
     .from("contract_extraction_jobs")
     .select("status, attempt_count, started_at")
     .eq("contract_id", contractId)
+    .eq("organization_id", organizationId)
     .maybeSingle();
 
   if (existing) {
@@ -156,6 +159,7 @@ export async function startExtractionJob(
       .from("contract_extraction_jobs")
       .select("status, attempt_count, started_at")
       .eq("contract_id", contractId)
+      .eq("organization_id", organizationId)
       .maybeSingle();
 
     if (fetchErr || !raced) {

@@ -91,6 +91,24 @@ describe("api-guards", () => {
       const req = new Request("https://x.test/w", { headers: { authorization: "Bearer tok" } });
       expect(requireBearerSecret(req, "EXTRACTION_WORKER_SECRET")).toBeNull();
     });
+
+    it("supports custom missing-secret responses", () => {
+      delete process.env.EXTRACTION_WORKER_SECRET;
+      const req = new Request("https://x.test/w", { headers: { authorization: "Bearer tok" } });
+      const res = requireBearerSecret(req, "EXTRACTION_WORKER_SECRET", {
+        missingSecretResponse: () => NextResponse.json({ error: "Worker not configured" }, { status: 503 }),
+      });
+      expect(res?.status).toBe(503);
+    });
+
+    it("supports custom unauthorized responses", () => {
+      process.env.EXTRACTION_WORKER_SECRET = "tok";
+      const req = new Request("https://x.test/w", { headers: { authorization: "Bearer nope" } });
+      const res = requireBearerSecret(req, "EXTRACTION_WORKER_SECRET", {
+        unauthorizedResponse: () => NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      });
+      expect(res?.status).toBe(403);
+    });
   });
 
   it("requireRoleAtLeast forbids viewer calling admin floor", () => {

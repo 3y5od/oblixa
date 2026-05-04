@@ -1,8 +1,5 @@
-import { NextResponse } from "next/server";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
-import { createAdminClient } from "@/lib/supabase/server";
-import { ensureCronAuthorized } from "@/lib/v4/cron";
+import { withCronRoute } from "@/lib/cron/route-runner";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import {
   refreshV10ReadModelsForOrganization,
   type V10ReadModelKey,
@@ -10,6 +7,10 @@ import {
 } from "@/lib/v10-read-model-refresh";
 import { V10_REQUIRED_READ_MODEL_KEYS } from "@/lib/v10-read-models";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 120;
 
 const DEFAULT_ORG_LIMIT = 50;
 const MAX_ORG_LIMIT = 250;
@@ -86,134 +87,123 @@ function getModelKeys(request: Request): V10ReadModelKey[] | undefined {
   return valid.length > 0 ? valid : undefined;
 }
 
-export async function GET(request: Request) {
-  const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
-  const startedAt = Date.now();
-  const unauthorized = ensureCronAuthorized(request);
-  if (unauthorized) return unauthorized;
+export const GET = withCronRoute({
+  route: "/api/cron/v10/read-model-refresh",
+  healthcheckRoute: "cron/v10/read-model-refresh",
+  rateLimitKey: "cron:v10:read-model-refresh",
+  rateLimit: RATE_LIMITS.contractsRecomputeSignalsCron,
+  handler: async ({ request, admin, startedAtMs }) => {
+    const limit = getOrgLimit(request);
+    const cursor = getOrgCursor(request);
+    const refreshScope = getRefreshScope(request);
+    const refreshReason = getSafeReasonOverride(request) ?? getRefreshReason(refreshScope);
+    const contractId = getContractId(request);
+    const modelKeys = getModelKeys(request);
+    const changedSince = getChangedSince(request);
+    let orgQuery = admin.from("organizations").select("id");
+    if (cursor) {
+      orgQuery = orgQuery.gt("id", cursor);
+    }
+    const { data: organizations, error } = await orgQuery.order("id", { ascending: true }).limit(limit);
 
-  const rate = await rateLimitCheck("cron:v10:read-model-refresh", RATE_LIMITS.contractsRecomputeSignalsCron);
-  if (!rate.ok) {
-    return NextResponse.json(
-      { error: "Too many requests", retryAfterMs: rate.retryAfterMs },
-      { status: 429, headers: PRIVATE_NO_STORE_HEADERS }
-    );
-  }
+    if (error) {
+      console.error("[cron/v10/read-model-refresh] organization lookup failed:", error.message);
+      return {
+        status: 500,
+        ok: false,
+        errorsCount: 1,
+        pingReason: "organization_lookup_failed",
+        body: {
+          error: "V10 read-model refresh failed",
+          diagnostic_id: "v10_read_model_refresh_org_lookup_failed",
+        },
+      };
+    }
 
-  const admin = await createAdminClient();
-  const limit = getOrgLimit(request);
-  const cursor = getOrgCursor(request);
-  const refreshScope = getRefreshScope(request);
-  const refreshReason = getSafeReasonOverride(request) ?? getRefreshReason(refreshScope);
-  const contractId = getContractId(request);
-  const modelKeys = getModelKeys(request);
-  const changedSince = getChangedSince(request);
-  let orgQuery = admin.from("organizations").select("id");
-  if (cursor) {
-    orgQuery = orgQuery.gt("id", cursor);
-  }
-  const { data: organizations, error } = await orgQuery.order("id", { ascending: true }).limit(limit);
-
-  if (error) {
-    console.error("[cron/v10/read-model-refresh] organization lookup failed:", error.message);
-    pingCronHealthcheck("cron/v10/read-model-refresh", {
-      ok: false,
-      status: 500,
-      reason: "organization_lookup_failed",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json(
-      { error: "V10 read-model refresh failed", diagnostic_id: "v10_read_model_refresh_org_lookup_failed" },
-      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
-    );
-  }
-
-  const organizationIds = (organizations ?? []).map((row) => String(row.id)).filter(Boolean);
-  const results = [];
-  for (const organizationId of organizationIds) {
-    try {
-      const refresh = await refreshV10ReadModelsForOrganization(admin, organizationId, {
-        reason: refreshReason,
-        refreshScope,
-        contractId: refreshScope === "one_contract" ? contractId ?? undefined : undefined,
-        modelKeys,
-        changedSince,
-      });
-      const auditEventId = await recordV10AuditEvent(admin, {
-        organizationId,
-        actorUserId: null,
-        actorType: "system",
-        action: "v10_read_models.scheduled_refresh",
-        targetType: "workspace_health_diagnostic",
-        targetId: organizationId,
-        outcome: refresh.ok ? "success" : "server_error",
-        safeMetadata: {
+    const organizationIds = (organizations ?? []).map((row) => String(row.id)).filter(Boolean);
+    const results = [];
+    for (const organizationId of organizationIds) {
+      try {
+        const refresh = await refreshV10ReadModelsForOrganization(admin, organizationId, {
+          reason: refreshReason,
+          refreshScope,
+          contractId: refreshScope === "one_contract" ? contractId ?? undefined : undefined,
+          modelKeys,
+          changedSince,
+        });
+        const auditEventId = await recordV10AuditEvent(admin, {
+          organizationId,
+          actorUserId: null,
+          actorType: "system",
+          action: "v10_read_models.scheduled_refresh",
+          targetType: "workspace_health_diagnostic",
+          targetId: organizationId,
+          outcome: refresh.ok ? "success" : "server_error",
+          safeMetadata: {
+            refresh_job_id: refresh.diagnostics.refresh_job_id,
+            refresh_scope: refreshScope,
+            selected_model_keys: [...(refresh.diagnostics.selected_model_keys ?? [])],
+            scoped_contract_id: refresh.diagnostics.scoped_contract_id,
+            changed_since: refresh.diagnostics.changed_since,
+            drift_state: refresh.diagnostics.model_freshness_state,
+            failure_count: refresh.failures.length,
+          },
+          diagnosticId: refresh.ok ? null : `v10_read_model_refresh_${refresh.diagnostics.model_freshness_state}`,
+        });
+        results.push({
+          organization_id: organizationId,
+          ok: refresh.ok,
           refresh_job_id: refresh.diagnostics.refresh_job_id,
           refresh_scope: refreshScope,
-          selected_model_keys: [...(refresh.diagnostics.selected_model_keys ?? [])],
+          selected_model_keys: refresh.diagnostics.selected_model_keys,
           scoped_contract_id: refresh.diagnostics.scoped_contract_id,
           changed_since: refresh.diagnostics.changed_since,
           drift_state: refresh.diagnostics.model_freshness_state,
           failure_count: refresh.failures.length,
-        },
-        diagnosticId: refresh.ok ? null : `v10_read_model_refresh_${refresh.diagnostics.model_freshness_state}`,
-      });
-      results.push({
-        organization_id: organizationId,
-        ok: refresh.ok,
-        refresh_job_id: refresh.diagnostics.refresh_job_id,
-        refresh_scope: refreshScope,
-        selected_model_keys: refresh.diagnostics.selected_model_keys,
-        scoped_contract_id: refresh.diagnostics.scoped_contract_id,
-        changed_since: refresh.diagnostics.changed_since,
-        drift_state: refresh.diagnostics.model_freshness_state,
-        failure_count: refresh.failures.length,
-        audit_event_id: auditEventId,
-      });
-      continue;
-    } catch (error) {
-      const auditEventId = await recordV10AuditEvent(admin, {
-        organizationId,
-        actorUserId: null,
-        actorType: "system",
-        action: "v10_read_models.scheduled_refresh",
-        targetType: "workspace_health_diagnostic",
-        targetId: organizationId,
-        outcome: "server_error",
-        safeMetadata: {
+          audit_event_id: auditEventId,
+        });
+        continue;
+      } catch (error) {
+        const auditEventId = await recordV10AuditEvent(admin, {
+          organizationId,
+          actorUserId: null,
+          actorType: "system",
+          action: "v10_read_models.scheduled_refresh",
+          targetType: "workspace_health_diagnostic",
+          targetId: organizationId,
+          outcome: "server_error",
+          safeMetadata: {
+            refresh_scope: refreshScope,
+            failure_count: 1,
+            error_class: error instanceof Error ? error.name : "unknown",
+          },
+          diagnosticId: "v10_read_model_refresh_unhandled_error",
+        });
+        results.push({
+          organization_id: organizationId,
+          ok: false,
+          refresh_job_id: null,
           refresh_scope: refreshScope,
+          drift_state: "failed",
           failure_count: 1,
-          error_class: error instanceof Error ? error.name : "unknown",
-        },
-        diagnosticId: "v10_read_model_refresh_unhandled_error",
-      });
-      results.push({
-        organization_id: organizationId,
-        ok: false,
-        refresh_job_id: null,
-        refresh_scope: refreshScope,
-        drift_state: "failed",
-        failure_count: 1,
-        audit_event_id: auditEventId,
-      });
-      continue;
+          audit_event_id: auditEventId,
+        });
+        continue;
+      }
     }
-  }
 
-  const payload = {
-    ok: results.every((result) => result.ok),
-    scanned_organizations: organizationIds.length,
-    next_cursor: organizationIds.length === limit ? organizationIds[organizationIds.length - 1] : null,
-    refresh_scope: refreshScope,
-    results,
-    duration_ms: Date.now() - startedAt,
-  };
-  pingCronHealthcheck("cron/v10/read-model-refresh", {
-    ok: payload.ok,
-    status: payload.ok ? 200 : 207,
-    reason: payload.ok ? "ok" : "partial",
-    durationMs: payload.duration_ms,
-  });
-
-  return NextResponse.json(payload, { status: payload.ok ? 200 : 207, headers: PRIVATE_NO_STORE_HEADERS });
-}
+    const partial = results.some((result) => !result.ok);
+    return {
+      partial,
+      errorsCount: results.reduce((count, result) => count + (result.ok ? 0 : 1), 0),
+      pingReason: partial ? "partial" : "ok",
+      body: {
+        scanned_organizations: organizationIds.length,
+        next_cursor: organizationIds.length === limit ? organizationIds[organizationIds.length - 1] : null,
+        refresh_scope: refreshScope,
+        results,
+        duration_ms: Date.now() - startedAtMs,
+      },
+    };
+  },
+});

@@ -303,7 +303,7 @@ export const V10_RECOVERABILITY_FAILURE_MODE_MATRIX: readonly V10RecoverabilityF
 
 export const V10_ACCESSIBILITY_CONTRACTS = [
   "actionable_controls_have_accessible_names",
-  "keyboard_completion_for_upload_review_work_evidence_approvals_search_settings",
+  "keyboard_completion_for_upload_import_review_work_evidence_approvals_exceptions_command_palette_settings",
   "focus_returns_after_modals_drawers_mobile_nav_and_command_palette",
   "loading_states_do_not_trap_focus",
   "errors_are_announced_or_screen_reader_reachable",
@@ -472,6 +472,13 @@ export const V10_ROUTE_STATE_MATRIX: readonly V10RouteStateMatrixEntry[] = [
     performanceBudgetKind: "dashboard",
   },
   {
+    route: "/contracts/bulk",
+    requiredStates: ["empty", "loading", "failed", "retryable", "no_action_available"],
+    accessibilityAssertions: ["upload_controls_named", "import_history_keyboard_reachable", "failed_state_announced"],
+    responsiveProfiles: ["mobile", "tablet", "desktop"],
+    performanceBudgetKind: "dashboard",
+  },
+  {
     route: "/contracts/reports",
     requiredStates: ["empty", "partial", "failed", "retryable", "terminal_failure"],
     accessibilityAssertions: ["report_actions_named", "retry_states_announced", "artifact_expiry_visible"],
@@ -619,6 +626,7 @@ export function validateV10RouteStateMatrix(
     "/contracts/approvals",
     "/contracts/exceptions",
     "/contracts/evidence-studio",
+    "/contracts/bulk",
     "/contracts/reports",
     "/reports",
     "/settings/health",

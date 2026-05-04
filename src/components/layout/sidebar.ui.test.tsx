@@ -107,5 +107,20 @@ describe("Sidebar", () => {
     expect(within(drawer).getByText("Oblixa")).toBeTruthy();
     expect(within(drawer).getByRole("link", { name: /^contracts$/i })).toBeTruthy();
   });
+
+  it("returns focus to the mobile navigation trigger after Escape closes the drawer", async () => {
+    setMockPathname("/dashboard");
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar role="viewer" navSurface={coreSurface} v5Flags={{} as Record<FeatureFlagKey, boolean>} />);
+
+    const openButton = screen.getByRole("button", { name: /open navigation/i });
+    await user.click(openButton);
+    expect(screen.getByRole("dialog", { name: /navigation drawer/i })).toBeTruthy();
+
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog", { name: /navigation drawer/i })).toBeNull();
+    expect(document.activeElement).toBe(openButton);
+  });
 });
 

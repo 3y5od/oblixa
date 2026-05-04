@@ -17,6 +17,7 @@ import {
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { readApiJson } from "@/lib/parse-api-response";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { isContractStoragePathSafe, isUuid } from "@/lib/security/validation";
 import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
@@ -1081,13 +1082,14 @@ async function triggerExtraction(contractId: string) {
 
   let res: Response;
   try {
-    res = await fetch(`${appUrl}/api/extract`, {
+    res = await safeFetch(`${appUrl}/api/extract`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Cookie: cookieHeader,
       },
       body: JSON.stringify({ contractId }),
+      allowLocalhostInDev: true,
     });
   } catch (err) {
     console.error("[triggerExtraction] network error:", err);
@@ -1148,13 +1150,14 @@ export async function runExtraction(contractId: string) {
 
   let res: Response;
   try {
-    res = await fetch(`${appUrl}/api/extract`, {
+    res = await safeFetch(`${appUrl}/api/extract`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Cookie: cookieHeader,
       },
       body: JSON.stringify({ contractId }),
+      allowLocalhostInDev: true,
     });
   } catch {
     return {
@@ -1894,13 +1897,8 @@ export async function updateContractExternalLinkForm(formData: FormData) {
   }
 }
 
-export async function deleteContract(contractId: string) {
-  return await deleteContractImpl(contractId);
-}
-
-export async function applyContractTemplatePack(contractId: string) {
-  return await applyContractTemplatePackImpl(contractId);
-}
+export async function deleteContract(contractId: string) { return await deleteContractImpl(contractId); }
+export async function applyContractTemplatePack(contractId: string) { return await applyContractTemplatePackImpl(contractId); }
 
 export async function applyContractTemplatePackForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();

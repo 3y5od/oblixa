@@ -118,10 +118,10 @@ export async function computeReportPackMetrics(input: {
         }
       : core;
 
-  const RENEWAL_TYPES = ["monthly_renewal_readiness", "renewal_status", "renewal_portfolio"];
+  const RENEWAL_TYPES = ["monthly_renewal_readiness", "renewal_status", "renewal_portfolio", "renewal_horizon_report"];
   const EXCEPTION_TYPES = ["exception_summary", "exception_detail", "exception_review"];
-  const APPROVAL_SLA_TYPES = ["approval_summary", "approval_status", "sla_performance", "sla_compliance"];
-  const OBLIGATION_TYPES = ["obligation_summary", "obligation_status", "obligation_compliance"];
+  const APPROVAL_SLA_TYPES = ["approvals_sla", "approval_summary", "approval_status", "sla_performance", "sla_compliance", "approval_sla_report"];
+  const OBLIGATION_TYPES = ["obligation_overview", "obligation_summary", "obligation_status", "obligation_compliance", "overdue_work_report"];
 
   if (RENEWAL_TYPES.includes(reportType)) {
     const { count: renewalPending } = await admin

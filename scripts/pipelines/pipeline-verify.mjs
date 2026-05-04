@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
+import process from "node:process";
+import { pathToFileURL } from "node:url";
 import { runParallel, runSequential } from "../lib/scheduler.mjs";
 
-const firstPass = await runSequential([
+export const VERIFY_FIRST_PASS_STEPS = [
   "check:migrations:strict",
   "check:v10-migration-smoke:strict",
   "check:v10-release-evidence",
@@ -16,14 +18,9 @@ const firstPass = await runSequential([
   "check:checks-integrity-meta",
   "check:config-drift",
   "check:branch-protection-drift",
-]);
-const blockingFailure = firstPass.find((result) => !result.ok && result.required);
-if (blockingFailure) {
-  console.log(JSON.stringify({ pipeline: "verify", results: firstPass }, null, 2));
-  process.exit(blockingFailure.code);
-}
+];
 
-const domainPass = await runParallel([
+export const VERIFY_DOMAIN_PASS_STEPS = [
   "check:performance-static:strict",
   "check:frontend-component-complexity",
   "check:server-action-complexity",
@@ -46,13 +43,29 @@ const domainPass = await runParallel([
   "check:type-lint-ratchet",
   "lint",
   "typecheck",
-]);
+];
 
-const finalPass = await runSequential(["test:coverage", "check:surface:suite", "build"]);
+export const VERIFY_FINAL_PASS_STEPS = ["test:coverage", "check:surface:suite", "build"];
+export const VERIFY_PARITY_STEPS = ["pipeline:ci-parity"];
 
-const parity = await runSequential(["pipeline:ci-parity"]);
+export async function runPipelineVerify() {
+  const firstPass = await runSequential(VERIFY_FIRST_PASS_STEPS);
+  const blockingFailure = firstPass.find((result) => !result.ok && result.required);
+  if (blockingFailure) {
+    return { pipeline: "verify", results: firstPass, exitCode: blockingFailure.code };
+  }
 
-const results = [...firstPass, ...domainPass, ...finalPass, ...parity];
-const failed = results.find((result) => !result.ok && result.required);
-console.log(JSON.stringify({ pipeline: "verify", results }, null, 2));
-process.exit(failed ? failed.code : 0);
+  const domainPass = await runParallel(VERIFY_DOMAIN_PASS_STEPS);
+  const finalPass = await runSequential(VERIFY_FINAL_PASS_STEPS);
+  const parity = await runSequential(VERIFY_PARITY_STEPS);
+
+  const results = [...firstPass, ...domainPass, ...finalPass, ...parity];
+  const failed = results.find((result) => !result.ok && result.required);
+  return { pipeline: "verify", results, exitCode: failed ? failed.code : 0 };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = await runPipelineVerify();
+  console.log(JSON.stringify({ pipeline: report.pipeline, results: report.results }, null, 2));
+  process.exit(report.exitCode);
+}

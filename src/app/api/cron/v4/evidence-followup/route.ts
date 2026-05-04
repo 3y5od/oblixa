@@ -1,44 +1,37 @@
-import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
-import { ensureCronAuthorized } from "@/lib/v4/cron";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+import { withCronRoute } from "@/lib/cron/route-runner";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { upsertDetectedExceptions } from "@/lib/v4/exceptions";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { getV10EvidenceFollowUpStage } from "@/lib/v10-evidence-collaboration";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
-const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const EVIDENCE_FOLLOWUP_BATCH_LIMIT = 1000;
 
-export async function GET(request: Request) {
-  const startedAt = Date.now();
-  const unauthorized = ensureCronAuthorized(request);
-  if (unauthorized) return unauthorized;
-  const rate = await rateLimitCheck("cron:v4:evidence-followup", RATE_LIMITS.v4EvidenceFollowupCron);
-  if (!rate.ok) {
-    return NextResponse.json(
-      { error: "Too many requests", retryAfterMs: rate.retryAfterMs },
-      { status: 429, headers: PRIVATE_NO_STORE_HEADERS }
-    );
-  }
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-  const admin = await createAdminClient();
-  const today = new Date().toISOString();
-  const dueMinus3Horizon = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: requirements } = await admin
-    .from("evidence_requirements")
-    .select("id, organization_id, contract_id, title, due_at, reviewer_id")
-    .in("status", ["required", "submitted", "rejected"])
-    .lte("due_at", dueMinus3Horizon)
-    .limit(EVIDENCE_FOLLOWUP_BATCH_LIMIT);
-  const requirementRows = requirements ?? [];
-  const requirementIds = requirementRows.map((row) => row.id).filter(Boolean) as string[];
-  const followUpRows = requirementRows.map((row) => ({
-    row,
-    stage: getV10EvidenceFollowUpStage(row.due_at, new Date(today)),
-  }));
+export const GET = withCronRoute({
+  route: "/api/cron/v4/evidence-followup",
+  healthcheckRoute: "cron/v4/evidence-followup",
+  rateLimitKey: "cron:v4:evidence-followup",
+  rateLimit: RATE_LIMITS.v4EvidenceFollowupCron,
+  handler: async ({ admin }) => {
+    const today = new Date().toISOString();
+    const dueMinus3Horizon = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: requirements } = await admin
+      .from("evidence_requirements")
+      .select("id, organization_id, contract_id, title, due_at, reviewer_id")
+      .in("status", ["required", "submitted", "rejected"])
+      .lte("due_at", dueMinus3Horizon)
+      .limit(EVIDENCE_FOLLOWUP_BATCH_LIMIT);
+    const requirementRows = requirements ?? [];
+    const requirementIds = requirementRows.map((row) => row.id).filter(Boolean) as string[];
+    const followUpRows = requirementRows.map((row) => ({
+      row,
+      stage: getV10EvidenceFollowUpStage(row.due_at, new Date(today)),
+    }));
 
   const [{ data: existingTaskRows }, { data: existingNotificationRows }] = await Promise.all([
     requirementIds.length === 0
@@ -224,20 +217,19 @@ export async function GET(request: Request) {
     }
   }
 
-  const payload = {
-    reviewed,
-    exceptionsCreated: touched,
-    notificationsQueued: notificationRows.length,
-    dueMinus3RemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_minus_3").length,
-    dueDateRemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_date").length,
-    overdueNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "overdue_state").length,
-    ownerNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "owner_notification").length,
-    escalationTasksCreated: escalationTaskRows.length,
-    batchLimit: EVIDENCE_FOLLOWUP_BATCH_LIMIT,
-    batchTruncated: reviewed === EVIDENCE_FOLLOWUP_BATCH_LIMIT,
-    ok: true,
-    durationMs: Date.now() - startedAt,
-  };
-  pingCronHealthcheck("cron/v4/evidence-followup", payload);
-  return NextResponse.json(payload, { headers: PRIVATE_NO_STORE_HEADERS });
-}
+    return {
+      body: {
+        reviewed,
+        exceptionsCreated: touched,
+        notificationsQueued: notificationRows.length,
+        dueMinus3RemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_minus_3").length,
+        dueDateRemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_date").length,
+        overdueNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "overdue_state").length,
+        ownerNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "owner_notification").length,
+        escalationTasksCreated: escalationTaskRows.length,
+        batchLimit: EVIDENCE_FOLLOWUP_BATCH_LIMIT,
+        batchTruncated: reviewed === EVIDENCE_FOLLOWUP_BATCH_LIMIT,
+      },
+    };
+  },
+});

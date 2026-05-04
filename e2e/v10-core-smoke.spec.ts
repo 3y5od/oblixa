@@ -30,6 +30,7 @@ test.describe("@v10 V10 core smoke", () => {
     const shell = new AppShellPO(page);
     await shell.expectShellVisible();
     const headerSearch = shell.headerSearch();
+    await headerSearch.focus();
     await headerSearch.fill("zzzz-v10-no-match");
     await headerSearch.press("Enter");
     await expect(shell.commandPalette()).toBeVisible({ timeout: 10_000 });
@@ -41,11 +42,12 @@ test.describe("@v10 V10 core smoke", () => {
       { path: "/contracts/tasks", heading: /Task queue/i },
       { path: "/contracts/obligations", heading: /Obligations queue/i },
       { path: "/contracts/renewals", heading: /Renewals workspace/i },
+      { path: "/contracts/bulk", heading: /Bulk import/i },
       { path: "/contracts/evidence-studio", heading: /Evidence studio/i },
       { path: "/contracts/approvals", heading: /Approvals & scenarios/i },
       { path: "/contracts/exceptions", heading: /Exception ledger/i },
       { path: "/contracts/reports", heading: /Digest run history|Reports history is disabled/i },
-      { path: "/reports", heading: /Operational reports/i },
+      { path: "/reports", heading: /Operational reports|Operations reports/i },
       { path: "/settings/health", heading: /System health/i },
     ]) {
       await page.goto(surface.path, { waitUntil: "domcontentloaded" });
@@ -65,6 +67,12 @@ test.describe("@v10 V10 core smoke", () => {
     await expect(page.getByText(/Exceptions and decisions requiring attention|Critical signals/i).first()).toBeVisible({
       timeout: 25_000,
     });
+    const openNavigation = page.getByRole("button", { name: /open navigation/i });
+    await openNavigation.click();
+    await expect(page.getByRole("dialog", { name: /navigation drawer/i })).toBeVisible({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog", { name: /navigation drawer/i })).not.toBeVisible({ timeout: 5_000 });
+    await expect(openNavigation).toBeFocused({ timeout: 5_000 });
     await page.goto("/settings/health", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: /System health/i })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText(/^Route health$/)).toBeVisible({ timeout: 15_000 });

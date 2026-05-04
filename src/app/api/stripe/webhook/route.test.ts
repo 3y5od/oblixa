@@ -45,7 +45,7 @@ describe("POST /api/stripe/webhook", () => {
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
 
-  it("returns duplicate for replayed Stripe event id (out-of-order / at-least-once delivery)", async () => {
+  it("returns duplicate payload shape for replayed Stripe event id (out-of-order / at-least-once delivery)", async () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
     constructEvent.mockReturnValue({
       id: "evt_already",
@@ -73,8 +73,8 @@ describe("POST /api/stripe/webhook", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { duplicate?: boolean };
-    expect(body.duplicate).toBe(true);
+    const body = (await res.json()) as { received?: boolean; duplicate?: boolean };
+    expect(body).toEqual({ received: true, duplicate: true });
   });
 
   it("returns 500 when webhook secret is missing", async () => {
@@ -161,7 +161,7 @@ describe("POST /api/stripe/webhook", () => {
     expect(await res.json()).toEqual({ error: "Server misconfigured" });
   });
 
-  it("handles customer.subscription.updated when subscription is canceled (terminal)", async () => {
+  it("returns received payload shape when customer.subscription.updated is canceled (terminal)", async () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
     constructEvent.mockReturnValue({
       id: "evt_sub_terminal",

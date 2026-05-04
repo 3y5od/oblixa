@@ -83,14 +83,52 @@ rules:
     message: >
       V10 telemetry details must not include private payload key names such as raw contract text,
       emails, tokens, signed URLs, or file URLs. Use safe state/count fields instead.
-    severity: INFO
+    severity: ERROR
     pattern-regex: '(raw_contract_text|contract_text|responder_email|owner_email|signed_url|private_url|file_url|file_name|access_token|refresh_token|id_token|api_token|bearer_token|session_token|auth_token|secret)\s*:'
     paths:
       include:
-        - /src/**/*.ts
-        - /src/**/*.tsx
+        - /src/lib/v10-objective-telemetry.ts
+        - /src/lib/product-telemetry.ts
+        - /src/actions/product-telemetry.ts
+        - /src/lib/v10-readiness-scorecard.ts
       exclude:
         - /src/lib/product-telemetry.v10.test.ts
         - /src/**/*.test.ts
         - /src/**/*.test.tsx
         - /src/lib/types/**
+
+  - id: oblixa-v10-mutation-actor-must-be-server-derived
+    languages: [typescript]
+    message: >
+      V10 mutation actorUserId must come from authenticated server context, not request bodies,
+      payload objects, form fields, or request-derived helper inputs.
+    severity: ERROR
+    pattern-either:
+      - pattern-regex: 'actorUserId\s*:\s*String\([^\n]*formData\.get\('
+      - pattern-regex: 'actorUserId\s*:\s*(body|requestBody|clientBody|payload)\??\.[A-Za-z0-9_]+'
+      - pattern-regex: 'actorUserId\s*:\s*[^,\n]*get[A-Za-z0-9_]*FromRequest\('
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/actions/**/*.ts
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx
+        - /src/lib/v10-server-contracts.ts
+
+  - id: oblixa-v10-mutation-next-destination-no-unsafe-query
+    languages: [typescript]
+    message: >
+      V10 mutation nextDestinationHref values must not embed titles, emails, tokens, signatures,
+      secrets, or passwords in query strings.
+    severity: ERROR
+    pattern-regex: 'nextDestinationHref\s*:\s*(["\''"]|`)[^\n]*\?(?=[^\n]*(token|signature|secret|password|email|title)=)[^\n]*\1'
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/actions/**/*.ts
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx

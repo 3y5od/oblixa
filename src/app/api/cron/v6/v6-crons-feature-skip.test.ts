@@ -1,12 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireV6CronFeature = vi.fn();
-const requireV6CronAuth = vi.fn();
 const createAdminClient = vi.fn();
 
 vi.mock("@/lib/v6/feature-guards", () => ({ requireV6CronFeature }));
 vi.mock("@/lib/v6/cron", () => ({
-  requireV6CronAuth,
   listOrganizationIds: vi.fn(async () => ["org-a"]),
   v6CronRunMetadata: (orgsProcessed: number, _startedAtMs: number, errorsCount = 0) => ({
     duration_ms: 1,
@@ -30,42 +28,51 @@ vi.mock("@/lib/v6/cron-jobs", () => ({
   runPlaybookFollowUpAssurancePasses: vi.fn(async () => ({ assuranceRuns: 1 })),
 }));
 
+function cronRequest(path: string) {
+  return new Request(`http://localhost${path}`, {
+    headers: { Authorization: "Bearer cronsecret" },
+  });
+}
+
 describe("v6 cron feature skip", () => {
+  beforeEach(() => {
+    process.env.CRON_SECRET = "cronsecret";
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    delete process.env.CRON_SECRET;
+  });
+
   it("skips cron route when feature disabled", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
     requireV6CronFeature.mockReturnValueOnce(
       new Response(JSON.stringify({ skipped: true }), { status: 200 })
     );
     const { GET } = await import("@/app/api/cron/v6/assurance-checks/route");
-    const res = await GET(new Request("http://localhost/api/cron/v6/assurance-checks"));
+    const res = await GET(cronRequest("/api/cron/v6/assurance-checks"));
     const body = await res.json();
     expect(body.skipped).toBe(true);
   });
 
   it("returns cron auth error when unauthorized", async () => {
-    requireV6CronAuth.mockReturnValueOnce(
-      new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 })
-    );
     const { GET } = await import("@/app/api/cron/v6/scorecard-recompute/route");
     const res = await GET(new Request("http://localhost/api/cron/v6/scorecard-recompute"));
     expect(res.status).toBe(401);
   });
 
   it("runs cron when authorized and enabled", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
     requireV6CronFeature.mockReturnValueOnce(null);
     createAdminClient.mockResolvedValueOnce({ from: vi.fn() });
     const { GET } = await import("@/app/api/cron/v6/segment-recompute/route");
-    const res = await GET(new Request("http://localhost/api/cron/v6/segment-recompute"));
+    const res = await GET(cronRequest("/api/cron/v6/segment-recompute"));
     expect(res.status).toBe(200);
   });
 
   it("runs playbook-follow-up-assurance cron when authorized and enabled", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
     requireV6CronFeature.mockReturnValueOnce(null);
     createAdminClient.mockResolvedValueOnce({ from: vi.fn() });
     const { GET } = await import("@/app/api/cron/v6/playbook-follow-up-assurance/route");
-    const res = await GET(new Request("http://localhost/api/cron/v6/playbook-follow-up-assurance"));
+    const res = await GET(cronRequest("/api/cron/v6/playbook-follow-up-assurance"));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
@@ -73,11 +80,10 @@ describe("v6 cron feature skip", () => {
   });
 
   it("runs external-workflow-deadlines cron when authorized and enabled", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
     requireV6CronFeature.mockReturnValueOnce(null);
     createAdminClient.mockResolvedValueOnce({ from: vi.fn() });
     const { GET } = await import("@/app/api/cron/v6/external-workflow-deadlines/route");
-    const res = await GET(new Request("http://localhost/api/cron/v6/external-workflow-deadlines"));
+    const res = await GET(cronRequest("/api/cron/v6/external-workflow-deadlines"));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);

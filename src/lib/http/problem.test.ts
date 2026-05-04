@@ -19,8 +19,10 @@ describe("http problem helpers", () => {
     const unauthorized = await jsonUnauthorized("/api/private").json();
     expect(unauthorized).toMatchObject({ code: "unauthorized", diagnostic_id: "route_unauthorized" });
 
-    const limited = await jsonRateLimited(1234, "/api/private").json();
+    const limitedResponse = jsonRateLimited(1234, "/api/private");
+    const limited = await limitedResponse.json();
     expect(limited).toMatchObject({ code: "rate_limited", diagnostic_id: "route_rate_limited" });
     expect(limited.details).toEqual({ retryAfterMs: 1234 });
+    expect(limitedResponse.headers.get("Retry-After")).toBe("2");
   });
 });

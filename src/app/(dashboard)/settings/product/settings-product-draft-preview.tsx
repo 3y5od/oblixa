@@ -22,7 +22,7 @@ type PreviewState = {
   enabledNotificationTypes: string[];
 };
 
-const EMAIL_MUTE_KEYS = ["reminder_due", "saved_view_summary", "automation_rule"] as const;
+const EMAIL_NOTIFICATION_TYPES = NOTIFICATION_TAXONOMY.map((entry) => entry.notificationType);
 
 function parseMode(raw: FormDataEntryValue | null, fallback: WorkspaceProductMode): WorkspaceProductMode {
   const value = String(raw ?? "").trim();
@@ -66,9 +66,8 @@ export function deriveProductSettingsDraftPreviewState(input: {
   const assuranceHidden = toHiddenSet(input.formData, "hide_assurance_", ALL_ASSURANCE_NAV_MODULE_KEYS);
   const utilityHidden = toHiddenSet(input.formData, "hide_utility_", ALL_UTILITY_MODULE_KEYS);
 
-  const mutedKnown = EMAIL_MUTE_KEYS.filter((key) => input.formData.get(`mute_email_${key}`) === "on");
-  const otherBlocked = input.initialBlockedTypes.filter((t) => !EMAIL_MUTE_KEYS.includes(t as (typeof EMAIL_MUTE_KEYS)[number]));
-  const emailBlocked = new Set([...otherBlocked, ...mutedKnown]);
+  const mutedKnown = EMAIL_NOTIFICATION_TYPES.filter((key) => input.formData.get(`mute_email_${key}`) === "on");
+  const emailBlocked = new Set(mutedKnown);
   const blockedByMode = new Set(notificationTypesBlockedByMode(mode));
   const enabledNotificationTypes = NOTIFICATION_TAXONOMY.filter(
     (row) => !blockedByMode.has(row.notificationType) && !emailBlocked.has(row.notificationType)

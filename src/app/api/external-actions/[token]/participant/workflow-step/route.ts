@@ -11,6 +11,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { nowIso, readJsonBody, toSafeString, verifyExternalPasscode } from "@/lib/v5/api";
 import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 /**
  * Token-authenticated workflow step append for external participants (V6 external collaboration).
@@ -38,6 +39,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
 
   const { token } = await params;
+  const duplicate = await enforceIdempotency(request, {
+    scope: "external-workflow.participant-step",
+    actorKey: token,
+  });
+  if (duplicate) return duplicate;
   const admin = await createAdminClient();
   const { data: link, error: linkError } = await admin
     .from("external_action_links")

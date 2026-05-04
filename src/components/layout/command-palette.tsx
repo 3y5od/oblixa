@@ -6,10 +6,8 @@ import { ArrowRight, Clock3, Search } from "lucide-react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { STATUS_LABELS } from "@/lib/contracts";
 import {
-  NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
   getWorkflowAreaForNavItem,
-  type NavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
@@ -17,7 +15,6 @@ import {
   isNavItemVisibleForSurface,
 } from "@/lib/product-surface/nav-visibility";
 import {
-  CMDK_EXTRA_NAV_ITEMS,
   cmdkFilterRecentHrefsForSurface,
   cmdkResultSortKey,
   isCmdkHrefAllowed,
@@ -28,7 +25,6 @@ import {
   type CommandPaletteOpenDetail,
 } from "@/lib/product-surface/command-palette-bridge";
 import { shellTestIds } from "@/lib/qa/test-ids";
-import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
 import {
   emitCmdkPaletteOpenedTelemetry,
   emitCmdkResultSelectedTelemetry,
@@ -36,82 +32,17 @@ import {
   emitCmdkZeroResultsTelemetry,
 } from "@/actions/product-telemetry";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
-
-const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
-type PaletteItem = NavItem & { resultMeta?: string; resultOrder?: number };
-type ContractPaletteResult = {
-  id: string;
-  title: string;
-  counterparty?: string | null;
-  status?: string | null;
-  ownerLabel?: string | null;
-  href?: string | null;
-  resultType?: string | null;
-  description?: string | null;
-  actionLabel?: string | null;
-};
-type CommandPaletteRecoveryAction = {
-  label: string;
-  href: string;
-  reason?: string | null;
-};
-type CommandPaletteRecovery = {
-  message: string;
-  diagnosticId?: string | null;
-  actions: CommandPaletteRecoveryAction[];
-};
-
-function fallbackNavSurface(
-  role: WorkspaceRole,
-  flags: Record<FeatureFlagKey, boolean>
-): NavSurfaceInput {
-  return {
-    mode: "core",
-    role,
-    featureFlags: flags,
-    seesAdvancedPrimaryNav: false,
-    seesAssuranceNav: false,
-    advancedModulesHidden: [],
-    assuranceModulesHidden: [],
-    utilityModulesHidden: [],
-    searchScope: "match_mode",
-  };
-}
-
-function allCommandItems(): PaletteItem[] {
-  return [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS];
-}
-
-function resultMetaLabel(item: PaletteItem): string {
-  if (item.resultMeta) return item.resultMeta;
-  const area = WORKFLOW_AREA_LABELS[getWorkflowAreaForNavItem(item)];
-  const path = item.href.split("?")[0] ?? item.href;
-  return `${area} · ${path}`;
-}
-
-function isCmdkContractsListSearchJumpHref(href: string): boolean {
-  const path = href.split("?")[0] ?? "";
-  return path === "/contracts" && href.includes("search=");
-}
-
-/**
- * CmdK jump matching for registry-backed search rows: avoid treating the contracts list
- * prefill row as a universal substring match via echoed query text (§16), and suppress
- * obvious probe strings so the palette can show a true empty state + zero-results telemetry.
- */
-function cmdkJumpMatchesPaletteQuery(item: PaletteItem, q: string): boolean {
-  if (isCmdkContractsListSearchJumpHref(item.href)) {
-    if (/z{3,}/i.test(q) && !/\b(contract|search)\b/i.test(q)) {
-      return false;
-    }
-    const n = normalizeContractsSearchQuery(q.trim());
-    const nameBase = item.name.replace(/^Search contracts:\s*.+$/i, "Search contracts");
-    const desc = item.description.replace(/prefiltered for "[^"]*"/, "prefiltered");
-    const haystack = `${nameBase} ${desc} ${item.resultMeta ?? ""} ${n} ${item.href.split("?")[0] ?? ""}`.toLowerCase();
-    return haystack.includes(q);
-  }
-  return `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q);
-}
+import {
+  allCommandItems,
+  cmdkJumpMatchesPaletteQuery,
+  fallbackNavSurface,
+  paletteHrefKey,
+  RECENT_COMMANDS_KEY,
+  resultMetaLabel,
+  type CommandPaletteRecovery,
+  type ContractPaletteResult,
+  type PaletteItem,
+} from "./command-palette-helpers";
 
 export function CommandPalette(props: {
   role?: WorkspaceRole;
@@ -132,6 +63,7 @@ export function CommandPalette(props: {
   const [open, setOpen] = useState(true);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const prevOpen = useRef(false);
   const [query, setQuery] = useState(() => props.initialQuery ?? "");
   const deferredFilterQ = useDeferredValue(query.trim().toLowerCase());
@@ -159,6 +91,38 @@ export function CommandPalette(props: {
   const lastCmdkTelemetryAt = useRef(0);
   const lastZeroQueryKey = useRef<string | null>(null);
 
+  function persistRecentCommands(next: string[]) {
+    try {
+      window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next));
+    } catch {
+      // Ignore storage write errors.
+    }
+  }
+
+  function clearRemoteSearchFeedback() {
+    setRemoteSearchFailed(false);
+    setRemoteSearchPartial(null);
+    setRemoteSearchRecovery(null);
+  }
+
+  function rememberReturnFocusTarget() {
+    if (typeof document === "undefined") return;
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement)) {
+      returnFocusRef.current = null;
+      return;
+    }
+    if (searchInputRef.current?.contains(active) || openButtonRef.current?.contains(active)) {
+      returnFocusRef.current = active;
+      return;
+    }
+    if (active === document.body) {
+      returnFocusRef.current = null;
+      return;
+    }
+    returnFocusRef.current = active;
+  }
+
   useEffect(() => {
     queueMicrotask(() => searchInputRef.current?.focus());
   }, []);
@@ -172,8 +136,14 @@ export function CommandPalette(props: {
         void emitCmdkPaletteOpenedTelemetry();
       }
     } else if (prevOpen.current) {
-      openButtonRef.current?.focus();
+      const returnTarget = returnFocusRef.current;
+      if (returnTarget && returnTarget.isConnected) {
+        returnTarget.focus();
+      } else {
+        openButtonRef.current?.focus();
+      }
       prevOpen.current = false;
+      returnFocusRef.current = null;
     }
   }, [open]);
 
@@ -181,8 +151,9 @@ export function CommandPalette(props: {
     function onPaletteOpen(event: Event) {
       const ce = event as CustomEvent<CommandPaletteOpenDetail>;
       const q = typeof ce.detail?.query === "string" ? ce.detail.query : "";
+      rememberReturnFocusTarget();
       setQuery(q);
-      if (q.trim().length < 2) setRemoteSearchFailed(false);
+      if (q.trim().length < 2) clearRemoteSearchFeedback();
       setActiveIndex(0);
       setOpen(true);
       queueMicrotask(() => searchInputRef.current?.focus());
@@ -232,6 +203,7 @@ export function CommandPalette(props: {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
+        rememberReturnFocusTarget();
         setOpen((v) => !v);
       }
       if (event.key === "Escape" && open) {
@@ -338,23 +310,41 @@ export function CommandPalette(props: {
       : sorted.filter((item) =>
           `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
         );
+    const remoteHrefSeen = new Set(contractItems.map((item) => paletteHrefKey(item.href)));
+    const dedupedNavPart =
+      q.length > 0
+        ? navPart.filter((item) => {
+            const key = paletteHrefKey(item.href);
+            return !remoteHrefSeen.has(key) && !remoteHrefSeen.has(item.href);
+          })
+        : navPart;
     const hrefSeen = new Set(
-      [...contractItems, ...navPart].map((i) => i.href.split("?")[0] ?? i.href)
+      [...contractItems, ...dedupedNavPart].map((i) => paletteHrefKey(i.href))
     );
     const jumps = !q
       ? searchJumpNavItems
       : searchJumpNavItems.filter((item) => cmdkJumpMatchesPaletteQuery(item, q));
     const extra = jumps.filter((item) => {
-      const path = item.href.split("?")[0] ?? item.href;
+      const path = paletteHrefKey(item.href);
       return !hrefSeen.has(path) && !hrefSeen.has(item.href);
     });
-    return q ? [...contractItems, ...extra, ...navPart] : [...navPart, ...extra];
+    return q ? [...contractItems, ...extra, ...dedupedNavPart] : [...dedupedNavPart, ...extra];
   }, [contractItems, deferredFilterQ, surface, searchJumpNavItems]);
 
   const visibleRecentHrefs = useMemo(
     () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface),
     [recentHrefs, surface]
   );
+
+  useEffect(() => {
+    if (
+      visibleRecentHrefs.length === recentHrefs.length &&
+      visibleRecentHrefs.every((href, index) => href === recentHrefs[index])
+    ) {
+      return;
+    }
+    persistRecentCommands(visibleRecentHrefs);
+  }, [recentHrefs, visibleRecentHrefs]);
 
   const grouped = useMemo(() => {
     const groups = {
@@ -416,14 +406,12 @@ export function CommandPalette(props: {
     return () => window.removeEventListener("keydown", onEnter);
   }, [clampedActiveIndex, deferredFilterQ, flatItems, open]);
 
-  function rememberCommand(item: NavItem) {
-    const next = [item.href, ...recentHrefs.filter((href) => href !== item.href)].slice(0, 6);
-    setRecentHrefs(next);
-    try {
-      window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next));
-    } catch {
-      // Ignore storage write errors.
-    }
+  function rememberCommand(item: PaletteItem) {
+    setRecentHrefs((current) => {
+      const next = [item.href, ...current.filter((href) => href !== item.href)].slice(0, 6);
+      persistRecentCommands(next);
+      return next;
+    });
   }
 
   return (
@@ -431,7 +419,10 @@ export function CommandPalette(props: {
       <button
         ref={openButtonRef}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          rememberReturnFocusTarget();
+          setOpen(true);
+        }}
         data-testid={shellTestIds.commandPaletteTrigger}
         className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-3.5 py-2.5 text-[12px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
@@ -470,7 +461,7 @@ export function CommandPalette(props: {
                 onChange={(event) => {
                   const nextQuery = event.target.value;
                   setQuery(nextQuery);
-                  if (nextQuery.trim().length < 2) setRemoteSearchFailed(false);
+                  if (nextQuery.trim().length < 2) clearRemoteSearchFeedback();
                   setActiveIndex(0);
                 }}
                 className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"

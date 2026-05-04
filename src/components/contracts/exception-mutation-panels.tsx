@@ -4,6 +4,11 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { assignException, reopenException, resolveException } from "@/actions/exceptions";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import {
+  getV10ExceptionResolutionActionOptions,
+  type V10ExceptionResolutionAction,
+  type V10ExceptionResolutionActionOption,
+} from "@/lib/v10-approval-exception";
 
 type OwnerOption = {
   id: string;
@@ -15,13 +20,15 @@ type ExceptionMutationPanelsProps = {
   ownerId: string | null;
   dueDate: string | null;
   ownerOptions: OwnerOption[];
+  resolutionActionOptions?: V10ExceptionResolutionActionOption[];
   canAssign: boolean;
   canResolve: boolean;
   canReopen: boolean;
 };
 
 export function ExceptionMutationPanels(props: ExceptionMutationPanelsProps) {
-  const syncKey = `${props.exceptionId}:${props.ownerId ?? ""}:${props.dueDate ?? ""}`;
+  const resolutionActionOptions = props.resolutionActionOptions ?? getV10ExceptionResolutionActionOptions();
+  const syncKey = `${props.exceptionId}:${props.ownerId ?? ""}:${props.dueDate ?? ""}:${resolutionActionOptions.map((option) => option.value).join(",")}`;
   return <ExceptionMutationPanelsInner key={syncKey} {...props} />;
 }
 
@@ -35,6 +42,10 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
 
   const [ownerId, setOwnerId] = useState(props.ownerId ?? "");
   const [dueDate, setDueDate] = useState(props.dueDate ?? "");
+  const resolutionActionOptions = props.resolutionActionOptions ?? getV10ExceptionResolutionActionOptions();
+  const [resolutionAction, setResolutionAction] = useState<V10ExceptionResolutionAction>(
+    resolutionActionOptions[0]?.value ?? "fixed"
+  );
   const [resolutionNote, setResolutionNote] = useState("");
 
   useEffect(() => {
@@ -111,11 +122,23 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
       {props.canResolve ? (
         <div className="space-y-2 rounded border border-[var(--border-subtle)] p-2">
           <p className="ui-label-caps">Resolve</p>
+          <select
+            value={resolutionAction}
+            onChange={(event) => setResolutionAction(event.target.value as V10ExceptionResolutionAction)}
+            className="ui-input text-xs"
+            disabled={isPending || refreshQueued}
+          >
+            {resolutionActionOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           <textarea
             value={resolutionNote}
             onChange={(event) => setResolutionNote(event.target.value)}
             className="ui-input min-h-[52px] text-xs"
-            placeholder="Resolution note"
+            placeholder="Resolution note (required for high-risk exceptions)"
             disabled={isPending || refreshQueued}
           />
           {resolutionNote.trim().length > 0 && !isPending ? (
@@ -132,6 +155,7 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
               startTransition(async () => {
                 const result = await resolveException({
                   exceptionId: props.exceptionId,
+                  resolutionAction,
                   resolutionNote,
                 });
                 if ("error" in result && result.error) {

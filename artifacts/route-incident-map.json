@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.655Z",
   "rows": [
     {
       "route": "/",
@@ -853,7 +853,7 @@
       "route": "/api/export/contracts/[jobId]",
       "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
       "owner": "release",
-      "riskTier": "P3",
+      "riskTier": "P1",
       "diagnosticPrefix": "api_export_contracts_jobid"
     },
     {
@@ -1240,6 +1240,13 @@
       "owner": "release",
       "riskTier": "P3",
       "diagnosticPrefix": "api_report_packs_id_runs"
+    },
+    {
+      "route": "/api/report-runs/[runId]/retry",
+      "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_report_runs_runid_retry"
     },
     {
       "route": "/api/reports/capture-metrics",
@@ -2500,6 +2507,13 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_contracts_bulk_import_telemetry_v9_test"
+    },
+    {
+      "route": "action:contracts-outbound-fetch.test",
+      "sourcePath": "src/actions/contracts-outbound-fetch.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_contracts_outbound_fetch_test"
     },
     {
       "route": "action:createApprovalPolicyForm",

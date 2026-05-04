@@ -64,6 +64,78 @@ describe("GET /api/integrations/oauth/callback", () => {
     expect(body).toEqual({ error: "Invalid state" });
   });
 
+  it("returns 400 when oauth state already used", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "slack",
+          consumed_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=used&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: "State already used" });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state is expired", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "slack",
+          consumed_at: null,
+          expires_at: new Date(Date.now() - 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=expired&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: "State expired" });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
   it("returns 500 when loading oauth state fails", async () => {
     const authStateQuery = {
       select: vi.fn().mockReturnThis(),
@@ -148,5 +220,89 @@ describe("GET /api/integrations/oauth/callback", () => {
     expect(res.status).toBe(500);
     expect(body).toEqual({ error: "Failed to persist integration connection" });
     expect(upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends a schema-compatible token exchange payload fields and persists the connection", async () => {
+    const authStateId = crypto.randomUUID();
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: {
+            id: authStateId,
+            organization_id: "org_1",
+            provider: "slack",
+            consumed_at: null,
+            expires_at: new Date(Date.now() + 60_000).toISOString(),
+            redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+            code_verifier: "verifier-123",
+            code_challenge_method: "S256",
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({ data: null, error: null }),
+      update: vi.fn().mockReturnThis(),
+    };
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    safeFetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        access_token: "access_token",
+        refresh_token: "refresh_token",
+        expires_in: 3600,
+      }),
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        if (table === "integration_connections") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+            upsert,
+          };
+        }
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const req = new Request(
+      "http://localhost:3000/api/integrations/oauth/callback?state=test-state&code=auth_code&account=acct_123"
+    );
+    const res = await GET(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({ ok: true, provider: "slack", tokenExpiresAt: expect.any(String) });
+    expect(safeFetch).toHaveBeenCalledWith(
+      "https://slack.com/api/oauth.v2.access",
+      expect.objectContaining({
+        method: "POST",
+        timeoutMs: 20_000,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+    );
+    const sentBody = new URLSearchParams(String(safeFetch.mock.calls[0]?.[1]?.body ?? ""));
+    expect(Object.fromEntries(sentBody.entries())).toMatchObject({
+      grant_type: "authorization_code",
+      code: "auth_code",
+      redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+      client_id: "cid",
+      client_secret: "csecret",
+      code_verifier: "verifier-123",
+    });
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organization_id: "org_1",
+        provider: "slack",
+        status: "connected",
+        connected_account: "acct_123",
+      }),
+      { onConflict: "organization_id,provider", ignoreDuplicates: false }
+    );
   });
 });

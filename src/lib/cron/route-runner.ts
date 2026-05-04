@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 type RateLimitConfig = (typeof RATE_LIMITS)[keyof typeof RATE_LIMITS];
@@ -20,12 +21,15 @@ export type CronRouteHandlerResult = {
   ok?: boolean;
   partial?: boolean;
   errorsCount?: number;
+  pingReason?: string;
 };
 
 export type CronRouteRunnerOptions = {
   route: string;
+  healthcheckRoute?: string;
   rateLimitKey: string | ((request: Request) => Promise<string> | string);
   rateLimit?: RateLimitConfig;
+  responseHeaders?: HeadersInit;
   preflight?: (request: Request) => Promise<NextResponse | null> | NextResponse | null;
   handler: (ctx: CronRouteHandlerContext) => Promise<CronRouteHandlerResult | Record<string, unknown>>;
   adminFactory?: () => Promise<AdminClient>;
@@ -51,7 +55,29 @@ function safeErrorClass(error: unknown): string {
 
 function pingIfEnabled(options: CronRouteRunnerOptions, payload: Record<string, unknown>) {
   if (options.pingHealthcheck === false) return;
-  pingCronHealthcheck(options.route, payload);
+  pingCronHealthcheck(options.healthcheckRoute ?? options.route, payload);
+}
+
+function getSkipTelemetryFromBody(body: Record<string, unknown>) {
+  const skipped = body.skipped === true;
+  const skipReason = typeof body.reason === "string" ? body.reason : undefined;
+  return {
+    skipped,
+    ...(skipped ? { skipped: true } : {}),
+    ...(skipped && skipReason ? { skip_reason: skipReason } : {}),
+  };
+}
+
+async function getSkipTelemetryFromResponse(response: Response): Promise<Record<string, unknown>> {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!/application\/json/i.test(contentType)) return {};
+  try {
+    const body = (await response.clone().json()) as Record<string, unknown>;
+    const telemetry = getSkipTelemetryFromBody(body);
+    return telemetry.skipped ? telemetry : {};
+  } catch {
+    return {};
+  }
 }
 
 function applyNoStore(response: NextResponse): NextResponse {
@@ -61,9 +87,19 @@ function applyNoStore(response: NextResponse): NextResponse {
   return response;
 }
 
+function applyResponseHeaders(response: NextResponse, headers?: HeadersInit): NextResponse {
+  applyNoStore(response);
+  if (!headers) return response;
+  const extra = new Headers(headers);
+  for (const [key, value] of extra.entries()) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
 export async function runCronRoute(request: Request, options: CronRouteRunnerOptions): Promise<NextResponse> {
   const startedAtMs = Date.now();
-  const deny = gateCronRequest(request, { headers: PRIVATE_NO_STORE_HEADERS });
+  const deny = gateCronRequest(request, { headers: options.responseHeaders });
   if (deny) {
     pingIfEnabled(options, {
       ok: false,
@@ -74,6 +110,20 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
     return deny;
   }
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: `cron:${options.route}`,
+    actorKey: "cron",
+  });
+  if (duplicate) {
+    pingIfEnabled(options, {
+      ok: false,
+      status: duplicate.status,
+      reason: "duplicate_request",
+      durationMs: Date.now() - startedAtMs,
+    });
+    return applyResponseHeaders(duplicate, options.responseHeaders);
+  }
+
   const rateLimitKey =
     typeof options.rateLimitKey === "function" ? await options.rateLimitKey(request) : options.rateLimitKey;
   const rate = await rateLimitCheck(rateLimitKey, options.rateLimit ?? RATE_LIMITS.v6CronDefault);
@@ -81,23 +131,31 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
     const payload = {
       ok: false,
       route: options.route,
+      error: "Too many requests",
       code: "rate_limited",
       diagnostic_id: "cron_rate_limited",
       retryAfterMs: rate.retryAfterMs,
       durationMs: Date.now() - startedAtMs,
     };
     pingIfEnabled(options, { ...payload, status: 429, reason: "rate_limited" });
-    return NextResponse.json(payload, { status: 429, headers: PRIVATE_NO_STORE_HEADERS });
+    return applyResponseHeaders(NextResponse.json(payload, { status: 429 }), options.responseHeaders);
   }
 
   const preflight = options.preflight ? await options.preflight(request) : null;
   if (preflight) {
-    applyNoStore(preflight);
+    const skipTelemetry = await getSkipTelemetryFromResponse(preflight);
+    applyResponseHeaders(preflight, options.responseHeaders);
     pingIfEnabled(options, {
       ok: preflight.status < 400,
       status: preflight.status,
-      reason: preflight.status < 400 ? "preflight" : "preflight_blocked",
+      reason:
+        skipTelemetry.skipped === true
+          ? "skipped"
+          : preflight.status < 400
+            ? "preflight"
+            : "preflight_blocked",
       durationMs: Date.now() - startedAtMs,
+      ...skipTelemetry,
     });
     return preflight;
   }
@@ -115,7 +173,7 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       durationMs: Date.now() - startedAtMs,
     };
     pingIfEnabled(options, { ...payload, status: 503, reason: "admin_client_unavailable" });
-    return NextResponse.json(payload, { status: 503, headers: PRIVATE_NO_STORE_HEADERS });
+    return applyResponseHeaders(NextResponse.json(payload, { status: 503 }), options.responseHeaders);
   }
 
   try {
@@ -132,14 +190,16 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       ...(Number.isFinite(errorsCount) ? { errors_count: errorsCount } : {}),
       ...result.body,
     };
+    const skipTelemetry = getSkipTelemetryFromBody(body);
     pingIfEnabled(options, {
       ok,
       status,
-      reason: partial ? "partial" : ok ? "ok" : "failed",
+      reason: result.pingReason ?? (skipTelemetry.skipped ? "skipped" : partial ? "partial" : ok ? "ok" : "failed"),
       durationMs: body.durationMs,
       errors_count: body.errors_count,
+      ...skipTelemetry,
     });
-    return NextResponse.json(body, { status, headers: PRIVATE_NO_STORE_HEADERS });
+    return applyResponseHeaders(NextResponse.json(body, { status }), options.responseHeaders);
   } catch (error) {
     const payload = {
       ok: false,
@@ -151,7 +211,7 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       errors_count: 1,
     };
     pingIfEnabled(options, { ...payload, status: 500, reason: "unhandled_cron_error" });
-    return NextResponse.json(payload, { status: 500, headers: PRIVATE_NO_STORE_HEADERS });
+    return applyResponseHeaders(NextResponse.json(payload, { status: 500 }), options.responseHeaders);
   }
 }
 

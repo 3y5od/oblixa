@@ -6,6 +6,8 @@ src/lib/contract-list-row-signals.ts
 src/lib/contract-list.ts
 src/lib/contract-review-stats.ts
 src/lib/contracts.ts
+## Shared cron boundary: centralizes authenticated scheduled-route admin client construction.
+src/lib/cron/route-runner.ts
 src/lib/dashboard-data.ts
 src/lib/data-quality.ts
 src/lib/extraction-job.ts

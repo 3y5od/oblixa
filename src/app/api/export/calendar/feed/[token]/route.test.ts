@@ -42,6 +42,49 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     expect(body).toEqual({ error: "Feed not found" });
   });
 
+  it("returns 404 when feed is expired or revoked", async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      or: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: "feed_expired",
+            organization_id: "org_1",
+            active: true,
+            token: "tok",
+            token_hash: null,
+            expires_at: new Date(Date.now() - 60_000).toISOString(),
+            revoked_at: null,
+          },
+          {
+            id: "feed_revoked",
+            organization_id: "org_1",
+            active: true,
+            token: "tok",
+            token_hash: null,
+            expires_at: null,
+            revoked_at: new Date().toISOString(),
+          },
+        ],
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn(() => query),
+    });
+
+    const { GET } = await import("@/app/api/export/calendar/feed/[token]/route");
+    const req = new Request("http://localhost:3000/api/export/calendar/feed/tok");
+    const res = await GET(req, { params: Promise.resolve({ token: "tok" }) });
+    const body = await res.json();
+
+    expect(res.status).toBe(404);
+    expect(body).toEqual({ error: "Feed not found" });
+    expect(buildOrganizationCalendarIcs).not.toHaveBeenCalled();
+  });
+
   it("returns ICS body and cache headers for a valid token", async () => {
     const feedQuery = {
       select: vi.fn().mockReturnThis(),

@@ -156,6 +156,7 @@ for (const args of [
   ["scripts/check-v10-migration-smoke.mjs"],
   ["scripts/check-v10-release-evidence.mjs", "--privacy-scan", "all"],
   ["scripts/check-cron-route-auth.mjs"],
+  ["scripts/check-scheduled-cron-route-wrappers.mjs"],
   ["scripts/check-vercel-cron-alignment.mjs"],
 ]) {
   const gate = spawnSync("node", args, {

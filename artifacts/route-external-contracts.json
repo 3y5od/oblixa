@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.656Z",
   "vercelCrons": [
     {
       "path": "/api/reminders/send",
@@ -338,6 +338,7 @@
     "/api/renewals/{id}/{action}",
     "/api/report-packs",
     "/api/report-packs/{id}/runs",
+    "/api/report-runs/{runId}/retry",
     "/api/reports/capture-metrics",
     "/api/reports/send-summaries",
     "/api/reports/track/click/{token}",

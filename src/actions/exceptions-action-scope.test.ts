@@ -6,6 +6,8 @@ const revalidatePath = vi.fn();
 const getOrgMemberRole = vi.fn();
 const canEditContracts = vi.fn();
 const emitVisibleMutationErrorTelemetry = vi.fn();
+const loadProductSurfaceContext = vi.fn();
+const evaluateFeatureEligibility = vi.fn();
 
 vi.mock("next/cache", () => ({
   revalidatePath,
@@ -21,6 +23,14 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/permissions", () => ({
   canEditContracts,
   getOrgMemberRole,
+}));
+
+vi.mock("@/lib/product-surface/context", () => ({
+  loadProductSurfaceContext,
+}));
+
+vi.mock("@/lib/product-surface/eligibility", () => ({
+  evaluateFeatureEligibility,
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
@@ -48,6 +58,8 @@ describe("exceptions server actions", () => {
     vi.resetModules();
     getOrgMemberRole.mockResolvedValue("editor");
     canEditContracts.mockReturnValue(true);
+    loadProductSurfaceContext.mockResolvedValue({ mode: "core" });
+    evaluateFeatureEligibility.mockReturnValue({ allowed: true });
   });
 
   it("assignException rejects when unauthenticated", async () => {
@@ -147,5 +159,47 @@ describe("exceptions server actions", () => {
     expect(updateBuilder.eq).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
     expect(emitVisibleMutationErrorTelemetry).not.toHaveBeenCalled();
+  });
+
+  it("resolveException rejects resolution actions that are unavailable in the current workspace", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+    const updateBuilder = makeUpdateBuilder();
+    adminFrom.mockImplementation((table: string) => {
+      if (table === "exceptions") {
+        return {
+          select: vi.fn(() =>
+            makeMaybeSingleBuilder({
+              id: "550e8400-e29b-41d4-a716-446655440000",
+              contract_id: "550e8400-e29b-41d4-a716-446655440010",
+              organization_id: "550e8400-e29b-41d4-a716-446655440020",
+              status: "open",
+              severity: "medium",
+              owner_id: "550e8400-e29b-41d4-a716-446655440030",
+              due_date: null,
+            })
+          ),
+          update: vi.fn(() => updateBuilder),
+        };
+      }
+      return { insert: vi.fn().mockResolvedValue({ error: null }) };
+    });
+    evaluateFeatureEligibility.mockReturnValueOnce({ allowed: false });
+
+    const { resolveException } = await import("@/actions/exceptions");
+    const result = await resolveException({
+      exceptionId: "550e8400-e29b-41d4-a716-446655440000",
+      resolutionAction: "campaign_created",
+      resolutionNote: "Escalate via campaign",
+    });
+
+    expect(result).toEqual({ error: "This resolution path is not available in the current workspace configuration." });
+    expect(loadProductSurfaceContext).toHaveBeenCalled();
+    expect(evaluateFeatureEligibility).toHaveBeenCalledWith(
+      expect.anything(),
+      "campaigns",
+      expect.objectContaining({ surfaceIdentifier: "/contracts/exceptions" })
+    );
+    expect(updateBuilder.eq).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

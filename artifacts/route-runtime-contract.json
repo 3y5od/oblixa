@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.655Z",
   "rows": [
     {
       "route": "/",
@@ -633,7 +633,7 @@
       "route": "/api/contracts/recompute-signals",
       "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -710,7 +710,7 @@
       "route": "/api/cron/stripe-webhook-events",
       "sourcePath": "src/app/api/cron/stripe-webhook-events/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -721,7 +721,7 @@
       "route": "/api/cron/v10/idempotency-cleanup",
       "sourcePath": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -732,7 +732,7 @@
       "route": "/api/cron/v10/read-model-refresh",
       "sourcePath": "src/app/api/cron/v10/read-model-refresh/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -743,7 +743,7 @@
       "route": "/api/cron/v10/runtime-artifact-cleanup",
       "sourcePath": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -754,7 +754,7 @@
       "route": "/api/cron/v4/approvals-sla",
       "sourcePath": "src/app/api/cron/v4/approvals-sla/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -765,7 +765,7 @@
       "route": "/api/cron/v4/attestations-issue",
       "sourcePath": "src/app/api/cron/v4/attestations-issue/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -776,7 +776,7 @@
       "route": "/api/cron/v4/escalations-dispatch",
       "sourcePath": "src/app/api/cron/v4/escalations-dispatch/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -787,7 +787,7 @@
       "route": "/api/cron/v4/evidence-followup",
       "sourcePath": "src/app/api/cron/v4/evidence-followup/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -798,7 +798,7 @@
       "route": "/api/cron/v4/exceptions-detect",
       "sourcePath": "src/app/api/cron/v4/exceptions-detect/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -809,7 +809,7 @@
       "route": "/api/cron/v4/programs-reconcile",
       "sourcePath": "src/app/api/cron/v4/programs-reconcile/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -820,7 +820,7 @@
       "route": "/api/cron/v4/renewals-recompute-signals",
       "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -831,7 +831,7 @@
       "route": "/api/cron/v4/report-packs-generate",
       "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -842,7 +842,7 @@
       "route": "/api/cron/v5/campaign-progress",
       "sourcePath": "src/app/api/cron/v5/campaign-progress/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -853,7 +853,7 @@
       "route": "/api/cron/v5/capacity-forecast-refresh",
       "sourcePath": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -864,7 +864,7 @@
       "route": "/api/cron/v5/decision-sla-monitor",
       "sourcePath": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -875,7 +875,7 @@
       "route": "/api/cron/v5/external-followup",
       "sourcePath": "src/app/api/cron/v5/external-followup/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -886,7 +886,7 @@
       "route": "/api/cron/v5/portfolio-risk-recompute",
       "sourcePath": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -897,7 +897,7 @@
       "route": "/api/cron/v5/recommendation-refresh",
       "sourcePath": "src/app/api/cron/v5/recommendation-refresh/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -908,7 +908,7 @@
       "route": "/api/cron/v5/relationship-rollups",
       "sourcePath": "src/app/api/cron/v5/relationship-rollups/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -919,7 +919,7 @@
       "route": "/api/cron/v5/simulation-snapshots",
       "sourcePath": "src/app/api/cron/v5/simulation-snapshots/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -930,7 +930,7 @@
       "route": "/api/cron/v6/assurance-checks",
       "sourcePath": "src/app/api/cron/v6/assurance-checks/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -941,7 +941,7 @@
       "route": "/api/cron/v6/autopilot-dry-run",
       "sourcePath": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -952,7 +952,7 @@
       "route": "/api/cron/v6/autopilot-execution",
       "sourcePath": "src/app/api/cron/v6/autopilot-execution/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -963,7 +963,7 @@
       "route": "/api/cron/v6/control-policy-reevaluation",
       "sourcePath": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -974,7 +974,7 @@
       "route": "/api/cron/v6/external-workflow-deadlines",
       "sourcePath": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -985,7 +985,7 @@
       "route": "/api/cron/v6/finding-refresh",
       "sourcePath": "src/app/api/cron/v6/finding-refresh/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -996,7 +996,7 @@
       "route": "/api/cron/v6/health-graph-rollups",
       "sourcePath": "src/app/api/cron/v6/health-graph-rollups/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1007,7 +1007,7 @@
       "route": "/api/cron/v6/onboarding-calibration-stale",
       "sourcePath": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1018,7 +1018,7 @@
       "route": "/api/cron/v6/outcome-effectiveness",
       "sourcePath": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1029,7 +1029,7 @@
       "route": "/api/cron/v6/playbook-follow-up-assurance",
       "sourcePath": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1040,7 +1040,7 @@
       "route": "/api/cron/v6/review-board-packet-generation",
       "sourcePath": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1051,7 +1051,7 @@
       "route": "/api/cron/v6/scorecard-recompute",
       "sourcePath": "src/app/api/cron/v6/scorecard-recompute/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1062,7 +1062,7 @@
       "route": "/api/cron/v6/segment-recompute",
       "sourcePath": "src/app/api/cron/v6/segment-recompute/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1480,7 +1480,7 @@
       "route": "/api/integrations/calendar/sync",
       "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1491,7 +1491,7 @@
       "route": "/api/integrations/crm/sync",
       "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1524,7 +1524,7 @@
       "route": "/api/integrations/refresh-tokens",
       "sourcePath": "src/app/api/integrations/refresh-tokens/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1678,7 +1678,7 @@
       "route": "/api/maintenance/prune-operational-data",
       "sourcePath": "src/app/api/maintenance/prune-operational-data/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1711,7 +1711,7 @@
       "route": "/api/notifications/retry-deliveries",
       "sourcePath": "src/app/api/notifications/retry-deliveries/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1898,7 +1898,7 @@
       "route": "/api/reminders/send",
       "sourcePath": "src/app/api/reminders/send/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -1950,10 +1950,21 @@
       }
     },
     {
+      "route": "/api/report-runs/[runId]/retry",
+      "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "kind": "api_route",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 1500,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "interactive_api"
+      }
+    },
+    {
       "route": "/api/reports/capture-metrics",
       "sourcePath": "src/app/api/reports/capture-metrics/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -2173,7 +2184,7 @@
       "route": "/api/tasks/run-rules",
       "sourcePath": "src/app/api/tasks/run-rules/route.ts",
       "kind": "api_route",
-      "runtime": "nodejs_default",
+      "runtime": "nodejs",
       "performanceBudget": {
         "p95Ms": 55000,
         "maxResponseBytes": 256000,
@@ -3921,6 +3932,17 @@
     {
       "route": "action:contracts-bulk-import-telemetry.v9.test",
       "sourcePath": "src/actions/contracts-bulk-import-telemetry.v9.test.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "action:contracts-outbound-fetch.test",
+      "sourcePath": "src/actions/contracts-outbound-fetch.test.ts",
       "kind": "server_action",
       "runtime": "server_action",
       "performanceBudget": {

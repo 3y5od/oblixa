@@ -1,7 +1,6 @@
-import { AlertTriangle, Clock, Inbox, Percent, PlugZap, FileWarning } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { OperationalQueueRow, OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { hasRoleCapability } from "@/lib/access-control";
@@ -15,6 +14,7 @@ import { isExtractionProcessingStale } from "@/lib/extraction/constants";
 import { buildV10SettingsHealthDiagnostics } from "@/lib/v10-governance";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 import { V10_OPS_RELEASE_READINESS_CONTRACTS } from "@/lib/v10-operational-contracts";
+import { SettingsHealthDiagnosticsSections } from "./settings-health-diagnostics-sections";
 
 export const metadata = { title: "System health" };
 
@@ -65,6 +65,7 @@ export default async function SettingsHealthPage() {
     importJobsRes,
     exportJobsRes,
     extractionJobsRes,
+    remindersRes,
     v10JobRowsRes,
     v10ReportRowsRes,
     v10RefreshJobsRes,
@@ -140,6 +141,12 @@ export default async function SettingsHealthPage() {
         .select("status, attempt_count, last_error, started_at, completed_at")
         .eq("organization_id", orgId)
         .order("started_at", { ascending: false, nullsFirst: false })
+        .limit(50),
+      admin
+        .from("reminders")
+        .select("id, reminder_type, reminder_date, sent_at, created_at")
+        .eq("organization_id", orgId)
+        .order("created_at", { ascending: false })
         .limit(50),
       applyV10ReadModelVisibility(
         admin
@@ -246,9 +253,12 @@ export default async function SettingsHealthPage() {
   const importJobs = importJobsRes.data ?? [];
   const exportJobs = exportJobsRes.data ?? [];
   const extractionJobs = extractionJobsRes.data ?? [];
+  const reminderRuns = remindersRes.data ?? [];
+  const todayIso = nowIso.slice(0, 10);
   const latestImportJob = importJobs[0] ?? null;
   const latestExportJob = exportJobs[0] ?? null;
   const latestExtractionJob = extractionJobs[0] ?? null;
+  const latestReminderRun = reminderRuns[0] ?? null;
   const v10JobRows = v10JobRowsRes.data ?? [];
   const v10ReportRows = v10ReportRowsRes.data ?? [];
   const v10RefreshJobs = v10RefreshJobsRes.data ?? [];
@@ -302,6 +312,13 @@ export default async function SettingsHealthPage() {
   const activeExtractionJobs = extractionJobs.filter(
     (job) => job.status === "pending" || job.status === "processing"
   ).length;
+  const dueReminderRuns = reminderRuns.filter(
+    (row) => !row.sent_at && String(row.reminder_date ?? "") <= todayIso
+  ).length;
+  const scheduledReminderRuns = reminderRuns.filter(
+    (row) => !row.sent_at && String(row.reminder_date ?? "") > todayIso
+  ).length;
+  const sentReminderRuns = reminderRuns.filter((row) => Boolean(row.sent_at)).length;
   const latestImportHeadline = latestImportJob ? getImportJobHeadline(latestImportJob) : "No recent imports";
   const latestImportDetail = latestImportJob
     ? getImportJobDetail(latestImportJob)
@@ -349,6 +366,32 @@ export default async function SettingsHealthPage() {
           : latestExtractionJob.status === "processing" || latestExtractionJob.status === "pending"
             ? "attention"
             : "healthy";
+  const latestReminderHeadline =
+    !latestReminderRun
+      ? "No recent reminders"
+      : latestReminderRun.sent_at
+        ? "Reminder sent"
+        : String(latestReminderRun.reminder_date ?? "") < todayIso
+          ? "Reminder delivery is overdue"
+          : String(latestReminderRun.reminder_date ?? "") === todayIso
+            ? "Reminder due today"
+            : "Reminder scheduled";
+  const latestReminderDetail =
+    !latestReminderRun
+      ? "No recent reminder runs are recorded yet."
+      : latestReminderRun.sent_at
+        ? `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder sent ${new Date(latestReminderRun.sent_at).toISOString()}.`
+        : String(latestReminderRun.reminder_date ?? "") < todayIso
+          ? `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder has been due since ${String(latestReminderRun.reminder_date)}.`
+          : `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder is scheduled for ${String(latestReminderRun.reminder_date ?? "the configured date")}.`;
+  const latestReminderTone =
+    !latestReminderRun
+      ? "neutral"
+      : dueReminderRuns > 0
+        ? "risk"
+        : scheduledReminderRuns > 0
+          ? "attention"
+          : "healthy";
   const lastRetryRunAt =
     (cronAuditRes.data ?? []).find((evt) => evt.action === "notifications.retry_deliveries_run")?.created_at ?? null;
   const referenceTimestamps = [
@@ -382,6 +425,7 @@ export default async function SettingsHealthPage() {
   if (limitedExportJobs > 0) alerts.push(`Recent contract exports completed with limits (${limitedExportJobs}).`);
   if (failedExtractionJobs > 0) alerts.push(`Recent extraction runs failed (${failedExtractionJobs}).`);
   if (staleExtractionJobs > 0) alerts.push(`Some extraction jobs appear stale or stuck (${staleExtractionJobs}).`);
+  if (dueReminderRuns > 0) alerts.push(`Recent reminder runs are due or overdue (${dueReminderRuns}).`);
   if (v10FailedOrPartialRefreshJobs.length > 0) {
     alerts.push(`Data freshness refresh has partial or failed runs (${v10FailedOrPartialRefreshJobs.length}).`);
   }
@@ -520,6 +564,16 @@ export default async function SettingsHealthPage() {
               : ("attention" as const),
         }
       : null,
+    dueReminderRuns > 0 || scheduledReminderRuns > 0
+      ? {
+          href: "/contracts/renewals",
+          eyebrow: "Reminders",
+          title: latestReminderHeadline,
+          hint: latestReminderDetail,
+          actionLabel: "Open renewals",
+          tone: dueReminderRuns > 0 ? ("risk" as const) : ("attention" as const),
+        }
+      : null,
   ];
   const userVisibleImpacts = userVisibleImpactCandidates.filter(
     (row): row is UserVisibleImpactRow => Boolean(row)
@@ -586,6 +640,48 @@ export default async function SettingsHealthPage() {
       actionLabel: "Review mutation health",
       tone: v10ExpiredIdempotencyClaims > 0 ? "attention" : "neutral",
     },
+  ];
+  const apiRouteHealthRows: UserVisibleImpactRow[] = [
+    {
+      href: "/api/health",
+      eyebrow: "API route health",
+      title: "/api/health",
+      hint: "Public health probes should stay reachable for smoke checks, deployment checks, and support-safe heartbeat validation.",
+      actionLabel: "Open health route",
+      tone: "neutral",
+    },
+    {
+      href: "/settings/product",
+      eyebrow: "API route health",
+      title: "/api/notifications/retry-deliveries",
+      hint:
+        lastRetryRunAt == null
+          ? "Notification retry worker has no recorded heartbeat yet. Reminder and digest recovery stays at risk until this hook writes fresh activity."
+          : `Latest retry-deliveries heartbeat was recorded ${new Date(lastRetryRunAt).toISOString()}.`,
+      actionLabel: "Open recovery settings",
+      tone: lastRetryRunAt == null || (retryRunAgeMinutes != null && retryRunAgeMinutes > 30) ? "attention" : "neutral",
+    },
+    ...V10_OPS_RELEASE_READINESS_CONTRACTS.filter((contract) => contract.cronRoute).map((contract) => {
+      const routePath = String(contract.cronRoute).replace(/^src\/app/, "").replace(/\/route\.ts$/, "");
+      const tone =
+        contract.key === "read_model_refresh"
+          ? latestV10RefreshJob == null || v10FailedOrPartialRefreshJobs.length > 0
+            ? "attention"
+            : "neutral"
+          : contract.key === "idempotency_cleanup"
+            ? v10ExpiredIdempotencyClaims > 0
+              ? "attention"
+              : "neutral"
+            : "neutral";
+      return {
+        href: contract.recoveryDestination,
+        eyebrow: "API route health",
+        title: routePath,
+        hint: `${String(contract.key).replace(/_/g, " ")} backs ${String(contract.sloDashboardKey).replace(/_/g, " ")} recovery and routes operators to ${contract.recoveryDestination}.`,
+        actionLabel: "Open recovery path",
+        tone,
+      } satisfies UserVisibleImpactRow;
+    }),
   ];
 
   return (
@@ -681,7 +777,33 @@ export default async function SettingsHealthPage() {
         </div>
       </section>
 
+      <section className="space-y-3">
+        <div>
+          <p className="ui-eyebrow">API route health</p>
+          <h2 className="ui-page-title mt-2 text-[1.8rem]">Critical product path hooks</h2>
+          <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">
+            Critical API routes stay visible here so operators can confirm the health hook, retry worker, and V10 cron-backed recovery paths.
+          </p>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {apiRouteHealthRows.map((row) => (
+            <OperationalQueueRow
+              key={`${row.eyebrow}-${row.title}`}
+              href={row.href}
+              eyebrow={row.eyebrow}
+              title={row.title}
+              hint={row.hint}
+              actionLabel={row.actionLabel}
+              tone={row.tone}
+            />
+          ))}
+        </div>
+      </section>
+
       <section id="jobs" className="space-y-3">
+        <span id="v10-jobs" className="sr-only">
+          V10 job diagnostics
+        </span>
         <span id="v10-runtime" className="sr-only">
           V10 runtime operations
         </span>
@@ -827,6 +949,9 @@ export default async function SettingsHealthPage() {
         <div>
           <p className="ui-eyebrow">Pipelines</p>
           <h2 className="ui-page-title mt-2 text-[1.8rem]">Workflow reliability visibility</h2>
+          <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">
+            Recent reminder runs stay visible beside import, extraction, export, and report recovery so operators can see user-facing timing risk first.
+          </p>
         </div>
         {(v10JobRows.length > 0 || v10ReportRows.length > 0) ? (
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-4">
@@ -917,233 +1042,48 @@ export default async function SettingsHealthPage() {
             actionLabel="Open review and extraction follow-up"
             tone={latestExtractionTone}
           />
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Throughput</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Delivery posture</h2>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-          <OperationalSummaryCard
-            eyebrow="Notifications"
-            headline="Retry queue depth"
-            tone={retryQueueDepth >= 25 ? "attention" : "healthy"}
-            icon={Inbox}
-            primaryValue={retryQueueDepth}
-            primaryUnit="pending + retrying"
-            breakdown={[
-              { label: "Pending", value: String(pendingDeliveries) },
-              { label: "Retrying", value: String(retryingDeliveries) },
-              { label: "Failed", value: String(failedDeliveries) },
-            ]}
-            action={{ href: "/settings/operations", label: "Workspace operations" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Notifications"
-            headline="Failed deliveries"
-            tone={failedDeliveries >= 10 ? "risk" : failedDeliveries > 0 ? "attention" : "healthy"}
-            icon={AlertTriangle}
-            primaryValue={failedDeliveries}
-            primaryUnit="in sampled window"
-            breakdown={[
-              { label: "Retrying", value: String(retryingDeliveries) },
-              { label: "Suppressed", value: String(suppressedDeliveries) },
-            ]}
-            action={{ href: "/settings/health", label: "Refresh health" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Webhooks"
-            headline="Outbound backlog"
-            tone={webhookPending > 0 || webhookHighAttempts > 0 ? "attention" : "healthy"}
-            icon={PlugZap}
-            primaryValue={webhookPending}
-            primaryUnit="undelivered samples"
-            breakdown={[{ label: "3+ attempts", value: String(webhookHighAttempts) }]}
-            action={{ href: "/settings/operations", label: "Check integrations" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Workers"
-            headline="Retry worker lag"
-            tone={
-              retryRunAgeMinutes != null && retryRunAgeMinutes > 30
-                ? "risk"
-                : lastRetryRunAt == null
-                  ? "attention"
-                  : "healthy"
-            }
-            icon={Clock}
-            primaryValue={retryRunAgeMinutes == null ? null : `${retryRunAgeMinutes}m`}
-            primaryFallback="Unknown"
-            primaryUnit="behind latest activity"
-            secondaryLine={
-              lastRetryRunAt ? `Last run ${new Date(lastRetryRunAt).toISOString()}` : "No heartbeat recorded yet"
-            }
-            breakdown={
-              retryRunAgeMinutes != null && lastRetryRunAt
-                ? [{ label: "Last run", value: new Date(lastRetryRunAt).toISOString().slice(0, 19) }]
-                : []
-            }
-            action={{ href: "/settings/health", label: "View health" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Reports"
-            headline="Report run reliability"
-            tone={failedReportRuns >= 3 ? "risk" : failedReportRuns > 0 ? "attention" : "healthy"}
-            icon={FileWarning}
-            primaryValue={`${reportSuccessRateRecent.toFixed(1)}%`}
-            primaryUnit="successful runs in recent sample"
-            breakdown={[
-              { label: "Succeeded", value: String(reportRunsSucceeded.length) },
-              { label: "Running", value: String(reportRunsRunning.length) },
-              { label: "Failed", value: String(failedReportRuns) },
-            ]}
-            action={{ href: "/contracts/reports", label: "Open report history" }}
-            variant="compact"
-          />
-        </div>
-      </section>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <OperationalSummaryCard
-          eyebrow="Quality"
-          headline="Delivery success (recent)"
-          tone={deliverySuccessRateRecent < 90 ? "attention" : "healthy"}
-          icon={Percent}
-          primaryValue={`${deliverySuccessRateRecent.toFixed(1)}%`}
-          primaryUnit="delivered vs failed sample"
-          breakdown={[
-            { label: "Delivered", value: String(deliveredRecent) },
-            { label: "Failed", value: String(failedRecent) },
-          ]}
-          action={{ href: "/settings/health", label: "Refresh metrics" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Dead letter"
-          headline="Recent failures"
-          tone={failedRecent > 0 ? "attention" : "healthy"}
-          icon={AlertTriangle}
-          primaryValue={failedRecent}
-          primaryUnit="failed in sample"
-          action={{ href: "/settings/health", label: "Review breakdowns" }}
-          variant="compact"
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <OperationalSummaryCard
-          eyebrow="Reports"
-          headline="Latest successful digest"
-          tone={latestSucceededReportAt ? "healthy" : failedReportRuns > 0 ? "attention" : "neutral"}
-          icon={Clock}
-          primaryValue={latestSucceededReportAt ? new Date(latestSucceededReportAt).toISOString().slice(0, 16) : null}
-          primaryFallback="None sampled"
-          primaryUnit="most recent successful report run"
-          action={{ href: "/contracts/reports", label: "Review report history" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Reports"
-          headline="Latest failed digest"
-          tone={latestFailedReportAt ? "attention" : "healthy"}
-          icon={FileWarning}
-          primaryValue={latestFailedReportAt ? new Date(latestFailedReportAt).toISOString().slice(0, 16) : null}
-          primaryFallback="No recent failures"
-          primaryUnit="most recent failed report run"
-          action={{ href: "/contracts/reports", label: "Open report history" }}
-          variant="compact"
-        />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="ui-page-shell overflow-hidden">
-          <div className="ui-surface-tint px-5 py-3">
-            <p className="ui-eyebrow">Diagnostics</p>
-            <h2 className="ui-section-title mt-1 text-base">Top failed notification types</h2>
+          <div id="reminders">
+            <OperationalQueueRow
+              href="/contracts/renewals"
+              eyebrow="Reminders"
+              title={latestReminderHeadline}
+              hint={latestReminderDetail}
+              chips={[
+                { label: "Due", value: String(dueReminderRuns) },
+                { label: "Scheduled", value: String(scheduledReminderRuns) },
+                { label: "Sent", value: String(sentReminderRuns) },
+              ]}
+              actionLabel="Open renewals"
+              tone={latestReminderTone}
+            />
           </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {topFailedTypes.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No failed delivery types.</li>
-            ) : (
-              topFailedTypes.map(([type, count]) => (
-                <li key={type} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{type}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-        <section className="ui-page-shell overflow-hidden">
-          <div className="ui-surface-tint px-5 py-3">
-            <p className="ui-eyebrow">Diagnostics</p>
-            <h2 className="ui-section-title mt-1 text-base">Top failure signatures</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {topFailureSignatures.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No failure signatures.</li>
-            ) : (
-              topFailureSignatures.map(([signature, count]) => (
-                <li key={signature} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-                  <span className="truncate text-[var(--text-secondary)]">{signature}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-      </div>
-
-      <section className="ui-page-shell overflow-hidden">
-        <div className="ui-surface-tint px-5 py-3">
-          <p className="ui-eyebrow">Recovery</p>
-          <h2 className="ui-section-title mt-1 text-base">Recent failed deliveries</h2>
         </div>
-        <ul className="divide-y divide-[var(--border-subtle)]">
-          {recentFailedDeliveries.length === 0 ? (
-            <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No recent failed deliveries.</li>
-          ) : (
-            recentFailedDeliveries.map((row) => (
-              <li key={row.id} className="space-y-1 px-5 py-4 text-sm">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="font-semibold text-[var(--text-primary)]">{row.type}</span>
-                  <span className="text-[var(--text-tertiary)]">·</span>
-                  <span className="text-[var(--text-secondary)]">{row.kind}</span>
-                  <span className="text-[var(--text-tertiary)]">·</span>
-                  <span className="text-[var(--text-secondary)]">{row.target}</span>
-                </div>
-                <p className="text-xs text-[var(--text-tertiary)]">{new Date(row.createdAt).toISOString()}</p>
-                <p className="text-xs text-[var(--text-secondary)]">{row.error}</p>
-              </li>
-            ))
-          )}
-        </ul>
       </section>
 
-      <section className="ui-page-shell overflow-hidden">
-        <div className="ui-surface-tint px-5 py-3">
-          <p className="ui-eyebrow">Audit</p>
-          <h2 className="ui-section-title mt-1 text-base">Recent operational events</h2>
-        </div>
-        <ul className="divide-y divide-[var(--border-subtle)]">
-          {(cronAuditRes.data ?? []).length === 0 ? (
-            <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No recent events.</li>
-          ) : (
-            (cronAuditRes.data ?? []).map((evt, idx) => (
-              <li key={`${evt.action}-${idx}`} className="px-5 py-3 text-sm">
-                <p className="font-medium text-[var(--text-primary)]">{evt.action}</p>
-                <p className="text-xs text-[var(--text-tertiary)]">{new Date(evt.created_at).toISOString()}</p>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      <SettingsHealthDiagnosticsSections
+        retryQueueDepth={retryQueueDepth}
+        pendingDeliveries={pendingDeliveries}
+        retryingDeliveries={retryingDeliveries}
+        failedDeliveries={failedDeliveries}
+        suppressedDeliveries={suppressedDeliveries}
+        webhookPending={webhookPending}
+        webhookHighAttempts={webhookHighAttempts}
+        retryRunAgeMinutes={retryRunAgeMinutes}
+        lastRetryRunAt={lastRetryRunAt}
+        reportSuccessRateRecent={reportSuccessRateRecent}
+        reportRunsSucceededCount={reportRunsSucceeded.length}
+        reportRunsRunningCount={reportRunsRunning.length}
+        failedReportRuns={failedReportRuns}
+        deliverySuccessRateRecent={deliverySuccessRateRecent}
+        deliveredRecent={deliveredRecent}
+        failedRecent={failedRecent}
+        latestSucceededReportAt={latestSucceededReportAt}
+        latestFailedReportAt={latestFailedReportAt}
+        topFailedTypes={topFailedTypes}
+        topFailureSignatures={topFailureSignatures}
+        recentFailedDeliveries={recentFailedDeliveries}
+        cronAuditEvents={cronAuditRes.data ?? []}
+      />
     </div>
   );
 }

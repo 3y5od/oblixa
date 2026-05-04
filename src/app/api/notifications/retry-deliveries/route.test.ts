@@ -96,6 +96,6 @@ describe("GET /api/notifications/retry-deliveries", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(429);
-    expect(body).toEqual({ error: "Too many requests", retryAfterMs: 5000 });
+    expect(body).toMatchObject({ error: "Too many requests", code: "rate_limited", retryAfterMs: 5000 });
   });
 });

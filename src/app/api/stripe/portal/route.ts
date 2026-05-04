@@ -9,6 +9,7 @@ import { getStripeClient } from "@/lib/stripe";
 import { getRequestOrigin } from "@/lib/app-url";
 import * as Sentry from "@sentry/nextjs";
 import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switches";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 export async function POST(request: Request) {
   if (isKillBilling()) {
@@ -45,6 +46,12 @@ export async function POST(request: Request) {
       }
     );
   }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "stripe.portal",
+    actorKey: `${membership.organization_id}:${user.id}`,
+  });
+  if (duplicate) return duplicate;
 
   const { data: orgRow, error: orgError } = await admin
     .from("organizations")

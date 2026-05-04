@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const ensureCronAuthorized = vi.fn();
+const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
 const getV6OrgSettingsJson = vi.fn();
 const cronMatchesUtc = vi.fn();
 const computeReportPackMetrics = vi.fn();
 const extractPriorKpis = vi.fn();
 const recordAutomationEvent = vi.fn();
+const recordV10AuditEvent = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
 
-vi.mock("@/lib/v4/cron", () => ({
-  ensureCronAuthorized,
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -35,12 +36,12 @@ vi.mock("@/lib/v4/automation-audit", () => ({
   recordAutomationEvent: (...args: unknown[]) => recordAutomationEvent(...args),
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
-  refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
+vi.mock("@/lib/v10-server-contracts", () => ({
+  recordV10AuditEvent: (...args: unknown[]) => recordV10AuditEvent(...args),
 }));
 
-vi.mock("@/lib/observability/cron-healthcheck", () => ({
-  pingCronHealthcheck: vi.fn(),
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
 }));
 
 const createAdminClient = vi.fn();
@@ -53,7 +54,7 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
-    ensureCronAuthorized.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
     cronMatchesUtc.mockReturnValue(true);
     getV6OrgSettingsJson.mockResolvedValue({
@@ -67,11 +68,12 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
     computeReportPackMetrics.mockResolvedValue({ generated_at: "2026-04-26T20:00:00.000Z", report_type: "contract_portfolio_summary" });
     extractPriorKpis.mockReturnValue({});
     recordAutomationEvent.mockResolvedValue(undefined);
+    recordV10AuditEvent.mockResolvedValue("v10-audit-1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
   });
 
   it("returns unauthorized response from cron guard", async () => {
-    ensureCronAuthorized.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
+    gateCronRequest.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
     const { GET } = await import("@/app/api/cron/v4/report-packs-generate/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/report-packs-generate"));
     expect(res.status).toBe(401);
@@ -82,7 +84,12 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
     const { GET } = await import("@/app/api/cron/v4/report-packs-generate/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/report-packs-generate"));
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: "Too many requests", retryAfterMs: 2500 });
+    expect(await res.json()).toMatchObject({
+      ok: false,
+      error: "Too many requests",
+      code: "rate_limited",
+      retryAfterMs: 2500,
+    });
   });
 
   it("skips advanced report packs when org workspace mode is Core (V7)", async () => {
@@ -134,6 +141,8 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
   });
 
   it("refreshes V10 read models after a report run is generated", async () => {
+    const reportRunInserts: Array<Record<string, unknown>> = [];
+    const reportRunUpdates: Array<Record<string, unknown>> = [];
     const from = vi.fn((table: string) => {
       if (table === "report_packs") {
         return {
@@ -176,6 +185,24 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
           }),
         };
       }
+      if (table === "report_runs") {
+        return {
+          insert: vi.fn((payload: Record<string, unknown>) => {
+            reportRunInserts.push(payload);
+            return {
+              select: () => ({
+                maybeSingle: () => Promise.resolve({ data: { id: "report-run-1" }, error: null }),
+              }),
+            };
+          }),
+          update: vi.fn((payload: Record<string, unknown>) => {
+            reportRunUpdates.push(payload);
+            return {
+              eq: () => Promise.resolve({ error: null }),
+            };
+          }),
+        };
+      }
       if (table === "report_pack_subscriptions") {
         return {
           select: () => ({
@@ -199,6 +226,18 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
 
     expect(res.status).toBe(200);
     expect(body.generated).toBe(1);
+    expect(reportRunInserts).toContainEqual(
+      expect.objectContaining({ report_mode: "contract_portfolio_summary", status: "running" })
+    );
+    expect(reportRunUpdates).toContainEqual(expect.objectContaining({ status: "succeeded" }));
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ action: "report_run.created", targetType: "report_run" })
+    );
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ action: "report_run.completed", targetType: "report_run", outcome: "success" })
+    );
     expect(recordAutomationEvent).toHaveBeenCalledWith(expect.objectContaining({ organizationId: "org-1" }));
     expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledWith(
       expect.anything(),

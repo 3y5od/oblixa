@@ -1,40 +1,24 @@
-import { NextResponse } from "next/server";
-import { gateCronRequest } from "@/lib/security/cron-route-gate";
-import { createAdminClient } from "@/lib/supabase/server";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { withCronRoute } from "@/lib/cron/route-runner";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 const DEFAULT_DELIVERY_RETENTION_DAYS = 120;
 const DEFAULT_AUDIT_RETENTION_DAYS = 180;
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function cutoffIso(days: number): string {
   const safe = Math.max(7, Math.min(3650, Math.trunc(days)));
   return new Date(Date.now() - safe * 24 * 60 * 60 * 1000).toISOString();
 }
 
-export async function GET(request: Request) {
-  const startedAt = Date.now();
-  const deny = gateCronRequest(request);
-  if (deny) {
-    pingCronHealthcheck("maintenance/prune-operational-data", {
-      ok: false,
-      status: deny.status,
-      durationMs: Date.now() - startedAt,
-    });
-    return deny;
-  }
-
-  const cronRate = await rateLimitCheck(
-    "cron:maintenance:prune-operational-data",
-    RATE_LIMITS.maintenancePruneCron
-  );
-  if (!cronRate.ok) {
-    return NextResponse.json(
-      { error: "Too many requests", retryAfterMs: cronRate.retryAfterMs },
-      { status: 429 }
-    );
-  }
-
+export const GET = withCronRoute({
+  route: "/api/maintenance/prune-operational-data",
+  healthcheckRoute: "maintenance/prune-operational-data",
+  rateLimitKey: "cron:maintenance:prune-operational-data",
+  rateLimit: RATE_LIMITS.maintenancePruneCron,
+  handler: async ({ admin }) => {
   let deliveryDays = Number(
     process.env.OPS_RETENTION_NOTIFICATION_DELIVERIES_DAYS ?? DEFAULT_DELIVERY_RETENTION_DAYS
   );
@@ -43,7 +27,6 @@ export async function GET(request: Request) {
   if (!Number.isFinite(auditDays)) auditDays = DEFAULT_AUDIT_RETENTION_DAYS;
   const deliveryCutoff = cutoffIso(deliveryDays);
   const auditCutoff = cutoffIso(auditDays);
-  const admin = await createAdminClient();
 
   const deliveriesFilter = admin
     .from("notification_deliveries")
@@ -52,7 +35,12 @@ export async function GET(request: Request) {
     .lt("created_at", deliveryCutoff);
   const { count: deliveryCount, error: deliveryCountErr } = await deliveriesFilter;
   if (deliveryCountErr) {
-    return NextResponse.json({ error: deliveryCountErr.message }, { status: 500 });
+    return {
+      status: 500,
+      ok: false,
+      errorsCount: 1,
+      body: { error: deliveryCountErr.message },
+    };
   }
   const { error: deliveriesErr } = await admin
     .from("notification_deliveries")
@@ -60,7 +48,12 @@ export async function GET(request: Request) {
     .or("status.eq.delivered,status.eq.failed,status.eq.suppressed")
     .lt("created_at", deliveryCutoff);
   if (deliveriesErr) {
-    return NextResponse.json({ error: deliveriesErr.message }, { status: 500 });
+    return {
+      status: 500,
+      ok: false,
+      errorsCount: 1,
+      body: { error: deliveriesErr.message },
+    };
   }
 
   const trackedAuditActions = [
@@ -76,7 +69,12 @@ export async function GET(request: Request) {
     .lt("created_at", auditCutoff)
     .in("action", trackedAuditActions);
   if (auditCountErr) {
-    return NextResponse.json({ error: auditCountErr.message }, { status: 500 });
+    return {
+      status: 500,
+      ok: false,
+      errorsCount: 1,
+      body: { error: auditCountErr.message },
+    };
   }
 
   const { error: auditErr } = await admin
@@ -85,17 +83,21 @@ export async function GET(request: Request) {
     .lt("created_at", auditCutoff)
     .in("action", trackedAuditActions);
   if (auditErr) {
-    return NextResponse.json({ error: auditErr.message }, { status: 500 });
+    return {
+      status: 500,
+      ok: false,
+      errorsCount: 1,
+      body: { error: auditErr.message },
+    };
   }
 
-  const payload = {
-    ok: true,
-    deletedNotificationDeliveries: deliveryCount ?? 0,
-    deletedAuditEvents: auditCount ?? 0,
-    deliveryCutoff,
-    auditCutoff,
-    durationMs: Date.now() - startedAt,
-  };
-  pingCronHealthcheck("maintenance/prune-operational-data", payload);
-  return NextResponse.json(payload);
-}
+    return {
+      body: {
+        deletedNotificationDeliveries: deliveryCount ?? 0,
+        deletedAuditEvents: auditCount ?? 0,
+        deliveryCutoff,
+        auditCutoff,
+      },
+    };
+  },
+});

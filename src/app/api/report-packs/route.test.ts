@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
@@ -10,7 +12,7 @@ const executeV10AuditedMutation = vi.fn(
   async (
     _admin: unknown,
     _input: unknown,
-    executeTransaction: () => Promise<{ response: unknown; auditEventId: string | null }>
+    executeTransaction: () => Promise<{ response: unknown; auditEventId: string | null; rollback?: (input: unknown) => Promise<void> }>
   ) => {
     const result = await executeTransaction();
     return { response: result.response, replayed: false };
@@ -47,6 +49,7 @@ function adminMock(opts: {
   insertError?: boolean;
   listData?: Array<Record<string, unknown>>;
 }) {
+  const deletedIds: string[] = [];
   const listRows =
     opts.listData ??
     [
@@ -96,8 +99,17 @@ function adminMock(opts: {
             ),
           })),
         })),
+        delete: vi.fn(() => ({
+          eq: vi.fn((field: string, value: string) => {
+            if (field === "id") deletedIds.push(value);
+            return {
+              eq: vi.fn(async () => ({ error: null })),
+            };
+          }),
+        })),
       };
     }),
+    deletedIds,
   };
 }
 
@@ -221,6 +233,54 @@ describe("/api/report-packs", () => {
       }),
       expect.any(Function)
     );
+  });
+
+  it("POST rolls back the inserted report pack when audit persistence fails", async () => {
+    const admin = adminMock({});
+    getApiAuthContext.mockResolvedValueOnce({
+      admin,
+      userId: "user-1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    recordV10AuditEvent.mockResolvedValueOnce(null);
+    executeV10AuditedMutation.mockImplementationOnce(async (_admin, _input, executeTransaction) => {
+      const result = await executeTransaction();
+      if (!result.auditEventId) {
+        await result.rollback?.({
+          reason: "audit_write_failed",
+          diagnosticId: "v10_audit_write_failed",
+          targetType: "report_run",
+          targetId: "pack-1",
+        });
+        return {
+          response: buildV10MutationResponse({
+            outcome: "audit_write_failed",
+            message: "The change was not completed because an audit event could not be recorded.",
+            changedObjectType: "report_run",
+            changedObjectId: "pack-1",
+            diagnosticId: "v10_audit_write_failed",
+          }),
+          replayed: false,
+        };
+      }
+      return { response: result.response, replayed: false };
+    });
+
+    const { POST } = await import("@/app/api/report-packs/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/report-packs", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "report_pack_rollback_1" },
+        body: JSON.stringify({ name: "Weekly health" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.outcome).toBe("audit_write_failed");
+    expect(admin.deletedIds).toEqual(["pack-1"]);
+    expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledTimes(1);
   });
 
   it("POST returns a V10 mode_required envelope for report type ineligible in Core mode", async () => {

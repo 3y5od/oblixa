@@ -22,5 +22,8 @@ describe("cron outbound product-surface gating", () => {
     expect(raw.includes('notificationType: "review_board_slack"')).toBe(true);
     expect(raw.includes("isNotificationAllowed")).toBe(true);
     expect(raw.includes("markNotificationSuppressed")).toBe(true);
+    expect(raw.includes('import { safeFetch } from "@/lib/security/safe-fetch"')).toBe(true);
+    expect(raw.includes("fetch(webhook.toString()")).toBe(false);
   });
 });
+

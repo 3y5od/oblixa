@@ -3,7 +3,6 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 import {
-  updateProductEmailNotificationCategoriesForm,
   resetWorkspaceProductSurfaceDefaultsForm,
   updateWorkspaceProductSurfaceForm,
 } from "@/actions/product-surface-settings";
@@ -20,6 +19,7 @@ import {
 import { SettingsProductDraftPreview } from "@/app/(dashboard)/settings/product/settings-product-draft-preview";
 import { SettingsProductCalibrationExport } from "@/app/(dashboard)/settings/product/settings-product-calibration-export";
 import { SettingsProductCalibrationSummary } from "@/app/(dashboard)/settings/product/settings-product-calibration-summary";
+import { SettingsProductEmailSection } from "@/app/(dashboard)/settings/product/settings-product-email-section";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 
 const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
@@ -232,6 +232,11 @@ export default async function WorkspaceProductSettingsPage() {
             <p className="ui-muted-tight mt-2 text-[13px]">
               New workspaces default to Core. Assurance mode is required for mutating autopilot
               execution.
+            </p>
+            <p className="ui-muted-tight mt-2 text-[13px]">
+              Advanced and Assurance mode changes require eligible billing posture. If a downgrade
+              would hide active scheduled report subscriptions, confirm that suppression below before
+              saving.
             </p>
           </div>
 
@@ -501,6 +506,30 @@ export default async function WorkspaceProductSettingsPage() {
             </ul>
           </div>
 
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,var(--canvas))] p-4">
+            <div className="flex items-start gap-2">
+              <input
+                id="confirm_scheduled_report_downgrade"
+                name="confirm_scheduled_report_downgrade"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+              />
+              <div>
+                <label
+                  htmlFor="confirm_scheduled_report_downgrade"
+                  className="text-sm font-medium text-[var(--text-primary)]"
+                >
+                  Confirm scheduled report suppression on downgrade
+                </label>
+                <p className="ui-muted-tight mt-1 text-[13px]">
+                  Required only when this change would hide active scheduled report subscriptions.
+                  Matching subscriptions are deactivated and recorded in audit when the downgrade is
+                  applied.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px]">
             Save product settings
           </button>
@@ -520,56 +549,7 @@ export default async function WorkspaceProductSettingsPage() {
         initialMode={mode}
       />
 
-      <section className="ui-card p-6 md:p-8">
-        <p className="ui-label-caps">Email notification categories</p>
-        <p className="ui-muted-tight mt-2 max-w-2xl text-[13px]">
-          Core execution email focuses on reminders, summaries, and operational automation. Check to{" "}
-          <strong>mute</strong> a category (adds it to{" "}
-          <code className="text-xs">notification_policy_json.email.blocked_types</code>).
-        </p>
-        <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
-          Core notification policy covers due work, overdue work, pending approvals, renewal horizon,
-          evidence requests, and exception assignment. Delivery is grouped into the toggles below: field
-          reminders map to operational due work; weekly summaries cover saved-view digests; automation rules
-          cover channel hooks that often accompany Advanced workflows.
-        </p>
-        <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
-          Currently muted:{" "}
-          <span className="font-medium text-[var(--text-primary)]">
-            {emailBlocked.size === 0 ? "none" : [...emailBlocked].join(", ")}
-          </span>
-          . Check{" "}
-          <Link href="/settings/health" className="ui-link">
-            Health
-          </Link>{" "}
-          if deliveries look delayed or suppressed after changing these categories.
-        </p>
-        <form action={updateProductEmailNotificationCategoriesForm as never} className="mt-4 space-y-3">
-          {(
-            [
-              { key: "reminder_due", label: "Contract field reminders" },
-              { key: "saved_view_summary", label: "Weekly saved view summaries" },
-              { key: "automation_rule", label: "Slack / automation rule notifications (often Advanced)" },
-            ] as const
-          ).map(({ key, label }) => (
-            <div key={key} className="flex items-center gap-2">
-              <input
-                id={`mute_email_${key}`}
-                name={`mute_email_${key}`}
-                type="checkbox"
-                defaultChecked={emailBlocked.has(key)}
-                className="h-4 w-4 rounded border-[var(--border-strong)]"
-              />
-              <label htmlFor={`mute_email_${key}`} className="text-sm text-[var(--text-primary)]">
-                Mute {label}
-              </label>
-            </div>
-          ))}
-          <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-            Save email categories
-          </button>
-        </form>
-      </section>
+      <SettingsProductEmailSection blockedTypes={[...emailBlocked]} />
     </div>
   );
 }

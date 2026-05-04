@@ -19,6 +19,11 @@ type ImportMembership = {
   organization_id: string;
 };
 
+type ImportOwnerMembershipRow = {
+  user_id: string;
+  profiles: { email: string | null } | Array<{ email: string | null }> | null;
+};
+
 type ImportRowResult = {
   rowIndex: number;
   title: string;
@@ -34,6 +39,39 @@ const CONTRACT_INSERT_BATCH_SIZE = 200;
 const JOB_ROW_INSERT_BATCH_SIZE = 500;
 const AUTO_ATTACH_PROGRAMS_CONCURRENCY = 6;
 export const MAX_IMPORT_BODY_CHARS = 2_000_000;
+
+function getLowercasedProfileEmail(
+  profiles: ImportOwnerMembershipRow["profiles"]
+): string | null {
+  const profile = Array.isArray(profiles) ? profiles[0] : profiles;
+  return profile?.email?.toLowerCase().trim() ?? null;
+}
+
+async function resolveWorkspaceOwnerIdsByEmail(
+  admin: Admin,
+  organizationId: string,
+  ownerEmails: string[]
+): Promise<Map<string, string>> {
+  if (ownerEmails.length === 0) return new Map();
+
+  const { data: members, error } = await admin
+    .from("organization_members")
+    .select("user_id, profiles!inner(email)")
+    .eq("organization_id", organizationId)
+    .in("profiles.email", ownerEmails);
+
+  if (error) {
+    console.error("Failed to load workspace owner emails:", error);
+    return new Map();
+  }
+
+  return new Map(
+    ((members ?? []) as ImportOwnerMembershipRow[]).flatMap((member) => {
+      const email = getLowercasedProfileEmail(member.profiles);
+      return email ? [[email, member.user_id] as const] : [];
+    })
+  );
+}
 
 function chunkArray<T>(items: T[], size: number): T[][] {
   if (items.length === 0) return [];
@@ -221,11 +259,11 @@ export async function runContractCsvImport(params: {
   });
 
   const ownerEmails = [...new Set(rows.map((r) => r.owner_email?.toLowerCase().trim()).filter(Boolean))] as string[];
-  const { data: profiles } =
-    ownerEmails.length === 0
-      ? { data: [] as Array<{ id: string; email: string }> }
-      : await admin.from("profiles").select("id, email").in("email", ownerEmails);
-  const ownerByEmail = new Map((profiles ?? []).map((p) => [p.email.toLowerCase(), p.id]));
+  const ownerByEmail = await resolveWorkspaceOwnerIdsByEmail(
+    admin,
+    membership.organization_id,
+    ownerEmails
+  );
 
   const rowResults: ImportRowResult[] = rows.map((row, idx) => {
     const title = row.title.trim();

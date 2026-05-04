@@ -149,4 +149,25 @@ describe("POST /api/approvals/[id]/[action]", () => {
       })
     );
   });
+
+  it("requires a note before request-changes", async () => {
+    const { POST } = await import("@/app/api/approvals/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/approvals/approval-1/request-changes", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-approval-request-changes" },
+        body: JSON.stringify({ note: "" }),
+      }),
+      { params: Promise.resolve({ id: "approval-1", action: "request-changes" }) }
+    );
+
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_approval_decision_note_required",
+    });
+    expect(appendCasefileEvent).not.toHaveBeenCalled();
+    expect(recordV10AuditEvent).not.toHaveBeenCalled();
+  });
 });

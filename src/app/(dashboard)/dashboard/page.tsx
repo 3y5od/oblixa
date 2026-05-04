@@ -17,6 +17,7 @@ import { DashboardUpper } from "@/components/dashboard/dashboard-upper";
 import { DashboardLower } from "@/components/dashboard/dashboard-lower";
 import { V5ControlRoomStrip } from "@/components/dashboard/v5-control-room-strip";
 import type { WorkspaceRole } from "@/lib/navigation";
+import type { V10WorkItemType } from "@/lib/v10-release-contract";
 import { fetchControlRoomDashboardData } from "@/lib/v5/control-room-dashboard";
 import { V5TelemetryCompact } from "@/components/dashboard/v5-telemetry-compact";
 import { parseV5SignalQualityForDisplay } from "@/lib/v5/v5-signal-quality-labels";
@@ -39,6 +40,7 @@ import { compareV10WorkReadModelRows } from "@/lib/v10-work-semantics";
 import { getV10ReadableRoleMinimums, getV10ReadableWorkspaceModes } from "@/lib/v10-visibility";
 import { operationalActionLabel } from "@/lib/ui/operational-copy";
 import { sortOperationalPriority } from "@/lib/ui/operational-priority";
+import { getV10WorkItemHref } from "@/lib/v10-job-routing";
 
 export const metadata = { title: "Dashboard" };
 
@@ -65,9 +67,7 @@ function DashboardLowerFallback() {
   );
 }
 
-export default async function DashboardPage(props: {
-  searchParams: Promise<{ view?: string; qf?: string }>;
-}) {
+export default async function DashboardPage(props: { searchParams: Promise<{ view?: string; qf?: string }> }) {
   const { view: rawView, qf: rawQuickFilter } = await props.searchParams;
   const view =
     rawView === "team" || rawView === "portfolio" || rawView === "personal"
@@ -528,14 +528,14 @@ export default async function DashboardPage(props: {
     last_state_change_at: string | null;
     updated_at: string | null;
   };
-  const v10WorkHref = (item: Pick<V10DashboardWorkRow, "contract_id" | "type">) =>
-    item.contract_id
-      ? `/contracts/${item.contract_id}`
-      : item.type === "report_failure"
-        ? "/reports"
-        : item.type === "export_failure"
-          ? "/settings/health#exports"
-          : "/work";
+  const v10WorkHref = (item: Pick<V10DashboardWorkRow, "contract_id" | "type" | "primary_action" | "source_id">) =>
+    getV10WorkItemHref({
+      type: item.type as V10WorkItemType,
+      sourceId: String(item.source_id ?? ""),
+      contractId: item.contract_id,
+      primaryAction: item.primary_action,
+      fallbackHref: "/work",
+    });
   const v10Label = (value: string | null | undefined, fallback: string) =>
     String(value ?? fallback).replace(/_/g, " ");
   const sortV10WorkRows = (rows: V10DashboardWorkRow[]) => [...rows].sort(compareV10WorkReadModelRows);

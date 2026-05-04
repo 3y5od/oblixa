@@ -37,4 +37,20 @@ describe("settings product draft preview derivation", () => {
 
     expect(preview.navLabels).not.toContain("Decisions");
   });
+
+  it("supports muting advanced notification categories in draft state", () => {
+    const formData = new FormData();
+    formData.set("workspace_mode", "advanced");
+    formData.set("mute_email_campaign_digest", "on");
+
+    const preview = deriveProductSettingsDraftPreviewState({
+      formData,
+      orgId: "org-1",
+      featureFlags: getFeatureFlags(),
+      initialBlockedTypes: [],
+      baseMode: "advanced",
+    });
+
+    expect(preview.enabledNotificationTypes).not.toContain("campaign_digest");
+  });
 });

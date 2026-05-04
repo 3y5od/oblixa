@@ -1,28 +1,21 @@
-import { NextResponse } from "next/server";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/server";
-import { requireV6CronFeature } from "@/lib/v6/feature-guards";
-import { listOrganizationIds, requireV6CronAuth, v6CronRunMetadata } from "@/lib/v6/cron";
+import { v6CronMeta, withV6CronRoute } from "@/lib/v6/cron-route-runner";
 import { reevaluateControlPolicies } from "@/lib/v6/cron-jobs";
 
-export async function GET(request: Request) {
-  const unauthorized = requireV6CronAuth(request);
-  if (unauthorized) return unauthorized;
-  const rate = await rateLimitCheck("cron:v6:control-policy-reevaluation", RATE_LIMITS.v6CronDefault);
-  if (!rate.ok) {
-    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
-  }
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-  const skipped = requireV6CronFeature("v6ControlPolicies");
-  if (skipped) return skipped;
-
-  const t0 = Date.now();
-  const admin = await createAdminClient();
-  const orgIds = await listOrganizationIds(admin);
-  const result = await reevaluateControlPolicies(admin);
-  return NextResponse.json({
-    ok: true,
-    evaluations: result.evaluations,
-    ...v6CronRunMetadata(orgIds.length, t0, Math.max(0, orgIds.length - result.evaluations)),
-  });
-}
+export const GET = withV6CronRoute({
+  route: "/api/cron/v6/control-policy-reevaluation",
+  feature: "v6ControlPolicies",
+  handler: async ({ admin, orgIds, startedAtMs }) => {
+    const result = await reevaluateControlPolicies(admin);
+    return {
+      ok: true,
+      body: {
+        evaluations: result.evaluations,
+        ...v6CronMeta(orgIds, startedAtMs, Math.max(0, orgIds.length - result.evaluations)),
+      },
+    };
+  },
+});

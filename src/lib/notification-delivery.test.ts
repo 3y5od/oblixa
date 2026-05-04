@@ -18,10 +18,15 @@ type DeliveryRow = {
 
 const sendReminderEmailMock = vi.fn();
 const sendSavedViewSummaryEmailMock = vi.fn();
+const safeFetchMock = vi.fn();
 
 vi.mock("@/lib/email", () => ({
   sendReminderEmail: sendReminderEmailMock,
   sendSavedViewSummaryEmail: sendSavedViewSummaryEmailMock,
+}));
+
+vi.mock("@/lib/security/safe-fetch", () => ({
+  safeFetch: safeFetchMock,
 }));
 
 vi.mock("@/lib/security/url-policy", () => ({
@@ -185,6 +190,7 @@ describe("notification-delivery", () => {
   beforeEach(() => {
     sendReminderEmailMock.mockReset();
     sendSavedViewSummaryEmailMock.mockReset();
+    safeFetchMock.mockReset();
   });
 
   it("fails poison messages without retry payload when max attempts reached", async () => {
@@ -372,5 +378,48 @@ describe("notification-delivery", () => {
     expect(rows[0]?.attempt_count).toBe(1);
     expect(rows[0]?.next_attempt_at).toBeNull();
     expect(rows[0]?.last_error).toContain("[terminal]");
+  });
+
+  it("sends slack retry payloads through safeFetch", async () => {
+    const now = new Date().toISOString();
+    safeFetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+    const { processNotificationDeliveryRetries } = await import("@/lib/notification-delivery");
+    const { client, rows } = createFakeAdmin([
+      {
+        id: "d1",
+        organization_id: "org-1",
+        channel: "slack",
+        notification_type: "automation_rule",
+        recipient: null,
+        subject: "Slack alert",
+        status: "pending",
+        attempt_count: 0,
+        metadata: {
+          max_attempts: 3,
+          retry_payload: {
+            kind: "slack_workflow",
+            webhookUrl: "https://hooks.slack.com/services/T000/B000/XXX",
+            title: "Slack alert",
+            body: "A workflow fired",
+            channel: "#ops",
+            username: "Oblixa",
+            metadata: { trace: "1" },
+          },
+        },
+        next_attempt_at: now,
+        delivered_at: null,
+        last_error: null,
+        created_at: now,
+      },
+    ]);
+
+    const summary = await processNotificationDeliveryRetries(client as never, { limit: 10 });
+
+    expect(summary.delivered).toBe(1);
+    expect(rows[0]?.status).toBe("delivered");
+    expect(safeFetchMock).toHaveBeenCalledWith(
+      "https://hooks.slack.com/services/T000/B000/XXX",
+      expect.objectContaining({ method: "POST" })
+    );
   });
 });

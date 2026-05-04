@@ -1,7 +1,6 @@
-import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/lib/supabase/server";
-import { gateCronRequest } from "@/lib/security/cron-route-gate";
+import { withCronRoute } from "@/lib/cron/route-runner";
 import { getRequestOrigin } from "@/lib/app-url";
 import { sendSavedViewSummaryEmail } from "@/lib/email";
 import {
@@ -10,8 +9,7 @@ import {
 } from "@/lib/env/server";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { getContractIdsForDeadlinePreset, type DeadlinePreset } from "@/lib/contract-filters";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { randomUUID } from "node:crypto";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
@@ -25,12 +23,12 @@ import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refres
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const RECIPIENT_SEND_CONCURRENCY = 4;
 const MAX_DUE_SUBSCRIPTIONS = 100;
 const MAX_RECIPIENTS_PER_SUBSCRIPTION = 20;
-const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 
 async function refreshV10ReportDeliveryReadModels(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -58,27 +56,11 @@ function parseViewQuery(
   return { status, owner, region, search, deadline };
 }
 
-export async function GET(request: Request) {
-  const startedAt = Date.now();
-  const deny = gateCronRequest(request);
-  if (deny) {
-    const reason = deny.status === 503 ? "cron_secret_missing" : "unauthorized";
-    pingCronHealthcheck("reports/send-summaries", {
-      ok: false,
-      status: deny.status,
-      reason,
-      durationMs: Date.now() - startedAt,
-    });
-    return deny;
-  }
-  const cronRate = await rateLimitCheck("cron:reports:send-summaries", RATE_LIMITS.reportsSummariesCron);
-  if (!cronRate.ok) {
-    return NextResponse.json(
-      { error: "Too many requests", retryAfterMs: cronRate.retryAfterMs },
-      { status: 429 }
-    );
-  }
-
+export const GET = withCronRoute({
+  route: "/api/reports/send-summaries",
+  rateLimitKey: "cron:reports:send-summaries",
+  rateLimit: RATE_LIMITS.reportsSummariesCron,
+  handler: async ({ request, admin }) => {
   let supabaseUrl: string;
   let serviceRoleKey: string;
   try {
@@ -87,19 +69,21 @@ export async function GET(request: Request) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Supabase env misconfigured";
     console.error("[reports/cron] configuration error:", message);
-    pingCronHealthcheck("reports/send-summaries", {
+    return {
+      status: 503,
       ok: false,
-      status: 500,
-      reason: "supabase_env_invalid",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+      errorsCount: 1,
+      body: {
+        error: "Server misconfigured",
+        code: "supabase_env_invalid",
+        diagnostic_id: "report_summaries_supabase_env_invalid",
+      },
+    };
   }
 
   const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: { getAll: () => [], setAll: () => {} },
   });
-  const admin = await createAdminClient();
 
   const nowIso = new Date().toISOString();
   const { data: rows, error } = await supabase
@@ -119,26 +103,27 @@ export async function GET(request: Request) {
       level: "error",
       extra: { route: "reports/send-summaries", phase: "query_subscriptions" },
     });
-    pingCronHealthcheck("reports/send-summaries", {
-      ok: false,
+    return {
       status: 500,
-      reason: "subscription_query_failed",
-      durationMs: Date.now() - startedAt,
-    });
-    return NextResponse.json({ error: "Could not load subscriptions" }, { status: 500 });
+      ok: false,
+      errorsCount: 1,
+      body: {
+        error: "Could not load subscriptions",
+        code: "report_subscription_query_failed",
+        diagnostic_id: "report_subscription_query_failed",
+      },
+    };
   }
 
   const list = rows ?? [];
   if (list.length === 0) {
-    const payload = {
-      ok: true,
+    return {
+      body: {
       sent: 0,
       candidates: 0,
       message: "No due summaries",
-      durationMs: Date.now() - startedAt,
+      },
     };
-    pingCronHealthcheck("reports/send-summaries", payload);
-    return NextResponse.json(payload);
   }
 
   const userIds = [...new Set(list.map((r) => r.user_id).filter(Boolean))];
@@ -606,13 +591,14 @@ export async function GET(request: Request) {
     });
   }
 
-  const payload = {
-    ok: errors.length === 0,
-    sent,
-    candidates: list.length,
-    errors: errors.length ? errors : undefined,
-    durationMs: Date.now() - startedAt,
-  };
-  pingCronHealthcheck("reports/send-summaries", payload);
-  return NextResponse.json(payload, { headers: PRIVATE_NO_STORE_HEADERS });
-}
+    return {
+      partial: errors.length > 0,
+      errorsCount: errors.length,
+      body: {
+        sent,
+        candidates: list.length,
+        ...(errors.length > 0 ? { errors } : {}),
+      },
+    };
+  },
+});

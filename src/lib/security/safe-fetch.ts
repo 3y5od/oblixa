@@ -4,7 +4,13 @@ import net from "node:net";
 export type SafeFetchInit = RequestInit & {
   /** Abort after ms (defaults 15000). */
   timeoutMs?: number;
+  /** Allow localhost/loopback only in non-production dev for same-app internal hops. */
+  allowLocalhostInDev?: boolean;
 };
+
+function isProductionLike(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.VERCEL === "1" || env.NODE_ENV === "production";
+}
 
 function ipv4ToInt(ip: string): number | null {
   const parts = ip.split(".").map((x) => Number(x));
@@ -64,6 +70,12 @@ function hostnameLooksSafe(hostname: string): boolean {
   return true;
 }
 
+export function isAllowedDevLocalhostUrl(url: URL, env: NodeJS.ProcessEnv = process.env): boolean {
+  if (isProductionLike(env)) return false;
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  return hostname === "localhost" || hostname.endsWith(".localhost") || hostname === "127.0.0.1" || hostname === "::1";
+}
+
 function combineSignals(user: AbortSignal | null | undefined, inner: AbortSignal): AbortSignal {
   if (!user) return inner;
   const c = new AbortController();
@@ -86,21 +98,24 @@ export async function safeFetch(input: string | URL, init: SafeFetchInit = {}): 
   if (url.protocol !== "https:" && url.protocol !== "http:") {
     throw new Error(`safeFetch: disallowed protocol ${url.protocol}`);
   }
-  if (!hostnameLooksSafe(url.hostname)) {
+  const { timeoutMs: explicitTimeout, allowLocalhostInDev = false, ...rest } = init;
+  const allowDevLocalhost = allowLocalhostInDev && isAllowedDevLocalhostUrl(url);
+  if (!allowDevLocalhost && !hostnameLooksSafe(url.hostname)) {
     throw new Error("safeFetch: disallowed host");
   }
 
-  const { timeoutMs: explicitTimeout, ...rest } = init;
   const timeoutMs = explicitTimeout ?? 15_000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const lookup = await dns.lookup(url.hostname, { all: true, verbatim: true });
-    if (lookup.length === 0) throw new Error("safeFetch: no addresses");
-    for (const { address } of lookup) {
-      if (isBlockedOutboundIp(address)) {
-        throw new Error(`safeFetch: resolved to blocked IP ${address}`);
+    if (!allowDevLocalhost) {
+      const lookup = await dns.lookup(url.hostname, { all: true, verbatim: true });
+      if (lookup.length === 0) throw new Error("safeFetch: no addresses");
+      for (const { address } of lookup) {
+        if (isBlockedOutboundIp(address)) {
+          throw new Error(`safeFetch: resolved to blocked IP ${address}`);
+        }
       }
     }
   } catch (e) {

@@ -5,6 +5,7 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import type { OrgRole } from "@/lib/types";
 import { isUuid } from "@/lib/security/validation";
 import { compareExceptionsByPriority } from "@/lib/exception-priority";
@@ -14,6 +15,7 @@ import { ExceptionMutationPanels } from "@/components/contracts/exception-mutati
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { getV10ExceptionResolutionActionOptions } from "@/lib/v10-approval-exception";
 
 type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";
 type SeverityFilter = "" | "low" | "medium" | "high" | "critical";
@@ -50,6 +52,16 @@ export default async function ExceptionsPage(props: {
   const showDecisionsCta =
     (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
     !isAdvancedModuleHidden(productSurface, "decisions");
+  const resolutionActionOptions = getV10ExceptionResolutionActionOptions({
+    campaignsEnabled: evaluateFeatureEligibility(productSurface, "campaigns", {
+      surfaceType: "page",
+      surfaceIdentifier: "/contracts/exceptions",
+    }).allowed,
+    findingsEnabled: evaluateFeatureEligibility(productSurface, "findings", {
+      surfaceType: "page",
+      surfaceIdentifier: "/contracts/exceptions",
+    }).allowed,
+  });
 
   let query = ctx.admin
     .from("exceptions")
@@ -311,6 +323,7 @@ export default async function ExceptionsPage(props: {
                       ownerId={item.owner_id}
                       dueDate={item.due_date}
                       ownerOptions={ownerOptions}
+                      resolutionActionOptions={resolutionActionOptions}
                       canAssign={showAssign}
                       canResolve={showResolve}
                       canReopen={showReopen}

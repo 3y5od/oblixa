@@ -28,6 +28,8 @@ const coreSurface: NavSurfaceInput = {
   searchScope: "match_mode",
 };
 
+const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
+
 describe("CommandPalette", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -36,6 +38,7 @@ describe("CommandPalette", () => {
     telemetry.emitCmdkSearchFailedTelemetry.mockClear();
     telemetry.emitCmdkZeroResultsTelemetry.mockClear();
     vi.unstubAllGlobals();
+    window.localStorage.clear();
   });
 
   it("ranks direct contract matches ahead of generic search jumps", async () => {
@@ -96,6 +99,47 @@ describe("CommandPalette", () => {
     expect(links[0]?.textContent).toContain("Open recovery action");
   });
 
+  it("dedupes local nav items when the remote index returns the same destination", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          contracts: [
+            {
+              id: "/settings",
+              title: "Settings",
+              href: "/settings",
+              resultType: "setting",
+              description: "Members, workspace product mode, and workflow configuration.",
+              actionLabel: "Open destination",
+            },
+          ],
+          partial: null,
+          recovery: null,
+        }),
+      })
+    );
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={coreSurface}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("settings");
+    });
+
+    await waitFor(() => {
+      const settingsLinks = screen
+        .getAllByRole("link")
+        .filter((link) => link.getAttribute("href") === "/settings");
+      expect(settingsLinks).toHaveLength(1);
+    });
+  });
+
   it("opens through the bridge event and shows workspace results", async () => {
     renderWithProviders(
       <CommandPalette
@@ -115,8 +159,60 @@ describe("CommandPalette", () => {
     expect(screen.getByText(/^Workflows · \/contracts$/i)).toBeTruthy();
   });
 
+  it("returns focus to the trigger after Escape closes the palette", async () => {
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={coreSurface}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("contracts");
+    });
+
+    const trigger = screen.getByRole("button", { name: /open command palette/i });
+    expect(await screen.findByRole("dialog", { name: /command palette/i })).toBeTruthy();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /command palette/i })).toBeNull();
+      expect(document.activeElement).toBe(trigger);
+    });
+  });
+
+  it("returns focus to the invoking control when the palette opens through the bridge", async () => {
+    renderWithProviders(
+      <>
+        <input aria-label="Workspace search bridge invoker" />
+        <CommandPalette
+          role="viewer"
+          navSurface={coreSurface}
+          v5Flags={{} as Record<FeatureFlagKey, boolean>}
+        />
+      </>
+    );
+
+    const invoker = screen.getByRole("textbox", { name: /workspace search bridge invoker/i });
+    invoker.focus();
+
+    await act(async () => {
+      openCommandPalette("contracts");
+    });
+
+    expect(await screen.findByRole("dialog", { name: /command palette/i })).toBeTruthy();
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /command palette/i })).toBeNull();
+      expect(document.activeElement).toBe(invoker);
+    });
+  });
+
   it("renders recent commands when local storage is seeded", async () => {
-    window.localStorage.setItem("oblixa.command-palette.recent", JSON.stringify(["/contracts"]));
+    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(["/contracts"]));
     renderWithProviders(
       <CommandPalette
         role="viewer"
@@ -131,6 +227,28 @@ describe("CommandPalette", () => {
 
     expect(await screen.findByText("Recent destinations")).toBeTruthy();
     expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("prunes hidden recent destinations when the current surface no longer allows them", async () => {
+    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(["/assurance", "/contracts"]));
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={coreSurface}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    expect(await screen.findByText("Recent destinations")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /assurance/i })).toBeNull();
+
+    await waitFor(() => {
+      expect(JSON.parse(window.localStorage.getItem(RECENT_COMMANDS_KEY) ?? "[]")).toEqual(["/contracts"]);
+    });
   });
 
   it("emits debounced zero-results telemetry when no command matches", async () => {
@@ -210,6 +328,49 @@ describe("CommandPalette", () => {
       "v10_command_zero_result"
     );
     expect(screen.getByRole("link", { name: "Open work queue" }).getAttribute("href")).toBe("/work");
+  });
+
+  it("clears stale partial-search recovery copy when the query becomes too short for remote search", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          contracts: [],
+          partial: {
+            reason: "V10 command index could not load; contract matches are still available.",
+            diagnosticId: "v10_command_index_partial",
+          },
+          recovery: {
+            message: "Some indexed destinations are temporarily unavailable; direct destinations are still available.",
+            diagnosticId: "v10_command_index_partial",
+            actions: [{ label: "Open work queue", href: "/work", reason: "partial_index" }],
+          },
+        }),
+      })
+    );
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={coreSurface}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("zzzz-partial");
+    });
+
+    expect(await screen.findByText("Command search is partially available")).toBeTruthy();
+
+    fireEvent.change(screen.getByPlaceholderText(/search pages, queues, reports, tools/i), {
+      target: { value: "a" },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("Command search is partially available")).toBeNull();
+      expect(screen.queryByText("Some indexed destinations are temporarily unavailable; direct destinations are still available.")).toBeNull();
+    });
   });
 });
 

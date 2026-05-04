@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
+import { resolveSearchIndexFeatureFamily } from "@/lib/product-surface/feature-registry";
 import { getAuthContext } from "@/lib/supabase/server";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import type { FeatureFamilyKey } from "@/lib/product-surface/feature-registry";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { emitV10ObjectiveTelemetryEvent } from "@/lib/product-telemetry";
@@ -106,17 +106,130 @@ export function v10IndexedResultRank(query: string, row: { record_type: unknown;
   const recordType = String(row.record_type ?? "");
   const description = String(row.description_safe ?? "");
   const rankTerms = Array.isArray(row.rank_terms_safe) ? row.rank_terms_safe.map(String) : [];
+  const text = `${description} ${rankTerms.join(" ")}`.toLowerCase();
   const baseRank = Math.min(
     matchRank(query, String(row.label), description),
     rankTerms.some((term) => term.toLowerCase() === query.toLowerCase()) ? 1 : 5
   );
   if (recordType === "work_item") {
-    const text = `${description} ${rankTerms.join(" ")}`.toLowerCase();
     if (text.includes("overdue")) return 0;
     if (text.includes("due today")) return 1;
     if (text.includes("blocked")) return 2;
     if (text.includes("assigned to me")) return 3;
     return Math.min(baseRank, 4);
+  }
+  if (recordType === "field") {
+    if (text.includes("missing")) return Math.min(baseRank, 1);
+    if (text.includes("rejected") || text.includes("ambiguous")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "approval") {
+    if (text.includes("pending")) return Math.min(baseRank, 1);
+    if (text.includes("changes requested") || text.includes("delegated")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "obligation") {
+    if (text.includes("overdue")) return Math.min(baseRank, 1);
+    if (text.includes("open") || text.includes("in progress")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "renewal_checkpoint") {
+    if (text.includes("blocked")) return Math.min(baseRank, 1);
+    if (text.includes("open") || text.includes("pending")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "exception") {
+    if (text.includes("critical") || text.includes("high")) return Math.min(baseRank, 1);
+    if (text.includes("medium") || text.includes("open")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "evidence_request") {
+    if (text.includes("rejected")) return Math.min(baseRank, 1);
+    if (text.includes("open") || text.includes("pending") || text.includes("requested")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "saved_view") {
+    if (text.includes("pinned")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "reminder") {
+    if (text.includes("scheduled")) return Math.min(baseRank, 2);
+    if (text.includes("sent")) return Math.min(baseRank, 4);
+    return Math.min(baseRank, 3);
+  }
+  if (recordType === "notification_delivery") {
+    if (text.includes("failed") || text.includes("suppressed")) return Math.min(baseRank, 1);
+    if (text.includes("retry")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "account" || recordType === "counterparty" || recordType === "relationship") {
+    if (text.includes("critical") || text.includes("at risk") || text.includes("watch") || text.includes("degraded")) {
+      return Math.min(baseRank, 2);
+    }
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "decision") {
+    if (text.includes("blocked") || text.includes("pending")) return Math.min(baseRank, 1);
+    if (text.includes("open")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "campaign") {
+    if (text.includes("active")) return Math.min(baseRank, 2);
+    if (text.includes("rollback safe")) return Math.min(baseRank, 3);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "program") {
+    if (text.includes("published") || text.includes("active")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "finding") {
+    if (text.includes("critical") || text.includes("high")) return Math.min(baseRank, 1);
+    if (text.includes("open")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "control") {
+    if (text.includes("enforce") || text.includes("block")) return Math.min(baseRank, 2);
+    if (text.includes("warn")) return Math.min(baseRank, 3);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "playbook" || recordType === "automation_run") {
+    if (text.includes("approval") || text.includes("failed") || text.includes("blocked")) {
+      return Math.min(baseRank, 1);
+    }
+    if (text.includes("running") || text.includes("queued")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "simulation") {
+    if (text.includes("running") || text.includes("queued")) return Math.min(baseRank, 2);
+    if (text.includes("completed")) return Math.min(baseRank, 3);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "scorecard") {
+    if (text.includes("active")) return Math.min(baseRank, 2);
+    if (text.includes("score")) return Math.min(baseRank, 3);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "review_board" || recordType === "health_graph" || recordType === "segment") {
+    if (text.includes("active") || text.includes("linked")) return Math.min(baseRank, 3);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "program_evolution") {
+    if (text.includes("simulated") || text.includes("running")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "report_run" || recordType === "import_job" || recordType === "export_job") {
+    if (text.includes("failed") || text.includes("partial")) return Math.min(baseRank, 1);
+    if (text.includes("running") || text.includes("queued")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "extraction_job") {
+    if (text.includes("failed_retryable") || text.includes("failed")) return Math.min(baseRank, 1);
+    if (text.includes("running") || text.includes("queued")) return Math.min(baseRank, 2);
+    return Math.min(baseRank, 4);
+  }
+  if (recordType === "workspace_health_diagnostic") {
+    if (text.includes("failed") || text.includes("partial") || text.includes("stale")) return Math.min(baseRank, 1);
+    return Math.min(baseRank, 3);
   }
   if (recordType.includes("job") && description.toLowerCase().includes("failed_retryable")) return Math.min(baseRank, 1);
   return baseRank;
@@ -125,6 +238,52 @@ export function v10IndexedResultRank(query: string, row: { record_type: unknown;
 export function v10CommandActionLabel(row: { record_type: unknown; description_safe: unknown }): string {
   const recordType = String(row.record_type ?? "");
   const description = String(row.description_safe ?? "").toLowerCase();
+  const openActionByType: Record<string, string> = {
+    contract: "Open contract",
+    work_item: "Open work",
+    field: "Open field",
+    obligation: "Open obligation",
+    approval: "Open approval",
+    renewal_checkpoint: "Open renewal",
+    reminder: "Open renewal",
+    exception: "Open exception",
+    evidence_request: "Open evidence",
+    saved_view: "Open saved view",
+    file_upload: "Open contract",
+    extraction_job: "Open extraction",
+    report_family: "Open reports",
+    account: "Open workspace",
+    counterparty: "Open workspace",
+    relationship: "Open relationship",
+    decision: "Open decision",
+    campaign: "Open campaign",
+    program: "Open program",
+    finding: "Open finding",
+    control: "Open control",
+    playbook: "Open playbook",
+    automation_run: "Open automation",
+    simulation: "Open compare view",
+    scorecard: "Open scorecard",
+    review_board: "Open review board",
+    health_graph: "Open health graph",
+    segment: "Open segment",
+    program_evolution: "Open experiment",
+    setting: "Open settings",
+    setting_destination: "Open settings",
+    nav: "Open page",
+  };
+  if (recordType === "report_run") {
+    if (description.includes("failed_retryable") || description.includes("partial") || description.includes("retry")) {
+      return "Retry failed job";
+    }
+    if (description.includes("failed_terminal") || description.includes("failed")) return "View diagnostics";
+    return "Open report";
+  }
+  if (openActionByType[recordType]) return openActionByType[recordType];
+  if (recordType === "notification_delivery") {
+    return description.includes("failed") || description.includes("suppressed") ? "View diagnostics" : "Open operations";
+  }
+  if (recordType === "workspace_health_diagnostic") return "View diagnostics";
   const isJobLike =
     recordType.includes("job") ||
     recordType === "report_run" ||
@@ -288,7 +447,7 @@ export async function GET(request: Request) {
     console.error("[command-palette/contracts] v10 index query failed:", v10Error.message);
   }
 
-  const withOwners = await attachOwnerProfiles(ctx.admin, data ?? []);
+  const withOwners = await attachOwnerProfiles(ctx.admin, ctx.orgId, data ?? []);
   let hiddenFilteredCount = 0;
   const v10Results = (v10Rows ?? [])
     .filter((row) => {
@@ -297,7 +456,11 @@ export async function GET(request: Request) {
       return visible;
     })
     .filter((row) => {
-      const featureFamily = String(row.feature_family ?? row.module_key ?? "contracts") as FeatureFamilyKey;
+      const featureFamily = resolveSearchIndexFeatureFamily({
+        featureFamily: row.feature_family,
+        moduleKey: row.module_key,
+        href: row.href,
+      });
       const eligibility = evaluateFeatureEligibility(productSurface, featureFamily, {
         surfaceType: "page",
         surfaceIdentifier: String(row.record_type ?? "v10_search_result"),

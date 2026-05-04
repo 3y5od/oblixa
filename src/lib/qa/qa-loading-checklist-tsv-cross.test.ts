@@ -39,7 +39,21 @@ function loadingCheckedMap(): Map<string, string> {
 
 /** Routes listed in loading checklist but TSV still marks loading_checked=n until human sign-off. */
 const LOADING_TSV_MISMATCH_ALLOWLIST = new Set<string>([
-  // Add paths here if checklist is ahead of TSV human column.
+  "/",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/campaigns",
+  "/contracts/bulk",
+  "/contracts/evidence-studio",
+  "/contracts/exceptions",
+  "/contracts/renewals",
+  "/contracts/review",
+  "/accounts/[key]",
+  "/counterparties/[key]",
+  "/relationship-workspaces",
+  "/more",
+  "/external/[token]",
 ]);
 
 describe("qa-loading-routes-checklist vs TSV loading_checked", () => {

@@ -8,145 +8,35 @@ import {
   type V6OrgSettingsMergePatch,
 } from "@/lib/v6/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
-import type { ProductSearchScope, WorkspaceProductMode } from "@/lib/product-surface/types";
-import { applyWorkspaceProductTransitionSideEffects } from "@/lib/product-surface/workspace-transition";
+import {
+  applyWorkspaceProductTransitionSideEffects,
+} from "@/lib/product-surface/workspace-transition";
 import { isValidDefaultLandingPath } from "@/lib/product-surface/landing-eligibility";
 import { parseOnboardingCalibration } from "@/lib/onboarding/calibration-types";
 import { requireServerActionEligibility } from "@/lib/product-surface/server-action-guard";
 import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
   ALL_ASSURANCE_NAV_MODULE_KEYS,
-  ALL_UTILITY_MODULE_KEYS,
-  WORKSPACE_HOME_SECTION_KEYS,
-  WORKSPACE_NAV_ROLE_ORDER,
 } from "@/lib/product-surface/workspace-module-keys";
-import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import {
+  countScheduledReportSubscriptionsSuppressedByModeChange,
+  EMAIL_NOTIFICATION_POLICY_TYPES,
+  parseAdvancedNavRolesForPatch,
+  parseAssuranceNavRolesForPatch,
+  parseHiddenAssuranceModules,
+  parseHiddenHomeSections,
+  parseHiddenModules,
+  parseHiddenUtilityModules,
+  parseMode,
+  parseSearchScope,
+  pluralize,
+  refreshV10SettingsReadModels,
+  reserveV10SettingsMutation,
+  workspaceModeRank,
+} from "./product-surface-settings-helpers";
+import { validateWorkspaceModeBillingEligibility } from "./workspace-mode-billing-eligibility";
 
-const WORKSPACE_HOME_HIDE_KEYS = [
-  "control_room_strip",
-  "telemetry_compact",
-  "v6_assurance_snapshot",
-  "outcome_intelligence",
-  "assurance_signals",
-] as const satisfies typeof WORKSPACE_HOME_SECTION_KEYS;
-
-function parseAdvancedNavRolesForPatch(formData: FormData) {
-  if (formData.get("customize_advanced_nav_roles") !== "on") return null;
-  const out: Array<(typeof WORKSPACE_NAV_ROLE_ORDER)[number]> = [];
-  for (const r of WORKSPACE_NAV_ROLE_ORDER) {
-    if (formData.get(`adv_nav_${r}`) === "on") out.push(r);
-  }
-  return out;
-}
-
-/** `null` = revert to defaults; `undefined` = do not change stored value (form did not apply this section). */
-function parseAssuranceNavRolesForPatch(
-  formData: FormData,
-  workspaceMode: WorkspaceProductMode
-) {
-  if (workspaceMode !== "assurance") return undefined;
-  if (formData.get("customize_assurance_nav_roles") !== "on") return null;
-  const out: Array<(typeof WORKSPACE_NAV_ROLE_ORDER)[number]> = [];
-  for (const r of WORKSPACE_NAV_ROLE_ORDER) {
-    if (formData.get(`asm_nav_${r}`) === "on") out.push(r);
-  }
-  return out;
-}
-
-function parseMode(raw: FormDataEntryValue | null): WorkspaceProductMode | undefined {
-  const s = String(raw ?? "").trim();
-  if (s === "core" || s === "advanced" || s === "assurance") return s;
-  return undefined;
-}
-
-function parseHiddenModules(formData: FormData) {
-  const out: Array<(typeof ALL_ADVANCED_NAV_MODULE_KEYS)[number]> = [];
-  for (const k of ALL_ADVANCED_NAV_MODULE_KEYS) {
-    if (formData.get(`hide_${k}`) === "on") out.push(k);
-  }
-  return out;
-}
-
-function parseHiddenAssuranceModules(formData: FormData) {
-  const out: Array<(typeof ALL_ASSURANCE_NAV_MODULE_KEYS)[number]> = [];
-  for (const k of ALL_ASSURANCE_NAV_MODULE_KEYS) {
-    if (formData.get(`hide_assurance_${k}`) === "on") out.push(k);
-  }
-  return out;
-}
-
-function parseHiddenUtilityModules(formData: FormData) {
-  const out: Array<(typeof ALL_UTILITY_MODULE_KEYS)[number]> = [];
-  for (const k of ALL_UTILITY_MODULE_KEYS) {
-    if (formData.get(`hide_utility_${k}`) === "on") out.push(k);
-  }
-  return out;
-}
-
-function parseSearchScope(formData: FormData): ProductSearchScope {
-  return formData.get("search_scope") === "core_only" ? "core_only" : "match_mode";
-}
-
-function parseHiddenHomeSections(formData: FormData): string[] {
-  return WORKSPACE_HOME_HIDE_KEYS.filter((k) => formData.get(`hide_home_${k}`) === "on").map((k) => k);
-}
-
-const EMAIL_MUTE_KEYS = ["reminder_due", "saved_view_summary", "automation_rule"] as const;
-type ProductSurfaceActionContext = NonNullable<Awaited<ReturnType<typeof getAuthContext>>>;
-
-async function refreshV10SettingsReadModels(admin: ProductSurfaceActionContext["admin"], orgId: string) {
-  try {
-    await refreshV10ReadModelsForOrganization(admin, orgId, {
-      refreshScope: "one_model",
-      reason: "product_surface_settings_mutation",
-      modelKeys: [
-        "work_items",
-        "notification_deliveries",
-        "audit_events",
-        "command_search_index",
-        "advanced_assurance_linked_records",
-      ],
-    });
-  } catch (error) {
-    console.error("[product-surface-settings] V10 read-model refresh failed:", error);
-  }
-}
-
-async function reserveV10SettingsMutation(
-  ctx: ProductSurfaceActionContext,
-  input: {
-    mutationName: string;
-    targetId: string;
-    currentVersion: string;
-    payload: Record<string, unknown>;
-  }
-): Promise<{ error: string } | null> {
-  const { response } = await executeV10IdempotentMutation(
-    ctx.admin,
-    {
-      organizationId: ctx.orgId,
-      actorUserId: ctx.user.id,
-      mutationName: input.mutationName,
-      targetType: "setting",
-      targetId: input.targetId,
-      idempotencyKey: `v10-server-action:${crypto.randomUUID()}`,
-      expectedVersion: input.currentVersion,
-      currentVersion: input.currentVersion,
-      payload: input.payload,
-    },
-    async () =>
-      buildV10MutationResponse({
-        outcome: "success",
-        message: "Settings mutation reserved.",
-        changedObjectType: "setting",
-        changedObjectId: input.targetId,
-        nextDestinationHref: "/settings/health",
-      })
-  );
-  return response.outcome === "success" ? null : { error: response.user_visible_message };
-}
 
 export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<{ error: string } | { success: true }> {
   const eligibility = await requireServerActionEligibility({
@@ -159,11 +49,25 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
   if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can change product experience settings." };
   const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const prevVersion = JSON.stringify(prevV6);
+  const prevMode = parseWorkspaceMode(prevV6);
 
   const mode = parseMode(formData.get("workspace_mode")) ?? "core";
   const defaultLandingRaw = String(formData.get("default_landing_path") ?? "").trim();
   const assurance_nav_admin_testing = formData.get("assurance_nav_admin_testing") === "on";
   const autopilot_allow_execution = formData.get("autopilot_allow_execution") === "on";
+  const confirmScheduledReportDowngrade = formData.get("confirm_scheduled_report_downgrade") === "on";
+
+  const billingError = await validateWorkspaceModeBillingEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    mode,
+    prevSettings: prevV6,
+  });
+  if (billingError) {
+    return {
+      error: billingError,
+    };
+  }
 
   const assuranceNavRolesPatch = parseAssuranceNavRolesForPatch(formData, mode);
 
@@ -186,6 +90,22 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
       return { error: "That default landing path is not available in the selected workspace mode." };
     }
     patch.default_landing_path = defaultLandingRaw;
+  }
+
+  if (workspaceModeRank(mode) < workspaceModeRank(prevMode)) {
+    const suppressedSubscriptionCount = await countScheduledReportSubscriptionsSuppressedByModeChange(
+      ctx.admin,
+      ctx.orgId,
+      mode
+    );
+    if (suppressedSubscriptionCount > 0 && !confirmScheduledReportDowngrade) {
+      return {
+        error: `This mode change would suppress ${suppressedSubscriptionCount} active scheduled report ${pluralize(
+          suppressedSubscriptionCount,
+          "subscription"
+        )}. Confirm scheduled report suppression and save again.`,
+      };
+    }
   }
 
   const v10Reservation = await reserveV10SettingsMutation(ctx, {
@@ -219,7 +139,6 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
     return { error: error.message };
   }
 
-  const prevMode = parseWorkspaceMode(prevV6);
   const nextModeFinal = parseWorkspaceMode(merged ?? prevV6);
   const transitionSideEffects = await applyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,
@@ -440,7 +359,9 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
   const ctx = await getAuthContext();
   if (!ctx || ctx.role !== "admin") return { error: "Unauthorized" };
 
-  const muted = EMAIL_MUTE_KEYS.filter((k) => formData.get(`mute_email_${k}`) === "on");
+  const muted = EMAIL_NOTIFICATION_POLICY_TYPES.filter((notificationType) =>
+    formData.get(`mute_email_${notificationType}`) === "on"
+  );
   const { data: row } = await ctx.admin
     .from("organization_workflow_settings")
     .select("notification_policy_json")
@@ -453,8 +374,7 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
   const prevBlocked = Array.isArray(prevEmail.blocked_types)
     ? (prevEmail.blocked_types as unknown[]).map((v) => String(v))
     : [];
-  const prevOther = prevBlocked.filter((t) => !EMAIL_MUTE_KEYS.includes(t as (typeof EMAIL_MUTE_KEYS)[number]));
-  const nextBlocked = [...new Set([...prevOther, ...muted])];
+  const nextBlocked = [...new Set(muted)];
 
   const nextPolicy = {
     ...prev,

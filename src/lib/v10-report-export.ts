@@ -1,5 +1,6 @@
 import {
   V10_CORE_REPORT_FAMILIES,
+  type V10Plan,
   type V10ReportFamily,
 } from "./v10-release-contract";
 
@@ -122,7 +123,9 @@ export function getV10ReportFamilyForRun(reportMode?: string | null): V10ReportF
   const normalized = String(reportMode ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
   if (isV10CoreReportFamily(normalized)) return normalized;
   if (normalized.includes("renewal")) return "renewal_horizon_report";
-  if (normalized.includes("overdue") || normalized.includes("work")) return "overdue_work_report";
+  if (normalized.includes("overdue") || normalized.includes("work") || normalized.includes("obligation")) {
+    return "overdue_work_report";
+  }
   if (normalized.includes("exception")) return "exception_report";
   if (normalized.includes("evidence")) return "evidence_status_report";
   if (normalized.includes("approval") || normalized.includes("sla")) return "approval_sla_report";
@@ -131,6 +134,30 @@ export function getV10ReportFamilyForRun(reportMode?: string | null): V10ReportF
   if (normalized.includes("import") || normalized.includes("extraction")) return "import_extraction_reliability_report";
   if (normalized.includes("health") || normalized.includes("settings")) return "workspace_health_report";
   return "contract_portfolio_summary";
+}
+
+function isV10Plan(value: unknown): value is V10Plan {
+  return ["trial", "core", "advanced", "assurance", "enterprise"].includes(String(value ?? ""));
+}
+
+export function resolveV10ReportExportPlan(v6?: unknown): V10Plan {
+  const settings = v6 && typeof v6 === "object" ? (v6 as Record<string, unknown>) : {};
+  const rawPlan = settings.workspace_plan ?? settings.billing_plan ?? settings.subscription_plan ?? settings.plan ?? settings.workspace_mode;
+  return isV10Plan(rawPlan) ? rawPlan : "enterprise";
+}
+
+export function getV10ContractExportRowLimit(plan: V10Plan): number {
+  switch (plan) {
+    case "trial":
+      return 5_000;
+    case "core":
+      return 10_000;
+    case "advanced":
+    case "assurance":
+    case "enterprise":
+    default:
+      return 20_000;
+  }
 }
 
 export function isV10AsyncReportOrExportRequired(input: V10ReportExportThresholdInput): boolean {

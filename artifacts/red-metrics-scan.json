@@ -1,6 +1,8 @@
 {
   "ok": true,
-  "unknownSample": [],
+  "unknownSample": [
+    "report_pack_id"
+  ],
   "allowlistSize": 36,
   "wildcard": false,
   "wildcardAllowed": false

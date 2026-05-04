@@ -4,13 +4,7 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-
-function csvEscape(value: string) {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
+import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 
 export async function GET(
   request: Request,
@@ -62,9 +56,13 @@ export async function GET(
     const metrics = (target.metrics_json ?? {}) as Record<string, unknown>;
     const lines = ["key,value"];
     for (const [k, v] of Object.entries(metrics)) {
-      lines.push(`${csvEscape(k)},${csvEscape(typeof v === "object" ? JSON.stringify(v) : String(v))}`);
+      lines.push(
+        `${escapeCsvCellForSpreadsheet(k)},${escapeCsvCellForSpreadsheet(
+          typeof v === "object" ? JSON.stringify(v) : String(v)
+        )}`
+      );
     }
-    return new NextResponse(lines.join("\n"), {
+    return new NextResponse(lines.join("\r\n"), {
       status: 200,
       headers: {
         "content-type": "text/csv; charset=utf-8",

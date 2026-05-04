@@ -17,11 +17,24 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient();
-  const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`templates-preview:${user.id}:${ip}`, RATE_LIMITS.templatesPreview);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
+      }
+    );
+  }
+
+  const admin = await createAdminClient();
 
   const { data: memberships, error: membershipError } = await admin
     .from("organization_members")
@@ -55,18 +68,6 @@ export async function GET(request: Request) {
     apiPath: "/api/templates/preview",
   });
   if (modeGate) return modeGate;
-
-  const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(`templates-preview:${user.id}:${ip}`, RATE_LIMITS.templatesPreview);
-  if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
-  }
 
   const safeType = String(contract.contract_type ?? "").replace(/[^a-zA-Z0-9_\- ]/g, "");
   const typeFilter = `contract_type.eq.${safeType},contract_type.is.null`;

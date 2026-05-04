@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-epic25",
-  "generatedAt": "2026-05-03T17:56:54.119Z",
+  "generatedAt": "2026-05-04T22:45:11.918Z",
   "migrationDir": "supabase/migrations",
   "filesWithHits": 7,
   "rows": [

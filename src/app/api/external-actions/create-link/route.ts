@@ -11,6 +11,7 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 function createToken() {
   return randomBytes(24).toString("hex");
@@ -31,6 +32,12 @@ export async function POST(request: Request) {
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "external-action.create-link",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;

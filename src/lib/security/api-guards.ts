@@ -10,6 +10,14 @@ export const API_PRIVATE_NO_STORE_HEADERS = {
 } as const;
 
 export type SessionApiContext = AuthContext;
+type BearerSecretEnvVarName =
+  | "EXTRACTION_WORKER_SECRET"
+  | "OBLIXA_INTERNAL_DIAG_SECRET";
+
+type RequireBearerSecretOptions = {
+  missingSecretResponse?: (envVarName: BearerSecretEnvVarName) => NextResponse;
+  unauthorizedResponse?: (envVarName: BearerSecretEnvVarName) => NextResponse;
+};
 
 /** JSON 401 when session + org membership is missing. */
 export async function requireSessionApiContext(): Promise<
@@ -30,15 +38,28 @@ export function requireCronAuthorized(request: Request): NextResponse | null {
 /** JSON 401 when env secret missing or Authorization Bearer mismatch. */
 export function requireBearerSecret(
   request: Request,
-  envVarName: "EXTRACTION_WORKER_SECRET" | "OBLIXA_INTERNAL_DIAG_SECRET"
+  envVarName: BearerSecretEnvVarName,
+  options: RequireBearerSecretOptions = {}
 ): NextResponse | null {
   const secret = process.env[envVarName]?.trim();
   if (!secret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS });
+    return (
+      options.missingSecretResponse?.(envVarName) ??
+      NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS }
+      )
+    );
   }
   const token = parseBearerToken(request.headers.get("authorization"));
   if (!token || !secureCompareUtf8(token, secret)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS });
+    return (
+      options.unauthorizedResponse?.(envVarName) ??
+      NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS }
+      )
+    );
   }
   return null;
 }

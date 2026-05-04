@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
@@ -213,7 +214,7 @@ async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | 
   const webhook = validateOutboundHttpUrl(payload.webhookUrl);
   if (!webhook) return { error: new Error("invalid_webhook_url") };
   try {
-    const response = await fetch(webhook.toString(), {
+    const response = await safeFetch(webhook.toString(), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

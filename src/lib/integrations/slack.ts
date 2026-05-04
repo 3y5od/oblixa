@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
@@ -116,7 +117,7 @@ export async function sendSlackWorkflowNotification(
     },
     send: async () => {
       try {
-        const response = await fetch(webhookUrl.toString(), {
+        const response = await safeFetch(webhookUrl.toString(), {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(

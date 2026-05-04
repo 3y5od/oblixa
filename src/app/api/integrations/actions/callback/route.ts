@@ -164,6 +164,7 @@ export async function POST(request: Request) {
       .from("exceptions")
       .update({
         status: "resolved",
+        resolution_action: "fixed",
         resolution_note: String(body.reason ?? "").trim() || "Resolved via integration callback",
         resolved_at: new Date().toISOString(),
       })

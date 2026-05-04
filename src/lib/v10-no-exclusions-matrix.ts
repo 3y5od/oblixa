@@ -23,6 +23,8 @@ import { V10_SOURCE_OBJECT_INVENTORY } from "./v10-source-object-inventory";
 import { SPEC_ARTIFACT_V10 } from "./spec-artifact-ids";
 import { V10_SPEC_TRACE } from "./v10-spec-trace-map";
 import { V10_UI_STATE_CONTRACTS } from "./v10-ui-state-contracts";
+import { V10_IMPLEMENTATION_REQUIREMENTS } from "./v10-implementation-checklist";
+import { V10_AUTONOMOUS_COVERAGE_CONTRACTS, type V10CoverageContract } from "./v10-autonomous-coverage";
 import {
   V10_AUDIT_VOCABULARY_TAXONOMY,
   V10_COMPATIBILITY_BOUNDARIES,
@@ -32,6 +34,8 @@ import { V10_OPS_RELEASE_READINESS_CONTRACTS, V10_PROVIDER_BOUNDARIES } from "./
 
 export type V10NoExclusionsCoverageKind =
   | "spec_section"
+  | "implementation_requirement"
+  | "autonomous_coverage_contract"
   | "inventory_file"
   | "source_object"
   | "navigation_family"
@@ -148,6 +152,58 @@ function acceptanceGatePriority(gate: V10AcceptanceGate): V10NoExclusionsMatrixR
   return gate === "objective_measurement" ? "release_blocker" : "P0";
 }
 
+function implementationRequirementDimensions(
+  requirement: (typeof V10_IMPLEMENTATION_REQUIREMENTS)[number]
+): V10NoExclusionsDimension[] {
+  const dimensions: V10NoExclusionsDimension[] = ["test", "release_evidence", "operations"];
+  if (requirement.layer === "runtime_data") dimensions.push("database_or_source", "read_model");
+  if (requirement.layer === "mutation" || requirement.layer === "api") dimensions.push("route_or_action", "authorization", "audit", "idempotency");
+  if (requirement.layer === "ui") dimensions.push("recoverable_ui", "work_visibility", "command_search");
+  if (requirement.layer === "release_evidence") dimensions.push("fixture");
+  if (requirement.id.includes("security") || requirement.id.includes("privacy")) dimensions.push("privacy");
+  if (requirement.id.includes("command") || requirement.id.includes("search")) dimensions.push("command_search");
+  if (requirement.id.includes("work")) dimensions.push("work_visibility");
+  return [...new Set(dimensions)];
+}
+
+function autonomousCoverageDimensions(contract: V10CoverageContract): V10NoExclusionsDimension[] {
+  const text = `${contract.planTodoId} ${contract.requirements.join(" ")}`;
+  const dimensions: V10NoExclusionsDimension[] = ["test", "release_evidence"];
+  if (/migration|schema|source|data|fixture|lifecycle|retention/.test(text)) dimensions.push("database_or_source");
+  if (/read_model|freshness|lineage|visibility|query|index/.test(text)) dimensions.push("read_model");
+  if (/api|route|action|mutation|bulk|server_action/.test(text)) dimensions.push("route_or_action");
+  if (/auth|org|tenant|eligibility|role|scope|rls|denial/.test(text)) dimensions.push("authorization");
+  if (/idempotency|conflict|stale|concurrency/.test(text)) dimensions.push("idempotency");
+  if (/audit/.test(text)) dimensions.push("audit");
+  if (/telemetry|metric|slo|objective/.test(text)) dimensions.push("telemetry");
+  if (/privacy|redaction|safe|pii|external_token/.test(text)) dimensions.push("privacy");
+  if (/ui|a11y|keyboard|focus|responsive|state|empty|loading|recovery/.test(text)) dimensions.push("recoverable_ui");
+  if (/work|queue|owner|blocker|lens/.test(text)) dimensions.push("work_visibility");
+  if (/command|search|cmdk/.test(text)) dimensions.push("command_search");
+  if (/fixture|denominator|synthetic/.test(text)) dimensions.push("fixture");
+  if (/compatibility|rollback|deprecation|retention/.test(text)) dimensions.push("compatibility");
+  if (/ops|operation|runbook|job|notification|cron|health|recoverability/.test(text)) dimensions.push("operations");
+  if (/provider|stripe|supabase|resend|openai|vercel|integration/.test(text)) dimensions.push("provider_boundary");
+  if (/environment|browser|playwright|configuration/.test(text)) dimensions.push("environment");
+  if (/support|diagnostic/.test(text)) dimensions.push("support");
+  return [...new Set(dimensions)];
+}
+
+function autonomousCoverageStatus(contract: V10CoverageContract): V10NoExclusionsCoverageStatus {
+  if (contract.status === "shipped_behavior") return "runtime_backed";
+  if (contract.status === "typed_contract") return "automated_gate";
+  if (contract.status === "environment_gated") return "environment_gated";
+  return "release_evidence_required";
+}
+
+function autonomousCoverageOwner(contract: V10CoverageContract): V10NoExclusionsMatrixRow["owner"] {
+  if (/security|privacy|tenant|rls/.test(contract.planTodoId)) return "security";
+  if (/release|fixture|final|ship|promotion|non-autonomous|evidence-boundaries/.test(contract.planTodoId)) return "release";
+  if (/ops|observability|job|notification|rollback|integration|provider/.test(contract.planTodoId)) return "operations";
+  if (/browser|a11y|shared-primitives|domain-workflows/.test(contract.planTodoId)) return "product";
+  return "engineering";
+}
+
 function sourceObjectDimensions(row: (typeof V10_SOURCE_OBJECT_INVENTORY)[number]): V10NoExclusionsDimension[] {
   const dimensions: V10NoExclusionsDimension[] = [
     "database_or_source",
@@ -198,6 +254,39 @@ function normalizeNoExclusionsOwner(owner: string): V10NoExclusionsMatrixRow["ow
 
 export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
   const rows: V10NoExclusionsMatrixRow[] = [];
+
+  for (const requirement of V10_IMPLEMENTATION_REQUIREMENTS) {
+    rows.push({
+      coverageKey: `implementation_requirement:${requirement.id}`,
+      coverageKind: "implementation_requirement",
+      priority: requirement.autonomous ? requirement.priority : "release_blocker",
+      status: requirement.autonomous ? "runtime_backed" : "non_autonomous_blocker",
+      owner: requirement.layer === "release_evidence" ? "release" : requirement.layer === "test" ? "product" : "engineering",
+      dimensions: implementationRequirementDimensions(requirement),
+      sourceArtifacts: [...requirement.artifacts, "src/lib/v10-implementation-checklist.ts"],
+      testArtifacts: ["src/lib/v10-implementation-checklist.v10.test.ts", "npm run check:v10-suite"],
+      releaseEvidenceKey: `v10-release:implementation-requirement:${requirement.id}`,
+      residualRisk: requirement.autonomous ? null : "Non-autonomous launch evidence remains release-owner promoted and cannot be silently excluded.",
+    });
+  }
+
+  for (const contract of V10_AUTONOMOUS_COVERAGE_CONTRACTS) {
+    const status = autonomousCoverageStatus(contract);
+    rows.push({
+      coverageKey: `autonomous_coverage_contract:${contract.planTodoId}`,
+      coverageKind: "autonomous_coverage_contract",
+      priority: contract.planTodoId === "non-autonomous-proof" ? "release_blocker" : "P0",
+      status,
+      owner: autonomousCoverageOwner(contract),
+      dimensions: autonomousCoverageDimensions(contract),
+      sourceArtifacts: [...contract.sourceArtifacts, "src/lib/v10-autonomous-coverage.ts"],
+      testArtifacts: ["src/lib/v10-autonomous-coverage.v10.test.ts", "src/lib/v10-no-exclusions-matrix.v10.test.ts"],
+      releaseEvidenceKey: `v10-release:coverage-contract:${contract.planTodoId}`,
+      residualRisk: status === "release_evidence_required" || status === "environment_gated"
+        ? `${contract.planTodoId} requires release evidence before promotion.`
+        : null,
+    });
+  }
 
   for (const [section, artifacts] of Object.entries(V10_SPEC_TRACE)) {
     rows.push({
@@ -583,6 +672,12 @@ export function validateV10NoExclusionsMatrix(
     if (row.coverageKind === "ops_release_readiness" && !row.dimensions.includes("operations")) {
       failures.push(`${row.coverageKey}:ops_release_readiness_operations_required`);
     }
+    if (row.coverageKind === "implementation_requirement" && !row.dimensions.includes("release_evidence")) {
+      failures.push(`${row.coverageKey}:implementation_requirement_release_evidence_required`);
+    }
+    if (row.coverageKind === "autonomous_coverage_contract" && !row.dimensions.includes("test")) {
+      failures.push(`${row.coverageKey}:autonomous_coverage_contract_test_required`);
+    }
   }
 
   const requireKeys = (kind: V10NoExclusionsCoverageKind, keys: readonly string[]) => {
@@ -591,6 +686,16 @@ export function validateV10NoExclusionsMatrix(
     }
   };
 
+  for (const requirement of V10_IMPLEMENTATION_REQUIREMENTS) {
+    if (!seen.has(`implementation_requirement:${requirement.id}`)) {
+      failures.push(`missing_implementation_requirement:${requirement.id}`);
+    }
+  }
+  for (const contract of V10_AUTONOMOUS_COVERAGE_CONTRACTS) {
+    if (!seen.has(`autonomous_coverage_contract:${contract.planTodoId}`)) {
+      failures.push(`missing_autonomous_coverage_contract:${contract.planTodoId}`);
+    }
+  }
   requireKeys("spec_section", Object.keys(V10_SPEC_TRACE));
   for (const row of V10_SOURCE_INVENTORY) {
     if (!seen.has(`inventory_file:${row.category}:${row.key}`)) {

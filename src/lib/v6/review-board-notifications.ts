@@ -3,6 +3,7 @@ import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 import { sendReviewBoardPacketEmail } from "@/lib/email";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
+import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
@@ -182,7 +183,7 @@ export async function deliverReviewBoardRunNotifications(
         },
         send: async () => {
           try {
-            const response = await fetch(webhook.toString(), {
+            const response = await safeFetch(webhook.toString(), {
               method: "POST",
               headers: { "content-type": "application/json" },
               body: JSON.stringify({

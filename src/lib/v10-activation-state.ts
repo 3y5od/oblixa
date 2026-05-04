@@ -27,6 +27,8 @@ export type V10DuplicateImportCandidate = {
   title: string | null;
   counterparty: string | null;
   effectiveDate?: string | null;
+  sourceFileHash?: string | null;
+  importSourceId?: string | null;
 };
 
 export type V10DuplicateImportGroup = {
@@ -162,10 +164,18 @@ export function findV10DuplicateImportCandidates(
   for (const candidate of candidates) {
     const title = normalizeDuplicateValue(candidate.title);
     const counterparty = normalizeDuplicateValue(candidate.counterparty);
-    if (!title || !counterparty) continue;
     const effectiveDate = normalizeDuplicateValue(candidate.effectiveDate);
-    const duplicateKey = `${title}|${counterparty}|${effectiveDate}`;
-    groups.set(duplicateKey, [...(groups.get(duplicateKey) ?? []), candidate]);
+    const sourceFileHash = normalizeDuplicateValue(candidate.sourceFileHash);
+    const importSourceId = normalizeDuplicateValue(candidate.importSourceId);
+    const duplicateKeys = new Set<string>();
+    if (title && counterparty) {
+      duplicateKeys.add(`${title}|${counterparty}|${effectiveDate}`);
+    }
+    if (sourceFileHash) duplicateKeys.add(`source_file_hash:${sourceFileHash}`);
+    if (importSourceId) duplicateKeys.add(`import_source_id:${importSourceId}`);
+    for (const duplicateKey of duplicateKeys) {
+      groups.set(duplicateKey, [...(groups.get(duplicateKey) ?? []), candidate]);
+    }
   }
   return [...groups.entries()]
     .filter(([, rows]) => rows.length > 1)

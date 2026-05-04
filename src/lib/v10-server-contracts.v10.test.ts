@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildV10MutationResponse, validateV10ApiResponseSchema } from "./v10-mutation-envelope";
+import {
+  buildV10MutationResponse,
+  V10_REQUIRED_MUTATION_CONTRACTS,
+  validateV10ApiResponseSchema,
+} from "./v10-mutation-envelope";
 import {
   buildV10DeniedMutationResponse,
   buildV10IdempotencyRpcClaimArgs,
@@ -895,6 +899,16 @@ describe("V10 server mutation contracts", () => {
       next_destination_href: "/settings/health",
     });
     expect(validateV10ApiResponseSchema(response)).toEqual([]);
+  });
+
+  it("keeps required V10 mutation artifacts free of client-supplied actor identity", () => {
+    const runtimeArtifacts = [...new Set(V10_REQUIRED_MUTATION_CONTRACTS.map((contract) => contract.runtimeArtifact))];
+    for (const artifact of runtimeArtifacts) {
+      const source = readFileSync(join(process.cwd(), artifact), "utf8");
+      expect(source, artifact).not.toMatch(/actorUserId\s*:\s*String\([^\n]*formData\.get\(/);
+      expect(source, artifact).not.toMatch(/actorUserId\s*:\s*(body|requestBody|clientBody|payload)\??\.[A-Za-z0-9_]+/);
+      expect(source, artifact).not.toMatch(/actorUserId\s*:\s*[^,\n]*get[A-Za-z0-9_]*FromRequest\(/);
+    }
   });
 
   it("binds idempotency keys to canonical request hashes (body mismatch detection)", () => {

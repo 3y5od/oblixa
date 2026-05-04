@@ -1,8 +1,6 @@
-import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { ensureCronAuthorized } from "@/lib/v4/cron";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
+import { withCronRoute } from "@/lib/cron/route-runner";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { upsertDetectedExceptions, type DetectedExceptionInput } from "@/lib/v4/exceptions";
 import { recordAutomationEvent } from "@/lib/v4/automation-audit";
@@ -173,37 +171,42 @@ async function collectExtendedExceptions(admin: Awaited<ReturnType<typeof create
   return out;
 }
 
-export async function GET(request: Request) {
-  const startedAt = Date.now();
-  const unauthorized = ensureCronAuthorized(request);
-  if (unauthorized) return unauthorized;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-  const rate = await rateLimitCheck("cron:v4:exceptions-detect", RATE_LIMITS.v4ExceptionsDetectCron);
-  if (!rate.ok) {
-    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
-  }
+export const GET = withCronRoute({
+  route: "/api/cron/v4/exceptions-detect",
+  healthcheckRoute: "cron/v4/exceptions-detect",
+  rateLimitKey: "cron:v4:exceptions-detect",
+  rateLimit: RATE_LIMITS.v4ExceptionsDetectCron,
+  adminFactory: async () => ({}) as never,
+  handler: async () => {
+    try {
+      return await runExceptionsDetect();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[cron/v4/exceptions-detect] failed:", message);
+      captureServerMessage(message, {
+        level: "error",
+        extra: { route: "cron/v4/exceptions-detect" },
+      });
+      return {
+        status: 200,
+        ok: false,
+        errorsCount: 1,
+        pingReason: "detector_failed",
+        body: {
+          detected: 0,
+          rowsScanned: 0,
+          error: "detector_failed",
+        },
+      };
+    }
+  },
+});
 
-  try {
-    return await runExceptionsDetect(startedAt);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[cron/v4/exceptions-detect] failed:", message);
-    captureServerMessage(message, {
-      level: "error",
-      extra: { route: "cron/v4/exceptions-detect" },
-    });
-    const payload = {
-      detected: 0,
-      durationMs: Date.now() - startedAt,
-      ok: false,
-      error: "detector_failed",
-    };
-    pingCronHealthcheck("cron/v4/exceptions-detect", { ...payload, rowsScanned: 0 });
-    return NextResponse.json(payload);
-  }
-}
-
-async function runExceptionsDetect(startedAt: number) {
+async function runExceptionsDetect() {
   const admin = await createAdminClient();
   const [{ data: overdueTasks }, { data: overdueObligations }, { data: missingOwnerContracts }] =
     await Promise.all([
@@ -276,13 +279,11 @@ async function runExceptionsDetect(startedAt: number) {
     });
   }
 
-  const payload = {
-    detected: touched,
-    rowsScanned: inserts.length,
-    ok: true,
-    durationMs: Date.now() - startedAt,
+  return {
+    body: {
+      detected: touched,
+      rowsScanned: inserts.length,
+    },
   };
-  pingCronHealthcheck("cron/v4/exceptions-detect", payload);
-  return NextResponse.json(payload);
 }
 

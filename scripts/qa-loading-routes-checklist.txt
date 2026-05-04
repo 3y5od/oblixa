@@ -1,24 +1,40 @@
 # Phase 3g — Route-level loading.tsx (manual spot-check: skeleton vs final layout, CLS)
 # Tick when verified in a staging/preview run.
 
+/                                   src/app/(marketing)/loading.tsx
 /privacy                            src/app/(marketing)/loading.tsx
 /terms                              src/app/(marketing)/loading.tsx
 /security                           src/app/(marketing)/loading.tsx
 /accessibility                      src/app/(marketing)/loading.tsx
 /cookies                            src/app/(marketing)/loading.tsx
 /login                              src/app/(auth)/loading.tsx
+/signup                             src/app/(auth)/loading.tsx
+/forgot-password                    src/app/(auth)/loading.tsx
+/reset-password                     src/app/(auth)/loading.tsx
 
 /reports                            src/app/(dashboard)/reports/loading.tsx
+/campaigns                          src/app/(dashboard)/campaigns/loading.tsx
 /dashboard                          src/app/(dashboard)/dashboard/loading.tsx
 /dashboard/persona                  src/app/(dashboard)/dashboard/persona/loading.tsx
+/work                               src/app/(dashboard)/work/loading.tsx
 /contracts                          src/app/(dashboard)/contracts/loading.tsx
 /contracts/[id]                     src/app/(dashboard)/contracts/[id]/loading.tsx
+/contracts/bulk                     src/app/(dashboard)/contracts/bulk/loading.tsx
 /contracts/data-quality             src/app/(dashboard)/contracts/data-quality/loading.tsx
 /contracts/analytics                src/app/(dashboard)/contracts/analytics/loading.tsx
+/contracts/evidence-studio          src/app/(dashboard)/contracts/evidence-studio/loading.tsx
+/contracts/exceptions               src/app/(dashboard)/contracts/exceptions/loading.tsx
+/contracts/renewals                 src/app/(dashboard)/contracts/renewals/loading.tsx
 /contracts/tasks                    src/app/(dashboard)/contracts/tasks/loading.tsx
 /contracts/reports                  src/app/(dashboard)/contracts/reports/loading.tsx
+/contracts/review                   src/app/(dashboard)/contracts/review/loading.tsx
+/accounts/[key]                     src/app/(dashboard)/accounts/[key]/loading.tsx
+/counterparties/[key]               src/app/(dashboard)/counterparties/[key]/loading.tsx
+/relationship-workspaces            src/app/(dashboard)/relationship-workspaces/loading.tsx
 /settings                           src/app/(dashboard)/settings/loading.tsx
 /onboarding/calibration             src/app/(dashboard)/onboarding/calibration/loading.tsx
-/work                               src/app/(dashboard)/loading.tsx
 /decisions                          src/app/(dashboard)/decisions/loading.tsx
 /assurance                          src/app/(dashboard)/assurance/loading.tsx
+/more                               src/app/(dashboard)/more/loading.tsx
+/external/[token]                   src/app/external/loading.tsx
+

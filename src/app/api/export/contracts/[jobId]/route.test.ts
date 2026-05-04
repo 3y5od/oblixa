@@ -2,7 +2,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
+const createContractExportJob = vi.fn();
+const executeContractExportCsv = vi.fn();
+const getV6OrgSettingsJson = vi.fn();
+const emitProductTelemetryEvent = vi.fn();
+const executeV10IdempotentMutation = vi.fn(
+  async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({ response: await execute(), replayed: false })
+);
+const recordV10AuditEvent = vi.fn();
+const refreshV10ReadModelsForOrganization = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+
+vi.mock("next/server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/server")>();
+  return {
+    ...actual,
+    after: (callback: () => unknown) => {
+      callback();
+    },
+  };
+});
 
 vi.mock("@/lib/supabase/server", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/supabase/server")>();
@@ -17,11 +36,42 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
+vi.mock("../route", () => ({
+  createContractExportJob,
+  executeContractExportCsv,
+}));
+
+vi.mock("@/lib/v6/org-settings", () => ({
+  getV6OrgSettingsJson,
+}));
+
+vi.mock("@/lib/product-telemetry", () => ({
+  emitProductTelemetryEvent,
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  executeV10IdempotentMutation,
+  getV10ExpectedVersionFromRequest: (request: Request) =>
+    request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,
+  getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key")?.trim() || null,
+  recordV10AuditEvent,
+}));
+
+vi.mock("@/lib/v10-read-model-refresh", () => ({
+  refreshV10ReadModelsForOrganization,
+}));
+
 describe("GET /api/export/contracts/[jobId]", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
+    createContractExportJob.mockResolvedValue({ jobId: "job-2", auditEventId: "audit-created-1" });
+    executeContractExportCsv.mockResolvedValue(new Response(null, { status: 200 }));
+    emitProductTelemetryEvent.mockResolvedValue(undefined);
+    recordV10AuditEvent.mockResolvedValue("audit-retry-1");
+    refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
   });
 
   it("returns visible headline + detail for a queued job", async () => {
@@ -122,5 +172,86 @@ describe("GET /api/export/contracts/[jobId]", () => {
     expect(body.visible.diagnosticId).toBeNull();
     expect(body.visible.retryAction).toBeNull();
     expect(body.v10_job_visibility).toMatchObject({ job_id: "job-1", status: "queued" });
+  });
+
+  it("POST queues an export retry with V10 idempotent envelope semantics", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "organization_members") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                order: vi.fn(() => ({
+                  limit: vi.fn().mockResolvedValue({
+                    data: [
+                      {
+                        organization_id: "550e8400-e29b-41d4-a716-446655440001",
+                        role: "editor",
+                        created_at: new Date().toISOString(),
+                      },
+                    ],
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "contract_export_jobs") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({
+                    data: {
+                      id: "job-1",
+                      scope: "selected",
+                      status: "failed",
+                      selected_contract_count: 2,
+                      truncated: true,
+                      error_message: "Export exceeded limit",
+                      filter_json: { contract_ids: ["contract-1", "contract-2"], saved_view_id: "view-1" },
+                    },
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
+          };
+        }
+        return { select: vi.fn(() => ({ eq: vi.fn() })) };
+      }),
+    });
+
+    const { POST } = await import("@/app/api/export/contracts/[jobId]/route");
+    const res = await POST(
+      new Request("http://localhost/api/export/contracts/job-1", {
+        method: "POST",
+        headers: {
+          "x-idempotency-key": "export_retry_12345",
+          "x-v10-expected-version": "job-1",
+        },
+      }),
+      { params: Promise.resolve({ jobId: "job-1" }) }
+    );
+
+    expect(res.status).toBe(200);
+    expect(createContractExportJob).toHaveBeenCalledWith(
+      expect.objectContaining({
+        exportScope: "selected",
+        selectedIds: ["contract-1", "contract-2"],
+        initialStatus: "queued",
+      })
+    );
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ action: "export_job.retry_requested", targetType: "export_job", targetId: "job-2" })
+    );
+    const body = await res.json();
+    expect(body).toMatchObject({ success: true, retriedJobId: "job-1", jobId: "job-2", async: true });
+    expect(body.v10).toMatchObject({ outcome: "success", changed_object_type: "export_job", changed_object_id: "job-2" });
   });
 });

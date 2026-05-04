@@ -1,15 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const ensureCronAuthorized = vi.fn();
+const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
 const createAdminClient = vi.fn();
 const upsertDetectedExceptions = vi.fn();
 const recordV10AuditEvent = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
-const pingCronHealthcheck = vi.fn();
 
-vi.mock("@/lib/v4/cron", () => ({
-  ensureCronAuthorized,
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -33,16 +32,12 @@ vi.mock("@/lib/v10-read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
-vi.mock("@/lib/observability/cron-healthcheck", () => ({
-  pingCronHealthcheck,
-}));
-
 describe("GET /api/cron/v4/evidence-followup", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
     vi.useRealTimers();
-    ensureCronAuthorized.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
     upsertDetectedExceptions.mockResolvedValue({ touched: 0 });
     recordV10AuditEvent.mockResolvedValue("audit_1");
@@ -50,7 +45,7 @@ describe("GET /api/cron/v4/evidence-followup", () => {
   });
 
   it("returns unauthorized response from cron guard", async () => {
-    ensureCronAuthorized.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
+    gateCronRequest.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
     const { GET } = await import("@/app/api/cron/v4/evidence-followup/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/evidence-followup"));
     expect(res.status).toBe(401);
@@ -61,7 +56,12 @@ describe("GET /api/cron/v4/evidence-followup", () => {
     const { GET } = await import("@/app/api/cron/v4/evidence-followup/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/evidence-followup"));
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: "Too many requests", retryAfterMs: 2200 });
+    expect(await res.json()).toMatchObject({
+      ok: false,
+      error: "Too many requests",
+      code: "rate_limited",
+      retryAfterMs: 2200,
+    });
   });
 
   it("queues V10 staged evidence follow-up reminders and escalation work", async () => {

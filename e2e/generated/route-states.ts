@@ -30,15 +30,15 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
-    "route": "/dashboard/persona",
+    "route": "/work",
     "kind": "loading",
-    "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
+    "sourcePath": "src/app/(dashboard)/work/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
-    "route": "/work",
+    "route": "/dashboard/persona",
     "kind": "loading",
-    "sourcePath": "src/app/(dashboard)/loading.tsx",
+    "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
@@ -60,6 +60,12 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/contracts/bulk",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/bulk/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/contracts/tasks",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
@@ -78,15 +84,45 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/contracts/evidence-studio",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/exceptions",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/exceptions/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/contracts/reports",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
+    "route": "/contracts/renewals",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/renewals/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/review",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/reports",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/campaigns",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/campaigns/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
@@ -102,6 +138,18 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/more",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/more/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/relationship-workspaces",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/relationship-workspaces/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/settings",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
@@ -111,6 +159,18 @@ export const GENERATED_ROUTE_STATES = [
     "route": "/onboarding/calibration",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/accounts/[key]",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/accounts/[key]/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/counterparties/[key]",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
@@ -127,6 +187,42 @@ export const GENERATED_ROUTE_STATES = [
   },
   {
     "route": "/login",
+    "kind": "error",
+    "sourcePath": "src/app/(auth)/error.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/signup",
+    "kind": "loading",
+    "sourcePath": "src/app/(auth)/loading.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/signup",
+    "kind": "error",
+    "sourcePath": "src/app/(auth)/error.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/forgot-password",
+    "kind": "loading",
+    "sourcePath": "src/app/(auth)/loading.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/forgot-password",
+    "kind": "error",
+    "sourcePath": "src/app/(auth)/error.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/reset-password",
+    "kind": "loading",
+    "sourcePath": "src/app/(auth)/loading.tsx",
+    "shellFamily": "auth"
+  },
+  {
+    "route": "/reset-password",
     "kind": "error",
     "sourcePath": "src/app/(auth)/error.tsx",
     "shellFamily": "auth"
@@ -178,6 +274,12 @@ export const GENERATED_ROUTE_STATES = [
     "kind": "not_found",
     "sourcePath": "src/app/(marketing)/not-found.tsx",
     "shellFamily": "marketing"
+  },
+  {
+    "route": "/external/[token]",
+    "kind": "loading",
+    "sourcePath": "src/app/external/loading.tsx",
+    "shellFamily": "external"
   },
   {
     "route": "/external/[token]",

@@ -22,7 +22,7 @@ type WorkQueueInlineActionsProps =
   | {
       kind: "approval";
       itemId: string;
-      status: "pending" | "approved" | "rejected";
+      status: "pending" | "approved" | "rejected" | "changes_requested";
       mutationsEnabled?: boolean;
       blockerHref?: string;
       blockerLabel?: string;
@@ -73,6 +73,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"success" | "error">("success");
   const [refreshQueued, setRefreshQueued] = useState(false);
+  const [approvalNote, setApprovalNote] = useState("");
   const refreshTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -155,6 +156,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                   const result = await updateContractApprovalStatus({
                     approvalId: props.itemId,
                     status: "approved",
+                    notes: approvalNote || null,
                   });
                   if ("error" in result && result.error) return { error: describeActionError(result.error) };
                   return {
@@ -176,12 +178,35 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                   const result = await updateContractApprovalStatus({
                     approvalId: props.itemId,
                     status: "rejected",
+                    notes: approvalNote || null,
                   });
                   if ("error" in result && result.error) return { error: describeActionError(result.error) };
                   return {
                     success: true as const,
                     message: combineMessages([
                       "Approval rejected.",
+                      (result.reopenedTaskCount ?? 0) > 0
+                        ? `${pluralize(result.reopenedTaskCount ?? 0, "blocked approval-linked task")} reopened for follow-up.`
+                        : null,
+                    ]),
+                  };
+                },
+              },
+              {
+                id: "changes_requested",
+                label: "Request changes",
+                tone: "secondary",
+                run: async () => {
+                  const result = await updateContractApprovalStatus({
+                    approvalId: props.itemId,
+                    status: "changes_requested",
+                    notes: approvalNote || null,
+                  });
+                  if ("error" in result && result.error) return { error: describeActionError(result.error) };
+                  return {
+                    success: true as const,
+                    message: combineMessages([
+                      "Changes requested.",
                       (result.reopenedTaskCount ?? 0) > 0
                         ? `${pluralize(result.reopenedTaskCount ?? 0, "blocked approval-linked task")} reopened for follow-up.`
                         : null,
@@ -235,6 +260,21 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
 
   return (
     <div className="mt-2 flex flex-col gap-2">
+      {props.kind === "approval" && props.status === "pending" ? (
+        <div className="space-y-1">
+          <label className="ui-label-caps" htmlFor={`approval-note-${props.itemId}`}>
+            Decision note
+          </label>
+          <textarea
+            id={`approval-note-${props.itemId}`}
+            value={approvalNote}
+            onChange={(event) => setApprovalNote(event.target.value)}
+            className="ui-input min-h-[52px] text-xs"
+            placeholder="Add context for reject or request changes"
+            disabled={isPending || refreshQueued}
+          />
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
           <button

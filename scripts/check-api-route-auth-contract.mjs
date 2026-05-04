@@ -77,6 +77,8 @@ function loadPublicAllowlist() {
   return { routes, metadataIssues };
 }
 
+const SHARED_CRON_WRAPPER_RE = /\bwith(?:V6)?CronRoute\b|\brunCronRoute\b/;
+
 const AUTH_SIGNALS = [
   // Session/user context
   /\bgetApiAuthContext\b/,
@@ -87,8 +89,10 @@ const AUTH_SIGNALS = [
   /\brequireV5ApiFeature\b/,
   /\brequireV6ApiFeature\b/,
   /\bcanManageCapability\b/,
+  SHARED_CRON_WRAPPER_RE,
   // Machine auth helpers/secrets
   /\bauthorizeCronRequest\b|\bgateCronRequest\b|\bensureCronAuthorized\b|\brequireCronAuthorized\b|\brequireV[56]CronAuth\b|\bCRON_SECRET\b/,
+  /\brequireBearerSecret\b/,
   /\bisInboundAutomationAuthorized\b/,
   /\bconstructEvent\b|stripe-signature/i,
   /\bparseBearerToken\b|\bx-api-key\b/i,
@@ -117,6 +121,7 @@ const DENY_SIGNALS = [
   /\bif\s*\(\s*auth\s*\)\s*return\s+auth\b/,
   /\breturn\s+errorResponse\b/,
   /\breturn\s+modeGate\b/,
+  SHARED_CRON_WRAPPER_RE,
 ];
 
 const routes = walkRoutes(apiRoot).sort();

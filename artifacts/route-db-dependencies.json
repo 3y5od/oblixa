@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.655Z",
   "rows": [
     {
       "route": "/accounts/[key]",
@@ -453,7 +453,8 @@
       "tables": [
         "report_pack_runs",
         "report_pack_subscriptions",
-        "report_packs"
+        "report_packs",
+        "report_runs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -815,8 +816,7 @@
       "tables": [
         "contract_export_jobs",
         "contracts",
-        "organization_members",
-        "profiles"
+        "organization_members"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -1240,6 +1240,17 @@
       "tables": [
         "report_pack_runs",
         "report_packs"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/report-runs/[runId]/retry",
+      "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "tables": [
+        "report_packs",
+        "report_runs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -2092,6 +2103,7 @@
         "notification_deliveries",
         "organization_workflow_settings",
         "outbound_event_deliveries",
+        "reminders",
         "report_runs",
         "v10_external_blocker_records",
         "v10_job_run_visibility",
@@ -3748,7 +3760,9 @@
       "sourcePath": "src/actions/product-surface-settings.ts",
       "tables": [
         "audit_events",
-        "organization_workflow_settings"
+        "organization_workflow_settings",
+        "report_pack_subscriptions",
+        "report_packs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -4736,7 +4750,9 @@
       "sourcePath": "src/actions/product-surface-settings.ts",
       "tables": [
         "audit_events",
-        "organization_workflow_settings"
+        "organization_workflow_settings",
+        "report_pack_subscriptions",
+        "report_packs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -4931,7 +4947,9 @@
       "sourcePath": "src/actions/product-surface-settings.ts",
       "tables": [
         "audit_events",
-        "organization_workflow_settings"
+        "organization_workflow_settings",
+        "report_pack_subscriptions",
+        "report_packs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,

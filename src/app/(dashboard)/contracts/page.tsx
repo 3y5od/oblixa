@@ -293,7 +293,7 @@ export default async function ContractsPage(props: {
   });
 
   const [contracts, reviewStats, rowSignals] = await Promise.all([
-    attachOwnerProfiles(admin, contractsData),
+    attachOwnerProfiles(admin, orgId, contractsData),
     getReviewStatsForContractIds(
       admin,
       contractsData.map((c) => c.id)

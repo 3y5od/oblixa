@@ -128,7 +128,7 @@ export async function DashboardLower(props: {
 
   const evidenceRequiredCount = evidenceRequiredRaw ?? 0;
 
-  const recentContracts = await attachOwnerProfiles(admin, recentContractsData ?? []);
+  const recentContracts = await attachOwnerProfiles(admin, orgId, recentContractsData ?? []);
   const recentContractIds = recentContracts.map((contract) => contract.id);
   const [recentReviewStats, recentRowSignals] = await Promise.all([
     getReviewStatsForContractIds(admin, recentContractIds),

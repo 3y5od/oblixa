@@ -2,17 +2,30 @@ import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 
+const gateCronRequest = vi.fn();
+const rateLimitCheck = vi.fn();
+
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
+}));
+
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
+
 vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5CronFeature: vi.fn(() => null),
 }));
 
-const requireV5CronAuth = vi.fn();
 const listOrganizationIds = vi.fn(async () => ["org-1"]);
 
 const createAdminClient = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/v5/cron", () => ({
-  requireV5CronAuth,
   listOrganizationIds,
 }));
 
@@ -26,17 +39,32 @@ vi.mock("@/lib/v5/persist-signal-quality", () => ({
 
 describe("GET /api/cron/v5/campaign-progress", () => {
   beforeEach(() => {
+    vi.resetModules();
     vi.clearAllMocks();
-    requireV5CronAuth.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
+    rateLimitCheck.mockResolvedValue({ ok: true });
     vi.mocked(requireV5CronFeature).mockReturnValue(null);
     createAdminClient.mockReset();
   });
 
   it("returns 401 when cron auth fails", async () => {
-    requireV5CronAuth.mockReturnValueOnce(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+    gateCronRequest.mockReturnValueOnce(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     const { GET } = await import("@/app/api/cron/v5/campaign-progress/route");
     const res = await GET(new Request("http://localhost/api/cron/v5/campaign-progress"));
     expect(res.status).toBe(401);
+  });
+
+  it("returns 429 when rate-limited", async () => {
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 2400 });
+    const { GET } = await import("@/app/api/cron/v5/campaign-progress/route");
+    const res = await GET(new Request("http://localhost/api/cron/v5/campaign-progress"));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toMatchObject({
+      ok: false,
+      error: "Too many requests",
+      code: "rate_limited",
+      retryAfterMs: 2400,
+    });
   });
 
   it("writes progress_summary_json with counts and segment_breakdown shape", async () => {

@@ -57,7 +57,7 @@ export default async function ContractReviewQueuePage(props: {
     redirect(`/contracts/review?${next.toString()}`);
   }
 
-  const contracts = await attachOwnerProfiles(admin, queue.contracts);
+  const contracts = await attachOwnerProfiles(admin, orgId, queue.contracts);
   const { data: profileRow } = await admin
     .from("profiles")
     .select("onboarding_completed_at")

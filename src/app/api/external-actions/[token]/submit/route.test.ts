@@ -129,6 +129,37 @@ describe("POST /api/external-actions/[token]/submit", () => {
     expect(res.status).toBe(409);
   });
 
+  it("returns 410 when external action link is expired", async () => {
+    mockedFlags.mockReturnValue(true);
+    const past = new Date(Date.now() - 60_000).toISOString();
+    mockLinkSelect({
+      id: "l-expired",
+      organization_id: "o1",
+      status: "open",
+      expires_at: past,
+      one_time: true,
+      action_type: "submit_evidence",
+      scope_json: {},
+      passcode_hash: null,
+      decision_workspace_id: null,
+      requires_reauth: false,
+    });
+
+    const { POST } = await import("@/app/api/external-actions/[token]/submit/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "x" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(410);
+    expect(body).toEqual({ error: "External action link expired" });
+  });
+
   it("returns 409 when a concurrent submit already consumed the link", async () => {
     mockedFlags.mockReturnValue(true);
     const future = new Date(Date.now() + 86400000).toISOString();

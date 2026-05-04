@@ -20,6 +20,10 @@ for (const name of files) {
 /** Exact filename sets allowed to share one numeric prefix (legacy coexistence; do not expand casually). */
 const DUPLICATE_PREFIX_EXCEPTIONS = {
   "050": new Set(["050_v6_contract_tags.sql", "050_v9_status_foundations.sql"]),
+  "058": new Set([
+    "058_security_program_session_hints.sql",
+    "058_v10_core_workflow_alignment.sql",
+  ]),
 };
 
 const duplicates = Array.from(prefixMap.entries())

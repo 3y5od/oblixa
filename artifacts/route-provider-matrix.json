@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.655Z",
   "rows": [
     {
       "route": "/",
@@ -649,65 +649,44 @@
     {
       "route": "/api/cron/v6/assurance-checks",
       "sourcePath": "src/app/api/cron/v6/assurance-checks/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/autopilot-dry-run",
       "sourcePath": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/autopilot-execution",
       "sourcePath": "src/app/api/cron/v6/autopilot-execution/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/control-policy-reevaluation",
       "sourcePath": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/external-workflow-deadlines",
       "sourcePath": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/finding-refresh",
       "sourcePath": "src/app/api/cron/v6/finding-refresh/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/health-graph-rollups",
       "sourcePath": "src/app/api/cron/v6/health-graph-rollups/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/onboarding-calibration-stale",
@@ -721,47 +700,32 @@
     {
       "route": "/api/cron/v6/outcome-effectiveness",
       "sourcePath": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/playbook-follow-up-assurance",
       "sourcePath": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/review-board-packet-generation",
       "sourcePath": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/scorecard-recompute",
       "sourcePath": "src/app/api/cron/v6/scorecard-recompute/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/cron/v6/segment-recompute",
       "sourcePath": "src/app/api/cron/v6/segment-recompute/route.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/decisions",
@@ -973,6 +937,7 @@
       "route": "/api/export/contracts/[jobId]",
       "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
       "providers": [
+        "openai",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -1430,6 +1395,15 @@
       "sourcePath": "src/app/api/report-packs/[id]/runs/route.ts",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/report-runs/[runId]/retry",
+      "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -2555,7 +2529,6 @@
       "route": "action:addManualField",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2596,7 +2569,6 @@
       "route": "action:applyContractTemplatePack",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2608,7 +2580,6 @@
       "route": "action:applyContractTemplatePackForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2738,7 +2709,6 @@
       "route": "action:batchApproveReadyFields",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2777,7 +2747,6 @@
       "route": "action:bulkAssignContractOwners",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2805,7 +2774,6 @@
       "route": "action:bulkCreateContractsFromFiles",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -2895,6 +2863,16 @@
       "fallbackRequired": false
     },
     {
+      "route": "action:contracts-outbound-fetch.test",
+      "sourcePath": "src/actions/contracts-outbound-fetch.test.ts",
+      "providers": [
+        "external_fetch",
+        "openai",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:createApprovalPolicyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
@@ -2941,7 +2919,6 @@
       "route": "action:createContract",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -3210,7 +3187,6 @@
       "route": "action:deleteContract",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -3434,7 +3410,6 @@
       "route": "action:getFileDownloadUrl",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -3788,7 +3763,6 @@
       "route": "action:runExtraction",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4006,7 +3980,6 @@
       "route": "action:supersedeContractFile",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4018,7 +3991,6 @@
       "route": "action:supersedeContractFileForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4164,7 +4136,6 @@
       "route": "action:updateContractExternalLink",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4176,7 +4147,6 @@
       "route": "action:updateContractExternalLinkForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4188,7 +4158,6 @@
       "route": "action:updateContractField",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4200,7 +4169,6 @@
       "route": "action:updateContractHandoffChecklistStatus",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4212,7 +4180,6 @@
       "route": "action:updateContractHandoffChecklistStatusForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4243,7 +4210,6 @@
       "route": "action:updateContractOperationalState",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4255,7 +4221,6 @@
       "route": "action:updateContractOperationalStateForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4267,7 +4232,6 @@
       "route": "action:updateContractOwner",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4279,7 +4243,6 @@
       "route": "action:updateContractSecondaryOwner",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4302,7 +4265,6 @@
       "route": "action:updateContractStatus",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4465,7 +4427,6 @@
       "route": "action:uploadAdditionalFiles",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4477,7 +4438,6 @@
       "route": "action:upsertContractHandoffChecklist",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4489,7 +4449,6 @@
       "route": "action:upsertContractHandoffChecklistForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4512,7 +4471,6 @@
       "route": "action:upsertContractIntakeRequest",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4524,7 +4482,6 @@
       "route": "action:upsertContractIntakeRequestForm",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -4584,6 +4541,7 @@
       "route": "action:v10-bulk-compatible-work.v10.test",
       "sourcePath": "src/actions/v10-bulk-compatible-work.v10.test.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true

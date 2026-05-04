@@ -93,6 +93,9 @@ jobs:
       - name: .env.example parity vs src process.env
         run: npm run check:env-example-parity
 
+      - name: Synthetic / SLO env contract
+        run: npm run check:synthetic-slo-env
+
       - name: Onboarding QA matrix (tests + strict lib/onboarding glob)
         run: npm run check:onboarding-qa-matrix
 
@@ -113,6 +116,117 @@ jobs:
 
       - name: Outbound fetch contract (API routes)
         run: npm run check:outbound-fetch
+
+      - name: Outbound safeFetch trusted-source contract
+        run: npm run check:outbound-domain-allowlist
+
+      - name: SSRF guard contract
+        run: npm run check:ssrf-guards
+
+      - name: Browser isolation header contract
+        run: npm run check:browser-isolation-headers
+
+      - name: Permissions-Policy contract
+        run: npm run check:permissions-policy-security
+
+      - name: Auth cookie attribute contract
+        run: npm run check:auth-cookie-attributes
+
+      - name: Session fixation defense contract
+        run: npm run check:session-fixation-defenses
+
+      - name: Session lifecycle security contract
+        run: npm run check:session-lifecycle-security
+
+      - name: Open redirect guard contract
+        run: npm run check:open-redirect-guards
+
+      - name: Callback domain strictness contract
+        run: npm run check:callback-domain-strictness
+
+      - name: Trusted host handling contract
+        run: npm run check:trusted-host-handling
+
+      - name: OAuth state integrity contract
+        run: npm run check:oauth-state-integrity
+
+      - name: OAuth PKCE enforcement contract
+        run: npm run check:oauth-pkce-enforcement
+
+      - name: Callback destination integrity contract
+        run: npm run check:callback-destination-integrity
+
+      - name: Origin / referrer enforcement contract
+        run: npm run check:origin-referrer-enforcement
+
+      - name: CSRF surface guard contract
+        run: npm run check:csrf-surface-guards
+
+      - name: HTTP method policy contract
+        run: npm run check:http-method-policy
+
+      - name: Storage path safety contract
+        run: npm run check:storage-path-safety
+
+      - name: Path traversal guard contract
+        run: npm run check:path-traversal-guards
+
+      - name: Upload security guard contract
+        run: npm run check:upload-security-guards
+
+      - name: Account recovery abuse guard contract
+        run: npm run check:account-recovery-abuse-guards
+
+      - name: Lockout / reset safety contract
+        run: npm run check:lockout-reset-safety
+
+      - name: Email identity spoof guard contract
+        run: npm run check:email-identity-spoof-guards
+
+      - name: Inbound identity boundary contract
+        run: npm run check:inbound-identity-boundaries
+
+      - name: Internal API boundary contract
+        run: npm run check:internal-api-boundaries
+
+      - name: Realtime auth boundary contract
+        run: npm run check:realtime-auth-boundaries
+
+      - name: Request framing guard contract
+        run: npm run check:request-framing-guards
+
+      - name: Signed link nonce policy contract
+        run: npm run check:signed-link-nonce-policy
+
+      - name: Signed link scope narrowing contract
+        run: npm run check:signed-link-scope-narrowing
+
+      - name: Signed request freshness contract
+        run: npm run check:signed-request-freshness
+
+      - name: Duplicate execution policy contract
+        run: npm run check:duplicate-execution-policy
+
+      - name: Poison message containment contract
+        run: npm run check:poison-message-containment
+
+      - name: Queue message authenticity contract
+        run: npm run check:queue-message-authenticity
+
+      - name: Outbound message safety contract
+        run: npm run check:outbound-message-safety
+
+      - name: Notification payload scrub contract
+        run: npm run check:notification-payload-scrub-contract
+
+      - name: Security headers contract
+        run: npm run check:security-headers
+
+      - name: Security audit event contract
+        run: npm run check:security-event-contract
+
+      - name: Sensitive cache-control contract
+        run: npm run check:sensitive-cache-controls
 
       - name: Security enforcement matrix
         run: npm run check:security-enforcement-matrix
@@ -602,8 +716,10 @@ jobs:
         run: npm run check:bundle-budget
       - name: Import boundary and cycle checks
         run: npm run check:import-boundaries && npm run check:dependency-cycles && npm run check:script-complexity-ratchet && npm run check:feature-flag-lifecycle && npm run check:frontend-component-complexity && npm run check:server-action-complexity
-      - name: Script runtime tests
-        run: npm run test:scripts
+      - name: Script unit tests
+        run: npm run test:scripts:unit
+      - name: Script runtime checks
+        run: npm run test:scripts:checks
 
   # Optional: set repository secret E2E_ONBOARDING_FULL to a non-empty value to run deep onboarding + multi-browser Playwright.
   quality_e2e_onboarding_full:

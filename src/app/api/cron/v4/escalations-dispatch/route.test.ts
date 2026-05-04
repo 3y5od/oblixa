@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const ensureCronAuthorized = vi.fn();
+const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
 const pingCronHealthcheck = vi.fn();
 const enqueueOutboundEvent = vi.fn();
@@ -9,8 +9,8 @@ const recordAutomationEvent = vi.fn();
 const selectOrMock = vi.fn();
 const updateInMock = vi.fn();
 
-vi.mock("@/lib/v4/cron", () => ({
-  ensureCronAuthorized,
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -66,7 +66,7 @@ vi.mock("@/lib/supabase/server", () => ({
 describe("GET /api/cron/v4/escalations-dispatch", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    ensureCronAuthorized.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
     selectOrMock.mockImplementation(function (this: unknown) {
       return this;
@@ -98,6 +98,11 @@ describe("GET /api/cron/v4/escalations-dispatch", () => {
     const body = await response.json();
 
     expect(response.status).toBe(429);
-    expect(body).toEqual({ error: "Too many requests", retryAfterMs: 2500 });
+    expect(body).toMatchObject({
+      ok: false,
+      error: "Too many requests",
+      code: "rate_limited",
+      retryAfterMs: 2500,
+    });
   });
 });

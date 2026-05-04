@@ -1,13 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const requireV6CronAuth = vi.fn();
+const gateCronRequest = vi.fn();
 const createAdminClient = vi.fn();
 const runCron = vi.fn();
 const isDisabled = vi.fn();
 const rateLimitCheck = vi.fn();
 
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
+}));
+
 vi.mock("@/lib/v6/cron", () => ({
-  requireV6CronAuth,
   listOrganizationIds: vi.fn(async () => ["org-a"]),
   logV6Cron: vi.fn(),
   v6CronRunMetadata: (orgsProcessed: number, _startedAtMs: number, errorsCount = 0) => ({
@@ -32,18 +35,25 @@ vi.mock("@/lib/rate-limit", async () => {
 });
 
 describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    gateCronRequest.mockReturnValue(null);
+    rateLimitCheck.mockResolvedValue({ ok: true });
+    isDisabled.mockReturnValue(false);
+  });
+
   it("returns 401 when cron auth fails", async () => {
-    requireV6CronAuth.mockReturnValueOnce(
+    gateCronRequest.mockReturnValueOnce(
       new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
     );
     const { GET } = await import("./route");
     const res = await GET(new Request("http://localhost/api/cron/v6/onboarding-calibration-stale"));
     expect(res.status).toBe(401);
-    expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
 
   it("returns 401 when Authorization bearer does not match CRON_SECRET (wrong secret)", async () => {
-    requireV6CronAuth.mockReturnValueOnce(
+    gateCronRequest.mockReturnValueOnce(
       new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
     );
     const { GET } = await import("./route");
@@ -56,7 +66,7 @@ describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
   });
 
   it("returns skipped when disabled", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
+    gateCronRequest.mockReturnValueOnce(null);
     isDisabled.mockReturnValueOnce(true);
     const { GET } = await import("./route");
     const res = await GET(new Request("http://localhost/api/cron/v6/onboarding-calibration-stale"));
@@ -66,7 +76,7 @@ describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
   });
 
   it("returns JSON with expected keys when run succeeds", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
+    gateCronRequest.mockReturnValueOnce(null);
     isDisabled.mockReturnValueOnce(false);
     rateLimitCheck.mockResolvedValueOnce({ ok: true });
     createAdminClient.mockResolvedValueOnce({});
@@ -102,13 +112,14 @@ describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
   });
 
   it("returns 429 when rate limit fails", async () => {
-    requireV6CronAuth.mockReturnValueOnce(null);
+    gateCronRequest.mockReturnValueOnce(null);
     isDisabled.mockReturnValueOnce(false);
     rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 900 });
     const { GET } = await import("./route");
     const res = await GET(new Request("http://localhost/api/cron/v6/onboarding-calibration-stale"));
     expect(res.status).toBe(429);
     const body = await res.json();
-    expect(body.error).toBeDefined();
+    expect(body).toMatchObject({ error: "Too many requests", code: "rate_limited" });
+    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
   });
 });

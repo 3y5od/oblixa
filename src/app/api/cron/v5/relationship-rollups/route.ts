@@ -3,11 +3,10 @@
  * Idempotent per org + account/counterparty key — ensures workspaces/timelines exist and only
  * appends rollup events when derived contract counts change (see inline snapshot compare).
  */
-import { NextResponse } from "next/server";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/server";
+import { withCronRoute } from "@/lib/cron/route-runner";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { listOrganizationIds, requireV5CronAuth } from "@/lib/v5/cron";
+import { listOrganizationIds } from "@/lib/v5/cron";
 import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
 import {
   ensureAccountWorkspaceFromContracts,
@@ -17,20 +16,20 @@ import {
 } from "@/lib/v5/relationship-bootstrap";
 import { appendTimelineEventDeduped } from "@/lib/v5/relationship-timeline";
 
-export async function GET(request: Request) {
-  const unauthorized = requireV5CronAuth(request);
-  if (unauthorized) return unauthorized;
-  const rate = await rateLimitCheck("cron:v5:relationship-rollups", RATE_LIMITS.v5CronDefault);
-  if (!rate.ok) {
-    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
-  }
-  const skipped = requireV5CronFeature("v5RelationshipLayer");
-  if (skipped) return skipped;
-  const admin = await createAdminClient();
-  const orgIds = await listOrganizationIds(admin);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-  let timelineEvents = 0;
-  for (const orgId of orgIds) {
+export const GET = withCronRoute({
+  route: "/api/cron/v5/relationship-rollups",
+  rateLimitKey: "cron:v5:relationship-rollups",
+  rateLimit: RATE_LIMITS.v5CronDefault,
+  preflight: () => requireV5CronFeature("v5RelationshipLayer"),
+  handler: async ({ admin }) => {
+    const orgIds = await listOrganizationIds(admin);
+
+    let timelineEvents = 0;
+    for (const orgId of orgIds) {
     const { data: accountRows } = await admin
       .from("contracts")
       .select("account_key")
@@ -298,7 +297,12 @@ export async function GET(request: Request) {
         });
       }
     }
-  }
+    }
 
-  return NextResponse.json({ ok: true, rollupsRecorded: timelineEvents });
-}
+    return {
+      body: {
+        rollupsRecorded: timelineEvents,
+      },
+    };
+  },
+});

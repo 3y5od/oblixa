@@ -19,6 +19,7 @@ import {
   loadProductSurfaceContext,
   resolveWorkflowDestination,
 } from "@/lib/product-surface";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { blockerCountForEntity } from "@/components/v4/execution-edge-blockers";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { QueueItemCard } from "@/components/ui/queue-item-card";
@@ -28,7 +29,6 @@ import {
 } from "@/components/ui/operational-summary-card";
 import { V10EmptyStateTelemetryLink } from "@/components/ui/v10-empty-state-telemetry-link";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
-import type { SemanticStatus } from "@/components/ui/status-badge";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import {
   compareV10WorkReadModelRows,
@@ -41,62 +41,28 @@ import {
   WORK_HUB_LENS_LABELS,
   WORK_HUB_LENS_VALUES,
   parseWorkHubLens,
-  type WorkHubLens,
 } from "@/lib/work-hub-lens";
 import { WorkQueueInlineActionsGate } from "@/components/work/work-queue-inline-actions-gate";
+import { V10WorkInboxList } from "@/components/work/v10-work-inbox-list";
 import { ExceptionMutationPanels } from "@/components/contracts/exception-mutation-panels";
-import { V10_WORK_ITEM_TYPES, V10_WORK_LENSES } from "@/lib/v10-release-contract";
-import { V9_DUE_SOON_DAYS } from "@/lib/v9-business-dates";
+import { V10_WORK_ITEM_TYPES, V10_WORK_LENSES, type V10WorkItemType } from "@/lib/v10-release-contract";
+import { getV10WorkItemHref } from "@/lib/v10-job-routing";
 import { subDays } from "date-fns";
 import { operationalActionLabel } from "@/lib/ui/operational-copy";
+import { getV10ExceptionResolutionActionOptions } from "@/lib/v10-approval-exception";
+import {
+  approvalsEmptyLensAction,
+  exceptionsEmptyLensAction,
+  lensHref,
+  obligationsEmptyLensAction,
+  tasksEmptyLensAction,
+  toSemanticStatus,
+  type V10WorkActionRow,
+  v10PrimaryActionHref,
+  workSectionHref,
+} from "./work-page-helpers";
 
 export const metadata = { title: "Work queue" };
-
-function toSemanticStatus(status: string): SemanticStatus {
-  if (status === "blocked") return "blocked";
-  if (status === "in_progress") return "in_review";
-  if (status === "pending") return "warning";
-  if (status === "open") return "info";
-  return "empty";
-}
-
-function lensHref(lens: WorkHubLens) {
-  return lens === "assigned" ? "/work" : `/work?lens=${lens}`;
-}
-
-type V10WorkActionRow = V10WorkReadModelRow & {
-  contract_id?: string | null;
-  primary_action?: string | null;
-};
-
-function v10PrimaryActionHref(item: V10WorkActionRow, fallbackHref: string): string {
-  const contractHref = item.contract_id ? `/contracts/${item.contract_id}` : fallbackHref;
-  switch (item.primary_action) {
-    case "assign_owner":
-      return item.contract_id ? `${contractHref}#ownership-record` : "/work?lens=unassigned";
-    case "approve_approval":
-    case "reject_approval":
-      return item.contract_id ? `${contractHref}?tab=overview#renewal-approvals` : fallbackHref;
-    case "request_evidence":
-    case "accept_evidence":
-    case "reject_evidence":
-      return item.contract_id ? `${contractHref}?tab=overview#contract-evidence` : fallbackHref;
-    case "resolve_exception":
-      return item.contract_id ? `/contracts/exceptions?status=open&contract=${item.contract_id}` : "/contracts/exceptions";
-    case "retry_failed_job":
-      return item.type === "report_failure"
-        ? "/reports"
-        : item.type === "export_failure"
-          ? "/settings/health#exports"
-          : "/settings/health#v10-runtime";
-    case "mark_done":
-    case "open_source_object":
-    default:
-      return contractHref;
-  }
-}
-
-type WorkSectionId = "tasks" | "approvals" | "obligations" | "exceptions";
 type WorkQueueRow = Record<string, unknown> & {
   id: string;
   title: string;
@@ -110,79 +76,6 @@ type WorkQueueRow = Record<string, unknown> & {
   owner_id?: string | null;
   updated_at?: string | null;
 };
-
-function workSectionHref(lens: WorkHubLens, section: WorkSectionId) {
-  return `${lensHref(lens)}#${section}`;
-}
-
-/** §12.2 + §20 — distinct recovery CTAs per lens when a queue slice is empty (not one generic link for every lens). */
-function tasksEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
-  switch (lens) {
-    case "assigned":
-      return { href: "/contracts", label: "Browse contracts" };
-    case "due_soon":
-      return { href: "/contracts/renewals?horizon=renewal_30", label: `Open renewals (≤${V9_DUE_SOON_DAYS}d)` };
-    case "overdue":
-      return { href: "/contracts/renewals?horizon=end_30", label: "Open end-date pressure (≤30d)" };
-    case "blocked":
-      return { href: workSectionHref("blocked", "tasks"), label: "Stay on blocked tasks" };
-    case "recent":
-      return { href: lensHref("assigned"), label: "Return to open work" };
-    default:
-      return { href: lensHref("assigned"), label: "Open assigned work" };
-  }
-}
-
-function obligationsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
-  switch (lens) {
-    case "assigned":
-      return { href: "/contracts/obligations", label: "Open obligations ledger" };
-    case "due_soon":
-      return { href: lensHref("assigned"), label: "See all assigned obligations" };
-    case "overdue":
-      return { href: lensHref("overdue"), label: "Focus overdue lens" };
-    case "blocked":
-      return { href: lensHref("assigned"), label: "Review assigned obligations" };
-    case "recent":
-      return { href: lensHref("assigned"), label: "Pick up open obligations" };
-    default:
-      return { href: lensHref("assigned"), label: "Open assigned work" };
-  }
-}
-
-function approvalsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
-  switch (lens) {
-    case "assigned":
-      return { href: "/contracts/approvals?status=pending", label: "Open pending approvals" };
-    case "due_soon":
-      return { href: "/contracts/approvals?status=pending", label: "Review approval due dates" };
-    case "overdue":
-      return { href: "/contracts/approvals?status=pending", label: "Clear overdue approvals" };
-    case "blocked":
-      return { href: "/contracts/approvals", label: "Open approvals workspace" };
-    case "recent":
-      return { href: "/contracts/approvals", label: "View approvals history" };
-    default:
-      return { href: "/contracts/approvals?status=pending", label: "Open pending approvals" };
-  }
-}
-
-function exceptionsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
-  switch (lens) {
-    case "assigned":
-      return { href: "/contracts/exceptions?status=open", label: "Open exception ledger" };
-    case "due_soon":
-      return { href: "/contracts/exceptions?status=open", label: "Prioritize dated exceptions" };
-    case "overdue":
-      return { href: "/contracts/exceptions?status=open", label: "Triage overdue exceptions" };
-    case "blocked":
-      return { href: "/contracts/exceptions?status=open", label: "Review open exceptions" };
-    case "recent":
-      return { href: "/contracts/exceptions?status=resolved", label: "Browse resolved exceptions" };
-    default:
-      return { href: "/contracts/exceptions?status=open", label: "Open active exception ledger" };
-  }
-}
 
 export default async function WorkPage(props: {
   searchParams: Promise<{ lens?: string }>;
@@ -205,6 +98,16 @@ export default async function WorkPage(props: {
   const showDecisionsCta =
     (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
     !isAdvancedModuleHidden(productSurface, "decisions");
+  const resolutionActionOptions = getV10ExceptionResolutionActionOptions({
+    campaignsEnabled: evaluateFeatureEligibility(productSurface, "campaigns", {
+      surfaceType: "page",
+      surfaceIdentifier: "/work",
+    }).allowed,
+    findingsEnabled: evaluateFeatureEligibility(productSurface, "findings", {
+      surfaceType: "page",
+      surfaceIdentifier: "/work",
+    }).allowed,
+  });
   const v10VisibleWorkQuery = applyV10ReadModelVisibility(
     ctx.admin.from("v10_work_items").select("id", { count: "exact", head: true }),
     { organizationId: ctx.orgId, role: ctx.role, workspaceMode: productSurface.mode }
@@ -221,7 +124,7 @@ export default async function WorkPage(props: {
   let v10WorkQuery = applyV10ReadModelVisibility(
     ctx.admin
       .from("v10_work_items")
-      .select("source_id, source_table, type, title, status, contract_id, owner_user_id, owner_state, due_at, due_state, priority, severity, blocked_reason, primary_action, secondary_actions, compatible_action_group, last_state_change_at, updated_at"),
+      .select("id, source_id, source_table, type, title, status, contract_id, owner_user_id, owner_state, due_at, due_state, priority, severity, blocked_reason, primary_action, secondary_actions, compatible_action_group, last_state_change_at, updated_at"),
     { organizationId: ctx.orgId, role: ctx.role, workspaceMode: productSurface.mode }
   );
   switch (lens) {
@@ -350,6 +253,58 @@ export default async function WorkPage(props: {
     };
   });
   const ownerLabelById = new Map(ownerOptions.map((owner) => [owner.id, owner.label]));
+  const v10WorkListItems = sortedV10WorkItems.map((item) => {
+    const href = getV10WorkItemHref({
+      type: item.type as V10WorkItemType,
+      sourceId: String(item.source_id ?? ""),
+      contractId: item.contract_id ?? null,
+      primaryAction: item.primary_action,
+      fallbackHref: "/work",
+    });
+    const ownerLabel =
+      item.owner_state === "unassigned"
+        ? "Unassigned"
+        : item.owner_state === "stale"
+          ? "Needs reassignment"
+          : item.owner_user_id === userId
+            ? "You"
+            : ownerLabelById.get(String(item.owner_user_id ?? "")) ?? "Assigned teammate";
+    const meta =
+      item.blocked_reason ??
+      (item.owner_state === "stale"
+        ? "Assigned owner can no longer act on this work."
+        : item.due_state !== "none"
+          ? String(item.due_state).replace(/_/g, " ")
+          : undefined);
+    return {
+      key: `${item.source_table}:${item.source_id}:${item.type}`,
+      v10WorkItemId: String(item.id),
+      sourceId: String(item.source_id),
+      sourceTable: String(item.source_table),
+      type: String(item.type),
+      title: item.title,
+      status: String(item.status),
+      statusLabel: String(item.status).replace(/_/g, " "),
+      statusTone: toSemanticStatus(String(item.status)),
+      ownerUserId: item.owner_user_id ?? null,
+      ownerLabel,
+      ownerState: String(item.owner_state ?? "") || null,
+      due: item.due_at ?? undefined,
+      meta,
+      href,
+      contractId: item.contract_id ?? null,
+      primaryAction: item.primary_action ?? null,
+      nextActionLabel: operationalActionLabel(item.primary_action, "open_contract"),
+      nextActionHref: v10PrimaryActionHref(item as V10WorkActionRow, href),
+      priorityLabel: String(item.priority ?? "normal").replace(/_/g, " "),
+      lastStateChangeAt: item.last_state_change_at ?? null,
+      secondaryActionsLabel:
+        Array.isArray(item.secondary_actions) && item.secondary_actions.length > 0
+          ? item.secondary_actions.map((action) => operationalActionLabel(String(action))).join(", ")
+          : "no additional action available",
+      compatibleActionGroup: item.compatible_action_group ?? null,
+    };
+  });
 
   const contractIdSet = new Set<string>();
   for (const r of tasks) if (r.contract_id) contractIdSet.add(r.contract_id as string);
@@ -488,55 +443,12 @@ export default async function WorkPage(props: {
               View workspace health
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            {sortedV10WorkItems.map((item) => {
-              const href =
-                item.contract_id
-                  ? `/contracts/${item.contract_id}`
-                  : item.type === "report_failure"
-                    ? "/reports"
-                    : item.type === "export_failure"
-                      ? "/settings/health#exports"
-                      : "/work";
-              const primaryActionHref = v10PrimaryActionHref(item as V10WorkActionRow, href);
-              return (
-                <div key={`${item.source_table}:${item.source_id}:${item.type}`} className="space-y-2">
-                  <QueueItemCard
-                    objectType={String(item.type).replace(/_/g, " ")}
-                    title={item.title}
-                    href={href}
-                    statusLabel={String(item.status).replace(/_/g, " ")}
-                    statusTone={toSemanticStatus(String(item.status))}
-                    owner={
-                      item.owner_state === "unassigned"
-                        ? "Unassigned"
-                        : item.owner_user_id === userId
-                          ? "You"
-                          : ownerLabelById.get(String(item.owner_user_id ?? "")) ?? "Assigned teammate"
-                    }
-                    due={item.due_at ?? undefined}
-                    meta={item.blocked_reason ?? (item.due_state !== "none" ? String(item.due_state).replace(/_/g, " ") : undefined)}
-                    nextAction={{
-                      label: operationalActionLabel(item.primary_action, "open_contract"),
-                      href: primaryActionHref,
-                    }}
-                    continuityContractId={item.contract_id ?? undefined}
-                    continuityOmit={["work"]}
-                  />
-                  <DiagnosticDisclosure title="Work item diagnostics">
-                    Priority: {String(item.priority ?? "normal").replace(/_/g, " ")}
-                    {" · "}Last state change:{" "}
-                    {item.last_state_change_at ? new Date(item.last_state_change_at).toLocaleString() : "not recorded"}
-                    {" · "}Secondary actions:{" "}
-                    {Array.isArray(item.secondary_actions) && item.secondary_actions.length > 0
-                      ? item.secondary_actions.map((action) => operationalActionLabel(String(action))).join(", ")
-                      : "no additional action available"}
-                    {" · "}Bulk-compatible group: {String(item.compatible_action_group ?? "none")}
-                  </DiagnosticDisclosure>
-                </div>
-              );
-            })}
-          </div>
+          <V10WorkInboxList
+            items={v10WorkListItems}
+            ownerOptions={ownerOptions}
+            resolutionActionOptions={resolutionActionOptions}
+            mutationsEnabled={workQueueMutationsEnabled}
+          />
         </section>
       ) : (
         <V10RecoverableState
@@ -825,7 +737,7 @@ export default async function WorkPage(props: {
                         <WorkQueueInlineActionsGate
                           kind="approval"
                           itemId={String(row.id)}
-                          status={row.status as "pending" | "approved" | "rejected"}
+                          status={row.status as "pending" | "approved" | "rejected" | "changes_requested"}
                           mutationsEnabled={workQueueMutationsEnabled}
                           blockerHref={
                             blockerCountForEntity(edges, "approval", row.id as string) > 0
@@ -1011,6 +923,7 @@ export default async function WorkPage(props: {
                           ownerId={(row.owner_id as string | null) ?? null}
                           dueDate={(row.due_date as string | null) ?? null}
                           ownerOptions={ownerOptions}
+                          resolutionActionOptions={resolutionActionOptions}
                           canAssign={row.status === "open" || row.status === "in_progress"}
                           canResolve={row.status === "open" || row.status === "in_progress"}
                           canReopen={row.status === "resolved" || row.status === "closed"}

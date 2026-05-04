@@ -1,25 +1,25 @@
-import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { withCronRoute } from "@/lib/cron/route-runner";
 import { sendReminderEmail } from "@/lib/email";
 import { getRequestOrigin } from "@/lib/app-url";
 import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
 } from "@/lib/env/server";
-import { requireCronAuthorized } from "@/lib/security/api-guards";
 import { captureServerMessage } from "@/lib/observability/sentry";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { isNotificationAllowed } from "@/lib/notification-policy";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/server";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-export async function GET(request: Request) {
-  const auth = requireCronAuthorized(request);
-  if (auth) return auth;
-
+export const GET = withCronRoute({
+  route: "/api/reminders/send",
+  rateLimitKey: "cron:reminders:send",
+  rateLimit: RATE_LIMITS.remindersSendCron,
+  handler: async ({ request, admin }) => {
   let supabaseUrl: string;
   let serviceRoleKey: string;
   try {
@@ -28,19 +28,21 @@ export async function GET(request: Request) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Supabase env misconfigured";
     console.error("[reminders/cron] configuration error:", message);
-    return NextResponse.json(
-      { error: "Server misconfigured for reminder delivery" },
-      { status: 500 }
-    );
+    return {
+      status: 503,
+      ok: false,
+      errorsCount: 1,
+      body: {
+        error: "Server misconfigured for reminder delivery",
+        code: "supabase_env_invalid",
+        diagnostic_id: "reminders_send_supabase_env_invalid",
+      },
+    };
   }
-  const rate = await rateLimitCheck("cron:reminders:send", RATE_LIMITS.remindersSendCron);
-  if (!rate.ok) {
-    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
-  }
+
   const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: { getAll: () => [], setAll: () => {} },
   });
-  const admin = await createAdminClient();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -59,28 +61,30 @@ export async function GET(request: Request) {
       level: "error",
       extra: { route: "reminders/send", code: error.code },
     });
-    return NextResponse.json(
-      { error: "Could not load reminders. Try again later." },
-      { status: 500 }
-    );
+    return {
+      status: 500,
+      ok: false,
+      errorsCount: 1,
+      body: {
+        error: "Could not load reminders. Try again later.",
+        code: "reminders_query_failed",
+        diagnostic_id: "reminders_query_failed",
+      },
+    };
   }
 
   const list = reminders ?? [];
   const candidates = list.length;
 
   if (candidates === 0) {
-    pingCronHealthcheck("reminders/send", {
-      ok: true,
-      sent: 0,
-      candidates: 0,
-      skipped_no_email: 0,
-    });
-    return NextResponse.json({
-      sent: 0,
-      candidates: 0,
-      skipped_no_email: 0,
-      message: "No due reminders",
-    });
+    return {
+      body: {
+        sent: 0,
+        candidates: 0,
+        skipped_no_email: 0,
+        message: "No due reminders",
+      },
+    };
   }
 
   let sent = 0;
@@ -286,18 +290,15 @@ export async function GET(request: Request) {
     `[reminders/cron] date=${today} candidates=${candidates} sent=${sent} skipped_no_email=${skippedNoEmail} errors=${errors.length}`
   );
 
-  pingCronHealthcheck("reminders/send", {
-    ok: errors.length === 0,
-    sent,
-    candidates,
-    skipped_no_email: skippedNoEmail,
-    error_count: errors.length,
-  });
-
-  return NextResponse.json({
-    sent,
-    candidates,
-    skipped_no_email: skippedNoEmail,
-    errors: errors.length ? errors : undefined,
-  });
-}
+    return {
+      partial: errors.length > 0,
+      errorsCount: errors.length,
+      body: {
+        sent,
+        candidates,
+        skipped_no_email: skippedNoEmail,
+        ...(errors.length > 0 ? { errors } : {}),
+      },
+    };
+  },
+});

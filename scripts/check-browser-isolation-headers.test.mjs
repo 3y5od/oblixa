@@ -1,0 +1,27 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { analyzeBrowserIsolationHeaders } from "./check-browser-isolation-headers.mjs";
+
+function write(root, rel, content) {
+  const abs = path.join(root, rel);
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(abs, content);
+}
+
+test("analyzeBrowserIsolationHeaders validates COOP/CORP header wiring", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-browser-isolation-"));
+  write(root, "package.json", JSON.stringify({ scripts: { "check:browser-isolation-headers": "x" } }));
+  write(root, ".github/workflows/ci.yml", "npm run check:browser-isolation-headers\n");
+  write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:browser-isolation-headers"\n');
+  write(root, "next.config.ts", 'import { buildSecurityHeaders } from "@/lib/security/csp-builders";\nconst securityHeaders = buildSecurityHeaders({});\nexport default { async headers() { return [{ source: "/:path*", headers: securityHeaders }]; } };\n');
+  write(root, "src/lib/security/csp-builders.ts", 'key: "X-Frame-Options", value: "SAMEORIGIN"\nkey: "Cross-Origin-Opener-Policy", value: "same-origin"\nkey: "Cross-Origin-Resource-Policy", value: "same-origin"\n');
+  write(root, "src/lib/security/csp-builders.test.ts", "prod CSP omits unsafe-eval in main policy\nframe-ancestors 'self'\n");
+  write(root, "e2e/security-headers-smoke.spec.ts", "cross-origin-opener-policy\ncross-origin-resource-policy\n");
+
+  const report = analyzeBrowserIsolationHeaders(root);
+  assert.equal(report.ok, true);
+  assert.equal(report.issueCount, 0);
+});

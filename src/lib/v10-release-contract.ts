@@ -253,6 +253,8 @@ export const V10_SOURCE_OBJECT_TYPES = [
   "playbook",
   "review_board",
   "health_graph",
+  "segment",
+  "program_evolution",
   "account",
   "counterparty",
   "relationship",
@@ -384,7 +386,6 @@ export const V10_WORK_ACTIONS = [
   "reject_evidence",
   "resolve_exception",
   "retry_failed_job",
-  "dismiss_resolved_system_alert",
   "bulk_assign_compatible_items",
   "bulk_mark_compatible_items_done",
 ] as const;

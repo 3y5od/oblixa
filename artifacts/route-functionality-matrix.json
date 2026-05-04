@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.409Z",
+  "generatedAt": "2026-05-04T22:43:04.655Z",
   "rows": [
     {
       "route": "/",
@@ -2668,9 +2668,7 @@
       "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3010,9 +3008,7 @@
       "sourcePath": "src/app/api/cron/stripe-webhook-events/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3062,9 +3058,7 @@
       "sourcePath": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3111,9 +3105,7 @@
       "sourcePath": "src/app/api/cron/v10/read-model-refresh/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3160,9 +3152,7 @@
       "sourcePath": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3212,9 +3202,7 @@
       "sourcePath": "src/app/api/cron/v4/approvals-sla/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3265,9 +3253,7 @@
       "sourcePath": "src/app/api/cron/v4/attestations-issue/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3314,9 +3300,7 @@
       "sourcePath": "src/app/api/cron/v4/escalations-dispatch/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3364,9 +3348,7 @@
       "sourcePath": "src/app/api/cron/v4/evidence-followup/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3416,9 +3398,7 @@
       "sourcePath": "src/app/api/cron/v4/exceptions-detect/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3475,9 +3455,7 @@
       "sourcePath": "src/app/api/cron/v4/programs-reconcile/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3525,9 +3503,7 @@
       "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3574,9 +3550,7 @@
       "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3602,7 +3576,8 @@
         "tables": [
           "report_pack_runs",
           "report_pack_subscriptions",
-          "report_packs"
+          "report_packs",
+          "report_runs"
         ],
         "rpcs": []
       },
@@ -3628,9 +3603,7 @@
       "sourcePath": "src/app/api/cron/v5/campaign-progress/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3677,9 +3650,7 @@
       "sourcePath": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3730,9 +3701,7 @@
       "sourcePath": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3780,9 +3749,7 @@
       "sourcePath": "src/app/api/cron/v5/external-followup/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3830,9 +3797,7 @@
       "sourcePath": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3882,9 +3847,7 @@
       "sourcePath": "src/app/api/cron/v5/recommendation-refresh/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3934,9 +3897,7 @@
       "sourcePath": "src/app/api/cron/v5/relationship-rollups/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -3988,9 +3949,7 @@
       "sourcePath": "src/app/api/cron/v5/simulation-snapshots/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4037,9 +3996,7 @@
       "sourcePath": "src/app/api/cron/v6/assurance-checks/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4052,10 +4009,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4082,9 +4036,7 @@
       "sourcePath": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4098,10 +4050,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4128,9 +4077,7 @@
       "sourcePath": "src/app/api/cron/v6/autopilot-execution/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4144,10 +4091,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4174,9 +4118,7 @@
       "sourcePath": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4191,10 +4133,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4221,9 +4160,7 @@
       "sourcePath": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4238,10 +4175,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4268,9 +4202,7 @@
       "sourcePath": "src/app/api/cron/v6/finding-refresh/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4285,10 +4217,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4315,9 +4244,7 @@
       "sourcePath": "src/app/api/cron/v6/health-graph-rollups/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4332,10 +4259,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4362,9 +4286,7 @@
       "sourcePath": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4409,9 +4331,7 @@
       "sourcePath": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4426,10 +4346,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4456,9 +4373,7 @@
       "sourcePath": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4471,10 +4386,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4501,9 +4413,7 @@
       "sourcePath": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4518,10 +4428,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4548,9 +4455,7 @@
       "sourcePath": "src/app/api/cron/v6/scorecard-recompute/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4565,10 +4470,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -4595,9 +4497,7 @@
       "sourcePath": "src/app/api/cron/v6/segment-recompute/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -4612,10 +4512,7 @@
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -5889,8 +5786,7 @@
         "tables": [
           "contract_export_jobs",
           "contracts",
-          "organization_members",
-          "profiles"
+          "organization_members"
         ],
         "rpcs": []
       },
@@ -5919,7 +5815,8 @@
       "kind": "api_route",
       "class": "api",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
       "authModel": "session",
       "rolePolicy": [
@@ -5932,11 +5829,12 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "no_body_expected",
+      "bodyPolicy": "body_limit_required",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -5962,9 +5860,9 @@
         "maxResponseBytes": 128000,
         "timeoutClass": "interactive_api"
       },
-      "riskTier": "P3",
+      "riskTier": "P1",
       "owner": "release",
-      "smokeTier": "inventory"
+      "smokeTier": "nightly"
     },
     {
       "route": "/api/export/review-packet",
@@ -6603,9 +6501,7 @@
       "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -6655,9 +6551,7 @@
       "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -6822,9 +6716,7 @@
       "sourcePath": "src/app/api/integrations/refresh-tokens/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -7516,9 +7408,7 @@
       "sourcePath": "src/app/api/maintenance/prune-operational-data/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -7672,9 +7562,7 @@
       "sourcePath": "src/app/api/notifications/retry-deliveries/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -8507,9 +8395,7 @@
       "sourcePath": "src/app/api/reminders/send/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -8767,13 +8653,64 @@
       "smokeTier": "inventory"
     },
     {
+      "route": "/api/report-runs/[runId]/retry",
+      "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "kind": "api_route",
+      "class": "api",
+      "methods": [
+        "POST"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "body_limit_required",
+      "rateLimitPolicy": "explicit",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "report_packs",
+          "report_runs"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 1500,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "interactive_api"
+      },
+      "riskTier": "P1",
+      "owner": "release",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "/api/reports/capture-metrics",
       "sourcePath": "src/app/api/reports/capture-metrics/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -8832,9 +8769,7 @@
       "sourcePath": "src/app/api/reports/send-summaries/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -9816,9 +9751,7 @@
       "sourcePath": "src/app/api/tasks/run-rules/route.ts",
       "kind": "api_route",
       "class": "cron",
-      "methods": [
-        "GET"
-      ],
+      "methods": [],
       "authModel": "cron_secret",
       "rolePolicy": [
         "cron_secret"
@@ -9926,7 +9859,6 @@
       "kind": "api_route",
       "class": "cron",
       "methods": [
-        "GET",
         "POST"
       ],
       "authModel": "cron_secret",
@@ -15232,6 +15164,7 @@
           "notification_deliveries",
           "organization_workflow_settings",
           "outbound_event_deliveries",
+          "reminders",
           "report_runs",
           "v10_external_blocker_records",
           "v10_job_run_visibility",
@@ -16001,7 +15934,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -16237,7 +16169,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -16301,7 +16232,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -16579,7 +16509,7 @@
       "methods": [
         "ACTION"
       ],
-      "authModel": "session_required_by_default",
+      "authModel": "session",
       "rolePolicy": [
         "admin",
         "manager"
@@ -16591,7 +16521,7 @@
       "bodyPolicy": "structured_action_payload",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
         "supabase"
       ],
@@ -16785,10 +16715,9 @@
       "methods": [
         "ACTION"
       ],
-      "authModel": "session",
+      "authModel": "public_auth_action",
       "rolePolicy": [
-        "admin",
-        "manager"
+        "public_auth_action"
       ],
       "workspaceModes": [
         "public_or_external"
@@ -17100,7 +17029,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -17320,7 +17248,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -17489,7 +17416,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -17978,6 +17904,56 @@
       "smokeTier": "nightly"
     },
     {
+      "route": "action:contracts-outbound-fetch.test",
+      "sourcePath": "src/actions/contracts-outbound-fetch.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session_required_by_default",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "external_fetch",
+        "openai",
+        "webhook_outbox"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "action:createApprovalPolicyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "kind": "server_action",
@@ -18280,7 +18256,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -19919,7 +19894,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -21235,7 +21209,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -22981,7 +22954,9 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings"
+          "organization_workflow_settings",
+          "report_pack_subscriptions",
+          "report_packs"
         ],
         "rpcs": []
       },
@@ -23345,7 +23320,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -24595,7 +24569,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -24659,7 +24632,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25501,7 +25473,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25565,7 +25536,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25629,7 +25599,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25693,7 +25662,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25757,7 +25725,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -25936,7 +25903,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -26000,7 +25966,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -26064,7 +26029,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -26128,7 +26092,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -26254,7 +26217,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -26652,7 +26614,9 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings"
+          "organization_workflow_settings",
+          "report_pack_subscriptions",
+          "report_packs"
         ],
         "rpcs": []
       },
@@ -27237,7 +27201,9 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings"
+          "organization_workflow_settings",
+          "report_pack_subscriptions",
+          "report_packs"
         ],
         "rpcs": []
       },
@@ -27281,7 +27247,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -27345,7 +27310,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -27409,7 +27373,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -27535,7 +27498,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -27599,7 +27561,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "external_fetch",
         "openai",
         "storage",
         "supabase",
@@ -27947,6 +27908,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {

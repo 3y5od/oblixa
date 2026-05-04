@@ -1,28 +1,20 @@
-import { NextResponse } from "next/server";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/server";
-import { requireV6CronFeature } from "@/lib/v6/feature-guards";
-import { listOrganizationIds, requireV6CronAuth, v6CronRunMetadata } from "@/lib/v6/cron";
+import { v6CronMeta, withV6CronRoute } from "@/lib/v6/cron-route-runner";
 import { recomputeScorecardsForAllOrgs } from "@/lib/v6/cron-jobs";
 
-export async function GET(request: Request) {
-  const unauthorized = requireV6CronAuth(request);
-  if (unauthorized) return unauthorized;
-  const rate = await rateLimitCheck("cron:v6:scorecard-recompute", RATE_LIMITS.v6CronDefault);
-  if (!rate.ok) {
-    return NextResponse.json({ error: "Too many requests", retryAfterMs: rate.retryAfterMs }, { status: 429 });
-  }
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-  const skipped = requireV6CronFeature("v6AssuranceCore");
-  if (skipped) return skipped;
-
-  const t0 = Date.now();
-  const admin = await createAdminClient();
-  const orgIds = await listOrganizationIds(admin);
-  const result = await recomputeScorecardsForAllOrgs(admin);
-  return NextResponse.json({
-    ok: true,
-    updated: result.updated,
-    ...v6CronRunMetadata(orgIds.length, t0, Math.max(0, orgIds.length - result.updated)),
-  });
-}
+export const GET = withV6CronRoute({
+  route: "/api/cron/v6/scorecard-recompute",
+  feature: "v6AssuranceCore",
+  handler: async ({ admin, orgIds, startedAtMs }) => {
+    const result = await recomputeScorecardsForAllOrgs(admin);
+    return {
+      ok: true,
+      body: {
+        updated: result.updated,
+        ...v6CronMeta(orgIds, startedAtMs, Math.max(0, orgIds.length - result.updated)),
+      },
+    };
+  },
+});

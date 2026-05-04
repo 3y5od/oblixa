@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-03T19:32:41.281Z",
+  "generatedAt": "2026-05-04T22:45:12.303Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -9,6 +9,10 @@
     },
     {
       "path": "scripts/check-account-recovery-abuse-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-account-recovery-abuse-guards.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -112,6 +116,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-auth-cookie-attributes.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-auth-error-consistency.mjs",
       "primaryEpicNumber": null
     },
@@ -148,6 +156,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-browser-isolation-headers.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-bundle-budget.mjs",
       "primaryEpicNumber": null
     },
@@ -160,7 +172,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-callback-destination-integrity.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-callback-domain-strictness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-callback-domain-strictness.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -180,7 +200,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ci-bundle-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-ci-change-impact.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ci-verify-extras.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ci-verify-extras.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -252,7 +284,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-coverage-completeness-bundle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-coverage-completeness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-critical-bundles.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -269,6 +309,10 @@
     },
     {
       "path": "scripts/check-csrf-surface-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-csrf-surface-guards.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -344,6 +388,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-duplicate-execution-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-e2e-env-matrix.mjs",
       "primaryEpicNumber": null
     },
@@ -372,11 +420,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-email-identity-spoof-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-env-example-parity.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-env-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-evidence-deepening-bundle.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -448,6 +504,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-http-method-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-idempotency-policy.mjs",
       "primaryEpicNumber": null
     },
@@ -460,6 +520,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-inbound-identity-boundaries.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-incident-readiness.mjs",
       "primaryEpicNumber": null
     },
@@ -469,6 +533,10 @@
     },
     {
       "path": "scripts/check-internal-api-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-internal-api-boundaries.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -512,7 +580,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-lockout-reset-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-maximal-assurance-plan-snapshot.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-maximal-assurance-scaffolding.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -572,6 +648,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-notification-payload-scrub-contract.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-npm-lifecycle.mjs",
       "primaryEpicNumber": null
     },
@@ -588,7 +668,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-oauth-pkce-enforcement.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-oauth-state-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-oauth-state-integrity.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -608,7 +696,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-open-redirect-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-openapi-route-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-openapi-spec-contract.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -624,7 +720,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-origin-referrer-enforcement.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-outbound-domain-allowlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-domain-allowlist.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -636,7 +740,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-outbound-fetch.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-outbound-message-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-outbound-message-safety.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -668,6 +780,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-path-traversal-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-pci-cde-drift.mjs",
       "primaryEpicNumber": null
     },
@@ -681,6 +797,10 @@
     },
     {
       "path": "scripts/check-permissions-policy-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-permissions-policy-security.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -705,6 +825,10 @@
     },
     {
       "path": "scripts/check-poison-message-containment.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-poison-message-containment.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -748,6 +872,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-qa-loading-routes.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-qa-maximal-bundle.mjs",
       "primaryEpicNumber": null
     },
@@ -784,6 +912,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-queue-message-authenticity.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-queue-surface.mjs",
       "primaryEpicNumber": null
     },
@@ -797,6 +929,10 @@
     },
     {
       "path": "scripts/check-realtime-auth-boundaries.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-realtime-auth-boundaries.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -848,7 +984,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-request-framing-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-required-security-checkset.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-required-security-checkset.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -864,11 +1008,23 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-route-functionality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-route-state-coverage.mjs",
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-route-state-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-route-universe.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-route-universe.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -900,6 +1056,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-scheduled-cron-route-wrappers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-script-complexity-ratchet.mjs",
       "primaryEpicNumber": null
     },
@@ -928,7 +1088,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-security-env-contract.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-security-event-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-event-contract.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -941,6 +1109,10 @@
     },
     {
       "path": "scripts/check-security-headers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-headers.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -957,6 +1129,10 @@
     },
     {
       "path": "scripts/check-sensitive-cache-controls.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sensitive-cache-controls.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -992,7 +1168,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-session-fixation-defenses.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-session-lifecycle-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-session-lifecycle-security.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1008,7 +1192,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-signed-link-nonce-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-signed-link-scope-narrowing.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-signed-link-scope-narrowing.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1016,7 +1208,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-signed-request-freshness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-sql-definer-invoker-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-security-migrations-bundle.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1028,7 +1228,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ssrf-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-storage-path-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-storage-path-safety.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1065,6 +1273,10 @@
     },
     {
       "path": "scripts/check-synthetic-slo-env.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-synthetic-slo-env.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1124,6 +1336,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-trusted-host-handling.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-type-lint-ratchet.mjs",
       "primaryEpicNumber": null
     },
@@ -1153,6 +1369,10 @@
     },
     {
       "path": "scripts/check-upload-security-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-upload-security-guards.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1267,6 +1487,10 @@
     },
     {
       "path": "scripts/report-db-privilege-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-db-privilege-surface.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1553,6 +1777,14 @@
     },
     {
       "name": "test:scripts",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:scripts:checks",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:scripts:unit",
       "primaryEpicNumber": null
     },
     {

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
+import { withCronRoute } from "@/lib/cron/route-runner";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
-import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
-import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { isKillWebhookDispatch, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
 
@@ -49,90 +49,69 @@ async function processWithConcurrency<T>(
   await Promise.all(Array.from({ length: Math.min(safeLimit, items.length) }, () => run()));
 }
 
-export async function GET(request: Request) {
-  const startedAt = Date.now();
-  const deny = gateCronRequest(request);
-  if (deny) {
-    const reason = deny.status === 503 ? "cron_secret_missing" : "unauthorized";
-    pingCronHealthcheck("webhooks/dispatch", {
-      ok: false,
-      status: deny.status,
-      reason,
-      durationMs: Date.now() - startedAt,
-    });
-    return deny;
-  }
-  if (isKillWebhookDispatch()) {
-    pingCronHealthcheck("webhooks/dispatch", {
-      ok: false,
-      status: 503,
-      reason: "kill_switch",
-      durationMs: Date.now() - startedAt,
-    });
-    return killSwitchJsonResponse("webhook_dispatch");
-  }
-  const cronRate = await rateLimitCheck("cron:webhooks:dispatch", RATE_LIMITS.webhooksDispatchCron);
-  if (!cronRate.ok) {
-    const retryAfterSec = Math.max(1, Math.ceil((cronRate.retryAfterMs ?? 1000) / 1000));
-    return NextResponse.json(
-      { error: "Too many requests", retryAfterMs: cronRate.retryAfterMs },
-      { status: 429, headers: { "retry-after": String(retryAfterSec) } }
-    );
-  }
-
-  const admin = await createAdminClient();
-  const url = new URL(request.url);
-  const diagnosticsEventId = url.searchParams.get("eventId")?.trim();
-  if (diagnosticsEventId) {
-    const [{ data: event }, { data: deliveries }] = await Promise.all([
-      admin
-        .from("outbound_events")
-        .select("id, organization_id, event_type, entity_type, entity_id, created_at, delivered, delivered_at")
-        .eq("id", diagnosticsEventId)
-        .maybeSingle(),
-      admin
-        .from("outbound_event_deliveries")
-        .select("id, subscription_id, delivered, delivered_at, attempt_count, last_error, next_attempt_at")
-        .eq("outbound_event_id", diagnosticsEventId)
-        .order("attempt_count", { ascending: false }),
-    ]);
-    return NextResponse.json({ diagnostics: { event, deliveries: deliveries ?? [] }, ok: true });
-  }
-  const { data: events } = await admin
-    .from("outbound_events")
-    .select("id, organization_id, event_type, entity_type, entity_id, payload, created_at")
-    .eq("delivered", false)
-    .order("created_at", { ascending: true })
-    .limit(50);
-
-  let delivered = 0;
-  let attempts = 0;
-  let totalFailures = 0;
-  const failures: string[] = [];
-  const attemptStatusCounts: Record<string, number> = {};
-  const nowIso = new Date().toISOString();
-  const orgIds = Array.from(new Set((events ?? []).map((event) => event.organization_id)));
-  const { data: subscriptions } =
-    orgIds.length === 0
-      ? { data: [] as Array<{ id: string; organization_id: string; url: string; secret: string; events: string[] | null }> }
-      : await admin
-          .from("webhook_subscriptions")
-          .select("id, organization_id, url, secret, events")
-          .in("organization_id", orgIds)
-          .eq("active", true);
-  const subscriptionsByOrg = new Map<string, Array<{ id: string; url: string; secret: string; events: string[] | null }>>();
-  for (const sub of subscriptions ?? []) {
-    const group = subscriptionsByOrg.get(sub.organization_id);
-    if (group) {
-      group.push({ id: sub.id, url: sub.url, secret: sub.secret, events: sub.events });
-    } else {
-      subscriptionsByOrg.set(sub.organization_id, [
-        { id: sub.id, url: sub.url, secret: sub.secret, events: sub.events },
+export const GET = withCronRoute({
+  route: "/api/webhooks/dispatch",
+  healthcheckRoute: "webhooks/dispatch",
+  rateLimitKey: "cron:webhooks:dispatch",
+  rateLimit: RATE_LIMITS.webhooksDispatchCron,
+  preflight: () => (isKillWebhookDispatch() ? killSwitchJsonResponse("webhook_dispatch") : null),
+  handler: async ({ admin, request }) => {
+    const url = new URL(request.url);
+    const diagnosticsEventId = url.searchParams.get("eventId")?.trim();
+    if (diagnosticsEventId) {
+      const [{ data: event }, { data: deliveries }] = await Promise.all([
+        admin
+          .from("outbound_events")
+          .select("id, organization_id, event_type, entity_type, entity_id, created_at, delivered, delivered_at")
+          .eq("id", diagnosticsEventId)
+          .maybeSingle(),
+        admin
+          .from("outbound_event_deliveries")
+          .select("id, subscription_id, delivered, delivered_at, attempt_count, last_error, next_attempt_at")
+          .eq("outbound_event_id", diagnosticsEventId)
+          .order("attempt_count", { ascending: false }),
       ]);
+      return {
+        body: {
+          diagnostics: { event, deliveries: deliveries ?? [] },
+        },
+      };
     }
-  }
+    const { data: events } = await admin
+      .from("outbound_events")
+      .select("id, organization_id, event_type, entity_type, entity_id, payload, created_at")
+      .eq("delivered", false)
+      .order("created_at", { ascending: true })
+      .limit(50);
 
-  for (const event of events ?? []) {
+    let delivered = 0;
+    let attempts = 0;
+    let totalFailures = 0;
+    const failures: string[] = [];
+    const attemptStatusCounts: Record<string, number> = {};
+    const nowIso = new Date().toISOString();
+    const orgIds = Array.from(new Set((events ?? []).map((event) => event.organization_id)));
+    const { data: subscriptions } =
+      orgIds.length === 0
+        ? { data: [] as Array<{ id: string; organization_id: string; url: string; secret: string; events: string[] | null }> }
+        : await admin
+            .from("webhook_subscriptions")
+            .select("id, organization_id, url, secret, events")
+            .in("organization_id", orgIds)
+            .eq("active", true);
+    const subscriptionsByOrg = new Map<string, Array<{ id: string; url: string; secret: string; events: string[] | null }>>();
+    for (const sub of subscriptions ?? []) {
+      const group = subscriptionsByOrg.get(sub.organization_id);
+      if (group) {
+        group.push({ id: sub.id, url: sub.url, secret: sub.secret, events: sub.events });
+      } else {
+        subscriptionsByOrg.set(sub.organization_id, [
+          { id: sub.id, url: sub.url, secret: sub.secret, events: sub.events },
+        ]);
+      }
+    }
+
+    for (const event of events ?? []) {
     const eligibleSubs = (subscriptionsByOrg.get(event.organization_id) ?? []).filter((sub) => {
       const acceptedEvents = (sub.events ?? []) as string[];
       return acceptedEvents.length === 0 || acceptedEvents.includes(event.event_type);
@@ -320,24 +299,24 @@ export async function GET(request: Request) {
         });
       }
     }
-  }
+    }
 
-  const responsePayload = {
-    candidates: events?.length ?? 0,
-    delivered,
-    attempts,
-    failures,
-    failuresTruncated: totalFailures > failures.length,
-    totalFailures,
-    attemptStatusCounts,
-    durationMs: Date.now() - startedAt,
-  };
-  pingCronHealthcheck("webhooks/dispatch", {
-    ok: totalFailures === 0,
-    ...responsePayload,
-  });
-  return NextResponse.json(responsePayload);
-}
+    return {
+      ok: totalFailures === 0,
+      partial: totalFailures > 0,
+      errorsCount: totalFailures,
+      body: {
+        candidates: events?.length ?? 0,
+        delivered,
+        attempts,
+        failures,
+        failuresTruncated: totalFailures > failures.length,
+        totalFailures,
+        attemptStatusCounts,
+      },
+    };
+  },
+});
 
 export async function POST(request: Request) {
   const deny = gateCronRequest(request);

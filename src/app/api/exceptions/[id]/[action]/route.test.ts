@@ -5,6 +5,7 @@ const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const recordV10AuditEvent = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
+const emitProductTelemetryEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -21,6 +22,11 @@ vi.mock("@/lib/integrations/events", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/product-telemetry", () => ({
+  PRODUCT_TELEMETRY_ACTIONS: [],
+  emitProductTelemetryEvent,
 }));
 
 vi.mock("@/lib/v10-server-contracts", () => ({
@@ -85,6 +91,7 @@ describe("POST /api/exceptions/[id]/[action]", () => {
     id: "ex-1",
     contract_id: "c1",
     status: "open",
+    severity: "high",
     reopen_count: 0,
   };
 
@@ -93,6 +100,7 @@ describe("POST /api/exceptions/[id]/[action]", () => {
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     recordV10AuditEvent.mockResolvedValue("v10-audit-1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
+    emitProductTelemetryEvent.mockResolvedValue(undefined);
     getApiAuthContext.mockResolvedValue({
       admin: adminExceptions(exceptionRow, true),
       userId: "user-1",
@@ -186,6 +194,55 @@ describe("POST /api/exceptions/[id]/[action]", () => {
         targetType: "exception",
         targetId: "ex-1",
         safeMetadata: expect.objectContaining({ owner_assigned: true }),
+      })
+    );
+  });
+
+  it("resolve requires a note for high-risk exceptions", async () => {
+    const { POST } = await import("@/app/api/exceptions/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/exceptions/ex-1/resolve", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-exception-resolve-note" },
+        body: JSON.stringify({ resolutionAction: "fixed", resolutionNote: "" }),
+      }),
+      { params: Promise.resolve({ id: "ex-1", action: "resolve" }) }
+    );
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_exception_resolution_note_required",
+    });
+    expect(recordV10AuditEvent).not.toHaveBeenCalled();
+  });
+
+  it("resolve persists the selected resolution action in the V10 envelope path", async () => {
+    const { POST } = await import("@/app/api/exceptions/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/exceptions/ex-1/resolve", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "test-key-exception-resolve-success" },
+        body: JSON.stringify({
+          resolutionAction: "accepted_risk",
+          resolutionNote: "Risk accepted until the next renewal checkpoint.",
+        }),
+      }),
+      { params: Promise.resolve({ id: "ex-1", action: "resolve" }) }
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      outcome: "success",
+      changed_object_type: "exception",
+      changed_object_id: "ex-1",
+      audit_event_id: "v10-audit-1",
+    });
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "exception.resolved",
+        safeMetadata: expect.objectContaining({ resolution_action: "accepted_risk" }),
       })
     );
   });

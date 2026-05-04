@@ -1,8 +1,8 @@
 {
   "version": 1,
   "program": "maximal-assurance-epic3",
-  "generatedAt": "2026-05-03T19:32:41.303Z",
-  "routeCount": 184,
+  "generatedAt": "2026-05-04T18:28:55.545Z",
+  "routeCount": 185,
   "routes": [
     {
       "routeFile": "src/app/api/accounts/[key]/summary/route.ts",
@@ -1030,7 +1030,8 @@
       "pathTemplate": "/api/export/contracts/[jobId]",
       "samplePath": "/api/export/contracts/00000000-0000-0000-0000-000000000002",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
       "smokeTier": "nightly"
@@ -1603,6 +1604,16 @@
       "smokeTier": "nightly"
     },
     {
+      "routeFile": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "pathTemplate": "/api/report-runs/[runId]/retry",
+      "samplePath": "/api/report-runs/smoke-runId/retry",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "smokeTier": "nightly"
+    },
+    {
       "routeFile": "src/app/api/reports/capture-metrics/route.ts",
       "pathTemplate": "/api/reports/capture-metrics",
       "samplePath": "/api/reports/capture-metrics",
@@ -1830,7 +1841,6 @@
       "pathTemplate": "/api/webhooks/dispatch",
       "samplePath": "/api/webhooks/dispatch",
       "methods": [
-        "GET",
         "POST"
       ],
       "runnerHint": "signature_or_unsigned_reject",

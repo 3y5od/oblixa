@@ -91,12 +91,100 @@ describe("V10 source object inventory", () => {
     });
     expect(getV10SourceObjectInventoryRow("playbook")).toMatchObject({
       sourceTable: "adaptive_playbook_runs",
+      ownerField: "run_by",
+      readModels: ["advanced_assurance_linked_records", "work_items", "command_search_index"],
       autonomousStatus: "runtime_verified",
+    });
+    expect(getV10SourceObjectInventoryRow("segment")).toMatchObject({
+      sourceTable: "segment_definitions",
+      minimumMode: "assurance",
+      readModels: ["command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("program_evolution")).toMatchObject({
+      sourceTable: "program_evolution_experiments",
+      minimumMode: "assurance",
+      readModels: ["command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("program")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+      tests: expect.arrayContaining(["src/lib/v10-read-model-refresh.v10.test.ts"]),
     });
     expect(getV10SourceObjectInventoryRow("automation_run")).toMatchObject({
       minimumMode: "assurance",
+      ownerField: "run_by",
       workItemType: "automation_approval",
       autonomousStatus: "runtime_verified",
+      readModels: ["advanced_assurance_linked_records", "work_items", "command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("extraction_job")).toMatchObject({
+      sourceTable: "contract_extraction_jobs",
+      readModels: expect.arrayContaining(["command_search_index"]),
+    });
+    expect(getV10SourceObjectInventoryRow("file_upload")).toMatchObject({
+      readModels: expect.arrayContaining(["command_search_index"]),
+    });
+    expect(getV10SourceObjectInventoryRow("field")).toMatchObject({
+      readModels: expect.arrayContaining(["command_search_index"]),
+    });
+    expect(getV10SourceObjectInventoryRow("obligation")).toMatchObject({
+      featureFamily: "work",
+      autonomousStatus: "runtime_verified",
+    });
+    expect(getV10SourceObjectInventoryRow("approval")).toMatchObject({
+      featureFamily: "work",
+      autonomousStatus: "runtime_verified",
+    });
+    expect(getV10SourceObjectInventoryRow("report_run")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+      tests: expect.arrayContaining(["src/app/api/report-runs/[runId]/retry/route.test.ts"]),
+    });
+    expect(getV10SourceObjectInventoryRow("export_job")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+      tests: expect.arrayContaining(["src/app/api/export/contracts/[jobId]/route.test.ts"]),
+    });
+    expect(getV10SourceObjectInventoryRow("saved_view")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+    });
+    expect(getV10SourceObjectInventoryRow("setting_destination")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+    });
+    expect(getV10SourceObjectInventoryRow("simulation")).toMatchObject({
+      featureFamily: "compare_views",
+    });
+    expect(getV10SourceObjectInventoryRow("reminder")).toMatchObject({
+      readModels: ["command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("notification_delivery")).toMatchObject({
+      ownerField: null,
+      statusField: "status",
+      dueField: "next_attempt_at",
+      featureFamily: "settings",
+      readModels: ["notification_deliveries", "command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("workspace_health_diagnostic")).toMatchObject({
+      readModels: ["command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("file_upload")).toMatchObject({
+      workItemType: null,
+      retentionPolicy: "source_retained",
+      readModels: ["activation_state", "command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("health_graph")).toMatchObject({
+      ownerField: null,
+      statusField: null,
+      readModels: ["advanced_assurance_linked_records", "command_search_index"],
+    });
+    expect(getV10SourceObjectInventoryRow("program")).toMatchObject({
+      ownerField: null,
+      statusField: "state",
+    });
+    expect(getV10SourceObjectInventoryRow("segment")).toMatchObject({
+      ownerField: null,
+      statusField: "active",
+    });
+    expect(getV10SourceObjectInventoryRow("program_evolution")).toMatchObject({
+      ownerField: null,
+      statusField: "status",
     });
     const autonomousAdvancedRows = V10_SOURCE_OBJECT_INVENTORY.filter(
       (row) => row.minimumMode !== "core" && row.sourceObjectType !== "program"
@@ -119,13 +207,15 @@ describe("V10 source object inventory", () => {
       "evidence_submissions",
       "contract_files",
       "v10_audit_events",
-      "portfolio_programs",
-      "notification_destinations",
+      "contract_programs",
+      "organization_workflow_settings",
       "billing_sync_jobs",
       "v10_runtime_artifacts",
     ]);
     expect(getV10SourceObjectInventoryRow("external_evidence_submission")).toMatchObject({
       organizationScope: "external_token_scoped",
+      workItemType: null,
+      readModels: ["external_evidence_submissions", "evidence_request_statuses"],
       retentionPolicy: "token_expiring",
       commandSearch: "not_applicable",
     });
@@ -140,6 +230,10 @@ describe("V10 source object inventory", () => {
     expect(getV10SourceObjectInventoryRow("workspace_health_diagnostic")).toMatchObject({
       autonomousStatus: "runtime_verified",
       tests: expect.arrayContaining(["src/app/api/cron/v10/read-model-refresh/route.test.ts"]),
+    });
+    expect(getV10SourceObjectInventoryRow("runtime_artifact")).toMatchObject({
+      autonomousStatus: "runtime_verified",
+      tests: expect.arrayContaining(["src/lib/v10-read-model-refresh.v10.test.ts"]),
     });
   });
 

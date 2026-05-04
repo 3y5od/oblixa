@@ -1,8 +1,10 @@
 import type { createAdminClient } from "@/lib/supabase/server";
+import { buildContractsListHref } from "@/lib/contracts-search-url";
 import {
   V10_CORE_REPORT_FAMILIES,
   V10_NOTIFICATION_CLASSES,
   type V10FieldState,
+  type V10JobStatus,
   type V10NotificationClass,
   type V10Priority,
   type V10Severity,
@@ -32,8 +34,19 @@ import {
 } from "./v10-renewal-posture";
 import { getV10EvidenceFollowUpSchedule } from "./v10-evidence-collaboration";
 import { normalizeV10JobStatus, isV10JobRetryable } from "./v10-job-visibility";
+import { getV10CommandJobHref, getV10WorkItemHref } from "./v10-job-routing";
 import { getV10ReportFamilyForRun } from "./v10-report-export";
 import { V10_RUNTIME_COVERAGE_LEDGER } from "./v10-traceability-ledger";
+import { NAV_ITEMS, type NavItem, type WorkspaceRole } from "./navigation";
+import { featureFamilyForHref } from "./product-surface/href-eligibility";
+import { resolveSearchIndexFeatureFamily } from "./product-surface/feature-registry";
+import { minWorkspaceModeForPath } from "./product-surface/routes";
+import { CMDK_EXTRA_NAV_ITEMS } from "./product-surface/resolver";
+import {
+  WORKFLOW_DESTINATIONS,
+  workflowDestinationForHref,
+  type WorkflowDestinationDef,
+} from "./product-surface/workflow-destinations";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 type Row = Record<string, unknown>;
@@ -145,6 +158,7 @@ export const V10_READ_MODEL_REFRESH_SOURCE_TABLES = [
   "counterparty_workspaces",
   "decision_workspaces",
   "portfolio_campaigns",
+  "contract_programs",
   "assurance_findings",
   "control_policies",
   "adaptive_playbook_runs",
@@ -152,7 +166,10 @@ export const V10_READ_MODEL_REFRESH_SOURCE_TABLES = [
   "assurance_scorecards",
   "review_boards",
   "portfolio_health_graph_edges",
+  "segment_definitions",
+  "program_evolution_experiments",
   "contract_import_jobs",
+  "contract_extraction_jobs",
   "contract_export_jobs",
   "report_runs",
   "saved_views",
@@ -170,10 +187,17 @@ export const V10_READ_MODEL_REFRESH_INDIRECT_SOURCE_TABLES = [
   "contract_files",
   "reminders",
   "organization_workflow_settings",
-  "notification_destinations",
-  "portfolio_programs",
   "v10_read_model_refresh_jobs",
   "v10_runtime_artifacts",
+] as const;
+
+const V10_COMMAND_SEARCH_EVENT_SOURCE_TABLES = [
+  ...new Set(
+    V10_SOURCE_OBJECT_INVENTORY.filter(
+      (row) => row.commandSearch !== "not_applicable" && row.autonomousStatus !== "external_evidence"
+    ).map((row) => row.sourceTable)
+  ),
+  "evidence_submissions",
 ] as const;
 
 export const V10_READ_MODEL_REFRESH_DEFERRED_SOURCE_TABLES = V10_SOURCE_OBJECT_INVENTORY
@@ -187,26 +211,41 @@ export const V10_READ_MODEL_REFRESH_EVENT_TARGETS: Record<string, readonly V10Re
   contract_obligations: ["obligation_records", "work_items", "contract_health_snapshots", "command_search_index"],
   contract_approvals: ["approval_records", "work_items", "contract_activity_events", "command_search_index"],
   exceptions: ["exception_records", "work_items", "contract_health_snapshots", "command_search_index"],
-  evidence_requirements: ["evidence_request_statuses", "obligation_records", "work_items", "contract_activity_events"],
-  evidence_submissions: ["external_evidence_submissions", "evidence_request_statuses", "contract_activity_events"],
-  contract_renewal_checkpoints: ["renewal_checkpoint_records", "renewal_posture_snapshots", "work_items"],
-  notification_deliveries: ["notification_deliveries"],
-  contract_import_jobs: ["job_run_visibility", "activation_state", "work_items"],
-  contract_export_jobs: ["job_run_visibility", "report_run_visibility"],
-  report_runs: ["report_run_visibility", "job_run_visibility"],
+  evidence_requirements: [
+    "evidence_request_statuses",
+    "external_evidence_submissions",
+    "obligation_records",
+    "work_items",
+    "contract_activity_events",
+    "command_search_index",
+  ],
+  evidence_submissions: ["external_evidence_submissions", "evidence_request_statuses", "command_search_index"],
+  contract_renewal_checkpoints: ["renewal_checkpoint_records", "renewal_posture_snapshots", "work_items", "command_search_index"],
+  notification_deliveries: ["notification_deliveries", "command_search_index"],
+  contract_import_jobs: ["job_run_visibility", "activation_state", "work_items", "command_search_index"],
+  contract_extraction_jobs: ["job_run_visibility", "activation_state", "work_items", "command_search_index"],
+  contract_export_jobs: ["job_run_visibility", "work_items", "command_search_index"],
+  report_runs: ["report_run_visibility", "work_items", "command_search_index"],
   saved_views: ["command_search_index"],
+  contract_files: ["activation_state", "command_search_index"],
+  reminders: ["command_search_index"],
+  organization_workflow_settings: ["work_items", "notification_deliveries", "audit_events", "command_search_index", "advanced_assurance_linked_records"],
   v10_audit_events: ["audit_events", "contract_activity_events"],
   account_workspaces: ["advanced_assurance_linked_records", "command_search_index"],
   counterparty_workspaces: ["advanced_assurance_linked_records", "command_search_index"],
   decision_workspaces: ["advanced_assurance_linked_records", "command_search_index"],
   portfolio_campaigns: ["advanced_assurance_linked_records", "command_search_index"],
+  contract_programs: ["command_search_index"],
   assurance_findings: ["advanced_assurance_linked_records", "command_search_index"],
   control_policies: ["advanced_assurance_linked_records", "command_search_index"],
-  adaptive_playbook_runs: ["advanced_assurance_linked_records", "job_run_visibility"],
-  change_simulations: ["advanced_assurance_linked_records", "job_run_visibility"],
+  adaptive_playbook_runs: ["advanced_assurance_linked_records", "work_items", "command_search_index"],
+  change_simulations: ["advanced_assurance_linked_records", "command_search_index"],
   assurance_scorecards: ["advanced_assurance_linked_records", "command_search_index"],
   review_boards: ["advanced_assurance_linked_records", "command_search_index"],
-  portfolio_health_graph_edges: ["advanced_assurance_linked_records"],
+  portfolio_health_graph_edges: ["advanced_assurance_linked_records", "command_search_index"],
+  segment_definitions: ["command_search_index"],
+  program_evolution_experiments: ["command_search_index"],
+  v10_read_model_refresh_jobs: ["command_search_index"],
 };
 
 export function buildV10ReadModelRefreshEventPlan(event: V10ReadModelRefreshEvent): V10ReadModelRefreshEventPlan {
@@ -247,6 +286,16 @@ export function validateV10ReadModelRefreshCoverage(
   }
   for (const sourceTable of indirectSources) {
     if (!inventorySourceTables.has(sourceTable)) failures.push(`indirect_source_missing_inventory:${sourceTable}`);
+  }
+  for (const sourceTable of V10_COMMAND_SEARCH_EVENT_SOURCE_TABLES) {
+    const targets = V10_READ_MODEL_REFRESH_EVENT_TARGETS[sourceTable];
+    if (!targets) {
+      failures.push(`command_search_event_target_missing:${sourceTable}`);
+      continue;
+    }
+    if (!targets.includes("command_search_index")) {
+      failures.push(`command_search_event_target_missing_index:${sourceTable}`);
+    }
   }
   return failures;
 }
@@ -451,6 +500,99 @@ function mapNotificationClass(value: unknown): V10NotificationClass {
     : "due_work";
 }
 
+function isTerminalNotificationDeliveryFailure(error: unknown): boolean {
+  const message = String(error ?? "").toLowerCase();
+  return (
+    message.includes("invalid_webhook_url") ||
+    message.includes("http_400") ||
+    message.includes("http_401") ||
+    message.includes("http_403") ||
+    message.includes("http_404") ||
+    message.includes("invalid recipient") ||
+    message.includes("recipient invalid") ||
+    message.includes("unknown channel")
+  );
+}
+
+function getNotificationDeliveryFailureCategory(input: {
+  status?: unknown;
+  lastError?: unknown;
+  metadata?: unknown;
+}): string | null {
+  const status = String(input.status ?? "").toLowerCase();
+  const metadata = asObject(input.metadata);
+  if (status === "suppressed") {
+    return asString(metadata.suppression_reason) ?? "suppressed";
+  }
+  const message = String(input.lastError ?? "").toLowerCase();
+  if (!message) return null;
+  if (message.includes("smtp") || message.includes("resend") || message.includes("timeout") || message.includes("network") || message.includes("unavailable")) {
+    return "provider_unavailable";
+  }
+  if (message.includes("invalid_webhook_url")) return "invalid_webhook_url";
+  if (message.includes("http_400") || message.includes("http_401") || message.includes("http_403") || message.includes("http_404")) {
+    return "provider_configuration";
+  }
+  if (message.includes("invalid recipient") || message.includes("recipient invalid")) return "recipient_invalid";
+  if (message.includes("missing_retry_payload") || message.includes("invalid_retry_payload_kind") || message.includes("unknown channel")) {
+    return "payload_invalid";
+  }
+  return "delivery_failed";
+}
+
+function normalizeAutomationExecutionStatus(status: unknown): V10JobStatus {
+  switch (String(status ?? "").toLowerCase()) {
+    case "pending":
+    case "queued":
+      return "queued";
+    case "running":
+    case "processing":
+      return "running";
+    case "awaiting_approval":
+      return "partial";
+    case "retrying":
+      return "retrying";
+    case "completed":
+    case "succeeded":
+    case "success":
+      return "succeeded";
+    case "canceled":
+    case "cancelled":
+      return "canceled";
+    case "failed":
+      return "failed_retryable";
+    case "failed_terminal":
+      return "failed_terminal";
+    default:
+      return normalizeV10JobStatus(String(status ?? ""));
+  }
+}
+
+function getReminderGenerationStatus(row: Row, todayIso: string): V10JobStatus {
+  if (asString(row.sent_at)) return "succeeded";
+  const reminderDate = asString(row.reminder_date);
+  if (reminderDate && reminderDate <= todayIso) return "queued";
+  return "queued";
+}
+
+function getReportDeliveryLifecycle(input: {
+  status: V10JobStatus;
+  selectedCount: number;
+  generatedCount: number;
+  artifactUrl: string | null;
+}): { generationStatus: V10JobStatus; deliveryStatus: V10JobStatus } {
+  const { status, selectedCount, generatedCount, artifactUrl } = input;
+  if (status === "succeeded") {
+    return { generationStatus: "succeeded", deliveryStatus: "succeeded" };
+  }
+  const generationCompleted = Boolean(artifactUrl) || generatedCount > 0;
+  const partialGeneration = generationCompleted && selectedCount > 0 && generatedCount > 0 && generatedCount < selectedCount;
+  return {
+    generationStatus: generationCompleted ? (partialGeneration ? "partial" : "succeeded") : status,
+    deliveryStatus: status,
+  };
+}
+
 function sharedReadModelRow(input: {
   organizationId: string;
   featureFamily: string;
@@ -475,18 +617,18 @@ function sharedReadModelRow(input: {
   };
 }
 
-function hrefFor(item: { type: V10WorkItemType; contractId: string | null; sourceId: string }): string {
-  if (item.contractId) {
-    if (item.type === "approval") return `/contracts/${item.contractId}?tab=overview#renewal-approvals`;
-    if (item.type === "obligation") return `/contracts/${item.contractId}?tab=obligations`;
-    if (item.type === "evidence_request") return `/contracts/${item.contractId}?tab=overview#contract-evidence`;
-    if (item.type === "exception") return `/contracts/exceptions?status=open&contract=${item.contractId}`;
-    return `/contracts/${item.contractId}`;
-  }
-  if (item.type === "report_failure") return "/reports";
-  if (item.type === "export_failure") return "/settings/health#exports";
-  if (item.type === "import_failure") return `/settings/health#jobs`;
-  return "/work";
+function hrefFor(item: {
+  type: V10WorkItemType;
+  contractId: string | null;
+  sourceId: string;
+  primaryAction?: string | null;
+}): string {
+  return getV10WorkItemHref({
+    type: item.type,
+    contractId: item.contractId,
+    sourceId: item.sourceId,
+    primaryAction: item.primaryAction,
+  });
 }
 
 function buildWorkItem(input: {
@@ -573,6 +715,38 @@ async function queryRows(admin: Admin, table: string, select: string, organizati
   return rows;
 }
 
+async function queryRowsByContractIds(
+  admin: Admin,
+  table: string,
+  select: string,
+  contractIds: readonly string[],
+  pageSize = 500
+): Promise<Row[]> {
+  const scopedContractIds = [...new Set(contractIds.filter(Boolean))];
+  if (scopedContractIds.length === 0) return [];
+  const rows: Row[] = [];
+  for (let index = 0; index < scopedContractIds.length; index += 100) {
+    const chunk = scopedContractIds.slice(index, index + 100);
+    for (let page = 0; ; page += 1) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error } = await admin
+        .from(table)
+        .select(select)
+        .in("contract_id", chunk)
+        .order("created_at", { ascending: true, nullsFirst: false })
+        .range(from, to);
+      if (error) {
+        throw new Error(`[v10-refresh] query ${table} failed: ${error.message}`);
+      }
+      const pageRows = asRows(data);
+      rows.push(...pageRows);
+      if (pageRows.length < pageSize) break;
+    }
+  }
+  return rows;
+}
+
 async function replaceRows(
   admin: Admin,
   table: string,
@@ -616,6 +790,8 @@ async function replaceRows(
 
 function getV10ReadModelUpsertConflict(table: string): string {
   if (table === "v10_read_model_rows") return "organization_id,model_key,source_table,source_id";
+  if (table === "v10_job_run_visibility") return "organization_id,job_class,job_id";
+  if (table === "v10_report_run_visibility") return "organization_id,report_run_id";
   if (table === "v10_work_items") return "organization_id,source_table,source_id,type";
   if (table === "v10_read_model_lineage") {
     return "organization_id,refresh_job_id,model_key,read_model_source_table,read_model_source_id,source_table,source_id";
@@ -623,6 +799,204 @@ function getV10ReadModelUpsertConflict(table: string): string {
   if (table === "v10_runtime_artifacts") return "organization_id,artifact_key";
   if (table === "v10_runtime_coverage_ledger") return "organization_id,coverage_kind,coverage_key";
   return "organization_id,source_table,source_id";
+}
+
+function v10PathOnly(href: string): string {
+  return href.split("?")[0]?.split("#")[0] ?? href;
+}
+
+function v10DestinationPlanMinimum(mode: "core" | "advanced" | "assurance") {
+  return mode;
+}
+
+function v10SavedViewType(raw: unknown): "contracts" | "tasks" | "obligations" | "renewals" {
+  switch (String(raw ?? "contracts")) {
+    case "tasks":
+    case "obligations":
+    case "renewals":
+      return String(raw) as "tasks" | "obligations" | "renewals";
+    default:
+      return "contracts";
+  }
+}
+
+function v10SavedViewCommandMeta(row: Row): { href: string; featureFamily: string; moduleKey: string } {
+  const viewType = v10SavedViewType(row.view_type);
+  const query = asObject(row.query_json);
+  if (viewType === "contracts") {
+    return {
+      href: buildContractsListHref({
+        search: asString(query.search),
+        status: asString(query.status),
+        owner: asString(query.owner),
+        region: asString(query.region),
+        deadline: asString(query.deadline),
+        sort: asString(query.sort),
+        exceptions: asString(query.exceptions),
+        review: asString(query.review),
+        data_quality: asString(query.data_quality),
+        evidence: asString(query.evidence),
+        health: asString(query.health),
+      }),
+      featureFamily: "contracts",
+      moduleKey: "contracts",
+    };
+  }
+  const params = new URLSearchParams();
+  if (viewType === "tasks") {
+    if (asString(query.status)) params.set("status", String(query.status));
+    if (asString(query.mine)) params.set("mine", String(query.mine));
+    if (asString(query.team)) params.set("team", String(query.team));
+    const qs = params.toString();
+    return {
+      href: qs ? `/contracts/tasks?${qs}` : "/contracts/tasks",
+      featureFamily: "work",
+      moduleKey: "tasks",
+    };
+  }
+  if (viewType === "obligations") {
+    if (asString(query.status)) params.set("status", String(query.status));
+    if (asString(query.mine)) params.set("mine", String(query.mine));
+    const qs = params.toString();
+    return {
+      href: qs ? `/contracts/obligations?${qs}` : "/contracts/obligations",
+      featureFamily: "work",
+      moduleKey: "obligations",
+    };
+  }
+  if (asString(query.deadline)) params.set("horizon", String(query.deadline));
+  const qs = params.toString();
+  return {
+    href: qs ? `/contracts/renewals?${qs}` : "/contracts/renewals",
+    featureFamily: "renewals",
+    moduleKey: "renewals",
+  };
+}
+
+function v10SummaryContractCount(value: unknown): number | null {
+  const summary = asObject(value);
+  const explicitCount = asNumber(summary.contract_count);
+  if (explicitCount > 0) return explicitCount;
+  const ids = asStringArray(summary.contract_ids);
+  return ids.length > 0 ? ids.length : null;
+}
+
+function v10HealthStatusLabel(value: unknown): string {
+  return String(asObject(value).status ?? "visible").replace(/_/g, " ");
+}
+
+function v10CompactRankTerms(...values: unknown[]): string[] {
+  return values
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => value !== null && value !== undefined && String(value).trim().length > 0)
+    .map(String);
+}
+
+function v10StaticDestinationRecordType(href: string): "setting" | "setting_destination" | "nav" {
+  const path = v10PathOnly(href);
+  if (path === "/settings") return "setting";
+  if (path.startsWith("/settings/")) return "setting_destination";
+  return "nav";
+}
+
+function v10RequiredRoleMinimumForDestination(
+  href: string,
+  placements: readonly string[]
+): WorkspaceRole {
+  const path = v10PathOnly(href);
+  const navItem = [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS].find(
+    (item) => v10PathOnly(item.href) === path
+  );
+  if (navItem?.minRole) return navItem.minRole;
+  if (placements.includes("admin_contextual")) return "admin";
+  return "viewer";
+}
+
+function v10CommandRowsForStaticDestinations(organizationId: string) {
+  const rowsByHref = new Map<string, Row>();
+
+  const upsertRow = (row: Row & { href: string }) => {
+    if (!rowsByHref.has(row.href)) rowsByHref.set(row.href, row);
+  };
+
+  for (const item of [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS] as NavItem[]) {
+    const recordType = v10StaticDestinationRecordType(item.href);
+    const destination = workflowDestinationForHref(item.href);
+    const minWorkspaceMode = destination?.minWorkspaceMode ?? minWorkspaceModeForPath(v10PathOnly(item.href)) ?? "core";
+    upsertRow({
+      organization_id: organizationId,
+      workspace_mode: minWorkspaceMode,
+      required_role_minimum: item.minRole ?? "viewer",
+      feature_family: destination?.featureFamily ?? featureFamilyForHref(item.href) ?? (recordType === "setting" ? "settings" : "contracts"),
+      source_table:
+        recordType === "setting" || recordType === "setting_destination"
+          ? "organization_workflow_settings"
+          : "v10_nav_destination",
+      source_id: item.href,
+      record_type: recordType,
+      record_id: item.href,
+      label: item.name,
+      description_safe: item.description,
+      href: item.href,
+      rank_terms_safe: [item.name, item.section, item.icon, item.href, recordType].filter(Boolean),
+      workspace_mode_minimum: minWorkspaceMode,
+      module_key:
+        destination?.advancedModuleKey ??
+        destination?.assuranceModuleKey ??
+        destination?.utilityModuleKey ??
+        (recordType === "setting" || recordType === "setting_destination" ? "settings" : null),
+      plan_minimum: v10DestinationPlanMinimum(minWorkspaceMode),
+      visibility_state: "visible",
+    });
+  }
+
+  for (const destination of WORKFLOW_DESTINATIONS as readonly WorkflowDestinationDef[]) {
+    const placements = [
+      ...destination.placementsByMode.core,
+      ...destination.placementsByMode.advanced,
+      ...destination.placementsByMode.assurance,
+    ];
+    if (!placements.includes("cmdk")) continue;
+    const recordType = v10StaticDestinationRecordType(destination.href);
+    const copy = destination.copyByMode[destination.minWorkspaceMode];
+    upsertRow({
+      organization_id: organizationId,
+      workspace_mode: destination.minWorkspaceMode,
+      required_role_minimum: v10RequiredRoleMinimumForDestination(destination.href, placements),
+      feature_family: destination.featureFamily,
+      source_table:
+        recordType === "setting" || recordType === "setting_destination"
+          ? "organization_workflow_settings"
+          : "v10_workflow_destination",
+      source_id: destination.href,
+      record_type: recordType,
+      record_id: destination.href,
+      label: copy.label,
+      description_safe: copy.description,
+      href: destination.href,
+      rank_terms_safe: [
+        copy.label,
+        copy.shortLabel,
+        destination.key,
+        destination.featureFamily,
+        destination.advancedModuleKey,
+        destination.assuranceModuleKey,
+        destination.utilityModuleKey,
+        destination.href,
+        ...(destination.aliases ?? []),
+      ].filter(Boolean),
+      workspace_mode_minimum: destination.minWorkspaceMode,
+      module_key:
+        destination.advancedModuleKey ??
+        destination.assuranceModuleKey ??
+        destination.utilityModuleKey ??
+        (recordType === "setting" || recordType === "setting_destination" ? "settings" : null),
+      plan_minimum: v10DestinationPlanMinimum(destination.minWorkspaceMode),
+      visibility_state: "visible",
+    });
+  }
+
+  return [...rowsByHref.values()];
 }
 
 function normalizeV10CoverageReleaseEvidenceKey(input: string): string {
@@ -840,9 +1214,24 @@ export async function refreshV10ReadModelsForOrganization(
       return [];
     }
   };
+  const qByContractIds = async (table: string, select: string, contractIds: readonly string[], pageSize?: number) => {
+    try {
+      return await queryRowsByContractIds(admin, table, select, contractIds, pageSize);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : `[v10-refresh] query ${table} failed`;
+      sourceFailures.push(message);
+      return [];
+    }
+  };
+  const contracts = await q(
+    "contracts",
+    "id,title,counterparty,contract_type,status,owner_id,annual_value,required_next_step,created_at,updated_at",
+    1000
+  );
   const [
-    contracts,
     fields,
+    reminders,
+    contractFiles,
     tasks,
     obligations,
     approvals,
@@ -856,6 +1245,7 @@ export async function refreshV10ReadModelsForOrganization(
     counterpartyWorkspaces,
     decisions,
     campaigns,
+    programs,
     findings,
     controls,
     playbookRuns,
@@ -863,17 +1253,22 @@ export async function refreshV10ReadModelsForOrganization(
     scorecards,
     reviewBoards,
     healthGraphEdges,
+    segments,
+    programEvolutionExperiments,
     importJobs,
+    extractionJobs,
     exportJobs,
     reportRuns,
     savedViews,
+    refreshJobs,
   ] = await Promise.all([
-    q("contracts", "id,title,counterparty,contract_type,status,owner_id,annual_value,required_next_step,created_at,updated_at", 1000),
     q("extracted_fields", "id,contract_id,field_name,field_value,status,source,confidence,reviewed_by,reviewed_at,created_at,updated_at", 5000),
+    qByContractIds("reminders", "id,contract_id,field_id,reminder_type,reminder_date,sent_at,recipient_id,created_at", contracts.map((row) => String(row.id)), 2000),
+    qByContractIds("contract_files", "id,contract_id,file_name,file_type,file_size,storage_path,uploaded_by,created_at", contracts.map((row) => String(row.id)), 2000),
     q("contract_tasks", "id,contract_id,title,status,priority,assignee_id,due_date,blocked_reason,created_at,updated_at", 2000),
     q("contract_obligations", "id,contract_id,title,status,owner_id,due_date,evidence_notes,evidence_url,created_at,updated_at", 2000),
     q("contract_approvals", "id,contract_id,approval_type,status,requested_by,approver_id,delegated_to_id,due_at,notes,resolved_at,created_at,updated_at", 2000),
-    q("exceptions", "id,contract_id,title,severity,status,owner_id,root_cause,due_date,linked_entity_type,linked_entity_id,resolution_note,resolved_at,created_at,updated_at", 2000),
+    q("exceptions", "id,contract_id,title,severity,status,owner_id,root_cause,due_date,linked_entity_type,linked_entity_id,resolution_action,resolution_note,resolved_at,created_at,updated_at", 2000),
     q("evidence_requirements", "id,contract_id,work_item_id,title,status,reviewer_id,due_at,required,config_json,created_at,updated_at", 2000),
     q("contract_renewal_checkpoints", "id,contract_id,task_key,label,status,due_date,renewal_state,workspace_json,created_at,updated_at", 2000),
     q("evidence_submissions", "id,requirement_id,submitted_by,submitted_at,status,payload_json,reviewer_id,reviewed_at,rejection_reason,created_at", 2000),
@@ -883,6 +1278,7 @@ export async function refreshV10ReadModelsForOrganization(
     q("counterparty_workspaces", "id,counterparty_key,display_name,owner_user_id,summary_json,health_signal_json,created_at,updated_at", 500),
     q("decision_workspaces", "id,decision_type,status,title,linked_contract_ids,linked_account_key,linked_counterparty_key,owner_user_id,created_at,updated_at", 500),
     q("portfolio_campaigns", "id,campaign_type,status,name,owner_user_id,progress_summary_json,rollback_safe,created_at,updated_at", 500),
+    q("contract_programs", "id,name,description,state,current_version_id,created_at,updated_at", 500),
     q("assurance_findings", "id,finding_type,title,severity,status,scope_json,linked_entities_json,created_at,updated_at", 500),
     q("control_policies", "id,name,status,enforcement_mode,severity_model_json,created_at,updated_at", 500),
     q("adaptive_playbook_runs", "id,status,source_finding_id,run_by,created_at,updated_at", 500),
@@ -890,10 +1286,18 @@ export async function refreshV10ReadModelsForOrganization(
     q("assurance_scorecards", "id,name,status,owner_user_id,overall_score,created_at,updated_at", 500),
     q("review_boards", "id,name,status,owner_user_id,created_at,updated_at", 500),
     q("portfolio_health_graph_edges", "id,source_node_id,target_node_id,edge_type,created_at,updated_at", 500),
+    q("segment_definitions", "id,segment_type,key,name,active,created_at,updated_at", 500),
+    q("program_evolution_experiments", "id,status,hypothesis,program_id,target_segment_id,created_at,updated_at", 500),
     q("contract_import_jobs", "id,status,total_rows,inserted_rows,error_rows,failure_reason,created_by,created_at,updated_at,completed_at", 500),
+    q("contract_extraction_jobs", "id,contract_id,status,attempt_count,last_error,started_at,completed_at,created_at,updated_at", 500),
     q("contract_export_jobs", "id,status,selected_contract_count,exported_rows,truncated,error_message,created_by,started_at,completed_at,created_at,updated_at", 500),
     q("report_runs", "id,report_mode,status,started_at,finished_at,triggered_by,subscription_id,metrics_json,error_summary,created_at", 500),
     q("saved_views", "id,name,view_type,query_json,pinned,created_at,updated_at", 500),
+    q(
+      "v10_read_model_refresh_jobs",
+      "refresh_job_id,refresh_reason,refresh_scope,status,failure_count,failed_source_tables,stale_source_tables,drift_state,diagnostic_id,started_at,completed_at,created_at,updated_at",
+      500
+    ),
   ]);
 
   const sourceCounts: Record<string, number> = {
@@ -912,6 +1316,7 @@ export async function refreshV10ReadModelsForOrganization(
     counterparty_workspaces: counterpartyWorkspaces.length,
     decision_workspaces: decisions.length,
     portfolio_campaigns: campaigns.length,
+    contract_programs: programs.length,
     assurance_findings: findings.length,
     control_policies: controls.length,
     adaptive_playbook_runs: playbookRuns.length,
@@ -919,7 +1324,10 @@ export async function refreshV10ReadModelsForOrganization(
     assurance_scorecards: scorecards.length,
     review_boards: reviewBoards.length,
     portfolio_health_graph_edges: healthGraphEdges.length,
+    segment_definitions: segments.length,
+    program_evolution_experiments: programEvolutionExperiments.length,
     contract_import_jobs: importJobs.length,
+    contract_extraction_jobs: extractionJobs.length,
     contract_export_jobs: exportJobs.length,
     report_runs: reportRuns.length,
     saved_views: savedViews.length,
@@ -942,6 +1350,7 @@ export async function refreshV10ReadModelsForOrganization(
       counterpartyWorkspaces,
       decisions,
       campaigns,
+      programs,
       findings,
       controls,
       playbookRuns,
@@ -949,13 +1358,19 @@ export async function refreshV10ReadModelsForOrganization(
       scorecards,
       reviewBoards,
       healthGraphEdges,
+      segments,
+      programEvolutionExperiments,
       importJobs,
+      extractionJobs,
       exportJobs,
       reportRuns,
       savedViews,
     ].map((rows) => getLatestTimestamp(rows))
   );
 
+  const contractsById = new Map(contracts.map((row) => [String(row.id), row]));
+  const fieldsById = new Map(fields.map((row) => [String(row.id), row]));
+  const findingsById = new Map(findings.map((row) => [String(row.id), row]));
   const fieldsByContract = new Map<string, Row[]>();
   for (const field of fields) {
     const contractId = asString(field.contract_id);
@@ -1145,8 +1560,12 @@ export async function refreshV10ReadModelsForOrganization(
       ),
     ...importJobs
       .filter((row) => ["failed", "failed_retryable", "partial"].includes(String(row.status)) || asNumber(row.error_rows) > 0)
-      .map((row) =>
-        buildWorkItem({
+      .map((row) => {
+        const importStatus = normalizeV10JobStatus(String(row.status), {
+          failed: asNumber(row.error_rows),
+          retryable: asNumber(row.error_rows),
+        });
+        return buildWorkItem({
           organizationId,
           sourceTable: "contract_import_jobs",
           sourceId: String(row.id),
@@ -1158,13 +1577,39 @@ export async function refreshV10ReadModelsForOrganization(
           blockedReason: asString(row.failure_reason) ?? "import_failed",
           createdAt: asString(row.created_at),
           updatedAt: asString(row.updated_at),
-          primaryAction: "retry_failed_job",
-        })
-      ),
+          primaryAction: isV10JobRetryable(importStatus, asNumber(row.error_rows)) ? "retry_failed_job" : "open_source_object",
+        });
+      }),
+    ...extractionJobs
+      .filter((row) => ["failed", "failed_retryable", "partial"].includes(String(row.status)))
+      .map((row) => {
+        const extractionStatus = normalizeV10JobStatus(String(row.status), { failed: 1, retryable: 1 });
+        const contract = contractsById.get(String(row.contract_id));
+        return buildWorkItem({
+          organizationId,
+          sourceTable: "contract_extraction_jobs",
+          sourceId: String(row.id),
+          type: "extraction_failure",
+          title: `Extraction needs recovery${contract?.title ? ` · ${String(contract.title)}` : ""}`,
+          status: "blocked",
+          contractId: asString(row.contract_id),
+          ownerUserId: asString(contract?.owner_id),
+          severity: "high",
+          blockedReason: asString(row.last_error) ?? "extraction_failed",
+          createdAt: asString(row.created_at),
+          updatedAt: asString(row.updated_at),
+          primaryAction: isV10JobRetryable(extractionStatus, 1) ? "retry_failed_job" : "open_source_object",
+          sourceType: "extraction_job",
+        });
+      }),
     ...exportJobs
       .filter((row) => ["failed", "failed_retryable", "partial"].includes(String(row.status)) || row.truncated === true)
-      .map((row) =>
-        buildWorkItem({
+      .map((row) => {
+        const exportStatus = normalizeV10JobStatus(String(row.status), {
+          failed: row.truncated === true ? 1 : 0,
+          retryable: row.truncated === true ? 1 : 0,
+        });
+        return buildWorkItem({
           organizationId,
           sourceTable: "contract_export_jobs",
           sourceId: String(row.id),
@@ -1176,13 +1621,22 @@ export async function refreshV10ReadModelsForOrganization(
           blockedReason: asString(row.error_message) ?? (row.truncated === true ? "export_truncated" : "export_failed"),
           createdAt: asString(row.created_at),
           updatedAt: asString(row.updated_at),
-          primaryAction: "retry_failed_job",
-        })
-      ),
+          primaryAction: isV10JobRetryable(exportStatus, exportStatus === "succeeded" ? 0 : 1)
+            ? "retry_failed_job"
+            : "open_source_object",
+        });
+      }),
     ...reportRuns
       .filter((row) => ["failed", "failed_retryable", "partial"].includes(String(row.status)))
-      .map((row) =>
-        buildWorkItem({
+      .map((row) => {
+        const reportMetrics = asObject(row.metrics_json);
+        const supportsDirectRetry = Boolean(asString(reportMetrics.report_pack_id));
+        const reportFailureCount = asString(row.error_summary) ? 1 : 0;
+        const reportStatus = normalizeV10JobStatus(String(row.status), {
+          failed: reportFailureCount,
+          retryable: supportsDirectRetry ? reportFailureCount : 0,
+        });
+        return buildWorkItem({
           organizationId,
           sourceTable: "report_runs",
           sourceId: String(row.id),
@@ -1194,9 +1648,11 @@ export async function refreshV10ReadModelsForOrganization(
           blockedReason: asString(row.error_summary) ?? "report_failed",
           createdAt: asString(row.created_at),
           updatedAt: asString(row.finished_at) ?? asString(row.started_at),
-          primaryAction: "retry_failed_job",
-        })
-      ),
+          primaryAction: supportsDirectRetry && isV10JobRetryable(reportStatus, reportStatus === "succeeded" ? 0 : 1)
+            ? "retry_failed_job"
+            : "open_source_object",
+        });
+      }),
     ...playbookRuns
       .filter((row) => String(row.status) === "awaiting_approval")
       .map((row) =>
@@ -1531,7 +1987,7 @@ export async function refreshV10ReadModelsForOrganization(
     due_state: getV10DueState(asString(row.due_date), { dateOnly: true }),
     source_type: "exception",
     linked_source_id: String(row.id),
-    resolution_action: asString(row.resolution_note),
+    resolution_action: asString(row.resolution_action),
     resolved_at: asString(row.resolved_at),
     reopened_at: null,
     linked_task_ids: [] as string[],
@@ -1572,10 +2028,15 @@ export async function refreshV10ReadModelsForOrganization(
 
   const notificationRows = notificationDeliveries.map((row) => {
     const metadata = asObject(row.metadata);
+    const failureCategory = getNotificationDeliveryFailureCategory({
+      status: row.status,
+      lastError: row.last_error,
+      metadata: row.metadata,
+    });
     return {
       ...sharedReadModelRow({
         organizationId,
-        featureFamily: "notifications",
+        featureFamily: "settings",
         sourceTable: "notification_deliveries",
         sourceId: String(row.id),
         createdAt: asString(row.created_at),
@@ -1593,8 +2054,8 @@ export async function refreshV10ReadModelsForOrganization(
       scheduled_at: asString(row.next_attempt_at) ?? asString(row.created_at),
       sent_at: asString(row.delivered_at),
       delivery_status: String(row.status ?? "pending"),
-      failure_category: row.last_error ? "delivery_failed" : null,
-      diagnostic_id: row.last_error ? `notification_${row.id}` : null,
+      failure_category: failureCategory,
+      diagnostic_id: failureCategory ? `notification_${row.id}` : null,
       deep_link_href: asString(metadata.deep_link_href),
       audit_event_id: null,
     };
@@ -1655,6 +2116,8 @@ export async function refreshV10ReadModelsForOrganization(
       occurred_at: asString(row.created_at) ?? now.toISOString(),
     }));
 
+  const todayIso = now.toISOString().slice(0, 10);
+
   const jobRows = [
     ...importJobs.map((row) => {
       const status = normalizeV10JobStatus(String(row.status), { failed: asNumber(row.error_rows), retryable: asNumber(row.error_rows) });
@@ -1678,6 +2141,34 @@ export async function refreshV10ReadModelsForOrganization(
         failure_category: status === "succeeded" ? null : "import_processing",
         user_visible_detail: asString(row.failure_reason) ?? "Import status is available.",
         retry_action: isV10JobRetryable(status, asNumber(row.error_rows)) ? "retry" : null,
+        visibility_state: "visible",
+      };
+    }),
+    ...extractionJobs.map((row) => {
+      const status = normalizeV10JobStatus(String(row.status), {
+        failed: row.status === "failed" ? 1 : 0,
+        retryable: row.status === "failed" ? 1 : 0,
+      });
+      return {
+        organization_id: organizationId,
+        source_table: "contract_extraction_jobs",
+        source_id: String(row.id),
+        job_id: String(row.id),
+        job_class: "extraction",
+        status,
+        cancellation_state: "not_cancelable",
+        source_type: "extraction_job",
+        contract_id: asString(row.contract_id),
+        started_at: asString(row.started_at) ?? asString(row.created_at),
+        completed_at: asString(row.completed_at),
+        completed_count: status === "succeeded" ? 1 : 0,
+        failed_count: status === "failed_retryable" || status === "failed_terminal" ? 1 : 0,
+        skipped_count: 0,
+        retryable_count: status === "failed_retryable" ? 1 : 0,
+        diagnostic_id: status === "succeeded" ? null : `extraction_${row.id}`,
+        failure_category: status === "succeeded" ? null : "extraction_processing",
+        user_visible_detail: asString(row.last_error) ?? "Extraction status is available.",
+        retry_action: isV10JobRetryable(status, status === "failed_retryable" ? 1 : 0) ? "retry" : null,
         visibility_state: "visible",
       };
     }),
@@ -1706,11 +2197,227 @@ export async function refreshV10ReadModelsForOrganization(
         visibility_state: "visible",
       };
     }),
+    ...contractFiles.map((row) => ({
+      organization_id: organizationId,
+      source_table: "contract_files",
+      source_id: String(row.id),
+      job_id: String(row.id),
+      job_class: "file_upload",
+      status: "succeeded",
+      cancellation_state: "not_cancelable",
+      source_type: "file_upload",
+      contract_id: asString(row.contract_id),
+      started_at: asString(row.created_at),
+      completed_at: asString(row.created_at),
+      completed_count: 1,
+      failed_count: 0,
+      skipped_count: 0,
+      retryable_count: 0,
+      diagnostic_id: null,
+      failure_category: null,
+      user_visible_detail: `${String(row.file_name ?? "File")} uploaded successfully.`,
+      retry_action: null,
+      visibility_state: "visible",
+    })),
+    ...reportRuns.flatMap((row) => {
+      const metrics = asObject(row.metrics_json);
+      const supportsDirectRetry = Boolean(asString(metrics.report_pack_id));
+      const selectedCount = asNumber(metrics.selected_row_count ?? metrics.selected_count ?? metrics.total_rows);
+      const generatedCount = asNumber(metrics.generated_row_count ?? metrics.generated_count ?? metrics.delivered_rows);
+      const artifactUrl = asString(metrics.artifact_url ?? metrics.artifact_href ?? metrics.artifact_path);
+      const baseStatus = normalizeV10JobStatus(String(row.status), {
+        failed: asString(row.error_summary) ? 1 : 0,
+        retryable: asString(row.error_summary) ? 1 : 0,
+      });
+      const { generationStatus, deliveryStatus } = getReportDeliveryLifecycle({
+        status: baseStatus,
+        selectedCount,
+        generatedCount,
+        artifactUrl,
+      });
+      const generationRetryableCount = generationStatus === "failed_retryable" || (generationStatus === "partial" && selectedCount > generatedCount) ? 1 : 0;
+      const deliveryRetryableCount = deliveryStatus === "failed_retryable" ? 1 : 0;
+      return [
+        {
+          organization_id: organizationId,
+          source_table: "report_runs",
+          source_id: String(row.id),
+          job_id: String(row.id),
+          job_class: "report_generation",
+          status: generationStatus,
+          cancellation_state: "not_cancelable",
+          source_type: "report_run",
+          contract_id: null,
+          started_at: asString(row.started_at) ?? asString(row.created_at),
+          completed_at: asString(row.finished_at),
+          completed_count: generatedCount > 0 ? generatedCount : generationStatus === "succeeded" ? 1 : 0,
+          failed_count: generationStatus === "failed_retryable" || generationStatus === "failed_terminal" ? 1 : 0,
+          skipped_count: generationStatus === "partial" && selectedCount > generatedCount ? Math.max(0, selectedCount - generatedCount) : 0,
+          retryable_count: generationRetryableCount,
+          diagnostic_id: generationStatus === "succeeded" ? null : `report_generation_${row.id}`,
+          failure_category: generationStatus === "succeeded" ? null : "report_generation",
+          user_visible_detail: asString(row.error_summary) ?? "Report generation status is available.",
+          retry_action: supportsDirectRetry && isV10JobRetryable(generationStatus, generationRetryableCount) ? "retry" : null,
+          visibility_state: "visible",
+        },
+        {
+          organization_id: organizationId,
+          source_table: "report_runs",
+          source_id: String(row.id),
+          job_id: String(row.id),
+          job_class: "report_delivery",
+          status: deliveryStatus,
+          cancellation_state: "not_cancelable",
+          source_type: "report_run",
+          contract_id: null,
+          started_at: asString(row.started_at) ?? asString(row.created_at),
+          completed_at: asString(row.finished_at),
+          completed_count: deliveryStatus === "succeeded" ? 1 : 0,
+          failed_count: deliveryStatus === "failed_retryable" || deliveryStatus === "failed_terminal" ? 1 : 0,
+          skipped_count: 0,
+          retryable_count: deliveryRetryableCount,
+          diagnostic_id: deliveryStatus === "succeeded" ? null : `report_delivery_${row.id}`,
+          failure_category: deliveryStatus === "succeeded" ? null : "report_delivery",
+          user_visible_detail: asString(row.error_summary) ?? "Report delivery status is available.",
+          retry_action: supportsDirectRetry && isV10JobRetryable(deliveryStatus, deliveryRetryableCount) ? "retry" : null,
+          visibility_state: "visible",
+        },
+      ];
+    }),
+    ...reminders.map((row) => {
+      const status = getReminderGenerationStatus(row, todayIso);
+      const reminderDate = asString(row.reminder_date);
+      return {
+        organization_id: organizationId,
+        source_table: "reminders",
+        source_id: String(row.id),
+        job_id: String(row.id),
+        job_class: "reminder_generation",
+        status,
+        cancellation_state: "not_cancelable",
+        source_type: "reminder",
+        contract_id: asString(row.contract_id),
+        started_at: asString(row.created_at),
+        completed_at: asString(row.sent_at) ?? null,
+        completed_count: status === "succeeded" ? 1 : 0,
+        failed_count: 0,
+        skipped_count: 0,
+        retryable_count: 0,
+        diagnostic_id: null,
+        failure_category: null,
+        user_visible_detail:
+          status === "succeeded"
+            ? `Reminder sent${reminderDate ? ` for ${reminderDate}` : ""}.`
+            : reminderDate
+              ? `Reminder is scheduled for ${reminderDate}.`
+              : "Reminder is queued.",
+        retry_action: null,
+        visibility_state: "visible",
+      };
+    }),
+    ...notificationDeliveries.map((row) => {
+      const metadata = asObject(row.metadata);
+      const failureCategory = getNotificationDeliveryFailureCategory({
+        status: row.status,
+        lastError: row.last_error,
+        metadata: row.metadata,
+      });
+      const rawStatus = String(row.status ?? "pending").toLowerCase();
+      const terminalFailure = rawStatus === "failed" && isTerminalNotificationDeliveryFailure(row.last_error);
+      const status: V10JobStatus =
+        rawStatus === "delivered"
+          ? "succeeded"
+          : rawStatus === "retrying"
+            ? "retrying"
+            : rawStatus === "failed"
+              ? terminalFailure
+                ? "failed_terminal"
+                : "failed_retryable"
+              : rawStatus === "suppressed"
+                ? "canceled"
+                : "queued";
+      const retryableCount = status === "failed_retryable" ? 1 : 0;
+      const suppressionReason = asString(metadata.suppression_reason);
+      return {
+        organization_id: organizationId,
+        source_table: "notification_deliveries",
+        source_id: String(row.id),
+        job_id: String(row.id),
+        job_class: "notification_delivery",
+        status,
+        cancellation_state: status === "canceled" ? "canceled" : "not_cancelable",
+        source_type: "notification_delivery",
+        contract_id: asString(metadata.contract_id),
+        started_at: asString(row.created_at),
+        completed_at: asString(row.delivered_at) ?? (status === "canceled" || rawStatus === "failed" ? asString(row.updated_at) : null),
+        completed_count: status === "succeeded" ? 1 : 0,
+        failed_count: status === "failed_retryable" || status === "failed_terminal" ? 1 : 0,
+        skipped_count: status === "canceled" ? 1 : 0,
+        retryable_count: retryableCount,
+        diagnostic_id: failureCategory ? `notification_job_${row.id}` : null,
+        failure_category: failureCategory,
+        user_visible_detail:
+          status === "canceled"
+            ? suppressionReason
+              ? `Notification was suppressed by ${suppressionReason.replace(/_/g, " ")}.`
+              : "Notification delivery was intentionally suppressed."
+            : asString(row.last_error) ?? "Notification delivery status is available.",
+        retry_action: isV10JobRetryable(status, retryableCount) ? "retry" : null,
+        visibility_state: "visible",
+      };
+    }),
+    ...playbookRuns.map((row) => {
+      const status = normalizeAutomationExecutionStatus(row.status);
+      const finding = asString(row.source_finding_id) ? findingsById.get(String(row.source_finding_id)) : undefined;
+      const linkedEntities = asObject(finding?.linked_entities_json);
+      const contractIds = asStringArray(linkedEntities.contract_ids);
+      const retryableCount = status === "failed_retryable" ? 1 : 0;
+      return {
+        organization_id: organizationId,
+        source_table: "adaptive_playbook_runs",
+        source_id: String(row.id),
+        job_id: String(row.id),
+        job_class: "automation_execution",
+        status,
+        cancellation_state: status === "canceled" ? "canceled" : "not_cancelable",
+        source_type: "automation_run",
+        contract_id: contractIds[0] ?? null,
+        started_at: asString(row.created_at),
+        completed_at: ["succeeded", "failed_retryable", "failed_terminal", "canceled"].includes(status)
+          ? asString(row.updated_at) ?? asString(row.created_at)
+          : null,
+        completed_count: status === "succeeded" || status === "partial" ? 1 : 0,
+        failed_count: status === "failed_retryable" || status === "failed_terminal" ? 1 : 0,
+        skipped_count: status === "canceled" ? 1 : 0,
+        retryable_count: retryableCount,
+        diagnostic_id: status === "failed_retryable" || status === "failed_terminal" ? `automation_${row.id}` : null,
+        failure_category: status === "failed_retryable" || status === "failed_terminal" ? "automation_execution" : null,
+        user_visible_detail:
+          status === "partial"
+            ? "Automation is waiting for approval before execution can continue."
+            : status === "succeeded"
+              ? "Automation execution completed."
+              : status === "running"
+                ? "Automation execution is in progress."
+                : status === "queued"
+                  ? "Automation execution is queued."
+                  : status === "canceled"
+                    ? "Automation execution was canceled."
+                    : "Automation execution needs recovery.",
+        retry_action: isV10JobRetryable(status, retryableCount) ? "retry" : null,
+        visibility_state: "visible",
+      };
+    }),
   ];
 
   const reportRows = reportRuns.map((row) => {
-    const status = normalizeV10JobStatus(String(row.status));
     const metrics = asObject(row.metrics_json);
+    const supportsDirectRetry = Boolean(asString(metrics.report_pack_id));
+    const reportFailureCount = asString(row.error_summary) ? 1 : 0;
+    const status = normalizeV10JobStatus(String(row.status), {
+      failed: reportFailureCount,
+      retryable: supportsDirectRetry ? reportFailureCount : 0,
+    });
     return {
       organization_id: organizationId,
       source_id: String(row.id),
@@ -1728,12 +2435,84 @@ export async function refreshV10ReadModelsForOrganization(
       delivery_destination_state: "workspace",
       failure_category: status === "succeeded" ? null : "report_generation",
       diagnostic_id: status === "succeeded" ? null : `report_${row.id}`,
-      retry_action: isV10JobRetryable(status, status === "succeeded" ? 0 : 1) ? "retry" : null,
+      retry_action: supportsDirectRetry && isV10JobRetryable(status, status === "succeeded" ? 0 : 1) ? "retry" : null,
       visibility_state: "visible",
     };
   });
 
   const coreSourceCommandRows = [
+    ...fieldProvenanceRows.map((row) => {
+      const contract = row.contract_id ? contractsById.get(String(row.contract_id)) : undefined;
+      return {
+        organization_id: organizationId,
+        workspace_mode: "core",
+        required_role_minimum: "viewer",
+        feature_family: "review",
+        source_table: row.source_table,
+        source_id: row.source_id,
+        record_type: "field",
+        record_id: row.source_id,
+        label: String(row.field_key).replace(/_/g, " "),
+        description_safe: [
+          "Field",
+          String(row.state).replace(/_/g, " "),
+          asString(contract?.title),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: row.contract_id ? `/contracts/${row.contract_id}?tab=overview#extracted-fields` : "/contracts/review",
+        rank_terms_safe: [row.field_key, row.state, contract?.title, contract?.counterparty, "field", "review"]
+          .filter(Boolean)
+          .map(String),
+        workspace_mode_minimum: "core",
+        module_key: "review",
+        plan_minimum: "core",
+        visibility_state: row.visibility_state,
+      };
+    }),
+    ...reminders.map((row) => {
+      const contractId = asString(row.contract_id);
+      const contract = contractId ? contractsById.get(contractId) : undefined;
+      const field = asString(row.field_id) ? fieldsById.get(String(row.field_id)) : undefined;
+      const fieldName = asString(field?.field_name);
+      const reminderType = String(row.reminder_type ?? fieldName ?? "reminder");
+      const reminderLabel = `${(fieldName ?? reminderType).replace(/_/g, " ")} reminder`;
+      const reminderDate = asString(row.reminder_date);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "core",
+        required_role_minimum: "viewer",
+        feature_family: "renewals",
+        source_table: "reminders",
+        source_id: String(row.id),
+        record_type: "reminder",
+        record_id: String(row.id),
+        label: reminderLabel,
+        description_safe: [
+          "Renewal reminder",
+          reminderDate ? `scheduled ${reminderDate}` : null,
+          asString(contract?.title),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: contractId ? `/contracts/${contractId}?tab=renewals` : "/contracts/renewals",
+        rank_terms_safe: [
+          reminderType,
+          fieldName,
+          reminderDate,
+          contract?.title,
+          contract?.counterparty,
+          "reminder",
+          "renewal",
+        ]
+          .filter(Boolean)
+          .map(String),
+        workspace_mode_minimum: "core",
+        module_key: "renewals",
+        plan_minimum: "core",
+        visibility_state: "visible",
+      };
+    }),
     ...obligationRows.map((row) => ({
       organization_id: organizationId,
       workspace_mode: "core",
@@ -1835,7 +2614,11 @@ export async function refreshV10ReadModelsForOrganization(
       record_id: row.report_run_id,
       label: `${String(row.report_family).replace(/_/g, " ")} run`,
       description_safe: `Report run · ${String(row.status).replace(/_/g, " ")}`,
-      href: `/reports?run=${row.report_run_id}`,
+      href: getV10CommandJobHref({
+        recordType: "report_run",
+        recordId: row.report_run_id,
+        retryAction: row.retry_action,
+      }),
       rank_terms_safe: [row.report_family, row.status, "report", "run"],
       workspace_mode_minimum: "core",
       module_key: "reports",
@@ -1843,24 +2626,156 @@ export async function refreshV10ReadModelsForOrganization(
       visibility_state: row.visibility_state,
     })),
     ...jobRows
-      .filter((row) => row.job_class === "contract_import" || row.job_class === "export")
+      .filter((row) => row.job_class === "contract_import" || row.job_class === "export" || row.job_class === "extraction")
       .map((row) => ({
         organization_id: organizationId,
         workspace_mode: "core",
         required_role_minimum: "viewer",
-        feature_family: row.job_class === "export" ? "exports" : "imports",
+        feature_family: row.job_class === "export" ? "exports" : row.job_class === "extraction" ? "contracts" : "imports",
         source_table: row.source_table,
         source_id: row.source_id,
-        record_type: row.job_class === "export" ? "export_job" : "import_job",
+        record_type: row.job_class === "export" ? "export_job" : row.job_class === "extraction" ? "extraction_job" : "import_job",
         record_id: row.job_id,
-        label: row.job_class === "export" ? "Export job" : "Import job",
+        label: row.job_class === "export" ? "Export job" : row.job_class === "extraction" ? "Extraction job" : "Import job",
         description_safe: `${String(row.job_class).replace(/_/g, " ")} · ${String(row.status).replace(/_/g, " ")}`,
-        href: row.job_class === "export" ? "/settings/health#exports" : "/settings/health#jobs",
-        rank_terms_safe: [row.job_class, row.status, row.failure_category, "job"].filter(Boolean).map(String),
+        href:
+          row.job_class === "extraction"
+            ? row.contract_id
+              ? `/contracts/${row.contract_id}`
+              : "/contracts/intake"
+            : getV10CommandJobHref({
+                recordType: row.job_class === "export" ? "export_job" : "import_job",
+                recordId: row.job_id,
+                retryAction: row.retry_action,
+              }),
+        rank_terms_safe: [
+          row.job_class,
+          row.status,
+          row.failure_category,
+          row.contract_id ? contractsById.get(String(row.contract_id))?.title : null,
+          row.contract_id ? contractsById.get(String(row.contract_id))?.counterparty : null,
+          "job",
+        ]
+          .filter(Boolean)
+          .map(String),
         workspace_mode_minimum: "core",
-        module_key: row.job_class === "export" ? "exports" : "imports",
+        module_key: row.job_class === "export" ? "exports" : row.job_class === "extraction" ? "contracts" : "imports",
         plan_minimum: "core",
         visibility_state: row.visibility_state,
+      })),
+    ...contractFiles.map((row) => {
+      const contract = contractsById.get(String(row.contract_id));
+      return {
+        organization_id: organizationId,
+        workspace_mode: "core",
+        required_role_minimum: "viewer",
+        feature_family: "contracts",
+        source_table: "contract_files",
+        source_id: String(row.id),
+        record_type: "file_upload",
+        record_id: String(row.id),
+        label: String(row.file_name ?? "Contract file"),
+        description_safe: ["Contract file", asString(row.file_type), asString(contract?.title)].filter(Boolean).join(" · "),
+        href: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts",
+        rank_terms_safe: [row.file_name, row.file_type, contract?.title, contract?.counterparty, "file", "upload"]
+          .filter(Boolean)
+          .map(String),
+        workspace_mode_minimum: "core",
+        module_key: "contracts",
+        plan_minimum: "core",
+        visibility_state: "visible",
+      };
+    }),
+    ...notificationRows
+      .filter((row) => String(row.delivery_status ?? "pending") !== "delivered")
+      .map((row) => {
+        const contract = row.contract_id ? contractsById.get(String(row.contract_id)) : undefined;
+        const failedDelivery = ["failed", "suppressed"].includes(String(row.delivery_status ?? "pending")) || Boolean(row.failure_category);
+        return {
+          organization_id: organizationId,
+          workspace_mode: "core",
+          required_role_minimum: "admin",
+          feature_family: "settings",
+          source_table: row.source_table,
+          source_id: row.source_id,
+          record_type: "notification_delivery",
+          record_id: row.notification_id,
+          label: `${String(row.notification_class).replace(/_/g, " ")} delivery`,
+          description_safe: [
+            "Notification delivery",
+            String(row.delivery_status).replace(/_/g, " "),
+            String(row.recipient_channel).replace(/_/g, " "),
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          href: failedDelivery ? "/settings/health" : "/settings/operations",
+          rank_terms_safe: [
+            row.notification_class,
+            row.delivery_status,
+            row.recipient_channel,
+            row.source_type,
+            contract?.title,
+            contract?.counterparty,
+            "notification",
+            "delivery",
+          ]
+            .filter(Boolean)
+            .map(String),
+          workspace_mode_minimum: "core",
+          module_key: "settings",
+          plan_minimum: "core",
+          visibility_state: row.visibility_state,
+        };
+      }),
+    ...refreshJobs
+      .filter((row) => {
+        const failureCount = asNumber(row.failure_count);
+        const failedSourceTables = asStringArray(row.failed_source_tables);
+        const staleSourceTables = asStringArray(row.stale_source_tables);
+        const driftState = String(row.drift_state ?? "fresh");
+        const status = String(row.status ?? "running");
+        return (
+          failureCount > 0 ||
+          failedSourceTables.length > 0 ||
+          staleSourceTables.length > 0 ||
+          driftState !== "fresh" ||
+          ["partial", "failed_retryable", "failed_terminal"].includes(status) ||
+          Boolean(asString(row.diagnostic_id))
+        );
+      })
+      .map((row) => ({
+        organization_id: organizationId,
+        workspace_mode: "core",
+        required_role_minimum: "admin",
+        feature_family: "settings",
+        source_table: "v10_read_model_refresh_jobs",
+        source_id: String(row.refresh_job_id),
+        record_type: "workspace_health_diagnostic",
+        record_id: String(row.refresh_job_id),
+        label: `${String(row.refresh_scope ?? "full").replace(/_/g, " ")} refresh diagnostic`,
+        description_safe: [
+          `Refresh ${String(row.status ?? "running").replace(/_/g, " ")}`,
+          String(row.drift_state ?? "fresh").replace(/_/g, " "),
+          `${asNumber(row.failure_count)} failure${asNumber(row.failure_count) === 1 ? "" : "s"}`,
+        ].join(" · "),
+        href: "/settings/health#read-models",
+        rank_terms_safe: [
+          row.refresh_reason,
+          row.refresh_scope,
+          row.status,
+          row.drift_state,
+          ...asStringArray(row.failed_source_tables),
+          ...asStringArray(row.stale_source_tables),
+          "refresh",
+          "health",
+          "diagnostic",
+        ]
+          .filter(Boolean)
+          .map(String),
+        workspace_mode_minimum: "core",
+        module_key: "settings",
+        plan_minimum: "core",
+        visibility_state: "visible",
       })),
   ];
 
@@ -1894,7 +2809,12 @@ export async function refreshV10ReadModelsForOrganization(
       record_id: item.source_id,
       label: item.title,
       description_safe: `${String(item.type).replace(/_/g, " ")} · ${String(item.status).replace(/_/g, " ")}`,
-      href: hrefFor({ type: item.type as V10WorkItemType, contractId: item.contract_id, sourceId: item.source_id }),
+      href: hrefFor({
+        type: item.type as V10WorkItemType,
+        contractId: item.contract_id,
+        sourceId: item.source_id,
+        primaryAction: item.primary_action,
+      }),
       rank_terms_safe: [item.title, item.type, item.status],
       workspace_mode_minimum: "core",
       module_key: "work",
@@ -1920,150 +2840,270 @@ export async function refreshV10ReadModelsForOrganization(
       plan_minimum: "core",
       visibility_state: "visible",
     })),
-    ...savedViews.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "core",
-      required_role_minimum: "viewer",
-      feature_family: "reports",
-      source_table: "saved_views",
-      source_id: String(row.id),
-      record_type: "saved_view",
-      record_id: String(row.id),
-      label: String(row.name ?? "Saved view"),
-      description_safe: `${String(row.view_type ?? "contracts").replace(/_/g, " ")} saved view`,
-      href: `/contracts?view=${row.id}`,
-      rank_terms_safe: [row.name, row.view_type, "saved view", asBoolean(row.pinned) ? "pinned" : null].filter(Boolean).map(String),
-      workspace_mode_minimum: "core",
-      module_key: "reports",
-      plan_minimum: "core",
-      visibility_state: "visible",
-    })),
-    ...accountWorkspaces.map((row) => ({
+    ...savedViews.map((row) => {
+      const meta = v10SavedViewCommandMeta(row);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "core",
+        required_role_minimum: "viewer",
+        feature_family: meta.featureFamily,
+        source_table: "saved_views",
+        source_id: String(row.id),
+        record_type: "saved_view",
+        record_id: String(row.id),
+        label: String(row.name ?? "Saved view"),
+        description_safe: `${String(row.view_type ?? "contracts").replace(/_/g, " ")} saved view`,
+        href: meta.href,
+        rank_terms_safe: [row.name, row.view_type, meta.moduleKey, "saved view", asBoolean(row.pinned) ? "pinned" : null]
+          .filter(Boolean)
+          .map(String),
+        workspace_mode_minimum: "core",
+        module_key: meta.moduleKey,
+        plan_minimum: "core",
+        visibility_state: "visible",
+      };
+    }),
+    ...accountWorkspaces.map((row) => {
+      const contractCount = v10SummaryContractCount(row.summary_json);
+      const healthStatus = v10HealthStatusLabel(row.health_signal_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "relationship_workspaces",
+        source_table: "account_workspaces",
+        source_id: String(row.id),
+        record_type: "account",
+        record_id: String(row.account_key ?? row.id),
+        label: String(row.display_name ?? row.account_key ?? "Account workspace"),
+        description_safe: ["Account operational summary", healthStatus, contractCount ? `${contractCount} contracts` : null]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/accounts/${encodeURIComponent(String(row.account_key ?? row.id))}`,
+        rank_terms_safe: v10CompactRankTerms(row.display_name, row.account_key, healthStatus, contractCount, "account", "relationship"),
+        workspace_mode_minimum: "advanced",
+        module_key: "relationship_workspaces",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
+    ...counterpartyWorkspaces.map((row) => {
+      const contractCount = v10SummaryContractCount(row.summary_json);
+      const healthStatus = v10HealthStatusLabel(row.health_signal_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "relationship_workspaces",
+        source_table: "counterparty_workspaces",
+        source_id: String(row.id),
+        record_type: "counterparty",
+        record_id: String(row.counterparty_key ?? row.id),
+        label: String(row.display_name ?? row.counterparty_key ?? "Counterparty workspace"),
+        description_safe: ["Counterparty operational summary", healthStatus, contractCount ? `${contractCount} contracts` : null]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/counterparties/${encodeURIComponent(String(row.counterparty_key ?? row.id))}`,
+        rank_terms_safe: v10CompactRankTerms(
+          row.display_name,
+          row.counterparty_key,
+          healthStatus,
+          contractCount,
+          "counterparty",
+          "relationship"
+        ),
+        workspace_mode_minimum: "advanced",
+        module_key: "relationship_workspaces",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
+    ...counterpartyWorkspaces.map((row) => {
+      const contractCount = v10SummaryContractCount(row.summary_json);
+      const healthStatus = v10HealthStatusLabel(row.health_signal_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "relationship_workspaces",
+        source_table: "counterparty_workspaces",
+        source_id: `${String(row.id)}:relationship`,
+        record_type: "relationship",
+        record_id: String(row.counterparty_key ?? row.id),
+        label: `${String(row.display_name ?? row.counterparty_key ?? "Counterparty")} relationship`,
+        description_safe: ["Relationship timeline", healthStatus, contractCount ? `${contractCount} contracts` : null]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/counterparties/${encodeURIComponent(String(row.counterparty_key ?? row.id))}?tab=relationships`,
+        rank_terms_safe: v10CompactRankTerms(
+          row.display_name,
+          row.counterparty_key,
+          healthStatus,
+          contractCount,
+          "relationship",
+          "timeline",
+          "account"
+        ),
+        workspace_mode_minimum: "advanced",
+        module_key: "relationship_workspaces",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
+    ...decisions.map((row) => {
+      const linkedContractIds = asStringArray(row.linked_contract_ids);
+      const linkedEntity = asString(row.linked_counterparty_key) ?? asString(row.linked_account_key);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "decisions",
+        source_table: "decision_workspaces",
+        source_id: String(row.id),
+        record_type: "decision",
+        record_id: String(row.id),
+        label: String(row.title ?? "Decision workspace"),
+        description_safe: [
+          String(row.decision_type ?? "decision").replace(/_/g, " "),
+          String(row.status ?? "open").replace(/_/g, " "),
+          linkedEntity,
+          linkedContractIds.length > 0 ? `${linkedContractIds.length} contracts` : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/decisions/${row.id}`,
+        rank_terms_safe: v10CompactRankTerms(
+          row.title,
+          row.decision_type,
+          row.status,
+          row.linked_account_key,
+          row.linked_counterparty_key,
+          linkedContractIds,
+          "decision"
+        ),
+        workspace_mode_minimum: "advanced",
+        module_key: "decisions",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
+    ...campaigns.map((row) => {
+      const contractCount = v10SummaryContractCount(row.progress_summary_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "campaigns",
+        source_table: "portfolio_campaigns",
+        source_id: String(row.id),
+        record_type: "campaign",
+        record_id: String(row.id),
+        label: String(row.name ?? "Portfolio campaign"),
+        description_safe: [
+          String(row.campaign_type ?? "campaign").replace(/_/g, " "),
+          String(row.status ?? "draft").replace(/_/g, " "),
+          contractCount ? `${contractCount} contracts` : null,
+          row.rollback_safe === true ? "rollback safe" : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/campaigns/${row.id}`,
+        rank_terms_safe: v10CompactRankTerms(
+          row.name,
+          row.campaign_type,
+          row.status,
+          contractCount,
+          row.rollback_safe === true ? "rollback safe" : null,
+          "campaign"
+        ),
+        workspace_mode_minimum: "advanced",
+        module_key: "campaigns",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
+    ...programs.map((row) => ({
       organization_id: organizationId,
       workspace_mode: "advanced",
       required_role_minimum: "viewer",
-      feature_family: "relationship_workspaces",
-      source_table: "account_workspaces",
+      feature_family: "programs",
+      source_table: "contract_programs",
       source_id: String(row.id),
-      record_type: "account",
-      record_id: String(row.account_key ?? row.id),
-      label: String(row.display_name ?? row.account_key ?? "Account workspace"),
-      description_safe: "Account operational summary",
-      href: `/accounts/${encodeURIComponent(String(row.account_key ?? row.id))}`,
-      rank_terms_safe: [row.display_name, row.account_key, "account", "relationship"].map(String).filter(Boolean),
-      workspace_mode_minimum: "advanced",
-      module_key: "relationship_workspaces",
-      plan_minimum: "advanced",
-      visibility_state: "visible",
-    })),
-    ...counterpartyWorkspaces.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "advanced",
-      required_role_minimum: "viewer",
-      feature_family: "relationship_workspaces",
-      source_table: "counterparty_workspaces",
-      source_id: String(row.id),
-      record_type: "counterparty",
-      record_id: String(row.counterparty_key ?? row.id),
-      label: String(row.display_name ?? row.counterparty_key ?? "Counterparty workspace"),
-      description_safe: "Counterparty operational summary",
-      href: `/counterparties/${encodeURIComponent(String(row.counterparty_key ?? row.id))}`,
-      rank_terms_safe: [row.display_name, row.counterparty_key, "counterparty", "relationship"].map(String).filter(Boolean),
-      workspace_mode_minimum: "advanced",
-      module_key: "relationship_workspaces",
-      plan_minimum: "advanced",
-      visibility_state: "visible",
-    })),
-    ...counterpartyWorkspaces.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "advanced",
-      required_role_minimum: "viewer",
-      feature_family: "relationship_workspaces",
-      source_table: "counterparty_workspaces",
-      source_id: `${String(row.id)}:relationship`,
-      record_type: "relationship",
-      record_id: String(row.counterparty_key ?? row.id),
-      label: `${String(row.display_name ?? row.counterparty_key ?? "Counterparty")} relationship`,
-      description_safe: "Relationship timeline and operating summary",
-      href: `/counterparties/${encodeURIComponent(String(row.counterparty_key ?? row.id))}?tab=relationships`,
-      rank_terms_safe: [row.display_name, row.counterparty_key, "relationship", "timeline", "account"].map(String).filter(Boolean),
-      workspace_mode_minimum: "advanced",
-      module_key: "relationship_workspaces",
-      plan_minimum: "advanced",
-      visibility_state: "visible",
-    })),
-    ...decisions.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "advanced",
-      required_role_minimum: "viewer",
-      feature_family: "decisions",
-      source_table: "decision_workspaces",
-      source_id: String(row.id),
-      record_type: "decision",
+      record_type: "program",
       record_id: String(row.id),
-      label: String(row.title ?? "Decision workspace"),
-      description_safe: `${String(row.decision_type ?? "decision").replace(/_/g, " ")} · ${String(row.status ?? "open").replace(/_/g, " ")}`,
-      href: `/decisions/${row.id}`,
-      rank_terms_safe: [row.title, row.decision_type, row.status, "decision"].map(String).filter(Boolean),
+      label: String(row.name ?? "Contract program"),
+      description_safe: `${String(row.state ?? "draft").replace(/_/g, " ")} · ${String(row.description ?? "Reusable execution blueprint")}`,
+      href: `/contracts/programs?programId=${encodeURIComponent(String(row.id))}`,
+      rank_terms_safe: v10CompactRankTerms(row.name, row.description, row.state, row.current_version_id, "program", "contract program"),
       workspace_mode_minimum: "advanced",
-      module_key: "decisions",
+      module_key: "programs",
       plan_minimum: "advanced",
       visibility_state: "visible",
     })),
-    ...campaigns.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "advanced",
-      required_role_minimum: "viewer",
-      feature_family: "campaigns",
-      source_table: "portfolio_campaigns",
-      source_id: String(row.id),
-      record_type: "campaign",
-      record_id: String(row.id),
-      label: String(row.name ?? "Portfolio campaign"),
-      description_safe: `${String(row.campaign_type ?? "campaign").replace(/_/g, " ")} · ${String(row.status ?? "draft").replace(/_/g, " ")}`,
-      href: `/campaigns/${row.id}`,
-      rank_terms_safe: [row.name, row.campaign_type, row.status, "campaign"].map(String).filter(Boolean),
-      workspace_mode_minimum: "advanced",
-      module_key: "campaigns",
-      plan_minimum: "advanced",
-      visibility_state: "visible",
-    })),
-    ...findings.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "assurance",
-      required_role_minimum: "viewer",
-      feature_family: "findings",
-      source_table: "assurance_findings",
-      source_id: String(row.id),
-      record_type: "finding",
-      record_id: String(row.id),
-      label: String(row.title ?? "Assurance finding"),
-      description_safe: `${String(row.severity ?? "medium")} · ${String(row.status ?? "open").replace(/_/g, " ")}`,
-      href: `/assurance/findings/${row.id}`,
-      rank_terms_safe: [row.title, row.finding_type, row.severity, row.status, "finding"].map(String).filter(Boolean),
-      workspace_mode_minimum: "assurance",
-      module_key: "findings",
-      plan_minimum: "assurance",
-      visibility_state: "visible",
-    })),
-    ...controls.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "assurance",
-      required_role_minimum: "viewer",
-      feature_family: "control_policies",
-      source_table: "control_policies",
-      source_id: String(row.id),
-      record_type: "control",
-      record_id: String(row.id),
-      label: String(row.name ?? "Control policy"),
-      description_safe: `${String(row.enforcement_mode ?? "observe_only").replace(/_/g, " ")} · ${String(row.status ?? "draft").replace(/_/g, " ")}`,
-      href: `/assurance/control-policies/${row.id}`,
-      rank_terms_safe: [row.name, row.enforcement_mode, row.status, "control"].map(String).filter(Boolean),
-      workspace_mode_minimum: "assurance",
-      module_key: "control_policies",
-      plan_minimum: "assurance",
-      visibility_state: "visible",
-    })),
+    ...findings.map((row) => {
+      const linkedEntities = asObject(row.linked_entities_json);
+      const contractCount = v10SummaryContractCount(linkedEntities);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "assurance",
+        required_role_minimum: "viewer",
+        feature_family: "findings",
+        source_table: "assurance_findings",
+        source_id: String(row.id),
+        record_type: "finding",
+        record_id: String(row.id),
+        label: String(row.title ?? "Assurance finding"),
+        description_safe: [
+          String(row.severity ?? "medium"),
+          String(row.status ?? "open").replace(/_/g, " "),
+          String(row.finding_type ?? "finding").replace(/_/g, " "),
+          contractCount ? `${contractCount} contracts` : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/assurance/findings/${row.id}`,
+        rank_terms_safe: v10CompactRankTerms(
+          row.title,
+          row.finding_type,
+          row.severity,
+          row.status,
+          linkedEntities.owner_user_id,
+          linkedEntities.contract_ids,
+          "finding"
+        ),
+        workspace_mode_minimum: "assurance",
+        module_key: "findings",
+        plan_minimum: "assurance",
+        visibility_state: "visible",
+      };
+    }),
+    ...controls.map((row) => {
+      const severityModel = asObject(row.severity_model_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "assurance",
+        required_role_minimum: "viewer",
+        feature_family: "control_policies",
+        source_table: "control_policies",
+        source_id: String(row.id),
+        record_type: "control",
+        record_id: String(row.id),
+        label: String(row.name ?? "Control policy"),
+        description_safe: [
+          String(row.enforcement_mode ?? "observe_only").replace(/_/g, " "),
+          String(row.status ?? "draft").replace(/_/g, " "),
+          asString(severityModel.default_severity),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/assurance/control-policies/${row.id}`,
+        rank_terms_safe: v10CompactRankTerms(row.name, row.enforcement_mode, row.status, severityModel.default_severity, "control"),
+        workspace_mode_minimum: "assurance",
+        module_key: "control_policies",
+        plan_minimum: "assurance",
+        visibility_state: "visible",
+      };
+    }),
     ...playbookRuns.map((row) => ({
       organization_id: organizationId,
       workspace_mode: "assurance",
@@ -2074,9 +3114,14 @@ export async function refreshV10ReadModelsForOrganization(
       record_type: "playbook",
       record_id: String(row.id),
       label: "Adaptive playbook run",
-      description_safe: String(row.status ?? "queued").replace(/_/g, " "),
+      description_safe: [
+        String(row.status ?? "queued").replace(/_/g, " "),
+        row.source_finding_id ? "linked finding" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: `/assurance/playbooks?run=${encodeURIComponent(String(row.id))}`,
-      rank_terms_safe: [row.status, "playbook", "adaptive playbook", "assurance"].map(String).filter(Boolean),
+      rank_terms_safe: v10CompactRankTerms(row.status, row.source_finding_id, row.run_by, "playbook", "adaptive playbook", "assurance"),
       workspace_mode_minimum: "assurance",
       module_key: "playbooks",
       plan_minimum: "assurance",
@@ -2092,32 +3137,46 @@ export async function refreshV10ReadModelsForOrganization(
       record_type: "automation_run",
       record_id: String(row.id),
       label: "Automation run",
-      description_safe: String(row.status ?? "queued").replace(/_/g, " "),
+      description_safe: [
+        String(row.status ?? "queued").replace(/_/g, " "),
+        row.source_finding_id ? "linked finding" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: `/assurance/playbooks?run=${encodeURIComponent(String(row.id))}`,
-      rank_terms_safe: [row.status, "automation", "automation approval", "playbook"].map(String).filter(Boolean),
+      rank_terms_safe: v10CompactRankTerms(row.status, row.source_finding_id, row.run_by, "automation", "automation approval", "playbook"),
       workspace_mode_minimum: "assurance",
       module_key: "playbooks",
       plan_minimum: "assurance",
       visibility_state: "visible",
     })),
-    ...simulations.map((row) => ({
-      organization_id: organizationId,
-      workspace_mode: "advanced",
-      required_role_minimum: "viewer",
-      feature_family: "simulations",
-      source_table: "change_simulations",
-      source_id: String(row.id),
-      record_type: "simulation",
-      record_id: String(row.id),
-      label: String(row.name ?? "Change simulation"),
-      description_safe: `${String(row.simulation_type ?? "simulation").replace(/_/g, " ")} · ${String(row.status ?? "completed").replace(/_/g, " ")}`,
-      href: `/campaigns/compare?simulation=${encodeURIComponent(String(row.id))}`,
-      rank_terms_safe: [row.name, row.simulation_type, row.status, "simulation"].map(String).filter(Boolean),
-      workspace_mode_minimum: "advanced",
-      module_key: "simulations",
-      plan_minimum: "advanced",
-      visibility_state: "visible",
-    })),
+    ...simulations.map((row) => {
+      const contractCount = v10SummaryContractCount(row.input_json);
+      return {
+        organization_id: organizationId,
+        workspace_mode: "advanced",
+        required_role_minimum: "viewer",
+        feature_family: "simulations",
+        source_table: "change_simulations",
+        source_id: String(row.id),
+        record_type: "simulation",
+        record_id: String(row.id),
+        label: String(row.name ?? "Change simulation"),
+        description_safe: [
+          String(row.simulation_type ?? "simulation").replace(/_/g, " "),
+          String(row.status ?? "completed").replace(/_/g, " "),
+          contractCount ? `${contractCount} contracts` : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        href: `/campaigns/compare?simulation=${encodeURIComponent(String(row.id))}`,
+        rank_terms_safe: v10CompactRankTerms(row.name, row.simulation_type, row.status, row.owner_user_id, contractCount, "simulation"),
+        workspace_mode_minimum: "advanced",
+        module_key: "simulations",
+        plan_minimum: "advanced",
+        visibility_state: "visible",
+      };
+    }),
     ...scorecards.map((row) => ({
       organization_id: organizationId,
       workspace_mode: "assurance",
@@ -2128,9 +3187,15 @@ export async function refreshV10ReadModelsForOrganization(
       record_type: "scorecard",
       record_id: String(row.id),
       label: String(row.name ?? "Assurance scorecard"),
-      description_safe: `Score ${String(row.overall_score ?? "not available")} · ${String(row.status ?? "active").replace(/_/g, " ")}`,
+      description_safe: [
+        `Score ${String(row.overall_score ?? "not available")}`,
+        String(row.status ?? "active").replace(/_/g, " "),
+        row.owner_user_id ? "owner assigned" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: `/assurance/scorecards?scorecard=${encodeURIComponent(String(row.id))}`,
-      rank_terms_safe: [row.name, row.status, "scorecard", "assurance"].map(String).filter(Boolean),
+      rank_terms_safe: v10CompactRankTerms(row.name, row.status, row.owner_user_id, row.overall_score, "scorecard", "assurance"),
       workspace_mode_minimum: "assurance",
       module_key: "scorecards",
       plan_minimum: "assurance",
@@ -2146,9 +3211,15 @@ export async function refreshV10ReadModelsForOrganization(
       record_type: "review_board",
       record_id: String(row.id),
       label: String(row.name ?? "Review board"),
-      description_safe: String(row.status ?? "active").replace(/_/g, " "),
+      description_safe: [
+        String(row.status ?? "active").replace(/_/g, " "),
+        "board workflow",
+        row.owner_user_id ? "owner assigned" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: `/assurance/review-boards`,
-      rank_terms_safe: [row.name, row.status, "review board", "assurance"].map(String).filter(Boolean),
+      rank_terms_safe: v10CompactRankTerms(row.name, row.status, row.owner_user_id, "review board", "assurance"),
       workspace_mode_minimum: "assurance",
       module_key: "review_boards",
       plan_minimum: "assurance",
@@ -2164,38 +3235,77 @@ export async function refreshV10ReadModelsForOrganization(
       record_type: "health_graph",
       record_id: String(row.id),
       label: "Portfolio health graph",
-      description_safe: String(row.edge_type ?? "health relationship").replace(/_/g, " "),
+      description_safe: [
+        String(row.edge_type ?? "health relationship").replace(/_/g, " "),
+        row.source_node_id && row.target_node_id ? "linked nodes" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: "/assurance/health-graph",
-      rank_terms_safe: [row.edge_type, "health graph", "assurance"].map(String).filter(Boolean),
+      rank_terms_safe: v10CompactRankTerms(row.edge_type, row.source_node_id, row.target_node_id, "health graph", "assurance"),
       workspace_mode_minimum: "assurance",
       module_key: "health_graph",
       plan_minimum: "assurance",
       visibility_state: "visible",
     })),
-    ...["/settings", "/settings/product", "/settings/health"].map((href) => ({
+    ...segments.map((row) => ({
       organization_id: organizationId,
-      workspace_mode: "core",
+      workspace_mode: "assurance",
       required_role_minimum: "viewer",
-      feature_family: "settings",
-      source_table: "v10_settings_destination",
-      source_id: href,
-      record_type: "settings_destination",
-      record_id: href,
-      label: href === "/settings/product" ? "Product experience settings" : href === "/settings/health" ? "Workspace health settings" : "Settings",
-      description_safe: "V10 settings destination",
-      href,
-      rank_terms_safe: [href, "settings", "workspace health", "product experience"],
-      workspace_mode_minimum: "core",
-      module_key: "settings",
-      plan_minimum: "core",
+      feature_family: "segments",
+      source_table: "segment_definitions",
+      source_id: String(row.id),
+      record_type: "segment",
+      record_id: String(row.id),
+      label: String(row.name ?? row.key ?? "Segment"),
+      description_safe: `${String(row.segment_type ?? "segment").replace(/_/g, " ")} · ${row.active === false ? "inactive" : "active"}`,
+      href: `/assurance/segments?segmentId=${encodeURIComponent(String(row.id))}`,
+      rank_terms_safe: v10CompactRankTerms(row.name, row.key, row.segment_type, row.active === false ? "inactive" : "active", "segment"),
+      workspace_mode_minimum: "assurance",
+      module_key: "segments",
+      plan_minimum: "assurance",
       visibility_state: "visible",
     })),
+    ...programEvolutionExperiments.map((row) => ({
+      organization_id: organizationId,
+      workspace_mode: "assurance",
+      required_role_minimum: "viewer",
+      feature_family: "program_evolution",
+      source_table: "program_evolution_experiments",
+      source_id: String(row.id),
+      record_type: "program_evolution",
+      record_id: String(row.id),
+      label: String(row.hypothesis ?? "Program evolution experiment"),
+      description_safe: [
+        String(row.status ?? "draft").replace(/_/g, " "),
+        "program evolution",
+        row.program_id ? "linked program" : null,
+        row.target_segment_id ? "target segment" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      href: `/assurance/program-evolution?experimentId=${encodeURIComponent(String(row.id))}`,
+      rank_terms_safe: v10CompactRankTerms(row.hypothesis, row.status, row.program_id, row.target_segment_id, "program evolution", "experiment"),
+      workspace_mode_minimum: "assurance",
+      module_key: "program_evolution",
+      plan_minimum: "assurance",
+      visibility_state: "visible",
+    })),
+    ...v10CommandRowsForStaticDestinations(organizationId),
   ];
-  const commandRows = rawCommandRows.map((row) => ({
-    ...row,
-    href: sanitizeV10InternalHref(row.href),
-    updated_at: refreshedAt,
-  }));
+  const commandRows = rawCommandRows.map((row) => {
+    const href = sanitizeV10InternalHref(String(row.href));
+    return {
+      ...row,
+      feature_family: resolveSearchIndexFeatureFamily({
+        featureFamily: row.feature_family,
+        moduleKey: row.module_key,
+        href,
+      }),
+      href,
+      updated_at: refreshedAt,
+    };
+  });
 
   const auditReadModelRows = auditEvents.map((row) => ({
     ...sharedReadModelRow({
@@ -2530,7 +3640,10 @@ export async function refreshV10ReadModelsForOrganization(
       required_role_minimum: String(row.required_role_minimum ?? "viewer"),
       feature_family: String(row.feature_family ?? modelKey),
       source_table: String(row.source_table ?? modelKey),
-      source_id: String(row.source_id ?? row.id ?? modelKey),
+      source_id:
+        modelKey === "job_run_visibility"
+          ? `${String(row.job_class ?? "job")}:${String(row.job_id ?? row.source_id ?? row.id ?? modelKey)}`
+          : String(row.source_id ?? row.id ?? modelKey),
       model_key: modelKey,
       fields: {
         ...row,

@@ -5,8 +5,16 @@ import { appendCasefileEvent } from "@/lib/v4/casefile";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import {
+  getV10ExceptionResolutionActionFeature,
+  getV10ExceptionResolutionActionLabel,
+  type V10ExceptionResolutionAction,
+  validateV10ExceptionResolution,
+} from "@/lib/v10-approval-exception";
 import {
   buildV10MutationResponse,
   buildV10MutationResponseInit,
@@ -24,6 +32,21 @@ const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
   return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
+}
+
+async function resolutionActionAllowed(input: {
+  admin: Parameters<typeof loadProductSurfaceContext>[0];
+  orgId: string;
+  role: string;
+  resolutionAction: V10ExceptionResolutionAction;
+}) {
+  const feature = getV10ExceptionResolutionActionFeature(input.resolutionAction);
+  if (!feature) return true;
+  const productSurface = await loadProductSurfaceContext(input.admin as never, input.orgId, input.role as never);
+  return evaluateFeatureEligibility(productSurface, feature, {
+    surfaceType: "api",
+    surfaceIdentifier: "/api/exceptions/[id]/[action]",
+  }).allowed;
 }
 
 export async function POST(
@@ -62,7 +85,7 @@ export async function POST(
 
   const { data: row } = await ctx.admin
     .from("exceptions")
-    .select("id, contract_id, status, reopen_count, updated_at")
+    .select("id, contract_id, status, severity, reopen_count, updated_at")
     .eq("id", id)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
@@ -80,6 +103,7 @@ export async function POST(
   if (!_lb_body.ok) return _lb_body.response;
   const body = (_lb_body.body ?? {}) as {
     ownerId?: string;
+    resolutionAction?: string;
     resolutionNote?: string;
     rootCause?: string;
     dueDate?: string;
@@ -119,6 +143,13 @@ export async function POST(
         payload: { action, owner_id: ownerId, due_date: body.dueDate ?? null },
       },
       async () => {
+        if (!["open", "in_progress"].includes(String(row.status ?? "open"))) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only active exceptions can be reassigned.",
+            diagnosticId: "v10_exception_assign_not_active",
+          });
+        }
         if (!ownerId) {
           return buildV10MutationResponse({
             outcome: "validation_failed",
@@ -222,6 +253,7 @@ export async function POST(
   }
 
   if (action === "resolve") {
+    const resolutionAction = String(body.resolutionAction ?? "fixed").trim() || "fixed";
     const mutation = await executeV10IdempotentMutation(
       ctx.admin,
       {
@@ -233,13 +265,67 @@ export async function POST(
         idempotencyKey: getV10IdempotencyKeyFromRequest(request),
         expectedVersion: getV10ExpectedVersionFromRequest(request),
         currentVersion: row.updated_at ?? row.status,
-        payload: { action, root_cause_state: body.rootCause?.trim() ? "provided" : "not_provided", resolution_note_state: body.resolutionNote?.trim() ? "provided" : "not_provided" },
+        payload: {
+          action,
+          resolution_action: resolutionAction,
+          root_cause_state: body.rootCause?.trim() ? "provided" : "not_provided",
+          resolution_note_state: body.resolutionNote?.trim() ? "provided" : "not_provided",
+        },
       },
       async () => {
+        if (!["open", "in_progress"].includes(String(row.status ?? "open"))) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only active exceptions can be resolved.",
+            diagnosticId: "v10_exception_resolve_not_active",
+          });
+        }
+        const resolutionFailures = validateV10ExceptionResolution({
+          resolutionAction,
+          severity: row.severity as never,
+          note: body.resolutionNote?.trim() || null,
+        });
+        if (resolutionFailures.includes("resolution_action_invalid")) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Select a valid exception resolution action.",
+            diagnosticId: "v10_exception_resolution_action_invalid",
+          });
+        }
+        if (resolutionFailures.includes("resolution_note_required_for_high_risk")) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Add a resolution note before resolving a high-risk exception.",
+            diagnosticId: "v10_exception_resolution_note_required",
+            validationFailures: [
+              {
+                field: "resolutionNote",
+                code: "required",
+                user_visible_message: "Add a resolution note before resolving a high-risk exception.",
+                self_fixable: true,
+              },
+            ],
+          });
+        }
+        if (
+          !(await resolutionActionAllowed({
+            admin: ctx.admin,
+            orgId: ctx.orgId,
+            role: ctx.role,
+            resolutionAction: resolutionAction as V10ExceptionResolutionAction,
+          }))
+        ) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "This resolution path is not available in the current workspace configuration.",
+            diagnosticId: "v10_exception_resolution_action_unavailable",
+          });
+        }
         const { error } = await ctx.admin
           .from("exceptions")
           .update({
             status: "resolved",
+            resolution_action: resolutionAction,
             root_cause: body.rootCause?.trim() || null,
             resolution_note: body.resolutionNote?.trim() || null,
             resolved_at: now,
@@ -260,7 +346,11 @@ export async function POST(
           exception_id: id,
           event_type: "resolved",
           actor_user_id: ctx.userId,
-          details: { root_cause: body.rootCause ?? null, resolution_note: body.resolutionNote ?? null },
+          details: {
+            resolution_action: resolutionAction,
+            root_cause: body.rootCause ?? null,
+            resolution_note: body.resolutionNote ?? null,
+          },
         });
         if (row.contract_id) {
           await appendCasefileEvent({
@@ -280,6 +370,7 @@ export async function POST(
           entityId: id,
           payload: {
             contract_id: row.contract_id,
+            resolution_action: resolutionAction,
             resolution_note: body.resolutionNote ?? null,
           },
         });
@@ -290,6 +381,7 @@ export async function POST(
           action: "product.v10.exception_resolution_recorded",
           details: {
             exception_id: id,
+            resolution_action: resolutionAction,
             root_cause_state: body.rootCause?.trim() ? "provided" : "not_provided",
             resolution_note_state: body.resolutionNote?.trim() ? "provided" : "not_provided",
           },
@@ -307,7 +399,10 @@ export async function POST(
           outcome: "success",
           beforeStateHash: String(row.status ?? "open"),
           afterStateHash: "resolved",
-          safeMetadata: { resolution_note_state: body.resolutionNote?.trim() ? "provided" : "not_provided" },
+          safeMetadata: {
+            resolution_action: resolutionAction,
+            resolution_note_state: body.resolutionNote?.trim() ? "provided" : "not_provided",
+          },
         });
         await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
           refreshScope: row.contract_id ? "one_contract" : "one_model",
@@ -317,7 +412,9 @@ export async function POST(
         });
         return buildV10MutationResponse({
           outcome: auditEventId ? "success" : "audit_write_failed",
-          message: auditEventId ? "Exception resolved." : "Exception was not resolved because audit confirmation failed.",
+          message: auditEventId
+            ? `${getV10ExceptionResolutionActionLabel(resolutionAction as V10ExceptionResolutionAction)} saved.`
+            : "Exception was not resolved because audit confirmation failed.",
           changedObjectType: "exception",
           changedObjectId: id,
           nextDestinationHref: row.contract_id ? `/contracts/${row.contract_id}?tab=audit` : "/contracts/exceptions?status=resolved",
@@ -344,10 +441,18 @@ export async function POST(
         payload: { action, reopen_count: (row.reopen_count ?? 0) + 1 },
       },
       async () => {
+        if (!["resolved", "closed"].includes(String(row.status ?? "resolved"))) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only resolved exceptions can be reopened.",
+            diagnosticId: "v10_exception_reopen_not_resolved",
+          });
+        }
         const { error } = await ctx.admin
           .from("exceptions")
           .update({
             status: "open",
+            resolution_action: null,
             resolved_at: null,
             resolved_by: null,
             reopen_count: (row.reopen_count ?? 0) + 1,

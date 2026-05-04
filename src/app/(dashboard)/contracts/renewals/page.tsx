@@ -119,9 +119,7 @@ function checklistTone(coverage: number, contractsWithoutChecklist: number): Ope
   return "healthy";
 }
 
-export default async function RenewalsWorkspacePage(props: {
-  searchParams: Promise<{ horizon?: string }>;
-}) {
+export default async function RenewalsWorkspacePage(props: { searchParams: Promise<{ horizon?: string }> }) {
   const { horizon: horizonRaw } = await props.searchParams;
   const horizon = (HORIZON_OPTIONS.find((o) => o.value === horizonRaw)?.value ??
     "renewal_90") as DeadlinePreset;
@@ -156,6 +154,7 @@ export default async function RenewalsWorkspacePage(props: {
     contractsData && contractsData.length > 0
       ? await attachOwnerProfiles(
           admin,
+          orgId,
           contractsData as Array<{
             id: string;
             title: string;

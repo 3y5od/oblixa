@@ -7,7 +7,7 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 import { enforceIdempotency } from "@/lib/idempotency";
-import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { requireBearerSecret } from "@/lib/security/api-guards";
 import { isUuid } from "@/lib/security/validation";
 
 /**
@@ -35,18 +35,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const secret = process.env.EXTRACTION_WORKER_SECRET?.trim();
-  if (!secret) {
-    return NextResponse.json(
-      { error: "Worker not configured" },
-      { status: 503 }
-    );
-  }
-
-  const token = parseBearerToken(request.headers.get("authorization"));
-  if (!token || !secureCompareUtf8(token, secret)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = requireBearerSecret(request, "EXTRACTION_WORKER_SECRET", {
+    missingSecretResponse: () =>
+      NextResponse.json({ error: "Worker not configured" }, { status: 503 }),
+  });
+  if (auth) return auth;
 
   const _lim = await readJsonBodyLimited(request);
   if (!_lim.ok) return _lim.response;

@@ -390,7 +390,7 @@ for (const token of [
 }
 
 const v10Semgrep = readFileSync(join(root, "semgrep/oblixa-v10-surface.yml"), "utf8");
-if (v10Semgrep.includes("severity: WARNING")) failures.push("v10-semgrep-warning-severity");
+if (/severity:\s*(WARNING|INFO)\b/.test(v10Semgrep)) failures.push("v10-semgrep-nonblocking-severity");
 if ((v10Semgrep.match(/severity: ERROR/g) ?? []).length < 2) failures.push("v10-semgrep-error-severity-missing");
 
 const ledger = readFileSync(join(root, "src/lib/v10-traceability-ledger.ts"), "utf8");
@@ -820,22 +820,38 @@ const routeImplementationChecks = [
   {
     routePath: "/api/cron/v10/idempotency-cleanup",
     file: "src/app/api/cron/v10/idempotency-cleanup/route.ts",
-    tokens: ["ensureCronAuthorized", "cleanup_expired_v10_mutation_idempotency", "Cache-Control"],
+    tokens: [["ensureCronAuthorized", "withCronRoute"], "cleanup_expired_v10_mutation_idempotency", ["Cache-Control", "PRIVATE_NO_STORE_HEADERS", "withCronRoute"]],
   },
   {
     routePath: "/api/cron/v10/runtime-artifact-cleanup",
     file: "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
-    tokens: ["ensureCronAuthorized", "cleanup_expired_v10_runtime_artifacts", "cleanup_old_v10_read_model_refresh_jobs", "Cache-Control"],
+    tokens: [
+      ["ensureCronAuthorized", "withCronRoute"],
+      "cleanup_expired_v10_runtime_artifacts",
+      "cleanup_old_v10_read_model_refresh_jobs",
+      ["Cache-Control", "PRIVATE_NO_STORE_HEADERS", "withCronRoute"],
+    ],
   },
   {
     routePath: "/api/cron/v10/read-model-refresh",
     file: "src/app/api/cron/v10/read-model-refresh/route.ts",
-    tokens: ["ensureCronAuthorized", "refreshV10ReadModelsForOrganization", "recordV10AuditEvent", "Cache-Control"],
+    tokens: [
+      ["ensureCronAuthorized", "withCronRoute"],
+      "refreshV10ReadModelsForOrganization",
+      "recordV10AuditEvent",
+      ["Cache-Control", "PRIVATE_NO_STORE_HEADERS", "withCronRoute"],
+    ],
   },
 ];
 for (const check of routeImplementationChecks) {
   const source = readFileSync(join(root, check.file), "utf8");
   for (const token of check.tokens) {
+    if (Array.isArray(token)) {
+      if (!token.some((candidate) => source.includes(candidate))) {
+        failures.push(`missing-route-implementation-token:${check.routePath}:${token.join("|")}`);
+      }
+      continue;
+    }
     if (!source.includes(token)) failures.push(`missing-route-implementation-token:${check.routePath}:${token}`);
   }
 }

@@ -16,7 +16,7 @@ vi.mock("@/lib/v6/org-settings", () => ({
   getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
 }));
 
-function adminForRuns(packReportType: string) {
+function adminForRuns(packReportType: string, runs: Array<Record<string, unknown>> = []) {
   return {
     from: vi.fn((table: string) => {
       if (table === "report_packs") {
@@ -44,7 +44,7 @@ function adminForRuns(packReportType: string) {
             eq: vi.fn(() => ({
               eq: vi.fn(() => ({
                 order: vi.fn(() => ({
-                  limit: vi.fn(async () => ({ data: [], error: null })),
+                  limit: vi.fn(async () => ({ data: runs, error: null })),
                 })),
               })),
             })),
@@ -101,5 +101,33 @@ describe("GET /api/report-packs/[id]/runs", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.runs).toEqual([]);
+  });
+
+  it("neutralizes spreadsheet formulas in CSV export", async () => {
+    getApiAuthContext.mockResolvedValue({
+      admin: adminForRuns("workspace_health_report", [
+        {
+          id: "run-1",
+          status: "succeeded",
+          started_at: "2026-05-01T00:00:00.000Z",
+          completed_at: "2026-05-01T00:01:00.000Z",
+          created_at: "2026-05-01T00:00:00.000Z",
+          metrics_json: { dangerous: "=SUM(1,1)" },
+          output_refs_json: {},
+          error: null,
+        },
+      ]),
+      userId: "u1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/report-packs/[id]/runs/route");
+    const res = await GET(new Request("http://localhost/api/report-packs/p1/runs?format=csv"), {
+      params: Promise.resolve({ id: "p1" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(await res.text()).toContain("'=SUM(1,1)");
   });
 });

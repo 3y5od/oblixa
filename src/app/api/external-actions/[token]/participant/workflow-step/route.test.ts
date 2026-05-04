@@ -140,4 +140,45 @@ describe("POST /api/external-actions/[token]/participant/workflow-step", () => {
       undefined
     );
   });
+
+  it("blocks duplicate replay of participant workflow-step with x-idempotency-key", async () => {
+    let idempotencySeen = false;
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    rateLimitCheck.mockImplementation(async (key: string) => {
+      if (key.startsWith("idem:external-workflow.participant-step:tok:")) {
+        if (idempotencySeen) return { ok: false, retryAfterMs: 6000 };
+        idempotencySeen = true;
+      }
+      return { ok: true };
+    });
+    mockOpenLink();
+    mockedAppend.mockResolvedValueOnce({
+      data: { id: "ea-dup", status: "open", scope_json: {} },
+      error: null,
+    } as Awaited<ReturnType<typeof appendExternalWorkflowStep>>);
+
+    const { POST } = await import("./route");
+    const buildRequest = () =>
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "participant-workflow-replay-0001",
+        },
+        body: JSON.stringify({ stepType: "participant_note", payload: { note: "ok" }, passcode: "any" }),
+      });
+
+    const first = await POST(buildRequest(), { params: Promise.resolve({ token: "tok" }) });
+    const second = await POST(buildRequest(), { params: Promise.resolve({ token: "tok" }) });
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(409);
+    await expect(second.json()).resolves.toMatchObject({
+      error: "Duplicate request blocked by idempotency key",
+      retryAfterMs: 6000,
+    });
+    expect(mockedAppend).toHaveBeenCalledTimes(1);
+  });
 });

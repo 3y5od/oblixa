@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { collectEffectiveRouteStateRows } from "./route-state-utils.mjs";
 import YAML from "yaml";
 
 const APP_FILENAMES = new Set([
@@ -263,14 +264,14 @@ function readHrefDestinations(root) {
 function buildAppRouteRows(root, cronPaths) {
   const appRoot = path.join(root, "src", "app");
   const files = walk(appRoot, (_full, name) => APP_FILENAMES.has(name)).sort((a, b) => a.localeCompare(b));
-  const statesByRoute = new Map();
+  const allStateRows = [];
   for (const file of files) {
     const name = path.basename(file);
     if (!STATE_FILENAMES.has(name)) continue;
     const route = appFileToRoute(appRoot, file);
     const kind = name.replace(".tsx", "").replace("global-error", "error").replace("not-found", "not_found");
     const row = { kind, sourcePath: rel(root, file), shellFamily: appShellFamily(appRoot, file) };
-    statesByRoute.set(route, [...(statesByRoute.get(route) ?? []), row]);
+    allStateRows.push({ route, ...row });
   }
 
   return files.map((file) => {
@@ -283,7 +284,8 @@ function buildAppRouteRows(root, cronPaths) {
     const cls = routeClass(route, kind === "api_route" ? "api" : kind, cronPaths);
     const db = detectDbDependencies(source);
     const requiredStates = requiredStatesForRoute(cls, auth);
-    const presentStates = (statesByRoute.get(route) ?? []).map((state) => state.kind);
+    const shellFamily = appShellFamily(appRoot, file);
+    const presentStates = [...new Set(collectEffectiveRouteStateRows(route, shellFamily, allStateRows).map((state) => state.kind))];
     return {
       id: `${kind}:${route}:${rel(root, file)}`,
       route,
@@ -291,7 +293,7 @@ function buildAppRouteRows(root, cronPaths) {
       sourcePath: rel(root, file),
       kind,
       class: cls,
-      shellFamily: appShellFamily(appRoot, file),
+      shellFamily,
       methods,
       runtime: runtimeFromSource(source, kind === "page" ? "page" : kind),
       dynamicSegments: dynamicSegments(route),
@@ -308,7 +310,7 @@ function buildAppRouteRows(root, cronPaths) {
       routeStates: {
         required: requiredStates,
         present: presentStates,
-        inheritedShell: appShellFamily(appRoot, file),
+        inheritedShell: shellFamily,
       },
       performanceBudget: performanceBudget(cls),
       owner: routeOwner(route, cls),

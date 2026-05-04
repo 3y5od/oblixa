@@ -14,4 +14,14 @@ describe("GET /api/reports/capture-metrics", () => {
     const res = await GET(req);
     expect(res.status).toBe(401);
   });
+
+  it("returns 503 when cron auth env is missing", async () => {
+    delete process.env.CRON_SECRET;
+    const { GET } = await import("@/app/api/reports/capture-metrics/route");
+    const req = new Request("http://localhost:3000/api/reports/capture-metrics");
+    const res = await GET(req);
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body.code).toBe("cron_secret_missing");
+  });
 });

@@ -18,6 +18,7 @@ import {
 import { executeV10IdempotentMutation, getV10ExpectedVersionFromRequest, getV10IdempotencyKeyFromRequest, recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/v10-job-visibility";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 
@@ -175,6 +176,10 @@ export async function POST(
     },
     async () => {
       const retryInfo = await loadRetryableImportRows(admin, membership.organization_id, jobId);
+      const normalizedStatus = normalizeV10JobStatus(String(retryInfo.status ?? ""), {
+        failed: retryInfo.rows.length,
+        retryable: retryInfo.rows.length,
+      });
       if (retryInfo.status == null) {
         return buildV10MutationResponse({
           outcome: "not_found",
@@ -192,6 +197,16 @@ export async function POST(
           changedObjectId: jobId,
           nextDestinationHref: `/api/import/contracts/${retryInfo.supersededByJobId}`,
           diagnosticId: "v10_import_retry_superseded",
+        });
+      }
+      if (!isV10JobRetryable(normalizedStatus, retryInfo.rows.length)) {
+        return buildV10MutationResponse({
+          outcome: "job_not_retryable",
+          message: "Only failed_retryable or partial import jobs with retryable rows can be retried.",
+          changedObjectType: "import_job",
+          changedObjectId: jobId,
+          nextDestinationHref: `/api/import/contracts/${jobId}`,
+          diagnosticId: "v10_import_retry_status_not_retryable",
         });
       }
       if (retryInfo.rows.length === 0) {

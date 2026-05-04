@@ -7,6 +7,7 @@ import { HOME_SECTION_IDS } from "@/lib/product-surface/resolver";
 
 const ROUTE_GUARD_FILE = join(process.cwd(), "src/lib/product-surface/route-guard.ts");
 const TRANSITIONS_ACTION_FILE = join(process.cwd(), "src/actions/product-surface-settings.ts");
+const TRANSITIONS_ACTION_HELPER_FILE = join(process.cwd(), "src/actions/product-surface-settings-helpers.ts");
 const WORKSPACE_TRANSITION_FILE = join(process.cwd(), "src/lib/product-surface/workspace-transition.ts");
 const HREF_AUDIT_SCRIPT = join(process.cwd(), "scripts/audit-v7-cross-surface-hrefs.mjs");
 const CMDK_BRIDGE_FILE = join(process.cwd(), "src/lib/product-surface/command-palette-bridge.ts");
@@ -69,7 +70,7 @@ describe("v7 acceptance matrix", () => {
   });
 
   it("keeps settings home hide keys aligned with resolver HOME_SECTION_IDS", () => {
-    const raw = readFileSync(TRANSITIONS_ACTION_FILE, "utf8");
+    const raw = `${readFileSync(TRANSITIONS_ACTION_FILE, "utf8")}\n${readFileSync(TRANSITIONS_ACTION_HELPER_FILE, "utf8")}`;
     for (const id of HOME_SECTION_IDS) {
       expect(raw.includes(id), id).toBe(true);
     }

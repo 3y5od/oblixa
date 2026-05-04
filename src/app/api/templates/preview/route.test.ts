@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
+const rateLimitCheck = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -10,7 +11,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/lib/rate-limit", async () => {
   const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
-  return { ...actual, rateLimitCheck: vi.fn(async () => ({ ok: true as const })) };
+  return { ...actual, rateLimitCheck };
 });
 
 vi.mock("@/lib/permissions", () => ({
@@ -24,6 +25,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
 describe("GET /api/templates/preview", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rateLimitCheck.mockResolvedValue({ ok: true });
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
@@ -104,6 +106,24 @@ describe("GET /api/templates/preview", () => {
     const res = await GET(req);
     expect(res.status).toBe(200);
     expect(inSpy).toHaveBeenCalledWith("organization_id", [orgId]);
+  });
+
+  it("returns 429 before admin queries when rate limited", async () => {
+    const contractId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn(async () => ({ data: { user: { id: "user-1" } } })) },
+    });
+    rateLimitCheck.mockResolvedValue({ ok: false, retryAfterMs: 5_000 });
+
+    const { GET } = await import("@/app/api/templates/preview/route");
+    const req = new Request(
+      `http://localhost:3000/api/templates/preview?contractId=${contractId}`
+    );
+    const res = await GET(req);
+
+    expect(res.status).toBe(429);
+    expect(createAdminClient).not.toHaveBeenCalled();
+    expect(await res.json()).toEqual({ error: "Too many requests" });
   });
 });
 

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   V10_DELIVERY_PRIVACY_CONTRACTS,
   buildV10ReportExportArtifactManifest,
+  getV10ContractExportRowLimit,
   getV10ReportFamilyForRun,
   neutralizeV10CsvFormulaCell,
+  resolveV10ReportExportPlan,
   validateV10DeliveryPrivacyContracts,
   validateV10ReportExportArtifactContract,
 } from "./v10-report-export";
@@ -13,8 +15,16 @@ describe("V10 report/export delivery privacy contracts", () => {
     expect(getV10ReportFamilyForRun("management")).toBe("contract_portfolio_summary");
     expect(getV10ReportFamilyForRun("renewal_digest")).toBe("renewal_horizon_report");
     expect(getV10ReportFamilyForRun("approval_sla")).toBe("approval_sla_report");
+    expect(getV10ReportFamilyForRun("obligation_overview")).toBe("overdue_work_report");
     expect(getV10ReportFamilyForRun("import_extraction")).toBe("import_extraction_reliability_report");
     expect(getV10ReportFamilyForRun("workspace_health_report")).toBe("workspace_health_report");
+  });
+
+  it("derives export plan limits from workspace settings", () => {
+    expect(resolveV10ReportExportPlan({ workspace_mode: "core" })).toBe("core");
+    expect(resolveV10ReportExportPlan({ workspace_plan: "trial" })).toBe("trial");
+    expect(getV10ContractExportRowLimit("core")).toBe(10_000);
+    expect(getV10ContractExportRowLimit("enterprise")).toBe(20_000);
   });
 
   it("validates scoped artifacts with redaction, formula neutralization, expiry, and revocation", () => {

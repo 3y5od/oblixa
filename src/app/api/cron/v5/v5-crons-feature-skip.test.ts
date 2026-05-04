@@ -2,9 +2,23 @@ import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requireV5CronFeature } from "@/lib/v5/feature-guards";
 
-const { requireV5CronAuth } = vi.hoisted(() => ({
+const { gateCronRequest, rateLimitCheck, requireV5CronAuth } = vi.hoisted(() => ({
+  gateCronRequest: vi.fn(() => null as Response | null),
+  rateLimitCheck: vi.fn(async () => ({ ok: true })),
   requireV5CronAuth: vi.fn(() => null as Response | null),
 }));
+
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
+}));
+
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return {
+    ...actual,
+    rateLimitCheck,
+  };
+});
 
 vi.mock("@/lib/v5/feature-guards", () => ({
   requireV5CronFeature: vi.fn(() => null),
@@ -37,6 +51,8 @@ describe("V5 cron routes return skipped payload when feature is disabled", () =>
   beforeEach(() => {
     vi.clearAllMocks();
     mockedCronFlag.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
+    rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
   it("campaign-progress", async () => {
@@ -110,7 +126,7 @@ describe("V5 cron routes return skipped payload when feature is disabled", () =>
   });
 
   it("campaign-progress returns 401 when cron auth fails", async () => {
-    requireV5CronAuth.mockReturnValueOnce(
+    gateCronRequest.mockReturnValueOnce(
       NextResponse.json({ error: "unauthorized" }, { status: 401 })
     );
     vi.resetModules();

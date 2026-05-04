@@ -7,6 +7,7 @@ import {
   minWorkspaceModeForReportType,
   minWorkspaceModeForReportsHash,
   PRODUCT_FEATURE_REGISTRY,
+  resolveSearchIndexFeatureFamily,
   SEARCH_INDEX_CLASSES,
   featureFamilyForPath,
   minWorkspaceModeForRegistryPath,
@@ -59,6 +60,8 @@ describe("product feature registry", () => {
   it("eligibleReportTypeOptionsForWorkspaceMode excludes advanced types on Core", () => {
     const coreOpts = eligibleReportTypeOptionsForWorkspaceMode("core");
     expect(coreOpts).toContain("weekly_execution_health");
+    expect(coreOpts).toContain("contract_portfolio_summary");
+    expect(coreOpts).toContain("workspace_health_report");
     expect(coreOpts).toContain("monthly_renewal_readiness");
     expect(coreOpts.some((t) => t.includes("decision"))).toBe(false);
     const advOpts = eligibleReportTypeOptionsForWorkspaceMode("advanced");
@@ -94,5 +97,36 @@ describe("product feature registry", () => {
   it("maps contracts analytics to the advanced analytics family", () => {
     expect(featureFamilyForPath("/contracts/analytics")).toBe("advanced_analytics");
     expect(minWorkspaceModeForPath("/contracts/analytics")).toBe("advanced");
+  });
+
+  it("rescues legacy command-search families via module mapping and href fallback", () => {
+    expect(
+      resolveSearchIndexFeatureFamily({
+        featureFamily: "obligations",
+        moduleKey: "obligations",
+        href: "/contracts/00000000-0000-4000-8000-000000000001?tab=obligations",
+      })
+    ).toBe("work");
+    expect(
+      resolveSearchIndexFeatureFamily({
+        featureFamily: "imports",
+        moduleKey: "imports",
+        href: "/settings/health#jobs",
+      })
+    ).toBe("settings");
+    expect(
+      resolveSearchIndexFeatureFamily({
+        featureFamily: "simulations",
+        moduleKey: "simulations",
+        href: "/campaigns/compare?simulation=sim_1",
+      })
+    ).toBe("compare_views");
+    expect(
+      resolveSearchIndexFeatureFamily({
+        featureFamily: "review",
+        moduleKey: "review",
+        href: "/contracts/00000000-0000-4000-8000-000000000001?tab=overview#extracted-fields",
+      })
+    ).toBe("review");
   });
 });

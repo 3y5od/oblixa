@@ -5,6 +5,7 @@ import type {
 } from "@/lib/product-surface/types";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
+import { V10_CORE_REPORT_FAMILIES } from "@/lib/v10-release-contract";
 
 export type FeatureState = "primary" | "secondary" | "hidden" | "admin_only" | "disabled";
 export type FeatureLifecycle =
@@ -209,7 +210,7 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     label: "Reports",
     ...CORE_DEF,
     routePrefixes: ["/reports", "/contracts/reports"],
-    apiPrefixes: ["/reports", "/report-packs", "/export/contracts", "/export/review-packet", "/export/calendar"],
+    apiPrefixes: ["/reports", "/report-packs", "/report-runs", "/export/contracts", "/export/review-packet", "/export/calendar"],
   },
   {
     key: "settings",
@@ -467,6 +468,36 @@ export function featureFamilyForApiPath(pathname: string): FeatureFamilyKey | nu
   return best?.key ?? null;
 }
 
+const SEARCH_INDEX_CLASS_BY_KEY = new Map(SEARCH_INDEX_CLASSES.map((row) => [row.key, row] as const));
+
+function registeredFeatureFamilyKey(value: unknown): FeatureFamilyKey | null {
+  const key = typeof value === "string" && value.trim() ? (value.trim() as FeatureFamilyKey) : null;
+  if (!key) return null;
+  return featureRegistryByKey().has(key) ? key : null;
+}
+
+export function resolveSearchIndexFeatureFamily(input: {
+  featureFamily?: unknown;
+  moduleKey?: unknown;
+  href?: unknown;
+}): FeatureFamilyKey {
+  const storedFamily = registeredFeatureFamilyKey(input.featureFamily);
+  if (storedFamily) return storedFamily;
+  const moduleFamily = registeredFeatureFamilyKey(input.moduleKey);
+  if (moduleFamily) return moduleFamily;
+  const moduleKey = typeof input.moduleKey === "string" ? input.moduleKey.trim() : "";
+  if (moduleKey) {
+    const classRow = SEARCH_INDEX_CLASS_BY_KEY.get(moduleKey as SearchIndexClassDef["key"]);
+    if (classRow) return classRow.featureFamily;
+  }
+  const href = typeof input.href === "string" ? input.href.trim() : "";
+  if (href) {
+    const hrefFamily = featureFamilyForPath(href);
+    if (hrefFamily) return hrefFamily;
+  }
+  return "contracts";
+}
+
 export function minWorkspaceModeForReportType(reportType: string): WorkspaceProductMode {
   const normalized = reportType.trim().toLowerCase();
   const exact = REPORT_TYPE_MAP.find((row) => row.reportType === normalized);
@@ -488,7 +519,7 @@ export function workspaceModeAllowsReportType(
   return workspaceModeAtLeast(mode, minWorkspaceModeForReportType(reportType));
 }
 
-const DEFAULT_REPORT_PACK_TYPES = ["weekly_execution_health"] as const;
+const DEFAULT_REPORT_PACK_TYPES = ["weekly_execution_health", ...V10_CORE_REPORT_FAMILIES] as const;
 
 /** Report types the UI/API should offer for pack creation in this mode (map entries + safe defaults). */
 export function eligibleReportTypeOptionsForWorkspaceMode(mode: WorkspaceProductMode): string[] {

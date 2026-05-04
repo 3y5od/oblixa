@@ -185,4 +185,107 @@ describe("POST /api/integrations/actions/callback", () => {
     expect(res.status).toBe(403);
     expect(json.error).toMatch(/not permitted/);
   });
+
+  it("accepts create_exception payload shape and inserts normalized exception fields", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const insert = vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn().mockResolvedValue({ data: { id: "exception-1" }, error: null }),
+      })),
+    }));
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn((table: string) => {
+        if (table === "exceptions") {
+          return { insert };
+        }
+        return {
+          insert: vi.fn().mockResolvedValue({}),
+          update: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                select: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+                }),
+              }),
+            }),
+          }),
+        };
+      }),
+    });
+
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: JSON.stringify({
+        organizationId: "org-1",
+        action: "create_exception",
+        contractId: "contract-1",
+        title: " Escalated issue ",
+        details: " details from upstream ",
+      }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toEqual({ ok: true, exceptionId: "exception-1" });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organization_id: "org-1",
+        contract_id: "contract-1",
+        title: "Escalated issue",
+        details: "details from upstream",
+        exception_type: "inbound_action",
+        severity: "medium",
+        status: "open",
+      })
+    );
+  });
+
+  it("handles duplicate replay of approve_evidence callback idempotently", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { id: "submission-1" }, error: null });
+    const update = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({ maybeSingle }),
+        }),
+      }),
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn(() => ({
+        insert: vi.fn().mockResolvedValue({}),
+        update,
+      })),
+    });
+
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const buildRequest = () =>
+      new Request("http://localhost:3000/api/integrations/actions/callback", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer token",
+        },
+        body: JSON.stringify({
+          organizationId: "org-1",
+          action: "approve_evidence",
+          id: "submission-1",
+        }),
+      });
+
+    const first = await POST(buildRequest());
+    const second = await POST(buildRequest());
+
+    expect(first.status).toBe(200);
+    await expect(first.json()).resolves.toEqual({ ok: true, submissionId: "submission-1" });
+    expect(second.status).toBe(200);
+    await expect(second.json()).resolves.toEqual({ ok: true, submissionId: "submission-1" });
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(maybeSingle).toHaveBeenCalledTimes(2);
+  });
 });

@@ -3,6 +3,7 @@ import {
   V10_MUTATION_OUTCOMES,
   type V10MutationOutcome,
 } from "./v10-release-contract";
+import { sanitizeV10InternalHref } from "./v10-hardening-contracts";
 
 export const V10_NULL_NEXT_DESTINATION = "null_no_next_destination" as const;
 
@@ -249,6 +250,8 @@ export function buildV10MutationResponse(input: {
   const retryEligible =
     input.retryEligible ??
     ["conflict", "stale_version", "rate_limited", "dependency_blocked", "job_not_retryable", "server_error"].includes(input.outcome);
+  const nextDestinationHref =
+    input.nextDestinationHref == null ? V10_NULL_NEXT_DESTINATION : sanitizeV10InternalHref(input.nextDestinationHref);
   return {
     outcome: input.outcome,
     user_visible_message: input.message,
@@ -260,7 +263,7 @@ export function buildV10MutationResponse(input: {
       current_version: input.currentVersion ?? null,
       new_version: input.newVersion ?? null,
     },
-    next_destination_href: input.nextDestinationHref ?? V10_NULL_NEXT_DESTINATION,
+    next_destination_href: nextDestinationHref,
     audit_event_id: input.auditEventId ?? null,
     diagnostic_id: input.diagnosticId ?? null,
     retry_eligible: retryEligible,

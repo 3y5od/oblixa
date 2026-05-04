@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const ensureCronAuthorized = vi.fn();
+const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
 
-vi.mock("@/lib/v4/cron", () => ({
-  ensureCronAuthorized,
+vi.mock("@/lib/security/cron-route-gate", () => ({
+  gateCronRequest,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -20,12 +20,12 @@ describe("GET /api/cron/v4/programs-reconcile", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
-    ensureCronAuthorized.mockReturnValue(null);
+    gateCronRequest.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
   it("returns unauthorized response from cron guard", async () => {
-    ensureCronAuthorized.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
+    gateCronRequest.mockReturnValueOnce(new Response("Unauthorized", { status: 401 }));
     const { GET } = await import("@/app/api/cron/v4/programs-reconcile/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/programs-reconcile"));
     expect(res.status).toBe(401);
@@ -36,6 +36,11 @@ describe("GET /api/cron/v4/programs-reconcile", () => {
     const { GET } = await import("@/app/api/cron/v4/programs-reconcile/route");
     const res = await GET(new Request("http://localhost:3000/api/cron/v4/programs-reconcile"));
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: "Too many requests", retryAfterMs: 2300 });
+    expect(await res.json()).toMatchObject({
+      ok: false,
+      error: "Too many requests",
+      code: "rate_limited",
+      retryAfterMs: 2300,
+    });
   });
 });

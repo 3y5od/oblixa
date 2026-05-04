@@ -13,6 +13,8 @@ import {
 } from "./v10-release-contract";
 import { PRODUCT_TELEMETRY_ACTIONS } from "./product-telemetry";
 import { V10_NON_AUTONOMOUS_EVIDENCE_GATES } from "./v10-release-evidence";
+import { V10_IMPLEMENTATION_REQUIREMENTS } from "./v10-implementation-checklist";
+import { V10_AUTONOMOUS_COVERAGE_CONTRACTS } from "./v10-autonomous-coverage";
 import { V10_REQUIRED_MUTATION_CONTRACTS } from "./v10-mutation-envelope";
 import { V10_REQUIRED_READ_MODEL_KEYS } from "./v10-read-models";
 import { V10_ROUTE_API_CATALOG } from "./v10-route-api-catalog";
@@ -51,7 +53,9 @@ describe("V10 no-exclusions matrix", () => {
 
     expect(validateV10NoExclusionsMatrix(matrix)).toEqual([]);
     expect(matrix.length).toBe(
-      V10_SOURCE_OBJECT_TYPES.length +
+      V10_IMPLEMENTATION_REQUIREMENTS.length +
+        V10_AUTONOMOUS_COVERAGE_CONTRACTS.length +
+        V10_SOURCE_OBJECT_TYPES.length +
         V10_NAVIGATION_FAMILIES.length +
         V10_REQUIRED_MUTATION_CONTRACTS.length +
         V10_ROUTE_API_CATALOG.length +
@@ -168,6 +172,22 @@ describe("V10 no-exclusions matrix", () => {
       coverageKind: "ci_release_gate",
       owner: "release",
     });
+    expect(matrix.find((row) => row.coverageKey === "implementation_requirement:approval-gated-automation")).toMatchObject({
+      coverageKind: "implementation_requirement",
+      priority: "P2",
+      status: "runtime_backed",
+      dimensions: expect.arrayContaining(["database_or_source", "read_model", "test", "release_evidence"]),
+    });
+    expect(matrix.find((row) => row.coverageKey === "implementation_requirement:external-launch-evidence-placeholders")).toMatchObject({
+      coverageKind: "implementation_requirement",
+      priority: "release_blocker",
+      status: "non_autonomous_blocker",
+      residualRisk: expect.stringContaining("Non-autonomous launch evidence"),
+    });
+    expect(matrix.find((row) => row.coverageKey === "autonomous_coverage_contract:exhaustive-artifact-sweep")).toMatchObject({
+      coverageKind: "autonomous_coverage_contract",
+      dimensions: expect.arrayContaining(["test", "release_evidence"]),
+    });
   });
 
   it("keeps every acceptance gate backed by at least one scoped acceptance row", () => {
@@ -225,6 +245,8 @@ describe("V10 no-exclusions matrix", () => {
         "missing_audit_action:import_job.created",
         "missing_ci_release_gate:npm run check:v10-suite",
         "missing_ci_release_gate:npm run check:v10-inventory-lock",
+        "missing_implementation_requirement:activation-state-runtime",
+        "missing_autonomous_coverage_contract:migration-rls-runtime",
       ])
     );
   });

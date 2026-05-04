@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
   V10_ROUTE_API_CATALOG,
+  V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS,
   V10_ROUTER_JOBS_REPORTS_BOUNDARY_CONTRACTS,
   buildV10RouteActionInventory,
   buildV10RouteApiInventory,
@@ -12,6 +13,7 @@ import {
   getV10RouteTemplateForHref,
   validateV10RouteActionInventory,
   validateV10RouteResponseContract,
+  validateV10RoutePerformanceSmokeContracts,
   validateV10RouterJobsReportsBoundaryContracts,
   validateV10RouteApiInventory,
   validateV10RouteApiContract,
@@ -20,6 +22,24 @@ import {
 } from "./v10-route-api-catalog";
 import { buildV10MutationResponse, V10_REQUIRED_MUTATION_CONTRACTS } from "./v10-mutation-envelope";
 import { canonicalizeV10MutationName } from "./v10-mutation-rollout";
+
+const SHARED_CRON_AUTH_RE =
+  /ensureCronAuthorized|authorizeCronRequest|gateCronRequest|requireCronAuthorized|requireV5CronAuth|requireV6CronAuth|withCronRoute|withV6CronRoute|runCronRoute/;
+const SHARED_CRON_PRIVATE_CACHE_RE = /Cache-Control|PRIVATE_NO_STORE_HEADERS|withCronRoute|withV6CronRoute|runCronRoute/;
+
+function loadMutationRuntimeSource(runtimeArtifact: string): string {
+  const source = readFileSync(join(process.cwd(), runtimeArtifact), "utf8");
+  if (runtimeArtifact.endsWith("-helpers.ts")) return source;
+
+  const helperArtifact = runtimeArtifact.replace(/\.ts$/, "-helpers.ts");
+  if (helperArtifact === runtimeArtifact) return source;
+
+  const helperImport = `./${helperArtifact.split("/").pop()?.replace(/\.ts$/, "")}`;
+  const helperPath = join(process.cwd(), helperArtifact);
+  if (!source.includes(`from "${helperImport}"`) || !existsSync(helperPath)) return source;
+
+  return `${source}\n${readFileSync(helperPath, "utf8")}`;
+}
 
 function apiRouteFileForPath(path: string): string | null {
   if (!path.startsWith("/api/")) return null;
@@ -97,6 +117,7 @@ describe("V10 route and API catalog", () => {
         "/reports",
         "/api/export/contracts",
         "/api/export/contracts/[jobId]",
+        "/api/report-runs/[runId]/retry",
         "/api/reports/send-summaries",
         "/settings/product",
       ])
@@ -178,9 +199,7 @@ describe("V10 route and API catalog", () => {
   it("keeps required mutation runtime artifacts wired to V10 idempotency, audit, and refresh contracts", () => {
     const sources = new Map<string, string>();
     for (const mutation of V10_REQUIRED_MUTATION_CONTRACTS) {
-      const source =
-        sources.get(mutation.runtimeArtifact) ??
-        readFileSync(join(process.cwd(), mutation.runtimeArtifact), "utf8");
+      const source = sources.get(mutation.runtimeArtifact) ?? loadMutationRuntimeSource(mutation.runtimeArtifact);
       sources.set(mutation.runtimeArtifact, source);
 
       if (mutation.requiresIdempotency) {
@@ -265,12 +284,10 @@ describe("V10 route and API catalog", () => {
       expect(existsSync(routeFile), contract.path).toBe(true);
       const source = readFileSync(routeFile, "utf8");
       if (contract.privateCacheRequired) {
-        expect(source, `${contract.path}:private-cache`).toContain("Cache-Control");
+        expect(source, `${contract.path}:private-cache`).toMatch(SHARED_CRON_PRIVATE_CACHE_RE);
       }
       if (contract.path.includes("/api/cron/") || resolveV10RoutePostContract(contract) === "cron_secret_json") {
-        expect(source, `${contract.path}:cron-auth`).toMatch(
-          /ensureCronAuthorized|authorizeCronRequest|gateCronRequest/
-        );
+        expect(source, `${contract.path}:cron-auth`).toMatch(SHARED_CRON_AUTH_RE);
       }
       const resolved = resolveV10RoutePostContract(contract);
       if (contract.idempotencyRequired) {
@@ -413,6 +430,33 @@ describe("V10 route and API catalog", () => {
 
     expect(validateV10RouteApiInventory(inventory)).toEqual([]);
     expect(inventory).toHaveLength(V10_ROUTE_API_CATALOG.length);
+    expect(inventory.find((row) => row.path === "/dashboard")).toMatchObject({
+      performanceBudgetKind: "dashboard",
+      queryPlanExpectation: "core_mode_excludes_advanced_assurance_tables",
+    });
+    expect(inventory.find((row) => row.path === "/contracts")).toMatchObject({
+      performanceBudgetKind: "contract_list",
+      pageSizeExpectation: 50,
+      virtualizationThresholdRows: 100,
+      paginationPolicy: "bounded_limit",
+    });
+    expect(inventory.find((row) => row.path === "/work")).toMatchObject({
+      performanceBudgetKind: "work_review_queue",
+      paginationPolicy: "bounded_limit",
+    });
+    expect(inventory.find((row) => row.path === "/api/command-palette/contracts")).toMatchObject({
+      performanceBudgetKind: "command_palette",
+      debounceWindowMs: { min: 150, max: 250 },
+      paginationPolicy: "bounded_limit",
+    });
+    expect(inventory.find((row) => row.path === "/api/export/contracts")).toMatchObject({
+      performanceBudgetKind: "report_export",
+      asyncHandoffThresholds: {
+        rowCount: 50,
+        jsonBytes: 2 * 1024 * 1024,
+        estimatedExecutionMs: 5000,
+      },
+    });
     expect(inventory.find((row) => row.path === "/api/cron/v4/evidence-followup")).toMatchObject({
       authType: "cron_secret",
       routeOwner: "operations",
@@ -441,6 +485,27 @@ describe("V10 route and API catalog", () => {
       expect(row.diagnosticPrefix, row.path).toMatch(/^v10_[a-z0-9_]+$/);
       expect(row.errorStatusCodes.length, row.path).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps explicit V10 performance smoke proof rows for dashboard, contracts, cmdk, and work", () => {
+    expect(validateV10RoutePerformanceSmokeContracts()).toEqual([]);
+    expect(V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS.map((contract) => contract.budgetKind)).toEqual([
+      "dashboard",
+      "contract_list",
+      "command_palette",
+      "work_review_queue",
+    ]);
+    expect(V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS.find((contract) => contract.budgetKind === "dashboard")).toMatchObject({
+      route: "/dashboard",
+      proofArtifact: "e2e/v10-core-smoke.spec.ts",
+      optionalLoadSmokeScript: "k6/smoke.js",
+      loadSmokePaths: ["/dashboard"],
+    });
+    expect(V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS.find((contract) => contract.budgetKind === "command_palette")).toMatchObject({
+      route: "/api/command-palette/contracts",
+      proofArtifact: "src/components/layout/command-palette.ui.test.tsx",
+      measurement: "unit_integration",
+    });
   });
 
   it("validates concrete response headers, mutation envelopes, bounded lists, and retry diagnostics", () => {

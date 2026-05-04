@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   V10_ACCESSIBILITY_CONTRACTS,
@@ -81,11 +83,34 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
 
   it("keeps accessibility contracts explicit", () => {
     expect(V10_ACCESSIBILITY_CONTRACTS).toContain("focus_returns_after_modals_drawers_mobile_nav_and_command_palette");
+    expect(V10_ACCESSIBILITY_CONTRACTS).toContain(
+      "keyboard_completion_for_upload_import_review_work_evidence_approvals_exceptions_command_palette_settings"
+    );
     expect(V10_ACCESSIBILITY_CONTRACTS).toContain("color_is_not_the_only_status_signal");
     expect(V10_RESPONSIVE_CONTRACTS).toContain("primary_actions_remain_reachable_without_hover");
     expect(V10_BACKGROUND_REFRESH_PRESERVATION).toEqual(
       expect.arrayContaining(["in_progress_form_input", "selected_rows", "keyboard_focus"])
     );
+  });
+
+  it("anchors runtime accessibility hooks for reduced motion, loading announcements, error regions, and focus return", () => {
+    const globalsCss = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    const loading = readFileSync(join(process.cwd(), "src/components/ui/segment-loading.tsx"), "utf8");
+    const recoverableState = readFileSync(join(process.cwd(), "src/components/ui/v10-recoverable-state.tsx"), "utf8");
+    const commandPalette = readFileSync(join(process.cwd(), "src/components/layout/command-palette.tsx"), "utf8");
+    const sidebar = readFileSync(join(process.cwd(), "src/components/layout/sidebar.tsx"), "utf8");
+
+    expect(globalsCss).toContain("prefers-reduced-motion");
+    expect(globalsCss).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.ui-skeleton[\s\S]*animation:\s*none/);
+    expect(loading).toContain('role="status"');
+    expect(loading).toContain('aria-live="polite"');
+    expect(loading).toContain('aria-busy="true"');
+    expect(recoverableState).toContain('role={isUrgentState ? "alert" : "status"}');
+    expect(recoverableState).toContain('aria-live={isUrgentState ? "assertive" : "polite"}');
+    expect(commandPalette).toContain("openButtonRef.current?.focus()");
+    expect(commandPalette).toContain('aria-label="Command palette"');
+    expect(sidebar).toContain("mobileOpenButtonRef.current?.focus()");
+    expect(sidebar).toContain('aria-label="Navigation drawer"');
   });
 
   it("keeps visual regression coverage tied to recoverable states, breakpoints, and contrast modes", () => {
@@ -164,6 +189,7 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
         "/contracts/approvals",
         "/contracts/exceptions",
         "/contracts/evidence-studio",
+        "/contracts/bulk",
         "/contracts/reports",
         "/reports",
         "/settings/health",
@@ -176,6 +202,9 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     );
     expect(V10_ROUTE_STATE_MATRIX.find((entry) => entry.route === "/contracts")?.requiredStates).toEqual(
       expect.arrayContaining(["empty", "partial", "failed", "retryable"])
+    );
+    expect(V10_ROUTE_STATE_MATRIX.find((entry) => entry.route === "/contracts/bulk")?.accessibilityAssertions).toEqual(
+      expect.arrayContaining(["upload_controls_named", "import_history_keyboard_reachable", "failed_state_announced"])
     );
     expect(V10_ROUTE_STATE_MATRIX.find((entry) => entry.route === "/contracts")?.accessibilityAssertions).toContain(
       "failed_state_announced"

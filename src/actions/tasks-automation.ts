@@ -27,7 +27,7 @@ export async function autoTransitionTasksForApproval(input: {
   organizationId: string;
   contractId: string;
   actorId: string;
-  approvalStatus: "pending" | "approved" | "rejected";
+  approvalStatus: "pending" | "approved" | "rejected" | "changes_requested";
   approvalDueAt?: string | null;
 }) {
   const { admin, organizationId, contractId, actorId, approvalStatus, approvalDueAt } = input;

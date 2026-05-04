@@ -3,14 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
+import type { WorkspaceRole } from "@/lib/navigation";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
+import { loadProductSurfaceContext } from "@/lib/product-surface/context";
+import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { emitVisibleMutationErrorTelemetry } from "@/lib/product-telemetry";
 import { isUuid } from "@/lib/security/validation";
 import type { OrgRole } from "@/lib/types";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
-import { validateV10ExceptionResolution } from "@/lib/v10-approval-exception";
+import {
+  getV10ExceptionResolutionActionFeature,
+  getV10ExceptionResolutionActionLabel,
+  type V10ExceptionResolutionAction,
+  validateV10ExceptionResolution,
+} from "@/lib/v10-approval-exception";
 
 const MAX_RESOLUTION_NOTE_LEN = 4000;
 
@@ -69,7 +77,33 @@ async function getEditableExceptionContext(exceptionId: string) {
     return { error: "Viewers cannot update exceptions." as const };
   }
 
-  return { admin, userId: user.id, exception } as const;
+  return { admin, userId: user.id, role, exception } as const;
+}
+
+function revalidateExceptionPaths(contractId: string | null) {
+  revalidatePath("/work");
+  revalidatePath("/contracts/exceptions");
+  if (contractId) revalidatePath(`/contracts/${contractId}`);
+}
+
+async function exceptionResolutionActionAllowed(input: {
+  admin: Awaited<ReturnType<typeof createAdminClient>>;
+  organizationId: string;
+  role: OrgRole | null;
+  resolutionAction: V10ExceptionResolutionAction;
+  surfaceIdentifier: string;
+}) {
+  const requiredFeature = getV10ExceptionResolutionActionFeature(input.resolutionAction);
+  if (!requiredFeature) return true;
+  const productSurface = await loadProductSurfaceContext(
+    input.admin as never,
+    input.organizationId,
+    (input.role ?? "viewer") as WorkspaceRole
+  );
+  return evaluateFeatureEligibility(productSurface, requiredFeature, {
+    surfaceType: "page",
+    surfaceIdentifier: input.surfaceIdentifier,
+  }).allowed;
 }
 
 async function refreshV10ExceptionReadModels(input: {
@@ -215,11 +249,13 @@ export async function assignException(input: {
 
 export async function resolveException(input: {
   exceptionId: string;
+  resolutionAction?: V10ExceptionResolutionAction | null;
   resolutionNote?: string | null;
 }) {
   const ctx = await getEditableExceptionContext(input.exceptionId);
   if ("error" in ctx) return { error: ctx.error };
 
+  const resolutionAction = (input.resolutionAction?.trim() || "fixed") as V10ExceptionResolutionAction;
   const resolutionNote = input.resolutionNote?.trim() || null;
   if (resolutionNote && resolutionNote.length > MAX_RESOLUTION_NOTE_LEN) {
     return { error: "Resolution note is too long." };
@@ -227,8 +263,19 @@ export async function resolveException(input: {
   if (!["open", "in_progress"].includes(ctx.exception.status)) {
     return { error: "Only active exceptions can be resolved." };
   }
+  if (
+    !(await exceptionResolutionActionAllowed({
+      admin: ctx.admin,
+      organizationId: ctx.exception.organization_id,
+      role: ctx.role as OrgRole | null,
+      resolutionAction,
+      surfaceIdentifier: "/contracts/exceptions",
+    }))
+  ) {
+    return { error: "This resolution path is not available in the current workspace configuration." };
+  }
   const v10ResolutionFailures = validateV10ExceptionResolution({
-    resolutionAction: "fixed",
+    resolutionAction,
     severity: ctx.exception.severity,
     note: resolutionNote,
   });
@@ -241,7 +288,12 @@ export async function resolveException(input: {
 
   const { error } = await ctx.admin
     .from("exceptions")
-    .update({ status: "resolved", resolution_note: resolutionNote, resolved_at: new Date().toISOString() })
+    .update({
+      status: "resolved",
+      resolution_action: resolutionAction,
+      resolution_note: resolutionNote,
+      resolved_at: new Date().toISOString(),
+    })
     .eq("organization_id", ctx.exception.organization_id)
     .eq("id", ctx.exception.id);
   if (error) {
@@ -261,7 +313,11 @@ export async function resolveException(input: {
     contract_id: ctx.exception.contract_id,
     user_id: ctx.userId,
     action: "exception.resolved",
-    details: { exception_id: ctx.exception.id, resolution_note: resolutionNote },
+    details: {
+      exception_id: ctx.exception.id,
+      resolution_action: resolutionAction,
+      resolution_note: resolutionNote,
+    },
   });
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
     organizationId: ctx.exception.organization_id,
@@ -273,14 +329,17 @@ export async function resolveException(input: {
     outcome: "success",
     beforeStateHash: ctx.exception.status,
     afterStateHash: "resolved",
-    safeMetadata: { resolution_note_state: resolutionNote ? "provided" : "not_provided" },
+    safeMetadata: {
+      resolution_action: resolutionAction,
+      resolution_note_state: resolutionNote ? "provided" : "not_provided",
+    },
   });
   await appendExceptionEvent(ctx.admin, {
     organizationId: ctx.exception.organization_id,
     exceptionId: ctx.exception.id,
     actorId: ctx.userId,
     eventType: "resolved",
-    details: { resolution_note: resolutionNote },
+    details: { resolution_action: resolutionAction, resolution_note: resolutionNote },
   });
   await refreshV10ExceptionReadModels({
     admin: ctx.admin,
@@ -289,17 +348,16 @@ export async function resolveException(input: {
     reason: "exception_resolution_mutation",
   });
 
-  revalidatePath("/contracts/exceptions");
-  if (ctx.exception.contract_id) revalidatePath(`/contracts/${ctx.exception.contract_id}`);
+  revalidateExceptionPaths(ctx.exception.contract_id);
   return {
     success: true as const,
-    message: "Exception resolved. The resolution stays visible in history.",
+    message: `${getV10ExceptionResolutionActionLabel(resolutionAction)} saved. The resolution stays visible in history.`,
     v10AuditEventId,
     v10: buildExceptionMutationEnvelope({
       outcome: v10AuditEventId ? "success" : "audit_write_failed",
       message: v10AuditEventId
-        ? "Exception resolved. The resolution stays visible in history."
-        : "Exception resolved, but audit confirmation is missing.",
+        ? `${getV10ExceptionResolutionActionLabel(resolutionAction)} saved. The resolution stays visible in history.`
+        : `${getV10ExceptionResolutionActionLabel(resolutionAction)} saved, but audit confirmation is missing.`,
       exceptionId: ctx.exception.id,
       contractId: ctx.exception.contract_id,
       auditEventId: v10AuditEventId,
@@ -317,7 +375,7 @@ export async function reopenException(input: { exceptionId: string }) {
 
   const { error } = await ctx.admin
     .from("exceptions")
-    .update({ status: "open", resolved_at: null, resolved_by: null })
+    .update({ status: "open", resolution_action: null, resolved_at: null, resolved_by: null })
     .eq("organization_id", ctx.exception.organization_id)
     .eq("id", ctx.exception.id);
   if (error) {
@@ -365,8 +423,7 @@ export async function reopenException(input: { exceptionId: string }) {
     reason: "exception_reopen_mutation",
   });
 
-  revalidatePath("/contracts/exceptions");
-  if (ctx.exception.contract_id) revalidatePath(`/contracts/${ctx.exception.contract_id}`);
+  revalidateExceptionPaths(ctx.exception.contract_id);
   return {
     success: true as const,
     message: "Exception reopened and returned to the active ledger.",

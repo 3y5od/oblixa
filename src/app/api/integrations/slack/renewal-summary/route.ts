@@ -3,6 +3,7 @@ import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { sendSlackRenewalDecisionSummary } from "@/lib/integrations/slack";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 export async function POST(request: Request) {
   const ctx = await getApiAuthContext();
@@ -17,6 +18,12 @@ export async function POST(request: Request) {
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "integrations.slack.renewal-summary",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const _lb_payload = await readJsonBodyLimited(request);
   if (!_lb_payload.ok) return _lb_payload.response;

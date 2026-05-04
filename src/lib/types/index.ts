@@ -473,7 +473,7 @@ export type ApprovalType =
   | "notice_action"
   | "commercial_exception"
   | "ownership_handoff";
-export type ApprovalStatus = "pending" | "approved" | "rejected";
+export type ApprovalStatus = "pending" | "approved" | "rejected" | "changes_requested";
 
 export interface ContractApproval {
   id: string;

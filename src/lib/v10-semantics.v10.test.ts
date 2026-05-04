@@ -148,6 +148,55 @@ describe("V10 autonomous semantics", () => {
         effective_date: "2026-04-25",
       },
     ]);
+    expect(
+      findV10DuplicateImportCandidates([
+        {
+          rowId: "4",
+          title: "NDA",
+          counterparty: "Beta",
+          effectiveDate: "2026-04-26",
+          sourceFileHash: "hash-1",
+        },
+        {
+          rowId: "5",
+          title: "NDA - copy",
+          counterparty: "Beta",
+          effectiveDate: "2026-04-27",
+          sourceFileHash: "HASH-1",
+        },
+        {
+          rowId: "6",
+          title: "Order Form",
+          counterparty: "Gamma",
+          effectiveDate: "2026-04-28",
+          importSourceId: "source-9",
+        },
+        {
+          rowId: "7",
+          title: "Order Form v2",
+          counterparty: "Gamma",
+          effectiveDate: "2026-04-29",
+          importSourceId: " source-9 ",
+        },
+      ])
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          duplicate_key: "source_file_hash:hash-1",
+          row_ids: ["4", "5"],
+          title: "nda",
+          counterparty: "beta",
+          effective_date: "2026-04-26",
+        },
+        {
+          duplicate_key: "import_source_id:source-9",
+          row_ids: ["6", "7"],
+          title: "order form",
+          counterparty: "gamma",
+          effective_date: "2026-04-28",
+        },
+      ])
+    );
   });
 
   it("derives activation state and blockers", () => {
@@ -754,6 +803,8 @@ describe("V10 autonomous semantics", () => {
         source_type: "import_job",
         source_id: "import_1",
         contract_id: null,
+        started_at: "2026-04-25T00:00:00Z",
+        completed_at: "2026-04-25T00:05:00Z",
         completed_count: 5,
         failed_count: 1,
         skipped_count: 0,

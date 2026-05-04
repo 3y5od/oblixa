@@ -6,6 +6,7 @@ const getV6OrgSettingsJson = vi.fn();
 const requireServerActionEligibility = vi.fn();
 const applyWorkspaceProductTransitionSideEffects = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
+const validateWorkspaceModeBillingEligibility = vi.fn();
 
 function makeV10Rpc() {
   return vi.fn((fn: string, args: Record<string, unknown>) => {
@@ -50,13 +51,21 @@ vi.mock("@/lib/product-surface/server-action-guard", () => ({
   requireServerActionEligibility: (...args: unknown[]) => requireServerActionEligibility(...args),
 }));
 
-vi.mock("@/lib/product-surface/workspace-transition", () => ({
-  applyWorkspaceProductTransitionSideEffects: (...args: unknown[]) =>
-    applyWorkspaceProductTransitionSideEffects(...args),
-}));
+vi.mock("@/lib/product-surface/workspace-transition", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/product-surface/workspace-transition")>();
+  return {
+    ...actual,
+    applyWorkspaceProductTransitionSideEffects: (...args: unknown[]) =>
+      applyWorkspaceProductTransitionSideEffects(...args),
+  };
+});
 
 vi.mock("@/lib/v10-read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
+}));
+
+vi.mock("@/actions/workspace-mode-billing-eligibility", () => ({
+  validateWorkspaceModeBillingEligibility: (...args: unknown[]) => validateWorkspaceModeBillingEligibility(...args),
 }));
 
 vi.mock("@/lib/product-surface/landing-eligibility", () => ({
@@ -79,6 +88,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
       autoBlockedNotificationTypes: [],
       suppressedSubscriptionCount: 0,
     });
+    validateWorkspaceModeBillingEligibility.mockResolvedValue(null);
   });
 
   it("returns error when unauthenticated", async () => {
@@ -122,21 +132,99 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
+  it("rejects workspace mode when explicit billing plan is insufficient", async () => {
+    validateWorkspaceModeBillingEligibility.mockResolvedValue(
+      "Assurance mode is not included in the current workspace billing plan. Open Billing before saving this change."
+    );
+    getAuthContext.mockResolvedValue({
+      admin: { from: vi.fn() },
+      orgId: "org-1",
+      role: "admin",
+      user: { id: "u1" },
+    });
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "assurance");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({
+      error: "Assurance mode is not included in the current workspace billing plan. Open Billing before saving this change.",
+    });
+    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+  });
+
+  it("requires confirmation before downgrade suppresses scheduled report subscriptions", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
+    const from = vi.fn((table: string) => {
+      if (table === "report_pack_subscriptions") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: vi.fn(async () => ({ data: [{ id: "sub-1", report_pack_id: "pack-1" }], error: null })),
+            })),
+          })),
+        };
+      }
+      if (table === "report_packs") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              in: vi.fn(async () => ({
+                data: [{ id: "pack-1", report_type: "decision_queue_summary" }],
+                error: null,
+              })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert: vi.fn(async () => ({ error: null })),
+        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
+        update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+      };
+    });
+    getAuthContext.mockResolvedValue({
+      admin: makeAdmin(from),
+      orgId: "org-1",
+      role: "admin",
+      user: { id: "u1" },
+    });
+
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "core");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({
+      error: "This mode change would suppress 1 active scheduled report subscription. Confirm scheduled report suppression and save again.",
+    });
+    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+  });
+
   it("merges settings scoped to authenticated org for admin", async () => {
     const insert = vi.fn(() => Promise.resolve({ error: null }));
-    const from = vi.fn(() => ({
-      insert,
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: null })),
+    const from = vi.fn((table: string) => {
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-audit-1" }, error: null })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert,
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null })),
+          })),
+          in: vi.fn(async () => ({ data: [] })),
         })),
-        in: vi.fn(async () => ({ data: [] })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(async () => ({ error: null })),
-        in: vi.fn(async () => ({ error: null })),
-      })),
-    }));
+        update: vi.fn(() => ({
+          eq: vi.fn(async () => ({ error: null })),
+          in: vi.fn(async () => ({ error: null })),
+        })),
+      };
+    });
     getAuthContext.mockResolvedValue({
       admin: makeAdmin(from),
       orgId: "org-1",
@@ -149,7 +237,8 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("default_landing_path", "/dashboard");
     fd.set("hide_assurance_autopilot", "on");
     fd.set("search_scope", "core_only");
-    await updateWorkspaceProductSurfaceForm(fd);
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ success: true });
     expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
       expect.objectContaining({ from }),
       "org-1",
@@ -267,6 +356,25 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
           }),
         };
       }
+      if (table === "report_pack_subscriptions") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: vi.fn(async () => ({ data: [], error: null })),
+            })),
+          })),
+          update: vi.fn(() => ({ in: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })) })),
+        };
+      }
+      if (table === "report_packs") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              in: vi.fn(async () => ({ data: [], error: null })),
+            })),
+          })),
+        };
+      }
       return {
         select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
         update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
@@ -304,6 +412,68 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     );
     expect(surfaceAudit?.details?.suppressed_report_pack_subscription_count).toBe(1);
   });
+
+  it("allows confirmed downgrade when scheduled report subscriptions will be suppressed", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
+    mergeV6OrgSettingsJson.mockResolvedValue({
+      data: { workspace_mode: "core" },
+      error: null,
+    });
+    const from = vi.fn((table: string) => {
+      if (table === "report_pack_subscriptions") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: vi.fn(async () => ({ data: [{ id: "sub-1", report_pack_id: "pack-1" }], error: null })),
+            })),
+          })),
+          update: vi.fn(() => ({
+            in: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+          })),
+        };
+      }
+      if (table === "report_packs") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              in: vi.fn(async () => ({
+                data: [{ id: "pack-1", report_type: "decision_queue_summary" }],
+                error: null,
+              })),
+            })),
+          })),
+        };
+      }
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-audit-1" }, error: null })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert: vi.fn(async () => ({ error: null })),
+        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
+        update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+      };
+    });
+    getAuthContext.mockResolvedValue({
+      admin: makeAdmin(from),
+      orgId: "org-1",
+      role: "admin",
+      user: { id: "u1" },
+    });
+
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "core");
+    fd.set("confirm_scheduled_report_downgrade", "on");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ success: true });
+    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
+  });
 });
 
 describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)", () => {
@@ -338,6 +508,7 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
 
   it("updates organization_workflow_settings.notification_policy_json for admin org only", async () => {
     const eqLog: { col: string; val: string }[] = [];
+    const updatePayloads: Array<Record<string, unknown>> = [];
     const insert = vi.fn(() => Promise.resolve({ error: null }));
     const from = vi.fn((table: string) => {
       if (table === "v10_audit_events") {
@@ -353,17 +524,20 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
         select: () => ({
           eq: () => ({
             maybeSingle: vi.fn(async () => ({
-              data: { notification_policy_json: { email: { blocked_types: [] } } },
+              data: { notification_policy_json: { email: { blocked_types: ["legacy_unknown_type"] } } },
               error: null,
             })),
           }),
         }),
-        update: () => ({
+        update: (payload: Record<string, unknown>) => {
+          updatePayloads.push(payload);
+          return {
           eq: (col: string, val: string) => {
             eqLog.push({ col, val });
             return Promise.resolve({ error: null });
           },
-        }),
+          };
+        },
         insert,
       };
     });
@@ -375,18 +549,21 @@ describe("updateProductEmailNotificationCategoriesForm (refinement §18 / §21)"
     });
     const { updateProductEmailNotificationCategoriesForm } = await import("@/actions/product-surface-settings");
     const fd = new FormData();
-    fd.set("mute_email_reminder_due", "on");
+    fd.set("mute_email_campaign_digest", "on");
     const result = await updateProductEmailNotificationCategoriesForm(fd);
     expect(result).toEqual({ success: true });
     expect(from).toHaveBeenCalled();
     expect(eqLog[0]).toEqual({ col: "organization_id", val: "org-1" });
+    expect(updatePayloads[0]?.notification_policy_json).toMatchObject({
+      email: { blocked_types: ["campaign_digest"] },
+    });
     expect(from).toHaveBeenCalledWith("audit_events");
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({
         action: "workspace.notification_policy_updated",
         details: expect.objectContaining({
           channel: "email",
-          affected_known_categories: ["reminder_due"],
+          affected_known_categories: ["campaign_digest"],
         }),
       })
     );

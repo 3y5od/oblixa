@@ -11,6 +11,43 @@ export type V10ExceptionResolutionAction =
   | "campaign_created"
   | "finding_linked";
 export type V10ApprovalExceptionRecordType = "approval" | "exception" | "decision";
+export type V10ExceptionResolutionActionFeatureKey = "campaigns" | "findings";
+export type V10ExceptionResolutionActionOption = {
+  value: V10ExceptionResolutionAction;
+  label: string;
+  requiredFeature?: V10ExceptionResolutionActionFeatureKey;
+};
+
+export const V10_EXCEPTION_RESOLUTION_ACTION_OPTIONS: readonly V10ExceptionResolutionActionOption[] = [
+  { value: "fixed", label: "Mark fixed" },
+  { value: "accepted_risk", label: "Accept risk" },
+  { value: "converted_to_task", label: "Convert to task" },
+  { value: "evidence_requested", label: "Request evidence" },
+  { value: "escalated_to_approval", label: "Escalate to approval" },
+  { value: "campaign_created", label: "Create campaign", requiredFeature: "campaigns" },
+  { value: "finding_linked", label: "Link finding", requiredFeature: "findings" },
+];
+
+export function getV10ExceptionResolutionActionFeature(
+  action: V10ExceptionResolutionAction
+): V10ExceptionResolutionActionFeatureKey | null {
+  return V10_EXCEPTION_RESOLUTION_ACTION_OPTIONS.find((option) => option.value === action)?.requiredFeature ?? null;
+}
+
+export function getV10ExceptionResolutionActionLabel(action: V10ExceptionResolutionAction): string {
+  return V10_EXCEPTION_RESOLUTION_ACTION_OPTIONS.find((option) => option.value === action)?.label ?? action;
+}
+
+export function getV10ExceptionResolutionActionOptions(input?: {
+  campaignsEnabled?: boolean;
+  findingsEnabled?: boolean;
+}): V10ExceptionResolutionActionOption[] {
+  return V10_EXCEPTION_RESOLUTION_ACTION_OPTIONS.filter((option) => {
+    if (option.requiredFeature === "campaigns") return input?.campaignsEnabled === true;
+    if (option.requiredFeature === "findings") return input?.findingsEnabled === true;
+    return true;
+  });
+}
 
 export function deriveV10ApprovalSlaState(input: {
   dueState: V10DueState;

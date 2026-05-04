@@ -246,8 +246,12 @@ describe("V10 final hardening contracts", () => {
       privacyBoundary: expect.arrayContaining(["raw_contract_text_rule", "signed_url_rule"]),
     });
     expect(semgrepRulepack).toContain("oblixa-v10-telemetry-no-private-detail-keys");
+    expect(semgrepRulepack).toContain("oblixa-v10-mutation-actor-must-be-server-derived");
+    expect(semgrepRulepack).toContain("oblixa-v10-mutation-next-destination-no-unsafe-query");
     expect(semgrepRulepack).toContain("raw_contract_text");
     expect(semgrepRulepack).toContain("signed_url");
+    expect(semgrepRulepack).not.toMatch(/severity:\s*(INFO|WARNING)\b/);
+    expect(semgrepRulepack.match(/severity:\s*ERROR\b/g)?.length).toBeGreaterThanOrEqual(7);
     expect(
       validateV10ProviderIntegrationBoundaryContracts([
         {

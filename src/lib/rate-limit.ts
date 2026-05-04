@@ -125,6 +125,8 @@ export const RATE_LIMITS = {
   stripeWebhook: { max: 200, windowMs: 60_000 },
   remindersSendCron: { max: 30, windowMs: 60_000 },
   reportsCaptureMetricsCron: { max: 30, windowMs: 60_000 },
+  /** Authenticated V10 retry of a failed report run. */
+  reportRunRetryMutation: { max: 20, windowMs: 60_000 },
   exportContractsCsv: { max: 30, windowMs: 60_000 },
   /** Poll GET /api/export/contracts/[jobId] for job status (mirrors import job poll ceiling). */
   exportContractsJob: { max: 40, windowMs: 60_000 },

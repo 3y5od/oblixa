@@ -113,6 +113,7 @@ external-actions/[token]/workflow-step/route.ts
 external-actions/create-link/route.ts
 extract/route.ts
 extract/run/route.ts
+health/route.ts
 import/contracts/[jobId]/route.ts
 import/contracts/route.ts
 integrations/actions/callback/route.ts
@@ -159,6 +160,7 @@ renewals/[id]/[action]/route.ts
 renewals/portfolio-signals/route.ts
 report-packs/[id]/runs/route.ts
 report-packs/route.ts
+report-runs/[runId]/retry/route.ts
 reports/capture-metrics/route.ts
 reports/send-summaries/route.ts
 reports/track/click/[token]/route.ts

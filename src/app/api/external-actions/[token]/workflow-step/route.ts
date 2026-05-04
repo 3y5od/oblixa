@@ -12,6 +12,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { appendExternalWorkflowStep, setExternalWorkflowAckDeadline } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
@@ -45,6 +46,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
 
   const token = toSafeString((await params).token);
+  const duplicate = await enforceIdempotency(request, {
+    scope: "external-workflow.internal-step",
+    actorKey: `${ctx.orgId}:${ctx.userId}:${token}`,
+  });
+  if (duplicate) return duplicate;
   const { data: link, error } = await ctx.admin
     .from("external_action_links")
     .select("id, organization_id")

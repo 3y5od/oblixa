@@ -24,7 +24,7 @@ describe("performance checklist and release gate anchors", () => {
   it("keeps qa-loading-routes-checklist and release-preflight wired for perf gates", () => {
     expect(fs.existsSync(qaLoadingChecklistPath)).toBe(true);
     const checklist = fs.readFileSync(qaLoadingChecklistPath, "utf8");
-    expect(checklist).toContain("src/app/(dashboard)/loading.tsx");
+    expect(checklist).toContain("src/app/(dashboard)/dashboard/loading.tsx");
     expect(checklist).toContain("src/app/(dashboard)/decisions/loading.tsx");
     expect(checklist).toContain("src/app/(dashboard)/assurance/loading.tsx");
     expect(checklist).toContain("src/app/(auth)/loading.tsx");

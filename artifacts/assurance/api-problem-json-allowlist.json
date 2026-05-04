@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-03T19:32:41.259Z",
+  "generatedAt": "2026-05-04T18:37:17.967Z",
   "entries": [
     {
       "path": "src/app/api/accounts/[key]/summary/route.ts",
@@ -207,12 +207,6 @@
       "expiresOn": "2026-12-31"
     },
     {
-      "path": "src/app/api/contracts/recompute-signals/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
       "path": "src/app/api/control-policies/[id]/assign/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
@@ -244,198 +238,6 @@
     },
     {
       "path": "src/app/api/counterparties/[key]/summary/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/stripe-webhook-events/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v10/read-model-refresh/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/approvals-sla/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/attestations-issue/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/escalations-dispatch/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/evidence-followup/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/exceptions-detect/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/programs-reconcile/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/campaign-progress/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/external-followup/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/recommendation-refresh/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/relationship-rollups/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v5/simulation-snapshots/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/assurance-checks/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/autopilot-execution/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/finding-refresh/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/health-graph-rollups/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/scorecard-recompute/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/cron/v6/segment-recompute/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
       "expiresOn": "2026-12-31"
@@ -633,18 +435,6 @@
       "expiresOn": "2026-12-31"
     },
     {
-      "path": "src/app/api/integrations/calendar/sync/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/integrations/crm/sync/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
       "path": "src/app/api/integrations/oauth/callback/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
@@ -652,12 +442,6 @@
     },
     {
       "path": "src/app/api/integrations/oauth/start/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/integrations/refresh-tokens/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
       "expiresOn": "2026-12-31"
@@ -735,12 +519,6 @@
       "expiresOn": "2026-12-31"
     },
     {
-      "path": "src/app/api/maintenance/prune-operational-data/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
       "path": "src/app/api/me/account/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
@@ -748,12 +526,6 @@
     },
     {
       "path": "src/app/api/me/export/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/notifications/retry-deliveries/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
       "expiresOn": "2026-12-31"
@@ -849,12 +621,6 @@
       "expiresOn": "2026-12-31"
     },
     {
-      "path": "src/app/api/reminders/send/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
       "path": "src/app/api/renewals/portfolio-signals/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
@@ -868,18 +634,6 @@
     },
     {
       "path": "src/app/api/report-packs/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/reports/capture-metrics/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/reports/send-summaries/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
       "expiresOn": "2026-12-31"
@@ -982,12 +736,6 @@
     },
     {
       "path": "src/app/api/tasks/from-slack/route.ts",
-      "owner": "engineering",
-      "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
-      "expiresOn": "2026-12-31"
-    },
-    {
-      "path": "src/app/api/tasks/run-rules/route.ts",
       "owner": "engineering",
       "reason": "Legacy raw error JSON response migration baseline; convert to shared problem helpers.",
       "expiresOn": "2026-12-31"

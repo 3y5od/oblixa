@@ -1,7 +1,6 @@
 "use server";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { hasOrgCapability } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { isUuid } from "@/lib/security/validation";
 import type { ApprovalStatus, ApprovalType, RenewalScenario } from "@/lib/types";
@@ -11,8 +10,15 @@ import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy
 import { emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
 import { validateV10ApprovalDecision } from "@/lib/v10-approval-exception";
+import {
+  appendApprovalEvent,
+  approvalAuditActionForStatus,
+  approvalDecisionMessage,
+  buildApprovalMutationEnvelope,
+  canManageApprovalsForOrg,
+  revalidateApprovalPaths,
+} from "./approvals-helpers";
 
 const APPROVAL_TYPES: ApprovalType[] = [
   "renewal_decision",
@@ -20,7 +26,7 @@ const APPROVAL_TYPES: ApprovalType[] = [
   "commercial_exception",
   "ownership_handoff",
 ];
-const APPROVAL_STATUSES: ApprovalStatus[] = ["pending", "approved", "rejected"];
+const APPROVAL_STATUSES: ApprovalStatus[] = ["pending", "approved", "rejected", "changes_requested"];
 const RENEWAL_SCENARIOS: RenewalScenario[] = [
   "renew",
   "renegotiate",
@@ -33,59 +39,6 @@ const RENEWAL_SCENARIOS: RenewalScenario[] = [
 
 const MAX_NOTE_LEN = 4000;
 const MAX_EXCEPTION_REASON_LEN = 800;
-
-function buildApprovalMutationEnvelope(input: {
-  outcome: "success" | "audit_write_failed";
-  message: string;
-  approvalId: string;
-  contractId: string;
-  auditEventId: string | null;
-}) {
-  return buildV10MutationResponse({
-    outcome: input.outcome,
-    message: input.message,
-    changedObjectType: "approval",
-    changedObjectId: input.approvalId,
-    nextDestinationHref: `/contracts/${input.contractId}?tab=overview#renewal-approvals`,
-    auditEventId: input.auditEventId,
-    diagnosticId: input.outcome === "audit_write_failed" ? "v10_approval_audit_missing" : null,
-  });
-}
-
-async function appendApprovalEvent(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  input: {
-    organizationId: string;
-    contractId: string;
-    approvalId: string;
-    actorId: string | null;
-    eventType: "requested" | "status_changed" | "delegated" | "escalated" | "exception_logged";
-    details?: Record<string, unknown>;
-  }
-) {
-  await admin.from("contract_approval_events").insert({
-    organization_id: input.organizationId,
-    contract_id: input.contractId,
-    approval_id: input.approvalId,
-    actor_id: input.actorId,
-    event_type: input.eventType,
-    details: input.details ?? {},
-  });
-}
-
-async function canManageApprovalsForOrg(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  organizationId: string,
-  userId: string
-) {
-  return await hasOrgCapability({
-    admin,
-    organizationId,
-    userId,
-    capability: "approvals_manage",
-    allowContractEditors: true,
-  });
-}
 
 export async function requestContractApproval(input: {
   contractId: string;
@@ -292,6 +245,7 @@ export async function requestContractApproval(input: {
     reason: "approval_request_mutation",
     modelKeys: ["work_items", "contract_health_snapshots", "contract_activity_events", "approval_records", "audit_events", "command_search_index"],
   });
+  revalidateApprovalPaths(contract.id);
 
   return {
     success: true as const,
@@ -356,15 +310,16 @@ export async function updateContractApprovalStatus(input: {
     return { error: "Only pending approvals can be updated" };
   }
   if (input.status === "pending") {
-    return { error: "Approval decisions must approve or reject the request." };
+    return { error: "Approval decisions must approve, reject, or request changes." };
   }
+  const nextDecision = input.status;
   const v10DecisionFailures = validateV10ApprovalDecision({
     status: approval.status,
-    decision: input.status === "approved" ? "approved" : "rejected",
+    decision: nextDecision,
     note: notes,
   });
   if (v10DecisionFailures.includes("decision_note_required")) {
-    return { error: "Add a decision note before rejecting this approval." };
+    return { error: "Add a decision note before rejecting this approval or requesting changes." };
   }
   if (v10DecisionFailures.length > 0) {
     return { error: "This approval can no longer be decided." };
@@ -428,7 +383,7 @@ export async function updateContractApprovalStatus(input: {
   const v10AuditEventId = await recordV10AuditEvent(admin, {
     organizationId: approval.organization_id,
     actorUserId: user.id,
-    action: input.status === "approved" ? "approval.approved" : "approval.rejected",
+    action: approvalAuditActionForStatus(input.status),
     targetType: "approval",
     targetId: input.approvalId,
     contractId: approval.contract_id,
@@ -487,6 +442,7 @@ export async function updateContractApprovalStatus(input: {
     reason: "approval_status_mutation",
     modelKeys: ["work_items", "contract_health_snapshots", "contract_activity_events", "approval_records", "audit_events", "command_search_index"],
   });
+  revalidateApprovalPaths(approval.contract_id);
 
   return {
     success: true as const,
@@ -496,8 +452,8 @@ export async function updateContractApprovalStatus(input: {
     v10: buildApprovalMutationEnvelope({
       outcome: v10AuditEventId ? "success" : "audit_write_failed",
       message: v10AuditEventId
-        ? `Approval ${input.status}.`
-        : `Approval ${input.status}, but audit confirmation is missing.`,
+        ? approvalDecisionMessage(input.status)
+        : `${approvalDecisionMessage(input.status).replace(/[.]$/, "")}, but audit confirmation is missing.`,
       approvalId: input.approvalId,
       contractId: approval.contract_id,
       auditEventId: v10AuditEventId,
@@ -569,6 +525,18 @@ export async function delegateContractApproval(input: {
     .eq("id", approval.id);
   if (error) return { error: mapDataSourceError(error.message) };
 
+  const v10AuditEventId = await recordV10AuditEvent(admin, {
+    organizationId: approval.organization_id,
+    actorUserId: user.id,
+    action: "approval.delegated",
+    targetType: "approval",
+    targetId: approval.id,
+    contractId: approval.contract_id,
+    outcome: "success",
+    beforeStateHash: approval.status,
+    afterStateHash: "delegated",
+    safeMetadata: { delegate_user_assigned: true, reason_state: reason ? "provided" : "not_provided" },
+  });
   await appendApprovalEvent(admin, {
     organizationId: approval.organization_id,
     contractId: approval.contract_id,
@@ -606,7 +574,15 @@ export async function delegateContractApproval(input: {
     schemaVersion: "v1",
   });
 
-  return { success: true as const };
+  await refreshV10ReadModelsForOrganization(admin, approval.organization_id, {
+    refreshScope: "one_contract",
+    contractId: approval.contract_id,
+    reason: "approval_delegate_mutation",
+    modelKeys: ["work_items", "contract_health_snapshots", "contract_activity_events", "approval_records", "audit_events", "command_search_index"],
+  });
+  revalidateApprovalPaths(approval.contract_id);
+
+  return { success: true as const, v10AuditEventId };
 }
 
 export async function delegateContractApprovalForm(formData: FormData) {

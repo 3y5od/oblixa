@@ -15,6 +15,7 @@ import {
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
+import { validateV10ApprovalDecision } from "@/lib/v10-approval-exception";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
@@ -73,8 +74,8 @@ export async function POST(
 
   if (action === "approve" || action === "reject" || action === "request-changes") {
     const _lb_body = await readJsonBodyLimited(request);
-  if (!_lb_body.ok) return _lb_body.response;
-  const body = (_lb_body.body ?? {}) as { note?: string };
+    if (!_lb_body.ok) return _lb_body.response;
+    const body = (_lb_body.body ?? {}) as { note?: string };
     const nextStatus =
       action === "approve" ? "approved" : action === "reject" ? "rejected" : "changes_requested";
     const eventType =
@@ -105,6 +106,33 @@ export async function POST(
         payload: { action, note_state: body.note?.trim() ? "provided" : "not_provided" },
       },
       async () => {
+        if (approval.status !== "pending") {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only pending approvals can be updated.",
+            diagnosticId: "v10_approval_decision_not_pending",
+          });
+        }
+        const validationFailures = validateV10ApprovalDecision({
+          status: approval.status,
+          decision: nextStatus,
+          note: body.note?.trim() || null,
+        });
+        if (validationFailures.includes("decision_note_required")) {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Add a decision note before rejecting this approval or requesting changes.",
+            diagnosticId: "v10_approval_decision_note_required",
+            validationFailures: [
+              {
+                field: "note",
+                code: "required",
+                user_visible_message: "Add a decision note before rejecting this approval or requesting changes.",
+                self_fixable: true,
+              },
+            ],
+          });
+        }
         const { error } = await ctx.admin
           .from("contract_approvals")
           .update({
@@ -185,8 +213,8 @@ export async function POST(
 
   if (action === "delegate") {
     const _lb_body = await readJsonBodyLimited(request);
-  if (!_lb_body.ok) return _lb_body.response;
-  const body = (_lb_body.body ?? {}) as { delegateUserId?: string };
+    if (!_lb_body.ok) return _lb_body.response;
+    const body = (_lb_body.body ?? {}) as { delegateUserId?: string };
     const delegateUserId = String(body.delegateUserId ?? "").trim();
     const mutation = await executeV10IdempotentMutation(
       ctx.admin,

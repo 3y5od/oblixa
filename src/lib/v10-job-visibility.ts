@@ -27,6 +27,8 @@ export type V10JobRunVisibility = {
   source_type: V10SourceObjectType;
   source_id: string;
   contract_id: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   completed_count: number;
   failed_count: number;
   skipped_count: number;

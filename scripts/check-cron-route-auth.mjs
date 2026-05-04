@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Ensures all scheduled route.ts files declared in vercel.json both import and invoke a
- * shared cron authorization helper (authorizeCronRequest, ensureCronAuthorized,
- * requireV5CronAuth, or requireV6CronAuth).
+ * Ensures all scheduled route.ts files declared in vercel.json either import+invoke a
+ * shared cron authorization helper directly or enter through an approved shared cron wrapper
+ * that performs the auth boundary internally.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -20,6 +20,9 @@ const AUTH_HELPERS = [
   "requireCronAuthorized",
   "requireV5CronAuth",
   "requireV6CronAuth",
+  "withCronRoute",
+  "withV6CronRoute",
+  "runCronRoute",
 ];
 
 function hasHelperImport(text, helper) {
@@ -61,9 +64,9 @@ for (const abs of routes) {
 }
 
 if (violations.length > 0) {
-  console.error("Scheduled route.ts file(s) missing shared cron auth helper import+call:\n");
+  console.error("Scheduled route.ts file(s) missing shared cron auth/helper-wrapper import+call:\n");
   for (const v of violations) console.error(`  - ${v}`);
   process.exit(1);
 }
 
-console.log(`OK: ${routes.length} scheduled route(s) reference shared cron auth.`);
+console.log(`OK: ${routes.length} scheduled route(s) reference shared cron auth or wrapper.`);

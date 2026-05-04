@@ -15,7 +15,10 @@ describe("V9 business dates single source", () => {
   });
 
   it("work hub due_soon lens uses the same horizon constant", () => {
-    const work = readFileSync(join(process.cwd(), "src/app/(dashboard)/work/page.tsx"), "utf8");
+    const work = [
+      readFileSync(join(process.cwd(), "src/app/(dashboard)/work/page.tsx"), "utf8"),
+      readFileSync(join(process.cwd(), "src/app/(dashboard)/work/work-page-helpers.ts"), "utf8"),
+    ].join("\n");
     expect(work).toContain("V9_DUE_SOON_DAYS");
   });
 

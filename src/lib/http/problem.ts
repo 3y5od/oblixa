@@ -71,13 +71,21 @@ export function jsonNotFound(route?: string): NextResponse<ProblemBody> {
 }
 
 export function jsonRateLimited(retryAfterMs: number, route?: string): NextResponse<ProblemBody> {
-  return jsonProblem(429, {
-    error: "Too many requests",
-    code: "rate_limited",
-    diagnostic_id: "route_rate_limited",
-    ...(route ? { route } : {}),
-    details: { retryAfterMs },
-  });
+  return jsonProblem(
+    429,
+    {
+      error: "Too many requests",
+      code: "rate_limited",
+      diagnostic_id: "route_rate_limited",
+      ...(route ? { route } : {}),
+      details: { retryAfterMs },
+    },
+    {
+      headers: {
+        "Retry-After": String(Math.max(1, Math.ceil(retryAfterMs / 1000))),
+      },
+    }
+  );
 }
 
 export function jsonMisconfigured(missingEnv: string, route?: string): NextResponse<ProblemBody> {

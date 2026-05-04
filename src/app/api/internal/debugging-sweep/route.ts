@@ -4,14 +4,18 @@ import { clientIpMatchesAllowlist, parseInternalDiagAllowlist } from "@/lib/debu
 import { getStubsRegisteredCount } from "@/lib/debugging-sweep/stubs/register-stubs";
 import { createSweepLogger } from "@/lib/observability/logger";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
+import { requireBearerSecret } from "@/lib/security/api-guards";
 import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
-import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 import { createAdminClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/security/validation";
 
 export const dynamic = "force-dynamic";
 
 const log = createSweepLogger("internal-debugging-sweep");
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+  Pragma: "no-cache",
+} as const;
 
 function sortKeysDeep(value: unknown): unknown {
   if (value === null || typeof value !== "object") {
@@ -40,26 +44,25 @@ export async function GET(request: Request) {
   if (process.env.OBLIXA_DEBUGGING_SWEEP_ENDPOINT !== "1") {
     return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport", disabled: true }), {
       status: 404,
-      headers: { "Cache-Control": "no-store, max-age=0", Pragma: "no-cache" },
+      headers: NO_STORE_HEADERS,
     });
   }
 
-  const secret = process.env.OBLIXA_INTERNAL_DIAG_SECRET?.trim();
-  if (!secret) {
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport", disabled: true }), {
-      status: 404,
-      headers: { "Cache-Control": "no-store, max-age=0", Pragma: "no-cache" },
-    });
-  }
-
-  const bearer = parseBearerToken(request.headers.get("authorization"));
-  if (!bearer || !secureCompareUtf8(bearer, secret)) {
-    errors.push({ code: "UNAUTHORIZED", detail: "invalid or missing bearer" });
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
-      status: 403,
-      headers: { "Cache-Control": "no-store, max-age=0", Pragma: "no-cache" },
-    });
-  }
+  const auth = requireBearerSecret(request, "OBLIXA_INTERNAL_DIAG_SECRET", {
+    missingSecretResponse: () =>
+      NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport", disabled: true }), {
+        status: 404,
+        headers: NO_STORE_HEADERS,
+      }),
+    unauthorizedResponse: () => {
+      errors.push({ code: "UNAUTHORIZED", detail: "invalid or missing bearer" });
+      return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
+        status: 403,
+        headers: NO_STORE_HEADERS,
+      });
+    },
+  });
+  if (auth) return auth;
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`internal-debugging-sweep:${ip}`, RATE_LIMITS.internalDebuggingSweep);
@@ -68,8 +71,7 @@ export async function GET(request: Request) {
     return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
       status: 429,
       headers: {
-        "Cache-Control": "no-store, max-age=0",
-        Pragma: "no-cache",
+        ...NO_STORE_HEADERS,
         "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)),
       },
     });
@@ -81,14 +83,14 @@ export async function GET(request: Request) {
     log.error("internal diagnostics allowlist invalid");
     return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
       status: 403,
-      headers: { "Cache-Control": "no-store, max-age=0", Pragma: "no-cache" },
+      headers: NO_STORE_HEADERS,
     });
   }
   if (!clientIpMatchesAllowlist(ip, allow.rules)) {
     errors.push({ code: "FORBIDDEN_IP", detail: "not in allowlist" });
     return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
       status: 403,
-      headers: { "Cache-Control": "no-store, max-age=0", Pragma: "no-cache" },
+      headers: NO_STORE_HEADERS,
     });
   }
 
@@ -135,8 +137,7 @@ export async function GET(request: Request) {
     status: 200,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store, max-age=0",
-      Pragma: "no-cache",
+      ...NO_STORE_HEADERS,
     },
   });
 }

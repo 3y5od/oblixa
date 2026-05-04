@@ -53,16 +53,53 @@ function indexOfMatch(text, re) {
   return m?.index ?? -1;
 }
 
+function extractBracedBlock(text, openBraceIdx) {
+  if (openBraceIdx < 0 || text[openBraceIdx] !== "{") return null;
+  let depth = 0;
+  for (let i = openBraceIdx; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return text.slice(openBraceIdx, i + 1);
+    }
+  }
+  return null;
+}
+
+function extractExportedHandlerBlocks(text) {
+  const blocks = [];
+  const patterns = [
+    /export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE)\b/g,
+    /export\s+function\s+(GET|POST|PUT|PATCH|DELETE)\b/g,
+    /export\s+const\s+(GET|POST|PUT|PATCH|DELETE)\s*=\s*async\b/g,
+  ];
+
+  for (const re of patterns) {
+    for (const match of text.matchAll(re)) {
+      const start = match.index ?? -1;
+      if (start < 0) continue;
+      const openBraceIdx = text.indexOf("{", start);
+      const block = extractBracedBlock(text, openBraceIdx);
+      if (block) blocks.push(block);
+    }
+  }
+
+  return blocks;
+}
+
+const SHARED_RATE_LIMIT_RE = /\brateLimitCheck\b|\bwith(?:V6)?CronRoute\b|\brunCronRoute\b/;
 const MUTATION_HANDLER_RE = /\bexport\s+async\s+function\s+(POST|PUT|PATCH|DELETE)\b/;
 const DB_TOUCH_RE =
   /\bcreateAdminClient\b|\bcreateClient\b|\bcreateServerClient\b|\.from\s*\(|\bupsert\s*\(|\binsert\s*\(|\bupdate\s*\(|\bdelete\s*\(/;
 const DB_MUTATION_RE = /\bupsert\s*\(|\binsert\s*\(|\bupdate\s*\(|\bdelete\s*\(/;
+const ORDERING_DB_TOUCH_RE = /\.from\s*\(|\bupsert\s*\(|\binsert\s*\(|\bupdate\s*\(|\bdelete\s*\(/;
 
 for (const abs of routes) {
   const rel = toApiRelative(abs);
   if (allowlist.has(rel)) continue;
   const text = fs.readFileSync(abs, "utf8");
-  const hasRateLimit = /\brateLimitCheck\b/.test(text);
+  const hasRateLimit = SHARED_RATE_LIMIT_RE.test(text);
   const isMutatingHandler = MUTATION_HANDLER_RE.test(text);
   const hasDbTouch = DB_TOUCH_RE.test(text);
   const hasDbMutation = DB_MUTATION_RE.test(text);
@@ -74,10 +111,14 @@ for (const abs of routes) {
   }
 
   if (hasRateLimit && (hasDbTouch || hasDbMutation)) {
-    const rateLimitIdx = indexOfMatch(text, /\brateLimitCheck\s*\(/);
-    const dbIdx = indexOfMatch(text, DB_TOUCH_RE);
-    if (rateLimitIdx >= 0 && dbIdx >= 0 && dbIdx < rateLimitIdx) {
-      orderingWarnings.push(rel);
+    const handlerBlocks = extractExportedHandlerBlocks(text);
+    for (const block of handlerBlocks) {
+      const rateLimitIdx = indexOfMatch(block, /\brateLimitCheck\s*\(/);
+      const dbIdx = indexOfMatch(block, ORDERING_DB_TOUCH_RE);
+      if (rateLimitIdx >= 0 && dbIdx >= 0 && dbIdx < rateLimitIdx) {
+        orderingWarnings.push(rel);
+        break;
+      }
     }
   }
 }

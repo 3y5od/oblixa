@@ -8,7 +8,9 @@ const rlMocks = vi.hoisted(() => ({
 const authServerMocks = vi.hoisted(() => ({
   signInWithPassword: vi.fn(async () => ({ error: null })),
   signUp: vi.fn(async () => ({ data: {}, error: null })),
+  resetPasswordForEmail: vi.fn(async () => ({ error: null })),
   getUser: vi.fn(async () => ({ data: { user: { id: "user-1" } } })),
+  updateUser: vi.fn(async () => ({ error: null })),
   createAdminClient: vi.fn(async () => ({})),
   getOrEnsureDeterministicMembership: vi.fn(async () => ({
     organization_id: "org-1",
@@ -40,8 +42,9 @@ vi.mock("@/lib/supabase/server", () => ({
     auth: {
       signInWithPassword: authServerMocks.signInWithPassword,
       signUp: authServerMocks.signUp,
+      resetPasswordForEmail: authServerMocks.resetPasswordForEmail,
       getUser: authServerMocks.getUser,
-      updateUser: vi.fn(async () => ({ error: null })),
+      updateUser: authServerMocks.updateUser,
     },
   })),
   createAdminClient: authServerMocks.createAdminClient,
@@ -88,6 +91,16 @@ describe("auth actions rate limits", () => {
       error: "Too many sign-up attempts. Try again later.",
     });
     expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("forgotPassword returns error when rate limited", async () => {
+    const { forgotPassword } = await import("@/actions/auth");
+    const fd = new FormData();
+    fd.set("email", "recover@example.com");
+    const res = await forgotPassword(fd);
+    expect(res).toEqual({
+      error: "Too many reset requests. Try again later.",
+    });
   });
 
   describe("signIn input validation", () => {
@@ -178,10 +191,36 @@ describe("auth actions rate limits", () => {
     });
   });
 
+  describe("forgotPassword recovery flow", () => {
+    beforeEach(() => {
+      rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
+    });
+
+    it("forgotPassword requests a reset link using the reset-password route", async () => {
+      const { forgotPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "recover@example.com");
+      const res = await forgotPassword(fd);
+      expect(authServerMocks.resetPasswordForEmail).toHaveBeenCalledWith("recover@example.com", {
+        redirectTo: "http://localhost:3000/reset-password",
+      });
+      expect(res).toEqual({ success: "Check your email for a password reset link." });
+    });
+  });
+
   describe("resetPassword redirect resolution", () => {
     beforeEach(() => {
       rlMocks.rateLimitCheck.mockResolvedValue({ ok: true });
       calGateMocks.resolveBlockingCalibrationPathForAdminOrg.mockResolvedValue(null);
+    });
+
+    it("resetPassword rejects too-short replacement passwords before calling updateUser", async () => {
+      const { resetPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "short");
+      const res = await resetPassword(fd);
+      expect(res).toEqual({ error: "Password must be between 8 and 128 characters." });
+      expect(authServerMocks.updateUser).not.toHaveBeenCalled();
     });
 
     it("returns redirectTo /dashboard when no blocking calibration is needed", async () => {
@@ -189,6 +228,7 @@ describe("auth actions rate limits", () => {
       const fd = new FormData();
       fd.set("password", "longpassword123");
       const res = await resetPassword(fd);
+      expect(authServerMocks.updateUser).toHaveBeenCalledWith({ password: "longpassword123" });
       expect(res).toEqual({ redirectTo: "/dashboard" });
     });
 

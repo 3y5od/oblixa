@@ -9,6 +9,7 @@ import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { cookies } from "next/headers";
 import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
+import { enforceIdempotency } from "@/lib/idempotency";
 
 const ALLOWED_PROVIDERS = new Set([
   "google_calendar",
@@ -75,6 +76,11 @@ export async function POST(request: Request) {
     apiPath: "/api/integrations/oauth/start",
   });
   if (modeGate) return modeGate;
+  const duplicate = await enforceIdempotency(request, {
+    scope: "integrations.oauth.start",
+    actorKey: `${membership.organization_id}:${user.id}`,
+  });
+  if (duplicate) return duplicate;
   const providerConfigFromEnv = readOAuthProviderConfigFromEnv(providerId);
   const { data: existingConnection } = await admin
     .from("integration_connections")

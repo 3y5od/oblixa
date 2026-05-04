@@ -196,6 +196,29 @@ export async function POST(request: Request) {
           schedule_state: body.schedule?.trim() ? "provided" : "not_provided",
         },
       });
+      if (!auditEventId) {
+        return {
+          response: {
+            ...buildV10MutationResponse({
+              outcome: "success",
+              message: "Report pack created.",
+              changedObjectType: "report_run",
+              changedObjectId: data.id,
+              nextDestinationHref: "/reports",
+            }),
+            reportPack: data,
+          },
+          auditEventId: null,
+          rollback: async () => {
+            await ctx.admin.from("report_packs").delete().eq("id", data.id).eq("organization_id", ctx.orgId);
+            await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
+              refreshScope: "one_model",
+              reason: "report_run_mutation_rollback",
+              modelKeys: ["work_items", "report_run_visibility", "contract_activity_events", "audit_events", "command_search_index"],
+            });
+          },
+        };
+      }
       await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
         refreshScope: "one_model",
         reason: "report_run_mutation",

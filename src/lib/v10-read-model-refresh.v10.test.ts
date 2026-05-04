@@ -34,6 +34,10 @@ function makeFakeAdmin(seed: FakeTableData) {
       return this;
     }
 
+    in() {
+      return this;
+    }
+
     eq() {
       return this;
     }
@@ -103,10 +107,11 @@ describe("V10 read model refresh", () => {
         "contract_files",
         "reminders",
         "organization_workflow_settings",
-        "notification_destinations",
-        "portfolio_programs",
         "v10_runtime_artifacts",
       ])
+    );
+    expect(V10_READ_MODEL_REFRESH_SOURCE_TABLES).toEqual(
+      expect.arrayContaining(["contract_programs", "segment_definitions", "program_evolution_experiments"])
     );
     expect(V10_READ_MODEL_REFRESH_DEFERRED_SOURCE_TABLES).toEqual(
       expect.arrayContaining(["billing_sync_jobs"])
@@ -167,7 +172,113 @@ describe("V10 read model refresh", () => {
     });
 
     expect(reportPlan.refreshOptions.refreshScope).toBe("incremental");
-    expect(reportPlan.targetModels).toEqual(["report_run_visibility", "job_run_visibility"]);
+    expect(reportPlan.targetModels).toEqual(["report_run_visibility", "work_items", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "contract_import_jobs",
+        sourceId: "import_1",
+      }).targetModels
+    ).toEqual(["job_run_visibility", "activation_state", "work_items", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "contract_export_jobs",
+        sourceId: "export_1",
+      }).targetModels
+    ).toEqual(["job_run_visibility", "work_items", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "evidence_requirements",
+        sourceId: "evidence_1",
+        contractId: "contract_1",
+      }).targetModels
+    ).toEqual([
+      "evidence_request_statuses",
+      "external_evidence_submissions",
+      "obligation_records",
+      "work_items",
+      "contract_activity_events",
+      "command_search_index",
+    ]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "contract_renewal_checkpoints",
+        sourceId: "checkpoint_1",
+        contractId: "contract_1",
+      }).targetModels
+    ).toEqual(["renewal_checkpoint_records", "renewal_posture_snapshots", "work_items", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "notification_deliveries",
+        sourceId: "delivery_1",
+      }).targetModels
+    ).toEqual(["notification_deliveries", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "evidence_submissions",
+        sourceId: "submission_1",
+      }).targetModels
+    ).toEqual(["external_evidence_submissions", "evidence_request_statuses", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "reminders",
+        sourceId: "reminder_1",
+        contractId: "contract_1",
+      }).targetModels
+    ).toEqual(["command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "organization_workflow_settings",
+        sourceId: "org_1",
+      }).targetModels
+    ).toEqual(["work_items", "notification_deliveries", "audit_events", "command_search_index", "advanced_assurance_linked_records"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "adaptive_playbook_runs",
+        sourceId: "playbook_run_1",
+      }).targetModels
+    ).toEqual(["advanced_assurance_linked_records", "work_items", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "change_simulations",
+        sourceId: "simulation_1",
+      }).targetModels
+    ).toEqual(["advanced_assurance_linked_records", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "portfolio_health_graph_edges",
+        sourceId: "edge_1",
+      }).targetModels
+    ).toEqual(["advanced_assurance_linked_records", "command_search_index"]);
+
+    expect(
+      buildV10ReadModelRefreshEventPlan({
+        organizationId: "org_1",
+        sourceTable: "v10_read_model_refresh_jobs",
+        sourceId: "refresh_1",
+      }).targetModels
+    ).toEqual(["command_search_index"]);
   });
 
   it("materializes work, health, activation, job visibility, report visibility, and command search rows", async () => {
@@ -192,6 +303,30 @@ describe("V10 read model refresh", () => {
         { id: "field_3", contract_id: "contract_1", field_name: "renewal_date", field_value: "2027-03-25", status: "approved", created_at: "2026-04-21T00:00:00Z", updated_at: "2026-04-22T00:00:00Z" },
         { id: "field_4", contract_id: "contract_1", field_name: "notice_deadline", field_value: "2027-02-25", status: "approved", created_at: "2026-04-21T00:00:00Z", updated_at: "2026-04-23T00:00:00Z" },
         { id: "field_5", contract_id: "contract_1", field_name: "governing_law", field_value: "Delaware", status: "pending", created_at: "2026-04-21T00:00:00Z", updated_at: "2026-04-23T00:00:00Z" },
+      ],
+      reminders: [
+        {
+          id: "reminder_1",
+          contract_id: "contract_1",
+          field_id: "field_4",
+          reminder_type: "notice_deadline",
+          reminder_date: "2027-02-01",
+          sent_at: null,
+          recipient_id: "user_1",
+          created_at: "2026-04-24T00:00:00Z",
+        },
+      ],
+      contract_files: [
+        {
+          id: "file_1",
+          contract_id: "contract_1",
+          file_name: "msa.pdf",
+          file_type: "application/pdf",
+          file_size: 102400,
+          storage_path: "contracts/org_1/msa.pdf",
+          uploaded_by: "user_1",
+          created_at: "2026-04-24T00:00:00Z",
+        },
       ],
       contract_tasks: [
         {
@@ -241,6 +376,7 @@ describe("V10 read model refresh", () => {
           due_date: "2026-04-20",
           linked_entity_type: "contract_obligation",
           linked_entity_id: "obligation_1",
+          resolution_action: "Escalate to owner",
           resolution_note: "Escalate to owner",
           created_at: "2026-04-20T00:00:00Z",
           updated_at: "2026-04-24T00:00:00Z",
@@ -295,6 +431,23 @@ describe("V10 read model refresh", () => {
           updated_at: "2026-04-25T00:00:00Z",
         },
       ],
+      v10_read_model_refresh_jobs: [
+        {
+          refresh_job_id: "refresh_prev",
+          refresh_reason: "scheduled_refresh",
+          refresh_scope: "full",
+          status: "partial",
+          failure_count: 1,
+          failed_source_tables: ["contracts"],
+          stale_source_tables: [],
+          drift_state: "partial",
+          diagnostic_id: "v10_read_model_refresh_partial",
+          started_at: "2026-04-24T00:00:00Z",
+          completed_at: "2026-04-24T00:05:00Z",
+          created_at: "2026-04-24T00:00:00Z",
+          updated_at: "2026-04-24T00:05:00Z",
+        },
+      ],
       v10_audit_events: [
         {
           audit_event_id: "audit_1",
@@ -310,37 +463,138 @@ describe("V10 read model refresh", () => {
         },
       ],
       account_workspaces: [
-        { id: "account_1", account_key: "acme", display_name: "Acme account", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "account_1",
+          account_key: "acme",
+          display_name: "Acme account",
+          owner_user_id: "user_1",
+          summary_json: { contract_ids: ["contract_1"] },
+          health_signal_json: { status: "watch" },
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       counterparty_workspaces: [
-        { id: "counterparty_1", counterparty_key: "acme-inc", display_name: "Acme Inc", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "counterparty_1",
+          counterparty_key: "acme-inc",
+          display_name: "Acme Inc",
+          owner_user_id: "user_1",
+          summary_json: { contract_count: 2 },
+          health_signal_json: { status: "degraded" },
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       decision_workspaces: [
-        { id: "decision_1", title: "Renewal decision", decision_type: "renewal_recommendation", status: "open", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "decision_1",
+          title: "Renewal decision",
+          decision_type: "renewal_recommendation",
+          status: "open",
+          linked_contract_ids: ["contract_1"],
+          linked_counterparty_key: "acme-inc",
+          owner_user_id: "user_1",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       portfolio_campaigns: [
-        { id: "campaign_1", name: "Notice campaign", campaign_type: "renewal_notice", status: "active", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "campaign_1",
+          name: "Notice campaign",
+          campaign_type: "renewal_notice",
+          status: "active",
+          owner_user_id: "user_1",
+          progress_summary_json: { contract_ids: ["contract_1", "contract_2"] },
+          rollback_safe: true,
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
+      ],
+      contract_programs: [
+        {
+          id: "program_1",
+          name: "Renewal blueprint",
+          description: "Reusable renewal workflow",
+          state: "published",
+          current_version_id: "version_1",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       change_simulations: [
         { id: "simulation_1", name: "Renewal simulation", simulation_type: "renewal", status: "completed", owner_user_id: "user_1", input_json: { contract_ids: ["contract_1"] }, created_at: "2026-04-20T00:00:00Z" },
       ],
       assurance_findings: [
-        { id: "finding_1", title: "Control gap", finding_type: "control_gap", severity: "high", status: "open", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "finding_1",
+          title: "Control gap",
+          finding_type: "control_gap",
+          severity: "high",
+          status: "open",
+          linked_entities_json: { contract_ids: ["contract_1"], owner_user_id: "user_1" },
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       control_policies: [
-        { id: "control_1", name: "Evidence policy", status: "published", enforcement_mode: "warn", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "control_1",
+          name: "Evidence policy",
+          status: "published",
+          enforcement_mode: "warn",
+          severity_model_json: { default_severity: "high" },
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       adaptive_playbook_runs: [
-        { id: "playbook_run_1", status: "awaiting_approval", run_by: "user_1", created_at: "2026-04-25T00:00:00Z" },
+        {
+          id: "playbook_run_1",
+          status: "awaiting_approval",
+          source_finding_id: "finding_1",
+          run_by: "user_1",
+          created_at: "2026-04-25T00:00:00Z",
+          updated_at: "2026-04-25T00:05:00Z",
+        },
       ],
       assurance_scorecards: [
-        { id: "scorecard_1", name: "Control scorecard", status: "active", owner_user_id: "user_1", overall_score: 82, created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "scorecard_1",
+          name: "Control scorecard",
+          status: "active",
+          owner_user_id: "user_1",
+          overall_score: 82,
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       review_boards: [
-        { id: "review_board_1", name: "Assurance board", status: "active", owner_user_id: "user_1", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "review_board_1",
+          name: "Assurance board",
+          status: "active",
+          owner_user_id: "user_1",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
       ],
       portfolio_health_graph_edges: [
-        { id: "edge_1", source_node_id: "finding_1", target_node_id: "control_1", edge_type: "control_gap", created_at: "2026-04-20T00:00:00Z" },
+        {
+          id: "edge_1",
+          source_node_id: "finding_1",
+          target_node_id: "control_1",
+          edge_type: "control_gap",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
+      ],
+      segment_definitions: [
+        { id: "segment_1", segment_type: "region", key: "emea", name: "EMEA", active: true, created_at: "2026-04-20T00:00:00Z", updated_at: "2026-04-24T00:00:00Z" },
+      ],
+      program_evolution_experiments: [
+        { id: "experiment_1", status: "simulated", hypothesis: "Renewal blueprint improves health", program_id: "program_1", target_segment_id: "segment_1", created_at: "2026-04-20T00:00:00Z", updated_at: "2026-04-24T00:00:00Z" },
       ],
       contract_import_jobs: [
         {
@@ -354,6 +608,19 @@ describe("V10 read model refresh", () => {
           created_at: "2026-04-25T00:00:00Z",
         },
       ],
+      contract_extraction_jobs: [
+        {
+          id: "extract_1",
+          contract_id: "contract_1",
+          status: "failed",
+          attempt_count: 2,
+          last_error: "OCR provider unavailable",
+          started_at: "2026-04-24T01:00:00Z",
+          completed_at: "2026-04-24T01:05:00Z",
+          created_at: "2026-04-24T01:00:00Z",
+          updated_at: "2026-04-24T01:05:00Z",
+        },
+      ],
       contract_export_jobs: [],
       report_runs: [
         {
@@ -363,7 +630,7 @@ describe("V10 read model refresh", () => {
           error_summary: "SMTP unavailable",
           triggered_by: "user_1",
           subscription_id: "subscription_1",
-          metrics_json: { selected_row_count: 42, generated_row_count: 40, artifact_url: "/api/reports/report_1" },
+          metrics_json: { report_pack_id: "pack_1", selected_row_count: 42, generated_row_count: 40, artifact_url: "/api/reports/report_1" },
           started_at: "2026-04-25T00:00:00Z",
           created_at: "2026-04-25T00:00:00Z",
         },
@@ -376,6 +643,15 @@ describe("V10 read model refresh", () => {
           query_json: { status: "active" },
           pinned: true,
           created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-24T00:00:00Z",
+        },
+        {
+          id: "view_2",
+          name: "My open obligations",
+          view_type: "obligations",
+          query_json: { status: "open", mine: "1" },
+          pinned: false,
+          created_at: "2026-04-21T00:00:00Z",
           updated_at: "2026-04-24T00:00:00Z",
         },
       ],
@@ -427,7 +703,7 @@ describe("V10 read model refresh", () => {
     expect(Object.keys(result.counts).sort()).toEqual(
       ["read_model_rows", "read_model_lineage", "runtime_artifacts", "runtime_coverage_ledger", ...V10_REQUIRED_READ_MODEL_KEYS].sort()
     );
-    expect(result.counts.work_items).toBe(11);
+    expect(result.counts.work_items).toBe(12);
     expect(V10_REQUIRED_READ_MODEL_KEYS.every((modelKey) => Object.prototype.hasOwnProperty.call(result.counts, modelKey))).toBe(true);
     for (const [modelKey, fields] of Object.entries(V10_READ_MODEL_FIELDS)) {
       const tableName = `v10_${modelKey}`;
@@ -464,6 +740,7 @@ describe("V10 read model refresh", () => {
       "renewal_checkpoint",
       "unassigned_work",
       "import_failure",
+      "extraction_failure",
       "report_failure",
       "automation_approval",
     ]);
@@ -483,6 +760,19 @@ describe("V10 read model refresh", () => {
       source_type: "contract",
       primary_action: "assign_owner",
     });
+    expect(admin.inserted.v10_work_items.find((row) => row.type === "import_failure")).toMatchObject({
+      source_table: "contract_import_jobs",
+      primary_action: "retry_failed_job",
+    });
+    expect(admin.inserted.v10_work_items.find((row) => row.type === "extraction_failure")).toMatchObject({
+      source_table: "contract_extraction_jobs",
+      source_type: "extraction_job",
+      primary_action: "retry_failed_job",
+    });
+    expect(admin.inserted.v10_work_items.find((row) => row.type === "report_failure")).toMatchObject({
+      source_table: "report_runs",
+      primary_action: "retry_failed_job",
+    });
     expect(admin.inserted.v10_contract_health_snapshots[0].next_action).toBe("missing_required_activation_field");
     expect(admin.inserted.v10_contract_health_snapshots[0].missing_critical_date_count).toBe(0);
     expect(admin.inserted.v10_contract_health_snapshots[0].deductions).not.toEqual(
@@ -494,7 +784,42 @@ describe("V10 read model refresh", () => {
       blocked_reason: "required_fields_unapproved",
     });
     expect(admin.inserted.v10_job_run_visibility[0].retry_action).toBe("retry");
-    expect(admin.inserted.v10_report_run_visibility[0].retry_action).toBeNull();
+    expect(
+      admin.inserted.v10_job_run_visibility.map((row) => row.job_class)
+    ).toEqual(
+      expect.arrayContaining([
+        "contract_import",
+        "extraction",
+        "file_upload",
+        "report_generation",
+        "report_delivery",
+        "reminder_generation",
+        "notification_delivery",
+        "automation_execution",
+      ])
+    );
+    expect(admin.inserted.v10_job_run_visibility.find((row) => row.job_class === "report_generation")).toMatchObject({
+      status: "partial",
+      source_type: "report_run",
+    });
+    expect(admin.inserted.v10_job_run_visibility.find((row) => row.job_class === "report_delivery")).toMatchObject({
+      status: "failed_retryable",
+      retry_action: "retry",
+    });
+    expect(admin.inserted.v10_job_run_visibility.find((row) => row.job_class === "reminder_generation")).toMatchObject({
+      status: "queued",
+      source_type: "reminder",
+    });
+    expect(admin.inserted.v10_job_run_visibility.find((row) => row.job_class === "notification_delivery")).toMatchObject({
+      status: "failed_retryable",
+      failure_category: "provider_unavailable",
+      retry_action: "retry",
+    });
+    expect(admin.inserted.v10_job_run_visibility.find((row) => row.job_class === "automation_execution")).toMatchObject({
+      status: "partial",
+      source_type: "automation_run",
+    });
+    expect(admin.inserted.v10_report_run_visibility[0].retry_action).toBe("retry");
     expect(admin.inserted.v10_report_run_visibility[0].report_family).toBe("contract_portfolio_summary");
     expect(admin.inserted.v10_report_run_visibility[0].schedule_id).toBe("subscription_1");
     expect(admin.inserted.v10_report_run_visibility[0].selected_row_count).toBe(42);
@@ -515,7 +840,7 @@ describe("V10 read model refresh", () => {
     expect(admin.inserted.v10_exception_records[0].resolution_action).toBe("Escalate to owner");
     expect(admin.inserted.v10_evidence_request_statuses[0].resubmission_allowed).toBe(true);
     expect(admin.inserted.v10_external_evidence_submissions[0].submitter_email_state).toBe("redacted");
-    expect(admin.inserted.v10_notification_deliveries[0].failure_category).toBe("delivery_failed");
+    expect(admin.inserted.v10_notification_deliveries[0].failure_category).toBe("provider_unavailable");
     expect(admin.inserted.v10_contract_activity_events[0].action).toBe("evidence_request.rejected");
     expect(admin.inserted.v10_read_model_rows.some((row) => row.model_key === "evidence_request_statuses")).toBe(true);
     expect(admin.inserted.v10_read_model_lineage).toHaveLength(result.counts.read_model_rows);
@@ -535,20 +860,129 @@ describe("V10 read model refresh", () => {
       freshness_state: expect.stringMatching(/^(fresh|stale|partial|failed|missing|unknown)$/),
     });
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "contract")).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "field" && row.href === "/contracts/contract_1?tab=overview#extracted-fields"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "reminder" && row.href === "/contracts/contract_1?tab=renewals"
+      )
+    ).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "work_item")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "saved_view")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "setting")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "setting_destination")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "approval")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "renewal_checkpoint")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "exception")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "evidence_request")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "report_run")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "import_job")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "extraction_job")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "file_upload")).toBe(true);
     expect(
       admin.inserted.v10_command_search_index.every((row) => !String(row.href).startsWith("/api/import/"))
     ).toBe(true);
     expect(
       admin.inserted.v10_command_search_index.some(
-        (row) => row.record_type === "import_job" && row.href === "/settings/health#jobs"
+        (row) =>
+          row.record_type === "notification_delivery" &&
+          row.required_role_minimum === "admin" &&
+          row.feature_family === "settings" &&
+          row.href === "/settings/health"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) =>
+          row.record_type === "workspace_health_diagnostic" &&
+          row.required_role_minimum === "admin" &&
+          row.href === "/settings/health#read-models"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "import_job" && row.href === "/contracts/bulk#recent-imports"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "extraction_job" && row.href === "/contracts/contract_1"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "file_upload" && row.label === "msa.pdf" && row.href === "/contracts/contract_1"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.every(
+        (row) => !["obligations", "approvals", "imports", "exports", "simulations"].includes(String(row.feature_family))
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "obligation" && row.feature_family === "work"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "approval" && row.feature_family === "work"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "import_job" && row.feature_family === "contracts"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "extraction_job" && row.feature_family === "contracts"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "simulation" && row.feature_family === "compare_views"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "report_run" && row.href === "/reports"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) =>
+          row.record_type === "saved_view" &&
+          row.record_id === "view_1" &&
+          row.href === "/contracts?status=active" &&
+          row.feature_family === "contracts" &&
+          row.module_key === "contracts"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) =>
+          row.record_type === "saved_view" &&
+          row.record_id === "view_2" &&
+          row.href === "/contracts/obligations?status=open&mine=1" &&
+          row.feature_family === "work" &&
+          row.module_key === "obligations"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "setting" && row.href === "/settings"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) =>
+          row.record_type === "setting_destination" &&
+          row.source_table === "organization_workflow_settings" &&
+          row.href === "/settings/operations"
       )
     ).toBe(true);
     expect(
@@ -581,14 +1015,73 @@ describe("V10 read model refresh", () => {
     ).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "decision")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "campaign")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "program")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "simulation")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "finding")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "control")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "scorecard")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "review_board")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "health_graph")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "segment")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "program_evolution")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "playbook")).toBe(true);
     expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "automation_run")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "setting")).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "nav")).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) =>
+          row.record_type === "setting_destination" &&
+          row.href === "/settings/product" &&
+          row.required_role_minimum === "admin"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "nav" && row.href === "/work"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "program" && row.href === "/contracts/programs?programId=program_1"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "segment" && row.href === "/assurance/segments?segmentId=segment_1"
+      )
+    ).toBe(true);
+    expect(
+      admin.inserted.v10_command_search_index.some(
+        (row) => row.record_type === "program_evolution" && row.href === "/assurance/program-evolution?experimentId=experiment_1"
+      )
+    ).toBe(true);
+    const accountRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "account");
+    const relationshipRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "relationship");
+    const decisionRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "decision");
+    const campaignRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "campaign");
+    const findingRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "finding");
+    const playbookRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "playbook");
+    const scorecardRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "scorecard");
+    const healthGraphRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "health_graph");
+    const experimentRow = admin.inserted.v10_command_search_index.find((row) => row.record_type === "program_evolution");
+    expect(accountRow?.description_safe).toContain("watch");
+    expect(accountRow?.description_safe).toContain("1 contracts");
+    expect(relationshipRow?.description_safe).toContain("degraded");
+    expect(decisionRow?.description_safe).toContain("acme-inc");
+    expect(decisionRow?.description_safe).toContain("1 contracts");
+    expect(campaignRow?.description_safe).toContain("rollback safe");
+    expect(findingRow?.description_safe).toContain("control gap");
+    expect(playbookRow?.description_safe).toContain("linked finding");
+    expect(scorecardRow?.description_safe).toContain("owner assigned");
+    expect(healthGraphRow?.description_safe).toContain("linked nodes");
+    expect(experimentRow?.description_safe).toContain("target segment");
+    expect(
+      admin.inserted.v10_command_search_index.every((row) =>
+        Array.isArray(row.rank_terms_safe) && row.rank_terms_safe.every((term) => !["null", "undefined"].includes(String(term).toLowerCase()))
+      )
+    ).toBe(true);
+    expect(admin.inserted.v10_command_search_index.some((row) => row.record_type === "settings_destination")).toBe(false);
     expect(admin.inserted.v10_advanced_assurance_linked_records).toHaveLength(13);
     expect(admin.inserted.v10_advanced_assurance_linked_records.some((row) => row.record_type === "account")).toBe(true);
     expect(admin.inserted.v10_advanced_assurance_linked_records.some((row) => row.record_type === "counterparty")).toBe(true);
