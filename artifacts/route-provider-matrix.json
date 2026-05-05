@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-04T22:43:04.655Z",
+  "generatedAt": "2026-05-05T00:17:36.033Z",
   "rows": [
     {
       "route": "/",
@@ -2555,6 +2555,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:appendApprovalEvent",
+      "sourcePath": "src/actions/approvals-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:applyContractTemplatePack",
       "sourcePath": "src/actions/contracts-lifecycle.ts",
       "providers": [
@@ -2755,6 +2763,22 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:bulkAssignGenericV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulkAssignObligationV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:bulkCompleteCompatibleContractTasks",
       "sourcePath": "src/actions/tasks.ts",
       "providers": [
@@ -2771,6 +2795,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:bulkCompleteGenericV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:bulkCreateContractsFromFiles",
       "sourcePath": "src/actions/contracts.ts",
       "providers": [
@@ -2778,6 +2810,14 @@
         "storage",
         "supabase",
         "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:canManageApprovalsForOrg",
+      "sourcePath": "src/actions/approvals-helpers.ts",
+      "providers": [
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -2869,6 +2909,14 @@
         "external_fetch",
         "openai",
         "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:countScheduledReportSubscriptionsSuppressedByModeChange",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "providers": [
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -3329,6 +3377,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:ensureOwnerOrgMember",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:ensureProgramsSurfaceAccess",
       "sourcePath": "src/actions/v4-surface-guards.ts",
       "providers": [
@@ -3628,6 +3684,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:refreshV10SettingsReadModels",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:removeWatchlistEntry",
       "sourcePath": "src/actions/watchlists.ts",
       "providers": [
@@ -3684,6 +3748,14 @@
         "resend",
         "supabase",
         "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:reserveV10SettingsMutation",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "providers": [
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -4553,6 +4625,12 @@
       "fallbackRequired": false
     },
     {
+      "route": "action:validateWorkspaceModeBillingEligibility",
+      "sourcePath": "src/actions/workspace-mode-billing-eligibility.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "action:verifyTotpEnrollment",
       "sourcePath": "src/actions/mfa.ts",
       "providers": [
@@ -4575,6 +4653,12 @@
         "supabase"
       ],
       "fallbackRequired": true
+    },
+    {
+      "route": "action:workspace-mode-billing-eligibility.test",
+      "sourcePath": "src/actions/workspace-mode-billing-eligibility.test.ts",
+      "providers": [],
+      "fallbackRequired": false
     }
   ]
 }

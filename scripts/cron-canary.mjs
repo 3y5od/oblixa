@@ -8,6 +8,7 @@ import {
   cronStrictNoSkip404,
   fetchCronWithMethodDiscovery,
 } from "./lib/cron-http-probe.mjs";
+import { assertCronSemanticContract } from "./lib/route-runtime-semantics.mjs";
 
 const cwd = process.cwd();
 const { loadEnvConfig } = nextEnv;
@@ -242,6 +243,10 @@ async function run() {
         }
         warn(`${route}: ok=false (degraded business outcome)`);
       }
+    }
+    const semanticFailures = assertCronSemanticContract(route, body);
+    if (semanticFailures.length > 0) {
+      throw new Error(`${route}: semantic contract failed (${semanticFailures.join(", ")})`);
     }
     ok(`${route} signed check`);
   }

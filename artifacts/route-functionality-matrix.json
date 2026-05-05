@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-04T22:43:04.655Z",
+  "generatedAt": "2026-05-05T00:17:36.032Z",
   "rows": [
     {
       "route": "/",
@@ -16086,6 +16086,54 @@
       "smokeTier": "nightly"
     },
     {
+      "route": "action:appendApprovalEvent",
+      "sourcePath": "src/actions/approvals-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_approval_events"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "action:applyContractTemplatePack",
       "sourcePath": "src/actions/contracts-lifecycle.ts",
       "kind": "server_action",
@@ -17203,7 +17251,6 @@
       "dbDependencies": {
         "tables": [
           "contract_obligations",
-          "organization_members",
           "v10_work_items"
         ],
         "rpcs": []
@@ -17268,6 +17315,106 @@
           "contracts",
           "extracted_fields",
           "reminders"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:bulkAssignGenericV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_obligations",
+          "organization_members",
+          "v10_work_items"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:bulkAssignObligationV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_obligations",
+          "organization_members",
+          "v10_work_items"
         ],
         "rpcs": []
       },
@@ -17371,6 +17518,55 @@
       "dbDependencies": {
         "tables": [
           "contract_obligations",
+          "v10_work_items"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:bulkCompleteGenericV10WorkItems",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_obligations",
           "organization_members",
           "v10_work_items"
         ],
@@ -17436,6 +17632,54 @@
           "contracts",
           "extracted_fields",
           "reminders"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:canManageApprovalsForOrg",
+      "sourcePath": "src/actions/approvals-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_approval_events"
         ],
         "rpcs": []
       },
@@ -17951,6 +18195,55 @@
       },
       "riskTier": "P1",
       "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:countScheduledReportSubscriptionsSuppressedByModeChange",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "report_pack_subscriptions",
+          "report_packs"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "security",
       "smokeTier": "nightly"
     },
     {
@@ -19725,7 +20018,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -19782,7 +20074,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -20716,6 +21007,56 @@
       ],
       "dbDependencies": {
         "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:ensureOwnerOrgMember",
+      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_obligations",
+          "organization_members",
+          "v10_work_items"
+        ],
         "rpcs": []
       },
       "expectedStatuses": [
@@ -22514,6 +22855,55 @@
       "smokeTier": "nightly"
     },
     {
+      "route": "action:refreshV10SettingsReadModels",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "report_pack_subscriptions",
+          "report_packs"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "security",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "action:removeWatchlistEntry",
       "sourcePath": "src/actions/watchlists.ts",
       "kind": "server_action",
@@ -22742,7 +23132,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -22799,7 +23188,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -22860,6 +23248,55 @@
           "organization_members",
           "organizations",
           "profiles"
+        ],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "security",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:reserveV10SettingsMutation",
+      "sourcePath": "src/actions/product-surface-settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "report_pack_subscriptions",
+          "report_packs"
         ],
         "rpcs": []
       },
@@ -22954,9 +23391,7 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings",
-          "report_pack_subscriptions",
-          "report_packs"
+          "organization_workflow_settings"
         ],
         "rpcs": []
       },
@@ -25304,7 +25739,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -25361,7 +25795,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -26614,9 +27047,7 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings",
-          "report_pack_subscriptions",
-          "report_packs"
+          "organization_workflow_settings"
         ],
         "rpcs": []
       },
@@ -27201,9 +27632,7 @@
       "dbDependencies": {
         "tables": [
           "audit_events",
-          "organization_workflow_settings",
-          "report_pack_subscriptions",
-          "report_packs"
+          "organization_workflow_settings"
         ],
         "rpcs": []
       },
@@ -27692,7 +28121,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -27749,7 +28177,6 @@
         "tables": [
           "approval_policies",
           "audit_events",
-          "contract_approval_events",
           "contract_approvals",
           "contract_notes",
           "contract_renewal_scenarios",
@@ -27979,6 +28406,50 @@
       "smokeTier": "nightly"
     },
     {
+      "route": "action:validateWorkspaceModeBillingEligibility",
+      "sourcePath": "src/actions/workspace-mode-billing-eligibility.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "action:verifyTotpEnrollment",
       "sourcePath": "src/actions/mfa.ts",
       "kind": "server_action",
@@ -28097,6 +28568,50 @@
       "providers": [
         "supabase"
       ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:workspace-mode-billing-eligibility.test",
+      "sourcePath": "src/actions/workspace-mode-billing-eligibility.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []

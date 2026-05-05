@@ -6,6 +6,7 @@ import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
 import { CRON_ROUTE_EXPECTED_KEYS } from "./cron-route-expected-keys.mjs";
+import { assertCronSemanticContract } from "./lib/route-runtime-semantics.mjs";
 import {
   assertJsonContentType,
   cronAuthHeaders,
@@ -312,6 +313,10 @@ async function checkCronAuthAndHealth(baseUrl, cronSecret) {
         }
         warn(`${route}: response reported ok=false (degraded business outcome)`);
       }
+    }
+    const semanticFailures = assertCronSemanticContract(route, body);
+    if (semanticFailures.length > 0) {
+      throw new Error(`${route}: semantic contract failed (${semanticFailures.join(", ")})`);
     }
     ok(`${route} signed run is healthy (${signed.status})`);
   }

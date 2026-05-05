@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Epic 2 — Scheduled / fail-closed secret gates registry drift.
- * Ensures every workflow file is listed in artifacts/assurance/github-workflow-secret-gates.json
- * and that scheduled fail-closed workflows reference unified + specific skip vars and exit 1.
+ * Epic 2 — Secret-gated workflow registry drift.
+ * Ensures every workflow file is listed in artifacts/assurance/github-workflow-secret-gates.json,
+ * that secret-gated jobs use the shared helper, and that strictness is explicit via REQUIRE_* vars.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,7 +15,7 @@ const workflowsDir = path.join(root, ".github", "workflows");
 const registryPath = path.join(root, "artifacts", "assurance", "github-workflow-secret-gates.json");
 
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-const unified = registry.unifiedSkipRepositoryVariable ?? "ALLOW_SECRET_GATED_SKIP";
+const helperScript = registry.helperScript ?? "scripts/github-actions/secret-gate.sh";
 
 const onDisk = fs
   .readdirSync(workflowsDir)
@@ -37,32 +37,33 @@ for (const [name, meta] of Object.entries(registry.workflows ?? {})) {
   if (!fs.existsSync(full)) continue;
   const text = fs.readFileSync(full, "utf8");
 
-  if (meta.kind === "scheduledFailClosed") {
-    if (!text.includes("exit 1")) {
-      errors.push(`${name}: scheduledFailClosed gate must use exit 1 when secrets missing`);
+  for (const gate of meta.gates ?? []) {
+    if (gate.defaultBehavior !== "skip") {
+      errors.push(`${name}:${gate.job}: secret-gated jobs must default to skip`);
     }
-    if (!text.includes(unified)) {
-      errors.push(`${name}: must reference unified skip var ${unified} in gate env`);
+    if (!text.includes(helperScript)) {
+      errors.push(`${name}:${gate.job}: must invoke shared helper ${helperScript}`);
     }
-    const spec = meta.specificSkipVar;
-    if (typeof spec !== "string" || !spec) {
-      errors.push(`${name}: scheduledFailClosed requires specificSkipVar string`);
-    } else if (!text.includes(spec)) {
-      errors.push(`${name}: must reference ${spec} in gate env`);
+    if (!text.includes(gate.strictVariable)) {
+      errors.push(`${name}:${gate.job}: must reference strict variable ${gate.strictVariable}`);
+    }
+    for (const secret of gate.requiredSecrets ?? []) {
+      if (!text.includes(secret)) {
+        errors.push(`${name}:${gate.job}: must reference required secret ${secret}`);
+      }
+    }
+    if (/ALLOW_[A-Z0-9_]+_SKIP/.test(text) || text.includes("ALLOW_SECRET_GATED_SKIP")) {
+      errors.push(`${name}:${gate.job}: legacy ALLOW_* skip vars should not be used in workflow gates`);
+    }
+    if (gate.optionalName === true && gate.defaultBehavior !== "skip") {
+      errors.push(`${name}:${gate.job}: optional workflow gates must skip by default`);
     }
   }
 
-  if (meta.kind === "pullRequestFailClosed") {
-    if (!text.includes("exit 1")) {
-      errors.push(`${name}: pullRequestFailClosed expects exit 1 on missing secrets`);
-    }
-    if (!text.includes(unified)) {
-      errors.push(`${name}: must reference unified skip var ${unified}`);
-    }
-    for (const v of meta.specificSkipVars ?? []) {
-      if (!text.includes(v)) {
-        errors.push(`${name}: must reference ${v}`);
-      }
+  if (name === "ci.yml") {
+    const qualityNeeds = /quality:\s*[\s\S]*?needs:\s*\[([^\]]+)\]/m.exec(text)?.[1] ?? "";
+    if (qualityNeeds.includes("quality_build_e2e")) {
+      errors.push("ci.yml: quality aggregate must not depend on optional quality_build_e2e");
     }
   }
 }
@@ -74,5 +75,5 @@ if (errors.length) {
 }
 
 console.log(
-  `OK: ${onDisk.length} workflows registered; scheduledFailClosed + pullRequestFailClosed gates reference ${unified}.`
+  `OK: ${onDisk.length} workflows registered; secret-gated jobs use ${helperScript} with explicit REQUIRE_* strictness.`
 );

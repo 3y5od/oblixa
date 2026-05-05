@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "configPath": ".gitleaks.toml",
+  "allowlists": [
+    {
+      "description": "E2E fixtures and known false positives",
+      "paths": [
+        "^e2e/",
+        ".*\\.test\\.ts$",
+        ".*\\.test\\.tsx$",
+        "^scripts/check-hardening-debt-ratchet\\.mjs$"
+      ]
+    }
+  ]
+}

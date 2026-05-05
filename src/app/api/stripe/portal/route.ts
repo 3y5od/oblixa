@@ -11,6 +11,25 @@ import * as Sentry from "@sentry/nextjs";
 import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { enforceIdempotency } from "@/lib/idempotency";
 
+function stripeDependencyBlocked(route: string, diagnosticId: string, error: string) {
+  return NextResponse.json(
+    {
+      ok: false,
+      route,
+      error,
+      code: "dependency_blocked",
+      diagnostic_id: diagnosticId,
+      phase: "dependency_preflight",
+      details: {
+        dependency: "stripe_provider",
+        required_env: ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ID"],
+        degraded_policy: "503 dependency_blocked",
+      },
+    },
+    { status: 503 }
+  );
+}
+
 export async function POST(request: Request) {
   if (isKillBilling()) {
     return killSwitchJsonResponse("billing");
@@ -70,7 +89,11 @@ export async function POST(request: Request) {
   const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/portal] config:", stripeClient.error);
-    return NextResponse.json({ error: "Billing is not configured" }, { status: 500 });
+    return stripeDependencyBlocked(
+      "/api/stripe/portal",
+      "stripe_portal_provider_missing",
+      "Billing provider is not configured"
+    );
   }
   const stripe = stripeClient.stripe;
 

@@ -3,6 +3,12 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import {
+  defaultExpectedOutcomesForRunnerHint,
+  verificationHintForRunnerHint,
+} from "./route-runtime-semantics.mjs";
+
+const DEPENDENCY_INVENTORY_PATH = ["artifacts", "assurance", "route-provider-dependencies.json"];
 
 const SEGMENT_PLACEHOLDERS = {
   id: "00000000-0000-0000-0000-000000000001",
@@ -66,7 +72,8 @@ function classify(pathTemplate) {
   if (
     pathTemplate === "/auth/callback" ||
     pathTemplate.startsWith("/api/health") ||
-    pathTemplate.startsWith("/api/tracking/") ||
+    pathTemplate.startsWith("/api/reports/track/") ||
+    pathTemplate.startsWith("/api/external-actions/[token]/") ||
     pathTemplate.startsWith("/api/export/calendar/feed/")
   ) {
     return { runnerHint: "public_or_token_surface", smokeTier: "ci" };
@@ -86,8 +93,20 @@ function buildRow(root, appRoot, file) {
     samplePath,
     methods,
     runnerHint,
+    verificationHint: verificationHintForRunnerHint(runnerHint),
+    expectedOutcomes: defaultExpectedOutcomesForRunnerHint(runnerHint, methods),
     smokeTier,
   };
+}
+
+function loadDependencyInventory(root) {
+  const abs = path.join(root, ...DEPENDENCY_INVENTORY_PATH);
+  if (!fs.existsSync(abs)) {
+    return new Map();
+  }
+  const payload = JSON.parse(fs.readFileSync(abs, "utf8"));
+  const rows = Array.isArray(payload.routes) ? payload.routes : [];
+  return new Map(rows.map((row) => [row.pathTemplate, row]));
 }
 
 /** @param {string} root — repo root */
@@ -98,7 +117,12 @@ export function buildApiRuntimeSmokeRegistryPayload(root) {
     ...listRouteFiles(apiRoot),
     path.join(appRoot, "auth", "callback", "route.ts"),
   ].filter((file) => fs.existsSync(file)).sort((a, b) => a.localeCompare(b));
-  const routes = files.map((f) => buildRow(root, appRoot, f));
+  const dependencyInventory = loadDependencyInventory(root);
+  const routes = files.map((f) => {
+    const row = buildRow(root, appRoot, f);
+    const dependency = dependencyInventory.get(row.pathTemplate);
+    return dependency ? { ...row, ...dependency } : row;
+  });
   return {
     version: 1,
     program: "maximal-assurance-epic3",

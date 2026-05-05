@@ -5,7 +5,12 @@ const createAdminClient = vi.fn();
 
 vi.mock("@/lib/v6/feature-guards", () => ({ requireV6CronFeature }));
 vi.mock("@/lib/v6/cron", () => ({
-  listOrganizationIds: vi.fn(async () => ["org-a"]),
+  listOrganizationIds: vi.fn(async () => ({
+    orgIds: ["org-a"],
+    error: null,
+    stoppedByOffsetCap: false,
+    nextOffset: null,
+  })),
   v6CronRunMetadata: (orgsProcessed: number, _startedAtMs: number, errorsCount = 0) => ({
     duration_ms: 1,
     orgs_processed: orgsProcessed,

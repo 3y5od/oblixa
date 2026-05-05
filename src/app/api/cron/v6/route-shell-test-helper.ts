@@ -53,7 +53,12 @@ export function exerciseV6CronRouteShell(input: V6CronShellCase) {
       createAdminClient.mockResolvedValue({});
       rateLimitCheck.mockResolvedValue({ ok: true });
       requireV6CronFeature.mockReturnValue(null);
-      listOrganizationIds.mockResolvedValue(input.orgIds ?? ["org-a"]);
+      listOrganizationIds.mockResolvedValue({
+        orgIds: input.orgIds ?? ["org-a"],
+        error: null,
+        stoppedByOffsetCap: false,
+        nextOffset: null,
+      });
       jobHandler.mockResolvedValue(input.jobResult);
     });
 
@@ -78,6 +83,65 @@ export function exerciseV6CronRouteShell(input: V6CronShellCase) {
         route: input.route,
         ...input.expectedBody,
         orgs_processed: (input.orgIds ?? ["org-a"]).length,
+      });
+    });
+
+    it("returns 207 with structured error details when the job degrades", async () => {
+      jobHandler.mockResolvedValueOnce({
+        ...input.jobResult,
+        orgsSucceeded: 0,
+        orgsFailed: 1,
+        orgsSkipped: 0,
+        errors: [
+          {
+            scope: `${(input.orgIds ?? ["org-a"])[0]}`,
+            phase: "source_query",
+            diagnostic_id: "v6_cron_job_failed",
+            message: "job failed",
+          },
+        ],
+      });
+
+      const { GET } = await import(input.routeImportPath);
+      const response = await GET(
+        new Request(`https://oblixa.test${input.route}`, {
+          headers: { Authorization: "Bearer cronsecret" },
+        })
+      );
+      const body = await response.json();
+
+      expect(response.status).toBe(207);
+      expect(body).toMatchObject({
+        ok: false,
+        partial: true,
+        phase: "source_query",
+        errors_count: 1,
+        error_details: [expect.objectContaining({ diagnostic_id: "v6_cron_job_failed" })],
+      });
+    });
+
+    it("returns a typed failure when organization discovery fails", async () => {
+      listOrganizationIds.mockResolvedValueOnce({
+        orgIds: [],
+        error: { message: "organizations query failed" },
+        stoppedByOffsetCap: false,
+        nextOffset: 0,
+      });
+
+      const { GET } = await import(input.routeImportPath);
+      const response = await GET(
+        new Request(`https://oblixa.test${input.route}`, {
+          headers: { Authorization: "Bearer cronsecret" },
+        })
+      );
+      const body = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(body).toMatchObject({
+        ok: false,
+        code: "v6_cron_organization_query_failed",
+        diagnostic_id: "v6_cron_organization_query_failed",
+        phase: "source_query",
       });
     });
 

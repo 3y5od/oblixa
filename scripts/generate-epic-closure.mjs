@@ -24,6 +24,13 @@ if (epics.length !== 176) {
   process.exit(1);
 }
 
+for (const row of epics) {
+  if (typeof row.todoId !== "string" || !row.todoId.trim()) {
+    console.error("epics.json rows must include a non-empty todoId string");
+    process.exit(1);
+  }
+}
+
 const closures = [];
 const naEpicNumbers = [];
 
@@ -33,14 +40,14 @@ for (const row of epics) {
   if (evidence) {
     closures.push({
       epicNumber: n,
-      todoKey: row.todoKey,
+      todoId: row.todoId,
       mode: "evidence",
       evidence,
     });
   } else {
     closures.push({
       epicNumber: n,
-      todoKey: row.todoKey,
+      todoId: row.todoId,
       mode: "na",
       naBulkId: NA_BULK_ID,
     });

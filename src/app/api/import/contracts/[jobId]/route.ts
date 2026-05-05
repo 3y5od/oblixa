@@ -21,6 +21,7 @@ import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/v10-job-visibility";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const IMPORT_JOB_ROWS_LIMIT = 300;
 
 type ImportRetryMutationResponse = V10MutationResponse & {
   success?: boolean;
@@ -83,7 +84,7 @@ export async function GET(
     );
   }
 
-  const [{ data: job }, { data: rows }, { data: v10Visibility }] = await Promise.all([
+  const [{ data: job, error: jobError }, { data: rows, error: rowsError }, { data: v10Visibility }] = await Promise.all([
     admin
       .from("contract_import_jobs")
       .select(
@@ -98,7 +99,7 @@ export async function GET(
       .eq("job_id", jobId)
       .eq("organization_id", membership.organization_id)
       .order("row_index", { ascending: true })
-      .limit(300),
+      .limit(IMPORT_JOB_ROWS_LIMIT),
     applyV10ReadModelVisibility(
       admin
         .from("v10_job_run_visibility")
@@ -108,7 +109,25 @@ export async function GET(
       .eq("job_id", jobId)
       .maybeSingle(),
   ]);
+  if (jobError) {
+    return NextResponse.json(
+      { error: "Could not load import job", diagnostic_id: "v10_import_job_load_failed" },
+      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
+    );
+  }
+  if (rowsError) {
+    return NextResponse.json(
+      { error: "Could not load import job rows", diagnostic_id: "v10_import_job_rows_load_failed" },
+      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
+    );
+  }
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS });
+
+  const visibleRows = rows ?? [];
+  const totalRows = typeof job.total_rows === "number" ? job.total_rows : visibleRows.length;
+  const rowsTruncated = typeof job.total_rows === "number"
+    ? job.total_rows > visibleRows.length
+    : visibleRows.length >= IMPORT_JOB_ROWS_LIMIT;
 
   const visible = {
     headline: getImportJobHeadline(job),
@@ -124,7 +143,13 @@ export async function GET(
       job,
       visible,
       v10_job_visibility: v10Visibility ?? null,
-      rows: rows ?? [],
+      rows: visibleRows,
+      rows_total: totalRows,
+      rows_returned: visibleRows.length,
+      rows_limit: IMPORT_JOB_ROWS_LIMIT,
+      rows_truncated: rowsTruncated,
+      rows_complete: !rowsTruncated,
+      rows_next_offset: rowsTruncated ? visibleRows.length : null,
     },
     { headers: PRIVATE_NO_STORE_HEADERS }
   );

@@ -7,6 +7,7 @@ const encryptIntegrationToken = vi.hoisted(() => vi.fn());
 const validateOutboundHttpUrl = vi.hoisted(() => vi.fn());
 const safeFetch = vi.hoisted(() => vi.fn());
 const pingCronHealthcheck = vi.hoisted(() => vi.fn());
+const forEachSupabaseRangePage = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -32,6 +33,10 @@ vi.mock("@/lib/security/safe-fetch", () => ({
 
 vi.mock("@/lib/observability/cron-healthcheck", () => ({
   pingCronHealthcheck,
+}));
+
+vi.mock("@/lib/supabase/range-pagination", () => ({
+  forEachSupabaseRangePage,
 }));
 
 function createRefreshAdmin(rows: Array<Record<string, unknown>>) {
@@ -74,6 +79,10 @@ describe("GET /api/integrations/refresh-tokens", () => {
         headers: { "Content-Type": "application/json" },
       })
     );
+    forEachSupabaseRangePage.mockImplementation(async (_fetchPage, consume) => {
+      await consume([]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 0, nextOffset: null };
+    });
     const { admin } = createRefreshAdmin([]);
     createAdminClient.mockResolvedValue(admin as never);
   });
@@ -110,6 +119,10 @@ describe("GET /api/integrations/refresh-tokens", () => {
     };
     const { admin } = createRefreshAdmin([row]);
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
 
     const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
     const res = await GET(
@@ -170,6 +183,10 @@ describe("GET /api/integrations/refresh-tokens", () => {
     };
     const { admin } = createRefreshAdmin([row]);
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
 
     const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
     const buildRequest = () =>
@@ -190,6 +207,26 @@ describe("GET /api/integrations/refresh-tokens", () => {
       retryAfterMs: 6000,
     });
     expect(safeFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 500 when refresh-token scan fails before processing any rows", async () => {
+    forEachSupabaseRangePage.mockImplementationOnce(async () => ({
+      error: { message: "boom" },
+      stoppedByOffsetCap: false,
+      rowsSeen: 0,
+      nextOffset: 0,
+    }));
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body).toMatchObject({ diagnostic_id: "integrations_refresh_connections_load_failed" });
   });
 });
 

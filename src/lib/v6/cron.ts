@@ -18,7 +18,14 @@ export function requireV6CronAuth(request: Request) {
   return ensureCronAuthorized(request);
 }
 
-export async function listOrganizationIds(admin: AdminClient): Promise<string[]> {
+export type V6OrganizationIdScanResult = {
+  orgIds: string[];
+  error: { message: string } | null;
+  stoppedByOffsetCap: boolean;
+  nextOffset: number | null;
+};
+
+export async function listOrganizationIds(admin: AdminClient): Promise<V6OrganizationIdScanResult> {
   const ids: string[] = [];
   for (let offset = 0; offset < ORG_MAX_SCAN; offset += ORG_PAGE_SIZE) {
     const { data, error } = await admin
@@ -28,13 +35,30 @@ export async function listOrganizationIds(admin: AdminClient): Promise<string[]>
       .range(offset, offset + ORG_PAGE_SIZE - 1);
     if (error) {
       console.error(`${V6_CRON_LOG_PREFIX} listOrganizationIds query error`, error);
-      break;
+      return {
+        orgIds: ids,
+        error: { message: error.message },
+        stoppedByOffsetCap: false,
+        nextOffset: ids.length,
+      };
     }
     const page = (data ?? []).map((row) => String(row.id)).filter(Boolean);
     ids.push(...page);
-    if (page.length < ORG_PAGE_SIZE) break;
+    if (page.length < ORG_PAGE_SIZE) {
+      return {
+        orgIds: ids,
+        error: null,
+        stoppedByOffsetCap: false,
+        nextOffset: null,
+      };
+    }
   }
-  return ids;
+  return {
+    orgIds: ids,
+    error: null,
+    stoppedByOffsetCap: true,
+    nextOffset: ids.length,
+  };
 }
 
 export function cronErrorResponse(message: string, status = 400) {

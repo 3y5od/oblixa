@@ -2,6 +2,11 @@ import { withCronRoute } from "@/lib/cron/route-runner";
 import { runTaskAutomationRulesForOrg } from "@/lib/tasks/run-task-automation-rules-for-org";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
+import {
+  executeBatch,
+  safeErrorMessage,
+  type BatchItemError,
+} from "@/lib/route-runtime-contract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +20,7 @@ export const GET = withCronRoute({
     let generated = 0;
     let evaluatedRules = 0;
     let organizationsCount = 0;
-    const errors: string[] = [];
+    const errors: BatchItemError[] = [];
 
     const pageResult = await forEachSupabaseRangePage(
       (from, to) =>
@@ -26,16 +31,23 @@ export const GET = withCronRoute({
           .range(from, to),
       async (chunk) => {
         organizationsCount += chunk.length;
-        for (const org of chunk) {
+        const batch = await executeBatch(chunk, async (org) => {
           try {
             const res = await runTaskAutomationRulesForOrg(admin, org.id);
             generated += res.generated;
             evaluatedRules += res.evaluatedRules;
+            errors.push(...(res.errors ?? []));
+            return;
           } catch (error) {
-            const message = error instanceof Error ? error.message : "automation_rule_execution_failed";
-            errors.push(`${org.id}: ${message}`);
+            return {
+              scope: org.id,
+              phase: "handler",
+              diagnostic_id: "task_rule_org_execution_failed",
+              message: safeErrorMessage(error) ?? "automation_rule_execution_failed",
+            };
           }
-        }
+        });
+        errors.push(...batch.errors);
       },
       { pageSize: 200, maxOffsetExclusive: 20_000 }
     );
@@ -45,6 +57,7 @@ export const GET = withCronRoute({
         status: 500,
         ok: false,
         errorsCount: 1,
+        phase: "source_query",
         body: {
           error: "Failed to load organizations for automation rules",
           code: "task_rule_org_scan_failed",
@@ -54,13 +67,21 @@ export const GET = withCronRoute({
     }
 
     return {
-      partial: errors.length > 0,
+      partial: errors.length > 0 || pageResult.stoppedByOffsetCap,
       errorsCount: errors.length,
+      phase: errors[0]?.phase,
       body: {
         organizations: organizationsCount,
         evaluatedRules,
         generated,
-        ...(errors.length > 0 ? { errors } : {}),
+        truncated: pageResult.stoppedByOffsetCap,
+        next_offset: pageResult.nextOffset,
+        ...(errors.length > 0
+          ? {
+              errors: errors.map((entry) => `${entry.scope}: ${entry.message}`),
+              error_details: errors.slice(0, 10),
+            }
+          : {}),
       },
     };
   },

@@ -11,6 +11,25 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
+function publicRouteFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+    },
+    { status: input.status }
+  );
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
@@ -36,7 +55,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
     )
     .eq("token", token)
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return publicRouteFailure({
+      status: 500,
+      error: "Failed to load external action",
+      code: "data_source_failed",
+      diagnosticId: "external_action_status_load_failed",
+      phase: "source_query",
+    });
+  }
   if (!data) return NextResponse.json({ error: "External action not found" }, { status: 404 });
 
   if (isFeatureEnabled("v6AssuranceCore") && data.organization_id) {

@@ -326,7 +326,7 @@ describe("V10 objective and release evidence contracts", () => {
       denominatorLockId: "v10-rc:activation:100",
       fixedSampleSize: V10_GA_SAMPLE_SIZES.activation,
       sloDashboardKey: "activation_first_work_item",
-      releaseEvidenceKey: "v10-release:objective:activation",
+      releaseEvidenceId: "v10-release:objective:activation",
     });
     expect(
       validateV10ObjectivePromotionEvidenceCapture([
@@ -338,7 +338,7 @@ describe("V10 objective and release evidence contracts", () => {
           allowedExclusionCount: 0,
           captureCommand: "node capture.js",
           sloDashboardKey: "unknown",
-          releaseEvidenceKey: "objective:activation",
+          releaseEvidenceId: "objective:activation",
           promotionRule: "manual",
         },
       ])

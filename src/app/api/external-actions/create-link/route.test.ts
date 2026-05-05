@@ -229,4 +229,52 @@ describe("POST /api/external-actions/create-link", () => {
     });
     expect(linkInsert).toHaveBeenCalledTimes(1);
   });
+
+  it("returns 207 when link creation succeeds but the audit event insert fails", async () => {
+    const from = vi.fn((table: string) => {
+      if (table === "external_action_links") {
+        return {
+          insert: () => ({
+            select: () => ({
+              single: vi.fn(async () => ({
+                data: {
+                  id: "00000000-0000-4000-8000-000000000003",
+                  token: "tok-partial",
+                  action_type: "submit_evidence",
+                  expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+                  status: "open",
+                },
+                error: null,
+              })),
+            }),
+          }),
+        };
+      }
+      if (table === "external_action_events") {
+        return { insert: vi.fn(async () => ({ error: { message: "boom" } })) };
+      }
+      return {};
+    });
+    getApiAuthContext.mockResolvedValueOnce({
+      userId: "u1",
+      orgId: "o1",
+      admin: { from },
+    } as never);
+
+    const { POST } = await import("@/app/api/external-actions/create-link/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/create-link", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ actionType: "submit_evidence" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body).toMatchObject({ partial: true, errors_count: 1 });
+    expect(body.errors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ diagnostic_id: "external_action_link_event_insert_failed" })])
+    );
+  });
 });

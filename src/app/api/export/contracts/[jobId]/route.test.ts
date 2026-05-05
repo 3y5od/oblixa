@@ -174,6 +174,59 @@ describe("GET /api/export/contracts/[jobId]", () => {
     expect(body.v10_job_visibility).toMatchObject({ job_id: "job-1", status: "queued" });
   });
 
+  it("returns 500 when the export job cannot be loaded", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "organization_members") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                order: vi.fn(() => ({
+                  limit: vi.fn().mockResolvedValue({
+                    data: [{ organization_id: "550e8400-e29b-41d4-a716-446655440001", role: "editor" }],
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "contract_export_jobs") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: { message: "boom" } }),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "v10_job_run_visibility") {
+          const query = {
+            eq: vi.fn(() => query),
+            in: vi.fn(() => query),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          };
+          return { select: vi.fn(() => query) };
+        }
+        return { select: vi.fn(() => ({ eq: vi.fn() })) };
+      }),
+    });
+
+    const { GET } = await import("@/app/api/export/contracts/[jobId]/route");
+    const res = await GET(new Request("http://localhost/api/export/contracts/job-1"), {
+      params: Promise.resolve({ jobId: "job-1" }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body).toMatchObject({ diagnostic_id: "v10_export_job_load_failed" });
+  });
+
   it("POST queues an export retry with V10 idempotent envelope semantics", async () => {
     createClient.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
@@ -253,5 +306,54 @@ describe("GET /api/export/contracts/[jobId]", () => {
     const body = await res.json();
     expect(body).toMatchObject({ success: true, retriedJobId: "job-1", jobId: "job-2", async: true });
     expect(body.v10).toMatchObject({ outcome: "success", changed_object_type: "export_job", changed_object_id: "job-2" });
+  });
+
+  it("POST returns server_error when the prior export job cannot be loaded", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "organization_members") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                order: vi.fn(() => ({
+                  limit: vi.fn().mockResolvedValue({
+                    data: [{ organization_id: "550e8400-e29b-41d4-a716-446655440001", role: "editor" }],
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "contract_export_jobs") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: { message: "boom" } }),
+                })),
+              })),
+            })),
+          };
+        }
+        return { select: vi.fn(() => ({ eq: vi.fn() })) };
+      }),
+    });
+
+    const { POST } = await import("@/app/api/export/contracts/[jobId]/route");
+    const res = await POST(
+      new Request("http://localhost/api/export/contracts/job-1", {
+        method: "POST",
+        headers: { "x-idempotency-key": "export_retry_12345", "x-v10-expected-version": "job-1" },
+      }),
+      { params: Promise.resolve({ jobId: "job-1" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.v10).toMatchObject({ outcome: "server_error", diagnostic_id: "v10_export_retry_job_load_failed" });
   });
 });

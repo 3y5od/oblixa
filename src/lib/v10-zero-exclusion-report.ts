@@ -51,7 +51,7 @@ export type V10ZeroExclusionManifestRow = {
   status: V10ZeroExclusionStatus;
   runtimeArtifact: string;
   testArtifacts: readonly string[];
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   blockerState: string | null;
   residualRisk: string | null;
   supportBoundary: string;
@@ -110,7 +110,7 @@ function closureRows(): V10ZeroExclusionManifestRow[] {
     status: statusForClosureRow(row),
     runtimeArtifact: row.proofArtifacts[0] ?? "src/lib/v10-complete-closure.ts",
     testArtifacts: row.gates,
-    releaseEvidenceKey: row.releaseEvidenceKey,
+    releaseEvidenceId: row.releaseEvidenceId,
     blockerState: row.failures.length > 0 ? row.failures.join(",") : null,
     residualRisk: row.failures.length > 0 ? "closure_row_open" : null,
     supportBoundary: row.domain === "release_evidence" ? "support_safe_release_evidence" : "support_safe_diagnostics",
@@ -128,7 +128,7 @@ function fixtureMeasurementRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate" as const,
     runtimeArtifact: "src/lib/v10-objective-measurements.ts",
     testArtifacts: ["src/lib/v10-objective-measurements.v10.test.ts", "npm run check:v10-privacy-scan"],
-    releaseEvidenceKey: `v10-release:fixture-category:${fixture.category}`,
+    releaseEvidenceId: `v10-release:fixture-category:${fixture.category}`,
     blockerState: null,
     residualRisk: null,
     supportBoundary: "synthetic_fixture_data_only",
@@ -145,7 +145,7 @@ function fixtureMeasurementRows(): V10ZeroExclusionManifestRow[] {
       status: "release_evidence_required" as const,
       runtimeArtifact: "src/lib/v10-release-evidence.ts",
       testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts", plan.captureCommand],
-      releaseEvidenceKey: promotion?.releaseEvidenceKey ?? `v10-release:objective-metric:${plan.metricKey}`,
+      releaseEvidenceId: promotion?.releaseEvidenceId ?? `v10-release:objective-metric:${plan.metricKey}`,
       blockerState: "release_candidate_capture_required",
       residualRisk: "Metric pass/fail counts must be captured with the locked denominator in a release-candidate workspace.",
       supportBoundary: "synthetic_metric_counts_only",
@@ -161,7 +161,7 @@ function fixtureMeasurementRows(): V10ZeroExclusionManifestRow[] {
     status: "release_evidence_required" as const,
     runtimeArtifact: "src/lib/v10-release-evidence.ts",
     testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts"],
-    releaseEvidenceKey: requirement.persistence_key,
+    releaseEvidenceId: requirement.persistence_key,
     blockerState: requirement.promotion_blocker ? "promotion_blocker" : null,
     residualRisk: "External release evidence must be persisted before promotion.",
     supportBoundary: "release_owner_evidence_only",
@@ -176,7 +176,7 @@ function fixtureMeasurementRows(): V10ZeroExclusionManifestRow[] {
     status: "release_evidence_required" as const,
     runtimeArtifact: "src/lib/v10-release-evidence.ts",
     testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts"],
-    releaseEvidenceKey: `v10-release:objective-metric:${requirement.metric_key}`,
+    releaseEvidenceId: `v10-release:objective-metric:${requirement.metric_key}`,
     blockerState: "fixed_denominator_required",
     residualRisk: `${requirement.metric_key} requires ${requirement.fixed_sample_size} denominator-locked samples.`,
     supportBoundary: "aggregate_metric_counts_only",
@@ -203,7 +203,7 @@ function compatibilityRows(): V10ZeroExclusionManifestRow[] {
     status: boundary.compatibilityPolicy === "cleanup_after_backfill" ? "automated_gate" as const : "compatibility_preserved" as const,
     runtimeArtifact: boundary.owningArtifact,
     testArtifacts: ["src/lib/v10-final-gap-audit.v10.test.ts", "npm run check:v10-suite"],
-    releaseEvidenceKey: `v10-release:compatibility:${boundary.key}`,
+    releaseEvidenceId: `v10-release:compatibility:${boundary.key}`,
     blockerState: null,
     residualRisk: `${boundary.boundary}:${boundary.compatibilityPolicy}`,
     supportBoundary: `compatibility_boundary:${boundary.boundary}`,
@@ -213,14 +213,14 @@ function compatibilityRows(): V10ZeroExclusionManifestRow[] {
     promotionState: boundary.compatibilityPolicy === "cleanup_after_backfill" ? "GA" as const : "complete" as const,
   }));
   const cleanupRows = V10_DEPRECATION_CLEANUP_DECISIONS.map((decision) => ({
-    coverageKey: `cleanup:${decision.candidateKey}`,
+    coverageKey: `cleanup:${decision.candidateId}`,
     category: "cleanup_decision" as const,
     owner: "release" as const,
     priority: "release_blocker" as const,
     status: decision.action === "preserve_boundary" ? "compatibility_preserved" as const : "automated_gate" as const,
     runtimeArtifact: decision.runtimeReplacementProof,
     testArtifacts: [decision.cleanupCommand, "src/lib/v10-final-gap-audit.v10.test.ts"],
-    releaseEvidenceKey: decision.releaseEvidenceKey,
+    releaseEvidenceId: decision.releaseEvidenceId,
     blockerState: null,
     residualRisk: decision.action === "preserve_boundary" ? "Preserved only under an explicit compatibility boundary." : null,
     supportBoundary: decision.compatibilityBoundaryKey,
@@ -239,7 +239,7 @@ function driftRows(): V10ZeroExclusionManifestRow[] {
     status: "release_evidence_required",
     runtimeArtifact: "src/lib/v10-operational-contracts.ts",
     testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts", control.checkCommand],
-    releaseEvidenceKey: `v10-release:post-ga-drift:${control.key}`,
+    releaseEvidenceId: `v10-release:post-ga-drift:${control.key}`,
     blockerState: "post_ga_window_required",
     residualRisk: "Requires post-GA window evidence before complete promotion.",
     supportBoundary: control.supportSafeEscalation,
@@ -257,7 +257,7 @@ function verificationRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate" as const,
     runtimeArtifact: contract.runtimeArtifact,
     testArtifacts: [contract.negativeTestArtifact, contract.releaseGate],
-    releaseEvidenceKey: `v10-release:api-env:${contract.key}`,
+    releaseEvidenceId: `v10-release:api-env:${contract.key}`,
     blockerState: null,
     residualRisk: null,
     supportBoundary: contract.compatibilityBoundary,
@@ -272,7 +272,7 @@ function verificationRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate" as const,
     runtimeArtifact: "src/lib/v10-operational-contracts.ts",
     testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts", "npm run test:e2e:v10"],
-    releaseEvidenceKey: `v10-release:${row.evidenceKey}`,
+    releaseEvidenceId: `v10-release:${row.evidenceKey}`,
     blockerState: null,
     residualRisk: null,
     supportBoundary: "accessibility_performance_browser_support",
@@ -287,7 +287,7 @@ function verificationRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate" as const,
     runtimeArtifact: "src/lib/v10-operational-contracts.ts",
     testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts"],
-    releaseEvidenceKey: `v10-release:observability:${row.surface}`,
+    releaseEvidenceId: `v10-release:observability:${row.surface}`,
     blockerState: null,
     residualRisk: null,
     supportBoundary: row.supportDiagnosticFields.join(","),
@@ -306,7 +306,7 @@ function lifecycleRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate" as const,
     runtimeArtifact: "src/lib/v10-operational-contracts.ts",
     testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts", contract.cleanupCommand],
-    releaseEvidenceKey: `v10-release:${contract.complianceEvidenceKey}`,
+    releaseEvidenceId: `v10-release:${contract.complianceEvidenceKey}`,
     blockerState: null,
     residualRisk: null,
     supportBoundary: contract.supportBoundary,
@@ -321,7 +321,7 @@ function lifecycleRows(): V10ZeroExclusionManifestRow[] {
     status: "compatibility_preserved" as const,
     runtimeArtifact: bridge.replacementArtifact,
     testArtifacts: [bridge.runtimeUsageCheck],
-    releaseEvidenceKey: `v10-release:legacy-bridge:${bridge.bridge}`,
+    releaseEvidenceId: `v10-release:legacy-bridge:${bridge.bridge}`,
     blockerState: bridge.removalGate,
     residualRisk: "Preserved until removal gate closes.",
     supportBoundary: bridge.compatibilityBoundary,
@@ -357,7 +357,7 @@ function domainRows(): V10ZeroExclusionManifestRow[] {
     status: "automated_gate",
     runtimeArtifact: "src/lib/v10-zero-exclusion-report.ts",
     testArtifacts: ["src/lib/v10-zero-exclusion-report.v10.test.ts"],
-    releaseEvidenceKey: matrix.primaryEvidenceKey,
+    releaseEvidenceId: matrix.primaryEvidenceKey,
     blockerState: null,
     residualRisk: null,
     supportBoundary: "domain_support_boundary",
@@ -372,7 +372,7 @@ export function buildV10ReleaseHandoffPackets(
   const evidenceKeysFor = (...categories: V10ZeroExclusionCategory[]) =>
     rows
       .filter((row) => categories.includes(row.category))
-      .map((row) => row.releaseEvidenceKey)
+      .map((row) => row.releaseEvidenceId)
       .slice(0, 40);
   return [
     {
@@ -459,7 +459,7 @@ function releaseHandoffRows(): V10ZeroExclusionManifestRow[] {
     status: "release_evidence_required",
     runtimeArtifact: "src/lib/v10-zero-exclusion-report.ts",
     testArtifacts: ["src/lib/v10-zero-exclusion-report.v10.test.ts", ...packet.gateCommands],
-    releaseEvidenceKey: `v10-release:handoff:${packet.packetKey}`,
+    releaseEvidenceId: `v10-release:handoff:${packet.packetKey}`,
     blockerState: "release_owner_packet_required",
     residualRisk: "Release handoff packet must be attached by the owning audience before promotion.",
     supportBoundary: packet.supportSafe ? "support_safe_packet" : "restricted_packet",
@@ -543,7 +543,7 @@ export function validateV10ZeroExclusionManifest(
     if (!row.owner) failures.push(`${row.coverageKey}:owner_required`);
     if (!row.runtimeArtifact) failures.push(`${row.coverageKey}:runtime_artifact_required`);
     if (row.testArtifacts.length === 0) failures.push(`${row.coverageKey}:test_artifact_required`);
-    if (!row.releaseEvidenceKey.startsWith("v10-")) failures.push(`${row.coverageKey}:release_evidence_key_required`);
+    if (!row.releaseEvidenceId.startsWith("v10-")) failures.push(`${row.coverageKey}:release_evidence_key_required`);
     if (!row.supportBoundary.trim()) failures.push(`${row.coverageKey}:support_boundary_required`);
     if (!row.rollbackPath.trim()) failures.push(`${row.coverageKey}:rollback_path_required`);
     if (row.status === "shipped" && row.blockerState) failures.push(`${row.coverageKey}:shipped_row_blocked`);

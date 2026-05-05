@@ -1,5 +1,6 @@
 # Gitleaks configuration (used by gitleaks/gitleaks-action in CI).
 # Centralizes allowlists; keep .gitleaksignore empty or remove it to avoid duplicate rules.
+# Inventory is mirrored in artifacts/assurance/gitleaks-allowlist-inventory.json.
 
 title = "oblixa"
 

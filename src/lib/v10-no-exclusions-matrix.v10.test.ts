@@ -86,7 +86,7 @@ describe("V10 no-exclusions matrix", () => {
     for (const row of buildV10NoExclusionsMatrix()) {
       expect(row.sourceArtifacts.length, row.coverageKey).toBeGreaterThan(0);
       expect(row.testArtifacts.length, row.coverageKey).toBeGreaterThan(0);
-      expect(row.releaseEvidenceKey, row.coverageKey).toMatch(/^v10-release:/);
+      expect(row.releaseEvidenceId, row.coverageKey).toMatch(/^v10-release:/);
       expect(row.dimensions, row.coverageKey).toContain("test");
       expect(row.dimensions, row.coverageKey).toContain("release_evidence");
 
@@ -213,7 +213,7 @@ describe("V10 no-exclusions matrix", () => {
         dimensions: [],
         sourceArtifacts: [],
         testArtifacts: [],
-        releaseEvidenceKey: "source_object:contract",
+        releaseEvidenceId: "source_object:contract",
         residualRisk: null,
       },
     ];

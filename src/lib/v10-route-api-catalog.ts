@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { V10Plan, V10Role, V10WorkspaceMode } from "./v10-release-contract";
 import {
   isV10MutationOutcome,
@@ -8,6 +9,16 @@ import {
   type V10MutationResponse,
 } from "./v10-mutation-envelope";
 import { V10_PERFORMANCE_BUDGETS } from "./v10-ui-state-contracts";
+
+const V10_ROUTE_CATALOG_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+function resolveV10RouteCatalogArtifact(artifactPath: string): string {
+  return join(V10_ROUTE_CATALOG_ROOT, artifactPath);
+}
+
+function toV10RouteCatalogRepoPath(artifactPath: string): string {
+  return relative(V10_ROUTE_CATALOG_ROOT, artifactPath).replace(/\\/g, "/");
+}
 
 export type V10HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 export type V10RouteSurface =
@@ -2701,15 +2712,15 @@ export function getV10RouteTestArtifact(path: string): string {
   if (path === "/api/command-palette/contracts") {
     return "src/app/api/command-palette/contracts/route.v10.test.ts";
   }
-  const routeTs = join(process.cwd(), runtimeArtifact);
+  const routeTs = resolveV10RouteCatalogArtifact(runtimeArtifact);
   const dir = join(routeTs, "..");
   const plain = join(dir, "route.test.ts");
   if (existsSync(plain)) {
-    return plain.replace(`${process.cwd()}/`, "").replace(/\\/g, "/");
+    return toV10RouteCatalogRepoPath(plain);
   }
   const v10 = join(dir, "route.v10.test.ts");
   if (existsSync(v10)) {
-    return v10.replace(`${process.cwd()}/`, "").replace(/\\/g, "/");
+    return toV10RouteCatalogRepoPath(v10);
   }
   return "e2e/v10-core-smoke.spec.ts";
 }
@@ -2884,10 +2895,10 @@ export function validateV10RoutePerformanceSmokeContracts(
     if (routeInventory && routeInventory.performanceBudgetKind !== contract.budgetKind) {
       failures.push(`${contract.budgetKind}:budget_kind_mismatch`);
     }
-    if (!contract.proofArtifact.trim() || !existsSync(join(process.cwd(), contract.proofArtifact))) {
+    if (!contract.proofArtifact.trim() || !existsSync(resolveV10RouteCatalogArtifact(contract.proofArtifact))) {
       failures.push(`${contract.budgetKind}:proof_artifact_required`);
     }
-    if (contract.optionalLoadSmokeScript && !existsSync(join(process.cwd(), contract.optionalLoadSmokeScript))) {
+    if (contract.optionalLoadSmokeScript && !existsSync(resolveV10RouteCatalogArtifact(contract.optionalLoadSmokeScript))) {
       failures.push(`${contract.budgetKind}:load_smoke_script_required`);
     }
     if ((contract.measurement === "integration_smoke" || contract.measurement === "k6_optional") && contract.loadSmokePaths.length === 0) {

@@ -42,7 +42,7 @@ describe("V10 complete closure", () => {
       "source_object",
       "ui_state",
     ]);
-    expect(report.rows.every((row) => row.releaseEvidenceKey.startsWith("v10-complete:"))).toBe(true);
+    expect(report.rows.every((row) => row.releaseEvidenceId.startsWith("v10-complete:"))).toBe(true);
   });
 
   it("creates row-level coverage for acceptance IDs, source objects, read models, mutations, routes, states, and metrics", () => {
@@ -116,17 +116,17 @@ describe("V10 complete closure", () => {
 
     const noExclusionsKeys = keysByDomain.get("no_exclusions") ?? new Set();
     for (const decision of V10_DEPRECATION_CLEANUP_DECISIONS) {
-      expect(noExclusionsKeys.has(`legacy:${decision.candidateKey}`), decision.candidateKey).toBe(true);
-      expect(rows.find((row) => row.domain === "no_exclusions" && row.key === `legacy:${decision.candidateKey}`)?.status, decision.candidateKey).toBe("closed");
+      expect(noExclusionsKeys.has(`legacy:${decision.candidateId}`), decision.candidateId).toBe(true);
+      expect(rows.find((row) => row.domain === "no_exclusions" && row.key === `legacy:${decision.candidateId}`)?.status, decision.candidateId).toBe("closed");
     }
 
-    const releaseEvidenceKeys = keysByDomain.get("release_evidence") ?? new Set();
+    const releaseEvidenceIds = keysByDomain.get("release_evidence") ?? new Set();
     for (const ops of V10_OPS_RELEASE_READINESS_CONTRACTS) {
-      expect(releaseEvidenceKeys.has(`ops_dashboard:${ops.key}`), ops.key).toBe(true);
+      expect(releaseEvidenceIds.has(`ops_dashboard:${ops.key}`), ops.key).toBe(true);
       expect(rows.find((row) => row.domain === "release_evidence" && row.key === `ops_dashboard:${ops.key}`)?.status, ops.key).toBe("closed");
     }
     for (const provider of V10_PROVIDER_BOUNDARIES) {
-      expect(releaseEvidenceKeys.has(`provider:${provider.provider}`), provider.provider).toBe(true);
+      expect(releaseEvidenceIds.has(`provider:${provider.provider}`), provider.provider).toBe(true);
       expect(rows.find((row) => row.domain === "release_evidence" && row.key === `provider:${provider.provider}`)?.status, provider.provider).toBe("closed");
     }
   });

@@ -24,6 +24,27 @@ import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function routeFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+  details?: Record<string, unknown>;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+      ...(input.details ? { details: input.details } : {}),
+    },
+    { status: input.status }
+  );
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
@@ -58,7 +79,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     .maybeSingle();
   if (linkError) {
     console.error("[api/external-actions/submit] link query error:", linkError.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return routeFailure({
+      status: 500,
+      error: "Failed to load external action",
+      code: "data_source_failed",
+      diagnosticId: "external_action_submit_link_load_failed",
+      phase: "source_query",
+    });
   }
   if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
 
@@ -83,11 +110,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
 
   if (link.expires_at < nowIso()) {
-    await admin
+    const { error: expireError } = await admin
       .from("external_action_links")
       .update({ status: "expired" })
       .eq("id", link.id)
       .eq("organization_id", link.organization_id);
+    if (expireError) {
+      return routeFailure({
+        status: 500,
+        error: "Failed to persist expired external action state",
+        code: "persistence_failed",
+        diagnosticId: "external_action_submit_expired_state_failed",
+        phase: "persist",
+      });
+    }
     return NextResponse.json({ error: "External action link expired" }, { status: 410 });
   }
   if (link.status === "submitted") {
@@ -106,7 +142,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   if (!validated.ok) {
     if (isFeatureEnabled("v6AssuranceCore")) {
       const prevScope = (link.scope_json as Record<string, unknown> | null) ?? {};
-      await admin
+      const { error: correctionError } = await admin
         .from("external_action_links")
         .update({
           scope_json: {
@@ -118,6 +154,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         })
         .eq("id", link.id)
         .eq("organization_id", link.organization_id);
+      if (correctionError) {
+        return routeFailure({
+          status: 400,
+          error: validated.error,
+          code: "validation_failed",
+          diagnosticId: "external_action_submit_correction_state_failed",
+          phase: "persist",
+        });
+      }
     }
     return NextResponse.json({ error: validated.error }, { status: 400 });
   }
@@ -138,13 +183,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     .maybeSingle();
   if (error) {
     console.error("[api/external-actions/submit] update error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return routeFailure({
+      status: 500,
+      error: "Failed to persist external action submission",
+      code: "persistence_failed",
+      diagnosticId: "external_action_submit_persist_failed",
+      phase: "persist",
+    });
   }
   if (!data) {
     return NextResponse.json({ error: "External action already submitted" }, { status: 409 });
   }
 
-  await admin.from("external_action_events").insert({
+  const errors: Array<Record<string, unknown>> = [];
+
+  const { error: eventError } = await admin.from("external_action_events").insert({
     organization_id: link.organization_id,
     external_action_link_id: link.id,
     event_type: "external.submitted",
@@ -155,8 +208,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         : 0,
     },
   });
+  if (eventError) {
+    errors.push({
+      diagnostic_id: "external_action_submit_event_insert_failed",
+      phase: "persist",
+      message: "Failed to persist external action submission event",
+    });
+  }
 
-  await appendExternalWorkflowStep(
+  const workflowResult = await appendExternalWorkflowStep(
     admin,
     link.organization_id,
     String(link.id),
@@ -166,6 +226,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       submitted_keys: Object.keys(storePayload),
     }
   );
+  if (workflowResult.error?.message === "external_action_event_insert_failed") {
+    errors.push({
+      diagnostic_id: "external_action_submit_workflow_event_insert_failed",
+      phase: "persist",
+      message: "Failed to persist submission workflow event",
+    });
+  } else if (workflowResult.error) {
+    errors.push({
+      diagnostic_id: "external_action_submit_workflow_step_failed",
+      phase: "persist",
+      message: "Failed to persist submission workflow step",
+    });
+  }
 
   const scope = link.scope_json as Record<string, unknown> | null;
   const reqRaw = scope?.evidenceRequirementId;
@@ -173,20 +246,34 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const wantsEvidence =
     /evidence/i.test(String(link.action_type)) || requirementId !== null;
   if (requirementId && wantsEvidence) {
-    const { data: reqRow } = await admin
+    const { data: reqRow, error: reqRowError } = await admin
       .from("evidence_requirements")
       .select("id")
       .eq("organization_id", link.organization_id)
       .eq("id", requirementId)
       .maybeSingle();
+    if (reqRowError) {
+      errors.push({
+        diagnostic_id: "external_action_submit_requirement_load_failed",
+        phase: "source_query",
+        message: "Failed to load evidence requirement for external submission",
+      });
+    }
     if (reqRow) {
-      await admin.from("evidence_submissions").insert({
+      const { error: evidenceInsertError } = await admin.from("evidence_submissions").insert({
         organization_id: link.organization_id,
         requirement_id: requirementId,
         submitted_by: null,
         payload_json: storePayload,
         external_action_link_id: link.id,
       });
+      if (evidenceInsertError) {
+        errors.push({
+          diagnostic_id: "external_action_submit_evidence_persist_failed",
+          phase: "persist",
+          message: "Failed to persist external evidence submission",
+        });
+      }
     }
   }
 
@@ -211,7 +298,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
           dec.linked_account_key,
           "relationship.external_submitted",
           p
-        );
+        ).catch(() => {
+          errors.push({
+            diagnostic_id: "external_action_submit_account_timeline_failed",
+            phase: "notify",
+            message: "Failed to append account relationship timeline event",
+          });
+        });
       }
       if (dec.linked_counterparty_key) {
         await appendCounterpartyTimelineEvent(
@@ -220,7 +313,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
           dec.linked_counterparty_key,
           "relationship.external_submitted",
           p
-        );
+        ).catch(() => {
+          errors.push({
+            diagnostic_id: "external_action_submit_counterparty_timeline_failed",
+            phase: "notify",
+            message: "Failed to append counterparty relationship timeline event",
+          });
+        });
       }
     }
   }
@@ -235,5 +334,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     await runIncrementalAssuranceChecks(admin, String(link.organization_id), null).catch(() => undefined);
   }
 
-  return NextResponse.json({ submission: data });
+  return NextResponse.json(
+    {
+      ...(errors.length > 0 ? { ok: false, partial: true, errors_count: errors.length, errors } : {}),
+      submission: data,
+    },
+    { status: errors.length > 0 ? 207 : 200 }
+  );
 }

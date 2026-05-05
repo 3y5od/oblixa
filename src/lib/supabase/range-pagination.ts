@@ -14,21 +14,23 @@ export async function forEachSupabaseRangePage<T>(
   fetchPage: (from: number, to: number) => PromiseLike<SupabaseRangePage<T>>,
   consume: (chunk: T[]) => void | Promise<void>,
   options?: { pageSize?: number; maxOffsetExclusive?: number }
-): Promise<{ error: PostgrestError | null; stoppedByOffsetCap: boolean }> {
+): Promise<{ error: PostgrestError | null; stoppedByOffsetCap: boolean; rowsSeen: number; nextOffset: number | null }> {
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
   const maxOffsetExclusive = options?.maxOffsetExclusive ?? DEFAULT_MAX_OFFSET_EXCLUSIVE;
   let from = 0;
+  let rowsSeen = 0;
   for (;;) {
     if (from >= maxOffsetExclusive) {
-      return { error: null, stoppedByOffsetCap: true };
+      return { error: null, stoppedByOffsetCap: true, rowsSeen, nextOffset: from };
     }
     const to = from + pageSize - 1;
     const { data, error } = await Promise.resolve(fetchPage(from, to));
-    if (error) return { error, stoppedByOffsetCap: false };
+    if (error) return { error, stoppedByOffsetCap: false, rowsSeen, nextOffset: from };
     const chunk = data ?? [];
     await consume(chunk);
+    rowsSeen += chunk.length;
     if (chunk.length < pageSize) {
-      return { error: null, stoppedByOffsetCap: false };
+      return { error: null, stoppedByOffsetCap: false, rowsSeen, nextOffset: null };
     }
     from += pageSize;
   }
@@ -40,7 +42,7 @@ export async function forEachSupabaseRangePage<T>(
 export async function collectSupabaseRangePages<T>(
   fetchPage: (from: number, to: number) => PromiseLike<SupabaseRangePage<T>>,
   options?: { pageSize?: number; maxRows?: number }
-): Promise<{ rows: T[]; error: PostgrestError | null; truncated: boolean }> {
+): Promise<{ rows: T[]; error: PostgrestError | null; truncated: boolean; nextOffset: number | null }> {
   const pageSize = options?.pageSize ?? DEFAULT_PAGE_SIZE;
   const maxRows = options?.maxRows ?? DEFAULT_MAX_ROWS;
   const rows: T[] = [];
@@ -48,15 +50,15 @@ export async function collectSupabaseRangePages<T>(
   for (;;) {
     const to = from + pageSize - 1;
     const { data, error } = await Promise.resolve(fetchPage(from, to));
-    if (error) return { rows, error, truncated: false };
+    if (error) return { rows, error, truncated: false, nextOffset: from };
     const chunk = data ?? [];
     for (const row of chunk) {
       rows.push(row);
       if (rows.length >= maxRows) {
-        return { rows, error: null, truncated: chunk.length === pageSize };
+        return { rows, error: null, truncated: chunk.length === pageSize, nextOffset: chunk.length === pageSize ? from + pageSize : null };
       }
     }
-    if (chunk.length < pageSize) return { rows, error: null, truncated: false };
+    if (chunk.length < pageSize) return { rows, error: null, truncated: false, nextOffset: null };
     from += pageSize;
   }
 }

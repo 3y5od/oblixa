@@ -1,6 +1,9 @@
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow, listRows } from "@/lib/v6/service";
 
+const SEGMENT_PAGE_SIZE = 500;
+const SEGMENT_MAX_SCAN = 5_000;
+
 export function listSegments(admin: AdminClient, orgId: string) {
   return listRows(admin, "segment_definitions", orgId, "id, segment_type, key, name, criteria_json, active, updated_at");
 }
@@ -47,6 +50,72 @@ export function normalizeMembershipEntityTypes(criteria: SegmentCriteriaJson): s
   return out.length > 0 ? out : ["contract"];
 }
 
+async function fetchContractsForSegment(
+  admin: AdminClient,
+  orgId: string,
+  criteria: SegmentCriteriaJson
+): Promise<{
+  data: Record<string, unknown>[];
+  error: { message: string } | null;
+  truncated: boolean;
+}> {
+  const rows: Record<string, unknown>[] = [];
+  for (let offset = 0; offset < SEGMENT_MAX_SCAN; offset += SEGMENT_PAGE_SIZE) {
+    let q = admin
+      .from("contracts")
+      .select("id, counterparty, region, status, contract_type, tags, linked_account_key, owner_id")
+      .eq("organization_id", orgId);
+    if (criteria.contract_status_in && criteria.contract_status_in.length > 0) {
+      q = q.in("status", criteria.contract_status_in);
+    }
+    if (criteria.regions && criteria.regions.length > 0) {
+      q = q.in("region", criteria.regions);
+    }
+    if (criteria.contract_type_equals?.trim()) {
+      q = q.eq("contract_type", criteria.contract_type_equals.trim());
+    }
+
+    const result = await q.range(offset, offset + SEGMENT_PAGE_SIZE - 1);
+    if (result.error) return { data: rows, error: result.error, truncated: false };
+    const page = (result.data ?? []) as Record<string, unknown>[];
+    rows.push(...page);
+    if (page.length < SEGMENT_PAGE_SIZE) return { data: rows, error: null, truncated: false };
+  }
+  return { data: rows, error: null, truncated: true };
+}
+
+async function fetchProgramAssignments(
+  admin: AdminClient,
+  orgId: string,
+  programId: string
+): Promise<{ contractIds: Set<string>; error: { message: string } | null; truncated: boolean }> {
+  const contractIds = new Set<string>();
+  for (let offset = 0; offset < SEGMENT_MAX_SCAN; offset += SEGMENT_PAGE_SIZE) {
+    const result = await admin
+      .from("contract_program_assignments")
+      .select("contract_id")
+      .eq("organization_id", orgId)
+      .eq("program_id", programId)
+      .eq("status", "active")
+      .range(offset, offset + SEGMENT_PAGE_SIZE - 1);
+    if (result.error) return { contractIds, error: result.error, truncated: false };
+    const page = result.data ?? [];
+    for (const assignment of page) {
+      contractIds.add(String((assignment as { contract_id: string }).contract_id));
+    }
+    if (page.length < SEGMENT_PAGE_SIZE) return { contractIds, error: null, truncated: false };
+  }
+  return { contractIds, error: null, truncated: true };
+}
+
+function chunkArray<T>(items: readonly T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size) as T[]);
+  }
+  return chunks;
+}
+
 export async function recomputeSegmentMemberships(admin: AdminClient, orgId: string, segmentId: string) {
   const { error: delErr } = await admin
     .from("segment_memberships")
@@ -65,30 +134,14 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
   if (!seg) return { count: 0, error: { message: "segment_not_found" } };
 
   const criteria = (seg.criteria_json ?? {}) as SegmentCriteriaJson;
-
-  let q = admin
-    .from("contracts")
-    .select("id, counterparty, region, status, contract_type, tags, linked_account_key, owner_id")
-    .eq("organization_id", orgId);
-
-  if (criteria.contract_status_in && criteria.contract_status_in.length > 0) {
-    q = q.in("status", criteria.contract_status_in);
-  }
-  if (criteria.regions && criteria.regions.length > 0) {
-    q = q.in("region", criteria.regions);
-  }
-  if (criteria.contract_type_equals?.trim()) {
-    q = q.eq("contract_type", criteria.contract_type_equals.trim());
-  }
-
-  const { data: contracts, error: contractsErr } = await q.limit(500);
-  if (contractsErr) return { count: 0, error: contractsErr };
+  const contractsResult = await fetchContractsForSegment(admin, orgId, criteria);
+  if (contractsResult.error) return { count: 0, error: contractsResult.error, truncated: false };
 
   const tagNeedle = (criteria.tags_any ?? [])
     .map((t) => String(t).trim().toLowerCase())
     .filter(Boolean);
 
-  let filtered = (contracts ?? []).filter((c) => {
+  let filtered = contractsResult.data.filter((c) => {
     const row = c as { counterparty?: string | null; tags?: string[] | null };
     if (criteria.counterparty_contains?.trim()) {
       const cp = String(row.counterparty ?? "").toLowerCase();
@@ -101,16 +154,14 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     return true;
   });
 
+  let truncated = contractsResult.truncated;
+
   if (criteria.program_id?.trim()) {
     const pid = criteria.program_id.trim();
-    const { data: assigns } = await admin
-      .from("contract_program_assignments")
-      .select("contract_id")
-      .eq("organization_id", orgId)
-      .eq("program_id", pid)
-      .eq("status", "active")
-      .limit(500);
-    const allowed = new Set((assigns ?? []).map((a) => String((a as { contract_id: string }).contract_id)));
+    const assignmentsResult = await fetchProgramAssignments(admin, orgId, pid);
+    if (assignmentsResult.error) return { count: 0, error: assignmentsResult.error, truncated };
+    truncated = truncated || assignmentsResult.truncated;
+    const allowed = assignmentsResult.contractIds;
     filtered = filtered.filter((c) => allowed.has(String((c as { id: string }).id)));
   }
 
@@ -192,13 +243,19 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     }
 
     if (entityTypes.includes("program") && contractIds.length > 0) {
-      const { data: assigns } = await admin
-        .from("contract_program_assignments")
-        .select("program_id")
-        .eq("organization_id", orgId)
-        .eq("status", "active")
-        .in("contract_id", contractIds.slice(0, 500));
-      const pids = new Set((assigns ?? []).map((a) => String((a as { program_id: string }).program_id)));
+      const pids = new Set<string>();
+      for (const contractChunk of chunkArray(contractIds, 200)) {
+        const assignsResult = await admin
+          .from("contract_program_assignments")
+          .select("program_id")
+          .eq("organization_id", orgId)
+          .eq("status", "active")
+          .in("contract_id", contractChunk);
+        if (assignsResult.error) return { count: 0, error: assignsResult.error, truncated };
+        for (const assignment of assignsResult.data ?? []) {
+          pids.add(String((assignment as { program_id: string }).program_id));
+        }
+      }
       for (const pid of pids) {
         insertRows.push({
           organization_id: orgId,
@@ -211,16 +268,19 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     }
 
     if (entityTypes.includes("team") && contractIds.length > 0) {
-      const { data: taskRows } = await admin
-        .from("contract_tasks")
-        .select("team_key")
-        .eq("organization_id", orgId)
-        .in("contract_id", contractIds.slice(0, 500))
-        .not("team_key", "is", null);
       const teams = new Set<string>();
-      for (const t of taskRows ?? []) {
-        const tk = String((t as { team_key?: string }).team_key ?? "").trim();
-        if (tk) teams.add(tk);
+      for (const contractChunk of chunkArray(contractIds, 200)) {
+        const taskRowsResult = await admin
+          .from("contract_tasks")
+          .select("team_key")
+          .eq("organization_id", orgId)
+          .in("contract_id", contractChunk)
+          .not("team_key", "is", null);
+        if (taskRowsResult.error) return { count: 0, error: taskRowsResult.error, truncated };
+        for (const taskRow of taskRowsResult.data ?? []) {
+          const tk = String((taskRow as { team_key?: string }).team_key ?? "").trim();
+          if (tk) teams.add(tk);
+        }
       }
       for (const tk of teams) {
         insertRows.push({
@@ -250,5 +310,10 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     .eq("organization_id", orgId)
     .eq("segment_definition_id", segmentId);
 
-  return { count: count ?? 0 };
+  return {
+    count: count ?? 0,
+    truncated,
+    contracts_scanned: contractsResult.data.length,
+    membership_rows_prepared: insertRows.length,
+  };
 }

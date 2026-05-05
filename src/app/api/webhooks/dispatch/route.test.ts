@@ -147,6 +147,7 @@ describe("GET /api/webhooks/dispatch", () => {
 
     const deliverySeedUpsert = vi.fn().mockResolvedValue({ error: null });
     const deliveryPatchUpsert = vi.fn().mockResolvedValue({ error: null });
+    const claimedDelivery = vi.fn().mockResolvedValue({ data: deliveryRow, error: null });
     const webhookSecretEq = vi.fn().mockResolvedValue({ error: null });
     const outboundEventEq = vi.fn().mockResolvedValue({ error: null });
 
@@ -199,6 +200,18 @@ describe("GET /api/webhooks/dispatch", () => {
               };
               deliveryQuery.eq.mockImplementation(() => deliveryQuery);
               return deliveryQuery;
+            }),
+            update: vi.fn(() => {
+              const claimQuery = {
+                eq: vi.fn(),
+                lte: vi.fn(),
+                select: vi.fn(),
+                maybeSingle: claimedDelivery,
+              };
+              claimQuery.eq.mockImplementation(() => claimQuery);
+              claimQuery.lte.mockReturnValue(claimQuery);
+              claimQuery.select.mockReturnValue(claimQuery);
+              return claimQuery;
             }),
           };
         }
@@ -259,6 +272,91 @@ describe("GET /api/webhooks/dispatch", () => {
       ],
       { onConflict: "id", ignoreDuplicates: false }
     );
+  });
+
+  it("skips a webhook delivery row when another worker already claimed it", async () => {
+    process.env.CRON_SECRET = "secret";
+    const event = {
+      id: "evt_1",
+      organization_id: "org_1",
+      event_type: "contract.updated",
+      entity_type: "contract",
+      entity_id: "ctr_1",
+      payload: { schema_version: "v2" },
+      created_at: "2026-05-04T17:00:00.000Z",
+    };
+    const subscription = {
+      id: "sub_1",
+      organization_id: "org_1",
+      url: "https://example.com/hooks",
+      secret: "plain-secret",
+      events: ["contract.updated"],
+    };
+    const deliveryRow = {
+      id: "del_1",
+      subscription_id: "sub_1",
+      attempt_count: 0,
+      delivered: false,
+      next_attempt_at: new Date(Date.now() - 1_000).toISOString(),
+    };
+
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "outbound_events") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn().mockReturnThis(),
+              order: vi.fn().mockReturnThis(),
+              limit: vi.fn().mockResolvedValue({ data: [event] }),
+            })),
+            update: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
+          };
+        }
+        if (table === "webhook_subscriptions") {
+          return {
+            select: vi.fn(() => ({ in: vi.fn().mockReturnThis(), eq: vi.fn().mockResolvedValue({ data: [subscription] }) })),
+          };
+        }
+        if (table === "outbound_event_deliveries") {
+          return {
+            upsert: vi.fn().mockResolvedValue({ error: null }),
+            select: vi.fn((_columns: string, options?: { count?: string; head?: boolean }) => {
+              if (options?.count === "exact" && options.head) {
+                const countQuery = { eq: vi.fn() };
+                countQuery.eq.mockImplementationOnce(() => countQuery).mockResolvedValueOnce({ count: 1 });
+                return countQuery;
+              }
+              const deliveryQuery = { eq: vi.fn(), lte: vi.fn().mockResolvedValue({ data: [deliveryRow] }) };
+              deliveryQuery.eq.mockImplementation(() => deliveryQuery);
+              return deliveryQuery;
+            }),
+            update: vi.fn(() => {
+              const claimQuery = {
+                eq: vi.fn(),
+                lte: vi.fn(),
+                select: vi.fn(),
+                maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+              };
+              claimQuery.eq.mockImplementation(() => claimQuery);
+              claimQuery.lte.mockReturnValue(claimQuery);
+              claimQuery.select.mockReturnValue(claimQuery);
+              return claimQuery;
+            }),
+          };
+        }
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    const { GET } = await import("@/app/api/webhooks/dispatch/route");
+    const res = await GET(new Request("http://localhost:3000/api/webhooks/dispatch", {
+      headers: { Authorization: "Bearer secret" },
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({ ok: true, attempts: 0, delivered: 0, totalFailures: 0 });
+    expect(safeFetch).not.toHaveBeenCalled();
   });
 });
 

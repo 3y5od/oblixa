@@ -14,6 +14,25 @@ import { appendExternalWorkflowStep, setExternalWorkflowAckDeadline } from "@/li
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 
+function routeFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+    },
+    { status: input.status }
+  );
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
@@ -58,7 +77,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     .eq("token", token)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return routeFailure({
+      status: 500,
+      error: "Failed to load external action",
+      code: "data_source_failed",
+      diagnosticId: "external_action_workflow_link_load_failed",
+      phase: "source_query",
+    });
+  }
   if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
 
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
@@ -81,7 +108,31 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     ctx.userId
   );
 
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  const errors: Array<Record<string, unknown>> = [];
+  if (result.error?.message === "workflow_deadline_passed") {
+    return routeFailure({
+      status: 409,
+      error: "External workflow deadline has passed",
+      code: "workflow_deadline_passed",
+      diagnosticId: "external_action_workflow_deadline_passed",
+      phase: "preflight",
+    });
+  }
+  if (result.error?.message === "external_action_event_insert_failed") {
+    errors.push({
+      diagnostic_id: "external_action_workflow_event_insert_failed",
+      phase: "persist",
+      message: "Failed to persist external workflow event",
+    });
+  } else if (result.error) {
+    return routeFailure({
+      status: 500,
+      error: "Failed to persist external workflow step",
+      code: "persistence_failed",
+      diagnosticId: "external_action_workflow_step_persist_failed",
+      phase: "persist",
+    });
+  }
 
   if (isFeatureEnabled("v6AssuranceCore")) {
     await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_workflow_step_appends_total", 1).catch(
@@ -91,8 +142,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
 
   const ack = toSafeString(body.ackDeadlineIso);
   if (ack) {
-    await setExternalWorkflowAckDeadline(ctx.admin, ctx.orgId, String(link.id), ack);
+    const ackResult = await setExternalWorkflowAckDeadline(ctx.admin, ctx.orgId, String(link.id), ack);
+    if (ackResult.error) {
+      errors.push({
+        diagnostic_id: "external_action_workflow_ack_deadline_persist_failed",
+        phase: "persist",
+        message: "Failed to persist external workflow acknowledgement deadline",
+      });
+    }
   }
 
-  return NextResponse.json({ externalAction: result.data }, { status: 201 });
+  return NextResponse.json(
+    {
+      ...(errors.length > 0 ? { ok: false, partial: true, errors_count: errors.length, errors } : {}),
+      externalAction: result.data,
+    },
+    { status: errors.length > 0 ? 207 : 201 }
+  );
 }

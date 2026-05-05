@@ -2,10 +2,11 @@ import type { AdminClient } from "@/lib/v6/service";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 import { sendReviewBoardPacketEmail } from "@/lib/email";
-import { getAppBaseUrlFromEnv } from "@/lib/app-url";
+import { getCanonicalServerBaseUrl } from "@/lib/app-url";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { type BatchItemError } from "@/lib/route-runtime-contract";
 
 function isLikelyEmail(s: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
@@ -33,6 +34,10 @@ function buildPacketSummaryLines(summary: Record<string, unknown>): string[] {
   return lines;
 }
 
+function deliveryError(scope: string, diagnosticId: string, message: string, phase: BatchItemError["phase"] = "notify") {
+  return { scope, phase, diagnostic_id: diagnosticId, message } satisfies BatchItemError;
+}
+
 /**
  * Notify board subscribers when a run is generated (v6.md §9.8 subscriptions + exports).
  * Email: `{ "email": "a@b.com", "channel": "email" }` or `{ "email": "a@b.com" }`.
@@ -49,11 +54,23 @@ export async function deliverReviewBoardRunNotifications(
     packetSummary: Record<string, unknown>;
     source: "cron" | "api";
   }
-): Promise<{ attempted: number; delivered: number }> {
-  const appUrl = getAppBaseUrlFromEnv();
+): Promise<{ attempted: number; delivered: number; errors: BatchItemError[] }> {
+  const appUrl = getCanonicalServerBaseUrl();
+  const errors: BatchItemError[] = [];
+  if (!appUrl) {
+    errors.push(
+      deliveryError(
+        opts.boardId,
+        "v6_review_board_notification_canonical_app_url_missing",
+        "Canonical app URL is not configured",
+        "dependency_preflight"
+      )
+    );
+    return { attempted: 0, delivered: 0, errors };
+  }
+
   const reviewUrl = `${appUrl}/assurance/review-boards`;
   const exportUrl = `${appUrl}/api/review-boards/runs/${encodeURIComponent(opts.runId)}?format=json`;
-
   const subs = Array.isArray(opts.subscriptions) ? opts.subscriptions : [];
   let attempted = 0;
   let delivered = 0;
@@ -94,6 +111,7 @@ export async function deliverReviewBoardRunNotifications(
         });
         continue;
       }
+
       const subject = `Assurance review board: ${opts.boardName}`;
       const htmlBody = `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
@@ -104,7 +122,7 @@ export async function deliverReviewBoardRunNotifications(
           opts.runId
         )}</code></p>
         <ul style="color:#374151;font-size:13px;line-height:1.5;">
-          ${summaryLines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}
+          ${summaryLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
         </ul>
         <p style="margin-top:18px;">
           <a href="${escapeHtml(reviewUrl)}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;">Open Assurance → Review boards</a>
@@ -136,13 +154,32 @@ export async function deliverReviewBoardRunNotifications(
         send: () => sendReviewBoardPacketEmail({ to, subject, htmlBody }),
       });
       if (result.delivered) delivered += 1;
+      else {
+        errors.push(
+          deliveryError(
+            `${opts.boardId}:${to}`,
+            "v6_review_board_email_delivery_failed",
+            result.error ?? "review board email delivery failed"
+          )
+        );
+      }
       continue;
     }
 
     if (channel === "slack") {
       const webhookRaw = String(s.webhookUrl ?? s.webhook_url ?? "").trim();
       const webhook = validateOutboundHttpUrl(webhookRaw);
-      if (!webhook) continue;
+      if (!webhook) {
+        errors.push(
+          deliveryError(
+            `${opts.boardId}:slack`,
+            "v6_review_board_slack_webhook_invalid",
+            "invalid slack webhook URL",
+            "transform"
+          )
+        );
+        continue;
+      }
       attempted += 1;
       const slackAllowed = await isNotificationAllowed(admin, {
         organizationId: orgId,
@@ -159,6 +196,7 @@ export async function deliverReviewBoardRunNotifications(
         });
         continue;
       }
+
       const slackChannel = s.slack_channel != null ? String(s.slack_channel) : null;
       const title = `Review board packet: ${opts.boardName}`;
       const result = await deliverWithRetries(admin, {
@@ -200,7 +238,26 @@ export async function deliverReviewBoardRunNotifications(
         },
       });
       if (result.delivered) delivered += 1;
+      else {
+        errors.push(
+          deliveryError(
+            `${opts.boardId}:${webhook.host}`,
+            "v6_review_board_slack_delivery_failed",
+            result.error ?? "review board slack delivery failed"
+          )
+        );
+      }
+      continue;
     }
+
+    errors.push(
+      deliveryError(
+        `${opts.boardId}:subscription`,
+        "v6_review_board_notification_channel_invalid",
+        `unsupported review board notification channel: ${channel}`,
+        "transform"
+      )
+    );
   }
 
   if (delivered > 0) {
@@ -208,7 +265,7 @@ export async function deliverReviewBoardRunNotifications(
       () => undefined
     );
   }
-  return { attempted, delivered };
+  return { attempted, delivered, errors };
 }
 
 function escapeHtml(str: string): string {

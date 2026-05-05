@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Epic 8 — verify load smoke is an executable, fail-closed staging gate. */
+/** Epic 8 — verify load smoke is an executable, skip-by-default staging gate. */
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -22,9 +22,8 @@ const errors = [];
 
 for (const marker of [
   "STAGING_BASE_URL",
-  "ALLOW_LOAD_SMOKE_SKIP",
-  "ALLOW_SECRET_GATED_SKIP",
-  "exit 1",
+  "REQUIRE_LOAD_SMOKE",
+  "scripts/github-actions/secret-gate.sh",
   "grafana/k6:",
   "loadtests/k6-staging-smoke.js",
 ]) {

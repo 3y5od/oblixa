@@ -25,7 +25,7 @@ describe("V9 Appendix A verbatim doc anchors", () => {
     expect(V9_SUPERSESSION_RECORDS.find((record) => record.artifact === SPEC_ARTIFACT_V9_ARCHIVE)).toMatchObject({
       supersededBy: SPEC_ARTIFACT_V10,
       status: "superseded_bridge_preserved",
-      releaseEvidenceKey: "v10_deprecation_policy",
+      releaseEvidenceId: "v10_deprecation_policy",
     });
   });
 });

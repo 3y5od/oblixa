@@ -290,8 +290,8 @@ export async function emitProductTelemetryEvent(
     action: string;
     details?: Record<string, string | number | boolean | null>;
   }
-): Promise<void> {
-  if (!isAllowlistedAction(input.action)) return;
+): Promise<boolean> {
+  if (!isAllowlistedAction(input.action)) return false;
   try {
     const details = clampProductTelemetryDetails(input.details);
     const { error } = await admin.from("audit_events").insert({
@@ -303,8 +303,11 @@ export async function emitProductTelemetryEvent(
     });
     if (error) {
       console.error("[product-telemetry] insert failed:", error.message);
+      return false;
     }
+    return true;
   } catch (e) {
     console.error("[product-telemetry] insert threw:", e);
+    return false;
   }
 }

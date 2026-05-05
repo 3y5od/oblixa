@@ -116,7 +116,7 @@ for (const row of epics) {
   const bullets = bulletsFromBody(body);
 
   md += `## Assurance objective ${n}\n\n`;
-  md += `**Stable key:** \`${row.todoKey}\` (from [\`artifacts/assurance/epics.json\`](../artifacts/assurance/epics.json)).\n\n`;
+  md += `**Stable id:** \`${row.todoId}\` (from [\`artifacts/assurance/epics.json\`](../artifacts/assurance/epics.json)).\n\n`;
   md += `**Outcome:** ${outcome}\n\n`;
   md += `**Plan anchor:** expanded bullets under \`### Epic ${n}\` in [\`artifacts/assurance/maximal-assurance-program.plan.md\`](../artifacts/assurance/maximal-assurance-program.plan.md).\n\n`;
   md += `### Directives\n\n`;

@@ -11,7 +11,12 @@ vi.mock("@/lib/security/cron-route-gate", () => ({
 }));
 
 vi.mock("@/lib/v6/cron", () => ({
-  listOrganizationIds: vi.fn(async () => ["org-a"]),
+  listOrganizationIds: vi.fn(async () => ({
+    orgIds: ["org-a"],
+    error: null,
+    stoppedByOffsetCap: false,
+    nextOffset: null,
+  })),
   logV6Cron: vi.fn(),
   v6CronRunMetadata: (orgsProcessed: number, _startedAtMs: number, errorsCount = 0) => ({
     duration_ms: 1,

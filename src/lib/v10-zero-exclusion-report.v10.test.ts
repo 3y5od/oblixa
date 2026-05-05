@@ -32,7 +32,7 @@ describe("V10 final zero-exclusion report", () => {
         "cleanup_decision",
       ])
     );
-    expect(manifest.every((row) => row.owner && row.runtimeArtifact && row.releaseEvidenceKey)).toBe(true);
+    expect(manifest.every((row) => row.owner && row.runtimeArtifact && row.releaseEvidenceId)).toBe(true);
     expect(manifest.every((row) => row.testArtifacts.length > 0)).toBe(true);
     expect(manifest.every((row) => row.supportBoundary.trim() && row.rollbackPath.trim())).toBe(true);
   });
@@ -62,8 +62,8 @@ describe("V10 final zero-exclusion report", () => {
       });
     }
     for (const decision of V10_DEPRECATION_CLEANUP_DECISIONS) {
-      expect(manifest.find((row) => row.coverageKey === `cleanup:${decision.candidateKey}`)).toMatchObject({
-        releaseEvidenceKey: decision.releaseEvidenceKey,
+      expect(manifest.find((row) => row.coverageKey === `cleanup:${decision.candidateId}`)).toMatchObject({
+        releaseEvidenceId: decision.releaseEvidenceId,
         runtimeArtifact: decision.runtimeReplacementProof,
       });
     }
@@ -124,7 +124,7 @@ describe("V10 final zero-exclusion report", () => {
       owner: "" as V10ZeroExclusionManifestRow["owner"],
       runtimeArtifact: "",
       testArtifacts: [],
-      releaseEvidenceKey: "missing",
+      releaseEvidenceId: "missing",
       supportBoundary: "",
       rollbackPath: "",
       status: "release_evidence_required",

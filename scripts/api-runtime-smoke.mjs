@@ -13,6 +13,7 @@ import path from "node:path";
 import process from "node:process";
 import nextEnv from "@next/env";
 import { fileURLToPath } from "node:url";
+import { classifyRuntimeSmokeResponse } from "./lib/route-runtime-semantics.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -40,37 +41,50 @@ function unsignedRejectStatuses(status) {
 async function probeRow(baseUrl, row) {
   const url = `${baseUrl.replace(/\/+$/, "")}${row.samplePath}`;
   const hint = row.runnerHint;
+  const method = Array.isArray(row.methods) && row.methods.includes("GET") ? "GET" : (row.methods?.[0] ?? "GET");
   if (hint === "defer_cron_canary") {
     return { id: row.pathTemplate, status: "skipped", detail: "cron family (cron-canary)" };
   }
 
   try {
     const res = await fetch(url, {
-      method: "GET",
+      method,
       redirect: "manual",
-      headers: { "Cache-Control": "no-store" },
+      headers: {
+        "Cache-Control": "no-store",
+        ...(method !== "GET" && method !== "HEAD" ? { "Content-Type": "application/json" } : {}),
+      },
+      ...(method !== "GET" && method !== "HEAD" ? { body: "{}" } : {}),
     });
+    const bodyText = await res.text();
 
     if (hint === "session_or_worker_unsigned_reject" || hint === "signature_or_unsigned_reject") {
       if (unsignedRejectStatuses(res.status)) {
-        return { id: row.pathTemplate, status: "passed", httpStatus: res.status };
+        return { id: row.pathTemplate, status: "passed", httpStatus: res.status, outcomeClass: "unsigned_reject" };
       }
       return {
         id: row.pathTemplate,
         status: "failed",
-        detail: `expected 401/403/503 for unsigned GET, got ${res.status}`,
+        detail: `expected 401/403/503 for unsigned ${method}, got ${res.status}`,
         httpStatus: res.status,
       };
     }
 
     if (hint === "public_or_token_surface") {
-      if (res.status < 500) {
-        return { id: row.pathTemplate, status: "passed", httpStatus: res.status };
+      const classified = classifyRuntimeSmokeResponse(row, res, bodyText);
+      if (classified.passed) {
+        return {
+          id: row.pathTemplate,
+          status: "passed",
+          httpStatus: res.status,
+          outcomeClass: classified.outcomeClass,
+          detail: classified.detail,
+        };
       }
       return {
         id: row.pathTemplate,
         status: "failed",
-        detail: `public/token surface returned ${res.status}`,
+        detail: classified.detail,
         httpStatus: res.status,
       };
     }
@@ -137,6 +151,11 @@ async function main() {
     passed: results.filter((r) => r.status === "passed").length,
     failed: results.filter((r) => r.status === "failed").length,
     skipped: results.filter((r) => r.status === "skipped").length,
+    passedByOutcomeClass: Object.fromEntries(
+      [...new Set(results.map((r) => r.outcomeClass).filter(Boolean))]
+        .sort()
+        .map((key) => [key, results.filter((r) => r.status === "passed" && r.outcomeClass === key).length])
+    ),
     results,
   };
 

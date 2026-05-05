@@ -66,7 +66,7 @@ describe("GET /api/notifications/retry-deliveries", () => {
     expect(body).toMatchObject({ error: "Unauthorized", code: "cron_unauthorized" });
   });
 
-  it("returns success payload when signed and inserts audit entries", async () => {
+  it("returns partial payload when signed and inserts audit entries", async () => {
     process.env.CRON_SECRET = "cronsecret";
     const { GET } = await import("@/app/api/notifications/retry-deliveries/route");
     const req = new Request("http://localhost:3000/api/notifications/retry-deliveries", {
@@ -74,13 +74,14 @@ describe("GET /api/notifications/retry-deliveries", () => {
     });
     const res = await GET(req);
     const body = await res.json();
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(207);
     expect(body).toMatchObject({
       scanned: 2,
       delivered: 1,
       retried: 1,
       organizations: 1,
-      ok: true,
+      ok: false,
+      partial: true,
     });
     expect(insertAuditMock).toHaveBeenCalledTimes(1);
     expect(pingCronHealthcheckMock).toHaveBeenCalled();

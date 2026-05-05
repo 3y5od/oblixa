@@ -15,35 +15,23 @@ env:
   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  REQUIRE_CRON_CANARY: ${{ vars.REQUIRE_CRON_CANARY }}
 
 jobs:
   canary:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Gate required secrets
         id: gate
-        env:
-          ALLOW_CRON_CANARY_SKIP: ${{ vars.ALLOW_CRON_CANARY_SKIP }}
-          ALLOW_SECRET_GATED_SKIP: ${{ vars.ALLOW_SECRET_GATED_SKIP }}
         run: |
-          if [ -n "$STAGING_BASE_URL" ] && [ -n "$CRON_SECRET" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$ALLOW_SECRET_GATED_SKIP" = "true" ] || [ "$ALLOW_CRON_CANARY_SKIP" = "true" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Cron canary skipped via ALLOW_CRON_CANARY_SKIP or ALLOW_SECRET_GATED_SKIP."
-          else
-            echo "::error::Cron canary requires STAGING_BASE_URL and CRON_SECRET. Set secrets or ALLOW_CRON_CANARY_SKIP=true / ALLOW_SECRET_GATED_SKIP=true."
-            exit 1
-          fi
+          bash scripts/github-actions/secret-gate.sh "Cron Canary" "REQUIRE_CRON_CANARY" "STAGING_BASE_URL,CRON_SECRET"
 
-      - name: Skip cron canary (explicit waiver / missing secrets)
+      - name: Skip cron canary (missing secrets)
         if: ${{ steps.gate.outputs.run != 'true' }}
-        run: echo "Skipping cron canary (waived via repository variable or secrets missing)."
-
-      # Pinned SHAs (actions/checkout + actions/setup-node pins; not floating @v4/@v6 tags).
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: ${{ steps.gate.outputs.run == 'true' }}
+        run: echo "Skipping cron canary because required secrets are missing."
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         if: ${{ steps.gate.outputs.run == 'true' }}

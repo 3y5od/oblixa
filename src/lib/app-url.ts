@@ -1,14 +1,38 @@
 import { headers } from "next/headers";
 import { isSafeExtractionWorkerOrigin } from "@/lib/security/worker-url";
 
+function normalizeOrigin(raw: string): string {
+  return raw.replace(/\/+$/, "");
+}
+
+function isProductionLike(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.NODE_ENV === "production" || String(env.VERCEL_ENV ?? "").trim() === "production";
+}
+
+export function isLocalOrigin(origin: string): boolean {
+  try {
+    const parsed = new URL(origin);
+    return parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+export function getCanonicalAppBaseUrlFromEnv(env: NodeJS.ProcessEnv = process.env): string | null {
+  const raw =
+    env.NEXT_PUBLIC_APP_URL?.trim() || env.APP_BASE_URL?.trim() || env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || "";
+  if (!raw) return isProductionLike(env) ? null : "http://localhost:3000";
+  const origin = normalizeOrigin(raw.startsWith("http") ? raw : `https://${raw}`);
+  if (isProductionLike(env) && isLocalOrigin(origin)) return null;
+  return origin;
+}
+
 /**
  * Base URL from env only — use for build-time or when no HTTP request exists
  * (e.g. some scripts). Prefer {@link resolveAppBaseUrl} or {@link getRequestOrigin} in requests.
  */
 export function getAppBaseUrlFromEnv(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3000";
-  return raw.replace(/\/+$/, "");
+  return getCanonicalAppBaseUrlFromEnv() ?? "http://localhost:3000";
 }
 
 /**
@@ -16,7 +40,7 @@ export function getAppBaseUrlFromEnv(): string {
  * custom domains, and local dev without relying on NEXT_PUBLIC_APP_URL.
  */
 export function getRequestOrigin(request: Request): string {
-  return new URL(request.url).origin.replace(/\/+$/, "");
+  return normalizeOrigin(new URL(request.url).origin);
 }
 
 /**
@@ -51,7 +75,7 @@ export async function resolveAppBaseUrl(): Promise<string> {
       const proto =
         h.get("x-forwarded-proto") ??
         (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
-      return `${proto}://${host}`.replace(/\/+$/, "");
+      return normalizeOrigin(`${proto}://${host}`);
     }
   } catch {
     // headers() unavailable outside a request
@@ -59,9 +83,13 @@ export async function resolveAppBaseUrl(): Promise<string> {
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) {
     const origin = vercel.startsWith("http") ? vercel : `https://${vercel}`;
-    return origin.replace(/\/+$/, "");
+    return normalizeOrigin(origin);
   }
   return getAppBaseUrlFromEnv();
+}
+
+export function getCanonicalServerBaseUrl(): string | null {
+  return getCanonicalAppBaseUrlFromEnv();
 }
 
 /** @deprecated Use getAppBaseUrlFromEnv, resolveAppBaseUrl, or getRequestOrigin */

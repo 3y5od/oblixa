@@ -6,6 +6,35 @@ function mockError(message: string) {
 }
 
 describe("collectSupabaseRangePages", () => {
+  it("continues past multiple full pages before stopping on a later short page", async () => {
+    const fetchPage = vi.fn(async (from: number, to: number) => {
+      if (from === 0) {
+        expect(to).toBe(1);
+        return { data: [{ id: 1 }, { id: 2 }], error: null };
+      }
+      if (from === 2) {
+        expect(to).toBe(3);
+        return { data: [{ id: 3 }, { id: 4 }], error: null };
+      }
+      if (from === 4) {
+        expect(to).toBe(5);
+        return { data: [{ id: 5 }], error: null };
+      }
+      return { data: [], error: null };
+    });
+
+    const { rows, error, truncated, nextOffset } = await collectSupabaseRangePages(fetchPage, {
+      pageSize: 2,
+      maxRows: 20,
+    });
+
+    expect(error).toBeNull();
+    expect(truncated).toBe(false);
+    expect(nextOffset).toBeNull();
+    expect(rows).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]);
+    expect(fetchPage).toHaveBeenCalledTimes(3);
+  });
+
   it("concatenates multiple full pages and a final short page", async () => {
     const fetchPage = vi.fn(async (from: number, to: number) => {
       if (from === 0) {
@@ -65,6 +94,36 @@ describe("collectSupabaseRangePages", () => {
 });
 
 describe("forEachSupabaseRangePage", () => {
+  it("keeps consuming after more than one full page and reports all rows seen", async () => {
+    const chunks: number[][] = [];
+    const fetchPage = vi.fn(async (from: number, to: number) => {
+      if (from === 0) {
+        expect(to).toBe(1);
+        return { data: [1, 2], error: null };
+      }
+      if (from === 2) {
+        expect(to).toBe(3);
+        return { data: [3, 4], error: null };
+      }
+      return { data: [5], error: null };
+    });
+
+    const { error, stoppedByOffsetCap, rowsSeen, nextOffset } = await forEachSupabaseRangePage(
+      fetchPage,
+      (c) => {
+        chunks.push([...c]);
+      },
+      { pageSize: 2 }
+    );
+
+    expect(error).toBeNull();
+    expect(stoppedByOffsetCap).toBe(false);
+    expect(rowsSeen).toBe(5);
+    expect(nextOffset).toBeNull();
+    expect(chunks).toEqual([[1, 2], [3, 4], [5]]);
+    expect(fetchPage).toHaveBeenCalledTimes(3);
+  });
+
   it("invokes consume per chunk until short page", async () => {
     const chunks: number[][] = [];
     const fetchPage = vi.fn(async (from: number, to: number) => {

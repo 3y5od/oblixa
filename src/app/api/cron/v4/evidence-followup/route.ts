@@ -18,6 +18,12 @@ export const GET = withCronRoute({
   rateLimitKey: "cron:v4:evidence-followup",
   rateLimit: RATE_LIMITS.v4EvidenceFollowupCron,
   handler: async ({ admin }) => {
+    const insertErrors: Array<{
+      scope: string;
+      phase: "persist";
+      diagnostic_id: string;
+      message: string;
+    }> = [];
     const today = new Date().toISOString();
     const dueMinus3Horizon = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
     const { data: requirements } = await admin
@@ -139,14 +145,59 @@ export const GET = withCronRoute({
       evidence_requirement_id: row.id,
       created_via: "rule",
     }));
-  if (notificationRows.length > 0) {
-    await admin.from("notification_deliveries").insert(notificationRows);
-  }
-  if (escalationTaskRows.length > 0) {
-    await admin.from("contract_tasks").insert(escalationTaskRows);
-  }
 
-  const { touched } = await upsertDetectedExceptions({
+    let notificationsQueued = 0;
+    let notificationDuplicatesSkipped = 0;
+    let dueMinus3RemindersQueued = 0;
+    let dueDateRemindersQueued = 0;
+    let overdueNotificationsQueued = 0;
+    let ownerNotificationsQueued = 0;
+
+    for (const row of notificationRows) {
+      const sourceId = typeof row.metadata.source_id === "string" ? row.metadata.source_id : "unknown";
+      const followUpStage = typeof row.metadata.follow_up_stage === "string" ? row.metadata.follow_up_stage : "unknown";
+      const { error } = await admin.from("notification_deliveries").insert(row);
+      if (error?.code === "23505") {
+        notificationDuplicatesSkipped += 1;
+        continue;
+      }
+      if (error) {
+        insertErrors.push({
+          scope: `${row.organization_id}:${sourceId}:${followUpStage}`,
+          phase: "persist",
+          diagnostic_id: "v10_evidence_followup_notification_insert_failed",
+          message: error.message,
+        });
+        continue;
+      }
+      notificationsQueued += 1;
+      if (followUpStage === "due_minus_3") dueMinus3RemindersQueued += 1;
+      if (followUpStage === "due_date") dueDateRemindersQueued += 1;
+      if (followUpStage === "overdue_state") overdueNotificationsQueued += 1;
+      if (followUpStage === "owner_notification") ownerNotificationsQueued += 1;
+    }
+
+    let escalationTasksCreated = 0;
+    let escalationTaskDuplicatesSkipped = 0;
+    for (const row of escalationTaskRows) {
+      const { error } = await admin.from("contract_tasks").insert(row);
+      if (error?.code === "23505") {
+        escalationTaskDuplicatesSkipped += 1;
+        continue;
+      }
+      if (error) {
+        insertErrors.push({
+          scope: `${row.organization_id}:${row.contract_id}:${row.evidence_requirement_id}`,
+          phase: "persist",
+          diagnostic_id: "v10_evidence_followup_task_insert_failed",
+          message: error.message,
+        });
+        continue;
+      }
+      escalationTasksCreated += 1;
+    }
+
+    const { touched } = await upsertDetectedExceptions({
     admin,
     detector: "cron:v4:evidence-followup",
     rows: followUpRows.filter(({ stage }) => stage.overdueStateDue).map(({ row }) => ({
@@ -160,22 +211,22 @@ export const GET = withCronRoute({
       details: "Evidence requirement reached due date without approval.",
     })),
   });
-  const orgIds = [...new Set(requirementRows.map((row) => row.organization_id))].filter(
+    const orgIds = [...new Set(requirementRows.map((row) => row.organization_id))].filter(
     Boolean
-  ) as string[];
-  const reviewed = requirementRows.length;
-  if (orgIds.length > 0) {
-    await admin.from("audit_events").insert(
+    ) as string[];
+    const reviewed = requirementRows.length;
+    if (orgIds.length > 0) {
+      await admin.from("audit_events").insert(
       orgIds.map((organizationId) => ({
         organization_id: organizationId,
         contract_id: null,
         user_id: null,
         action: "automation.evidence_followup",
-        details: { reviewed, exceptionsTouched: touched, notificationsQueued: notificationRows.length, escalationTasksCreated: escalationTaskRows.length },
+        details: { reviewed, exceptionsTouched: touched, notificationsQueued, escalationTasksCreated },
       }))
-    );
-    for (const organizationId of orgIds) {
-      await recordV10AuditEvent(admin, {
+      );
+      for (const organizationId of orgIds) {
+        await recordV10AuditEvent(admin, {
         organizationId,
         actorUserId: null,
         action: "evidence_request.follow_up_scheduled",
@@ -185,23 +236,23 @@ export const GET = withCronRoute({
         safeMetadata: {
           reviewed,
           exceptions_touched: touched,
-          notifications_queued: notificationRows.length,
-          escalation_tasks_created: escalationTaskRows.length,
+          notifications_queued: notificationsQueued,
+          escalation_tasks_created: escalationTasksCreated,
         },
-      });
-      await emitProductTelemetryEvent(admin, {
+        });
+        await emitProductTelemetryEvent(admin, {
         organizationId,
         userId: null,
         action: "product.v10.evidence_follow_up_scheduled",
         details: {
           reviewed,
-          notifications_queued: notificationRows.length,
-          escalation_tasks_created: escalationTaskRows.length,
+          notifications_queued: notificationsQueued,
+          escalation_tasks_created: escalationTasksCreated,
           batch_limit: EVIDENCE_FOLLOWUP_BATCH_LIMIT,
           batch_truncated: reviewed === EVIDENCE_FOLLOWUP_BATCH_LIMIT,
         },
-      });
-      await refreshV10ReadModelsForOrganization(admin, organizationId, {
+        });
+        await refreshV10ReadModelsForOrganization(admin, organizationId, {
         refreshScope: "one_model",
         reason: "evidence_followup_cron",
         modelKeys: [
@@ -213,22 +264,34 @@ export const GET = withCronRoute({
           "audit_events",
           "command_search_index",
         ],
-      });
+        });
+      }
     }
-  }
 
+    const errorsCount = insertErrors.length;
     return {
+      partial: errorsCount > 0,
+      errorsCount,
+      phase: insertErrors[0]?.phase,
       body: {
         reviewed,
         exceptionsCreated: touched,
-        notificationsQueued: notificationRows.length,
-        dueMinus3RemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_minus_3").length,
-        dueDateRemindersQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "due_date").length,
-        overdueNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "overdue_state").length,
-        ownerNotificationsQueued: notificationRows.filter((row) => row.metadata.follow_up_stage === "owner_notification").length,
-        escalationTasksCreated: escalationTaskRows.length,
+        notificationsQueued,
+        notificationDuplicatesSkipped,
+        dueMinus3RemindersQueued,
+        dueDateRemindersQueued,
+        overdueNotificationsQueued,
+        ownerNotificationsQueued,
+        escalationTasksCreated,
+        escalationTaskDuplicatesSkipped,
         batchLimit: EVIDENCE_FOLLOWUP_BATCH_LIMIT,
         batchTruncated: reviewed === EVIDENCE_FOLLOWUP_BATCH_LIMIT,
+        ...(insertErrors.length > 0
+          ? {
+              errors: insertErrors.map((entry) => `${entry.scope}: ${entry.message}`),
+              error_details: insertErrors.slice(0, 10),
+            }
+          : {}),
       },
     };
   },

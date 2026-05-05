@@ -2,6 +2,11 @@ import type { AdminClient } from "@/lib/v6/service";
 import { createRow, listRows, updateRowById } from "@/lib/v6/service";
 import { nowIso } from "@/lib/v5/api";
 import { deliverReviewBoardRunNotifications } from "@/lib/v6/review-board-notifications";
+import { type BatchItemError } from "@/lib/route-runtime-contract";
+
+function reviewBoardError(scope: string, diagnosticId: string, message: string): BatchItemError {
+  return { scope, phase: "source_query", diagnostic_id: diagnosticId, message };
+}
 
 export async function assembleReviewBoardPacket(admin: AdminClient, orgId: string, boardId: string) {
   const [
@@ -38,10 +43,29 @@ export async function assembleReviewBoardPacket(admin: AdminClient, orgId: strin
       .order("due_at", { ascending: true })
       .limit(15),
   ]);
-  if (findingsErr) console.error("assembleReviewBoardPacket: findings query failed", findingsErr.message);
-  if (scorecardsErr) console.error("assembleReviewBoardPacket: scorecards query failed", scorecardsErr.message);
-  if (campaignsErr) console.error("assembleReviewBoardPacket: campaigns query failed", campaignsErr.message);
-  if (decisionsErr) console.error("assembleReviewBoardPacket: decisions query failed", decisionsErr.message);
+  const errors: BatchItemError[] = [];
+  if (findingsErr) {
+    console.error("assembleReviewBoardPacket: findings query failed", findingsErr.message);
+    errors.push(reviewBoardError(`${orgId}:${boardId}:findings`, "v6_review_board_findings_query_failed", findingsErr.message));
+  }
+  if (scorecardsErr) {
+    console.error("assembleReviewBoardPacket: scorecards query failed", scorecardsErr.message);
+    errors.push(
+      reviewBoardError(`${orgId}:${boardId}:scorecards`, "v6_review_board_scorecards_query_failed", scorecardsErr.message)
+    );
+  }
+  if (campaignsErr) {
+    console.error("assembleReviewBoardPacket: campaigns query failed", campaignsErr.message);
+    errors.push(
+      reviewBoardError(`${orgId}:${boardId}:campaigns`, "v6_review_board_campaigns_query_failed", campaignsErr.message)
+    );
+  }
+  if (decisionsErr) {
+    console.error("assembleReviewBoardPacket: decisions query failed", decisionsErr.message);
+    errors.push(
+      reviewBoardError(`${orgId}:${boardId}:decisions`, "v6_review_board_decisions_query_failed", decisionsErr.message)
+    );
+  }
 
   const agenda_json = {
     generated_at: nowIso(),
@@ -89,6 +113,7 @@ export async function assembleReviewBoardPacket(admin: AdminClient, orgId: strin
     agenda_json,
     packet_json,
     unresolved_findings_json: findings ?? [],
+    errors,
   };
 }
 
@@ -181,7 +206,10 @@ export async function generateReviewBoardRun(admin: AdminClient, orgId: string, 
     }).catch(() => undefined);
   }
 
-  return result;
+  return {
+    ...result,
+    ...(assembled.errors.length > 0 ? { warnings: assembled.errors } : {}),
+  };
 }
 
 export async function listReviewBoardRuns(admin: AdminClient, orgId: string, boardId: string) {

@@ -25,6 +25,37 @@ type OAuthProvider =
   | "email"
   | "crm";
 
+function requiredOAuthEnv(provider: OAuthProvider) {
+  const stem = provider.toUpperCase();
+  return [
+    `OAUTH_${stem}_AUTHORIZE_URL`,
+    `OAUTH_${stem}_TOKEN_URL`,
+    `OAUTH_${stem}_CLIENT_ID`,
+    `OAUTH_${stem}_CLIENT_SECRET`,
+  ];
+}
+
+function oauthFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+  details?: Record<string, unknown>;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+      ...(input.details ? { details: input.details } : {}),
+    },
+    { status: input.status }
+  );
+}
+
 export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`oauth-start:${ip}`, { max: 30, windowMs: 60_000 });
@@ -82,12 +113,22 @@ export async function POST(request: Request) {
   });
   if (duplicate) return duplicate;
   const providerConfigFromEnv = readOAuthProviderConfigFromEnv(providerId);
-  const { data: existingConnection } = await admin
+  const { data: existingConnection, error: existingConnectionError } = await admin
     .from("integration_connections")
     .select("config_json")
     .eq("organization_id", membership.organization_id)
     .eq("provider", providerId)
     .maybeSingle();
+  if (existingConnectionError) {
+    return oauthFailure({
+      status: 500,
+      error: "Failed to load integration configuration",
+      code: "data_source_failed",
+      diagnosticId: "oauth_start_connection_load_failed",
+      phase: "source_query",
+      details: { provider: providerId },
+    });
+  }
   const providerConfig =
     providerConfigFromEnv ??
     (existingConnection
@@ -99,17 +140,29 @@ export async function POST(request: Request) {
         })
       : null);
   if (!providerConfig) {
-    return NextResponse.json(
-      { error: "OAuth provider is not configured" },
-      { status: 503 }
-    );
+    return oauthFailure({
+      status: 503,
+      error: "OAuth provider is not configured",
+      code: "dependency_blocked",
+      diagnosticId: "oauth_start_provider_missing",
+      phase: "dependency_preflight",
+      details: {
+        dependency: "oauth_provider",
+        provider: providerId,
+        required_env: requiredOAuthEnv(providerId),
+      },
+    });
   }
   const authorize = validateOutboundHttpUrl(providerConfig.authorizeUrl);
   if (!authorize) {
-    return NextResponse.json(
-      { error: "OAuth authorize URL is invalid or unsafe" },
-      { status: 400 }
-    );
+    return oauthFailure({
+      status: 400,
+      error: "OAuth authorize URL is invalid or unsafe",
+      code: "validation_failed",
+      diagnosticId: "oauth_start_authorize_url_invalid",
+      phase: "preflight",
+      details: { provider: providerId },
+    });
   }
   const requestOrigin = getRequestOrigin(request);
   const redirectCandidate =
@@ -143,7 +196,14 @@ export async function POST(request: Request) {
     code_challenge_method: "S256",
   });
   if (insertError) {
-    return NextResponse.json({ error: "Failed to create oauth state" }, { status: 500 });
+    return oauthFailure({
+      status: 500,
+      error: "Failed to create oauth state",
+      code: "persistence_failed",
+      diagnosticId: "oauth_start_state_create_failed",
+      phase: "persist",
+      details: { provider: providerId },
+    });
   }
   const url = new URL(authorize.toString());
   url.searchParams.set("state", state);

@@ -7,6 +7,25 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { mergeExternalResponsePack } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 
+function routeFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+    },
+    { status: input.status }
+  );
+}
+
 /**
  * Internal merge for counterparty response pack metadata (v6.md §9.9).
  */
@@ -36,17 +55,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "pack object is required" }, { status: 400 });
   }
 
-  const { data: link } = await ctx.admin
+  const { data: link, error: linkError } = await ctx.admin
     .from("external_action_links")
     .select("id")
     .eq("organization_id", ctx.orgId)
     .eq("id", linkId)
     .maybeSingle();
+  if (linkError) {
+    return routeFailure({
+      status: 500,
+      error: "Failed to load external link",
+      code: "data_source_failed",
+      diagnosticId: "external_response_pack_link_load_failed",
+      phase: "source_query",
+    });
+  }
   if (!link) return NextResponse.json({ error: "External link not found" }, { status: 404 });
 
   const { data, error } = await mergeExternalResponsePack(ctx.admin, ctx.orgId, linkId, pack);
   if (error) {
-    return NextResponse.json({ error: (error as { message?: string }).message ?? "merge failed" }, { status: 400 });
+    return routeFailure({
+      status: 500,
+      error: "Failed to merge external response pack",
+      code: "persistence_failed",
+      diagnosticId: "external_response_pack_merge_failed",
+      phase: "persist",
+    });
   }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_response_pack_merges_total", 1).catch(
     () => undefined

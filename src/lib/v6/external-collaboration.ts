@@ -46,12 +46,18 @@ export async function appendExternalWorkflowStep(
   payload: Record<string, unknown>,
   actorUserId?: string
 ) {
-  const { data: link } = await admin
+  const { data: link, error: linkError } = await admin
     .from("external_action_links")
     .select("id, scope_json, expires_at, status")
     .eq("organization_id", orgId)
     .eq("id", linkId)
     .maybeSingle();
+  if (linkError) {
+    return { data: null, error: { message: "external_action_link_load_failed" } };
+  }
+  if (!link) {
+    return { data: null, error: { message: "external_action_not_found" } };
+  }
 
   const scope = (link?.scope_json as Record<string, unknown> | null) ?? {};
   const chain = Array.isArray(scope.workflow_chain) ? scope.workflow_chain : [];
@@ -85,13 +91,16 @@ export async function appendExternalWorkflowStep(
     .single();
 
   if (!result.error) {
-    await admin.from("external_action_events").insert({
+    const { error: eventError } = await admin.from("external_action_events").insert({
       organization_id: orgId,
       external_action_link_id: linkId,
       event_type: `external.workflow.${stepType}`,
       payload_json: payload,
       actor_user_id: actorUserId ?? null,
     });
+    if (eventError) {
+      return { data: result.data, error: { message: "external_action_event_insert_failed" } };
+    }
   }
 
   return result;
@@ -106,12 +115,18 @@ export async function setExternalWorkflowAckDeadline(
   linkId: string,
   deadlineIso: string
 ) {
-  const { data: link } = await admin
+  const { data: link, error: linkError } = await admin
     .from("external_action_links")
     .select("scope_json")
     .eq("organization_id", orgId)
     .eq("id", linkId)
     .maybeSingle();
+  if (linkError) {
+    return { data: null, error: { message: "external_action_link_load_failed" } };
+  }
+  if (!link) {
+    return { data: null, error: { message: "external_action_not_found" } };
+  }
 
   const scope = (link?.scope_json as Record<string, unknown> | null) ?? {};
   const nextScope = {
@@ -136,12 +151,18 @@ export async function mergeExternalResponsePack(
   linkId: string,
   pack: Record<string, unknown>
 ) {
-  const { data: link } = await admin
+  const { data: link, error: linkError } = await admin
     .from("external_action_links")
     .select("scope_json")
     .eq("organization_id", orgId)
     .eq("id", linkId)
     .maybeSingle();
+  if (linkError) {
+    return { data: null, error: { message: "external_action_link_load_failed" } };
+  }
+  if (!link) {
+    return { data: null, error: { message: "external_action_not_found" } };
+  }
 
   const scope = (link?.scope_json as Record<string, unknown> | null) ?? {};
   const nextScope = {

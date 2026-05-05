@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-epic3",
-  "generatedAt": "2026-05-04T18:28:55.545Z",
+  "generatedAt": "2026-05-05T22:47:53.114Z",
   "routeCount": 185,
   "routes": [
     {
@@ -12,6 +12,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -22,6 +28,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -32,6 +44,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -42,6 +60,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -52,6 +76,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -62,6 +92,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -72,6 +108,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -82,6 +124,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -92,6 +140,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -102,6 +156,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -112,6 +172,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -122,6 +188,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -132,6 +204,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -142,6 +220,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -152,6 +236,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -162,6 +252,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -172,6 +268,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -182,6 +284,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -192,6 +300,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -202,6 +316,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -213,6 +333,12 @@
         "DELETE"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -224,6 +350,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -234,6 +366,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -244,6 +382,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -254,6 +398,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -264,6 +414,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -274,6 +430,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -284,6 +446,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -294,6 +462,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -304,6 +478,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -314,6 +494,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -325,6 +511,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -335,6 +527,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -346,6 +544,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -356,6 +560,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -366,6 +576,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -377,6 +593,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -387,6 +609,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -397,6 +625,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -407,6 +641,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -417,6 +657,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -427,6 +673,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -437,6 +689,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -448,6 +706,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -458,6 +722,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -468,6 +738,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -478,6 +756,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -488,6 +774,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -498,6 +792,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -508,6 +810,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -518,6 +828,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -528,6 +846,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -538,6 +864,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -548,6 +882,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -558,6 +900,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -568,6 +918,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -578,7 +936,31 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
-      "smokeTier": "none"
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "none",
+      "family": "v4_report_packs",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "RESEND_API_KEY"
+      ],
+      "optionalEnv": [
+        "EMAIL_FROM"
+      ],
+      "dependencies": [
+        "canonical_app_url",
+        "email_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial or 503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/cron/v5/campaign-progress/route.ts",
@@ -588,6 +970,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -598,6 +988,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -608,6 +1006,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -618,6 +1024,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -628,6 +1042,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -638,6 +1060,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -648,6 +1078,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -658,6 +1096,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -668,6 +1114,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -678,6 +1132,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -688,6 +1150,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -698,6 +1168,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -708,6 +1186,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -718,6 +1204,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -728,7 +1222,24 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
-      "smokeTier": "none"
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "none",
+      "family": "v6_cron",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial"
     },
     {
       "routeFile": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
@@ -738,6 +1249,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -748,6 +1267,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -758,6 +1285,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -768,7 +1303,31 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
-      "smokeTier": "none"
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "none",
+      "family": "v6_review_board_packets",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "optionalEnv": [
+        "RESEND_API_KEY",
+        "EMAIL_FROM"
+      ],
+      "dependencies": [
+        "canonical_app_url",
+        "supabase_admin",
+        "email_provider"
+      ],
+      "degradedBehavior": "207 partial or 503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/cron/v6/scorecard-recompute/route.ts",
@@ -778,6 +1337,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -788,6 +1355,14 @@
         "GET"
       ],
       "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "none"
     },
     {
@@ -798,6 +1373,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -808,6 +1389,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -818,6 +1405,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -828,6 +1421,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -838,6 +1437,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -848,6 +1453,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -858,6 +1469,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -869,6 +1486,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -879,6 +1502,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -891,6 +1520,12 @@
         "DELETE"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -902,6 +1537,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -913,6 +1554,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -923,6 +1570,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -933,6 +1586,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -943,6 +1602,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -953,6 +1618,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -963,6 +1634,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -973,6 +1650,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -983,6 +1666,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -993,6 +1682,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1003,7 +1698,24 @@
         "GET"
       ],
       "runnerHint": "public_or_token_surface",
-      "smokeTier": "ci"
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "404_not_found",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "calendar_export",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "404 not_found or 500 persistence_error"
     },
     {
       "routeFile": "src/app/api/export/calendar/feed/route.ts",
@@ -1013,6 +1725,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1023,6 +1741,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1034,6 +1758,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1045,7 +1775,28 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "403_auth",
+        "409_idempotency",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "export_import",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial or mutation envelope failure"
     },
     {
       "routeFile": "src/app/api/export/review-packet/route.ts",
@@ -1055,6 +1806,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1064,8 +1821,29 @@
       "methods": [
         "POST"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "400_validation",
+        "404_not_found",
+        "409_idempotency",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "external_actions",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial or 404 not_found"
     },
     {
       "routeFile": "src/app/api/external-actions/[token]/status/route.ts",
@@ -1074,8 +1852,26 @@
       "methods": [
         "GET"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "404_not_found",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "external_actions",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "500 persistence_error"
     },
     {
       "routeFile": "src/app/api/external-actions/[token]/submit/route.ts",
@@ -1084,8 +1880,28 @@
       "methods": [
         "POST"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "400_validation",
+        "404_not_found",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "external_actions",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial or 404 not_found"
     },
     {
       "routeFile": "src/app/api/external-actions/[token]/workflow-step/route.ts",
@@ -1094,8 +1910,29 @@
       "methods": [
         "POST"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "400_validation",
+        "404_not_found",
+        "409_idempotency",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "external_actions",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial or 404 not_found"
     },
     {
       "routeFile": "src/app/api/external-actions/create-link/route.ts",
@@ -1105,6 +1942,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1115,6 +1958,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1125,6 +1974,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1136,6 +1991,14 @@
         "HEAD"
       ],
       "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "302_redirect",
+        "404_not_found",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "ci"
     },
     {
@@ -1147,6 +2010,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1157,7 +2026,27 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "401_auth",
+        "403_auth",
+        "409_idempotency",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "export_import",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "mutation envelope failure"
     },
     {
       "routeFile": "src/app/api/integrations/actions/callback/route.ts",
@@ -1167,6 +2056,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1177,6 +2072,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1187,6 +2088,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1197,6 +2104,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1207,7 +2120,27 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "400_validation",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "integrations",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "optionalEnv": [],
+      "dependencies": [
+        "canonical_app_url",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/integrations/refresh-tokens/route.ts",
@@ -1217,6 +2150,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1227,6 +2166,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1237,6 +2182,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1247,6 +2198,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1257,6 +2214,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1267,6 +2230,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1277,6 +2246,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1287,6 +2262,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1297,6 +2278,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1307,6 +2294,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1317,6 +2310,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1327,6 +2326,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1337,6 +2342,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1347,6 +2358,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1357,6 +2374,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1367,6 +2390,12 @@
         "DELETE"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1377,6 +2406,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1387,7 +2422,29 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "notification_retry",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "RESEND_API_KEY",
+        "EMAIL_FROM"
+      ],
+      "dependencies": [
+        "supabase_admin",
+        "notification_retry_queue"
+      ],
+      "degradedBehavior": "207 partial or 503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/outcomes/control-effectiveness/route.ts",
@@ -1397,6 +2454,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1407,6 +2470,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1417,6 +2486,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1427,6 +2502,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1437,6 +2518,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1448,6 +2535,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1458,6 +2551,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1468,6 +2567,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1478,6 +2583,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1488,6 +2599,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1498,6 +2615,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1508,6 +2631,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1518,6 +2647,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1529,6 +2664,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1539,6 +2680,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1550,6 +2697,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1560,7 +2713,31 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "reminders",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "RESEND_API_KEY"
+      ],
+      "optionalEnv": [
+        "EMAIL_FROM"
+      ],
+      "dependencies": [
+        "canonical_app_url",
+        "email_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/renewals/[id]/[action]/route.ts",
@@ -1570,6 +2747,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1580,6 +2763,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1590,6 +2779,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1601,6 +2796,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1611,6 +2812,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1621,6 +2828,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1631,7 +2844,31 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "report_summaries",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "RESEND_API_KEY"
+      ],
+      "optionalEnv": [
+        "EMAIL_FROM"
+      ],
+      "dependencies": [
+        "canonical_app_url",
+        "email_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/reports/track/click/[token]/route.ts",
@@ -1640,8 +2877,25 @@
       "methods": [
         "GET"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "302_redirect",
+        "404_not_found",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "report_tracking",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "safe_redirect_or_problem"
     },
     {
       "routeFile": "src/app/api/reports/track/open/[token]/route.ts",
@@ -1650,8 +2904,26 @@
       "methods": [
         "GET"
       ],
-      "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "302_redirect",
+        "404_not_found",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "report_tracking",
+      "requiredEnv": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "safe_no_throw"
     },
     {
       "routeFile": "src/app/api/review-boards/[id]/generate-run/route.ts",
@@ -1661,6 +2933,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1671,6 +2949,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1681,6 +2965,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1692,6 +2982,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1703,6 +2999,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1713,6 +3015,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1724,6 +3032,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1734,6 +3048,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1744,6 +3064,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1754,6 +3080,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1764,6 +3096,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1774,7 +3112,30 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "401_auth",
+        "403_auth",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "stripe_billing",
+      "requiredEnv": [
+        "STRIPE_SECRET_KEY",
+        "STRIPE_PRICE_ID",
+        "NEXT_PUBLIC_APP_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [],
+      "dependencies": [
+        "canonical_app_url",
+        "stripe_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/stripe/portal/route.ts",
@@ -1784,7 +3145,29 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "401_auth",
+        "403_auth",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "stripe_billing",
+      "requiredEnv": [
+        "STRIPE_SECRET_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [],
+      "dependencies": [
+        "canonical_app_url",
+        "stripe_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/stripe/webhook/route.ts",
@@ -1794,7 +3177,27 @@
         "POST"
       ],
       "runnerHint": "signature_or_unsigned_reject",
-      "smokeTier": "ci"
+      "verificationHint": "unsigned_signature_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "400_signature_invalid",
+        "429_rate_limited",
+        "503_dependency_blocked",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "ci",
+      "family": "stripe_webhook",
+      "requiredEnv": [
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [],
+      "dependencies": [
+        "stripe_provider",
+        "supabase_admin"
+      ],
+      "degradedBehavior": "503 dependency_blocked"
     },
     {
       "routeFile": "src/app/api/tasks/from-email/route.ts",
@@ -1804,6 +3207,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1814,6 +3223,12 @@
         "POST"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1824,7 +3239,26 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
-      "smokeTier": "nightly"
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "429_rate_limited",
+        "500_unhandled_internal"
+      ],
+      "smokeTier": "nightly",
+      "family": "task_automation",
+      "requiredEnv": [
+        "CRON_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "optionalEnv": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "dependencies": [
+        "supabase_admin"
+      ],
+      "degradedBehavior": "207 partial"
     },
     {
       "routeFile": "src/app/api/templates/preview/route.ts",
@@ -1834,6 +3268,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1844,6 +3284,12 @@
         "POST"
       ],
       "runnerHint": "signature_or_unsigned_reject",
+      "verificationHint": "unsigned_signature_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "ci"
     },
     {
@@ -1854,6 +3300,12 @@
         "GET"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1865,6 +3317,12 @@
         "PATCH"
       ],
       "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "nightly"
     },
     {
@@ -1875,6 +3333,14 @@
         "GET"
       ],
       "runnerHint": "public_or_token_surface",
+      "verificationHint": "public_or_token_semantic",
+      "expectedOutcomes": [
+        "200_success",
+        "302_redirect",
+        "404_not_found",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
       "smokeTier": "ci"
     }
   ]

@@ -57,6 +57,10 @@ describe("POST /api/external-actions/[token]/workflow-step", () => {
     mockedV5Guard.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
     canManageCapability.mockResolvedValue(true);
+    mockedSetExternalWorkflowAckDeadline.mockResolvedValue({
+      data: { id: "link-1", scope_json: {} },
+      error: null,
+    } as unknown as Awaited<ReturnType<typeof setExternalWorkflowAckDeadline>>);
   });
 
   it("returns 429 when rate limited", async () => {
@@ -207,5 +211,55 @@ describe("POST /api/external-actions/[token]/workflow-step", () => {
       retryAfterMs: 6000,
     });
     expect(mockedAppendExternalWorkflowStep).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 207 when workflow step succeeds but ack-deadline persistence fails", async () => {
+    const admin = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({
+                data: { id: "link-1", organization_id: "o1" },
+                error: null,
+              })),
+            })),
+          })),
+        })),
+      })),
+    };
+    getApiAuthContext.mockResolvedValueOnce({
+      userId: "u1",
+      orgId: "o1",
+      role: "admin",
+      admin,
+    });
+    mockedAppendExternalWorkflowStep.mockResolvedValueOnce({
+      data: { id: "ea-1", status: "open" },
+      error: null,
+    } as unknown as Awaited<ReturnType<typeof appendExternalWorkflowStep>>);
+    mockedSetExternalWorkflowAckDeadline.mockResolvedValueOnce({
+      data: null,
+      error: { message: "write failed" },
+    } as unknown as Awaited<ReturnType<typeof setExternalWorkflowAckDeadline>>);
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "handoff", ackDeadlineIso: "2030-01-01T00:00:00.000Z" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body).toMatchObject({ partial: true, errors_count: 1 });
+    expect(body.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ diagnostic_id: "external_action_workflow_ack_deadline_persist_failed" }),
+      ])
+    );
   });
 });

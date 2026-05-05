@@ -247,7 +247,7 @@ describe("V10 final gap audit", () => {
     );
     expect(matrix.find((row) => row.key === "phase-14-verification-matrix")).toMatchObject({
       matrix: "requirement",
-      releaseEvidenceKey: "v10-release:requirement:phase-14-verification-matrix",
+      releaseEvidenceId: "v10-release:requirement:phase-14-verification-matrix",
       status: "runtime_backed",
     });
     expect(matrix.find((row) => row.matrix === "ci_release_gate" && row.key === "npm run check:v10-suite")).toMatchObject({
@@ -267,7 +267,7 @@ describe("V10 final gap audit", () => {
           uiArtifact: "",
           mutationApiArtifact: "",
           testArtifact: "",
-          releaseEvidenceKey: "broken",
+          releaseEvidenceId: "broken",
           telemetryEvent: "legacy.event" as never,
           auditAction: "audit",
           privacyClassification: "diagnostic_safe",
@@ -325,21 +325,21 @@ describe("V10 final gap audit", () => {
       expect(V10_MASTER_PLAN_TODO_IDS).toContain(candidate.removalGate);
       expect(candidate.replacement.length, candidate.key).toBeGreaterThan(10);
     }
-    expect(V10_DEPRECATION_CLEANUP_DECISIONS.map((decision) => decision.candidateKey).sort()).toEqual(
+    expect(V10_DEPRECATION_CLEANUP_DECISIONS.map((decision) => decision.candidateId).sort()).toEqual(
       V10_DEPRECATION_CANDIDATES.map((candidate) => candidate.key).sort()
     );
-    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateKey === "descriptor_only_rc_fixtures")).toMatchObject({
+    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateId === "descriptor_only_rc_fixtures")).toMatchObject({
       action: "retire",
       runtimeReplacementProof: "src/lib/v10-objective-measurements.ts",
       testsPreserved: true,
     });
-    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateKey === "v9_release_contract_bridge")).toMatchObject({
+    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateId === "v9_release_contract_bridge")).toMatchObject({
       action: "preserve_boundary",
       runtimeReplacementProof: "src/lib/v10-release-contract.ts",
       compatibilityBoundaryKey: "v9_regression_bridge",
       testsPreserved: true,
     });
-    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateKey === "legacy_exception_assigned_audit_alias")).toMatchObject({
+    expect(V10_DEPRECATION_CLEANUP_DECISIONS.find((decision) => decision.candidateId === "legacy_exception_assigned_audit_alias")).toMatchObject({
       action: "quarantine",
       runtimeReplacementProof: "src/app/api/exceptions/[id]/[action]/route.ts",
       compatibilityBoundaryKey: "v10_audit_action_names",
@@ -350,11 +350,11 @@ describe("V10 final gap audit", () => {
       validateV10DeprecationCleanupDecisions({
         decisions: [
           {
-            candidateKey: "descriptor_only_rc_fixtures",
+            candidateId: "descriptor_only_rc_fixtures",
             action: "preserve_boundary",
             supersededBy: "wrong",
             runtimeReplacementProof: "",
-            releaseEvidenceKey: "wrong",
+            releaseEvidenceId: "wrong",
             compatibilityBoundaryKey: "unknown",
             testsPreserved: false,
             cleanupCommand: "node cleanup.js",

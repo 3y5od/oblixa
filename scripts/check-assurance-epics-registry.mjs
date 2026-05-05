@@ -46,9 +46,14 @@ if (committed.expectedEpicCount !== 176 || committed.epics?.length !== 176) {
   process.exit(1);
 }
 
-const regKeys = committed.epics.map((e) => e.todoKey);
+const regKeys = committed.epics.map((e) => {
+  if (typeof e.todoId !== "string" || !e.todoId.trim()) {
+    throw new Error("epics.json rows must expose todoId as a non-empty string");
+  }
+  return e.todoId;
+});
 if (JSON.stringify(regKeys) !== JSON.stringify(planKeys)) {
-  console.error("epics.json todoKey ordering differs from maximal-assurance-program.plan.md todos.");
+  console.error("epics.json todoId ordering differs from maximal-assurance-program.plan.md todos.");
   process.exit(1);
 }
 

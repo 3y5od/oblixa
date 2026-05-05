@@ -17,6 +17,27 @@ function createToken() {
   return randomBytes(24).toString("hex");
 }
 
+function routeFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+  details?: Record<string, unknown>;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+      ...(input.details ? { details: input.details } : {}),
+    },
+    { status: input.status }
+  );
+}
+
 export async function POST(request: Request) {
   const disabled = requireV5ApiFeature("v5ExternalCollaboration");
   if (disabled) return disabled;
@@ -104,15 +125,31 @@ export async function POST(request: Request) {
     })
     .select("id, token, action_type, expires_at, status")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return routeFailure({
+      status: 500,
+      error: "Failed to create external action link",
+      code: "persistence_failed",
+      diagnosticId: "external_action_link_create_failed",
+      phase: "persist",
+    });
+  }
 
-  await ctx.admin.from("external_action_events").insert({
+  const errors: Array<Record<string, unknown>> = [];
+  const { error: eventError } = await ctx.admin.from("external_action_events").insert({
     organization_id: ctx.orgId,
     external_action_link_id: data.id,
     event_type: "external.link_created",
     payload_json: { action_type: data.action_type, expires_at: data.expires_at },
     actor_user_id: ctx.userId,
   });
+  if (eventError) {
+    errors.push({
+      diagnostic_id: "external_action_link_event_insert_failed",
+      phase: "persist",
+      message: "Failed to persist external action link audit event",
+    });
+  }
 
   if (isFeatureEnabled("v6AssuranceCore")) {
     await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_action_links_created_total", 1).catch(
@@ -123,6 +160,12 @@ export async function POST(request: Request) {
     () => undefined
   );
 
-  return NextResponse.json({ externalAction: data }, { status: 201 });
+  return NextResponse.json(
+    {
+      ...(errors.length > 0 ? { ok: false, partial: true, errors_count: errors.length, errors } : {}),
+      externalAction: data,
+    },
+    { status: errors.length > 0 ? 207 : 201 }
+  );
 }
 

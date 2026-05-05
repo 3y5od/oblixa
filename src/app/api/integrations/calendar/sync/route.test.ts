@@ -7,6 +7,7 @@ const validateOutboundHttpUrl = vi.hoisted(() => vi.fn());
 const safeFetch = vi.hoisted(() => vi.fn());
 const enqueueOutboundEvent = vi.hoisted(() => vi.fn());
 const pingCronHealthcheck = vi.hoisted(() => vi.fn());
+const forEachSupabaseRangePage = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -35,6 +36,10 @@ vi.mock("@/lib/integrations/events", () => ({
 
 vi.mock("@/lib/observability/cron-healthcheck", () => ({
   pingCronHealthcheck,
+}));
+
+vi.mock("@/lib/supabase/range-pagination", () => ({
+  forEachSupabaseRangePage,
 }));
 
 function createCalendarAdmin(rows: Array<Record<string, unknown>>) {
@@ -73,6 +78,10 @@ describe("GET /api/integrations/calendar/sync", () => {
     validateOutboundHttpUrl.mockImplementation((url: string) => new URL(url));
     safeFetch.mockResolvedValue(new Response("ok", { status: 200 }));
     enqueueOutboundEvent.mockResolvedValue(true);
+    forEachSupabaseRangePage.mockImplementation(async (_fetchPage, consume) => {
+      await consume([]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 0, nextOffset: null };
+    });
     const { admin } = createCalendarAdmin([]);
     createAdminClient.mockResolvedValue(admin as never);
   });
@@ -112,6 +121,10 @@ describe("GET /api/integrations/calendar/sync", () => {
     };
     const { admin, auditInsert } = createCalendarAdmin([row]);
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
 
     const { GET } = await import("@/app/api/integrations/calendar/sync/route");
     const res = await GET(
@@ -193,6 +206,10 @@ describe("GET /api/integrations/calendar/sync", () => {
     };
     const { admin } = createCalendarAdmin([row]);
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage.mockImplementation(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
 
     const { GET } = await import("@/app/api/integrations/calendar/sync/route");
     const buildRequest = () =>
@@ -213,6 +230,37 @@ describe("GET /api/integrations/calendar/sync", () => {
       retryAfterMs: 6000,
     });
     expect(safeFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 207 when audit persistence fails after calendar sync succeeds", async () => {
+    const row = {
+      id: "conn_1",
+      organization_id: "org_1",
+      provider: "google_calendar",
+      status: "connected",
+      config_json: { pushUrl: "https://calendar.example.com/push" },
+    };
+    const { admin, auditInsert } = createCalendarAdmin([row]);
+    auditInsert.mockResolvedValueOnce({ error: { message: "audit failed" } });
+    createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
+
+    const { GET } = await import("@/app/api/integrations/calendar/sync/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/calendar/sync", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body).toMatchObject({ partial: true, errors_count: 1 });
+    expect(body.errors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ diagnostic_id: "integrations_calendar_audit_write_failed" })])
+    );
   });
 });
 

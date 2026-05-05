@@ -160,7 +160,13 @@ describe("GET /api/integrations/oauth/callback", () => {
     const body = await res.json();
 
     expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Failed to load oauth state" });
+    expect(body).toMatchObject({
+      ok: false,
+      error: "Failed to load oauth state",
+      code: "data_source_failed",
+      diagnostic_id: "oauth_callback_state_load_failed",
+      phase: "source_query",
+    });
   });
 
   it("returns 500 when persisting integration connection fails", async () => {
@@ -218,8 +224,63 @@ describe("GET /api/integrations/oauth/callback", () => {
     const body = await res.json();
 
     expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Failed to persist integration connection" });
+    expect(body).toMatchObject({
+      ok: false,
+      error: "Failed to persist integration connection",
+      code: "persistence_failed",
+      diagnostic_id: "oauth_callback_connection_persist_failed",
+      phase: "persist",
+    });
     expect(upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 502 upstream_failed when token exchange rejects upstream", async () => {
+    const authStateId = crypto.randomUUID();
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: authStateId,
+          organization_id: "org_1",
+          provider: "slack",
+          consumed_at: null,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    safeFetch.mockResolvedValue({ ok: false, status: 502 });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        if (table === "integration_connections") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          };
+        }
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(502);
+    expect(body).toMatchObject({
+      ok: false,
+      code: "upstream_failed",
+      diagnostic_id: "oauth_callback_token_exchange_failed",
+      phase: "source_query",
+    });
   });
 
   it("sends a schema-compatible token exchange payload fields and persists the connection", async () => {

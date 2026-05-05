@@ -139,7 +139,7 @@ export const V9_SUPERSESSION_RECORDS = [
     status: "superseded_bridge_preserved",
     reason: "V10 is the active release contract; V9 remains as a compatibility bridge for regression gates.",
     testsPreserved: true,
-    releaseEvidenceKey: "v10_deprecation_policy", // gitleaks:allow evidence catalog key, not a secret
+    releaseEvidenceId: "v10_deprecation_policy", // gitleaks:allow evidence catalog id, not a secret
   },
   {
     artifact: "logs 1.zip",
@@ -147,7 +147,7 @@ export const V9_SUPERSESSION_RECORDS = [
     status: "obsolete_binary_artifact_removed",
     reason: "Release evidence must be structured, scoped, and privacy-safe rather than retained as opaque local logs.",
     testsPreserved: true,
-    releaseEvidenceKey: "v10_artifact_retention_policy",
+    releaseEvidenceId: "v10_artifact_retention_policy",
   },
   {
     artifact: "logs 2.zip",
@@ -155,6 +155,6 @@ export const V9_SUPERSESSION_RECORDS = [
     status: "obsolete_binary_artifact_removed",
     reason: "Release evidence must be structured, scoped, and privacy-safe rather than retained as opaque local logs.",
     testsPreserved: true,
-    releaseEvidenceKey: "v10_artifact_retention_policy",
+    releaseEvidenceId: "v10_artifact_retention_policy",
   },
 ] as const;

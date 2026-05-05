@@ -42,10 +42,12 @@ const ignore = new Set([
   "debugging-sweep/bucket-definitions.mjs",
   "debugging-sweep/merge-stub-lists.mjs",
   "scaffold-sweep-stub.mjs",
+  "check-load-smoke-scaffold.mjs",
+  "generate-maximal-assurance-directives-doc.mjs",
 ]);
 
 const unused = allScripts.filter(
-  (rel) => !used.has(rel) && !ignore.has(rel) && !rel.startsWith("lib/")
+  (rel) => !used.has(rel) && !ignore.has(rel) && !rel.startsWith("lib/") && !rel.endsWith(".test.mjs")
 );
 const payload = {
   checkId: "unused-script-files",

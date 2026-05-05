@@ -1,9 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { claimDueRow } from "@/lib/cron/claim-due-row";
 import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import type { BatchItemError, RouteFailurePhase } from "@/lib/route-runtime-contract";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 const DELIVERY_LEASE_MS = 5 * 60 * 1000;
@@ -240,20 +242,40 @@ async function attemptDelivery(
   error: string | null;
   skipped?: boolean;
   finalStatus?: "delivered" | "failed" | "retrying";
+  phase?: RouteFailurePhase;
+  diagnosticId?: string;
 }> {
   const nowIso = new Date().toISOString();
   const leaseUntilIso = new Date(Date.now() + DELIVERY_LEASE_MS).toISOString();
-  const { data: row } = await admin
-    .from("notification_deliveries")
-    .update({
+  const { data: row, error: claimErr } = await claimDueRow<{
+    id: string;
+    organization_id: string;
+    notification_type: string | null;
+    attempt_count: number | null;
+    metadata: Record<string, unknown> | null;
+  }>({
+    admin,
+    table: "notification_deliveries",
+    rowId: deliveryId,
+    claimPatch: {
       status: "retrying",
       next_attempt_at: leaseUntilIso,
-    })
-    .eq("id", deliveryId)
-    .in("status", ["pending", "retrying"])
-    .or(`next_attempt_at.is.null,next_attempt_at.lte.${nowIso}`)
-    .select("id, organization_id, notification_type, attempt_count, metadata")
-    .maybeSingle();
+    },
+    filters: [
+      { type: "in", column: "status", values: ["pending", "retrying"] },
+      { type: "or", expression: `next_attempt_at.is.null,next_attempt_at.lte.${nowIso}` },
+    ],
+    select: "id, organization_id, notification_type, attempt_count, metadata",
+  });
+  if (claimErr) {
+    return {
+      delivered: false,
+      error: claimErr.message,
+      finalStatus: "failed",
+      phase: "persist",
+      diagnosticId: "notification_delivery_claim_failed",
+    };
+  }
   if (!row) return { delivered: false, error: "delivery_locked_or_not_due", skipped: true };
 
   const metadata = (row.metadata as Record<string, unknown> | null) ?? {};
@@ -287,7 +309,16 @@ async function attemptDelivery(
         next_attempt_at: null,
       })
       .eq("id", deliveryId);
-    if (updateErr) console.error("[notification-delivery] post-send delivered update failed:", updateErr.message);
+    if (updateErr) {
+      console.error("[notification-delivery] post-send delivered update failed:", updateErr.message);
+      return {
+        delivered: false,
+        error: updateErr.message,
+        finalStatus: "failed",
+        phase: "persist",
+        diagnosticId: "notification_delivery_mark_delivered_failed",
+      };
+    }
     await emitReminderDeliveryTelemetry(admin, {
       organizationId: row.organization_id as string,
       notificationType: row.notification_type as string | null,
@@ -311,7 +342,16 @@ async function attemptDelivery(
         : new Date(Date.now() + backoffSeconds * 1000).toISOString(),
     })
     .eq("id", deliveryId);
-  if (failUpdateErr) console.error("[notification-delivery] post-send failure update failed:", failUpdateErr.message);
+  if (failUpdateErr) {
+    console.error("[notification-delivery] post-send failure update failed:", failUpdateErr.message);
+    return {
+      delivered: false,
+      error: failUpdateErr.message,
+      finalStatus: "failed",
+      phase: "persist",
+      diagnosticId: "notification_delivery_mark_failure_failed",
+    };
+  }
   await emitReminderDeliveryTelemetry(admin, {
     organizationId: row.organization_id as string,
     notificationType: row.notification_type as string | null,
@@ -322,6 +362,8 @@ async function attemptDelivery(
     delivered: false,
     error: sendResult.error.message,
     finalStatus: isFinal ? "failed" : "retrying",
+    phase: "notify",
+    diagnosticId: isFinal ? "notification_delivery_terminal_failure" : undefined,
   };
 }
 
@@ -338,11 +380,11 @@ export async function deliverWithRetries(
     retryPayload?: RetryPayload;
     send: () => Promise<{ error: Error | null | undefined }>;
   }
-): Promise<{ delivered: boolean; error: string | null }> {
+): Promise<{ delivered: boolean; error: string | null; duplicate?: boolean }> {
   const maxAttempts = Math.max(1, Math.min(5, input.maxAttempts ?? 3));
   const retryPayload = sanitizeRetryPayload(input.retryPayload ?? null);
   const metadata = sanitizeMetadata(input.metadata ?? {});
-  const { data: row } = await admin
+  const { data: row, error: insertErr } = await admin
     .from("notification_deliveries")
     .insert({
       organization_id: input.organizationId,
@@ -361,6 +403,9 @@ export async function deliverWithRetries(
     })
     .select("id")
     .maybeSingle();
+  if (insertErr?.code === "23505") {
+    return { delivered: false, error: "duplicate_notification_delivery", duplicate: true };
+  }
   if (!row?.id) {
     const result = await input.send();
     return { delivered: !result.error, error: result.error?.message ?? null };
@@ -414,10 +459,13 @@ export async function processNotificationDeliveryRetries(
   retried: number;
   skipped: number;
   organizationIds: string[];
+  errors: BatchItemError[];
+  error?: string;
+  phase?: RouteFailurePhase;
 }> {
   const limit = Math.max(1, Math.min(200, Number(input?.limit ?? 50)));
   const nowIso = new Date().toISOString();
-  const { data: rows } = await admin
+  const { data: rows, error } = await admin
     .from("notification_deliveries")
     .select("id, status, organization_id")
     .in("status", ["pending", "retrying"])
@@ -425,10 +473,32 @@ export async function processNotificationDeliveryRetries(
     .order("created_at", { ascending: true })
     .limit(limit);
 
+  if (error) {
+    return {
+      scanned: 0,
+      delivered: 0,
+      failed: 0,
+      retried: 0,
+      skipped: 0,
+      organizationIds: [],
+      errors: [
+        {
+          scope: "notification_deliveries",
+          phase: "source_query",
+          diagnostic_id: "notification_retry_queue_query_failed",
+          message: error.message,
+        },
+      ],
+      error: error.message,
+      phase: "source_query",
+    };
+  }
+
   let delivered = 0;
   let failed = 0;
   let retried = 0;
   let skipped = 0;
+  const errors: BatchItemError[] = [];
   const organizationIds = Array.from(
     new Set((rows ?? []).map((row) => String((row as { organization_id?: string }).organization_id ?? "")))
   ).filter(Boolean);
@@ -444,8 +514,25 @@ export async function processNotificationDeliveryRetries(
       }
       if (res.delivered) {
         delivered++;
+        continue;
+      }
+      if (res.phase === "persist") {
+        failed++;
+        errors.push({
+          scope: row.id,
+          phase: res.phase,
+          diagnostic_id: res.diagnosticId,
+          message: String(res.error ?? "notification delivery persistence failed"),
+        });
+        continue;
       } else if (res.finalStatus === "failed") {
         failed++;
+        errors.push({
+          scope: row.id,
+          phase: res.phase,
+          diagnostic_id: res.diagnosticId,
+          message: String(res.error ?? "notification delivery failed"),
+        });
       } else {
         retried++;
       }
@@ -457,5 +544,5 @@ export async function processNotificationDeliveryRetries(
       () => worker()
     )
   );
-  return { scanned: rows?.length ?? 0, delivered, failed, retried, skipped, organizationIds };
+  return { scanned: rows?.length ?? 0, delivered, failed, retried, skipped, organizationIds, errors };
 }

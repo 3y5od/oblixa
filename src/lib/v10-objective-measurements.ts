@@ -123,7 +123,7 @@ export type V10ObjectivePromotionEvidenceCapture = {
   allowedExclusionCount: number;
   captureCommand: string;
   sloDashboardKey: string;
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   promotionRule: string;
 };
 
@@ -534,7 +534,7 @@ export const V10_OBJECTIVE_PROMOTION_EVIDENCE_CAPTURE: readonly V10ObjectiveProm
     allowedExclusionCount: rule.allowedExclusions.length,
     captureCommand: `npm run check:v10-release-evidence -- --metric ${rule.metricKey} --lock v10-rc:${rule.metricKey}:${rule.fixedSampleSize}`,
     sloDashboardKey: getV10SloDashboardKeyForMetric(rule.metricKey),
-    releaseEvidenceKey: `v10-release:objective:${rule.metricKey}`,
+    releaseEvidenceId: `v10-release:objective:${rule.metricKey}`,
     promotionRule: `pass_rate_gte_${rule.promotionThreshold}_within_${rule.staleAfterDays}_days`,
   }));
 
@@ -886,7 +886,7 @@ export function validateV10ObjectivePromotionEvidenceCapture(
       failures.push(`${rule.metricKey}:capture_command_incomplete`);
     }
     if (!dashboardKeys.has(row.sloDashboardKey)) failures.push(`${rule.metricKey}:slo_dashboard_missing`);
-    if (!row.releaseEvidenceKey.startsWith("v10-release:objective:")) failures.push(`${rule.metricKey}:release_evidence_key_required`);
+    if (!row.releaseEvidenceId.startsWith("v10-release:objective:")) failures.push(`${rule.metricKey}:release_evidence_key_required`);
     if (!row.promotionRule.includes(String(rule.promotionThreshold)) || !row.promotionRule.includes(String(rule.staleAfterDays))) {
       failures.push(`${rule.metricKey}:promotion_rule_mismatch`);
     }

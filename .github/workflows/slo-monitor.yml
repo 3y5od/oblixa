@@ -12,35 +12,23 @@ env:
   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
   HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
+  REQUIRE_SLO_MONITOR: ${{ vars.REQUIRE_SLO_MONITOR }}
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Gate required secrets
         id: gate
-        env:
-          ALLOW_SLO_MONITOR_SKIP: ${{ vars.ALLOW_SLO_MONITOR_SKIP }}
-          ALLOW_SECRET_GATED_SKIP: ${{ vars.ALLOW_SECRET_GATED_SKIP }}
         run: |
-          if [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ] && [ -n "$HC_SLO_MONITOR_PING" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$ALLOW_SECRET_GATED_SKIP" = "true" ] || [ "$ALLOW_SLO_MONITOR_SKIP" = "true" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::SLO monitor skipped via ALLOW_SLO_MONITOR_SKIP or ALLOW_SECRET_GATED_SKIP."
-          else
-            echo "::error::SLO monitor requires NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, HC_SLO_MONITOR_PING. Set secrets or ALLOW_SLO_MONITOR_SKIP=true / ALLOW_SECRET_GATED_SKIP=true."
-            exit 1
-          fi
+          bash scripts/github-actions/secret-gate.sh "SLO Monitor" "REQUIRE_SLO_MONITOR" "NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,HC_SLO_MONITOR_PING"
 
-      - name: Skip SLO monitor (explicit waiver / missing secrets)
+      - name: Skip SLO monitor (missing secrets)
         if: ${{ steps.gate.outputs.run != 'true' }}
-        run: echo "Skipping SLO monitor (waived via repository variable or secrets missing)."
-
-      # Pinned SHAs (actions/checkout + actions/setup-node pins; not floating @v4/@v6 tags).
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: ${{ steps.gate.outputs.run == 'true' }}
+        run: echo "Skipping SLO monitor because required secrets are missing."
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         if: ${{ steps.gate.outputs.run == 'true' }}

@@ -32,8 +32,22 @@ export const GET = withCronRoute({
   },
   adminFactory: () => createAdminClient(),
   handler: async ({ admin, startedAtMs }) => {
-    const orgIds = await listOrganizationIds(admin);
-    const orgCapTruncated = orgIds.length >= LIST_ORG_CAP;
+    const orgScan = await listOrganizationIds(admin);
+    if (orgScan.error) {
+      return {
+        status: 500,
+        ok: false,
+        errorsCount: 1,
+        phase: "source_query",
+        body: {
+          error: "Failed to load organizations for onboarding calibration stale cron",
+          code: "v6_onboarding_calibration_org_query_failed",
+          diagnostic_id: "v6_onboarding_calibration_org_query_failed",
+        },
+      };
+    }
+    const orgIds = orgScan.orgIds;
+    const orgCapTruncated = orgScan.stoppedByOffsetCap || orgIds.length >= LIST_ORG_CAP;
 
     logV6Cron("onboarding-calibration-stale", "batch_start", {
       orgs_scanned: orgIds.length,

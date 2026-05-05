@@ -12,6 +12,30 @@ import {
   captureServerMessage,
 } from "@/lib/observability/sentry";
 
+function stripeDependencyBlocked(input: {
+  route: string;
+  diagnosticId: string;
+  error: string;
+  requiredEnv: string[];
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      route: input.route,
+      error: input.error,
+      code: "dependency_blocked",
+      diagnostic_id: input.diagnosticId,
+      phase: "dependency_preflight",
+      details: {
+        dependency: "stripe_provider",
+        required_env: input.requiredEnv,
+        degraded_policy: "503 dependency_blocked",
+      },
+    },
+    { status: 503 }
+  );
+}
+
 function subscriptionPeriodEndIso(sub: Stripe.Subscription): string | null {
   const first = sub.items?.data?.[0];
   if (first && typeof first.current_period_end === "number") {
@@ -25,13 +49,23 @@ export async function POST(request: Request) {
   if (!webhookSecret) {
     console.error("[stripe/webhook] STRIPE_WEBHOOK_SECRET is not set");
     captureServerMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    return stripeDependencyBlocked({
+      route: "/api/stripe/webhook",
+      diagnosticId: "stripe_webhook_secret_missing",
+      error: "Stripe webhook secret is not configured",
+      requiredEnv: ["STRIPE_WEBHOOK_SECRET"],
+    });
   }
   const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/webhook] config:", stripeClient.error);
     captureServerMessage(stripeClient.error, { level: "error" });
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    return stripeDependencyBlocked({
+      route: "/api/stripe/webhook",
+      diagnosticId: "stripe_webhook_provider_missing",
+      error: "Stripe provider is not configured",
+      requiredEnv: ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ID"],
+    });
   }
   const stripe = stripeClient.stripe;
 

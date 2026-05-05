@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { withCronRoute } from "@/lib/cron/route-runner";
+import { claimDueRow } from "@/lib/cron/claim-due-row";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
@@ -14,6 +15,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_FAILURES_REPORTED = 200;
+const DELIVERY_LEASE_MS = 5 * 60 * 1000;
 
 function hex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
@@ -165,6 +167,36 @@ export const GET = withCronRoute({
     await processWithConcurrency(deliveryRows ?? [], 6, async (delivery) => {
       const sub = subById.get(delivery.subscription_id);
       if (!sub) return;
+
+      const leaseUntilIso = new Date(Date.now() + DELIVERY_LEASE_MS).toISOString();
+      const claimResult = await claimDueRow<{
+        id: string;
+        subscription_id: string;
+        attempt_count: number;
+        delivered: boolean;
+        next_attempt_at: string;
+      }>({
+        admin,
+        table: "outbound_event_deliveries",
+        rowId: delivery.id,
+        claimPatch: { next_attempt_at: leaseUntilIso },
+        filters: [
+          { type: "eq", column: "delivered", value: false },
+          { type: "lte", column: "next_attempt_at", value: nowIso },
+        ],
+        select: "id, subscription_id, attempt_count, delivered, next_attempt_at",
+      });
+      if (claimResult.error) {
+        attemptStatusCounts.claim_failed = (attemptStatusCounts.claim_failed ?? 0) + 1;
+        totalFailures++;
+        if (failures.length < MAX_FAILURES_REPORTED) {
+          failures.push(`${event.id}:${delivery.id}:claim_failed`);
+        }
+        return;
+      }
+      const claimedDelivery = claimResult.data;
+      if (!claimedDelivery) return;
+
       attempts++;
       let signingSecret = sub.secret;
       try {
@@ -190,7 +222,7 @@ export const GET = withCronRoute({
       const attemptIso = new Date().toISOString();
       const nextAttemptMinutes = Math.min(
         360,
-        Math.max(1, 2 ** Math.min(8, delivery.attempt_count))
+        Math.max(1, 2 ** Math.min(8, claimedDelivery.attempt_count))
       );
       const nextAttemptAt = new Date(
         Date.now() + nextAttemptMinutes * 60 * 1000
@@ -203,10 +235,10 @@ export const GET = withCronRoute({
             failures.push(`${event.id}:${sub.id}:invalid_url`);
           }
           patches.push({
-            id: delivery.id,
+            id: claimedDelivery.id,
             last_attempt_at: attemptIso,
             last_error: "invalid_url",
-            attempt_count: delivery.attempt_count + 1,
+            attempt_count: claimedDelivery.attempt_count + 1,
             next_attempt_at: nextAttemptAt,
           });
           return;
@@ -227,12 +259,12 @@ export const GET = withCronRoute({
         if (res.ok) {
           attemptStatusCounts[String(res.status)] = (attemptStatusCounts[String(res.status)] ?? 0) + 1;
           patches.push({
-            id: delivery.id,
+            id: claimedDelivery.id,
             delivered: true,
             delivered_at: attemptIso,
             last_attempt_at: attemptIso,
             last_error: null,
-            attempt_count: delivery.attempt_count + 1,
+            attempt_count: claimedDelivery.attempt_count + 1,
           });
         } else {
           const attemptDurationMs = Date.now() - attemptStartedAt;
@@ -242,10 +274,10 @@ export const GET = withCronRoute({
             failures.push(`${event.id}:${sub.id}:${res.status}`);
           }
           patches.push({
-            id: delivery.id,
+            id: claimedDelivery.id,
             last_attempt_at: attemptIso,
             last_error: `HTTP ${res.status}:${attemptDurationMs}ms`,
-            attempt_count: delivery.attempt_count + 1,
+            attempt_count: claimedDelivery.attempt_count + 1,
             next_attempt_at: nextAttemptAt,
           });
         }
@@ -256,10 +288,10 @@ export const GET = withCronRoute({
           failures.push(`${event.id}:${sub.id}:network`);
         }
         patches.push({
-          id: delivery.id,
+          id: claimedDelivery.id,
           last_attempt_at: attemptIso,
           last_error: "network",
-          attempt_count: delivery.attempt_count + 1,
+          attempt_count: claimedDelivery.attempt_count + 1,
           next_attempt_at: nextAttemptAt,
         });
       }

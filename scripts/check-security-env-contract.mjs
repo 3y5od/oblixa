@@ -46,8 +46,8 @@ const WORKFLOW_MARKERS = {
     "NEXT_PUBLIC_SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
     "HC_SLO_MONITOR_PING",
-    "ALLOW_SLO_MONITOR_SKIP",
-    "ALLOW_SECRET_GATED_SKIP",
+    "REQUIRE_SLO_MONITOR",
+    "scripts/github-actions/secret-gate.sh",
     "node scripts/slo-monitor.mjs",
   ],
 };

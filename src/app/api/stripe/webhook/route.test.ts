@@ -87,8 +87,13 @@ describe("POST /api/stripe/webhook", () => {
 
     const res = await POST(req);
     const body = await res.json();
-    expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Server misconfigured" });
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      ok: false,
+      code: "dependency_blocked",
+      diagnostic_id: "stripe_webhook_secret_missing",
+      phase: "dependency_preflight",
+    });
   });
 
   it("returns 400 when stripe-signature header is missing", async () => {
@@ -157,8 +162,13 @@ describe("POST /api/stripe/webhook", () => {
       headers: { "stripe-signature": "sig" },
     });
     const res = await POST(req);
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "Server misconfigured" });
+    expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({
+      ok: false,
+      code: "dependency_blocked",
+      diagnostic_id: "stripe_webhook_provider_missing",
+      phase: "dependency_preflight",
+    });
   });
 
   it("returns received payload shape when customer.subscription.updated is canceled (terminal)", async () => {

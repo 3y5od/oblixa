@@ -8,6 +8,19 @@ function createFeedToken(): string {
   return randomBytes(32).toString("hex");
 }
 
+function calendarFeedFailure(error: string, diagnosticId: string, status = 500) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error,
+      code: "data_source_failed",
+      diagnostic_id: diagnosticId,
+      phase: "persist",
+    },
+    { status }
+  );
+}
+
 export async function GET(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`calendar-feed-create:${ip}`, {
@@ -42,7 +55,8 @@ export async function GET(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  const { data: existing } = await admin
+  const expiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: existing, error: existingError } = await admin
     .from("calendar_feeds")
     .select("id, token, token_prefix, token_hash, expires_at")
     .eq("organization_id", membership.organization_id)
@@ -52,6 +66,9 @@ export async function GET(request: Request) {
     .gt("expires_at", new Date().toISOString())
     .limit(1)
     .maybeSingle();
+  if (existingError) {
+    return calendarFeedFailure("Could not load calendar feed", "calendar_feed_lookup_failed");
+  }
   if (existing?.token) {
     return NextResponse.json({
       token: existing.token,
@@ -64,17 +81,20 @@ export async function GET(request: Request) {
   const keyPrefix = token.slice(0, 12);
   const keyHash = createHash("sha256").update(token).digest("hex");
   if (!existing) {
-    await admin.from("calendar_feeds").insert({
+    const { error: insertError } = await admin.from("calendar_feeds").insert({
       organization_id: membership.organization_id,
       user_id: user.id,
       token: null,
       token_prefix: keyPrefix,
       token_hash: keyHash,
       active: true,
-      expires_at: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      expires_at: expiresAt,
     });
+    if (insertError) {
+      return calendarFeedFailure("Could not create calendar feed", "calendar_feed_create_failed");
+    }
   } else {
-    await admin
+    const { error: updateError } = await admin
       .from("calendar_feeds")
       .update({
         token: null,
@@ -82,13 +102,16 @@ export async function GET(request: Request) {
         token_hash: keyHash,
         active: true,
         revoked_at: null,
-        expires_at: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+        expires_at: expiresAt,
       })
       .eq("id", existing.id);
+    if (updateError) {
+      return calendarFeedFailure("Could not rotate calendar feed", "calendar_feed_update_failed");
+    }
   }
   return NextResponse.json({
     token,
     feedPath: `/api/export/calendar/feed/${token}`,
-    expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+    expiresAt,
   });
 }

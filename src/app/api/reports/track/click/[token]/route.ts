@@ -6,6 +6,9 @@ import {
   rateLimitCheck,
 } from "@/lib/rate-limit";
 
+const TRACKING_STATUS_HEADER = "x-oblixa-tracking-status";
+const TRACKING_DIAGNOSTIC_ID_HEADER = "x-oblixa-diagnostic-id";
+
 function safeFallback(request: Request): string {
   const url = new URL(request.url);
   return `${url.origin}/dashboard`;
@@ -63,25 +66,41 @@ export async function GET(
   }
   const { token } = await params;
   const target = getSafeTarget(request);
+  let diagnosticId: string | null = null;
   if (token && token.length >= 8) {
-    const admin = await createAdminClient();
-    const nowIso = new Date().toISOString();
-    const { data: row } = await admin
-      .from("report_run_recipients")
-      .select("click_count")
-      .eq("engagement_token", token)
-      .maybeSingle();
-    await admin
-      .from("report_run_recipients")
-      .update({
-        clicked_at: nowIso,
-        click_count: Math.max(0, Number(row?.click_count ?? 0)) + 1,
-        last_clicked_url: target.slice(0, 2000),
-        delivery_status: "clicked",
-      })
-      .eq("engagement_token", token);
+    try {
+      const admin = await createAdminClient();
+      const nowIso = new Date().toISOString();
+      const rowResult = await admin
+        .from("report_run_recipients")
+        .select("click_count")
+        .eq("engagement_token", token)
+        .maybeSingle();
+      if (rowResult.error) {
+        diagnosticId = "report_track_click_read_failed";
+      } else {
+        const updateResult = await admin
+          .from("report_run_recipients")
+          .update({
+            clicked_at: nowIso,
+            click_count: Math.max(0, Number(rowResult.data?.click_count ?? 0)) + 1,
+            last_clicked_url: target.slice(0, 2000),
+            delivery_status: "clicked",
+          })
+          .eq("engagement_token", token);
+        if (updateResult.error) {
+          diagnosticId = "report_track_click_write_failed";
+        }
+      }
+    } catch {
+      diagnosticId = "report_track_click_admin_unavailable";
+    }
   }
   const res = NextResponse.redirect(target, { status: 302 });
   res.headers.set("Cache-Control", "no-store");
+  if (diagnosticId) {
+    res.headers.set(TRACKING_STATUS_HEADER, "degraded");
+    res.headers.set(TRACKING_DIAGNOSTIC_ID_HEADER, diagnosticId);
+  }
   return res;
 }

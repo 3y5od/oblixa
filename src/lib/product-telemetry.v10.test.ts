@@ -47,7 +47,7 @@ describe("V10 product telemetry", () => {
 
     const insert = vi.fn().mockResolvedValue({ error: null });
     const admin = { from: vi.fn(() => ({ insert })) };
-    await emitProductTelemetryEvent(admin as never, {
+    const emitted = await emitProductTelemetryEvent(admin as never, {
       organizationId: "org_1",
       userId: "user_1",
       contractId: "contract_1",
@@ -55,6 +55,7 @@ describe("V10 product telemetry", () => {
       details: { metric: "approval_sla", status: "breached", count: 2 },
     });
 
+    expect(emitted).toBe(true);
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({
         organization_id: "org_1",

@@ -19,6 +19,22 @@ function externalCollaborationEnabledInEnv(env: NodeJS.ProcessEnv): boolean {
   return !["false", "0", "no", "off"].includes(raw);
 }
 
+export function listRuntimeCriticalProviderWarnings(env: NodeJS.ProcessEnv = process.env): string[] {
+  if (env.NODE_ENV !== "production") return [];
+  const warnings: string[] = [];
+  const canonicalUrl = String(env.NEXT_PUBLIC_APP_URL ?? env.APP_BASE_URL ?? env.VERCEL_PROJECT_PRODUCTION_URL ?? "").trim();
+  if (!canonicalUrl || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/i.test(canonicalUrl)) {
+    warnings.push("CANONICAL_APP_URL");
+  }
+  if (!String(env.RESEND_API_KEY ?? "").trim()) {
+    warnings.push("RESEND_API_KEY");
+  }
+  if (!String(env.EMAIL_FROM ?? "").trim()) {
+    warnings.push("EMAIL_FROM");
+  }
+  return warnings;
+}
+
 /**
  * When OBLIXA_STRICT_ENV=1 in production, returns env var names that should be set
  * for automation (cron, Stripe webhooks) but are missing. Empty outside that mode.

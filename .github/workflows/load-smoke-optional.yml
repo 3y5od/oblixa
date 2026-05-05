@@ -10,34 +10,23 @@ permissions:
 
 env:
   STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+  REQUIRE_LOAD_SMOKE: ${{ vars.REQUIRE_LOAD_SMOKE }}
 
 jobs:
   load_smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Gate staging target
         id: gate
-        env:
-          ALLOW_LOAD_SMOKE_SKIP: ${{ vars.ALLOW_LOAD_SMOKE_SKIP }}
-          ALLOW_SECRET_GATED_SKIP: ${{ vars.ALLOW_SECRET_GATED_SKIP }}
         run: |
-          if [ -n "$STAGING_BASE_URL" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$ALLOW_SECRET_GATED_SKIP" = "true" ] || [ "$ALLOW_LOAD_SMOKE_SKIP" = "true" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Load smoke skipped via ALLOW_LOAD_SMOKE_SKIP or ALLOW_SECRET_GATED_SKIP."
-          else
-            echo "::error::Load smoke requires STAGING_BASE_URL. Set the secret or ALLOW_LOAD_SMOKE_SKIP=true / ALLOW_SECRET_GATED_SKIP=true."
-            exit 1
-          fi
+          bash scripts/github-actions/secret-gate.sh "Load smoke optional" "REQUIRE_LOAD_SMOKE" "STAGING_BASE_URL"
 
-      - name: Skip load smoke (explicit waiver / missing secrets)
+      - name: Skip load smoke (missing secrets)
         if: ${{ steps.gate.outputs.run != 'true' }}
-        run: echo "Skipping load smoke (waived via repository variable or secrets missing)."
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: ${{ steps.gate.outputs.run == 'true' }}
+        run: echo "Skipping load smoke because STAGING_BASE_URL is unavailable."
 
       - name: Run k6 staging smoke
         if: ${{ steps.gate.outputs.run == 'true' }}

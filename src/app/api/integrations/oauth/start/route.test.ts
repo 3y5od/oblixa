@@ -104,8 +104,50 @@ describe("POST /api/integrations/oauth/start", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(500);
-    expect(body).toEqual({ error: "Failed to create oauth state" });
+    expect(body).toMatchObject({
+      ok: false,
+      error: "Failed to create oauth state",
+      code: "persistence_failed",
+      diagnostic_id: "oauth_start_state_create_failed",
+      phase: "persist",
+    });
     expect(oauthStateInsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 503 dependency_blocked when the OAuth provider is not configured", async () => {
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    delete process.env.OAUTH_SLACK_AUTHORIZE_URL;
+    delete process.env.OAUTH_SLACK_TOKEN_URL;
+    delete process.env.OAUTH_SLACK_CLIENT_ID;
+    delete process.env.OAUTH_SLACK_CLIENT_SECRET;
+    getDeterministicMembership.mockResolvedValue({ organization_id: orgId, role: "admin" });
+    createClient.mockResolvedValue(buildAuthClient(userId));
+    createAdminClient.mockResolvedValue({
+      from: vi.fn(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })),
+    });
+
+    const { POST } = await import("@/app/api/integrations/oauth/start/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/oauth/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider: "slack", redirectUri: "http://localhost:3000/api/integrations/oauth/callback" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      ok: false,
+      code: "dependency_blocked",
+      diagnostic_id: "oauth_start_provider_missing",
+      phase: "dependency_preflight",
+    });
   });
 
   it("returns authorizeUrl payload shape with PKCE S256 challenge when state insert succeeds", async () => {

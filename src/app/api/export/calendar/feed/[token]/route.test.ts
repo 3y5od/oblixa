@@ -28,7 +28,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
       or: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       is: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue({ data: [] }),
+      limit: vi.fn().mockResolvedValue({ data: [], error: null }),
     };
     createAdminClient.mockResolvedValue({
       from: vi.fn(() => query),
@@ -69,6 +69,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             revoked_at: new Date().toISOString(),
           },
         ],
+        error: null,
       }),
     };
     createAdminClient.mockResolvedValue({
@@ -86,7 +87,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
   });
 
   it("returns ICS body and cache headers for a valid token", async () => {
-    const feedQuery = {
+    const feedLookupQuery = {
       select: vi.fn().mockReturnThis(),
       or: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -103,17 +104,19 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             revoked_at: null,
           },
         ],
+        error: null,
       }),
-      update: vi.fn().mockReturnThis(),
     };
+    const updateQuery = {
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ error: null }),
+    };
+    const from = vi
+      .fn()
+      .mockImplementationOnce(() => feedLookupQuery)
+      .mockImplementationOnce(() => updateQuery);
     createAdminClient.mockResolvedValue({
-      from: vi.fn((table: string) => {
-        if (table === "calendar_feeds") return feedQuery;
-        return {
-          update: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockResolvedValue({ error: null }),
-        };
-      }),
+      from,
     });
 
     const { GET } = await import("@/app/api/export/calendar/feed/[token]/route");
@@ -124,6 +127,69 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     expect(res.headers.get("Cache-Control")).toBe("public, max-age=300, s-maxage=300");
     expect(requireApiWorkspaceEligibility).toHaveBeenCalled();
     expect(buildOrganizationCalendarIcs).toHaveBeenCalledWith(expect.anything(), "org_1");
+  });
+
+  it("returns 500 when feed lookup fails", async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      or: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue({ data: null, error: { message: "boom" } }),
+    };
+    createAdminClient.mockResolvedValue({ from: vi.fn(() => query) });
+
+    const { GET } = await import("@/app/api/export/calendar/feed/[token]/route");
+    const res = await GET(new Request("http://localhost:3000/api/export/calendar/feed/tok"), {
+      params: Promise.resolve({ token: "tok" }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body).toMatchObject({ diagnostic_id: "calendar_feed_lookup_failed" });
+  });
+
+  it("returns degraded ICS headers when last_accessed_at persistence fails", async () => {
+    const feedLookupQuery = {
+      select: vi.fn().mockReturnThis(),
+      or: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: "feed_1",
+            organization_id: "org_1",
+            active: true,
+            token: "tok",
+            token_hash: null,
+            expires_at: null,
+            revoked_at: null,
+          },
+        ],
+        error: null,
+      }),
+    };
+    const updateQuery = {
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ error: { message: "write failed" } }),
+    };
+    const from = vi
+      .fn()
+      .mockImplementationOnce(() => feedLookupQuery)
+      .mockImplementationOnce(() => updateQuery);
+    createAdminClient.mockResolvedValue({
+      from,
+    });
+
+    const { GET } = await import("@/app/api/export/calendar/feed/[token]/route");
+    const res = await GET(new Request("http://localhost:3000/api/export/calendar/feed/tok"), {
+      params: Promise.resolve({ token: "tok" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("x-oblixa-export-status")).toBe("degraded");
+    expect(res.headers.get("x-oblixa-diagnostic-id")).toBe("calendar_feed_last_access_update_failed");
   });
 });
 

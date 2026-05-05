@@ -106,7 +106,7 @@ export type V10CompleteClosureRow = {
   owner: "engineering" | "product" | "operations" | "security" | "release" | "support";
   proofArtifacts: readonly string[];
   gates: readonly string[];
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   failures: readonly string[];
 };
 
@@ -168,7 +168,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "release",
       proofArtifacts: ["src/lib/v10-acceptance-matrix.ts"],
       gates: ["src/lib/v10-acceptance-matrix.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:acceptance-matrix",
+      releaseEvidenceId: "v10-complete:acceptance-matrix",
       failures: [
         ...validateV10AcceptanceMatrix(),
         ...validateV10AcceptanceGateClosureLedger(acceptanceLedger),
@@ -185,7 +185,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "engineering",
       proofArtifacts: ["src/lib/v10-source-object-inventory.ts"],
       gates: ["src/lib/v10-source-object-inventory.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:source-object-inventory",
+      releaseEvidenceId: "v10-complete:source-object-inventory",
       failures: [
         ...validateV10SourceObjectInventory(),
         ...validateV10SourceObjectCoverageMatrix(sourceObjectMatrix),
@@ -202,7 +202,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "engineering",
       proofArtifacts: ["src/lib/v10-read-models.ts", "src/lib/v10-read-model-refresh.ts"],
       gates: ["src/lib/v10-data-contracts.v10.test.ts", "src/lib/v10-read-model-refresh.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:read-model-runtime-contracts",
+      releaseEvidenceId: "v10-complete:read-model-runtime-contracts",
       failures: [
         ...validateV10ReadModelRuntimeContracts(),
         ...requireCoverage(
@@ -218,7 +218,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "engineering",
       proofArtifacts: ["src/lib/v10-mutation-envelope.ts", "src/lib/v10-server-contracts.ts"],
       gates: ["src/lib/v10-semantics.v10.test.ts", "src/lib/v10-mutation-rollout.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:mutation-contracts",
+      releaseEvidenceId: "v10-complete:mutation-contracts",
       failures: [
         ...validateV10RequiredMutationContracts(),
         ...validateV10RouteActionInventory(routeActionInventory),
@@ -230,7 +230,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "engineering",
       proofArtifacts: ["src/lib/v10-route-api-catalog.ts", "src/app"],
       gates: ["src/lib/v10-route-api-catalog.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:route-api-catalog",
+      releaseEvidenceId: "v10-complete:route-api-catalog",
       failures: validateV10RouteApiInventory(routeInventory),
     }),
     row({
@@ -239,7 +239,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "product",
       proofArtifacts: ["src/lib/v10-ui-state-contracts.ts", "src/components/ui/v10-recoverable-state.tsx"],
       gates: ["src/lib/v10-ui-state-contracts.v10.test.ts", "src/components/ui/v10-recoverable-state.test.tsx"],
-      releaseEvidenceKey: "v10-complete:route-state-matrix",
+      releaseEvidenceId: "v10-complete:route-state-matrix",
       failures: [
         ...validateV10RouteStateMatrix(),
         ...validateV10VisualRegressionStateContracts(V10_VISUAL_REGRESSION_STATE_CONTRACTS),
@@ -251,7 +251,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "release",
       proofArtifacts: ["src/lib/v10-objective-measurements.ts", "scripts/check-v10-release-evidence.mjs"],
       gates: ["src/lib/v10-objective-measurements.v10.test.ts", "npm run check:v10-release-evidence"],
-      releaseEvidenceKey: "v10-complete:objective-measurement-contracts",
+      releaseEvidenceId: "v10-complete:objective-measurement-contracts",
       failures: [
         ...validateV10RcFixtureManifestSet(V10_RC_FIXTURE_MANIFESTS),
         ...validateV10SyntheticMetricDescriptors(V10_SYNTHETIC_METRIC_DESCRIPTORS),
@@ -271,7 +271,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "release",
       proofArtifacts: ["src/lib/v10-release-evidence.ts", "src/lib/v10-readiness-scorecard.ts"],
       gates: ["src/lib/v10-release-evidence.v10.test.ts", "src/lib/v10-readiness-scorecard.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:release-evidence-requirements",
+      releaseEvidenceId: "v10-complete:release-evidence-requirements",
       failures: [
         ...V10_GA_METRIC_EVIDENCE_REQUIREMENTS.flatMap((requirement) => [
           requirement.fixed_sample_size === V10_GA_SAMPLE_SIZES[requirement.metric_key]
@@ -291,7 +291,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "release",
       proofArtifacts: ["src/lib/v10-no-exclusions-matrix.ts"],
       gates: ["src/lib/v10-no-exclusions-matrix.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:no-exclusions-matrix",
+      releaseEvidenceId: "v10-complete:no-exclusions-matrix",
       failures: [
         ...validateV10NoExclusionsMatrix(noExclusions),
         ...validateV10DeprecationCleanupDecisions({
@@ -307,7 +307,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
       owner: "operations",
       proofArtifacts: ["src/lib/v10-release-contract.ts", "src/lib/v10-final-gap-audit.ts"],
       gates: ["src/lib/v10-final-gap-audit.v10.test.ts"],
-      releaseEvidenceKey: "v10-complete:job-notification-report-fixture-enums",
+      releaseEvidenceId: "v10-complete:job-notification-report-fixture-enums",
       failures: [
         ...validateV10JobNotificationRuntimeContracts(),
         ...validateV10RcFixtureCategoryDescriptors(V10_RC_FIXTURE_CATEGORIES),
@@ -332,7 +332,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "release",
         proofArtifacts: acceptance.proofArtifacts,
         gates: acceptance.executableGates,
-        releaseEvidenceKey: `v10-complete:acceptance:${acceptance.id}`,
+        releaseEvidenceId: `v10-complete:acceptance:${acceptance.id}`,
         failures: [
           acceptance.openGap,
           acceptance.proofArtifacts.length === 0 ? "proof_artifact_required" : null,
@@ -364,7 +364,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
           ...(inventoryRow?.tests ?? []),
         ],
         gates: inventoryRow?.tests ?? ["src/lib/v10-source-object-inventory.v10.test.ts"],
-        releaseEvidenceKey: `v10-complete:${sourceObject.releaseEvidenceKey}`,
+        releaseEvidenceId: `v10-complete:${sourceObject.releaseEvidenceKey}`,
         failures: [
           sourceObject.primaryReadModel === "missing" ? "primary_read_model_required" : null,
           sourceObject.generatesWork && !sourceObject.workItemType ? "work_item_type_required" : null,
@@ -400,7 +400,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
           "src/lib/v10-objective-measurements.v10.test.ts",
           capturePlan?.captureCommand ?? "npm run check:v10-release-evidence",
         ],
-        releaseEvidenceKey: `v10-complete:objective:${metric.metricKey}:${promotion?.releaseEvidenceKey ?? "missing"}`,
+        releaseEvidenceId: `v10-complete:objective:${metric.metricKey}:${promotion?.releaseEvidenceId ?? "missing"}`,
         failures: [
           manifest ? null : "fixture_manifest_required",
           capturePlan ? null : "metric_capture_plan_required",
@@ -427,7 +427,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "operations",
         proofArtifacts: ["src/lib/v10-job-visibility.ts", "src/lib/v10-read-model-refresh.ts"],
         gates: ["src/lib/v10-job-visibility.v10.test.ts", "src/lib/v10-read-model-refresh.v10.test.ts"],
-        releaseEvidenceKey: `v10-complete:${runtime.kind}:${runtime.classKey}`,
+        releaseEvidenceId: `v10-complete:${runtime.kind}:${runtime.classKey}`,
         failures: [
           runtime.diagnosticRequired ? null : "diagnostic_required",
           runtime.deepLinkRequired ? null : "deep_link_required",
@@ -452,7 +452,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "release",
         proofArtifacts: ["src/lib/v10-objective-measurements.ts", "scripts/check-v10-release-evidence.mjs"],
         gates: ["src/lib/v10-objective-measurements.v10.test.ts", "npm run check:v10-privacy-scan"],
-        releaseEvidenceKey: `v10-complete:fixture:${fixture.category}`,
+        releaseEvidenceId: `v10-complete:fixture:${fixture.category}`,
         failures: [
           fixture.sourceShape.trim() ? null : "source_shape_required",
           fixture.minimumRecords > 0 ? null : "minimum_records_required",
@@ -465,12 +465,12 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
   }
 
   for (const decision of V10_DEPRECATION_CLEANUP_DECISIONS) {
-    const candidate = V10_DEPRECATION_CANDIDATES.find((item) => item.key === decision.candidateKey);
+    const candidate = V10_DEPRECATION_CANDIDATES.find((item) => item.key === decision.candidateId);
     const boundary = V10_COMPATIBILITY_BOUNDARIES.find((item) => item.key === decision.compatibilityBoundaryKey);
     rows.push(
       row({
         domain: "no_exclusions",
-        key: `legacy:${decision.candidateKey}`,
+        key: `legacy:${decision.candidateId}`,
         owner: "release",
         proofArtifacts: [
           "src/lib/v10-final-gap-audit.ts",
@@ -479,7 +479,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
           boundary?.owningArtifact ?? "src/lib/v10-final-gap-audit.ts",
         ],
         gates: ["src/lib/v10-final-gap-audit.v10.test.ts", decision.cleanupCommand],
-        releaseEvidenceKey: `v10-complete:${decision.releaseEvidenceKey}`,
+        releaseEvidenceId: `v10-complete:${decision.releaseEvidenceId}`,
         failures: [
           candidate ? null : "deprecation_candidate_required",
           boundary ? null : "compatibility_boundary_required",
@@ -504,7 +504,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
           ops.cronRoute ?? "src/lib/v10-readiness-scorecard.ts",
         ],
         gates: ["src/lib/v10-operational-contracts.v10.test.ts", ops.rollbackCommand],
-        releaseEvidenceKey: `v10-complete:${ops.releaseEvidenceKey}`,
+        releaseEvidenceId: `v10-complete:${ops.releaseEvidenceKey}`,
         failures: [
           ops.diagnosticPrefix.startsWith("v10_") ? null : "diagnostic_prefix_required",
           ops.retentionDays > 0 ? null : "retention_required",
@@ -525,7 +525,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "operations",
         proofArtifacts: ["src/lib/v10-operational-contracts.ts", "src/app/(dashboard)/settings/health/page.tsx"],
         gates: ["src/lib/v10-operational-contracts.v10.test.ts", "npm run check:v10-release-evidence -- --external-blockers"],
-        releaseEvidenceKey: `v10-complete:provider:${provider.provider}`,
+        releaseEvidenceId: `v10-complete:provider:${provider.provider}`,
         failures: [
           provider.requiredServerEnv.length > 0 ? null : "required_server_env_required",
           provider.outageState.trim() ? null : "outage_state_required",
@@ -544,7 +544,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "engineering",
         proofArtifacts: [mutation.runtimeArtifact, "src/lib/v10-mutation-envelope.ts"],
         gates: ["src/lib/v10-semantics.v10.test.ts"],
-        releaseEvidenceKey: `v10-complete:mutation:${mutation.key}`,
+        releaseEvidenceId: `v10-complete:mutation:${mutation.key}`,
         failures: [
           mutation.requiresIdempotency ? null : `${mutation.key}:idempotency_required`,
           mutation.requiresAudit ? null : `${mutation.key}:audit_required`,
@@ -568,7 +568,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: route.surface === "settings" ? "security" : route.surface === "reports" || route.surface === "exports" ? "release" : "engineering",
         proofArtifacts: ["src/lib/v10-route-api-catalog.ts", runtimeArtifact, testArtifact],
         gates: [testArtifact, "src/lib/v10-route-api-catalog.v10.test.ts"],
-        releaseEvidenceKey: `v10-complete:route:${route.path}:${route.methods.join("+")}`,
+        releaseEvidenceId: `v10-complete:route:${route.path}:${route.methods.join("+")}`,
         failures: [
           route.path.startsWith("/") ? null : `${route.path}:absolute_path_required`,
           route.privateCacheRequired ? null : `${route.path}:private_cache_required`,
@@ -594,7 +594,7 @@ export function buildV10CompleteClosureRows(): V10CompleteClosureRow[] {
         owner: "product",
         proofArtifacts: ["src/lib/v10-ui-state-contracts.ts", "src/components/ui/v10-recoverable-state.tsx"],
         gates: ["src/lib/v10-ui-state-contracts.v10.test.ts", "src/components/ui/v10-recoverable-state.test.tsx"],
-        releaseEvidenceKey: `v10-complete:ui-state:${state.state}`,
+        releaseEvidenceId: `v10-complete:ui-state:${state.state}`,
         failures: [
           V10_ROUTE_STATE_MATRIX.some((entry) => entry.requiredStates.includes(state.state))
             ? null
@@ -639,7 +639,7 @@ export function validateV10CompleteClosureReport(
     if (!item.key.trim()) failures.push(`${item.domain}:key_required`);
     if (item.proofArtifacts.length === 0) failures.push(`${item.domain}:${item.key}:proof_artifact_required`);
     if (item.gates.length === 0) failures.push(`${item.domain}:${item.key}:gate_required`);
-    if (!item.releaseEvidenceKey.startsWith("v10-complete:")) {
+    if (!item.releaseEvidenceId.startsWith("v10-complete:")) {
       failures.push(`${item.domain}:${item.key}:release_evidence_key_required`);
     }
     if (item.status === "closed" && item.failures.length > 0) {

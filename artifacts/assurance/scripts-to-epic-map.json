@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-04T22:45:12.303Z",
+  "generatedAt": "2026-05-05T01:34:58.696Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -480,6 +480,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-gitleaks-allowlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-graphql-cost-depth-guards.mjs",
       "primaryEpicNumber": null
     },
@@ -541,6 +545,10 @@
     },
     {
       "path": "scripts/check-job-lock-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-job-lock-guards.test.mjs",
       "primaryEpicNumber": null
     },
     {

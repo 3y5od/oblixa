@@ -1290,7 +1290,7 @@ flowchart TB
 - If **`shadowRoot`** usage detected in `src/`, axe **shadow piercing** rules **or** explicit **`web_components_na`**.
 
 ### Epic 96 — Epic registry drift gate
-- [`artifacts/assurance/epics.json`](artifacts/assurance/epics.json): array of `{ id, title, primaryTrack, todoKey, programVersion }` for **1–176** (contiguous ids); [`scripts/check-epic-registry-sync.mjs`](scripts/check-epic-registry-sync.mjs) fails when plan headings / YAML todos / taxonomy epic lists diverge **or** highest epic id ≠ **176** / missing ids **or** **`programVersion`** semver stale per **Epic 136** rules **or** (when applicable) **Epic 156** manifest schema drift **or** (when applicable) **Epic 176** chain continuity drift.
+- [`artifacts/assurance/epics.json`](artifacts/assurance/epics.json): array of `{ id, title, primaryTrack, todoId, programVersion }` for **1–176** (contiguous ids); [`scripts/check-epic-registry-sync.mjs`](scripts/check-epic-registry-sync.mjs) fails when plan headings / YAML todos / taxonomy epic lists diverge **or** highest epic id ≠ **176** / missing ids **or** **`programVersion`** semver stale per **Epic 136** rules **or** (when applicable) **Epic 156** manifest schema drift **or** (when applicable) **Epic 176** chain continuity drift.
 
 ---
 

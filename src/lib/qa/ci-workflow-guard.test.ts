@@ -11,7 +11,7 @@ const CI_YML_REQUIRED = [
   "quality_unit",
   "quality_security",
   "quality_build_e2e",
-  "needs: [quality_static, quality_unit, quality_security, quality_build_e2e]",
+  "needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security]",
   "npm audit --audit-level=high",
   "npm run check:security-static:strict:grep",
   "npm run check:github-workflows-security",
@@ -36,6 +36,9 @@ const CI_YML_REQUIRED = [
   "npm run test:e2e",
   "runtime_comprehensive_pass",
   "npm run check:comprehensive-pass",
+  "REQUIRE_CI_E2E_AUTH",
+  "REQUIRE_RUNTIME_COMPREHENSIVE",
+  "scripts/github-actions/secret-gate.sh",
 ];
 
 describe(".github/workflows/ci.yml", () => {

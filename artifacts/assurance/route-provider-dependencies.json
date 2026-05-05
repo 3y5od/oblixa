@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "program": "production-route-autonomous-functionality",
+  "routes": [
+    {
+      "pathTemplate": "/api/reminders/send",
+      "family": "reminders",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL", "RESEND_API_KEY"],
+      "optionalEnv": ["EMAIL_FROM"],
+      "dependencies": ["canonical_app_url", "email_provider", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/reports/send-summaries",
+      "family": "report_summaries",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL", "RESEND_API_KEY"],
+      "optionalEnv": ["EMAIL_FROM"],
+      "dependencies": ["canonical_app_url", "email_provider", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/notifications/retry-deliveries",
+      "family": "notification_retry",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["RESEND_API_KEY", "EMAIL_FROM"],
+      "dependencies": ["supabase_admin", "notification_retry_queue"],
+      "degradedBehavior": "207 partial or 503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/tasks/run-rules",
+      "family": "task_automation",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/cron/v4/report-packs-generate",
+      "family": "v4_report_packs",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL", "RESEND_API_KEY"],
+      "optionalEnv": ["EMAIL_FROM"],
+      "dependencies": ["canonical_app_url", "email_provider", "supabase_admin"],
+      "degradedBehavior": "207 partial or 503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/cron/v6/health-graph-rollups",
+      "family": "v6_cron",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": [],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/cron/v6/review-board-packet-generation",
+      "family": "v6_review_board_packets",
+      "requiredEnv": ["CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL"],
+      "optionalEnv": ["RESEND_API_KEY", "EMAIL_FROM"],
+      "dependencies": ["canonical_app_url", "supabase_admin", "email_provider"],
+      "degradedBehavior": "207 partial or 503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "207_partial", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/stripe/checkout",
+      "family": "stripe_billing",
+      "requiredEnv": ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ID", "NEXT_PUBLIC_APP_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": [],
+      "dependencies": ["canonical_app_url", "stripe_provider", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "401_auth", "403_auth", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/stripe/portal",
+      "family": "stripe_billing",
+      "requiredEnv": ["STRIPE_SECRET_KEY", "NEXT_PUBLIC_APP_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": [],
+      "dependencies": ["canonical_app_url", "stripe_provider", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "401_auth", "403_auth", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/stripe/webhook",
+      "family": "stripe_webhook",
+      "requiredEnv": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": [],
+      "dependencies": ["stripe_provider", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "400_signature_invalid", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/reports/track/open/[token]",
+      "family": "report_tracking",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "safe_no_throw",
+      "expectedOutcomes": ["200_success", "302_redirect", "404_not_found", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/reports/track/click/[token]",
+      "family": "report_tracking",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "safe_redirect_or_problem",
+      "expectedOutcomes": ["302_redirect", "404_not_found", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/export/contracts",
+      "family": "export_import",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial or mutation envelope failure",
+      "expectedOutcomes": ["200_success", "207_partial", "401_auth", "403_auth", "409_idempotency", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/import/contracts",
+      "family": "export_import",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "mutation envelope failure",
+      "expectedOutcomes": ["200_success", "401_auth", "403_auth", "409_idempotency", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/integrations/oauth/start",
+      "family": "integrations",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL"],
+      "optionalEnv": [],
+      "dependencies": ["canonical_app_url", "supabase_admin"],
+      "degradedBehavior": "503 dependency_blocked",
+      "expectedOutcomes": ["200_success", "400_validation", "401_auth", "429_rate_limited", "503_dependency_blocked", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/export/calendar/feed/[token]",
+      "family": "calendar_export",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "404 not_found or 500 persistence_error",
+      "expectedOutcomes": ["200_success", "404_not_found", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/external-actions/[token]/status",
+      "family": "external_actions",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "500 persistence_error",
+      "expectedOutcomes": ["200_success", "404_not_found", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/external-actions/[token]/submit",
+      "family": "external_actions",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial or 404 not_found",
+      "expectedOutcomes": ["200_success", "207_partial", "400_validation", "404_not_found", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/external-actions/[token]/workflow-step",
+      "family": "external_actions",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial or 404 not_found",
+      "expectedOutcomes": ["200_success", "207_partial", "400_validation", "404_not_found", "409_idempotency", "429_rate_limited", "500_unhandled_internal"]
+    },
+    {
+      "pathTemplate": "/api/external-actions/[token]/participant/workflow-step",
+      "family": "external_actions",
+      "requiredEnv": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "optionalEnv": ["NEXT_PUBLIC_APP_URL"],
+      "dependencies": ["supabase_admin"],
+      "degradedBehavior": "207 partial or 404 not_found",
+      "expectedOutcomes": ["200_success", "207_partial", "400_validation", "404_not_found", "409_idempotency", "429_rate_limited", "500_unhandled_internal"]
+    }
+  ]
+}

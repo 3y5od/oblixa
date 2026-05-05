@@ -136,22 +136,24 @@ describe("GET /api/cron/v4/evidence-followup", () => {
     expect(body).toMatchObject({
       reviewed: 2,
       notificationsQueued: 6,
+      notificationDuplicatesSkipped: 0,
       dueMinus3RemindersQueued: 2,
       dueDateRemindersQueued: 1,
       overdueNotificationsQueued: 1,
       ownerNotificationsQueued: 1,
       escalationTasksCreated: 1,
+      escalationTaskDuplicatesSkipped: 0,
     });
-    const insertedNotifications = notificationInsert.mock.calls[0]?.[0] ?? [];
+    const insertedNotifications = notificationInsert.mock.calls.map((call) => call[0]);
     expect(insertedNotifications.map((row: { metadata: { follow_up_stage: string } }) => row.metadata.follow_up_stage)).toEqual(
       expect.arrayContaining(["due_minus_3", "due_date", "overdue_state", "owner_notification", "escalation"])
     );
-    expect(taskInsert).toHaveBeenCalledWith([
+    expect(taskInsert).toHaveBeenCalledWith(
       expect.objectContaining({
         evidence_requirement_id: "req_escalate",
         title: "Evidence follow-up: Insurance",
-      }),
-    ]);
+      })
+    );
     expect(recordV10AuditEvent).toHaveBeenCalledWith(
       admin,
       expect.objectContaining({
@@ -159,5 +161,58 @@ describe("GET /api/cron/v4/evidence-followup", () => {
         action: "evidence_request.follow_up_scheduled",
       })
     );
+  });
+
+  it("treats duplicate follow-up notification and task inserts as safe duplicate work", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-25T12:00:00Z"));
+    const notificationInsert = vi
+      .fn()
+      .mockResolvedValueOnce({ error: { code: "23505", message: "duplicate notification" } })
+      .mockResolvedValue({ error: null });
+    const taskInsert = vi.fn().mockResolvedValue({ error: { code: "23505", message: "duplicate task" } });
+    const requirements = [
+      {
+        id: "req_escalate",
+        organization_id: "org_1",
+        contract_id: "contract_2",
+        title: "Insurance",
+        due_at: "2026-04-24T12:00:00Z",
+        reviewer_id: "user_2",
+      },
+    ];
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "evidence_requirements") {
+          return {
+            select: () => ({ in: () => ({ lte: () => ({ limit: vi.fn().mockResolvedValue({ data: requirements }) }) }) }),
+          };
+        }
+        if (table === "contract_tasks") {
+          return { select: () => ({ in: vi.fn().mockResolvedValue({ data: [] }) }), insert: taskInsert };
+        }
+        if (table === "notification_deliveries") {
+          return {
+            select: () => ({ in: () => ({ in: vi.fn().mockResolvedValue({ data: [] }) }) }),
+            insert: notificationInsert,
+          };
+        }
+        if (table === "audit_events") return { insert: vi.fn().mockResolvedValue({ error: null }) };
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/cron/v4/evidence-followup/route");
+    const res = await GET(new Request("http://localhost:3000/api/cron/v4/evidence-followup"));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      notificationsQueued: 4,
+      notificationDuplicatesSkipped: 1,
+      escalationTasksCreated: 0,
+      escalationTaskDuplicatesSkipped: 1,
+      errors_count: 0,
+    });
   });
 });

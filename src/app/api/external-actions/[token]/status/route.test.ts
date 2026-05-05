@@ -194,4 +194,29 @@ describe("GET /api/external-actions/[token]/status", () => {
     });
     expect(admin.from).toHaveBeenCalledTimes(2);
   });
+
+  it("returns 500 with a stable diagnostic when the status lookup fails", async () => {
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null, error: { message: "boom" } })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { GET } = await import("@/app/api/external-actions/[token]/status/route");
+    const res = await GET(new Request("http://localhost/status"), {
+      params: Promise.resolve({ token: "url-token-xyz" }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body).toMatchObject({
+      code: "data_source_failed",
+      diagnostic_id: "external_action_status_load_failed",
+    });
+  });
 });

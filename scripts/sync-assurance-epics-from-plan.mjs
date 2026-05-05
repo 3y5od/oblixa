@@ -35,7 +35,7 @@ function parseEpics(text) {
     const status = m[3].trim();
     const numMatch = /^Epic\s+(\d+)\s*:/i.exec(content);
     epics.push({
-      todoKey: id,
+      todoId: id,
       epicNumber: numMatch ? Number(numMatch[1]) : null,
       title: content,
       planStatus: status,

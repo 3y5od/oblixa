@@ -270,11 +270,11 @@ export type V10DeprecationCandidate = {
 };
 
 export type V10DeprecationCleanupDecision = {
-  candidateKey: string;
+  candidateId: string;
   action: "retire" | "quarantine" | "preserve_boundary";
   supersededBy: string;
   runtimeReplacementProof: string;
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   compatibilityBoundaryKey: string;
   testsPreserved: boolean;
   cleanupCommand: string;
@@ -321,7 +321,7 @@ export type V10NoExclusionsVerificationMatrixRow = {
   uiArtifact: string;
   mutationApiArtifact: string;
   testArtifact: string;
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   telemetryEvent: `product.v10.${string}`;
   auditAction: string;
   privacyClassification: "client_safe" | "server_safe" | "audit_safe" | "telemetry_safe" | "export_safe" | "diagnostic_safe" | "synthetic_only";
@@ -1172,81 +1172,81 @@ export const V10_COMPATIBILITY_BOUNDARIES: readonly V10CompatibilityBoundary[] =
 
 export const V10_DEPRECATION_CLEANUP_DECISIONS: readonly V10DeprecationCleanupDecision[] = [
   {
-    candidateKey: "work_legacy_queue_summary",
+    candidateId: "work_legacy_queue_summary",
     action: "retire",
     supersededBy: "v10_work_items authoritative Work index",
     runtimeReplacementProof: "src/app/(dashboard)/work/page.tsx",
-    releaseEvidenceKey: "v10-release:deprecation:work_legacy_queue_summary",
+    releaseEvidenceId: "v10-release:deprecation:work_legacy_queue_summary",
     compatibilityBoundaryKey: "v10_read_model_tables",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup work_legacy_queue_summary",
   },
   {
-    candidateKey: "field_review_legacy_audit_details",
+    candidateId: "field_review_legacy_audit_details",
     action: "quarantine",
     supersededBy: "v10_audit_events safe_metadata and hashed state",
     runtimeReplacementProof: "src/lib/v10-status-action-vocabulary.ts",
-    releaseEvidenceKey: "v10-release:deprecation:field_review_legacy_audit_details",
+    releaseEvidenceId: "v10-release:deprecation:field_review_legacy_audit_details",
     compatibilityBoundaryKey: "v10_audit_action_names",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup field_review_legacy_audit_details",
   },
   {
-    candidateKey: "legacy_exception_assigned_audit_alias",
+    candidateId: "legacy_exception_assigned_audit_alias",
     action: "quarantine",
     supersededBy: "exception.owner_changed V10 audit action with legacy audit_events retained only for compatibility",
     runtimeReplacementProof: "src/app/api/exceptions/[id]/[action]/route.ts",
-    releaseEvidenceKey: "v10-release:deprecation:legacy_exception_assigned_audit_alias",
+    releaseEvidenceId: "v10-release:deprecation:legacy_exception_assigned_audit_alias",
     compatibilityBoundaryKey: "v10_audit_action_names",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup legacy_exception_assigned_audit_alias",
   },
   {
-    candidateKey: "report_pack_as_report_run",
+    candidateId: "report_pack_as_report_run",
     action: "preserve_boundary",
     supersededBy: "create_report_run mutation and report_run_visibility",
     runtimeReplacementProof: "src/lib/v10-report-export.ts",
-    releaseEvidenceKey: "v10-release:deprecation:report_pack_as_report_run",
+    releaseEvidenceId: "v10-release:deprecation:report_pack_as_report_run",
     compatibilityBoundaryKey: "report_export_artifacts",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup report_pack_as_report_run",
   },
   {
-    candidateKey: "descriptor_only_rc_fixtures",
+    candidateId: "descriptor_only_rc_fixtures",
     action: "retire",
     supersededBy: "fixture-backed seed, denominator lock, capture, teardown",
     runtimeReplacementProof: "src/lib/v10-objective-measurements.ts",
-    releaseEvidenceKey: "v10-release:deprecation:descriptor_only_rc_fixtures",
+    releaseEvidenceId: "v10-release:deprecation:descriptor_only_rc_fixtures",
     compatibilityBoundaryKey: "package_v10_commands",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup descriptor_only_rc_fixtures",
   },
   {
-    candidateKey: "v10_semgrep_warning_only", // gitleaks:allow deprecation catalog id, not a secret
+    candidateId: "v10_semgrep_warning_only", // gitleaks:allow deprecation catalog id, not a secret
     action: "retire",
     supersededBy: "CI-failing V10 guardrails",
     runtimeReplacementProof: "semgrep/oblixa-v10-surface.yml",
-    releaseEvidenceKey: "v10-release:deprecation:v10_semgrep_warning_only",
+    releaseEvidenceId: "v10-release:deprecation:v10_semgrep_warning_only",
     compatibilityBoundaryKey: "package_v10_commands",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-release-evidence -- --cleanup v10_semgrep_warning_only",
   },
   {
-    candidateKey: "duplicate_v10_e2e_smoke_lane", // gitleaks:allow gap-audit catalog id, not a secret
+    candidateId: "duplicate_v10_e2e_smoke_lane", // gitleaks:allow gap-audit catalog id, not a secret
     action: "quarantine",
     supersededBy: "intentional smoke/workflow/release-candidate E2E split",
     runtimeReplacementProof: ".github/workflows/ci.yml",
-    releaseEvidenceKey: "v10-release:deprecation:duplicate_v10_e2e_smoke_lane",
+    releaseEvidenceId: "v10-release:deprecation:duplicate_v10_e2e_smoke_lane",
     compatibilityBoundaryKey: "package_v10_commands",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite -- --cleanup duplicate_v10_e2e_smoke_lane",
   },
   {
-    candidateKey: "v9_release_contract_bridge",
+    candidateId: "v9_release_contract_bridge",
     action: "preserve_boundary",
     supersededBy: "v10 release contract with V9 regression bridge preserved only for compatibility gates",
     runtimeReplacementProof: "src/lib/v10-release-contract.ts",
-    releaseEvidenceKey: "v10-release:deprecation:v9_release_contract_bridge",
+    releaseEvidenceId: "v10-release:deprecation:v9_release_contract_bridge",
     compatibilityBoundaryKey: "v9_regression_bridge",
     testsPreserved: true,
     cleanupCommand: "npm run check:v10-suite && npm run check:v9-suite",
@@ -1745,7 +1745,7 @@ export function validateV10DeprecationCleanupDecisions(input: {
   const compatibilityBoundaries = input.compatibilityBoundaries ?? V10_COMPATIBILITY_BOUNDARIES;
   const failures: string[] = [];
   const boundaryKeys = new Set(compatibilityBoundaries.map((boundary) => boundary.key));
-  const decisionByCandidate = new Map(decisions.map((decision) => [decision.candidateKey, decision]));
+  const decisionByCandidate = new Map(decisions.map((decision) => [decision.candidateId, decision]));
 
   for (const candidate of candidates) {
     const decision = decisionByCandidate.get(candidate.key);
@@ -1755,7 +1755,7 @@ export function validateV10DeprecationCleanupDecisions(input: {
     }
     if (!decision.supersededBy.includes(candidate.replacement)) failures.push(`${candidate.key}:supersession_mismatch`);
     if (!decision.runtimeReplacementProof) failures.push(`${candidate.key}:runtime_replacement_proof_required`);
-    if (!decision.releaseEvidenceKey.startsWith("v10-release:deprecation:")) failures.push(`${candidate.key}:release_evidence_key_required`);
+    if (!decision.releaseEvidenceId.startsWith("v10-release:deprecation:")) failures.push(`${candidate.key}:release_evidence_key_required`);
     if (!boundaryKeys.has(decision.compatibilityBoundaryKey)) failures.push(`${candidate.key}:compatibility_boundary_unknown`);
     if (!decision.testsPreserved) failures.push(`${candidate.key}:tests_preservation_required`);
     if (!decision.cleanupCommand.startsWith("npm run check:v10")) failures.push(`${candidate.key}:stable_cleanup_command_required`);
@@ -1768,11 +1768,11 @@ export function validateV10DeprecationCleanupDecisions(input: {
   }
 
   for (const decision of decisions) {
-    if (!candidates.some((candidate) => candidate.key === decision.candidateKey)) {
-      failures.push(`deprecation_decision_unknown_candidate:${decision.candidateKey}`);
+    if (!candidates.some((candidate) => candidate.key === decision.candidateId)) {
+      failures.push(`deprecation_decision_unknown_candidate:${decision.candidateId}`);
     }
   }
-  if (new Set(decisions.map((decision) => decision.candidateKey)).size !== decisions.length) failures.push("deprecation_decision_duplicate");
+  if (new Set(decisions.map((decision) => decision.candidateId)).size !== decisions.length) failures.push("deprecation_decision_duplicate");
   return failures;
 }
 
@@ -1790,7 +1790,7 @@ function buildV10NoExclusionsMatrixRow(input: {
   uiArtifact?: string;
   mutationApiArtifact?: string;
   testArtifact: string;
-  releaseEvidenceKey?: string;
+  releaseEvidenceId?: string;
   telemetryEvent?: `product.v10.${string}`;
   auditAction?: string;
   privacyClassification?: V10NoExclusionsVerificationMatrixRow["privacyClassification"];
@@ -1808,7 +1808,7 @@ function buildV10NoExclusionsMatrixRow(input: {
     uiArtifact: input.uiArtifact ?? "src/lib/v10-ui-state-contracts.ts",
     mutationApiArtifact: input.mutationApiArtifact ?? "src/lib/v10-route-api-catalog.ts",
     testArtifact: input.testArtifact,
-    releaseEvidenceKey: input.releaseEvidenceKey ?? `v10-release:${input.matrix}:${normalizedKey}`,
+    releaseEvidenceId: input.releaseEvidenceId ?? `v10-release:${input.matrix}:${normalizedKey}`,
     telemetryEvent: input.telemetryEvent ?? (`product.v10.${normalizedKey}_verified` as `product.v10.${string}`),
     auditAction: input.auditAction ?? `v10.${normalizedKey}_verified`,
     privacyClassification: input.privacyClassification ?? "diagnostic_safe",
@@ -1836,7 +1836,7 @@ export function buildV10NoExclusionsVerificationMatrix(
         owner: getV10PlanTodoProof(row.todoId)?.owner ?? "engineering",
         runtimeArtifact: row.primaryArtifacts[0] ?? "src/lib/v10-final-gap-audit.ts",
         testArtifact: row.primaryArtifacts.find((artifact) => artifact.endsWith(".test.ts") || artifact.endsWith(".test.tsx")) ?? "src/lib/v10-final-gap-audit.v10.test.ts",
-        releaseEvidenceKey: `v10-release:requirement:${row.todoId}`,
+        releaseEvidenceId: `v10-release:requirement:${row.todoId}`,
         status: row.blockerPolicy === "external_evidence_allowed" ? "release_evidence_required" : "runtime_backed",
       })
     )
@@ -1851,7 +1851,7 @@ export function buildV10NoExclusionsVerificationMatrix(
         owner: entry.owner,
         runtimeArtifact: entry.artifact,
         testArtifact: entry.testStatus === "release_check" ? "src/lib/v10-release-evidence.v10.test.ts" : "src/lib/v10-final-gap-audit.v10.test.ts",
-        releaseEvidenceKey: `v10-release:file:${entry.category}:${entry.key}`,
+        releaseEvidenceId: `v10-release:file:${entry.category}:${entry.key}`,
         status: entry.runtimeStatus === "external_blocker" ? "external_blocker" : "runtime_backed",
       })
     )
@@ -1885,7 +1885,7 @@ export function buildV10NoExclusionsVerificationMatrix(
           : "src/lib/v10-route-api-catalog.ts",
         testArtifact: "src/lib/v10-route-api-catalog.v10.test.ts",
         mutationApiArtifact: "src/lib/v10-route-api-catalog.ts",
-        releaseEvidenceKey: `v10-release:route:${normalizeV10MatrixKey(route.path)}`,
+        releaseEvidenceId: `v10-release:route:${normalizeV10MatrixKey(route.path)}`,
         auditAction: route.auditRequired ? `${route.featureFamily}.route_verified` : "v10.route_verified",
         privacyClassification: "client_safe",
       })
@@ -1939,7 +1939,7 @@ export function buildV10NoExclusionsVerificationMatrix(
         owner: "release",
         runtimeArtifact: "scripts/check-v10-suite.mjs",
         testArtifact: "src/lib/v10-release-evidence.v10.test.ts",
-        releaseEvidenceKey: `v10-release:ci:${normalizeV10MatrixKey(command)}`,
+        releaseEvidenceId: `v10-release:ci:${normalizeV10MatrixKey(command)}`,
         auditAction: "release.gate_verified",
         privacyClassification: "synthetic_only",
         status: command.includes("e2e") ? "release_evidence_required" : "runtime_backed",
@@ -1977,7 +1977,7 @@ export function validateV10NoExclusionsVerificationMatrix(
     if (!row.uiArtifact) failures.push(`${key}:ui_artifact_required`);
     if (!row.mutationApiArtifact) failures.push(`${key}:mutation_api_artifact_required`);
     if (!row.testArtifact) failures.push(`${key}:test_artifact_required`);
-    if (!row.releaseEvidenceKey.startsWith("v10-release:")) failures.push(`${key}:release_evidence_required`);
+    if (!row.releaseEvidenceId.startsWith("v10-release:")) failures.push(`${key}:release_evidence_required`);
     if (!row.telemetryEvent.startsWith("product.v10.")) failures.push(`${key}:telemetry_event_required`);
     if (!row.auditAction.includes(".")) failures.push(`${key}:audit_action_required`);
     if (!row.rollbackPlan.trim()) failures.push(`${key}:rollback_plan_required`);

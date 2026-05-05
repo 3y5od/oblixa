@@ -6,6 +6,7 @@ const validateOutboundHttpUrl = vi.hoisted(() => vi.fn());
 const safeFetch = vi.hoisted(() => vi.fn());
 const enqueueOutboundEvent = vi.hoisted(() => vi.fn());
 const pingCronHealthcheck = vi.hoisted(() => vi.fn());
+const forEachSupabaseRangePage = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -30,6 +31,10 @@ vi.mock("@/lib/integrations/events", () => ({
 
 vi.mock("@/lib/observability/cron-healthcheck", () => ({
   pingCronHealthcheck,
+}));
+
+vi.mock("@/lib/supabase/range-pagination", () => ({
+  forEachSupabaseRangePage,
 }));
 
 function createCrmAdmin({
@@ -106,6 +111,10 @@ describe("GET /api/integrations/crm/sync", () => {
     validateOutboundHttpUrl.mockImplementation((url: string) => new URL(url));
     safeFetch.mockResolvedValue(new Response("ok", { status: 200 }));
     enqueueOutboundEvent.mockResolvedValue(true);
+    forEachSupabaseRangePage.mockImplementation(async (_fetchPage, consume) => {
+      await consume([]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 0, nextOffset: null };
+    });
     const { admin } = createCrmAdmin({ connections: [], contracts: [], renewalScenarios: [], openExceptions: [] });
     createAdminClient.mockResolvedValue(admin as never);
   });
@@ -160,6 +169,15 @@ describe("GET /api/integrations/crm/sync", () => {
       openExceptions: [{ contract_id: "contract_1", severity: "critical" }],
     });
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage
+      .mockImplementationOnce(async (_fetchPage, consume) => {
+        await consume([connection]);
+        return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+      })
+      .mockImplementationOnce(async (_fetchPage, consume) => {
+        await consume([contract]);
+        return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+      });
 
     const { GET } = await import("@/app/api/integrations/crm/sync/route");
     const res = await GET(
@@ -266,6 +284,15 @@ describe("GET /api/integrations/crm/sync", () => {
       openExceptions: [],
     });
     createAdminClient.mockResolvedValue(admin as never);
+    forEachSupabaseRangePage
+      .mockImplementationOnce(async (_fetchPage, consume) => {
+        await consume([connection]);
+        return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+      })
+      .mockImplementationOnce(async (_fetchPage, consume) => {
+        await consume([contract]);
+        return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+      });
 
     const { GET } = await import("@/app/api/integrations/crm/sync/route");
     const buildRequest = () =>
@@ -286,6 +313,26 @@ describe("GET /api/integrations/crm/sync", () => {
       retryAfterMs: 6000,
     });
     expect(safeFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns 500 when CRM connections cannot be loaded", async () => {
+    forEachSupabaseRangePage.mockImplementationOnce(async () => ({
+      error: { message: "boom" },
+      stoppedByOffsetCap: false,
+      rowsSeen: 0,
+      nextOffset: 0,
+    }));
+
+    const { GET } = await import("@/app/api/integrations/crm/sync/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/crm/sync", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body).toMatchObject({ diagnostic_id: "integrations_crm_connections_load_failed" });
   });
 });
 

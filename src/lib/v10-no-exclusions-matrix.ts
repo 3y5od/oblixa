@@ -94,7 +94,7 @@ export type V10NoExclusionsMatrixRow = {
   dimensions: readonly V10NoExclusionsDimension[];
   sourceArtifacts: readonly string[];
   testArtifacts: readonly string[];
-  releaseEvidenceKey: string;
+  releaseEvidenceId: string;
   residualRisk: string | null;
 };
 
@@ -265,7 +265,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: implementationRequirementDimensions(requirement),
       sourceArtifacts: [...requirement.artifacts, "src/lib/v10-implementation-checklist.ts"],
       testArtifacts: ["src/lib/v10-implementation-checklist.v10.test.ts", "npm run check:v10-suite"],
-      releaseEvidenceKey: `v10-release:implementation-requirement:${requirement.id}`,
+      releaseEvidenceId: `v10-release:implementation-requirement:${requirement.id}`,
       residualRisk: requirement.autonomous ? null : "Non-autonomous launch evidence remains release-owner promoted and cannot be silently excluded.",
     });
   }
@@ -281,7 +281,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: autonomousCoverageDimensions(contract),
       sourceArtifacts: [...contract.sourceArtifacts, "src/lib/v10-autonomous-coverage.ts"],
       testArtifacts: ["src/lib/v10-autonomous-coverage.v10.test.ts", "src/lib/v10-no-exclusions-matrix.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:coverage-contract:${contract.planTodoId}`,
+      releaseEvidenceId: `v10-release:coverage-contract:${contract.planTodoId}`,
       residualRisk: status === "release_evidence_required" || status === "environment_gated"
         ? `${contract.planTodoId} requires release evidence before promotion.`
         : null,
@@ -298,7 +298,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["test", "release_evidence", "compatibility"],
       sourceArtifacts: [SPEC_ARTIFACT_V10, ...artifacts],
       testArtifacts: artifacts.filter((artifact) => artifact.endsWith(".test.ts") || artifact.endsWith(".test.tsx") || artifact.startsWith("e2e/")),
-      releaseEvidenceKey: `v10-release:spec-section:${section.replace(/\./g, "_")}`,
+      releaseEvidenceId: `v10-release:spec-section:${section.replace(/\./g, "_")}`,
       residualRisk: null,
     });
   }
@@ -313,7 +313,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["test", "release_evidence", "operations"],
       sourceArtifacts: [row.artifact],
       testArtifacts: row.testStatus === "release_check" ? ["src/lib/v10-release-evidence.v10.test.ts"] : ["src/lib/v10-final-gap-audit.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:inventory-file:${row.category}:${row.key}`,
+      releaseEvidenceId: `v10-release:inventory-file:${row.category}:${row.key}`,
       residualRisk:
         row.runtimeStatus === "external_blocker"
           ? `${row.category}:${row.key} requires promoted release evidence before completion.`
@@ -331,7 +331,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: sourceObjectDimensions(row),
       sourceArtifacts: [row.sourceTable, ...row.readModels.map((model) => `v10_${model}`)],
       testArtifacts: row.tests,
-      releaseEvidenceKey: `v10-release:source-object:${row.sourceObjectType}`,
+      releaseEvidenceId: `v10-release:source-object:${row.sourceObjectType}`,
       residualRisk: row.autonomousStatus === "external_evidence" ? "External evidence must be promoted before GA." : null,
     });
   }
@@ -346,7 +346,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["route_or_action", "authorization", "recoverable_ui", "telemetry", "test", "release_evidence"],
       sourceArtifacts: [NAVIGATION_FAMILY_ARTIFACTS[family]],
       testArtifacts: ["e2e/v10-core-smoke.spec.ts", "src/lib/v10-ui-state-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:navigation:${family.toLowerCase()}`,
+      releaseEvidenceId: `v10-release:navigation:${family.toLowerCase()}`,
       residualRisk: null,
     });
   }
@@ -369,7 +369,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       ],
       sourceArtifacts: [mutation.runtimeArtifact],
       testArtifacts: ["src/lib/v10-semantics.v10.test.ts", "src/lib/v10-route-api-catalog.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:mutation:${mutation.key}`,
+      releaseEvidenceId: `v10-release:mutation:${mutation.key}`,
       residualRisk: null,
     });
   }
@@ -385,7 +385,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: routeDimensions(route),
       sourceArtifacts: ["src/lib/v10-route-api-catalog.ts", runtimeArtifact],
       testArtifacts: ["src/lib/v10-route-api-catalog.v10.test.ts", getV10RouteTestArtifact(route.path)],
-      releaseEvidenceKey: `v10-release:route:${route.path.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
+      releaseEvidenceId: `v10-release:route:${route.path.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
       residualRisk: null,
     });
   }
@@ -400,7 +400,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["database_or_source", "read_model", "authorization", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-read-models.ts", "src/lib/v10-read-model-refresh.ts"],
       testArtifacts: ["src/lib/v10-data-contracts.v10.test.ts", "src/lib/v10-read-model-refresh.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:read-model:${modelKey}`,
+      releaseEvidenceId: `v10-release:read-model:${modelKey}`,
       residualRisk: null,
     });
   }
@@ -415,7 +415,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["database_or_source", "read_model", "recoverable_ui", "telemetry", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-job-visibility.ts", "src/lib/v10-read-model-refresh.ts"],
       testArtifacts: ["src/lib/v10-read-model-refresh.v10.test.ts", "src/lib/v10-operational-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:job-class:${jobClass}`,
+      releaseEvidenceId: `v10-release:job-class:${jobClass}`,
       residualRisk: jobClass === "billing_sync" ? "Billing sync requires provider/release evidence." : null,
     });
   }
@@ -430,7 +430,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["database_or_source", "read_model", "authorization", "audit", "telemetry", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-read-model-refresh.ts"],
       testArtifacts: ["src/lib/v10-read-model-refresh.v10.test.ts", "src/lib/v10-operational-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:notification-class:${notificationClass}`,
+      releaseEvidenceId: `v10-release:notification-class:${notificationClass}`,
       residualRisk: null,
     });
   }
@@ -445,7 +445,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["database_or_source", "route_or_action", "audit", "telemetry", "fixture", "test", "release_evidence"],
       sourceArtifacts: ["src/lib/v10-report-export.ts", "src/lib/v10-read-model-refresh.ts"],
       testArtifacts: ["src/lib/v10-report-export.v10.test.ts", "src/lib/v10-read-model-refresh.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:report-family:${reportFamily}`,
+      releaseEvidenceId: `v10-release:report-family:${reportFamily}`,
       residualRisk: null,
     });
   }
@@ -460,7 +460,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["recoverable_ui", "test", "release_evidence"],
       sourceArtifacts: ["src/components/ui/v10-recoverable-state.tsx", "src/lib/v10-ui-state-contracts.ts"],
       testArtifacts: ["src/components/ui/v10-recoverable-state.test.tsx", "src/lib/v10-ui-state-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:recoverable-state:${state.state}`,
+      releaseEvidenceId: `v10-release:recoverable-state:${state.state}`,
       residualRisk: null,
     });
   }
@@ -477,7 +477,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-acceptance-matrix.ts"],
       testArtifacts: ["src/lib/v10-acceptance-matrix.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:acceptance-gate:${gate}`,
+      releaseEvidenceId: `v10-release:acceptance-gate:${gate}`,
       residualRisk:
         gate === "objective_measurement"
           ? "Objective measurements require release-candidate capture and promoted evidence."
@@ -497,7 +497,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["compatibility", "test", "release_evidence", "operations"],
       sourceArtifacts: [row.owningArtifact],
       testArtifacts: ["src/lib/v10-final-gap-audit.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:compatibility:${row.key}`,
+      releaseEvidenceId: `v10-release:compatibility:${row.key}`,
       residualRisk: null,
     });
   }
@@ -512,7 +512,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["telemetry", "fixture", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-objective-measurements.ts", "src/lib/v10-objective-telemetry.ts", "scripts/check-v10-release-evidence.mjs"],
       testArtifacts: ["src/lib/v10-objective-measurements.v10.test.ts", "src/lib/v10-objective-telemetry.v10.test.ts", "src/lib/v10-release-evidence.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:objective-metric:${metricKey}`,
+      releaseEvidenceId: `v10-release:objective-metric:${metricKey}`,
       residualRisk: "Objective metric requires denominator-locked release-candidate evidence capture before promotion.",
     });
   }
@@ -527,7 +527,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["database_or_source", "fixture", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-release-contract.ts", "scripts/check-v10-suite.mjs"],
       testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:fixture:${fixtureKey}`,
+      releaseEvidenceId: `v10-release:fixture:${fixtureKey}`,
       residualRisk: "Fixture minimum must be seeded, locked, captured, and torn down in a release-candidate workspace.",
     });
   }
@@ -542,7 +542,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-release-evidence.ts"],
       testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:external-evidence-gate:${gate.key}`,
+      releaseEvidenceId: `v10-release:external-evidence-gate:${gate.key}`,
       residualRisk: gate.blocker_reason,
     });
   }
@@ -557,7 +557,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["provider_boundary", "environment", "authorization", "test", "release_evidence", "operations"],
       sourceArtifacts: ["src/lib/v10-operational-contracts.ts"],
       testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:provider-boundary:${boundary.provider}`,
+      releaseEvidenceId: `v10-release:provider-boundary:${boundary.provider}`,
       residualRisk: boundary.releaseBlockerWhenMissing
         ? `${boundary.provider} provider readiness must be proven without leaking private data.`
         : null,
@@ -577,7 +577,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
         ...(contract.cronRoute ? [contract.cronRoute] : []),
       ],
       testArtifacts: ["src/lib/v10-operational-contracts.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:ops-readiness:${contract.key}`,
+      releaseEvidenceId: `v10-release:ops-readiness:${contract.key}`,
       residualRisk: `${contract.key} requires operational evidence, recovery destination, and provider readiness before promotion.`,
     });
   }
@@ -592,7 +592,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["telemetry", "test", "release_evidence"],
       sourceArtifacts: ["src/lib/product-telemetry.ts", "src/lib/v10-objective-telemetry.ts"],
       testArtifacts: ["src/lib/product-telemetry.v10.test.ts", "src/lib/v10-objective-telemetry.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:telemetry-event:${action.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
+      releaseEvidenceId: `v10-release:telemetry-event:${action.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
       residualRisk: null,
     });
   }
@@ -607,7 +607,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["audit", "test", "release_evidence", "privacy"],
       sourceArtifacts: ["src/lib/v10-final-gap-audit.ts", "src/lib/v10-status-action-vocabulary.ts"],
       testArtifacts: ["src/lib/v10-final-gap-audit.v10.test.ts", "src/lib/v10-status-action-vocabulary.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:audit-action:${audit.action.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
+      releaseEvidenceId: `v10-release:audit-action:${audit.action.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
       residualRisk: null,
     });
   }
@@ -622,7 +622,7 @@ export function buildV10NoExclusionsMatrix(): V10NoExclusionsMatrixRow[] {
       dimensions: ["test", "release_evidence", "operations"],
       sourceArtifacts: ["package.json", ".github/workflows/ci.yml", "scripts/check-v10-suite.mjs"],
       testArtifacts: ["src/lib/v10-release-evidence.v10.test.ts", "src/lib/v10-final-gap-audit.v10.test.ts"],
-      releaseEvidenceKey: `v10-release:ci-release-gate:${command.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
+      releaseEvidenceId: `v10-release:ci-release-gate:${command.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`,
       residualRisk: command.includes("e2e") ? "Browser evidence requires an authenticated release-candidate run." : null,
     });
   }
@@ -641,7 +641,7 @@ export function validateV10NoExclusionsMatrix(
     if (row.dimensions.length === 0) failures.push(`${row.coverageKey}:dimension_required`);
     if (row.sourceArtifacts.length === 0) failures.push(`${row.coverageKey}:source_artifact_required`);
     if (row.testArtifacts.length === 0) failures.push(`${row.coverageKey}:test_artifact_required`);
-    if (!row.releaseEvidenceKey.startsWith("v10-release:")) failures.push(`${row.coverageKey}:release_evidence_key_required`);
+    if (!row.releaseEvidenceId.startsWith("v10-release:")) failures.push(`${row.coverageKey}:release_evidence_key_required`);
     if (row.status === "release_evidence_required" && !row.residualRisk) {
       failures.push(`${row.coverageKey}:release_evidence_risk_required`);
     }

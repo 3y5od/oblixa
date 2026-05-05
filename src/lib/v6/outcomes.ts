@@ -72,9 +72,9 @@ export async function listOutcomeInterventionsPaginated(
 }
 
 export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
-  const { data: rows, error } = await admin
+  const { data: rows, error, count } = await admin
     .from("outcome_intervention_analyses")
-    .select("id, intervention_type, effectiveness_score, analyzed_at, recurrence_delta")
+    .select("id, intervention_type, effectiveness_score, analyzed_at, recurrence_delta", { count: "exact" })
     .eq("organization_id", orgId)
     .order("analyzed_at", { ascending: false })
     .limit(500);
@@ -82,6 +82,10 @@ export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
   if (error)
     return {
       error,
+      complete: false,
+      truncated: false,
+      scanned: 0,
+      total: 0,
       interventions: [],
       programEffectiveness: {},
       controlEffectiveness: {},
@@ -91,6 +95,8 @@ export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
     };
 
   const interventions = rows ?? [];
+  const total = count ?? interventions.length;
+  const truncated = total > interventions.length;
   const grouped = interventions.reduce(
     (acc: Record<string, { count: number; total: number }>, row) => {
       const typedRow = row as { intervention_type?: string; effectiveness_score?: number | string };
@@ -135,6 +141,10 @@ export async function computeOutcomeViews(admin: AdminClient, orgId: string) {
 
   return {
     interventions,
+    complete: !truncated,
+    truncated,
+    scanned: interventions.length,
+    total,
     programEffectiveness: toAverage("program"),
     controlEffectiveness: toAverage("control"),
     playbookEffectiveness: toAverage("playbook"),

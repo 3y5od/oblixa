@@ -1,16 +1,11 @@
-import { createServerClient } from "@supabase/ssr";
+import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/server";
 import { withCronRoute } from "@/lib/cron/route-runner";
-import { getRequestOrigin } from "@/lib/app-url";
+import { getCanonicalServerBaseUrl } from "@/lib/app-url";
 import { sendSavedViewSummaryEmail } from "@/lib/email";
-import {
-  getSupabasePublicEnv,
-  getSupabaseServiceRoleKey,
-} from "@/lib/env/server";
 import { captureServerMessage } from "@/lib/observability/sentry";
 import { getContractIdsForDeadlinePreset, type DeadlinePreset } from "@/lib/contract-filters";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { randomUUID } from "node:crypto";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
@@ -21,26 +16,55 @@ import {
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import {
+  executeBatch,
+  safeErrorMessage,
+  type BatchItemError,
+} from "@/lib/route-runtime-contract";
+import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const RECIPIENT_SEND_CONCURRENCY = 4;
-const MAX_DUE_SUBSCRIPTIONS = 100;
-const MAX_RECIPIENTS_PER_SUBSCRIPTION = 20;
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+type SavedViewRow = {
+  id: string;
+  name: string;
+  view_type: string;
+  query_json: Record<string, unknown> | null;
+};
+type ReportSubscriptionRow = {
+  id: string;
+  saved_view_id: string | null;
+  user_id: string;
+  organization_id: string;
+  frequency: string;
+  next_run_at: string;
+  recipient_emails: string[] | null;
+  saved_views: SavedViewRow | SavedViewRow[] | null;
+};
+type SampleRow = { label: string; href: string; meta: string };
+type SummaryData = {
+  count: number;
+  exceptionCount: number;
+  trendWeeklyActive: number;
+  sampleRows: SampleRow[];
+  workspacePath: string;
+};
 
-async function refreshV10ReportDeliveryReadModels(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  organizationId: string,
-  reason: string
-) {
-  await refreshV10ReadModelsForOrganization(admin, organizationId, {
-    refreshScope: "one_model",
-    reason,
-    modelKeys: ["work_items", "report_run_visibility", "notification_deliveries", "contract_activity_events", "audit_events", "command_search_index"],
-  });
-}
+const RECIPIENT_SEND_CONCURRENCY = 4;
+const DUE_SUBSCRIPTION_PAGE_SIZE = 100;
+const MAX_DUE_SUBSCRIPTION_OFFSET_EXCLUSIVE = 5_000;
+const RECIPIENT_UPSERT_CHUNK_SIZE = 100;
+const REFRESH_MODEL_KEYS = [
+  "work_items",
+  "report_run_visibility",
+  "notification_deliveries",
+  "contract_activity_events",
+  "audit_events",
+  "command_search_index",
+] as const;
 
 function parseViewQuery(
   query: Record<string, unknown>
@@ -56,548 +80,768 @@ function parseViewQuery(
   return { status, owner, region, search, deadline };
 }
 
+function unwrapRelation<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+function chunkArray<T>(items: readonly T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size) as T[]);
+  }
+  return chunks;
+}
+
+function reportError(
+  scope: string,
+  phase: BatchItemError["phase"],
+  diagnosticId: string,
+  message: string
+): BatchItemError {
+  return { scope, phase, diagnostic_id: diagnosticId, message };
+}
+
+function nextRunForFrequency(frequency: string): string {
+  if (frequency === "monthly") {
+    const next = new Date();
+    next.setUTCDate(1);
+    next.setUTCHours(9, 30, 0, 0);
+    next.setUTCMonth(next.getUTCMonth() + 1);
+    return next.toISOString();
+  }
+  return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+}
+
+async function refreshV10ReportDeliveryReadModels(admin: AdminClient, organizationId: string, reason: string) {
+  await refreshV10ReadModelsForOrganization(admin, organizationId, {
+    refreshScope: "one_model",
+    reason,
+    modelKeys: REFRESH_MODEL_KEYS,
+  });
+}
+
 export const GET = withCronRoute({
   route: "/api/reports/send-summaries",
   rateLimitKey: "cron:reports:send-summaries",
   rateLimit: RATE_LIMITS.reportsSummariesCron,
-  handler: async ({ request, admin }) => {
-  let supabaseUrl: string;
-  let serviceRoleKey: string;
-  try {
-    ({ url: supabaseUrl } = getSupabasePublicEnv());
-    serviceRoleKey = getSupabaseServiceRoleKey();
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Supabase env misconfigured";
-    console.error("[reports/cron] configuration error:", message);
-    return {
-      status: 503,
-      ok: false,
-      errorsCount: 1,
-      body: {
-        error: "Server misconfigured",
-        code: "supabase_env_invalid",
-        diagnostic_id: "report_summaries_supabase_env_invalid",
-      },
-    };
-  }
-
-  const supabase = createServerClient(supabaseUrl, serviceRoleKey, {
-    cookies: { getAll: () => [], setAll: () => {} },
-  });
-
-  const nowIso = new Date().toISOString();
-  const { data: rows, error } = await supabase
-    .from("report_subscriptions")
-    .select(
-      "id, saved_view_id, user_id, organization_id, frequency, next_run_at, recipient_emails, saved_views!inner(id, name, view_type, query_json)"
-    )
-    .eq("active", true)
-    .in("frequency", ["weekly", "monthly"])
-    .lte("next_run_at", nowIso)
-    .order("next_run_at", { ascending: true })
-    .limit(MAX_DUE_SUBSCRIPTIONS);
-
-  if (error) {
-    console.error("[reports/cron] subscriptions query:", error.message);
-    captureServerMessage(error.message, {
-      level: "error",
-      extra: { route: "reports/send-summaries", phase: "query_subscriptions" },
-    });
-    return {
-      status: 500,
-      ok: false,
-      errorsCount: 1,
-      body: {
-        error: "Could not load subscriptions",
-        code: "report_subscription_query_failed",
-        diagnostic_id: "report_subscription_query_failed",
-      },
-    };
-  }
-
-  const list = rows ?? [];
-  if (list.length === 0) {
-    return {
-      body: {
-      sent: 0,
-      candidates: 0,
-      message: "No due summaries",
-      },
-    };
-  }
-
-  const userIds = [...new Set(list.map((r) => r.user_id).filter(Boolean))];
-  const { data: profiles } =
-    userIds.length === 0
-      ? { data: [] as Array<{ id: string; email: string | null }> }
-      : await supabase
-          .from("profiles")
-          .select("id, email")
-          .in("id", userIds);
-  const profileByUserId = new Map((profiles ?? []).map((p) => [p.id, p.email]));
-
-  const appUrl = getRequestOrigin(request);
-  let sent = 0;
-  const errors: string[] = [];
-
-  for (const row of list) {
-    const v6Org = await getV6OrgSettingsJson(admin, row.organization_id);
-    const workspaceProductMode = v6Org.workspace_mode;
-
-    const emailAllowed = await isNotificationAllowed(admin, {
-      organizationId: row.organization_id,
-      channel: "email",
-      notificationType: "saved_view_summary",
-    });
-    if (!emailAllowed) {
-      const rawName = (row.saved_views as { name?: string } | null)?.name ?? "Saved view";
-      const subjectName = emailCopyUsesCoreSurface(workspaceProductMode)
-        ? degradeOutboundEmailCopyForCore(rawName)
-        : rawName;
-      await markNotificationSuppressed(admin, {
-        organizationId: row.organization_id,
-        channel: "email",
-        notificationType: "saved_view_summary",
-        subject: `${row.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${subjectName}`,
-        metadata: { subscription_id: row.id },
-      });
-      continue;
+  dependencyPreflight: () => {
+    const appUrl = getCanonicalServerBaseUrl();
+    if (!appUrl) {
+      return {
+        error: "Canonical app URL is not configured",
+        code: "dependency_blocked",
+        diagnostic_id: "report_summaries_canonical_app_url_missing",
+        details: {
+          dependency: "canonical_app_url",
+          required_env: ["NEXT_PUBLIC_APP_URL", "APP_BASE_URL", "VERCEL_PROJECT_PRODUCTION_URL"],
+          degraded_policy: "503 dependency_blocked",
+        },
+      };
     }
-    const { data: reportRun } = await supabase
-      .from("report_runs")
-      .insert({
-        organization_id: row.organization_id,
-        subscription_id: row.id,
-        report_mode: "saved_view",
-        status: "running",
-      })
-      .select("id")
-      .maybeSingle();
-    if (reportRun?.id) {
-      await recordV10AuditEvent(admin, {
-        organizationId: row.organization_id,
-        actorUserId: row.user_id,
-        action: "report_run.created",
-        targetType: "report_run",
-        targetId: reportRun.id,
-        outcome: "success",
-        safeMetadata: { report_mode: "saved_view", subscription_id: row.id },
-      });
+    if (!String(process.env.RESEND_API_KEY ?? "").trim()) {
+      return {
+        error: "Report email provider is not configured",
+        code: "dependency_blocked",
+        diagnostic_id: "report_summaries_resend_missing",
+        details: {
+          dependency: "email_provider",
+          required_env: ["RESEND_API_KEY"],
+          optional_env: ["EMAIL_FROM"],
+          degraded_policy: "503 dependency_blocked",
+        },
+      };
     }
+    return null;
+  },
+  handler: async ({ admin }) => {
+    const appUrl = getCanonicalServerBaseUrl()!;
+    const normalizedAppUrl = appUrl.replace(/\/+$/, "");
+    const nowIso = new Date().toISOString();
+    let candidates = 0;
+    let sent = 0;
+    const errors: BatchItemError[] = [];
+    const refreshOrganizations = new Set<string>();
 
-    const savedView = row.saved_views as unknown as {
-      id: string;
-      name: string;
-      view_type: string;
-      query_json: Record<string, unknown>;
+    const pushTelemetryError = async (
+      scope: string,
+      diagnosticId: string,
+      input: Parameters<typeof emitProductTelemetryEvent>[1]
+    ) => {
+      const telemetryWritten = await emitProductTelemetryEvent(admin, input);
+      if (!telemetryWritten) {
+        errors.push(reportError(scope, "persist", diagnosticId, "product telemetry write failed"));
+      }
     };
-    const ownerEmail = profileByUserId.get(row.user_id) ?? null;
-    const extraRecipients = ((row.recipient_emails ?? []) as string[]).filter(Boolean);
-    const recipients = [
-      ...new Set([ownerEmail, ...extraRecipients].filter(Boolean)),
-    ].slice(0, MAX_RECIPIENTS_PER_SUBSCRIPTION) as string[];
-    if (recipients.length === 0) {
-      if (reportRun?.id) {
-        await supabase
+
+    const pushAuditError = async (
+      scope: string,
+      diagnosticId: string,
+      input: Parameters<typeof recordV10AuditEvent>[1]
+    ) => {
+      const auditId = await recordV10AuditEvent(admin, input);
+      if (!auditId) {
+        errors.push(reportError(scope, "persist", diagnosticId, "V10 audit event could not be recorded"));
+      }
+      return auditId;
+    };
+
+    const updateReportRun = async (
+      reportRunId: string,
+      scope: string,
+      diagnosticId: string,
+      patch: Record<string, unknown>
+    ) => {
+      const { error } = await admin.from("report_runs").update(patch).eq("id", reportRunId);
+      if (error) {
+        errors.push(reportError(scope, "persist", diagnosticId, error.message));
+      }
+    };
+
+    const updateRecipientStatus = async (
+      reportRunId: string,
+      recipient: string,
+      scope: string,
+      diagnosticId: string,
+      patch: Record<string, unknown>
+    ) => {
+      const { error } = await admin
+        .from("report_run_recipients")
+        .update(patch)
+        .eq("report_run_id", reportRunId)
+        .eq("recipient_email", recipient);
+      if (error) {
+        errors.push(reportError(scope, "persist", diagnosticId, error.message));
+      }
+    };
+
+    const buildSummary = async (
+      subscription: ReportSubscriptionRow,
+      savedView: SavedViewRow
+    ): Promise<SummaryData | null> => {
+      const parsed = parseViewQuery(savedView.query_json ?? {});
+      let count = 0;
+      let exceptionCount = 0;
+      let trendWeeklyActive = 0;
+      let sampleRows: SampleRow[] = [];
+      let workspacePath = "/contracts";
+      const scope = subscription.id;
+
+      if (savedView.view_type === "contracts") {
+        let deadlineIds: string[] | null = null;
+        if (parsed.deadline) {
+          deadlineIds = await getContractIdsForDeadlinePreset(admin, subscription.organization_id, parsed.deadline);
+        }
+
+        let q = admin
+          .from("contracts")
+          .select("id, title, counterparty, status", { count: "exact" })
+          .eq("organization_id", subscription.organization_id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        if (parsed.status) q = q.eq("status", parsed.status);
+        if (parsed.owner) q = q.eq("owner_id", parsed.owner);
+        if (parsed.region) q = q.eq("region", parsed.region);
+        if (deadlineIds !== null) q = q.in("id", deadlineIds.length === 0 ? ["00000000-0000-0000-0000-000000000000"] : deadlineIds);
+        if (parsed.search) {
+          q = q.or(`title.ilike.%${parsed.search}%,counterparty.ilike.%${parsed.search}%,contract_type.ilike.%${parsed.search}%`);
+        }
+
+        const { data: records, count: total, error: viewError } = await q;
+        if (viewError) {
+          errors.push(reportError(scope, "source_query", "report_summary_contract_view_query_failed", viewError.message));
+          return null;
+        }
+
+        const [atRiskResult, activeResult] = await Promise.all([
+          admin
+            .from("contracts")
+            .select("id", { count: "exact", head: true })
+            .eq("organization_id", subscription.organization_id)
+            .eq("health_status", "at_risk"),
+          admin
+            .from("contract_intake_history")
+            .select("id", { count: "exact", head: true })
+            .eq("organization_id", subscription.organization_id)
+            .eq("to_status", "active")
+            .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+        ]);
+        if (atRiskResult.error) {
+          errors.push(reportError(scope, "source_query", "report_summary_contract_exception_query_failed", atRiskResult.error.message));
+          return null;
+        }
+        if (activeResult.error) {
+          errors.push(reportError(scope, "source_query", "report_summary_contract_trend_query_failed", activeResult.error.message));
+          return null;
+        }
+
+        count = total ?? 0;
+        exceptionCount = atRiskResult.count ?? 0;
+        trendWeeklyActive = activeResult.count ?? 0;
+        sampleRows = (records ?? []).map((record) => ({
+          label: record.title,
+          href: `/contracts/${record.id}`,
+          meta: `${record.counterparty ?? "No counterparty"} · ${record.status}`,
+        }));
+        workspacePath = "/contracts";
+      } else if (savedView.view_type === "tasks") {
+        let q = admin
+          .from("contract_tasks")
+          .select("id, title, status, priority, contracts!inner(id, title, organization_id)", { count: "exact" })
+          .eq("organization_id", subscription.organization_id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        if (parsed.status) q = q.eq("status", parsed.status);
+
+        const { data: records, count: total, error: viewError } = await q;
+        if (viewError) {
+          errors.push(reportError(scope, "source_query", "report_summary_task_view_query_failed", viewError.message));
+          return null;
+        }
+
+        const blockedResult = await admin
+          .from("contract_tasks")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", subscription.organization_id)
+          .eq("status", "blocked");
+        if (blockedResult.error) {
+          errors.push(reportError(scope, "source_query", "report_summary_task_exception_query_failed", blockedResult.error.message));
+          return null;
+        }
+
+        count = total ?? 0;
+        exceptionCount = blockedResult.count ?? 0;
+        sampleRows = (records ?? []).flatMap((task) => {
+          const contract = unwrapRelation(task.contracts) as { id?: string; title?: string } | null;
+          if (!contract?.id) return [];
+          return [{ label: task.title, href: `/contracts/${contract.id}`, meta: `${contract.title} · ${task.status} · ${task.priority}` }];
+        });
+        workspacePath = "/contracts/tasks";
+      } else if (savedView.view_type === "obligations") {
+        let q = admin
+          .from("contract_obligations")
+          .select("id, title, status, due_date, contracts!inner(id, title, organization_id)", { count: "exact" })
+          .eq("organization_id", subscription.organization_id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        if (parsed.status) q = q.eq("status", parsed.status);
+
+        const { data: records, count: total, error: viewError } = await q;
+        if (viewError) {
+          errors.push(reportError(scope, "source_query", "report_summary_obligation_view_query_failed", viewError.message));
+          return null;
+        }
+
+        const overdueResult = await admin
+          .from("contract_obligations")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", subscription.organization_id)
+          .in("status", ["open", "in_progress"])
+          .lt("due_date", new Date().toISOString().slice(0, 10));
+        if (overdueResult.error) {
+          errors.push(reportError(scope, "source_query", "report_summary_obligation_exception_query_failed", overdueResult.error.message));
+          return null;
+        }
+
+        count = total ?? 0;
+        exceptionCount = overdueResult.count ?? 0;
+        sampleRows = (records ?? []).flatMap((obligation) => {
+          const contract = unwrapRelation(obligation.contracts) as { id?: string; title?: string } | null;
+          if (!contract?.id) return [];
+          return [
+            {
+              label: obligation.title,
+              href: `/contracts/${contract.id}`,
+              meta: `${contract.title} · ${obligation.status}${obligation.due_date ? ` · due ${obligation.due_date}` : ""}`,
+            },
+          ];
+        });
+        workspacePath = "/contracts/obligations";
+      } else if (savedView.view_type === "renewals") {
+        const horizon = parsed.deadline || "renewal_90";
+        const ids = (await getContractIdsForDeadlinePreset(admin, subscription.organization_id, horizon)) ?? [];
+        let q = admin
+          .from("contracts")
+          .select("id, title, counterparty, status", { count: "exact" })
+          .eq("organization_id", subscription.organization_id)
+          .order("created_at", { ascending: false })
+          .limit(5)
+          .in("id", ids.length === 0 ? ["00000000-0000-0000-0000-000000000000"] : ids);
+
+        const { data: records, count: total, error: viewError } = await q;
+        if (viewError) {
+          errors.push(reportError(scope, "source_query", "report_summary_renewal_view_query_failed", viewError.message));
+          return null;
+        }
+
+        const blockerResult = await admin
+          .from("contract_renewal_scenarios")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", subscription.organization_id)
+          .not("blocker", "is", null);
+        if (blockerResult.error) {
+          errors.push(reportError(scope, "source_query", "report_summary_renewal_exception_query_failed", blockerResult.error.message));
+          return null;
+        }
+
+        count = total ?? 0;
+        exceptionCount = blockerResult.count ?? 0;
+        sampleRows = (records ?? []).map((record) => ({
+          label: record.title,
+          href: `/contracts/${record.id}`,
+          meta: `${record.counterparty ?? "No counterparty"} · ${record.status}`,
+        }));
+        workspacePath = "/contracts/renewals";
+      } else {
+        errors.push(reportError(scope, "transform", "report_summary_unknown_view_type", `unsupported view type: ${savedView.view_type}`));
+        return null;
+      }
+
+      sampleRows = [
+        ...sampleRows,
+        {
+          label: "Exception digest",
+          href: "/contracts/exceptions",
+          meta: `${exceptionCount} exceptions · ${trendWeeklyActive} activated last 7d`,
+        },
+      ].slice(0, 6);
+
+      return { count, exceptionCount, trendWeeklyActive, sampleRows, workspacePath };
+    };
+
+    const processSubscription = async (subscription: ReportSubscriptionRow, profileByUserId: Map<string, string>) => {
+      let reportRunId: string | null = null;
+      try {
+        const savedView = unwrapRelation(subscription.saved_views);
+        if (!savedView?.id) {
+          errors.push(reportError(subscription.id, "transform", "report_summary_saved_view_missing", "saved view payload missing"));
+          return;
+        }
+
+        const v6Org = await getV6OrgSettingsJson(admin, subscription.organization_id);
+        const workspaceProductMode = v6Org.workspace_mode;
+        const summarySubjectName = emailCopyUsesCoreSurface(workspaceProductMode)
+          ? degradeOutboundEmailCopyForCore(savedView.name)
+          : savedView.name;
+
+        const emailAllowed = await isNotificationAllowed(admin, {
+          organizationId: subscription.organization_id,
+          channel: "email",
+          notificationType: "saved_view_summary",
+        });
+        if (!emailAllowed) {
+          await markNotificationSuppressed(admin, {
+            organizationId: subscription.organization_id,
+            channel: "email",
+            notificationType: "saved_view_summary",
+            subject: `${subscription.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${summarySubjectName}`,
+            metadata: { subscription_id: subscription.id },
+          });
+          return;
+        }
+
+        const reportRunResult = await admin
           .from("report_runs")
-          .update({
+          .insert({
+            organization_id: subscription.organization_id,
+            subscription_id: subscription.id,
+            report_mode: "saved_view",
+            status: "running",
+          })
+          .select("id")
+          .maybeSingle();
+        if (reportRunResult.error || !reportRunResult.data?.id) {
+          errors.push(
+            reportError(
+              subscription.id,
+              "persist",
+              "report_summary_run_insert_failed",
+              reportRunResult.error?.message ?? "report run insert did not return an id"
+            )
+          );
+          return;
+        }
+        reportRunId = reportRunResult.data.id;
+
+        await pushAuditError(subscription.id, "report_summary_run_created_audit_failed", {
+          organizationId: subscription.organization_id,
+          actorUserId: subscription.user_id,
+          action: "report_run.created",
+          targetType: "report_run",
+          targetId: reportRunId,
+          outcome: "success",
+          safeMetadata: { report_mode: "saved_view", subscription_id: subscription.id },
+        });
+
+        const ownerEmail = profileByUserId.get(subscription.user_id) ?? null;
+        const extraRecipients = (subscription.recipient_emails ?? []).filter(Boolean);
+        const recipients = [...new Set([ownerEmail, ...extraRecipients].filter(Boolean))] as string[];
+        if (recipients.length === 0) {
+          refreshOrganizations.add(subscription.organization_id);
+          await updateReportRun(reportRunId, subscription.id, "report_summary_run_no_recipient_update_failed", {
             status: "failed",
             finished_at: new Date().toISOString(),
             error_summary: "No recipients configured",
-          })
-          .eq("id", reportRun.id);
-        await emitProductTelemetryEvent(admin, {
-          organizationId: row.organization_id,
-          userId: row.user_id,
-          action: "product.v10.report_run_completed",
-          details: {
+          });
+          await pushTelemetryError(subscription.id, "report_summary_no_recipient_telemetry_failed", {
+            organizationId: subscription.organization_id,
+            userId: subscription.user_id,
+            action: "product.v10.report_run_completed",
+            details: { status: "failed", report_mode: "saved_view", failure_category: "no_recipients" },
+          });
+          return;
+        }
+
+        const recipientTokens = new Map(recipients.map((recipient) => [recipient, randomUUID()]));
+        for (const recipientChunk of chunkArray(recipients, RECIPIENT_UPSERT_CHUNK_SIZE)) {
+          const { error } = await admin.from("report_run_recipients").upsert(
+            recipientChunk.map((recipient) => ({
+              organization_id: subscription.organization_id,
+              report_run_id: reportRunId,
+              recipient_email: recipient,
+              engagement_token: recipientTokens.get(recipient),
+              delivery_status: "pending",
+            })),
+            { onConflict: "report_run_id,recipient_email", ignoreDuplicates: false }
+          );
+          if (error) {
+            errors.push(reportError(subscription.id, "persist", "report_summary_recipient_registration_failed", error.message));
+            refreshOrganizations.add(subscription.organization_id);
+            await updateReportRun(reportRunId, subscription.id, "report_summary_run_registration_failure_update_failed", {
+              status: "failed",
+              finished_at: new Date().toISOString(),
+              error_summary: "Recipient registration failed",
+            });
+            return;
+          }
+        }
+
+        const summary = await buildSummary(subscription, savedView);
+        if (!summary) {
+          refreshOrganizations.add(subscription.organization_id);
+          await updateReportRun(reportRunId, subscription.id, "report_summary_run_summary_failure_update_failed", {
             status: "failed",
-            report_mode: "saved_view",
-            failure_category: "no_recipients",
-          },
-        });
-        await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_no_recipients");
-      }
-      continue;
-    }
-    const recipientTokens = new Map(recipients.map((recipient) => [recipient, randomUUID()]));
-    if (reportRun?.id) {
-      await supabase.from("report_run_recipients").upsert(
-        recipients.map((recipient) => ({
-          organization_id: row.organization_id,
-          report_run_id: reportRun.id,
-          recipient_email: recipient,
-          engagement_token: recipientTokens.get(recipient),
-          delivery_status: "pending",
-        })),
-        { onConflict: "report_run_id,recipient_email", ignoreDuplicates: false }
-      );
-    }
+            finished_at: new Date().toISOString(),
+            error_summary: "Saved view query failed",
+          });
+          await pushTelemetryError(subscription.id, "report_summary_summary_query_telemetry_failed", {
+            organizationId: subscription.organization_id,
+            userId: subscription.user_id,
+            action: "product.v10.report_run_completed",
+            details: { status: "failed", report_mode: "saved_view", failure_category: "view_query_failed" },
+          });
+          return;
+        }
 
-    const parsed = parseViewQuery(savedView.query_json ?? {});
-    let count = 0;
-    let exceptionCount = 0;
-    let trendWeeklyActive = 0;
-    let sampleRows: Array<{ label: string; href: string; meta: string }> = [];
-    let workspacePath = "/contracts";
+        let deliveredRecipients = 0;
+        const recipientErrors: BatchItemError[] = [];
+        let recipientIndex = 0;
+        async function sendRecipientWorker() {
+          while (recipientIndex < recipients.length) {
+            const recipient = recipients[recipientIndex++];
+            const token = recipientTokens.get(recipient);
+            const trackedRows = summary.sampleRows.map((sample) => ({
+              ...sample,
+              href: token
+                ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${normalizedAppUrl}${sample.href}`)}`
+                : sample.href,
+            }));
+            const trackedWorkspacePath = token
+              ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${normalizedAppUrl}${summary.workspacePath}`)}`
+              : summary.workspacePath;
 
-    if (savedView.view_type === "contracts") {
-      let deadlineIds: string[] | null = null;
-      if (parsed.deadline) {
-        deadlineIds = await getContractIdsForDeadlinePreset(
-          supabase as unknown as Awaited<ReturnType<typeof createAdminClient>>,
-          row.organization_id,
-          parsed.deadline
+            try {
+              const delivery = await deliverWithRetries(admin, {
+                organizationId: subscription.organization_id,
+                channel: "email",
+                notificationType: "saved_view_summary",
+                recipient,
+                subject: `${subscription.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${summarySubjectName}`,
+                metadata: { subscription_id: subscription.id, report_run_id: reportRunId },
+                maxAttempts: 3,
+                retryPayload: {
+                  kind: "saved_view_summary",
+                  to: recipient,
+                  viewName: savedView.name,
+                  appUrl,
+                  itemCount: summary.count,
+                  workspacePath: trackedWorkspacePath,
+                  sampleRows: trackedRows,
+                  openPixelUrl: token ? `${normalizedAppUrl}/api/reports/track/open/${token}` : null,
+                  workspaceProductMode,
+                },
+                send: () =>
+                  sendSavedViewSummaryEmail({
+                    to: recipient,
+                    viewName: savedView.name,
+                    appUrl,
+                    itemCount: summary.count,
+                    workspacePath: trackedWorkspacePath,
+                    sampleRows: trackedRows,
+                    openPixelUrl: token ? `${normalizedAppUrl}/api/reports/track/open/${token}` : null,
+                    workspaceProductMode,
+                  }),
+              });
+
+              if (!delivery.delivered) {
+                recipientErrors.push(
+                  reportError(
+                    `${subscription.id}:${recipient}`,
+                    "notify",
+                    "report_summary_recipient_delivery_failed",
+                    delivery.error ?? "delivery failed"
+                  )
+                );
+                await updateRecipientStatus(
+                  reportRunId,
+                  recipient,
+                  `${subscription.id}:${recipient}`,
+                  "report_summary_recipient_failure_update_failed",
+                  {
+                    delivery_status: "failed",
+                    delivery_error: String(delivery.error ?? "delivery failed").slice(0, 500),
+                  }
+                );
+                continue;
+              }
+
+              deliveredRecipients += 1;
+              await updateRecipientStatus(
+                reportRunId,
+                recipient,
+                `${subscription.id}:${recipient}`,
+                "report_summary_recipient_success_update_failed",
+                {
+                  delivery_status: "delivered",
+                  delivered_at: new Date().toISOString(),
+                  delivery_error: null,
+                }
+              );
+            } catch (error) {
+              recipientErrors.push(
+                reportError(
+                  `${subscription.id}:${recipient}`,
+                  "notify",
+                  "report_summary_recipient_unhandled_failure",
+                  safeErrorMessage(error) ?? "recipient delivery failed"
+                )
+              );
+              await updateRecipientStatus(
+                reportRunId,
+                recipient,
+                `${subscription.id}:${recipient}`,
+                "report_summary_recipient_unhandled_status_update_failed",
+                { delivery_status: "failed", delivery_error: "recipient delivery failed" }
+              );
+            }
+          }
+        }
+
+        await Promise.all(
+          Array.from({ length: Math.min(RECIPIENT_SEND_CONCURRENCY, recipients.length) }, () => sendRecipientWorker())
         );
-      }
+        errors.push(...recipientErrors);
+        refreshOrganizations.add(subscription.organization_id);
 
-      let q = supabase
-        .from("contracts")
-        .select("id, title, counterparty, status", { count: "exact" })
-        .eq("organization_id", row.organization_id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      if (parsed.status) q = q.eq("status", parsed.status);
-      if (parsed.owner) q = q.eq("owner_id", parsed.owner);
-      if (parsed.region) q = q.eq("region", parsed.region);
-      if (deadlineIds !== null) {
-        if (deadlineIds.length === 0) {
-          q = q.in("id", ["00000000-0000-0000-0000-000000000000"]);
-        } else {
-          q = q.in("id", deadlineIds);
-        }
-      }
-      if (parsed.search) {
-        q = q.or(
-          `title.ilike.%${parsed.search}%,counterparty.ilike.%${parsed.search}%,contract_type.ilike.%${parsed.search}%`
-        );
-      }
-
-      const { data: records, count: total, error: viewErr } = await q;
-      if (viewErr) {
-        errors.push(`${row.id}: ${viewErr.message}`);
-        continue;
-      }
-      count = total ?? 0;
-      sampleRows = (records ?? []).map((c) => ({
-        label: c.title,
-        href: `/contracts/${c.id}`,
-        meta: `${c.counterparty ?? "No counterparty"} · ${c.status}`,
-      }));
-      workspacePath = "/contracts";
-      const [{ count: atRiskCount }, { count: activeTransitions }] = await Promise.all([
-        supabase
-          .from("contracts")
-          .select("id", { count: "exact", head: true })
-          .eq("organization_id", row.organization_id)
-          .eq("health_status", "at_risk"),
-        supabase
-          .from("contract_intake_history")
-          .select("id", { count: "exact", head: true })
-          .eq("organization_id", row.organization_id)
-          .eq("to_status", "active")
-          .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-      ]);
-      exceptionCount = atRiskCount ?? 0;
-      trendWeeklyActive = activeTransitions ?? 0;
-    } else if (savedView.view_type === "tasks") {
-      let q = supabase
-        .from("contract_tasks")
-        .select("id, title, status, priority, contracts!inner(id, title, organization_id)", { count: "exact" })
-        .eq("organization_id", row.organization_id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      if (parsed.status) q = q.eq("status", parsed.status);
-      const { data: records, count: total, error: viewErr } = await q;
-      if (viewErr) {
-        errors.push(`${row.id}: ${viewErr.message}`);
-        continue;
-      }
-      count = total ?? 0;
-      sampleRows = (records ?? []).flatMap((t) => {
-        const contract = (Array.isArray(t.contracts) ? t.contracts[0] : t.contracts) as
-          | { id?: string; title?: string }
-          | undefined;
-        if (!contract?.id) return [];
-        return [{ label: t.title, href: `/contracts/${contract.id}`, meta: `${contract.title} · ${t.status} · ${t.priority}` }];
-      });
-      workspacePath = "/contracts/tasks";
-      const { count: blockedCount } = await supabase
-        .from("contract_tasks")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", row.organization_id)
-        .eq("status", "blocked");
-      exceptionCount = blockedCount ?? 0;
-    } else if (savedView.view_type === "obligations") {
-      let q = supabase
-        .from("contract_obligations")
-        .select("id, title, status, due_date, contracts!inner(id, title, organization_id)", { count: "exact" })
-        .eq("organization_id", row.organization_id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      if (parsed.status) q = q.eq("status", parsed.status);
-      const { data: records, count: total, error: viewErr } = await q;
-      if (viewErr) {
-        errors.push(`${row.id}: ${viewErr.message}`);
-        continue;
-      }
-      count = total ?? 0;
-      sampleRows = (records ?? []).flatMap((o) => {
-        const contract = (Array.isArray(o.contracts) ? o.contracts[0] : o.contracts) as
-          | { id?: string; title?: string }
-          | undefined;
-        if (!contract?.id) return [];
-        return [
-          {
-            label: o.title,
-            href: `/contracts/${contract.id}`,
-            meta: `${contract.title} · ${o.status}${o.due_date ? ` · due ${o.due_date}` : ""}`,
-          },
-        ];
-      });
-      workspacePath = "/contracts/obligations";
-      const { count: overdueCount } = await supabase
-        .from("contract_obligations")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", row.organization_id)
-        .in("status", ["open", "in_progress"])
-        .lt("due_date", new Date().toISOString().slice(0, 10));
-      exceptionCount = overdueCount ?? 0;
-    } else if (savedView.view_type === "renewals") {
-      const horizon = parsed.deadline || "renewal_90";
-      const ids =
-        (await getContractIdsForDeadlinePreset(
-        supabase as unknown as Awaited<ReturnType<typeof createAdminClient>>,
-        row.organization_id,
-        horizon
-      )) ?? [];
-      let q = supabase
-        .from("contracts")
-        .select("id, title, counterparty, status", { count: "exact" })
-        .eq("organization_id", row.organization_id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      if (ids.length === 0) {
-        q = q.in("id", ["00000000-0000-0000-0000-000000000000"]);
-      } else {
-        q = q.in("id", ids);
-      }
-      const { data: records, count: total, error: viewErr } = await q;
-      if (viewErr) {
-        errors.push(`${row.id}: ${viewErr.message}`);
-        continue;
-      }
-      count = total ?? 0;
-      sampleRows = (records ?? []).map((c) => ({
-        label: c.title,
-        href: `/contracts/${c.id}`,
-        meta: `${c.counterparty ?? "No counterparty"} · ${c.status}`,
-      }));
-      workspacePath = "/contracts/renewals";
-      const { count: blockedScenarioCount } = await supabase
-        .from("contract_renewal_scenarios")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", row.organization_id)
-        .not("blocker", "is", null);
-      exceptionCount = blockedScenarioCount ?? 0;
-    } else {
-      continue;
-    }
-    sampleRows = [
-      ...sampleRows,
-      {
-        label: "Exception digest",
-        href: "/contracts/exceptions",
-        meta: `${exceptionCount} exceptions · ${trendWeeklyActive} activated last 7d`,
-      },
-    ].slice(0, 6);
-    let deliveredRecipients = 0;
-    let recipientIdx = 0;
-    async function sendRecipientWorker(): Promise<void> {
-      while (recipientIdx < recipients.length) {
-        const recipient = recipients[recipientIdx++];
-      const token = recipientTokens.get(recipient);
-      const trackedRows = sampleRows.map((sample) => ({
-        ...sample,
-        href: token
-          ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${appUrl.replace(/\/+$/, "")}${sample.href}`)}`
-          : sample.href,
-      }));
-      const trackedWorkspacePath = token
-        ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${appUrl.replace(/\/+$/, "")}${workspacePath}`)}`
-        : workspacePath;
-      const summarySubjectName = emailCopyUsesCoreSurface(workspaceProductMode)
-        ? degradeOutboundEmailCopyForCore(savedView.name)
-        : savedView.name;
-      const delivery = await deliverWithRetries(admin, {
-        organizationId: row.organization_id,
-        channel: "email",
-        notificationType: "saved_view_summary",
-        recipient,
-        subject: `${row.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${summarySubjectName}`,
-        metadata: { subscription_id: row.id, report_run_id: reportRun?.id ?? null },
-        maxAttempts: 3,
-        retryPayload: {
-          kind: "saved_view_summary",
-          to: recipient,
-          viewName: savedView.name,
-          appUrl,
-          itemCount: count,
-          workspacePath: trackedWorkspacePath,
-          sampleRows: trackedRows,
-          openPixelUrl: token ? `${appUrl.replace(/\/+$/, "")}/api/reports/track/open/${token}` : null,
-          workspaceProductMode,
-        },
-        send: () =>
-          sendSavedViewSummaryEmail({
-            to: recipient,
-            viewName: savedView.name,
-            appUrl,
-            itemCount: count,
-            workspacePath: trackedWorkspacePath,
-            sampleRows: trackedRows,
-            openPixelUrl: token ? `${appUrl.replace(/\/+$/, "")}/api/reports/track/open/${token}` : null,
-            workspaceProductMode,
-          }),
-      });
-
-      if (!delivery.delivered) {
-        errors.push(`${row.id}:${recipient}: ${delivery.error ?? "delivery failed"}`);
-        if (reportRun?.id) {
-          await supabase
-            .from("report_run_recipients")
-            .update({
-              delivery_status: "failed",
-              delivery_error: String(delivery.error ?? "delivery failed").slice(0, 500),
-            })
-            .eq("report_run_id", reportRun.id)
-            .eq("recipient_email", recipient);
-        }
-      } else {
-        deliveredRecipients++;
-        if (reportRun?.id) {
-          await supabase
-            .from("report_run_recipients")
-            .update({
-              delivery_status: "delivered",
-              delivered_at: new Date().toISOString(),
-              delivery_error: null,
-            })
-            .eq("report_run_id", reportRun.id)
-            .eq("recipient_email", recipient);
-        }
-      }
-      }
-    }
-    await Promise.all(
-      Array.from(
-        { length: Math.min(RECIPIENT_SEND_CONCURRENCY, recipients.length) },
-        () => sendRecipientWorker()
-      )
-    );
-    if (deliveredRecipients === 0) {
-      if (reportRun?.id) {
-        await supabase
-          .from("report_runs")
-          .update({
+        if (deliveredRecipients === 0) {
+          await updateReportRun(reportRunId, subscription.id, "report_summary_run_delivery_failure_update_failed", {
             status: "failed",
             finished_at: new Date().toISOString(),
             error_summary: "No deliveries succeeded",
             metrics_json: {
-              item_count: count,
-              exception_count: exceptionCount,
-              weekly_active_transitions: trendWeeklyActive,
+              item_count: summary.count,
+              exception_count: summary.exceptionCount,
+              weekly_active_transitions: summary.trendWeeklyActive,
             },
-          })
-          .eq("id", reportRun.id);
-        await emitProductTelemetryEvent(admin, {
-          organizationId: row.organization_id,
-          userId: row.user_id,
-          action: "product.v10.report_run_completed",
-          details: {
-            status: "failed",
-            report_mode: "saved_view",
-            failure_category: "delivery_failed",
-            recipient_count: recipients.length,
-          },
-        });
-        await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_failed");
-      }
-      continue;
-    }
+          });
+          await pushTelemetryError(subscription.id, "report_summary_delivery_failure_telemetry_failed", {
+            organizationId: subscription.organization_id,
+            userId: subscription.user_id,
+            action: "product.v10.report_run_completed",
+            details: {
+              status: "failed",
+              report_mode: "saved_view",
+              failure_category: "delivery_failed",
+              recipient_count: recipients.length,
+            },
+          });
+          return;
+        }
 
-    const nextRun = (() => {
-      if (row.frequency === "monthly") {
-        const d = new Date();
-        d.setUTCDate(1);
-        d.setUTCHours(9, 30, 0, 0);
-        d.setUTCMonth(d.getUTCMonth() + 1);
-        return d.toISOString();
-      }
-      const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      return d.toISOString();
-    })();
-    await supabase
-      .from("report_subscriptions")
-      .update({ last_sent_at: nowIso, next_run_at: nextRun })
-      .eq("id", row.id);
-    if (reportRun?.id) {
-      await supabase
-        .from("report_runs")
-        .update({
+        const { error: subscriptionUpdateError } = await admin
+          .from("report_subscriptions")
+          .update({ last_sent_at: nowIso, next_run_at: nextRunForFrequency(subscription.frequency) })
+          .eq("id", subscription.id);
+        if (subscriptionUpdateError) {
+          errors.push(
+            reportError(subscription.id, "persist", "report_summary_subscription_update_failed", subscriptionUpdateError.message)
+          );
+        }
+
+        await updateReportRun(reportRunId, subscription.id, "report_summary_run_success_update_failed", {
           status: "succeeded",
           finished_at: new Date().toISOString(),
           metrics_json: {
-            item_count: count,
-            exception_count: exceptionCount,
-            weekly_active_transitions: trendWeeklyActive,
-            sample_count: sampleRows.length,
+            item_count: summary.count,
+            exception_count: summary.exceptionCount,
+            weekly_active_transitions: summary.trendWeeklyActive,
+            sample_count: summary.sampleRows.length,
             recipient_count: recipients.length,
             delivered_recipient_count: deliveredRecipients,
           },
-        })
-        .eq("id", reportRun.id);
-      await recordV10AuditEvent(admin, {
-        organizationId: row.organization_id,
-        actorUserId: row.user_id,
-        action: "report_run.completed",
-        targetType: "report_run",
-        targetId: reportRun.id,
-        outcome: "success",
-        safeMetadata: { recipient_count: recipients.length, delivered_recipient_count: deliveredRecipients },
-      });
-      await emitProductTelemetryEvent(admin, {
-        organizationId: row.organization_id,
-        userId: row.user_id,
-        action: "product.v10.report_run_completed",
-        details: {
-          status: "succeeded",
-          report_mode: "saved_view",
-          item_count: count,
-          recipient_count: recipients.length,
-          delivered_recipient_count: deliveredRecipients,
-        },
-      });
-      await refreshV10ReportDeliveryReadModels(admin, row.organization_id, "report_delivery_completed");
-    }
-    sent++;
-  }
+        });
+        await pushAuditError(subscription.id, "report_summary_run_completed_audit_failed", {
+          organizationId: subscription.organization_id,
+          actorUserId: subscription.user_id,
+          action: "report_run.completed",
+          targetType: "report_run",
+          targetId: reportRunId,
+          outcome: "success",
+          safeMetadata: { recipient_count: recipients.length, delivered_recipient_count: deliveredRecipients },
+        });
+        await pushTelemetryError(subscription.id, "report_summary_success_telemetry_failed", {
+          organizationId: subscription.organization_id,
+          userId: subscription.user_id,
+          action: "product.v10.report_run_completed",
+          details: {
+            status: "succeeded",
+            report_mode: "saved_view",
+            item_count: summary.count,
+            recipient_count: recipients.length,
+            delivered_recipient_count: deliveredRecipients,
+          },
+        });
+        sent += 1;
+      } catch (error) {
+        errors.push(
+          reportError(
+            subscription.id,
+            "handler",
+            "report_summary_subscription_failed",
+            safeErrorMessage(error) ?? "report summary subscription failed"
+          )
+        );
+        if (reportRunId) {
+          refreshOrganizations.add(subscription.organization_id);
+          await updateReportRun(reportRunId, subscription.id, "report_summary_run_unhandled_failure_update_failed", {
+            status: "failed",
+            finished_at: new Date().toISOString(),
+            error_summary: "Subscription processing failed",
+          });
+        }
+      }
+    };
 
-  if (errors.length > 0) {
-    captureServerMessage("report summary cron errors", {
-      level: "warning",
-      extra: { route: "reports/send-summaries", errorCount: errors.length },
-    });
-  }
+    const pageResult = await forEachSupabaseRangePage<ReportSubscriptionRow>(
+      (from, to) =>
+        admin
+          .from("report_subscriptions")
+          .select(
+            "id, saved_view_id, user_id, organization_id, frequency, next_run_at, recipient_emails, saved_views!inner(id, name, view_type, query_json)"
+          )
+          .eq("active", true)
+          .in("frequency", ["weekly", "monthly"])
+          .lte("next_run_at", nowIso)
+          .order("next_run_at", { ascending: true })
+          .order("id", { ascending: true })
+          .range(from, to),
+      async (chunk) => {
+        candidates += chunk.length;
+        const userIds = [...new Set(chunk.map((row) => row.user_id).filter(Boolean))];
+        const profileByUserId = new Map<string, string>();
+        if (userIds.length > 0) {
+          const profileResult = await admin.from("profiles").select("id, email").in("id", userIds);
+          if (profileResult.error) {
+            errors.push(
+              reportError(
+                `profiles:${userIds.length}`,
+                "source_query",
+                "report_summary_profile_query_failed",
+                profileResult.error.message
+              )
+            );
+          } else {
+            for (const profile of profileResult.data ?? []) {
+              if (profile.email) profileByUserId.set(profile.id, profile.email);
+            }
+          }
+        }
+
+        await executeBatch(chunk, async (subscription) => {
+          await processSubscription(subscription, profileByUserId);
+        });
+      },
+      { pageSize: DUE_SUBSCRIPTION_PAGE_SIZE, maxOffsetExclusive: MAX_DUE_SUBSCRIPTION_OFFSET_EXCLUSIVE }
+    );
+
+    if (pageResult.error) {
+      captureServerMessage(pageResult.error.message, {
+        level: "error",
+        extra: { route: "reports/send-summaries", phase: "query_subscriptions" },
+      });
+      return {
+        status: 500,
+        ok: false,
+        errorsCount: 1,
+        phase: "source_query",
+        body: {
+          error: "Could not load subscriptions",
+          code: "report_subscription_query_failed",
+          diagnostic_id: "report_subscription_query_failed",
+        },
+      };
+    }
+
+    for (const organizationId of refreshOrganizations) {
+      try {
+        await refreshV10ReportDeliveryReadModels(admin, organizationId, "report_delivery_batch");
+      } catch (error) {
+        errors.push(
+          reportError(
+            organizationId,
+            "refresh",
+            "report_summary_refresh_failed",
+            safeErrorMessage(error) ?? "report summary refresh failed"
+          )
+        );
+      }
+    }
+
+    if (errors.length > 0) {
+      captureServerMessage("report summary cron errors", {
+        level: "warning",
+        extra: { route: "reports/send-summaries", errorCount: errors.length },
+      });
+    }
+
+    if (candidates === 0) {
+      return {
+        body: {
+          sent: 0,
+          candidates: 0,
+          truncated: false,
+          next_offset: null,
+          message: "No due summaries",
+        },
+      };
+    }
 
     return {
-      partial: errors.length > 0,
+      partial: errors.length > 0 || pageResult.stoppedByOffsetCap,
       errorsCount: errors.length,
+      phase: errors[0]?.phase,
       body: {
         sent,
-        candidates: list.length,
-        ...(errors.length > 0 ? { errors } : {}),
+        candidates,
+        truncated: pageResult.stoppedByOffsetCap,
+        next_offset: pageResult.nextOffset,
+        refresh_organizations: refreshOrganizations.size,
+        ...(errors.length > 0
+          ? {
+              errors: errors.map((entry) => `${entry.scope}: ${entry.message}`),
+              error_details: errors.slice(0, 10),
+            }
+          : {}),
       },
     };
   },

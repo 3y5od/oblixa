@@ -181,4 +181,34 @@ describe("POST /api/external-actions/[token]/participant/workflow-step", () => {
     });
     expect(mockedAppend).toHaveBeenCalledTimes(1);
   });
+
+  it("returns 207 when participant workflow step succeeds but event persistence fails", async () => {
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    mockOpenLink();
+    mockedAppend.mockResolvedValueOnce({
+      data: { id: "ea1", status: "open", scope_json: {} },
+      error: { message: "external_action_event_insert_failed" },
+    } as Awaited<ReturnType<typeof appendExternalWorkflowStep>>);
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "participant_note", payload: { note: "ok" }, passcode: "any" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body).toMatchObject({ partial: true, errors_count: 1 });
+    expect(body.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ diagnostic_id: "external_action_participant_workflow_event_insert_failed" }),
+      ])
+    );
+  });
 });

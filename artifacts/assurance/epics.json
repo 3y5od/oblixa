@@ -3,1061 +3,1061 @@
   "program": "maximal-assurance",
   "programVersion": "1.0.0",
   "expectedEpicCount": 176,
-  "generatedAt": "2026-05-03T17:40:13.240Z",
+  "generatedAt": "2026-05-05T01:32:29.044Z",
   "sourcePlan": "artifacts/assurance/maximal-assurance-program.plan.md",
   "epics": [
     {
-      "todoKey": "epic1-cron-dual-auth",
+      "todoId": "epic1-cron-dual-auth",
       "epicNumber": 1,
       "title": "Epic 1: cron-http-probe.mjs; Bearer + x-cron-secret; STRICT_NO_SKIP_404; FAIL_ON_OK_FALSE; GET/POST cron discovery",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic2-ci-fail-closed",
+      "todoId": "epic2-ci-fail-closed",
       "epicNumber": 2,
       "title": "Epic 2: Fail-closed secret-gated workflows + ALLOW_*_SKIP opt-out inventory for all .github/workflows",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic3-api-runtime-smoke",
+      "todoId": "epic3-api-runtime-smoke",
       "epicNumber": 3,
       "title": "Epic 3: Full api-runtime-smoke registry + runner + trace/report artifact + nightly wiring",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic4-route-action-depth",
+      "todoId": "epic4-route-action-depth",
       "epicNumber": 4,
       "title": "Epic 4: Allowlist→0; Vitest factories; server actions + startTransition audit remediation",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic5-data-plane",
+      "todoId": "epic5-data-plane",
       "epicNumber": 5,
       "title": "Epic 5: rls-sanity-tables.json generation; expanded RLS runner; migration head fallbacks",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic6-obs-hooks",
+      "todoId": "epic6-obs-hooks",
       "epicNumber": 6,
       "title": "Epic 6: API telemetry wrapper; OTel stub; cron/webhook/worker first adopters",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic7-playwright-registry",
+      "todoId": "epic7-playwright-registry",
       "epicNumber": 7,
       "title": "Epic 7: Registry-driven Playwright; shared adversarial URL vectors",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic8-load-scaffold",
+      "todoId": "epic8-load-scaffold",
       "epicNumber": 8,
       "title": "Epic 8: k6/Artillery staging + soak + cost caps env",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic9-chaos-mocks",
+      "todoId": "epic9-chaos-mocks",
       "epicNumber": 9,
       "title": "Epic 9: Upstream fault matrix; offline Playwright; cron partial failure",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic10-a11y-nightly",
+      "todoId": "epic10-a11y-nightly",
       "epicNumber": 10,
       "title": "Epic 10: axe route matrix; keyboard-only; reduced-motion; focus management on navigation",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic11-stripe-fixtures",
+      "todoId": "epic11-stripe-fixtures",
       "epicNumber": 11,
       "title": "Epic 11: Stripe webhook branch-complete corpus + replay + portal/callback URL env asserts",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic12-waiver-registry",
+      "todoId": "epic12-waiver-registry",
       "epicNumber": 12,
       "title": "Epic 12: waivers JSON schema + check-assurance-waivers + pre-expiry warnings",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic13-catalog-script-index",
+      "todoId": "epic13-catalog-script-index",
       "epicNumber": 13,
       "title": "Epic 13: Generated maximal catalog-id → npm script/test map + drift gate",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic14-evidence-scripts",
+      "todoId": "epic14-evidence-scripts",
       "epicNumber": 14,
       "title": "Epic 14: Deepen subprocessors/branch-protection/CT/artifact-integrity/security-matrix",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic15-http-semantics",
+      "todoId": "epic15-http-semantics",
       "epicNumber": 15,
       "title": "Epic 15: Method/Accept/Content-Type/OPTIONS/gzip/redirect/cache header contracts per family",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic16-authn-authz-matrix",
+      "todoId": "epic16-authn-authz-matrix",
       "epicNumber": 16,
       "title": "Epic 16: Cross-org horizontal; workspace mode; role matrix runtime; enumeration policy tests",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic17-middleware-config-drift",
+      "todoId": "epic17-middleware-config-drift",
       "epicNumber": 17,
       "title": "Epic 17: middleware matcher drift; vercel.json stagger report; maxDuration AST vs cron heatmap",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic18-rate-limit-idempotency",
+      "todoId": "epic18-rate-limit-idempotency",
       "epicNumber": 18,
       "title": "Epic 18: 429 behavior + Retry-After; webhook/dispatch/job idempotency exhaustive",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic19-storage-realtime",
+      "todoId": "epic19-storage-realtime",
       "epicNumber": 19,
       "title": "Epic 19: Storage bucket/RLS/signed URL probes; Realtime subscribe auth matrix",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic20-oauth-integrations",
+      "todoId": "epic20-oauth-integrations",
       "epicNumber": 20,
       "title": "Epic 20: OAuth negative corpus; integration sync backoff; refresh-token route faults",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic21-extraction-ml-safety",
+      "todoId": "epic21-extraction-ml-safety",
       "epicNumber": 21,
       "title": "Epic 21: Adversarial doc corpus; injection strings; output schema validators; cost/time caps",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic22-email-messaging-sanitize",
+      "todoId": "epic22-email-messaging-sanitize",
       "epicNumber": 22,
       "title": "Epic 22: Email fixtures; List-Unsubscribe; embed sanitizers corpus; size limits",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic23-import-export-evidence",
+      "todoId": "epic23-import-export-evidence",
       "epicNumber": 23,
       "title": "Epic 23: Import/export/evidence/submit matrix; calendar/export tokens; cross-org negatives",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic24-feature-flags-cron",
+      "todoId": "epic24-feature-flags-cron",
       "epicNumber": 24,
       "title": "Epic 24: V5/V6/stale-calibration dual-branch; kill-switch env asserts; unsigned always deny",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic25-db-rls-views-triggers",
+      "todoId": "epic25-db-rls-views-triggers",
       "epicNumber": 25,
       "title": "Epic 25: DEFINER/INVOKER inventory; trigger map; forbidden SQL pattern expansion tied to migrations",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic26-openapi-route-contract",
+      "todoId": "epic26-openapi-route-contract",
       "epicNumber": 26,
       "title": "Epic 26: OpenAPI vs 182 routes; optional response code smoke from spec",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic27-slo-workflows",
+      "todoId": "epic27-slo-workflows",
       "epicNumber": 27,
       "title": "Epic 27: slo-compare expansion; slo-monitor workflow assertions; HC ping fail-closed path",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic28-mutation-diff-coverage",
+      "todoId": "epic28-mutation-diff-coverage",
       "epicNumber": 28,
       "title": "Epic 28: Mutation/diff-coverage optional gate for touched route.ts",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic29-property-fuzz",
+      "todoId": "epic29-property-fuzz",
       "epicNumber": 29,
       "title": "Epic 29: Path/query/id fuzz; CSV/formula; calendar text; money integer overflow edges",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic30-multi-browser-visual-i18n",
+      "todoId": "epic30-multi-browser-visual-i18n",
       "epicNumber": 30,
       "title": "Epic 30: Multi-browser matrices; visual route list JSON; RTL/pseudo/IME expansion",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic31-privacy-data-lifecycle",
+      "todoId": "epic31-privacy-data-lifecycle",
       "epicNumber": 31,
       "title": "Epic 31: DSAR/export completeness integration tests; deletion cascade fixtures; retention prune assertions",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic32-session-cookie-tls-bridge",
+      "todoId": "epic32-session-cookie-tls-bridge",
       "epicNumber": 32,
       "title": "Epic 32: Executable pack—cookie attrs, session fixation paths, TLS/HSTS/CSP checks tied to catalog IDs",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic33-abuse-resource-limits",
+      "todoId": "epic33-abuse-resource-limits",
       "epicNumber": 33,
       "title": "Epic 33: Body/query/header size caps; pagination abuse; regex DoS timeouts on hot paths",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic34-time-money-calendars",
+      "todoId": "epic34-time-money-calendars",
       "epicNumber": 34,
       "title": "Epic 34: DST/month-end/leap; fiscal vs Gregorian if coded; money rounding property tests across lib",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic35-public-seo-headers",
+      "todoId": "epic35-public-seo-headers",
       "epicNumber": 35,
       "title": "Epic 35: Marketing metadata builders Vitest; robots/sitemap/well-known; security headers on public routes",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic36-rsc-client-leakage",
+      "todoId": "epic36-rsc-client-leakage",
       "epicNumber": 36,
       "title": "Epic 36: Deepen next-public-surface + client-bundle-secret-leakage; RSC prop serialization risky patterns",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic37-edge-node-runtime",
+      "todoId": "epic37-edge-node-runtime",
       "epicNumber": 37,
       "title": "Epic 37: Inventory route segment configs; forbid unsafe Node APIs in edge-marked routes (AST)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic38-stride-owasp-gates",
+      "todoId": "epic38-stride-owasp-gates",
       "epicNumber": 38,
       "title": "Epic 38: Machine STRIDE/OWASP ASVS row→required test/script linker; fail on orphan rows",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic39-workflow-permissions-matrix",
+      "todoId": "epic39-workflow-permissions-matrix",
       "epicNumber": 39,
       "title": "Epic 39: Extend check-github-workflows-security—permissions least privilege, dangerous triggers, SHA pins coverage",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic40-docker-compose-harness",
+      "todoId": "epic40-docker-compose-harness",
       "epicNumber": 40,
       "title": "Epic 40: Optional compose integration harness + health gates for chaos-local pattern expansion",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic41-a11y-naming-ratelint",
+      "todoId": "epic41-a11y-naming-ratelint",
       "epicNumber": 41,
       "title": "Epic 41: AST/eslint or ast-grep rules for accessible names on interactive components + violations CI",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic42-compliance-machine-artifacts",
+      "todoId": "epic42-compliance-machine-artifacts",
       "epicNumber": 42,
       "title": "Epic 42: Cookie/consent version JSON schema tests; DPA/subprocessor checksum strict; export policy fields",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic43-read-after-write-ui",
+      "todoId": "epic43-read-after-write-ui",
       "epicNumber": 43,
       "title": "Epic 43: Feature-flagged RAW lag simulation tests for critical mutations + UI consistency",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic44-canary-deploy-contracts",
+      "todoId": "epic44-canary-deploy-contracts",
       "epicNumber": 44,
       "title": "Epic 44: Blue-green/canary header route contracts active path tests beyond skip specs",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic45-incident-readiness-expansion",
+      "todoId": "epic45-incident-readiness-expansion",
       "epicNumber": 45,
       "title": "Epic 45: check-incident-readiness scenarios expansion + qa-game-day workflow hook assertions",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic46-v8-surface-lockstep",
+      "todoId": "epic46-v8-surface-lockstep",
       "epicNumber": 46,
       "title": "Epic 46: Lockstep bump—any new route/action/page updates inventories + acceptance matrices in same PR gate",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic47-revalidation-cache-tags",
+      "todoId": "epic47-revalidation-cache-tags",
       "epicNumber": 47,
       "title": "Epic 47: revalidatePath/revalidateTag contract tests—tag registry drift scanner vs usages",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic48-nightly-maximal-bundle",
+      "todoId": "epic48-nightly-maximal-bundle",
       "epicNumber": 48,
       "title": "Epic 48: qa-max-nightly / qa-code-maximal alignment script—ensureAppendix C scripts scheduled or waived",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic49-sbom-dual-format",
+      "todoId": "epic49-sbom-dual-format",
       "epicNumber": 49,
       "title": "Epic 49: SBOM SPDX + CycloneDX generation parity; diff gate vs baseline; tie to check-sbom-diff",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic50-renovate-semver-ratchet",
+      "todoId": "epic50-renovate-semver-ratchet",
       "epicNumber": 50,
       "title": "Epic 50: Dependency update policy-as-code (renovate.json/regex managers); semver baseline ratchet script",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic51-provenance-cosign",
+      "todoId": "epic51-provenance-cosign",
       "epicNumber": 51,
       "title": "Epic 51: Container/image provenance—cosign/SLSA attest steps in CI when images built; noop when no Dockerfile publish",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic52-semgrep-sarif-blocking",
+      "todoId": "epic52-semgrep-sarif-blocking",
       "epicNumber": 52,
       "title": "Epic 52: Oblixa Semgrep pack + SARIF upload + blocking severity thresholds on default branch",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic53-secret-scan-parity",
+      "todoId": "epic53-secret-scan-parity",
       "epicNumber": 53,
       "title": "Epic 53: Pre-commit vs CI secret/tool parity harness (secretlint/gitleaks drift detector)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic54-pwa-offline-push",
+      "todoId": "epic54-pwa-offline-push",
       "epicNumber": 54,
       "title": "Epic 54: PWA/service worker/offline queue tests OR generated N/A waiver stub from repo capability scan",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic55-sri-third-party",
+      "todoId": "epic55-sri-third-party",
       "epicNumber": 55,
       "title": "Epic 55: Deepen check-next-script-integrity + CSP connect-src/img-src drift vs marketing pages",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic56-clock-skew-tolerance",
+      "todoId": "epic56-clock-skew-tolerance",
       "epicNumber": 56,
       "title": "Epic 56: Stripe Test Clock + webhook timestamp skew matrix; JWT/session skew boundaries Vitest",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic57-audit-immutability",
+      "todoId": "epic57-audit-immutability",
       "epicNumber": 57,
       "title": "Epic 57: Audit/append-only table constraint tests; forbidden UPDATE/DELETE probes where policy requires",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic58-intl-locale-matrix",
+      "todoId": "epic58-intl-locale-matrix",
       "epicNumber": 58,
       "title": "Epic 58: Intl plural/RelativeTimeFormat/list formatting snapshots for supported locale codes used in product",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic59-geo-latency-simulation",
+      "todoId": "epic59-geo-latency-simulation",
       "epicNumber": 59,
       "title": "Epic 59: Optional geographic/latency simulation headers for staging critical APIs + observability assertions",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic60-wasm-native-boundary",
+      "todoId": "epic60-wasm-native-boundary",
       "epicNumber": 60,
       "title": "Epic 60: WASM/native addon inventory scanner (sharp, etc.) + vulnerability gate + waiver path",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic61-streaming-transports",
+      "todoId": "epic61-streaming-transports",
       "epicNumber": 61,
       "title": "Epic 61: SSE/WebSocket/long-poll route inventory + idle timeout tests OR explicit bulk waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic62-field-encryption-kms",
+      "todoId": "epic62-field-encryption-kms",
       "epicNumber": 62,
       "title": "Epic 62: App-layer encrypted field/key version tests OR waiver when DB-only encryption",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic63-npm-lifecycle-allowlist",
+      "todoId": "epic63-npm-lifecycle-allowlist",
       "epicNumber": 63,
       "title": "Epic 63: Expand check-install-script-risk / lifecycle allowlist per tracked dependency",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic64-coverage-completeness-gate",
+      "todoId": "epic64-coverage-completeness-gate",
       "epicNumber": 64,
       "title": "Epic 64: coverage-completeness.mjs—composite + subscores; threshold ratchet JSON; ties to Epic 80 aggregate",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic65-codeql-sarif",
+      "todoId": "epic65-codeql-sarif",
       "epicNumber": 65,
       "title": "Epic 65: CodeQL workflow binding—language matrix, query suites, SARIF baseline diff, blocking rules",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic66-trivy-fs-container",
+      "todoId": "epic66-trivy-fs-container",
       "epicNumber": 66,
       "title": "Epic 66: Trivy fs scan + image scan workflows; severity thresholds; linkage to SBOM (Epic 49)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic67-dependency-review-gate",
+      "todoId": "epic67-dependency-review-gate",
       "epicNumber": 67,
       "title": "Epic 67: dependency-review-action on PRs + transitive denylist JSON + license policy violations fail",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic68-typosquat-scope-packages",
+      "todoId": "epic68-typosquat-scope-packages",
       "epicNumber": 68,
       "title": "Epic 68: Internal package name typosquat / publish scope confusion scanner beyond dependency-confusion guard",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic69-license-compatibility-graph",
+      "todoId": "epic69-license-compatibility-graph",
       "epicNumber": 69,
       "title": "Epic 69: SBOM-driven license compatibility graph (copyleft propagation); fail on policy violations",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic70-export-control-crypto",
+      "todoId": "epic70-export-control-crypto",
       "epicNumber": 70,
       "title": "Epic 70: ECCN/crypto-export machine checklist JSON OR naWaiver with jurisdictional owner",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic71-ropa-codegen",
+      "todoId": "epic71-ropa-codegen",
       "epicNumber": 71,
       "title": "Epic 71: ROPA-style processing-activities JSON generated from migrations+env keys+routes; schema-validated",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic72-dpia-migration-trigger",
+      "todoId": "epic72-dpia-migration-trigger",
       "epicNumber": 72,
       "title": "Epic 72: Migration delta scanner—new PII-like columns/tables open DPIA-required JSON flag + waiver workflow",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic73-saml-enterprise-sso",
+      "todoId": "epic73-saml-enterprise-sso",
       "epicNumber": 73,
       "title": "Epic 73: SAML/OIDC enterprise SSO route tests OR bulk naWaiver if product OAuth-only",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic74-scim-provisioning",
+      "todoId": "epic74-scim-provisioning",
       "epicNumber": 74,
       "title": "Epic 74: SCIM API inventory/tests OR explicit naWaiver with expiry",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic75-desktop-extension-surface",
+      "todoId": "epic75-desktop-extension-surface",
       "epicNumber": 75,
       "title": "Epic 75: Browser extension/Electron/desktop wrapper scan—tests OR naWaiver generator (exclude nothing)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic76-formal-invariants",
+      "todoId": "epic76-formal-invariants",
       "epicNumber": 76,
       "title": "Epic 76: Expand fast-check/invariants on pure-domain modules (money, dates, idempotency keys)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic77-native-http-fuzz-optional",
+      "todoId": "epic77-native-http-fuzz-optional",
       "epicNumber": 77,
       "title": "Epic 77: Optional native libFuzzer job + HTTP fuzz (Schemathesis/RESTler) when OpenAPI/stable harness exists",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic78-perf-budget-routes",
+      "todoId": "epic78-perf-budget-routes",
       "epicNumber": 78,
       "title": "Epic 78: Per-route-family perf budget JSON (TTFB/server timing hooks); regression gate on staging traces",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic79-status-page-upstream-monitor",
+      "todoId": "epic79-status-page-upstream-monitor",
       "epicNumber": 79,
       "title": "Epic 79: Scripted polls of Vercel/Stripe/Supabase status RSS/API—emit assurance_health.json anomalies",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic80-assurance-aggregate-export",
+      "todoId": "epic80-assurance-aggregate-export",
       "epicNumber": 80,
       "title": "Epic 80: Single artifacts/assurance/dashboard.json—merges scores from 64,52,65,66,SLO,semgrep counts,nightly status",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic81-ai-act-eu-checklist",
+      "todoId": "epic81-ai-act-eu-checklist",
       "epicNumber": 81,
       "title": "Epic 81: EU AI Act risk-classification checklist JSON + training data logging fields OR naWaiver outside scope",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic82-soc2-control-map",
+      "todoId": "epic82-soc2-control-map",
       "epicNumber": 82,
       "title": "Epic 82: SOC2-style control ID → evidence script/test rows JSON (machine rows); orphan controls fail CI",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic83-pci-scope-scanner",
+      "todoId": "epic83-pci-scope-scanner",
       "epicNumber": 83,
       "title": "Epic 83: PAN/card-data pattern scanner on repo+migrations + Stripe-only delegation naWaiver if applicable",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic84-hipaa-phi-detector",
+      "todoId": "epic84-hipaa-phi-detector",
       "epicNumber": 84,
       "title": "Epic 84: PHI-like column/name heuristic on migrations + access audit linkage OR healthcare naWaiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic85-coppa-age-marketing",
+      "todoId": "epic85-coppa-age-marketing",
       "epicNumber": 85,
       "title": "Epic 85: COPPA/marketing age gate route tests + consent version coupling (Epic 42)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic86-wcag-aaa-machine-subset",
+      "todoId": "epic86-wcag-aaa-machine-subset",
       "epicNumber": 86,
       "title": "Epic 86: Expand automated WCAG 2.x AAA checks where objectively measurable; remainder explicit na rows",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic87-wcag-experimental-metrics",
+      "todoId": "epic87-wcag-experimental-metrics",
       "epicNumber": 87,
       "title": "Epic 87: Optional WCAG 3/emerging metric probes behind flag; scores feed dashboard.json only",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic88-npm-provenance-signatures",
+      "todoId": "epic88-npm-provenance-signatures",
       "epicNumber": 88,
       "title": "Epic 88: npm audit signatures / trusted publishing verification hook in CI when registry supports",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic89-github-org-policy-api",
+      "todoId": "epic89-github-org-policy-api",
       "epicNumber": 89,
       "title": "Epic 89: Script using GH API—org 2FA, SSO enforcement, fork rules—emit org-policy.json or na for non-admin token",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic90-repository-rulesets-drift",
+      "todoId": "epic90-repository-rulesets-drift",
       "epicNumber": 90,
       "title": "Epic 90: rulesets vs branch-protection drift JSON; reconcile with check-branch-protection-drift",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic91-public-api-semver",
+      "todoId": "epic91-public-api-semver",
       "epicNumber": 91,
       "title": "Epic 91: If public stable API—OpenAPI semver + breaking-change gate; else bulk na row",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic92-db-pool-exhaustion-sim",
+      "todoId": "epic92-db-pool-exhaustion-sim",
       "epicNumber": 92,
       "title": "Epic 92: Vitest/integration simulates pool timeout / connection storm on representative routes",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic93-cron-memory-leak-sample",
+      "todoId": "epic93-cron-memory-leak-sample",
       "epicNumber": 93,
       "title": "Epic 93: Optional heap growth budget over repeated cron handler invokes (staging/long Vitest)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic94-samesite-none-matrix",
+      "todoId": "epic94-samesite-none-matrix",
       "epicNumber": 94,
       "title": "Epic 94: Playwright matrix SameSite=None|Lax|Secure cookie flows across browsers for auth callbacks",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic95-shadow-dom-a11y",
+      "todoId": "epic95-shadow-dom-a11y",
       "epicNumber": 95,
       "title": "Epic 95: If web components/shadow DOM—axe + focus tests OR shadow-dom naWaiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic96-epic-registry-drift",
+      "todoId": "epic96-epic-registry-drift",
       "epicNumber": 96,
       "title": "Epic 96: epics.json sync—YAML todos ↔ headings ↔ taxonomy ↔ expected epic count 176",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic97-multi-jurisdiction-privacy",
+      "todoId": "epic97-multi-jurisdiction-privacy",
       "epicNumber": 97,
       "title": "Epic 97: Multi-jurisdiction checklist JSON (LGPD PIPEDA UK APPI PDPA IN-DPDPA stubs)—evidence or na per jurisdiction",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic98-schrems-tia-scc",
+      "todoId": "epic98-schrems-tia-scc",
       "epicNumber": 98,
       "title": "Epic 98: Transfer/TIA/SCC machine stub JSON + linkage to subprocessors graph (Appendix F/O)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic99-data-residency-enforcement",
+      "todoId": "epic99-data-residency-enforcement",
       "epicNumber": 99,
       "title": "Epic 99: Org/workspace residency flag enforcement tests (routing/storage deny rules)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic100-async-messaging-inventory",
+      "todoId": "epic100-async-messaging-inventory",
       "epicNumber": 100,
       "title": "Epic 100: SQS PubSub Kafka Rabbit inventory/tests OR messaging_na bulk waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic101-grpc-protobuf-surface",
+      "todoId": "epic101-grpc-protobuf-surface",
       "epicNumber": 101,
       "title": "Epic 101: gRPC/protobuf API grep inventory OR grpc_na waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic102-mobile-native-clients",
+      "todoId": "epic102-mobile-native-clients",
       "epicNumber": 102,
       "title": "Epic 102: React Native/Expo/Flutter scan—tests OR mobile_na generator",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic103-voice-assistant-skills",
+      "todoId": "epic103-voice-assistant-skills",
       "epicNumber": 103,
       "title": "Epic 103: Alexa/Google Assistant skill manifests scan OR voice_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic104-embedded-tv-clients",
+      "todoId": "epic104-embedded-tv-clients",
       "epicNumber": 104,
       "title": "Epic 104: Smart TV/embedded WebKit clients scan OR embedded_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic105-pdf-ua-accessibility",
+      "todoId": "epic105-pdf-ua-accessibility",
       "epicNumber": 105,
       "title": "Epic 105: PDF/UA checks on generated export PDFs (veraPDF CLI or equivalent CI stub)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic106-pdf-digital-signature",
+      "todoId": "epic106-pdf-digital-signature",
       "epicNumber": 106,
       "title": "Epic 106: Digital signature verify pipeline on signed PDF outputs OR waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic107-document-watermarking",
+      "todoId": "epic107-document-watermarking",
       "epicNumber": 107,
       "title": "Epic 107: Leak tracing/watermark stub OR explicit watermark_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic108-ml-model-card-ethics",
+      "todoId": "epic108-ml-model-card-ethics",
       "epicNumber": 108,
       "title": "Epic 108: model-card.json schema + ethics_review_flag tied to extraction/ML routes",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic109-continuous-profiler",
+      "todoId": "epic109-continuous-profiler",
       "epicNumber": 109,
       "title": "Epic 109: Optional Pyroscope/Parca staging profiles—budget regressions OR profiler_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic110-ebpf-network-policy",
+      "todoId": "epic110-ebpf-network-policy",
       "epicNumber": 110,
       "title": "Epic 110: eBPF/Cilium policy tests OR k8s_network_policy_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic111-physical-datacenter",
+      "todoId": "epic111-physical-datacenter",
       "epicNumber": 111,
       "title": "Epic 111: Physical DC security posture machine checklist OR perpetual physical_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic112-sim-swap-telecom",
+      "todoId": "epic112-sim-swap-telecom",
       "epicNumber": 112,
       "title": "Epic 112: SIM-swap / telecom-auth consumer controls checklist OR telecom_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic113-assurance-meta-sbom",
+      "todoId": "epic113-assurance-meta-sbom",
       "epicNumber": 113,
       "title": "Epic 113: CycloneDX/SBOM listing scripts/tests/workflows as components—meta assurance package",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic114-ropa-json-changelog",
+      "todoId": "epic114-ropa-json-changelog",
       "epicNumber": 114,
       "title": "Epic 114: Automated git changelog artifact for processing-activities.json (Epic 71)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic115-transfer-records-register",
+      "todoId": "epic115-transfer-records-register",
       "epicNumber": 115,
       "title": "Epic 115: International transfers log JSON rows—destination + mechanism + SCC reference IDs",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic116-plan-document-integrity",
+      "todoId": "epic116-plan-document-integrity",
       "epicNumber": 116,
       "title": "Epic 116: SHA256 of maximal_assurance_program plan committed to artifacts + CI verify on edit",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic117-graphql-federation-inventory",
+      "todoId": "epic117-graphql-federation-inventory",
       "epicNumber": 117,
       "title": "Epic 117: GraphQL/Apollo/federation/subgraph grep + schema drift OR graphql_federation_na stub rows",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic118-mqtt-iot-brokers",
+      "todoId": "epic118-mqtt-iot-brokers",
       "epicNumber": 118,
       "title": "Epic 118: MQTT/IoT client inventory (mosquitto aws-iot)—contract tests OR iot_broker_na generator",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic119-webxr-immersive-web",
+      "todoId": "epic119-webxr-immersive-web",
       "epicNumber": 119,
       "title": "Epic 119: WebXR/WebGPU immersive UI scan OR webxr_na bulk waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic120-blockchain-web3-surface",
+      "todoId": "epic120-blockchain-web3-surface",
       "epicNumber": 120,
       "title": "Epic 120: WalletConnect/SIWE/chain RPC/ethers/web3.js inventory OR web3_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic121-noncard-payment-rails",
+      "todoId": "epic121-noncard-payment-rails",
       "epicNumber": 121,
       "title": "Epic 121: ACH SEPA wire BNPL Open Banking rails grep OR payment_rails_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic122-hris-payroll-connectors",
+      "todoId": "epic122-hris-payroll-connectors",
       "epicNumber": 122,
       "title": "Epic 122: Workday/BambooHR/Gusto API hooks inventory OR hris_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic123-indirect-tax-engines",
+      "todoId": "epic123-indirect-tax-engines",
       "epicNumber": 123,
       "title": "Epic 123: Avalara Vertex Stripe Tax TaxJar hooks OR tax_engine_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic124-sanctions-pep-screening",
+      "todoId": "epic124-sanctions-pep-screening",
       "epicNumber": 124,
       "title": "Epic 124: OFAC/sanctions API client inventory OR sanctions_screening_na + owner",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic125-carrier-cpni-marketing",
+      "todoId": "epic125-carrier-cpni-marketing",
       "epicNumber": 125,
       "title": "Epic 125: Telecom carrier marketing/CPNI-adjacent consent rows OR carrier_compliance_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic126-fda-21cfr11-style",
+      "todoId": "epic126-fda-21cfr11-style",
       "epicNumber": 126,
       "title": "Epic 126: FDA 21 CFR Part 11 style audit-trail/e-sign checklist OR fda_gxp_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic127-fedramp-stateramp-posture",
+      "todoId": "epic127-fedramp-stateramp-posture",
       "epicNumber": 127,
       "title": "Epic 127: FedRAMP/StateRAMP readiness JSON rows OR fedramp_na perpetual + cloud compensating refs",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic128-cmmc-itar-adjunct",
+      "todoId": "epic128-cmmc-itar-adjunct",
       "epicNumber": 128,
       "title": "Epic 128: CMMC/ITAR adjunct checklist vs Epic 70 export control OR cmmc_itar_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic129-pci-pin-p2pe",
+      "todoId": "epic129-pci-pin-p2pe",
       "epicNumber": 129,
       "title": "Epic 129: PCI PIN/P2PE/HSM keyed entry inventory OR pci_pin_na (delegated model)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic130-ai-synthetic-media-disclosure",
+      "todoId": "epic130-ai-synthetic-media-disclosure",
       "epicNumber": 130,
       "title": "Epic 130: Synthetic/deepfake disclosure rows on AI outputs—threat-rows + UI contract tests OR waiver",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic131-biometric-template-processing",
+      "todoId": "epic131-biometric-template-processing",
       "epicNumber": 131,
       "title": "Epic 131: Biometric template storage/processing beyond WebAuthn ceremony OR biometric_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic132-csam-hash-photoDNA",
+      "todoId": "epic132-csam-hash-photoDNA",
       "epicNumber": 132,
       "title": "Epic 132: CSAM hash matching / PhotoDNA integration inventory OR explicit csam_matching_na negative-capability row",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic133-lawful-access-playbook",
+      "todoId": "epic133-lawful-access-playbook",
       "epicNumber": 133,
       "title": "Epic 133: Government/lawful demand playbook JSON—roles SLA timers evidence pointers OR lawful_access_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic134-legal-hold-ediscovery",
+      "todoId": "epic134-legal-hold-ediscovery",
       "epicNumber": 134,
       "title": "Epic 134: Legal hold / e-discovery propagation tests OR legal_hold_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic135-sla-breach-warranty-bundle",
+      "todoId": "epic135-sla-breach-warranty-bundle",
       "epicNumber": 135,
       "title": "Epic 135: SLA breach warranty JSON tied to SLO budgets (Epic 27)—machine customer-facing posture OR sla_warranty_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic136-assurance-program-semver",
+      "todoId": "epic136-assurance-program-semver",
       "epicNumber": 136,
       "title": "Epic 136: epics.json programVersion semver—must bump when epic cardinality/phasing/taxonomy epic lists change + CI gate",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic137-ldap-active-directory",
+      "todoId": "epic137-ldap-active-directory",
       "epicNumber": 137,
       "title": "Epic 137: LDAP/AD bind + directory sync inventory OR ldap_ad_na (adjunct to SAML Epic 73)",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic138-kerberos-spnego",
+      "todoId": "epic138-kerberos-spnego",
       "epicNumber": 138,
       "title": "Epic 138: Kerberos/SPNEGO/NTLM enterprise negotiate paths OR kerberos_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic139-email-domain-mta-sts-dmarc",
+      "todoId": "epic139-email-domain-mta-sts-dmarc",
       "epicNumber": 139,
       "title": "Epic 139: Per-sending-domain MTA-STS TLS-RPT DMARC BIMI machine JSON + drift vs DNS OR mail_security_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic140-redis-memcached-cache-abuse",
+      "todoId": "epic140-redis-memcached-cache-abuse",
       "epicNumber": 140,
       "title": "Epic 140: Redis/Memcached key injection cache poisoning SSRF-via-cache negatives OR cache_layer_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic141-search-backend-query-injection",
+      "todoId": "epic141-search-backend-query-injection",
       "epicNumber": 141,
       "title": "Epic 141: OpenSearch ES Meilisearch Algolia DSL injection corpus OR search_backend_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic142-postgres-replica-lag-consistency",
+      "todoId": "epic142-postgres-replica-lag-consistency",
       "epicNumber": 142,
       "title": "Epic 142: Read replica lag simulation + consistency tests—extends RAW Epic 43 OR replica_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic143-warehouse-lakehouse-connectors",
+      "todoId": "epic143-warehouse-lakehouse-connectors",
       "epicNumber": 143,
       "title": "Epic 143: Snowflake BigQuery Databricks Redshift connector inventory OR warehouse_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic144-crm-connectors",
+      "todoId": "epic144-crm-connectors",
       "epicNumber": 144,
       "title": "Epic 144: Salesforce HubSpot Marketo Pardot integration inventory OR crm_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic145-cdn-waf-rules-drift",
+      "todoId": "epic145-cdn-waf-rules-drift",
       "epicNumber": 145,
       "title": "Epic 145: Cloudflare Fastly Akamai WAF/CDN managed rule drift JSON OR cdn_waf_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic146-privacy-sandbox-chips-topics",
+      "todoId": "epic146-privacy-sandbox-chips-topics",
       "epicNumber": 146,
       "title": "Epic 146: CHIPS Topics Attribution Reporting Protected Audience cookie matrix tests OR privacy_sandbox_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic147-session-replay-analytics",
+      "todoId": "epic147-session-replay-analytics",
       "epicNumber": 147,
       "title": "Epic 147: FullStory LogRocket Heap Hotjar session replay inventory + consent coupling OR session_replay_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic148-jit-breakglass-access-audit",
+      "todoId": "epic148-jit-breakglass-access-audit",
       "epicNumber": 148,
       "title": "Epic 148: JIT privileged access break-glass JSON audit rows OR jit_access_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic149-secrets-rotation-evidence",
+      "todoId": "epic149-secrets-rotation-evidence",
       "epicNumber": 149,
       "title": "Epic 149: Automated KMS/API key rotation schedules evidence JSON OR rotation_evidence_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic150-openlineage-data-lineage",
+      "todoId": "epic150-openlineage-data-lineage",
       "epicNumber": 150,
       "title": "Epic 150: OpenLineage/Marquez lineage hooks OR data_lineage_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic151-confidential-computing-tee",
+      "todoId": "epic151-confidential-computing-tee",
       "epicNumber": 151,
       "title": "Epic 151: TEE SEV SNP Nitro enclave usage inventory OR confidential_compute_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic152-post-quantum-tls-readiness",
+      "todoId": "epic152-post-quantum-tls-readiness",
       "epicNumber": 152,
       "title": "Epic 152: PQ/TLS hybrid readiness tracking artifact OR pq_tls_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic153-ai-weights-provenance-sbom",
+      "todoId": "epic153-ai-weights-provenance-sbom",
       "epicNumber": 153,
       "title": "Epic 153: Model weights/checkpoints SBOM CycloneDX ML-BOM adjunct Epic 108 OR ml_weights_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic154-wcag23-motion-vestibular",
+      "todoId": "epic154-wcag23-motion-vestibular",
       "epicNumber": 154,
       "title": "Epic 154: WCAG 2.3 seizure/vestibular motion reduction exhaustive Playwright OR motion_na rows",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic155-sovereign-airgap-cloud-bundle",
+      "todoId": "epic155-sovereign-airgap-cloud-bundle",
       "epicNumber": 155,
       "title": "Epic 155: Sovereign region air-gap deployment checklist JSON OR sovereign_cloud_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic156-signed-assurance-bundle-manifest",
+      "todoId": "epic156-signed-assurance-bundle-manifest",
       "epicNumber": 156,
       "title": "Epic 156: Ed25519 signed assurance-bundle.manifest.json over plan+dashboard+epics digests—required when ASSURANCE_BUNDLE_SIGNING=required OR signing_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic157-sip-voip-webrtc-pstn",
+      "todoId": "epic157-sip-voip-webrtc-pstn",
       "epicNumber": 157,
       "title": "Epic 157: SIP/WebRTC/PSTN trunk + VoIP client inventory OR telecom_voice_backend_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic158-fax-paper-workflow",
+      "todoId": "epic158-fax-paper-workflow",
       "epicNumber": 158,
       "title": "Epic 158: Fax/modem/paper-mail workflow scan OR fax_paper_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic159-epub-accessible-exports",
+      "todoId": "epic159-epub-accessible-exports",
       "epicNumber": 159,
       "title": "Epic 159: EPUB/Kobo accessible export pipeline OR epub_export_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic160-split-horizon-dns",
+      "todoId": "epic160-split-horizon-dns",
       "epicNumber": 160,
       "title": "Epic 160: Split-horizon/internal DNS resolver expectations JSON OR split_dns_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic161-ntp-ptp-precision-time",
+      "todoId": "epic161-ntp-ptp-precision-time",
       "epicNumber": 161,
       "title": "Epic 161: NTP/PTP/chrony precision-time requirements for finance routes OR precision_time_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic162-fix-iso20022-messaging",
+      "todoId": "epic162-fix-iso20022-messaging",
       "epicNumber": 162,
       "title": "Epic 162: FIX / ISO 20022 messaging inventory OR institutional_payments_messaging_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic163-swift-correspondent-banking",
+      "todoId": "epic163-swift-correspondent-banking",
       "epicNumber": 163,
       "title": "Epic 163: SWIFT/correspondent banking touchpoints OR swift_banking_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic164-scope3-carbon-machine-json",
+      "todoId": "epic164-scope3-carbon-machine-json",
       "epicNumber": 164,
       "title": "Epic 164: Scope 3 carbon emissions machine JSON vs Appendix N OR scope3_carbon_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic165-iso40500-wcag-mapping",
+      "todoId": "epic165-iso40500-wcag-mapping",
       "epicNumber": 165,
       "title": "Epic 165: ISO/IEC 40500 formal WCAG success-criteria mapping rows OR iso40500_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic166-unicode-tr39-confusables",
+      "todoId": "epic166-unicode-tr39-confusables",
       "epicNumber": 166,
       "title": "Epic 166: TR39/TR46 homoglyph confusable detection on slugs/display names OR confusables_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic167-iana-tzdata-drift",
+      "todoId": "epic167-iana-tzdata-drift",
       "epicNumber": 167,
       "title": "Epic 167: IANA tzdata version drift vs runtime (Node/ICU) OR tzdata_drift_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic168-leap-second-smearing",
+      "todoId": "epic168-leap-second-smearing",
       "epicNumber": 168,
       "title": "Epic 168: Leap-second / POSIX smearing timestamp edge tests OR leap_second_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic169-captcha-bot-mitigation",
+      "todoId": "epic169-captcha-bot-mitigation",
       "epicNumber": 169,
       "title": "Epic 169: Turnstile/reCAPTCHA/hCaptcha bot mitigation inventory + bypass negatives OR captcha_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic170-pkcs11-hsm-app-crypto",
+      "todoId": "epic170-pkcs11-hsm-app-crypto",
       "epicNumber": 170,
       "title": "Epic 170: PKCS#11 soft-HSM/cloud HSM app crypto OR pkcs11_hsm_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic171-mobile-attestation",
+      "todoId": "epic171-mobile-attestation",
       "epicNumber": 171,
       "title": "Epic 171: DeviceCheck Play Integrity web attestation hooks OR mobile_attestation_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic172-crdt-multi-master",
+      "todoId": "epic172-crdt-multi-master",
       "epicNumber": 172,
       "title": "Epic 172: CRDT multi-region write conflict simulation OR crdt_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic173-event-sourcing-projection-lag",
+      "todoId": "epic173-event-sourcing-projection-lag",
       "epicNumber": 173,
       "title": "Epic 173: Event-sourced projection lag / replay tests OR event_sourcing_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic174-schema-registry-evolution",
+      "todoId": "epic174-schema-registry-evolution",
       "epicNumber": 174,
       "title": "Epic 174: Avro/Protobuf/Buf schema registry breaking-change gate OR schema_registry_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic175-dark-pattern-deceptive-ux",
+      "todoId": "epic175-dark-pattern-deceptive-ux",
       "epicNumber": 175,
       "title": "Epic 175: Deceptive pattern / dark-pattern checklist JSON + UI assertions OR dark_pattern_na",
       "planStatus": "pending"
     },
     {
-      "todoKey": "epic176-tamper-evident-audit-chain",
+      "todoId": "epic176-tamper-evident-audit-chain",
       "epicNumber": 176,
       "title": "Epic 176: Hash-chained assurance audit log JSON—required when ASSURANCE_AUDIT_CHAIN=required OR audit_chain_na",
       "planStatus": "pending"

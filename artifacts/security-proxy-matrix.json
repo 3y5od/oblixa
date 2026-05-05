@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-03T16:23:24.854Z",
+  "generated_at": "2026-05-05T00:24:08.893Z",
   "sources": [
     "src/lib/auth/proxy-path-policy.ts",
     "src/lib/marketing/public-paths.ts"
@@ -43,7 +43,9 @@
   ],
   "api_routes_flagged_public_guess": [
     "/api/assurance/health-graph",
-    "/api/command-palette/contracts"
+    "/api/command-palette/contracts",
+    "/api/cron/v6/health-graph-rollups",
+    "/api/health"
   ],
   "notes": "Anonymous users may hit /api/*; each route enforces its own auth. public_guess heuristics are not a substitute for handler review."
 }

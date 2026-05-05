@@ -82,7 +82,7 @@ export async function GET(
     );
   }
 
-  const [{ data: job }, { data: v10Visibility }] = await Promise.all([
+  const [{ data: job, error: jobError }, { data: v10Visibility }] = await Promise.all([
     admin
       .from("contract_export_jobs")
       .select(
@@ -100,6 +100,13 @@ export async function GET(
       .eq("job_id", jobId)
       .maybeSingle(),
   ]);
+
+  if (jobError) {
+    return NextResponse.json(
+      { error: "Could not load export job", diagnostic_id: "v10_export_job_load_failed" },
+      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
+    );
+  }
 
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS });
 
@@ -176,12 +183,22 @@ export async function POST(
       payload: { prior_job_id: jobId },
     },
     async () => {
-      const { data: priorJob } = await admin
+      const { data: priorJob, error: priorJobError } = await admin
         .from("contract_export_jobs")
         .select("id, scope, status, selected_contract_count, truncated, error_message, filter_json")
         .eq("id", jobId)
         .eq("organization_id", membership.organization_id)
         .maybeSingle();
+
+      if (priorJobError) {
+        return buildV10MutationResponse({
+          outcome: "server_error",
+          message: "The export retry job could not be loaded.",
+          changedObjectType: "export_job",
+          changedObjectId: jobId,
+          diagnosticId: "v10_export_retry_job_load_failed",
+        });
+      }
 
       if (!priorJob) {
         return buildV10MutationResponse({

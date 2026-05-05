@@ -13,6 +13,25 @@ import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 
+function routeFailure(input: {
+  status: number;
+  error: string;
+  code: string;
+  diagnosticId: string;
+  phase: string;
+}) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: input.error,
+      code: input.code,
+      diagnostic_id: input.diagnosticId,
+      phase: input.phase,
+    },
+    { status: input.status }
+  );
+}
+
 /**
  * Token-authenticated workflow step append for external participants (V6 external collaboration).
  * Internal staff should continue to use POST /api/external-actions/[token]/workflow-step with session auth.
@@ -51,7 +70,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     .eq("token", token)
     .maybeSingle();
 
-  if (linkError) return NextResponse.json({ error: linkError.message }, { status: 400 });
+  if (linkError) {
+    return routeFailure({
+      status: 500,
+      error: "Failed to load external action",
+      code: "data_source_failed",
+      diagnosticId: "external_action_participant_link_load_failed",
+      phase: "source_query",
+    });
+  }
   if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
   if (link.status !== "open") {
     return NextResponse.json({ error: "Link is not open" }, { status: 409 });
@@ -84,8 +111,41 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     undefined
   );
 
+  if (result.error?.message === "workflow_deadline_passed") {
+    return routeFailure({
+      status: 409,
+      error: "External workflow deadline has passed",
+      code: "workflow_deadline_passed",
+      diagnosticId: "external_action_participant_workflow_deadline_passed",
+      phase: "preflight",
+    });
+  }
+  if (result.error?.message === "external_action_event_insert_failed") {
+    return NextResponse.json(
+      {
+        ok: false,
+        partial: true,
+        errors_count: 1,
+        errors: [
+          {
+            diagnostic_id: "external_action_participant_workflow_event_insert_failed",
+            phase: "persist",
+            message: "Failed to persist participant workflow event",
+          },
+        ],
+        externalAction: result.data,
+      },
+      { status: 207 }
+    );
+  }
   if (result.error) {
-    return NextResponse.json({ error: result.error.message }, { status: 400 });
+    return routeFailure({
+      status: 500,
+      error: "Failed to persist external workflow step",
+      code: "persistence_failed",
+      diagnosticId: "external_action_participant_workflow_step_persist_failed",
+      phase: "persist",
+    });
   }
 
   await incrementV6QualityCounter(

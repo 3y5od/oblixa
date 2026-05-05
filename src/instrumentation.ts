@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import {
   hasProductionDebugMisconfiguration,
   listStrictProductionSecretDeficits,
+  listRuntimeCriticalProviderWarnings,
   listSuspiciousNextPublicKeys,
   shouldRecommendUpstashOnVercel,
 } from "@/lib/observability/instrumentation-env-warn";
@@ -23,6 +24,12 @@ function warnIfStrictEnvSecretsMissing() {
   );
 }
 
+function warnIfRuntimeProvidersMissing() {
+  const deficits = listRuntimeCriticalProviderWarnings();
+  if (deficits.length === 0) return;
+  console.warn(`[instrumentation] runtime-critical provider prerequisites missing: ${deficits.join(", ")}`);
+}
+
 function warnIfSuspiciousNextPublic() {
   if (process.env.NODE_ENV !== "production") return;
   const hits = listSuspiciousNextPublicKeys();
@@ -42,6 +49,7 @@ function warnIfUpstashRecommended() {
 export async function register() {
   warnIfProductionDebugEnabled();
   warnIfStrictEnvSecretsMissing();
+  warnIfRuntimeProvidersMissing();
   warnIfSuspiciousNextPublic();
   warnIfUpstashRecommended();
   if (process.env.NEXT_RUNTIME === "nodejs") {

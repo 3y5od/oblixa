@@ -7,6 +7,7 @@ const requireApiWorkspaceEligibility = vi.fn();
 const rateLimitCheck = vi.fn();
 const getContractsMissingCriticalFields = vi.fn();
 const emitProductTelemetryEvent = vi.fn();
+const collectSupabaseRangePages = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -32,6 +33,10 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent,
 }));
 
+vi.mock("@/lib/supabase/range-pagination", () => ({
+  collectSupabaseRangePages,
+}));
+
 describe("GET /api/export/review-packet", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -44,6 +49,7 @@ describe("GET /api/export/review-packet", () => {
     });
     getContractsMissingCriticalFields.mockResolvedValue([]);
     emitProductTelemetryEvent.mockResolvedValue(undefined);
+    collectSupabaseRangePages.mockResolvedValue({ rows: [], error: null, truncated: false, nextOffset: null });
   });
 
   it("returns 401 when unauthenticated", async () => {
@@ -63,60 +69,39 @@ describe("GET /api/export/review-packet", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
     });
     createAdminClient.mockResolvedValue({
-      from: vi.fn((table: string) => {
-        if (table === "contract_approvals") {
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                  limit: vi.fn().mockResolvedValue({
-                    data: [
-                      {
-                        contract_id: "contract-1",
-                        approval_type: "legal",
-                        status: "pending",
-                        contracts: { id: "contract-1", title: "Acme" },
-                      },
-                    ],
-                    error: null,
-                  }),
-                })),
-              })),
-            })),
-          };
-        }
-        if (table === "contract_renewal_checkpoints") {
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                  gte: vi.fn(() => ({
-                    lte: vi.fn(() => ({
-                      limit: vi.fn().mockResolvedValue({
-                        data: [
-                          {
-                            contract_id: "contract-1",
-                            label: "Review",
-                            due_date: "2026-05-01",
-                            contracts: { id: "contract-1", title: "Acme" },
-                          },
-                        ],
-                        error: null,
-                      }),
-                    })),
-                  })),
-                })),
-              })),
-            })),
-          };
-        }
-        throw new Error(`Unexpected table ${table}`);
-      }),
+      from: vi.fn((table: string) => ({ table })),
     });
 
     getContractsMissingCriticalFields.mockResolvedValue([
       { id: "contract-1", title: "Acme", counterparty: "Acme Corp" },
     ]);
+    collectSupabaseRangePages
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            contract_id: "contract-1",
+            approval_type: "legal",
+            status: "pending",
+            contracts: { id: "contract-1", title: "Acme" },
+          },
+        ],
+        error: null,
+        truncated: false,
+        nextOffset: null,
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            contract_id: "contract-1",
+            label: "Review",
+            due_date: "2026-05-01",
+            contracts: { id: "contract-1", title: "Acme" },
+          },
+        ],
+        error: null,
+        truncated: false,
+        nextOffset: null,
+      });
 
     const { GET } = await import("@/app/api/export/review-packet/route");
     const res = await GET();
@@ -151,42 +136,11 @@ describe("GET /api/export/review-packet", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
     });
     createAdminClient.mockResolvedValue({
-      from: vi.fn((table: string) => {
-        if (table === "contract_approvals") {
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                  limit: vi.fn().mockResolvedValue({
-                    data: null,
-                    error: { message: "boom" },
-                  }),
-                })),
-              })),
-            })),
-          };
-        }
-        if (table === "contract_renewal_checkpoints") {
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                  gte: vi.fn(() => ({
-                    lte: vi.fn(() => ({
-                      limit: vi.fn().mockResolvedValue({
-                        data: [],
-                        error: null,
-                      }),
-                    })),
-                  })),
-                })),
-              })),
-            })),
-          };
-        }
-        throw new Error(`Unexpected table ${table}`);
-      }),
+      from: vi.fn((table: string) => ({ table })),
     });
+    collectSupabaseRangePages
+      .mockResolvedValueOnce({ rows: [], error: { message: "boom" }, truncated: false, nextOffset: 0 })
+      .mockResolvedValueOnce({ rows: [], error: null, truncated: false, nextOffset: null });
 
     const { GET } = await import("@/app/api/export/review-packet/route");
     const res = await GET();
@@ -198,6 +152,34 @@ describe("GET /api/export/review-packet", () => {
       expect.objectContaining({
         action: "product.v9.export_failed",
         details: expect.objectContaining({ export_type: "review_packet", reason: "approvals_query_failed" }),
+      })
+    );
+  });
+
+  it("returns 413 when paged review-packet data exceeds the row budget", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({ from: vi.fn((table: string) => ({ table })) });
+    collectSupabaseRangePages
+      .mockResolvedValueOnce({ rows: [], error: null, truncated: true, nextOffset: 5000 })
+      .mockResolvedValueOnce({ rows: [], error: null, truncated: false, nextOffset: null });
+
+    const { GET } = await import("@/app/api/export/review-packet/route");
+    const res = await GET();
+    const body = await res.json();
+
+    expect(res.status).toBe(413);
+    expect(body).toMatchObject({
+      code: "row_budget_exceeded",
+      diagnostic_id: "review_packet_row_budget_exceeded",
+      partial: true,
+    });
+    expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "product.v9.export_partially_completed",
+        details: expect.objectContaining({ reason: "row_budget_exceeded", approvals_truncated: true }),
       })
     );
   });

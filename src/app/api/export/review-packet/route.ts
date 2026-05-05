@@ -9,6 +9,7 @@ import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 
 export async function GET() {
   const supabase = await createClient();
@@ -57,20 +58,28 @@ export async function GET() {
 
   const [exceptions, approvalsRes, renewalsRes] = await Promise.all([
     getContractsMissingCriticalFields(admin, orgId),
-    admin
-      .from("contract_approvals")
-      .select("id, contract_id, approval_type, status, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .eq("status", "pending")
-      .limit(MAX_REVIEW_PACKET_ROWS),
-    admin
-      .from("contract_renewal_checkpoints")
-      .select("id, contract_id, label, due_date, contracts!inner(id, title, organization_id)")
-      .eq("organization_id", orgId)
-      .eq("status", "pending")
-      .gte("due_date", today)
-      .lte("due_date", ninetyDaysOut)
-      .limit(MAX_REVIEW_PACKET_ROWS),
+    collectSupabaseRangePages(
+      (from, to) =>
+        admin
+          .from("contract_approvals")
+          .select("id, contract_id, approval_type, status, contracts!inner(id, title, organization_id)")
+          .eq("organization_id", orgId)
+          .eq("status", "pending")
+          .range(from, to),
+      { pageSize: 1000, maxRows: MAX_REVIEW_PACKET_ROWS }
+    ),
+    collectSupabaseRangePages(
+      (from, to) =>
+        admin
+          .from("contract_renewal_checkpoints")
+          .select("id, contract_id, label, due_date, contracts!inner(id, title, organization_id)")
+          .eq("organization_id", orgId)
+          .eq("status", "pending")
+          .gte("due_date", today)
+          .lte("due_date", ninetyDaysOut)
+          .range(from, to),
+      { pageSize: 1000, maxRows: MAX_REVIEW_PACKET_ROWS }
+    ),
   ]);
 
   if (approvalsRes.error) {
@@ -99,6 +108,33 @@ export async function GET() {
     });
     return NextResponse.json({ error: "Could not load renewals" }, { status: 500 });
   }
+  if (approvalsRes.truncated || renewalsRes.truncated) {
+    await emitProductTelemetryEvent(admin, {
+      organizationId: orgId,
+      userId: user.id,
+      action: "product.v9.export_partially_completed",
+      details: {
+        export_type: "review_packet",
+        reason: "row_budget_exceeded",
+        approvals_truncated: approvalsRes.truncated,
+        renewals_truncated: renewalsRes.truncated,
+        max_rows: MAX_REVIEW_PACKET_ROWS,
+      },
+    });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `Review packet export exceeded the ${MAX_REVIEW_PACKET_ROWS} row budget. Narrow scope and retry.`,
+        code: "row_budget_exceeded",
+        diagnostic_id: "review_packet_row_budget_exceeded",
+        partial: true,
+      },
+      { status: 413 }
+    );
+  }
+
+  const approvals = approvalsRes.rows;
+  const renewals = renewalsRes.rows;
 
   const lines = ["section,contract_id,contract_title,item,detail"];
   for (const c of exceptions) {
@@ -112,7 +148,7 @@ export async function GET() {
       ].join(",")
     );
   }
-  for (const row of approvalsRes.data ?? []) {
+  for (const row of approvals) {
     const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
       | { id: string; title: string }
       | undefined;
@@ -126,7 +162,7 @@ export async function GET() {
       ].join(",")
     );
   }
-  for (const row of renewalsRes.data ?? []) {
+  for (const row of renewals) {
     const contract = (Array.isArray(row.contracts) ? row.contracts[0] : row.contracts) as
       | { id: string; title: string }
       | undefined;
@@ -150,8 +186,8 @@ export async function GET() {
     details: {
       export_type: "review_packet",
       missing_critical_count: exceptions.length,
-      pending_approvals_count: approvalsRes.data?.length ?? 0,
-      renewal_checkpoint_count: renewalsRes.data?.length ?? 0,
+      pending_approvals_count: approvals.length,
+      renewal_checkpoint_count: renewals.length,
     },
   });
   return new NextResponse(csv, {

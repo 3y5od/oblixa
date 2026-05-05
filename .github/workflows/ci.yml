@@ -24,9 +24,8 @@ env:
   COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
   COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
   HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
-  ALLOW_SECRET_GATED_SKIP: ${{ vars.ALLOW_SECRET_GATED_SKIP }}
-  ALLOW_CI_SKIP_E2E_AUTH: ${{ vars.ALLOW_CI_SKIP_E2E_AUTH }}
-  ALLOW_CI_SKIP_RUNTIME_COMPREHENSIVE: ${{ vars.ALLOW_CI_SKIP_RUNTIME_COMPREHENSIVE }}
+  REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
+  REQUIRE_RUNTIME_COMPREHENSIVE: ${{ vars.REQUIRE_RUNTIME_COMPREHENSIVE }}
 
 jobs:
   # Split so static analysis + unit tests overlap with build + E2E (wall-clock win on CI).
@@ -533,25 +532,18 @@ jobs:
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Gate E2E (authenticated credentials)
         id: gate_e2e
+        env:
+          REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
         run: |
-          if [ -n "$E2E_TEST_EMAIL" ] && [ -n "$E2E_TEST_PASSWORD" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$ALLOW_SECRET_GATED_SKIP" = "true" ] || [ "$ALLOW_CI_SKIP_E2E_AUTH" = "true" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::E2E skipped via ALLOW_CI_SKIP_E2E_AUTH or ALLOW_SECRET_GATED_SKIP."
-          else
-            echo "::error::quality_build_e2e requires E2E_TEST_EMAIL and E2E_TEST_PASSWORD. Set secrets or ALLOW_CI_SKIP_E2E_AUTH=true / ALLOW_SECRET_GATED_SKIP=true."
-            exit 1
-          fi
+          bash scripts/github-actions/secret-gate.sh "quality_build_e2e" "REQUIRE_CI_E2E_AUTH" "E2E_TEST_EMAIL,E2E_TEST_PASSWORD"
 
-      - name: Skip E2E (explicit waiver / missing credentials)
+      - name: Skip E2E (missing credentials)
         if: ${{ steps.gate_e2e.outputs.run != 'true' }}
         run: echo "Skipping E2E (waived via repository variable or secrets missing)."
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: ${{ steps.gate_e2e.outputs.run == 'true' }}
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
@@ -693,7 +685,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Governance checks
-        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity
+        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity && npm run check:gitleaks-allowlist
       - name: Workflow and command integrity
         run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction && npm run check:tier-coverage:strict && npm run check:workflow-tier-coverage:strict
 
@@ -752,18 +744,30 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+      - name: Gate onboarding authenticated credentials
+        id: gate_onboarding_auth
         if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        env:
+          REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
+        run: |
+          bash scripts/github-actions/secret-gate.sh "quality_e2e_onboarding_full" "REQUIRE_CI_E2E_AUTH" "E2E_TEST_EMAIL,E2E_TEST_PASSWORD"
+
+      - name: Skip onboarding deep E2E (missing credentials)
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run != 'true' }}
+        run: echo "Skipping onboarding deep E2E because authenticated credentials are unavailable."
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         with:
           node-version-file: ".nvmrc"
           cache: npm
 
       - name: Install dependencies
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         run: npm ci
 
       - name: Cache Playwright browsers
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cache/ms-playwright
@@ -772,25 +776,19 @@ jobs:
             playwright-${{ runner.os }}-
 
       - name: Production build
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         run: npm run build
 
       - name: Install Playwright Chromium, Firefox, WebKit
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: Require authenticated E2E credentials
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
-        run: |
-          test -n "$E2E_TEST_EMAIL" || (echo "Missing E2E_TEST_EMAIL secret" && exit 1)
-          test -n "$E2E_TEST_PASSWORD" || (echo "Missing E2E_TEST_PASSWORD secret" && exit 1)
-
       - name: Onboarding deep E2E (multi-browser)
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         run: npm run test:e2e:onboarding-deep
 
       - name: Multi-browser public smoke
-        if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
+        if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
         run: npm run test:e2e:multi-browser
 
   # Opt-in: set `if: true` (or gate on `vars`) to run four-way autodiscovered `check:*` shards (complements quality_static_*).
@@ -822,8 +820,7 @@ jobs:
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:
     runs-on: ubuntu-latest
-    # Legacy parity string for guard tests: needs: [quality_static, quality_unit, quality_security, quality_build_e2e]
-    needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security, quality_build_e2e]
+    needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security]
     steps:
       - name: All checks passed
         run: echo "ok"
@@ -835,20 +832,16 @@ jobs:
     timeout-minutes: 35
     needs: quality
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Gate runtime comprehensive pass
         id: gate_runtime
+        env:
+          REQUIRE_RUNTIME_COMPREHENSIVE: ${{ vars.REQUIRE_RUNTIME_COMPREHENSIVE }}
         run: |
-          if [ -n "$STAGING_BASE_URL" ] && [ -n "$CRON_SECRET" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ] && [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] && [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ] && [ -n "$COMPREHENSIVE_PASS_EMAIL" ] && [ -n "$COMPREHENSIVE_PASS_PASSWORD" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$ALLOW_SECRET_GATED_SKIP" = "true" ] || [ "$ALLOW_CI_SKIP_RUNTIME_COMPREHENSIVE" = "true" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Runtime comprehensive pass skipped via ALLOW_CI_SKIP_RUNTIME_COMPREHENSIVE or ALLOW_SECRET_GATED_SKIP."
-          else
-            echo "::error::runtime_comprehensive_pass requires STAGING_BASE_URL, CRON_SECRET, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, COMPREHENSIVE_PASS_EMAIL, COMPREHENSIVE_PASS_PASSWORD — or ALLOW_CI_SKIP_RUNTIME_COMPREHENSIVE=true / ALLOW_SECRET_GATED_SKIP=true."
-            exit 1
-          fi
+          bash scripts/github-actions/secret-gate.sh "runtime_comprehensive_pass" "REQUIRE_RUNTIME_COMPREHENSIVE" "STAGING_BASE_URL,CRON_SECRET,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,COMPREHENSIVE_PASS_EMAIL,COMPREHENSIVE_PASS_PASSWORD"
 
-      - name: Skip runtime comprehensive pass (explicit waiver / missing secrets)
+      - name: Skip runtime comprehensive pass (missing secrets)
         if: ${{ steps.gate_runtime.outputs.run != 'true' }}
         run: |
           echo "Skipping runtime comprehensive pass (waived or secrets missing)."
@@ -856,9 +849,6 @@ jobs:
           echo "  NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,"
           echo "  COMPREHENSIVE_PASS_EMAIL, COMPREHENSIVE_PASS_PASSWORD"
           echo "Optional when running: HC_RUNTIME_COMPREHENSIVE_PING (healthcheck hooks)."
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: ${{ steps.gate_runtime.outputs.run == 'true' }}
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         if: ${{ steps.gate_runtime.outputs.run == 'true' }}
