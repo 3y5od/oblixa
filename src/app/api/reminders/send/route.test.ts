@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("GET /api/reminders/send", () => {
   it("returns 503 when CRON_SECRET is missing (cron auth contract)", async () => {
@@ -34,10 +38,9 @@ describe("GET /api/reminders/send", () => {
   });
 
   it("returns 503 dependency_blocked when canonical app url is unavailable", async () => {
-    const originalNodeEnv = process.env.NODE_ENV;
     process.env.CRON_SECRET = "cronsecret";
     process.env.RESEND_API_KEY = "re_test_key";
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.APP_BASE_URL;
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
@@ -53,8 +56,6 @@ describe("GET /api/reminders/send", () => {
       diagnostic_id: "reminders_send_canonical_app_url_missing",
       phase: "dependency_preflight",
     });
-    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = originalNodeEnv;
   });
 
   it("returns 503 dependency_blocked when resend is unavailable", async () => {

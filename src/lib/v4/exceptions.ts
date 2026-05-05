@@ -3,6 +3,12 @@ import { appendCasefileEvent } from "@/lib/v4/casefile";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
+type TouchedExceptionRow = {
+  id: string;
+  organization_id: string;
+  contract_id: string | null;
+};
+
 export type DetectedExceptionInput = {
   organizationId: string;
   contractId: string | null;
@@ -36,6 +42,33 @@ export function buildExceptionFingerprint(input: {
   ].join(":");
 }
 
+async function selectExistingExceptionRow(input: {
+  admin: AdminClient;
+  organizationId: string;
+  fingerprint: string;
+}): Promise<TouchedExceptionRow> {
+  const { data, error } = await input.admin
+    .from("exceptions")
+    .select("id, organization_id, contract_id")
+    .eq("organization_id", input.organizationId)
+    .eq("fingerprint", input.fingerprint)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data?.id || !data.organization_id) {
+    throw new Error(`existing exception row missing for fingerprint ${input.fingerprint}`);
+  }
+
+  return {
+    id: data.id,
+    organization_id: data.organization_id,
+    contract_id: data.contract_id ?? null,
+  };
+}
+
 export async function upsertDetectedExceptions(input: {
   admin: AdminClient;
   detector: string;
@@ -64,15 +97,57 @@ export async function upsertDetectedExceptions(input: {
     updated_at: new Date().toISOString(),
   }));
 
-  const { data, error } = await input.admin
-    .from("exceptions")
-    .upsert(upserts, { onConflict: "organization_id,fingerprint", ignoreDuplicates: false })
-    .select("id, organization_id, contract_id");
-  if (error) {
-    throw new Error(error.message);
+  const touchedRows: TouchedExceptionRow[] = [];
+  for (const row of upserts) {
+    const insertResult = await input.admin
+      .from("exceptions")
+      .insert(row)
+      .select("id, organization_id, contract_id")
+      .maybeSingle();
+
+    if (!insertResult.error && insertResult.data?.id && insertResult.data.organization_id) {
+      touchedRows.push({
+        id: insertResult.data.id,
+        organization_id: insertResult.data.organization_id,
+        contract_id: insertResult.data.contract_id ?? null,
+      });
+      continue;
+    }
+
+    if (insertResult.error?.code !== "23505") {
+      throw new Error(insertResult.error?.message ?? "exception insert did not return a row");
+    }
+
+    const existingRow = await selectExistingExceptionRow({
+      admin: input.admin,
+      organizationId: row.organization_id,
+      fingerprint: row.fingerprint,
+    });
+
+    const { error: updateError } = await input.admin
+      .from("exceptions")
+      .update({
+        contract_id: row.contract_id,
+        linked_entity_type: row.linked_entity_type,
+        linked_entity_id: row.linked_entity_id,
+        exception_type: row.exception_type,
+        title: row.title,
+        details: row.details,
+        severity: row.severity,
+        updated_at: row.updated_at,
+      })
+      .eq("id", existingRow.id);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    touchedRows.push({
+      ...existingRow,
+      contract_id: row.contract_id,
+    });
   }
 
-  const touchedRows = data ?? [];
   if (touchedRows.length === 0) {
     return { touched: 0 };
   }

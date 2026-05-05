@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const forEachSupabaseRangePageMock = vi.fn();
 const rateLimitCheckMock = vi.fn();
@@ -9,36 +9,70 @@ const recordV10AuditEventMock = vi.fn();
 const emitProductTelemetryEventMock = vi.fn();
 const refreshV10ReadModelsForOrganizationMock = vi.fn();
 
-type QueryResult = { data: any; error: { message: string } | null; count?: number | null };
+type QueryResult = {
+  data: unknown;
+  error: { message: string } | null;
+  count?: number | null;
+};
+
+type AwaitableQueryChain = PromiseLike<QueryResult> & {
+  eq: () => AwaitableQueryChain;
+  in: () => AwaitableQueryChain;
+  order: () => AwaitableQueryChain;
+  limit: () => AwaitableQueryChain;
+  lte: () => AwaitableQueryChain;
+  maybeSingle: () => Promise<QueryResult>;
+};
+
+type InsertResult = { data: unknown; error: { message: string } | null };
+
+type InsertChain = PromiseLike<InsertResult> & {
+  select: () => { maybeSingle: () => Promise<InsertResult> };
+};
+
+type UpdateChain = PromiseLike<InsertResult> & {
+  eq: () => UpdateChain;
+};
+
+function restoreEnv(name: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[name];
+    return;
+  }
+  process.env[name] = value;
+}
 
 function createAwaitableChain(result: QueryResult) {
   const normalized = { data: result.data ?? null, error: result.error ?? null, count: result.count ?? null };
-  const chain: any = {
+  const promise = Promise.resolve(normalized);
+  const chain: AwaitableQueryChain = {
     eq: () => chain,
     in: () => chain,
     order: () => chain,
     limit: () => chain,
     lte: () => chain,
     maybeSingle: async () => normalized,
-    then: (resolve: (value: QueryResult) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve(normalized).then(resolve, reject),
+    then: promise.then.bind(promise),
   };
   return chain;
 }
 
 function createInsertChain(result: QueryResult) {
-  return {
+  const normalized = { data: result.data ?? null, error: result.error ?? null };
+  const promise = Promise.resolve(normalized);
+  const chain: InsertChain = {
     select: () => ({ maybeSingle: async () => ({ data: result.data ?? null, error: result.error ?? null }) }),
-    then: (resolve: (value: QueryResult) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve({ data: result.data ?? null, error: result.error ?? null }).then(resolve, reject),
+    then: promise.then.bind(promise),
   };
+  return chain;
 }
 
 function createUpdateChain(result: QueryResult) {
-  const chain: any = {
+  const normalized = { data: result.data ?? null, error: result.error ?? null };
+  const promise = Promise.resolve(normalized);
+  const chain: UpdateChain = {
     eq: () => chain,
-    then: (resolve: (value: QueryResult) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve({ data: result.data ?? null, error: result.error ?? null }).then(resolve, reject),
+    then: promise.then.bind(promise),
   };
   return chain;
 }
@@ -116,12 +150,19 @@ describe("GET /api/reports/send-summaries", () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
-    process.env.CRON_SECRET = originalCronSecret;
-    process.env.RESEND_API_KEY = originalResendApiKey ?? "re_test_key";
-    process.env.NODE_ENV = originalNodeEnv;
-    process.env.NEXT_PUBLIC_APP_URL = originalAppUrl ?? "https://app.oblixa.test";
     vi.resetModules();
+    vi.unstubAllEnvs();
+    restoreEnv("CRON_SECRET", originalCronSecret);
+    restoreEnv("RESEND_API_KEY", originalResendApiKey ?? "re_test_key");
+    if (originalNodeEnv !== undefined) {
+      vi.stubEnv("NODE_ENV", originalNodeEnv);
+    }
+    restoreEnv("NEXT_PUBLIC_APP_URL", originalAppUrl ?? "https://app.oblixa.test");
     forEachSupabaseRangePageMock.mockReset();
     rateLimitCheckMock.mockReset();
     pingCronHealthcheckMock.mockReset();
@@ -166,7 +207,7 @@ describe("GET /api/reports/send-summaries", () => {
 
   it("returns 503 dependency_blocked when canonical app url is unavailable", async () => {
     process.env.CRON_SECRET = "cronsecret";
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.APP_BASE_URL;
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;

@@ -820,7 +820,7 @@ jobs:
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:
     runs-on: ubuntu-latest
-    needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security]
+    needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security, quality_build_e2e]
     steps:
       - name: All checks passed
         run: echo "ok"

@@ -1,6 +1,6 @@
 import type { AdminClient } from "@/lib/v6/service";
 import { nowIso } from "@/lib/v5/api";
-import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
+import { collectSupabaseRangePages, type SupabaseRangePage } from "@/lib/supabase/range-pagination";
 import type { BatchItemError } from "@/lib/route-runtime-contract";
 
 const LARGE_PAGE_SIZE = 500;
@@ -68,7 +68,7 @@ function chunkArray<T>(items: readonly T[], size: number): T[][] {
   return chunks;
 }
 
-function riskFromSeverity(sev: string | undefined): number {
+function riskFromSeverity(sev: string | null | undefined): number {
   const s = String(sev ?? "").toLowerCase();
   if (s === "critical") return 90;
   if (s === "high") return 74;
@@ -78,7 +78,7 @@ function riskFromSeverity(sev: string | undefined): number {
 }
 
 async function collectRows<T>(input: {
-  fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+  fetchPage: (from: number, to: number) => PromiseLike<SupabaseRangePage<T>>;
   errors: BatchItemError[];
   scope: string;
   queryDiagnosticId: string;

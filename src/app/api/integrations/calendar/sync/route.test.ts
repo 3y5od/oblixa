@@ -44,7 +44,7 @@ vi.mock("@/lib/supabase/range-pagination", () => ({
 
 function createCalendarAdmin(rows: Array<Record<string, unknown>>) {
   const integrationUpdateEq = vi.fn(async () => ({ error: null }));
-  const auditInsert = vi.fn(async () => ({ error: null }));
+  const auditInsert = vi.fn(async (): Promise<{ error: { message: string } | null }> => ({ error: null }));
   return {
     admin: {
       from: vi.fn((table: string) => {

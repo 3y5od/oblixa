@@ -32,11 +32,11 @@ export function jsonOk<T extends Record<string, unknown>>(
   });
 }
 
-export function jsonProblem(
+export function jsonProblem<T extends ProblemBody>(
   status: number,
-  body: ProblemBody,
+  body: T,
   init?: { headers?: HeadersInit }
-): NextResponse<ProblemBody> {
+): NextResponse<T> {
   return NextResponse.json(body, {
     status,
     headers: mergeHeaders(init?.headers),

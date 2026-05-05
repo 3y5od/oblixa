@@ -360,7 +360,7 @@ export const GET = withCronRoute({
       } else if (savedView.view_type === "renewals") {
         const horizon = parsed.deadline || "renewal_90";
         const ids = (await getContractIdsForDeadlinePreset(admin, subscription.organization_id, horizon)) ?? [];
-        let q = admin
+        const q = admin
           .from("contracts")
           .select("id, title, counterparty, status", { count: "exact" })
           .eq("organization_id", subscription.organization_id)
@@ -417,12 +417,13 @@ export const GET = withCronRoute({
           errors.push(reportError(subscription.id, "transform", "report_summary_saved_view_missing", "saved view payload missing"));
           return;
         }
+        const selectedSavedView: SavedViewRow = savedView;
 
         const v6Org = await getV6OrgSettingsJson(admin, subscription.organization_id);
         const workspaceProductMode = v6Org.workspace_mode;
         const summarySubjectName = emailCopyUsesCoreSurface(workspaceProductMode)
-          ? degradeOutboundEmailCopyForCore(savedView.name)
-          : savedView.name;
+          ? degradeOutboundEmailCopyForCore(selectedSavedView.name)
+          : selectedSavedView.name;
 
         const emailAllowed = await isNotificationAllowed(admin, {
           organizationId: subscription.organization_id,
@@ -461,14 +462,15 @@ export const GET = withCronRoute({
           );
           return;
         }
-        reportRunId = reportRunResult.data.id;
+        const createdReportRunId = reportRunResult.data.id;
+        reportRunId = createdReportRunId;
 
         await pushAuditError(subscription.id, "report_summary_run_created_audit_failed", {
           organizationId: subscription.organization_id,
           actorUserId: subscription.user_id,
           action: "report_run.created",
           targetType: "report_run",
-          targetId: reportRunId,
+          targetId: createdReportRunId,
           outcome: "success",
           safeMetadata: { report_mode: "saved_view", subscription_id: subscription.id },
         });
@@ -478,7 +480,7 @@ export const GET = withCronRoute({
         const recipients = [...new Set([ownerEmail, ...extraRecipients].filter(Boolean))] as string[];
         if (recipients.length === 0) {
           refreshOrganizations.add(subscription.organization_id);
-          await updateReportRun(reportRunId, subscription.id, "report_summary_run_no_recipient_update_failed", {
+          await updateReportRun(createdReportRunId, subscription.id, "report_summary_run_no_recipient_update_failed", {
             status: "failed",
             finished_at: new Date().toISOString(),
             error_summary: "No recipients configured",
@@ -497,7 +499,7 @@ export const GET = withCronRoute({
           const { error } = await admin.from("report_run_recipients").upsert(
             recipientChunk.map((recipient) => ({
               organization_id: subscription.organization_id,
-              report_run_id: reportRunId,
+              report_run_id: createdReportRunId,
               recipient_email: recipient,
               engagement_token: recipientTokens.get(recipient),
               delivery_status: "pending",
@@ -507,7 +509,7 @@ export const GET = withCronRoute({
           if (error) {
             errors.push(reportError(subscription.id, "persist", "report_summary_recipient_registration_failed", error.message));
             refreshOrganizations.add(subscription.organization_id);
-            await updateReportRun(reportRunId, subscription.id, "report_summary_run_registration_failure_update_failed", {
+            await updateReportRun(createdReportRunId, subscription.id, "report_summary_run_registration_failure_update_failed", {
               status: "failed",
               finished_at: new Date().toISOString(),
               error_summary: "Recipient registration failed",
@@ -516,10 +518,10 @@ export const GET = withCronRoute({
           }
         }
 
-        const summary = await buildSummary(subscription, savedView);
-        if (!summary) {
+        const summaryData = await buildSummary(subscription, selectedSavedView);
+        if (!summaryData) {
           refreshOrganizations.add(subscription.organization_id);
-          await updateReportRun(reportRunId, subscription.id, "report_summary_run_summary_failure_update_failed", {
+          await updateReportRun(createdReportRunId, subscription.id, "report_summary_run_summary_failure_update_failed", {
             status: "failed",
             finished_at: new Date().toISOString(),
             error_summary: "Saved view query failed",
@@ -532,6 +534,7 @@ export const GET = withCronRoute({
           });
           return;
         }
+        const finalizedSummary: SummaryData = summaryData;
 
         let deliveredRecipients = 0;
         const recipientErrors: BatchItemError[] = [];
@@ -540,15 +543,15 @@ export const GET = withCronRoute({
           while (recipientIndex < recipients.length) {
             const recipient = recipients[recipientIndex++];
             const token = recipientTokens.get(recipient);
-            const trackedRows = summary.sampleRows.map((sample) => ({
+            const trackedRows = finalizedSummary.sampleRows.map((sample) => ({
               ...sample,
               href: token
                 ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${normalizedAppUrl}${sample.href}`)}`
                 : sample.href,
             }));
             const trackedWorkspacePath = token
-              ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${normalizedAppUrl}${summary.workspacePath}`)}`
-              : summary.workspacePath;
+              ? `/api/reports/track/click/${token}?target=${encodeURIComponent(`${normalizedAppUrl}${finalizedSummary.workspacePath}`)}`
+              : finalizedSummary.workspacePath;
 
             try {
               const delivery = await deliverWithRetries(admin, {
@@ -557,14 +560,14 @@ export const GET = withCronRoute({
                 notificationType: "saved_view_summary",
                 recipient,
                 subject: `${subscription.frequency === "monthly" ? "Monthly" : "Weekly"} summary: ${summarySubjectName}`,
-                metadata: { subscription_id: subscription.id, report_run_id: reportRunId },
+                metadata: { subscription_id: subscription.id, report_run_id: createdReportRunId },
                 maxAttempts: 3,
                 retryPayload: {
                   kind: "saved_view_summary",
                   to: recipient,
-                  viewName: savedView.name,
+                  viewName: selectedSavedView.name,
                   appUrl,
-                  itemCount: summary.count,
+                  itemCount: finalizedSummary.count,
                   workspacePath: trackedWorkspacePath,
                   sampleRows: trackedRows,
                   openPixelUrl: token ? `${normalizedAppUrl}/api/reports/track/open/${token}` : null,
@@ -573,9 +576,9 @@ export const GET = withCronRoute({
                 send: () =>
                   sendSavedViewSummaryEmail({
                     to: recipient,
-                    viewName: savedView.name,
+                    viewName: selectedSavedView.name,
                     appUrl,
-                    itemCount: summary.count,
+                    itemCount: finalizedSummary.count,
                     workspacePath: trackedWorkspacePath,
                     sampleRows: trackedRows,
                     openPixelUrl: token ? `${normalizedAppUrl}/api/reports/track/open/${token}` : null,
@@ -593,7 +596,7 @@ export const GET = withCronRoute({
                   )
                 );
                 await updateRecipientStatus(
-                  reportRunId,
+                  createdReportRunId,
                   recipient,
                   `${subscription.id}:${recipient}`,
                   "report_summary_recipient_failure_update_failed",
@@ -607,7 +610,7 @@ export const GET = withCronRoute({
 
               deliveredRecipients += 1;
               await updateRecipientStatus(
-                reportRunId,
+                createdReportRunId,
                 recipient,
                 `${subscription.id}:${recipient}`,
                 "report_summary_recipient_success_update_failed",
@@ -627,7 +630,7 @@ export const GET = withCronRoute({
                 )
               );
               await updateRecipientStatus(
-                reportRunId,
+                createdReportRunId,
                 recipient,
                 `${subscription.id}:${recipient}`,
                 "report_summary_recipient_unhandled_status_update_failed",
@@ -644,14 +647,14 @@ export const GET = withCronRoute({
         refreshOrganizations.add(subscription.organization_id);
 
         if (deliveredRecipients === 0) {
-          await updateReportRun(reportRunId, subscription.id, "report_summary_run_delivery_failure_update_failed", {
+          await updateReportRun(createdReportRunId, subscription.id, "report_summary_run_delivery_failure_update_failed", {
             status: "failed",
             finished_at: new Date().toISOString(),
             error_summary: "No deliveries succeeded",
             metrics_json: {
-              item_count: summary.count,
-              exception_count: summary.exceptionCount,
-              weekly_active_transitions: summary.trendWeeklyActive,
+              item_count: finalizedSummary.count,
+              exception_count: finalizedSummary.exceptionCount,
+              weekly_active_transitions: finalizedSummary.trendWeeklyActive,
             },
           });
           await pushTelemetryError(subscription.id, "report_summary_delivery_failure_telemetry_failed", {
@@ -678,14 +681,14 @@ export const GET = withCronRoute({
           );
         }
 
-        await updateReportRun(reportRunId, subscription.id, "report_summary_run_success_update_failed", {
+        await updateReportRun(createdReportRunId, subscription.id, "report_summary_run_success_update_failed", {
           status: "succeeded",
           finished_at: new Date().toISOString(),
           metrics_json: {
-            item_count: summary.count,
-            exception_count: summary.exceptionCount,
-            weekly_active_transitions: summary.trendWeeklyActive,
-            sample_count: summary.sampleRows.length,
+            item_count: finalizedSummary.count,
+            exception_count: finalizedSummary.exceptionCount,
+            weekly_active_transitions: finalizedSummary.trendWeeklyActive,
+            sample_count: finalizedSummary.sampleRows.length,
             recipient_count: recipients.length,
             delivered_recipient_count: deliveredRecipients,
           },
@@ -695,7 +698,7 @@ export const GET = withCronRoute({
           actorUserId: subscription.user_id,
           action: "report_run.completed",
           targetType: "report_run",
-          targetId: reportRunId,
+          targetId: createdReportRunId,
           outcome: "success",
           safeMetadata: { recipient_count: recipients.length, delivered_recipient_count: deliveredRecipients },
         });
@@ -706,7 +709,7 @@ export const GET = withCronRoute({
           details: {
             status: "succeeded",
             report_mode: "saved_view",
-            item_count: summary.count,
+            item_count: finalizedSummary.count,
             recipient_count: recipients.length,
             delivered_recipient_count: deliveredRecipients,
           },

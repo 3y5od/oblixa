@@ -56,7 +56,8 @@ export function safeErrorMessage(error: unknown, maxLen = 180): string | undefin
   return redacted.slice(0, maxLen);
 }
 
-export function safeErrorDetails(error: unknown): Pick<RouteDependencyFailure, "phase"> & {
+export function safeErrorDetails(error: unknown): {
+  phase: RouteFailurePhase;
   error_class: string;
   error_message?: string;
 } {
