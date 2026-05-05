@@ -106,6 +106,7 @@
     "check:github-scheduled-workflows-secrets",
     "check:github-workflows-security",
     "check:github-workflows-yaml",
+    "check:gitleaks-allowlist",
     "check:graphql-cost-depth-guards",
     "check:graphql-cost-surface",
     "check:graphql-introspection-exposure",

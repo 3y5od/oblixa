@@ -6,7 +6,17 @@ type ClaimFilter =
 
 type ClaimableAdmin = {
   from: (table: string) => {
-    update: (values: Record<string, unknown>) => any;
+    update: (values: Record<string, unknown>) => ClaimableQueryChain<unknown>;
+  };
+};
+
+type ClaimableQueryChain<T> = {
+  eq: (column: string, value: string | number | boolean | null) => ClaimableQueryChain<T>;
+  in: (column: string, values: Array<string | number | boolean>) => ClaimableQueryChain<T>;
+  lte: (column: string, value: string | number) => ClaimableQueryChain<T>;
+  or: (expression: string) => ClaimableQueryChain<T>;
+  select: (columns: string) => {
+    maybeSingle: () => PromiseLike<{ data: T | null; error: { message: string; code?: string } | null }>;
   };
 };
 

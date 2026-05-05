@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { rebuildHealthGraphFromPortfolio } from "@/lib/v6/health-graph";
 
-type ReadResult = { data: any[] | null; error: { message: string } | null };
+type ReadResult = { data: unknown[] | null; error: { message: string } | null };
 type NodeUpsertResult = { data: { id: string } | null; error: { message: string } | null };
 type EdgeUpsertResult = { error: { message: string } | null };
+
+type ReadChain = PromiseLike<ReadResult> & {
+  eq: () => ReadChain;
+  in: () => ReadChain;
+  not: () => ReadChain;
+  order: () => ReadChain;
+  range: () => Promise<ReadResult>;
+  limit: () => never;
+};
 
 function createHealthGraphAdminMock(input?: {
   reads?: Record<string, ReadResult[]>;
@@ -27,7 +36,7 @@ function createHealthGraphAdminMock(input?: {
     from(table: string) {
       return {
         select() {
-          const chain: any = {
+          const chain: ReadChain = {
             eq: () => chain,
             in: () => chain,
             not: () => chain,
@@ -36,8 +45,7 @@ function createHealthGraphAdminMock(input?: {
             limit: () => {
               throw new Error(`unexpected limit() on ${table}`);
             },
-            then: (resolve: (value: ReadResult) => unknown, reject?: (reason: unknown) => unknown) =>
-              Promise.resolve(nextRead(table)).then(resolve, reject),
+            then: (onfulfilled, onrejected) => Promise.resolve(nextRead(table)).then(onfulfilled, onrejected),
           };
           return chain;
         },

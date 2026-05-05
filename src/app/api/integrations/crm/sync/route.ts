@@ -9,6 +9,20 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+type PersistAdmin = {
+  from: (table: string) => {
+    update: (payload: Record<string, unknown>) => {
+      eq: (column: string, value: string) => PromiseLike<{ error: { message: string } | null }>;
+    };
+  };
+};
+
+type RenewalScenarioRow = {
+  contract_id: string | null;
+  scenario: unknown;
+  workspace_status: unknown;
+};
+
 function appendRouteError(
   errors: Array<Record<string, unknown>>,
   input: {
@@ -33,7 +47,7 @@ function appendRouteError(
 }
 
 async function updateConnectionState(
-  admin: any,
+  admin: PersistAdmin,
   connectionId: string,
   payload: Record<string, unknown>,
   errors: Array<Record<string, unknown>>,
@@ -54,7 +68,7 @@ async function updateConnectionState(
 }
 
 async function updateContractState(
-  admin: any,
+  admin: PersistAdmin,
   contractId: string,
   payload: Record<string, unknown>,
   errors: Array<Record<string, unknown>>,
@@ -199,7 +213,10 @@ export const GET = withCronRoute({
               }
 
               const renewalByContract = new Map(
-                (renewalScenarios ?? []).map((row: any) => [row.contract_id, { scenario: row.scenario, workspace_status: row.workspace_status }])
+                (renewalScenarios ?? []).map((row) => {
+                  const typedRow = row as RenewalScenarioRow;
+                  return [typedRow.contract_id, { scenario: typedRow.scenario, workspace_status: typedRow.workspace_status }] as const;
+                })
               );
               const riskByContract = new Map<string, { openExceptions: number; criticalExceptions: number }>();
               for (const row of openExceptions ?? []) {

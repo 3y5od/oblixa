@@ -7,7 +7,12 @@ function createOutcomeAdmin(result: { data: unknown[]; error: { message: string 
     error: result.error,
     count: result.count ?? null,
   };
-  const chain: any = {
+  type OutcomeReadChain = {
+    eq: () => OutcomeReadChain;
+    order: () => OutcomeReadChain;
+    limit: () => Promise<typeof normalized>;
+  };
+  const chain: OutcomeReadChain = {
     eq: () => chain,
     order: () => chain,
     limit: () => Promise.resolve(normalized),

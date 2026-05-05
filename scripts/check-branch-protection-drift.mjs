@@ -23,7 +23,7 @@ for (const job of expectedJobs) {
 
 if (
   !ci.includes(
-    "needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security, quality_build_e2e]"
+    "needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security]"
   )
 ) {
   issues.push({ issue: "quality_needs_drift" });

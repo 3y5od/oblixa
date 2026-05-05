@@ -9,11 +9,31 @@ vi.mock("@/lib/integrations/slack", () => ({
   sendSlackWorkflowNotification: vi.fn(async () => undefined),
 }));
 
-type QueryResult = { data: any; error: { message: string; code?: string } | null };
+type QueryResult = { data: unknown; error: { message: string; code?: string } | null };
+
+type AwaitableQueryChain = PromiseLike<QueryResult> & {
+  eq: () => AwaitableQueryChain;
+  in: () => AwaitableQueryChain;
+  order: () => AwaitableQueryChain;
+  limit: () => AwaitableQueryChain;
+  not: () => AwaitableQueryChain;
+  contains: () => AwaitableQueryChain;
+  gte: () => AwaitableQueryChain;
+  lt: () => AwaitableQueryChain;
+  maybeSingle: () => Promise<QueryResult>;
+  single: () => Promise<QueryResult>;
+};
+
+type InsertResult = { data: unknown; error: { message: string; code?: string } | null };
+
+type InsertChain = PromiseLike<InsertResult> & {
+  select: () => { single: () => Promise<InsertResult> };
+};
 
 function createAwaitableChain(result: QueryResult) {
   const normalized = { data: result.data ?? null, error: result.error ?? null };
-  const chain: any = {
+  const promise = Promise.resolve(normalized);
+  const chain: AwaitableQueryChain = {
     eq: () => chain,
     in: () => chain,
     order: () => chain,
@@ -24,18 +44,19 @@ function createAwaitableChain(result: QueryResult) {
     lt: () => chain,
     maybeSingle: async () => normalized,
     single: async () => normalized,
-    then: (resolve: (value: QueryResult) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve(normalized).then(resolve, reject),
+    then: promise.then.bind(promise),
   };
   return chain;
 }
 
 function createInsertChain(result: QueryResult) {
-  return {
+  const normalized = { data: result.data ?? null, error: result.error ?? null };
+  const promise = Promise.resolve(normalized);
+  const chain: InsertChain = {
     select: () => ({ single: async () => ({ data: result.data ?? null, error: result.error ?? null }) }),
-    then: (resolve: (value: QueryResult) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve({ data: result.data ?? null, error: result.error ?? null }).then(resolve, reject),
+    then: promise.then.bind(promise),
   };
+  return chain;
 }
 
 function createAdminMock(input: {

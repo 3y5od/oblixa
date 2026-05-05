@@ -52,7 +52,7 @@ export function respondCronMissingEnv(init?: { headers?: HeadersInit; request?: 
 }
 
 export function respondCronUnauthorized(init?: { headers?: HeadersInit; request?: Request }): NextResponse {
-  console.warn("[cron] denied reason=bad_bearer_or_header");
+  console.warn("[cron] denied reason=invalid_secret_or_header");
   const route = safeRouteFromRequest(init?.request);
   return NextResponse.json(
     {

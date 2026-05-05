@@ -9,6 +9,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+type PersistAdmin = {
+  from: (table: string) => {
+    update: (payload: Record<string, unknown>) => {
+      eq: (column: string, value: string) => PromiseLike<{ error: { message: string } | null }>;
+    };
+  };
+};
+
 function appendRouteError(
   errors: Array<Record<string, unknown>>,
   input: {
@@ -31,7 +39,7 @@ function appendRouteError(
 }
 
 async function updateConnectionState(
-  admin: any,
+  admin: PersistAdmin,
   connectionId: string,
   payload: Record<string, unknown>,
   errors: Array<Record<string, unknown>>,
