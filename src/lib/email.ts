@@ -1,21 +1,37 @@
-import { Resend } from "resend";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import {
   degradeOutboundEmailCopyForCore,
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
 
-let resend: Resend | null = null;
+type EmailSendPayload = {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
+};
 
-function getResendClient(): Resend | null {
-  if (resend) return resend;
+async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Error | null }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
     console.error("[email] RESEND_API_KEY is not configured");
-    return null;
+    return { error: new Error("Email provider is not configured") };
   }
-  resend = new Resend(apiKey);
-  return resend;
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) return { error: null };
+    const text = await res.text().catch(() => "");
+    return { error: new Error(`Email provider send failed (${res.status}): ${text.slice(0, 500)}`) };
+  } catch (error) {
+    return { error: error instanceof Error ? error : new Error(String(error)) };
+  }
 }
 
 function sanitizeSubject(s: string): string {
@@ -51,10 +67,6 @@ export async function sendReminderEmail({
   contractUrl,
   sourceSnippet,
 }: ReminderEmailParams) {
-  const resendClient = getResendClient();
-  if (!resendClient) {
-    return { error: new Error("Email provider is not configured") };
-  }
   const label = fieldName.replace(/_/g, " ");
   const urgency =
     daysUntil <= 1 ? "URGENT" : daysUntil <= 7 ? "Upcoming" : "Reminder";
@@ -68,7 +80,7 @@ export async function sendReminderEmail({
       ? escapeHtml(sourceSnippet.trim())
       : null;
 
-  const { error } = await resendClient.emails.send({
+  const { error } = await sendResendEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: sanitizeSubject(`${urgency}: ${label} for "${contractTitle}" in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`),
@@ -117,11 +129,7 @@ export async function sendReviewBoardPacketEmail({
   subject: string;
   htmlBody: string;
 }) {
-  const resendClient = getResendClient();
-  if (!resendClient) {
-    return { error: new Error("Email provider is not configured") };
-  }
-  const { error } = await resendClient.emails.send({
+  const { error } = await sendResendEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: sanitizeSubject(subject),
@@ -135,12 +143,8 @@ export async function sendWorkspaceInviteLinkEmail(opts: {
   to: string;
   actionUrl: string;
 }): Promise<{ error: Error | null }> {
-  const resendClient = getResendClient();
-  if (!resendClient) {
-    return { error: new Error("Email provider is not configured") };
-  }
   const safeUrl = escapeHtml(opts.actionUrl);
-  const { error } = await resendClient.emails.send({
+  const { error } = await sendResendEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to: opts.to,
     subject: sanitizeSubject("You're invited to an Oblixa workspace"),
@@ -163,7 +167,7 @@ export async function sendWorkspaceInviteLinkEmail(opts: {
       </div>
     `,
   });
-  return { error: error ? new Error(error.message) : null };
+  return { error };
 }
 
 interface SavedViewSummaryEmailParams {
@@ -188,10 +192,6 @@ export async function sendSavedViewSummaryEmail({
   openPixelUrl,
   workspaceProductMode,
 }: SavedViewSummaryEmailParams) {
-  const resendClient = getResendClient();
-  if (!resendClient) {
-    return { error: new Error("Email provider is not configured") };
-  }
   const coreCopy = emailCopyUsesCoreSurface(workspaceProductMode);
   const viewNameForEmail = coreCopy ? degradeOutboundEmailCopyForCore(viewName) : viewName;
   const rowsForEmail = coreCopy
@@ -222,7 +222,7 @@ export async function sendSavedViewSummaryEmail({
             .join("")}
         </ul>`;
 
-  const { error } = await resendClient.emails.send({
+  const { error } = await sendResendEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: sanitizeSubject(`Weekly summary: ${viewNameForEmail} (${itemCount})`),
@@ -276,10 +276,6 @@ export async function sendReportPackDigestEmail({
   reportsPath = "/contracts/reports",
   workspaceProductMode,
 }: ReportPackDigestEmailParams) {
-  const resendClient = getResendClient();
-  if (!resendClient) {
-    return { error: new Error("Email provider is not configured") };
-  }
   const coreCopy = emailCopyUsesCoreSurface(workspaceProductMode);
   const packNameForEmail = coreCopy ? degradeOutboundEmailCopyForCore(packName) : packName;
   const reportTypeForEmail = coreCopy ? degradeOutboundEmailCopyForCore(reportType) : reportType;
@@ -309,7 +305,7 @@ export async function sendReportPackDigestEmail({
             .join("")}
         </table>`;
 
-  const { error } = await resendClient.emails.send({
+  const { error } = await sendResendEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: sanitizeSubject(`Report pack: ${packNameForEmail}`),

@@ -877,8 +877,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
           COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
-          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
-          APP_BASE_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_APP_URL: https://www.oblixa.io
+          APP_BASE_URL: https://www.oblixa.io
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
         run: |
@@ -905,6 +905,7 @@ jobs:
               echo "::error::Local next start never returned HTTP 401 for unsigned GET /api/reminders/send (last status ${code})"
               exit 1
             fi
+            export COMPREHENSIVE_PASS_BASE_URL=http://127.0.0.1:3000
             npm run check:comprehensive-pass
           fi
 

@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
     "mammoth",
     "openai",
     "pdf-parse",
-    "resend",
     "stripe",
   ],
   allowedDevOrigins: ["127.0.0.1", "localhost"],

@@ -52,12 +52,16 @@ describe(".github/workflows/ci.yml", () => {
   it("keeps runtime comprehensive local fallback env available before next start", () => {
     const text = readWorkflow("ci.yml");
     const fallback = text.slice(text.indexOf("Runtime comprehensive pass (staging + local Next fallback)"));
-    expect(fallback).toContain("NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000");
-    expect(fallback).toContain("APP_BASE_URL: http://127.0.0.1:3000");
+    const localFallback = fallback.slice(fallback.indexOf("building local Next for comprehensive-pass fallback"));
+    expect(fallback).toContain("NEXT_PUBLIC_APP_URL: https://www.oblixa.io");
+    expect(fallback).toContain("APP_BASE_URL: https://www.oblixa.io");
     expect(fallback).toContain("RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}");
     expect(fallback).toContain("EMAIL_FROM: ${{ secrets.EMAIL_FROM }}");
     expect(fallback.indexOf('export RESEND_API_KEY="${RESEND_API_KEY:-runtime-comprehensive-local-placeholder}"')).toBeLessThan(
       fallback.indexOf("npm run build")
+    );
+    expect(localFallback.indexOf("export COMPREHENSIVE_PASS_BASE_URL=http://127.0.0.1:3000")).toBeLessThan(
+      localFallback.lastIndexOf("npm run check:comprehensive-pass")
     );
   });
 });
