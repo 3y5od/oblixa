@@ -11,8 +11,10 @@ describe("client telemetry is fire-and-forget (V9 §28)", () => {
       join(process.cwd(), "src/components/layout/v9-page-load-reporter.tsx"),
       "utf8"
     );
-    expect(src).toMatch(/navigator\.sendBeacon/);
-    expect(src).toMatch(/keepalive:\s*true/);
+    const httpClient = readFileSync(join(process.cwd(), "src/lib/http/client-json.ts"), "utf8");
+    expect(src).toMatch(/sendJsonKeepalive/);
+    expect(httpClient).toMatch(/navigator\.sendBeacon/);
+    expect(httpClient).toMatch(/keepalive:\s*true/);
     expect(src).not.toMatch(/emitPageLoadMeasuredTelemetry/);
   });
 

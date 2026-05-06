@@ -298,6 +298,7 @@
     "check:upload-banlist",
     "check:upload-security-guards",
     "check:url-canonicalization-security",
+    "check:user-facing-interactions",
     "check:v10-complete-closure",
     "check:v10-inventory-lock",
     "check:v10-migration-smoke",

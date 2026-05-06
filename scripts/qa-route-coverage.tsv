@@ -16,6 +16,7 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /relationship-workspaces	n	n	v5_surfaces_optional	pending_human	n	0	n	404_if_flag_off
 /settings	y	y	authenticated	pending_human	y	1	n	UI-2026-001_layout_fixed
 /settings/operations	y	y	authenticated	pending_human	n	0	n	
+/settings/security	y	y	authenticated	pending_human	y	0	n	settings_segment_loading
 /settings/billing	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
 /settings/health	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
 /settings/policy	y	y	authenticated	pending_human	n	0	n	

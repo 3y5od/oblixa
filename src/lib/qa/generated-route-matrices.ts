@@ -15,8 +15,7 @@ export const GENERATED_AUTHENTICATED_CORE_A11Y_PATHS = GENERATED_AUTHENTICATED_R
     hasCoverage(entry, "a11y") &&
     entry.workspaceModeTier !== "utility" &&
     entry.workspaceModeTier !== "advanced" &&
-    entry.workspaceModeTier !== "assurance" &&
-    entry.route !== "/onboarding/calibration"
+    entry.workspaceModeTier !== "assurance"
 ).map((entry) => entry.visitPath);
 
 export const GENERATED_AUTHENTICATED_UTILITY_A11Y_PATHS = GENERATED_AUTHENTICATED_ROUTES.filter(

@@ -52,7 +52,7 @@ describe("V10 performance budget contract", () => {
     expect(k6Smoke).toContain("K6_PATHS");
     expect(k6Smoke).toContain("STAGING_BASE_URL");
     expect(k6Runner).toContain('path.join(root, "k6", "smoke.js")');
-    expect(commandPalette).toContain('fetch(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`');
+    expect(commandPalette).toContain('fetchJson(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`');
     expect(commandPalette).toMatch(/window\.setTimeout\([\s\S]*, 160\);/);
     expect(coreGating).toContain('productSurface.mode === "assurance"');
     expect(coreGating).toContain('.from("assurance_findings")');

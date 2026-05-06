@@ -134,10 +134,17 @@ export async function mutateJson<T = Record<string, unknown>>(
   }
 }
 
+function beaconUrlFor(input: RequestInfo | URL): string | URL | null {
+  if (typeof input === "string" || input instanceof URL) return input;
+  if (typeof Request !== "undefined" && input instanceof Request) return input.url;
+  return null;
+}
+
 export function sendJsonKeepalive(input: RequestInfo | URL, body: string): void {
   if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
     const blob = new Blob([body], { type: "application/json" });
-    if (navigator.sendBeacon(input, blob)) return;
+    const beaconUrl = beaconUrlFor(input);
+    if (beaconUrl && navigator.sendBeacon(beaconUrl, blob)) return;
   }
 
   void fetch(input, {

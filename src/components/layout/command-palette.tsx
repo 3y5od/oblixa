@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
 import { ArrowRight, Clock3, Search } from "lucide-react";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
@@ -46,6 +46,14 @@ import {
   type ContractPaletteResult,
   type PaletteItem,
 } from "./command-palette-helpers";
+
+function persistRecentCommands(next: string[]) {
+  try {
+    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next));
+  } catch {
+    // Ignore storage write errors.
+  }
+}
 
 export function CommandPalette(props: {
   role?: WorkspaceRole;
@@ -95,13 +103,13 @@ export function CommandPalette(props: {
   const lastCmdkTelemetryAt = useRef(0);
   const lastZeroQueryKey = useRef<string | null>(null);
 
-  function persistRecentCommands(next: string[]) {
-    try {
-      window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next));
-    } catch {
-      // Ignore storage write errors.
-    }
-  }
+  const rememberCommand = useCallback((item: PaletteItem) => {
+    setRecentHrefs((current) => {
+      const next = [item.href, ...current.filter((href) => href !== item.href)].slice(0, 6);
+      persistRecentCommands(next);
+      return next;
+    });
+  }, []);
 
   function clearRemoteSearchFeedback() {
     setRemoteSearchFailed(false);
@@ -416,15 +424,7 @@ export function CommandPalette(props: {
     }
     window.addEventListener("keydown", onEnter);
     return () => window.removeEventListener("keydown", onEnter);
-  }, [clampedActiveIndex, deferredFilterQ.length, flatItems, open, router]);
-
-  function rememberCommand(item: PaletteItem) {
-    setRecentHrefs((current) => {
-      const next = [item.href, ...current.filter((href) => href !== item.href)].slice(0, 6);
-      persistRecentCommands(next);
-      return next;
-    });
-  }
+  }, [clampedActiveIndex, deferredFilterQ.length, flatItems, open, rememberCommand, router]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-05T01:34:58.696Z",
+  "generatedAt": "2026-05-06T10:08:49.131Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -1356,6 +1356,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ui-surface-consistency.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-unicode-confusable-security.mjs",
       "primaryEpicNumber": null
     },
@@ -1385,6 +1389,10 @@
     },
     {
       "path": "scripts/check-url-canonicalization-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-user-facing-interactions.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1587,6 +1595,10 @@
     },
     {
       "path": "scripts/report-type-lint-strictness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-user-facing-interactions.mjs",
       "primaryEpicNumber": null
     }
   ],
