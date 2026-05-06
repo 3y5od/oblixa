@@ -32,6 +32,7 @@
 /counterparties/[key]               src/app/(dashboard)/counterparties/[key]/loading.tsx
 /relationship-workspaces            src/app/(dashboard)/relationship-workspaces/loading.tsx
 /settings                           src/app/(dashboard)/settings/loading.tsx
+/settings/security                  src/app/(dashboard)/settings/loading.tsx
 /onboarding/calibration             src/app/(dashboard)/onboarding/calibration/loading.tsx
 /decisions                          src/app/(dashboard)/decisions/loading.tsx
 /assurance                          src/app/(dashboard)/assurance/loading.tsx
