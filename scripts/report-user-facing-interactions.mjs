@@ -106,6 +106,10 @@ function hasE2eReference(route, e2eCorpus) {
 }
 
 function interactionRisk(kind, snippet) {
+  if (kind === "client_http_helper") {
+    if (/method:\s*"(POST|PUT|PATCH|DELETE)"/.test(snippet)) return "medium";
+    return "low";
+  }
   if (kind === "raw_client_fetch") {
     if (/method:\s*"(POST|PUT|PATCH|DELETE)"/.test(snippet)) return "high";
     return "medium";
@@ -119,6 +123,7 @@ function interactionRisk(kind, snippet) {
 }
 
 function extractTarget(kind, snippet) {
+  if (kind === "client_http_helper") return /(?:fetchJson|mutateJson)\(([^,)]+)/.exec(snippet)?.[1]?.trim() ?? null;
   if (kind === "raw_client_fetch") return /fetch\(([^,)]+)/.exec(snippet)?.[1]?.trim() ?? null;
   if (kind === "imperative_navigation") {
     return (
@@ -170,11 +175,15 @@ function collectInteractionRows(root = ROOT) {
       if (/\.tsx$/.test(relPath)) {
         addRows(rows, relPath, "button", line.match(/<button\b/g)?.length ?? 0, lineNumber, snippet, route, e2eCorpus);
         addRows(rows, relPath, "form", line.match(/<form\b/g)?.length ?? 0, lineNumber, snippet, route, e2eCorpus);
-        addRows(rows, relPath, "link", line.match(/<(?:Link|a)\b/g)?.length ?? 0, lineNumber, snippet, route, e2eCorpus);
+        addRows(rows, relPath, "link", line.match(/<(?:Link|ExternalLink|a)\b/g)?.length ?? 0, lineNumber, snippet, route, e2eCorpus);
       }
 
       if (isClientModule && /\bfetch\s*\(/.test(line) && !/\b(?:fetchJson|mutateV10|safeFetch)\s*\(/.test(line)) {
         addRows(rows, relPath, "raw_client_fetch", 1, lineNumber, snippet, route, e2eCorpus);
+      }
+
+      if (isClientModule && /\b(?:fetchJson|mutateJson)\s*\(/.test(line)) {
+        addRows(rows, relPath, "client_http_helper", 1, lineNumber, snippet, route, e2eCorpus);
       }
 
       if (isClientModule && /router\.(?:push|replace)\(|window\.location\.(?:assign|replace)|window\.location\.href\s*=/.test(snippet)) {
@@ -184,6 +193,8 @@ function collectInteractionRows(root = ROOT) {
       if (/target=\"_blank\"/.test(snippet)) {
         addRows(rows, relPath, "new_tab_link", 1, lineNumber, snippet, route, e2eCorpus);
       }
+
+      addRows(rows, relPath, "new_tab_link", line.match(/<ExternalLink\b/g)?.length ?? 0, lineNumber, snippet, route, e2eCorpus);
     }
   }
 

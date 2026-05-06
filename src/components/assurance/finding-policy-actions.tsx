@@ -6,6 +6,8 @@ import { AsyncActionButton } from "@/components/ui/async-action-button";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
 
+// V7 exempt: linked control-policy href is rendered only inside governed assurance finding surfaces.
+
 type Props = {
   policyId: string;
   canSimulate: boolean;

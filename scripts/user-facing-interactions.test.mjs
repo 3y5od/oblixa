@@ -13,7 +13,7 @@ test("buildUserFacingInteractionReport includes settings/security and interactio
   assert.equal(securityRoute.owner, "security");
   assert.equal(securityRoute.visitPath, "/settings/security");
   assert.ok(report.interactions.total > 0);
-  assert.ok((report.interactions.byKind.raw_client_fetch ?? 0) > 0);
+  assert.ok((report.interactions.byKind.client_http_helper ?? 0) > 0);
   assert.ok((report.interactions.byKind.new_tab_link ?? 0) > 0);
 });
 

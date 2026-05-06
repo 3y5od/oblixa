@@ -75,7 +75,7 @@ export async function resolveAppBaseUrl(): Promise<string> {
       const proto =
         h.get("x-forwarded-proto") ??
         (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
-      return normalizeOrigin(`${proto}://${host}`);
+      return `${proto}://${host}`.replace(/\/+$/, "");
     }
   } catch {
     // headers() unavailable outside a request

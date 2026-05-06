@@ -10,6 +10,8 @@ import { ExternalLink } from "@/components/ui/external-link";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
 
+// V7 exempt: campaign compare href is gated by showCompareLink from caller surface eligibility.
+
 type Props = {
   campaignId: string;
   status: string;

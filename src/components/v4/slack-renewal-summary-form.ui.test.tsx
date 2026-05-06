@@ -12,7 +12,8 @@ describe("SlackRenewalSummaryForm", () => {
   it("posts renewal summary details with accessible fields", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({}),
+      status: 200,
+      text: async () => "{}",
     });
     vi.stubGlobal("fetch", fetchMock);
 
