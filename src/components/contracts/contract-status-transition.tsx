@@ -20,11 +20,11 @@ const buttonStyles: Record<string, string> = {
   active:
     "border border-emerald-200/80 bg-emerald-50 text-emerald-900 hover:border-emerald-300 hover:bg-emerald-100/70",
   pending_review:
-    "border border-amber-200/80 bg-amber-50 text-amber-900 hover:border-amber-300 hover:bg-amber-100/70",
+    "border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)] hover:border-[var(--warning)] hover:bg-[color:color-mix(in_oklab,var(--warning)_16%,var(--surface))]",
   expired:
     "border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-primary)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_65%,var(--canvas))]",
   terminated:
-    "border border-red-200/80 bg-red-50 text-red-900 hover:border-red-300 hover:bg-red-100/70",
+    "border border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)] hover:border-[var(--danger)] hover:bg-[color:color-mix(in_oklab,var(--danger)_14%,var(--surface))]",
 };
 
 interface ContractStatusTransitionProps {

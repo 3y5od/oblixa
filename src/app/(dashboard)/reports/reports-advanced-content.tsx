@@ -190,7 +190,7 @@ export async function ReportsAdvancedContent(props: {
                 primaryValue={s.value}
                 primaryUnit="current count"
                 breakdown={[{ label: "Severity", value: s.severity }]}
-                action={{ href: "/reports#portfolio-signals", label: "View on this page" }}
+                action={{ href: "/reports#portfolio-signals", label: "Review portfolio signals" }}
                 variant="compact"
               />
             ))}

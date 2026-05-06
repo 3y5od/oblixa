@@ -90,7 +90,7 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
           <ul className="mt-2 space-y-2">
             {simResult.map((e) => (
               <li key={e.evaluation_unit_key} className="border-t border-[var(--border-subtle)] pt-2 first:border-t-0 first:pt-0">
-                <span className={e.pass ? "text-emerald-700" : "text-amber-800"}>
+                <span className={e.pass ? "text-emerald-700" : "text-[var(--warning-ink)]"}>
                   {e.pass ? "Pass" : "Breach"} · {e.scope_label}
                 </span>
                 <span className="ml-2 text-[var(--text-tertiary)]">({e.enforcement_mode})</span>

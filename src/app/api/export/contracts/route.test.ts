@@ -237,7 +237,7 @@ describe("GET /api/export/contracts", () => {
                   })),
                 };
               }
-              if (selection === "user_id, profiles!inner(email)") {
+              if (selection === "user_id") {
                 return {
                   eq: vi.fn((col: string, val: string) => {
                     eqLog.push({ table, col, val });
@@ -245,7 +245,7 @@ describe("GET /api/export/contracts", () => {
                       in: vi.fn(async (inCol: string, vals: string[]) => {
                         inLog.push({ table, col: inCol, vals });
                         return {
-                          data: [{ user_id: "owner-1", profiles: { email: "owner@workspace.test" } }],
+                          data: [{ user_id: "owner-1" }],
                           error: null,
                         };
                       }),
@@ -266,6 +266,21 @@ describe("GET /api/export/contracts", () => {
                   error: null,
                 }),
               })),
+            })),
+          };
+        }
+        if (table === "profiles") {
+          return {
+            select: vi.fn(() => ({
+              in: vi.fn(async (col: string, vals: string[]) => {
+                inLog.push({ table, col, vals });
+                return {
+                  data: vals.includes("owner-1")
+                    ? [{ id: "owner-1", full_name: null, email: "owner@workspace.test" }]
+                    : [],
+                  error: null,
+                };
+              }),
             })),
           };
         }

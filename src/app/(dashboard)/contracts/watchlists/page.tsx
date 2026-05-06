@@ -63,7 +63,7 @@ export default async function ContractWatchlistsPage() {
         <div className="ui-card px-8 py-14 text-center">
           <h2 className="ui-section-title text-base">No watchlisted contracts</h2>
           <p className="ui-support-copy mt-2">
-            Open a contract and use Add to watchlist to track escalations.
+            Choose a contract and use Add to watchlist to track escalations.
           </p>
         </div>
       ) : (

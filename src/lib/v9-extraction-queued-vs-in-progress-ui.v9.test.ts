@@ -12,5 +12,12 @@ describe("§17.3 extraction queued vs in-progress UI copy", () => {
     expect(raw).toContain("Extraction in progress");
     expect(raw).toMatch(/job\.status === "pending"/);
     expect(raw).toMatch(/job\.status === "processing"/);
+
+    const buttonRaw = readFileSync(
+      join(process.cwd(), "src/components/contracts/extract-button.tsx"),
+      "utf8"
+    );
+    expect(buttonRaw).toContain("Extraction queued");
+    expect(buttonRaw).toMatch(/extractionJob\?\.status === "pending"/);
   });
 });

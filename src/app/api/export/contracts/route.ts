@@ -28,6 +28,7 @@ import {
   isV10AsyncReportOrExportRequired,
   resolveV10ReportExportPlan,
 } from "@/lib/v10-report-export";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
@@ -77,18 +78,6 @@ type ExecuteContractExportCsvInput = {
   exportRowLimit: number;
 };
 
-type ExportOwnerMembershipRow = {
-  user_id: string;
-  profiles: { email: string | null } | Array<{ email: string | null }> | null;
-};
-
-function getOwnerEmailFromMembershipProfile(
-  profiles: ExportOwnerMembershipRow["profiles"]
-): string | null {
-  const profile = Array.isArray(profiles) ? profiles[0] : profiles;
-  return profile?.email ?? null;
-}
-
 async function resolveWorkspaceOwnerEmails(
   admin: AdminClient,
   orgId: string,
@@ -96,20 +85,11 @@ async function resolveWorkspaceOwnerEmails(
 ): Promise<Map<string, string>> {
   if (ownerIds.length === 0) return new Map();
 
-  const { data: members, error } = await admin
-    .from("organization_members")
-    .select("user_id, profiles!inner(email)")
-    .eq("organization_id", orgId)
-    .in("user_id", ownerIds);
-
-  if (error) {
-    console.error("[export-contracts] failed to resolve owner emails:", error.message);
-    return new Map();
-  }
+  const members = await loadOrgMemberProfileRows(admin, orgId, { userIds: ownerIds });
 
   return new Map(
-    ((members ?? []) as ExportOwnerMembershipRow[]).flatMap((member) => {
-      const email = getOwnerEmailFromMembershipProfile(member.profiles);
+    members.flatMap((member) => {
+      const email = member.profiles?.email ?? null;
       return email ? [[member.user_id, email] as const] : [];
     })
   );

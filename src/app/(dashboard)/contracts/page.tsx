@@ -43,6 +43,7 @@ import {
   buildContractsListHref,
   normalizeContractsSearchQuery,
 } from "@/lib/contracts-search-url";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export const metadata = { title: "Contracts" };
 
@@ -183,11 +184,9 @@ export default async function ContractsPage(props: {
 
   const intersectIds = combineContractListIntersectIds([deadlineIds, auxIntersect]);
 
-  const membersPromise = admin
-    .from("organization_members")
-    .select("user_id, profiles(full_name, email)")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: true });
+  const membersPromise = loadOrgMemberProfileRows(admin, orgId, {
+    orderByCreatedAt: true,
+  });
   const savedViewsPromise = admin
     .from("saved_views")
     .select("id, name, query_json")
@@ -216,7 +215,7 @@ export default async function ContractsPage(props: {
     page
   );
   const [
-    { data: membersData },
+    membersData,
     { data: savedViewsData },
     { data: exportJobsData },
     { contracts: contractsData, total: contractTotal, error: contractsPageError },
@@ -282,13 +281,9 @@ export default async function ContractsPage(props: {
   );
 
   const members = (membersData ?? []).map((m) => {
-    const profile = m.profiles as unknown as {
-      full_name: string | null;
-      email: string | null;
-    } | null;
     return {
       id: m.user_id,
-      label: profile?.full_name || profile?.email || "Unknown",
+      label: orgMemberProfileLabel(m.profiles, "Unknown"),
     };
   });
 
@@ -478,7 +473,7 @@ export default async function ContractsPage(props: {
             icon={Eye}
             primaryValue={pagePendingReview}
             primaryUnit="on this page"
-            action={{ href: "/contracts?status=pending_review", label: "View pending" }}
+            action={{ href: "/contracts?status=pending_review", label: "Review pending contracts" }}
             variant="compact"
             className="lg:col-span-2"
           />
@@ -822,7 +817,7 @@ export default async function ContractsPage(props: {
                 <span className="ui-chip">No active filters</span>
               )}
               <Link href="/contracts/review" className="ui-link text-[11px] md:ml-auto md:text-[12px]">
-                Open review queue
+                Continue review queue
               </Link>
             </div>
           </div>

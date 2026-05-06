@@ -189,6 +189,19 @@ describe("auth actions rate limits", () => {
       expect(res).toEqual({ redirectTo: "/onboarding/calibration" });
       expect(redirect).not.toHaveBeenCalled();
     });
+
+    it("returns a visible form error when post-auth redirect resolution throws", async () => {
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+      authServerMocks.getOrEnsureDeterministicMembership.mockRejectedValueOnce(new Error("audit_events insert failed"));
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "secret");
+      const res = await signIn(fd);
+      expect(res).toEqual({ error: "Sign-in could not be completed. Refresh the page and try again." });
+      expect(redirect).not.toHaveBeenCalled();
+      consoleError.mockRestore();
+    });
   });
 
   describe("forgotPassword recovery flow", () => {

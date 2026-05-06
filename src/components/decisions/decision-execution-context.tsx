@@ -15,14 +15,14 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
       <p className="ui-eyebrow">Context</p>
       <h2 className="ui-section-title mt-1 text-base">Linked execution context</h2>
       <p className="ui-muted-tight mt-1">
-        Open work across linked contracts (up to {linkedContractIdsUsed.length} shown
+        Active work across linked contracts (up to {linkedContractIdsUsed.length} shown
         {truncated ? "; list truncated to cap" : ""}).
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 md:grid-cols-6">
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openTasks}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Open tasks</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Active tasks</p>
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.pendingApprovals}</p>
@@ -30,11 +30,11 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openObligations}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Open obligations</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Active obligations</p>
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openExceptions}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Open exceptions</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Active exceptions</p>
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.requiredEvidence}</p>
@@ -42,7 +42,7 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openAttestations}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Open attestations</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Pending attestations</p>
         </div>
       </div>
 

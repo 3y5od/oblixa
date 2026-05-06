@@ -42,20 +42,21 @@ export function BatchApproveButton({
   }
 
   return (
-    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-3 py-3 shadow-[var(--shadow-1)]">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <button
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="ui-btn-secondary inline-flex items-center gap-2 disabled:opacity-50"
+        className="ui-btn-secondary w-full px-3 py-2 text-xs disabled:opacity-50 sm:w-auto"
       >
-        <ListChecks size={16} className="text-green-600" />
+        <ListChecks size={16} className="text-[var(--success-ink)]" />
         {isPending ? "Approving…" : "Approve all ready fields"}
       </button>
       {message && (
         <p
-          className={`text-sm sm:max-w-md sm:text-right ${
-            message.tone === "error" ? "text-rose-700" : "text-[var(--text-secondary)]"
+          className={`max-w-xl rounded-lg px-3 py-2 text-xs leading-relaxed sm:text-right ${
+            message.tone === "error" ? "ui-alert-error" : "ui-alert-success"
           }`}
           role={message.tone === "error" ? "alert" : "status"}
           aria-live="polite"
@@ -63,6 +64,7 @@ export function BatchApproveButton({
           {message.text}
         </p>
       )}
+      </div>
     </div>
   );
 }

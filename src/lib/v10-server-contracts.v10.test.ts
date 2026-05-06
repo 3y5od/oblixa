@@ -25,7 +25,7 @@ import {
 
 function makeIdempotencyAdmin(
   existing: Record<string, unknown> | null = null,
-  options: { lookupError?: string; insertError?: string; updateError?: string; claimResult?: string } = {}
+  options: { lookupError?: string; insertError?: string; updateError?: string; claimResult?: string; rpcThrows?: boolean } = {}
 ) {
   const inserted: Record<string, unknown>[] = [];
   const updated: Record<string, unknown>[] = [];
@@ -72,6 +72,7 @@ function makeIdempotencyAdmin(
     rpcCalls,
     rpc(fn: string, args: Record<string, unknown>) {
       rpcCalls.push({ fn, args });
+      if (options.rpcThrows) throw new Error(`${fn} unavailable`);
       if (fn === "claim_v10_mutation_idempotency") {
         if (options.insertError || options.lookupError) {
           return Promise.resolve({ data: null, error: { message: options.insertError ?? options.lookupError ?? "claim failed" } });
@@ -352,6 +353,47 @@ describe("V10 server mutation contracts", () => {
     expect(result.response).toMatchObject({
       outcome: "server_error",
       diagnostic_id: "v10_idempotency_claim_failed",
+    });
+  });
+
+  it("fails closed when durable idempotency RPC calls throw", async () => {
+    const claimThrow = await executeV10IdempotentMutation(
+      makeIdempotencyAdmin(null, { rpcThrows: true }) as never,
+      mutationInput,
+      async () => {
+        throw new Error("claim failures should not execute mutations");
+      }
+    );
+
+    expect(claimThrow.replayed).toBe(false);
+    expect(claimThrow.response).toMatchObject({
+      outcome: "server_error",
+      diagnostic_id: "v10_idempotency_claim_failed",
+    });
+
+    const completeThrow = await executeV10IdempotentMutation(
+      {
+        ...makeIdempotencyAdmin(),
+        rpc(fn: string, args: Record<string, unknown>) {
+          if (fn === "complete_v10_mutation_idempotency") throw new Error("complete unavailable");
+          return makeIdempotencyAdmin().rpc(fn, args);
+        },
+      } as never,
+      mutationInput,
+      async () =>
+        buildV10MutationResponse({
+          outcome: "success",
+          message: "Completed.",
+          changedObjectType: "contract_task",
+          changedObjectId: "task_1",
+          auditEventId: "audit_1",
+        })
+    );
+
+    expect(completeThrow.replayed).toBe(false);
+    expect(completeThrow.response).toMatchObject({
+      outcome: "server_error",
+      diagnostic_id: "v10_idempotency_persistence_failed",
     });
   });
 

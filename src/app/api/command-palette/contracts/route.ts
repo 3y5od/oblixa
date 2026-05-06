@@ -239,51 +239,51 @@ export function v10CommandActionLabel(row: { record_type: unknown; description_s
   const recordType = String(row.record_type ?? "");
   const description = String(row.description_safe ?? "").toLowerCase();
   const openActionByType: Record<string, string> = {
-    contract: "Open contract",
-    work_item: "Open work",
-    field: "Open field",
-    obligation: "Open obligation",
-    approval: "Open approval",
-    renewal_checkpoint: "Open renewal",
-    reminder: "Open renewal",
-    exception: "Open exception",
-    evidence_request: "Open evidence",
-    saved_view: "Open saved view",
-    file_upload: "Open contract",
-    extraction_job: "Open extraction",
-    report_family: "Open reports",
-    account: "Open workspace",
-    counterparty: "Open workspace",
-    relationship: "Open relationship",
-    decision: "Open decision",
-    campaign: "Open campaign",
-    program: "Open program",
-    finding: "Open finding",
-    control: "Open control",
-    playbook: "Open playbook",
-    automation_run: "Open automation",
-    simulation: "Open compare view",
-    scorecard: "Open scorecard",
-    review_board: "Open review board",
-    health_graph: "Open health graph",
-    segment: "Open segment",
-    program_evolution: "Open experiment",
-    setting: "Open settings",
-    setting_destination: "Open settings",
-    nav: "Open page",
+    contract: "Inspect contract",
+    work_item: "Continue work",
+    field: "Review field",
+    obligation: "Review obligation",
+    approval: "Review approval",
+    renewal_checkpoint: "Review renewal",
+    reminder: "Review renewal",
+    exception: "Triage exception",
+    evidence_request: "Review evidence",
+    saved_view: "Load saved view",
+    file_upload: "Inspect contract",
+    extraction_job: "Review extraction",
+    report_family: "Review reports",
+    account: "Review workspace",
+    counterparty: "Review workspace",
+    relationship: "Inspect relationship",
+    decision: "Review decision",
+    campaign: "Review campaign",
+    program: "Review program",
+    finding: "Triage finding",
+    control: "Review control",
+    playbook: "Review playbook",
+    automation_run: "Inspect automation",
+    simulation: "Compare scenario",
+    scorecard: "Review scorecard",
+    review_board: "Review board",
+    health_graph: "Inspect health graph",
+    segment: "Review segment",
+    program_evolution: "Review experiment",
+    setting: "Configure settings",
+    setting_destination: "Configure settings",
+    nav: "Go to page",
   };
   if (recordType === "report_run") {
     if (description.includes("failed_retryable") || description.includes("partial") || description.includes("retry")) {
       return "Retry failed job";
     }
-    if (description.includes("failed_terminal") || description.includes("failed")) return "View diagnostics";
-    return "Open report";
+    if (description.includes("failed_terminal") || description.includes("failed")) return "Inspect diagnostics";
+    return "Review report";
   }
   if (openActionByType[recordType]) return openActionByType[recordType];
   if (recordType === "notification_delivery") {
-    return description.includes("failed") || description.includes("suppressed") ? "View diagnostics" : "Open operations";
+    return description.includes("failed") || description.includes("suppressed") ? "Inspect diagnostics" : "Review operations";
   }
-  if (recordType === "workspace_health_diagnostic") return "View diagnostics";
+  if (recordType === "workspace_health_diagnostic") return "Inspect diagnostics";
   const isJobLike =
     recordType.includes("job") ||
     recordType === "report_run" ||
@@ -291,12 +291,12 @@ export function v10CommandActionLabel(row: { record_type: unknown; description_s
     recordType === "export_failure" ||
     recordType === "extraction_failure" ||
     recordType === "report_failure";
-  if (!isJobLike) return "Open destination";
+  if (!isJobLike) return "Go to destination";
   if (description.includes("failed_retryable") || description.includes("partial") || description.includes("retry")) {
     return "Retry failed job";
   }
-  if (description.includes("failed_terminal") || description.includes("failed")) return "View diagnostics";
-  return "Open job status";
+  if (description.includes("failed_terminal") || description.includes("failed")) return "Inspect diagnostics";
+  return "Review job status";
 }
 
 export function selectV10DiverseCommandResults<T extends { resultType: string; rank: number; updatedAt: number; tieBreaker: string }>(
@@ -338,20 +338,20 @@ export function buildV10CommandSearchRecovery(input: {
     return {
       message: "Type at least two characters to search contracts, work, reports, settings, and recoverable jobs.",
       diagnosticId: "v10_command_search_short_query",
-      actions: [{ label: "Open work queue", href: "/work", reason: "short_query" }],
+      actions: [{ label: "Review work queue", href: "/work", reason: "short_query" }],
     };
   }
   if (input.resultCount > 0 && !input.partialIndex && (input.hiddenFilteredCount ?? 0) === 0) return null;
   const reason = input.partialIndex ? "partial_index" : "zero_result";
   const actions: V10CommandSearchRecoveryAction[] = [
-    { label: "Open work queue", href: "/work", reason },
+    { label: "Review work queue", href: "/work", reason },
     { label: "Browse contracts", href: "/contracts", reason },
-    { label: "Open reports", href: "/reports", reason },
+    { label: "Review reports", href: "/reports", reason },
     { label: "Check system health", href: "/settings/health", reason },
   ];
-  if (input.mode !== "core") actions.push({ label: "Open decisions", href: "/decisions", reason });
-  if (input.mode === "assurance") actions.push({ label: "Open assurance", href: "/assurance", reason });
-  actions.push({ label: "Open product settings", href: "/settings/product", reason });
+  if (input.mode !== "core") actions.push({ label: "Review decisions", href: "/decisions", reason });
+  if (input.mode === "assurance") actions.push({ label: "Inspect assurance", href: "/assurance", reason });
+  actions.push({ label: "Configure product settings", href: "/settings/product", reason });
   if ((input.hiddenFilteredCount ?? 0) > 0) {
     actions.push({ label: "Review hidden modules", href: "/settings/product", reason: "hidden_module_filtered" });
   }

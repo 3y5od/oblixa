@@ -267,7 +267,7 @@ export async function DashboardUpper(props: {
       count: operationalSignals.assignedWork,
       icon: ClipboardList,
       tone: operationalSignals.assignedWork > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Open assigned work",
+      actionLabel: "Review assigned work",
       priority: 4,
     },
     {
@@ -279,7 +279,7 @@ export async function DashboardUpper(props: {
       icon: CalendarClock,
       tone:
         operationalSignals.dueSoonAssignedWork > 0 ? ("risk" as const) : ("healthy" as const),
-      actionLabel: "Open due-soon queue",
+      actionLabel: "Review due-soon queue",
       priority: 1,
     },
     {
@@ -301,7 +301,7 @@ export async function DashboardUpper(props: {
       count: operationalSignals.renewalAttention,
       icon: FolderClock,
       tone: operationalSignals.renewalAttention > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Open renewals",
+      actionLabel: "Review renewals",
       priority: 5,
     },
     {
@@ -312,7 +312,7 @@ export async function DashboardUpper(props: {
       count: operationalSignals.openExceptions,
       icon: AlertTriangle,
       tone: operationalSignals.openExceptions > 0 ? ("risk" as const) : ("healthy" as const),
-      actionLabel: "Open exceptions",
+      actionLabel: "Triage exceptions",
       priority: 2,
     },
     {
@@ -335,7 +335,7 @@ export async function DashboardUpper(props: {
       count: metrics.pendingReview,
       icon: ClipboardCheck,
       tone: metrics.pendingReview > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Open review queue",
+      actionLabel: "Continue review queue",
       priority: 3,
     },
     {
@@ -346,7 +346,7 @@ export async function DashboardUpper(props: {
       count: operationalSignals.recentChanges,
       icon: Scale,
       tone: operationalSignals.recentChanges > 0 ? ("neutral" as const) : ("healthy" as const),
-      actionLabel: "Open recent activity",
+      actionLabel: "Review recent activity",
       priority: 7,
     },
   ].filter((card) => isHrefEligible(card.href));
@@ -693,7 +693,7 @@ export async function DashboardUpper(props: {
                 icon={Bookmark}
                 tone="neutral"
                 chips={[{ label: "Type", value: row.viewType }]}
-                actionLabel="Open saved view"
+                actionLabel="Load saved view"
               />
             ))
           )}

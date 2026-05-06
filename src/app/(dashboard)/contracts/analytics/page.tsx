@@ -276,7 +276,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={Stamp}
             primaryValue={pendingApprovals}
             primaryUnit="awaiting resolution"
-            action={{ href: "/contracts/approvals", label: "View approvals" }}
+            action={{ href: "/contracts/approvals", label: "Review approvals" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -305,7 +305,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={Percent}
             primaryValue={`${avgCompleteness.toFixed(1)}%`}
             primaryUnit="latest samples"
-            action={{ href: "/contracts/data-quality", label: "Open data quality" }}
+            action={{ href: "/contracts/data-quality", label: "Review data quality" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -325,7 +325,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={Users}
             primaryValue={behavior ? Number(behavior.weekly_active_operators ?? 0) : 0}
             primaryUnit="from behavior feed"
-            action={{ href: "/reports", label: "View reports hub" }}
+            action={{ href: "/reports", label: "Review reports hub" }}
             variant="compact"
           />
         </div>
@@ -344,7 +344,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={CalendarClock}
             primaryValue={reportRuns.length}
             primaryUnit="recent sample"
-            action={{ href: "/contracts/reports", label: "Open report history" }}
+            action={{ href: "/contracts/reports", label: "Review report history" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -393,7 +393,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={CheckSquare}
             primaryValue={behavior ? Number(behavior.tasks_completed_7d ?? 0) : 0}
             primaryUnit="last 7 days"
-            action={{ href: "/contracts/tasks", label: "View tasks" }}
+            action={{ href: "/contracts/tasks", label: "Review tasks" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -403,7 +403,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={CalendarClock}
             primaryValue={behavior ? Number(behavior.missed_dates_prevented_7d ?? 0) : 0}
             primaryUnit="last 7 days"
-            action={{ href: "/contracts/renewals", label: "View renewals" }}
+            action={{ href: "/contracts/renewals", label: "Review renewals" }}
             variant="compact"
           />
         </div>

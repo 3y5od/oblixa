@@ -28,7 +28,7 @@ const baseField = (overrides: Partial<ExtractedField>): ExtractedField => ({
 });
 
 describe("FieldReview — §11.2 critical date grouping", () => {
-  it("surfaces a grouped banner when critical dates are pending or lack approved values", () => {
+  it("surfaces an operator-first blocker when critical dates are pending or lack approved values", () => {
     const fields: ExtractedField[] = [
       baseField({
         id: "1",
@@ -55,10 +55,49 @@ describe("FieldReview — §11.2 critical date grouping", () => {
 
     renderWithProviders(<FieldReview fields={fields} canEdit={false} />);
 
-    expect(screen.getByText(/key date coverage still needs review/i)).toBeTruthy();
-    expect(screen.getByText(/pending now:/i).textContent).toMatch(/end date/i);
-    expect(screen.getByText(/pending now:/i).textContent).toMatch(/renewal date/i);
-    expect(screen.getByText(/still missing an approved value:/i).textContent).toMatch(/end date/i);
+    const notice = screen.getByTestId("critical-date-review-notice");
+    expect(notice.textContent).toMatch(/date automation is blocked/i);
+    expect(notice.textContent).toMatch(/needs review/i);
+    expect(notice.textContent).toMatch(/missing approved value/i);
+    expect(notice.textContent).toMatch(/ask an editor/i);
+  });
+
+  it("contains long provenance and source evidence inside the fixed review table", () => {
+    const fields: ExtractedField[] = [
+      baseField({
+        id: "long-copy",
+        field_name: "renewal_date",
+        field_value: "2028-04-01 / automatically renews unless terminated",
+        status: "pending",
+        source_snippet:
+          "This Agreement renews on April 1, 2028 unless written notice is delivered ninety days before renewal.",
+      }),
+    ];
+
+    const { container } = renderWithProviders(<FieldReview fields={fields} canEdit />);
+
+    expect(container.querySelector("table")?.className).toContain("table-fixed");
+    expect(screen.getByText(/extracted suggestion/i).className).toContain("break-words");
+    expect(screen.getByText(/This Agreement renews/i).closest("blockquote")?.className).toContain("overflow-y-auto");
+  });
+
+  it("keeps row state in sync when refreshed field props change", () => {
+    const pending = baseField({
+      id: "sync-row",
+      field_name: "end_date",
+      field_value: "2027-06-30",
+      status: "pending",
+      source_snippet: "June 30, 2027",
+    });
+    const approved = { ...pending, status: "approved" as const };
+
+    const { rerender } = renderWithProviders(<FieldReview fields={[pending]} canEdit />);
+    expect(screen.getByRole("button", { name: /approve end date/i })).toBeTruthy();
+
+    rerender(<FieldReview fields={[approved]} canEdit />);
+
+    expect(screen.getByText("Approved")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /approve end date/i })).toBeNull();
   });
 
   it("blocks silent approval when AI value lacks citation (§11.3)", () => {

@@ -13,6 +13,7 @@ import { createObligationClarificationTaskForm } from "@/actions/tasks";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export const metadata = { title: "Obligations" };
 
@@ -33,7 +34,7 @@ function statusTone(status: string): string {
   if (status === "done") return "text-emerald-700";
   if (status === "waived") return "text-[var(--text-secondary)]";
   if (status === "in_progress") return "text-blue-700";
-  return "text-amber-800";
+  return "text-[var(--warning-ink)]";
 }
 
 export default async function ContractObligationsPage(props: {
@@ -60,12 +61,9 @@ export default async function ContractObligationsPage(props: {
   if (status) query.eq("status", status);
   if (onlyMine) query.eq("owner_id", user.id);
 
-  const [{ data: rows }, { data: membersData }] = await Promise.all([
+  const [{ data: rows }, membersData] = await Promise.all([
     query,
-    admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", orgId),
+    loadOrgMemberProfileRows(admin, orgId),
   ]);
   const { data: savedViewsData } = await admin
     .from("saved_views")
@@ -88,8 +86,7 @@ export default async function ContractObligationsPage(props: {
 
   const ownerById = new Map<string, string>();
   for (const row of membersData ?? []) {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
-    ownerById.set(row.user_id, profile?.full_name || profile?.email || "Member");
+    ownerById.set(row.user_id, orgMemberProfileLabel(row.profiles));
   }
 
   const obligations = (rows ?? []).flatMap((row) => {

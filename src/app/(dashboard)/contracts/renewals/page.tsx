@@ -65,8 +65,8 @@ const HORIZON_OPTIONS: { value: DeadlinePreset; label: string }[] = [
 ];
 
 function urgency(days: number): string {
-  if (days <= 7) return "text-rose-700";
-  if (days <= 30) return "text-amber-700";
+  if (days <= 7) return "text-[var(--danger)]";
+  if (days <= 30) return "text-[var(--warning-ink)]";
   return "text-[var(--text-secondary)]";
 }
 
@@ -436,13 +436,13 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
         </div>
         <div className="ui-page-actions">
           <Link href="/contracts/tasks" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Open task queue
+            Review task queue
           </Link>
           <ApiJsonLink
             href="/api/renewals/portfolio-signals"
             className="ui-btn-secondary px-4 py-2.5 text-[13px]"
           >
-            Open portfolio signals
+            Inspect portfolio signals
           </ApiJsonLink>
           {showDecisionsCta ? (
             <Link href="/decisions" prefetch={false} className="ui-btn-primary px-4 py-2.5 text-[13px]">
@@ -493,7 +493,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
             { label: "No checklist", value: String(contractsWithoutChecklist) },
             { label: "Overdue", value: String(renewalSignals.overdue) },
           ]}
-          action={{ href: "#renewal-queue", label: "Open row actions" }}
+          action={{ href: "#renewal-queue", label: "Review renewal queue" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -537,7 +537,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
               href="/api/renewals/portfolio-signals"
               className="ui-btn-secondary px-4 py-2 text-[13px]"
             >
-              Open portfolio signals JSON
+              Inspect portfolio signals feed
             </ApiJsonLink>
             {showDecisionsCta ? (
               <Link href="/decisions" prefetch={false} className="ui-btn-secondary px-4 py-2 text-[13px]">
@@ -715,7 +715,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
                 Widen to 365 days
               </Link>
               <Link href="/contracts" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                Open contracts
+                Browse contracts
               </Link>
             </>
           }
@@ -810,7 +810,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
                             </div>
                             <div>
                               <dt className="ui-kicker">Owner</dt>
-                              <dd className={row.ownerLabel ? "mt-1 text-[var(--text-secondary)]" : "mt-1 font-semibold text-amber-700"}>
+                              <dd className={row.ownerLabel ? "mt-1 text-[var(--text-secondary)]" : "mt-1 font-semibold text-[var(--warning-ink)]"}>
                                 {row.ownerLabel || "Assign owner"}
                               </dd>
                             </div>
@@ -827,7 +827,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
                       <div className="flex items-start gap-3">
                         <span className="ui-icon-tile-compact shrink-0">
                           {rowHasBlockers ? (
-                            <AlertTriangle className="h-4 w-4 text-amber-700" aria-hidden />
+                            <AlertTriangle className="h-4 w-4 text-[var(--warning-ink)]" aria-hidden />
                           ) : (
                             <CheckCircle2 className="h-4 w-4 text-emerald-700" aria-hidden />
                           )}
@@ -848,18 +848,18 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
                           </div>
                           <div className="mt-3 space-y-1.5 text-sm text-[var(--text-secondary)]">
                             {row.openExceptions > 0 ? (
-                              <p className="font-medium text-rose-700">
+                              <p className="font-medium text-[var(--danger)]">
                                 {pluralize(row.openExceptions, "open exception")}
                               </p>
                             ) : null}
                             {row.outstandingEvidence > 0 ? (
-                              <p className="font-medium text-amber-700">
+                              <p className="font-medium text-[var(--warning-ink)]">
                                 {pluralize(row.outstandingEvidence, "evidence item")} outstanding
                               </p>
                             ) : null}
-                            {row.blocker ? <p className="text-amber-700">Scenario blocker: {row.blocker}</p> : null}
+                            {row.blocker ? <p className="text-[var(--warning-ink)]">Scenario blocker: {row.blocker}</p> : null}
                             {!row.ownerLabel ? (
-                              <p className="font-medium text-amber-700">No owner assigned for renewal follow-up</p>
+                              <p className="font-medium text-[var(--warning-ink)]">No owner assigned for renewal follow-up</p>
                             ) : null}
                             {!rowHasBlockers ? (
                               <p className="text-[var(--text-tertiary)]">No explicit blockers recorded</p>
@@ -890,7 +890,7 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
                             </div>
                             <div>
                               <dt className="ui-kicker">Escalate</dt>
-                              <dd className={row.escalationDate ? "text-amber-700" : ""}>
+                              <dd className={row.escalationDate ? "text-[var(--warning-ink)]" : ""}>
                                 {row.escalationDate ? formatBusinessDateAtNoon(row.escalationDate) : "No escalation date"}
                               </dd>
                             </div>

@@ -11,6 +11,6 @@ describe("settings health recoverability coverage (V10)", () => {
     expect(raw).toContain("API route health");
     expect(raw).toContain("Critical product path hooks");
     expect(raw).toContain('/api/notifications/retry-deliveries');
-    expect(raw).toContain("Open renewals");
+    expect(raw).toContain("Review renewals");
   });
 });

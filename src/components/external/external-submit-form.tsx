@@ -287,7 +287,9 @@ export function ExternalSubmitForm({ token }: Props) {
               </p>
             ) : null}
             {status.workflow_ack_required ? (
-              <p className="mt-1 text-amber-800">Acknowledgement is required for this chain.</p>
+              <p className="ui-alert-warning mt-2 text-xs" role="status">
+                Acknowledgement is required for this chain.
+              </p>
             ) : null}
             <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-[var(--text-secondary)]">
               {(status.workflow_chain ?? []).map((step, i) => (

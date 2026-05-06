@@ -158,17 +158,24 @@ export async function applyWorkspaceProductTransitionSideEffects(input: {
   if (updateError) {
     console.error("[workspace-transition] report_pack_subscriptions deactivation failed", updateError);
   }
-  await admin.from("audit_events").insert({
-    organization_id: orgId,
-    contract_id: null,
-    user_id: userId,
-    action: "workspace.report_pack_subscriptions_suppressed",
-    details: {
-      prev_workspace_mode: prevMode,
-      next_workspace_mode: nextMode,
-      suppressed_count: deactivateIds.length,
-      reason: "workspace_mode_downgrade",
-    },
-  });
+  try {
+    const { error: auditError } = await admin.from("audit_events").insert({
+      organization_id: orgId,
+      contract_id: null,
+      user_id: userId,
+      action: "workspace.report_pack_subscriptions_suppressed",
+      details: {
+        prev_workspace_mode: prevMode,
+        next_workspace_mode: nextMode,
+        suppressed_count: deactivateIds.length,
+        reason: "workspace_mode_downgrade",
+      },
+    });
+    if (auditError) {
+      console.error("[workspace-transition] report subscription suppression audit failed", auditError);
+    }
+  } catch (error) {
+    console.error("[workspace-transition] report subscription suppression audit threw", error);
+  }
   return { autoBlockedNotificationTypes, suppressedSubscriptionCount: deactivateIds.length };
 }

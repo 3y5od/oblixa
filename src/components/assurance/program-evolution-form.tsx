@@ -164,7 +164,7 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
     <div className="mt-2">
       <AsyncActionButton
         type="button"
-        className="rounded border border-amber-300 bg-amber-50/80 px-2 py-1 text-xs text-amber-950 disabled:opacity-50"
+        className="ui-btn-secondary px-2 py-1 text-xs disabled:opacity-50"
         pending={pending}
         pendingLabel="Advancing…"
         onClick={() => void onAdvance()}

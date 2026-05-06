@@ -152,16 +152,16 @@ describe("ContractEvidenceRequirementsPanel", () => {
     expect(
       within(requiredCard).getByText(/this requirement is still blocking completion of the linked work item/i)
         .className
-    ).toMatch(/text-amber-700/);
+    ).toContain("ui-alert-warning");
 
     const insuranceCard = screen.getByText("Insurance certificate").closest("li") as HTMLElement;
     expect(
       within(insuranceCard).getByText(/submission is waiting for review before the linked work item can clear/i)
         .className
-    ).toMatch(/text-amber-700/);
+    ).toContain("ui-alert-warning");
     const socCard = screen.getByText("SOC 2 report").closest("li") as HTMLElement;
     expect(
       within(socCard).getByText(/rejected evidence still needs a corrected resubmission/i).className
-    ).toMatch(/text-rose-700/);
+    ).toContain("ui-alert-error");
   });
 });

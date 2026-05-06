@@ -29,17 +29,17 @@ export function buildRelationshipWorkspaceActions(input: {
   });
   return [
     {
-      label: "Open filtered contracts",
+      label: "Review filtered contracts",
       href: filteredContractsHref,
       description: "Review the contracts that make up this relationship workspace.",
     },
     {
-      label: "Open related work",
+      label: "Review related work",
       href: queryHref("/work", { lens: "assigned", source: input.relationshipKind, key: input.relationshipKey }),
       description: "Continue tasks, approvals, obligations, exceptions, and evidence work tied to this relationship.",
     },
     {
-      label: "Open renewal horizon",
+      label: "Review renewal horizon",
       href: queryHref("/contracts/renewals", { horizon: "renewal_90", [scopeParam]: input.relationshipKey }),
       description: "Inspect notice and renewal pressure across the relationship.",
     },
@@ -64,11 +64,11 @@ export function buildRelationshipWorkspaceActions(input: {
       href: sourceContractHref ? `${sourceContractHref}#exceptions` : "/contracts/exceptions?status=open",
       description: sourceContractHref
         ? "Capture relationship risk on the lead contract record."
-        : "Open the exceptions ledger to create or triage relationship risk.",
+        : "Use the exceptions ledger to create or triage relationship risk.",
       disabled: !sourceContractHref,
     },
     {
-      label: "Open timeline",
+      label: "Review timeline",
       href: "#relationship-timeline",
       description: "Review the relationship activity trail.",
     },

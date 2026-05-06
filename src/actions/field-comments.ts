@@ -5,6 +5,7 @@ import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { isUuid } from "@/lib/security/validation";
 import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 const MAX_COMMENT_LEN = 4000;
 
@@ -16,10 +17,7 @@ async function resolveMentionsToUserIds(
   const matches = [...comment.matchAll(/@([A-Za-z0-9._@-]+)/g)].map((m) => m[1].toLowerCase());
   if (matches.length === 0) return [];
 
-  const { data: members } = await admin
-    .from("organization_members")
-    .select("user_id, profiles(full_name, email)")
-    .eq("organization_id", organizationId);
+  const members = await loadOrgMemberProfileRows(admin, organizationId);
 
   const memberUserIds = new Set((members ?? []).map((m) => m.user_id));
   const resolved = new Set<string>();
@@ -29,7 +27,7 @@ async function resolveMentionsToUserIds(
       continue;
     }
     for (const member of members ?? []) {
-      const profile = member.profiles as unknown as { full_name: string | null; email: string | null } | null;
+      const profile = member.profiles;
       const email = profile?.email?.toLowerCase() ?? "";
       const fullName = profile?.full_name?.toLowerCase() ?? "";
       const fullNameSlug = fullName.replace(/\s+/g, ".");

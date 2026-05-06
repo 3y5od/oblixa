@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
   getV6OrgSettingsJson,
@@ -37,8 +38,46 @@ import {
 } from "./product-surface-settings-helpers";
 import { validateWorkspaceModeBillingEligibility } from "./workspace-mode-billing-eligibility";
 
+type ProductSurfaceActionResult = { error: string } | { success: true };
 
-export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<{ error: string } | { success: true }> {
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
+async function recoverProductSurfaceAction(
+  scope: string,
+  run: () => Promise<ProductSurfaceActionResult>
+): Promise<ProductSurfaceActionResult> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(`[product-surface-settings] ${scope} failed`, error);
+    return { error: describeRecoverableMutationError(errorMessage(error)) };
+  }
+}
+
+async function safeInsertLegacyAuditEvent(
+  ctx: NonNullable<Awaited<ReturnType<typeof getAuthContext>>>,
+  row: Record<string, unknown>,
+  failureMessage: string
+): Promise<{ error: string } | null> {
+  try {
+    const { error } = await ctx.admin.from("audit_events").insert(row);
+    if (!error) return null;
+    console.error("[product-surface-settings] audit_events insert failed:", error.message);
+  } catch (error) {
+    console.error("[product-surface-settings] audit_events insert threw:", error);
+  }
+  return { error: failureMessage };
+}
+
+export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<ProductSurfaceActionResult> {
+  return recoverProductSurfaceAction("updateWorkspaceProductSurfaceForm", () =>
+    updateWorkspaceProductSurfaceFormUnsafe(formData)
+  );
+}
+
+async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Promise<ProductSurfaceActionResult> {
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:updateWorkspaceProductSurfaceForm",
     featureFamily: "settings",
@@ -151,51 +190,61 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
     parseOnboardingCalibration(prevV6.onboarding_calibration)?.last_applied
   );
   if (hadCalibrationApplied && prevMode !== nextModeFinal) {
-    await ctx.admin.from("audit_events").insert({
+    const calibrationAuditError = await safeInsertLegacyAuditEvent(
+      ctx,
+      {
+        organization_id: ctx.orgId,
+        contract_id: null,
+        user_id: ctx.user.id,
+        action: "onboarding.post_calibration_mode_changed",
+        details: {
+          prev_workspace_mode: prevMode,
+          next_workspace_mode: nextModeFinal,
+        },
+      },
+      "Workspace settings changed, but calibration audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+    );
+    if (calibrationAuditError) return calibrationAuditError;
+  }
+
+  const legacyAuditError = await safeInsertLegacyAuditEvent(
+    ctx,
+    {
       organization_id: ctx.orgId,
       contract_id: null,
       user_id: ctx.user.id,
-      action: "onboarding.post_calibration_mode_changed",
+      action: "workspace.product_surface_updated",
       details: {
+        source: "product_settings",
         prev_workspace_mode: prevMode,
         next_workspace_mode: nextModeFinal,
+        prev_default_landing_path: prevV6.default_landing_path ?? null,
+        next_default_landing_path: merged?.default_landing_path ?? null,
+        prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
+        next_advanced_modules_hidden: merged?.advanced_modules_hidden ?? [],
+        prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
+        next_assurance_modules_hidden: merged?.assurance_modules_hidden ?? [],
+        prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
+        next_utility_modules_hidden: merged?.utility_modules_hidden ?? [],
+        prev_advanced_nav_roles: prevV6.advanced_nav_roles ?? null,
+        next_advanced_nav_roles: merged?.advanced_nav_roles ?? null,
+        prev_assurance_nav_roles: prevV6.assurance_nav_roles ?? null,
+        next_assurance_nav_roles: merged?.assurance_nav_roles ?? null,
+        prev_assurance_nav_admin_testing: prevV6.assurance_nav_admin_testing === true,
+        next_assurance_nav_admin_testing: merged?.assurance_nav_admin_testing === true,
+        prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
+        next_home_hidden_sections: merged?.home_hidden_sections ?? [],
+        prev_search_scope: prevV6.search_scope ?? "match_mode",
+        next_search_scope: merged?.search_scope ?? "match_mode",
+        prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
+        next_autopilot_allow_execution: merged?.autopilot_allow_execution === true,
+        auto_blocked_notification_types: transitionSideEffects.autoBlockedNotificationTypes,
+        suppressed_report_pack_subscription_count: transitionSideEffects.suppressedSubscriptionCount,
       },
-    });
-  }
-
-  await ctx.admin.from("audit_events").insert({
-    organization_id: ctx.orgId,
-    contract_id: null,
-    user_id: ctx.user.id,
-    action: "workspace.product_surface_updated",
-    details: {
-      source: "product_settings",
-      prev_workspace_mode: prevMode,
-      next_workspace_mode: nextModeFinal,
-      prev_default_landing_path: prevV6.default_landing_path ?? null,
-      next_default_landing_path: merged?.default_landing_path ?? null,
-      prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
-      next_advanced_modules_hidden: merged?.advanced_modules_hidden ?? [],
-      prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
-      next_assurance_modules_hidden: merged?.assurance_modules_hidden ?? [],
-      prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
-      next_utility_modules_hidden: merged?.utility_modules_hidden ?? [],
-      prev_advanced_nav_roles: prevV6.advanced_nav_roles ?? null,
-      next_advanced_nav_roles: merged?.advanced_nav_roles ?? null,
-      prev_assurance_nav_roles: prevV6.assurance_nav_roles ?? null,
-      next_assurance_nav_roles: merged?.assurance_nav_roles ?? null,
-      prev_assurance_nav_admin_testing: prevV6.assurance_nav_admin_testing === true,
-      next_assurance_nav_admin_testing: merged?.assurance_nav_admin_testing === true,
-      prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
-      next_home_hidden_sections: merged?.home_hidden_sections ?? [],
-      prev_search_scope: prevV6.search_scope ?? "match_mode",
-      next_search_scope: merged?.search_scope ?? "match_mode",
-      prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
-      next_autopilot_allow_execution: merged?.autopilot_allow_execution === true,
-      auto_blocked_notification_types: transitionSideEffects.autoBlockedNotificationTypes,
-      suppressed_report_pack_subscription_count: transitionSideEffects.suppressedSubscriptionCount,
     },
-  });
+    "Workspace settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+  );
+  if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
     organizationId: ctx.orgId,
     actorUserId: ctx.user.id,
@@ -242,7 +291,13 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
   return { success: true as const };
 }
 
-export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ error: string } | { success: true }> {
+export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<ProductSurfaceActionResult> {
+  return recoverProductSurfaceAction("resetWorkspaceProductSurfaceDefaultsForm", () =>
+    resetWorkspaceProductSurfaceDefaultsFormUnsafe()
+  );
+}
+
+async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<ProductSurfaceActionResult> {
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:resetWorkspaceProductSurfaceDefaultsForm",
     featureFamily: "settings",
@@ -299,16 +354,21 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
     prevMode,
     nextMode: "core",
   });
-  await ctx.admin.from("audit_events").insert({
-    organization_id: ctx.orgId,
-    contract_id: null,
-    user_id: ctx.user.id,
-    action: "workspace.product_surface_reset_defaults",
-    details: {
-      prev_workspace_mode: prevMode,
-      next_workspace_mode: parseWorkspaceMode(merged ?? prevV6),
+  const legacyAuditError = await safeInsertLegacyAuditEvent(
+    ctx,
+    {
+      organization_id: ctx.orgId,
+      contract_id: null,
+      user_id: ctx.user.id,
+      action: "workspace.product_surface_reset_defaults",
+      details: {
+        prev_workspace_mode: prevMode,
+        next_workspace_mode: parseWorkspaceMode(merged ?? prevV6),
+      },
     },
-  });
+    "Workspace settings reset, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+  );
+  if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
     organizationId: ctx.orgId,
     actorUserId: ctx.user.id,
@@ -349,7 +409,13 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<{ erro
 }
 
 /** Merge email notification `blocked_types` for known keys (product-surface policy §18.1 / §21). */
-export async function updateProductEmailNotificationCategoriesForm(formData: FormData): Promise<{ error: string } | { success: true }> {
+export async function updateProductEmailNotificationCategoriesForm(formData: FormData): Promise<ProductSurfaceActionResult> {
+  return recoverProductSurfaceAction("updateProductEmailNotificationCategoriesForm", () =>
+    updateProductEmailNotificationCategoriesFormUnsafe(formData)
+  );
+}
+
+async function updateProductEmailNotificationCategoriesFormUnsafe(formData: FormData): Promise<ProductSurfaceActionResult> {
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:updateProductEmailNotificationCategoriesForm",
     featureFamily: "settings",
@@ -406,18 +472,23 @@ export async function updateProductEmailNotificationCategoriesForm(formData: For
     return { error: error.message };
   }
 
-  await ctx.admin.from("audit_events").insert({
-    organization_id: ctx.orgId,
-    contract_id: null,
-    user_id: ctx.user.id,
-    action: "workspace.notification_policy_updated",
-    details: {
-      channel: "email",
-      prev_blocked_types: prevBlocked,
-      next_blocked_types: nextBlocked,
-      affected_known_categories: muted,
+  const legacyAuditError = await safeInsertLegacyAuditEvent(
+    ctx,
+    {
+      organization_id: ctx.orgId,
+      contract_id: null,
+      user_id: ctx.user.id,
+      action: "workspace.notification_policy_updated",
+      details: {
+        channel: "email",
+        prev_blocked_types: prevBlocked,
+        next_blocked_types: nextBlocked,
+        affected_known_categories: muted,
+      },
     },
-  });
+    "Notification settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+  );
+  if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
     organizationId: ctx.orgId,
     actorUserId: ctx.user.id,

@@ -517,7 +517,7 @@ export default async function SettingsHealthPage() {
             latestFailedReportAt != null
               ? `Latest failed run started ${new Date(latestFailedReportAt).toISOString()}. Review report history before sharing status externally.`
               : `${failedReportRuns} recent report run${failedReportRuns === 1 ? " has" : "s have"} failed.`,
-          actionLabel: "Open report history",
+          actionLabel: "Review report history",
           tone: failedReportRuns >= 3 ? ("risk" as const) : ("attention" as const),
         }
       : null,
@@ -537,7 +537,7 @@ export default async function SettingsHealthPage() {
           eyebrow: "Imports",
           title: latestImportHeadline,
           hint: latestImportDetail,
-          actionLabel: "Open import history",
+          actionLabel: "Review import history",
           tone: failedImportJobs > 0 ? ("risk" as const) : ("attention" as const),
         }
       : null,
@@ -547,7 +547,7 @@ export default async function SettingsHealthPage() {
           eyebrow: "Exports",
           title: latestExportHeadline,
           hint: latestExportDetail,
-          actionLabel: "Open contract exports",
+          actionLabel: "Review contract exports",
           tone: failedExportJobs > 0 ? ("risk" as const) : ("attention" as const),
         }
       : null,
@@ -557,7 +557,7 @@ export default async function SettingsHealthPage() {
           eyebrow: "Extraction",
           title: latestExtractionHeadline,
           hint: latestExtractionDetail,
-          actionLabel: "Open review and extraction follow-up",
+          actionLabel: "Review extraction follow-up",
           tone:
             failedExtractionJobs > 0 || staleExtractionJobs > 0
               ? ("risk" as const)
@@ -570,7 +570,7 @@ export default async function SettingsHealthPage() {
           eyebrow: "Reminders",
           title: latestReminderHeadline,
           hint: latestReminderDetail,
-          actionLabel: "Open renewals",
+          actionLabel: "Review renewals",
           tone: dueReminderRuns > 0 ? ("risk" as const) : ("attention" as const),
         }
       : null,
@@ -590,7 +590,7 @@ export default async function SettingsHealthPage() {
         v10JobRows.length + v10ReportRows.length > 0
           ? `${v10JobRows.length} job visibility row${v10JobRows.length === 1 ? "" : "s"} and ${v10ReportRows.length} report visibility row${v10ReportRows.length === 1 ? "" : "s"} are materialized.`
           : "No job/report visibility rows are materialized; refresh or source job coverage may be missing.",
-      actionLabel: "Open failed-job lens",
+      actionLabel: "Review failed-job lens",
       tone: v10JobRows.length + v10ReportRows.length > 0 ? "neutral" : "attention",
     },
     {
@@ -621,7 +621,7 @@ export default async function SettingsHealthPage() {
         lastRetryRunAt == null
           ? "Notification and reminder recovery needs a configured worker heartbeat before GA evidence can be promoted."
           : `Latest retry worker heartbeat: ${new Date(lastRetryRunAt).toISOString()}.`,
-      actionLabel: "Open product settings",
+      actionLabel: "Configure product settings",
       tone: lastRetryRunAt == null ? "attention" : "neutral",
     },
     {
@@ -647,7 +647,7 @@ export default async function SettingsHealthPage() {
       eyebrow: "API route health",
       title: "/api/health",
       hint: "Public health probes should stay reachable for smoke checks, deployment checks, and support-safe heartbeat validation.",
-      actionLabel: "Open health route",
+      actionLabel: "Inspect health route",
       tone: "neutral",
     },
     {
@@ -658,7 +658,7 @@ export default async function SettingsHealthPage() {
         lastRetryRunAt == null
           ? "Notification retry worker has no recorded heartbeat yet. Reminder and digest recovery stays at risk until this hook writes fresh activity."
           : `Latest retry-deliveries heartbeat was recorded ${new Date(lastRetryRunAt).toISOString()}.`,
-      actionLabel: "Open recovery settings",
+      actionLabel: "Configure recovery settings",
       tone: lastRetryRunAt == null || (retryRunAgeMinutes != null && retryRunAgeMinutes > 30) ? "attention" : "neutral",
     },
     ...V10_OPS_RELEASE_READINESS_CONTRACTS.filter((contract) => contract.cronRoute).map((contract) => {
@@ -678,7 +678,7 @@ export default async function SettingsHealthPage() {
         eyebrow: "API route health",
         title: routePath,
         hint: `${String(contract.key).replace(/_/g, " ")} backs ${String(contract.sloDashboardKey).replace(/_/g, " ")} recovery and routes operators to ${contract.recoveryDestination}.`,
-        actionLabel: "Open recovery path",
+        actionLabel: "Inspect recovery path",
         tone,
       } satisfies UserVisibleImpactRow;
     }),
@@ -936,7 +936,7 @@ export default async function SettingsHealthPage() {
                   eyebrow={String(contract.owner)}
                   title={String(contract.key).replace(/_/g, " ")}
                   hint={`${contract.diagnosticPrefix} · ${contract.providerBlockers.length} provider blocker${contract.providerBlockers.length === 1 ? "" : "s"} · ${contract.rollbackCommand}`}
-                  actionLabel="Open runbook destination"
+                  actionLabel="Inspect runbook destination"
                   tone={contract.cronRoute == null ? "attention" : "neutral"}
                 />
               </div>
@@ -1011,7 +1011,7 @@ export default async function SettingsHealthPage() {
               { label: "Failed", value: String(failedImportJobs) },
               { label: "Partial", value: String(partialImportJobs) },
             ]}
-            actionLabel="Open import history"
+            actionLabel="Review import history"
             tone={latestImportTone}
           />
           <div id="exports">
@@ -1025,7 +1025,7 @@ export default async function SettingsHealthPage() {
                 { label: "Failed", value: String(failedExportJobs) },
                 { label: "Limited", value: String(limitedExportJobs) },
               ]}
-              actionLabel="Open contract exports"
+              actionLabel="Review contract exports"
               tone={latestExportTone}
             />
           </div>
@@ -1039,7 +1039,7 @@ export default async function SettingsHealthPage() {
               { label: "Failed", value: String(failedExtractionJobs) },
               { label: "Stale", value: String(staleExtractionJobs) },
             ]}
-            actionLabel="Open review and extraction follow-up"
+            actionLabel="Review extraction follow-up"
             tone={latestExtractionTone}
           />
           <div id="reminders">
@@ -1053,7 +1053,7 @@ export default async function SettingsHealthPage() {
                 { label: "Scheduled", value: String(scheduledReminderRuns) },
                 { label: "Sent", value: String(sentReminderRuns) },
               ]}
-              actionLabel="Open renewals"
+              actionLabel="Review renewals"
               tone={latestReminderTone}
             />
           </div>

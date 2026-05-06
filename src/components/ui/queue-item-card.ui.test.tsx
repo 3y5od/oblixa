@@ -12,7 +12,7 @@ describe("QueueItemCard", () => {
         objectType="Contract"
         statusLabel="Active"
         statusTone="healthy"
-        nextAction={{ label: "Open review", href: "/contracts/c1/review" }}
+        nextAction={{ label: "Continue review", href: "/contracts/c1/review" }}
       />
     );
 
@@ -21,6 +21,6 @@ describe("QueueItemCard", () => {
     expect(screen.getByText("Active")).toBeTruthy();
     expect(screen.getByText("Owner")).toBeTruthy();
     expect(screen.getByText("Unassigned")).toBeTruthy();
-    expect(screen.getByRole("link", { name: /Open review/i }).getAttribute("href")).toBe("/contracts/c1/review");
+    expect(screen.getByRole("link", { name: /Continue review/i }).getAttribute("href")).toBe("/contracts/c1/review");
   });
 });

@@ -86,7 +86,7 @@ describe("CommandPalette", () => {
             href: "/reports?run=report-1",
             resultType: "report run",
             description: "SMTP delivery failure needs retry",
-            actionLabel: "Open recovery action",
+            actionLabel: "Inspect recovery action",
           },
         ]}
       />
@@ -98,7 +98,7 @@ describe("CommandPalette", () => {
 
     const links = await screen.findAllByRole("link");
     expect(links[0]?.getAttribute("href")).toBe("/reports?run=report-1");
-    expect(links[0]?.textContent).toContain("Open recovery action");
+    expect(links[0]?.textContent).toContain("Inspect recovery action");
   });
 
   it("dedupes local nav items when the remote index returns the same destination", async () => {
@@ -115,7 +115,7 @@ describe("CommandPalette", () => {
                 href: "/settings",
                 resultType: "setting",
                 description: "Members, workspace product mode, and workflow configuration.",
-                actionLabel: "Open destination",
+                actionLabel: "Go to destination",
               },
             ],
             partial: null,
@@ -325,7 +325,7 @@ describe("CommandPalette", () => {
 
     expect(await screen.findByText("Command search could not load.")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Retry search" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Open workspace health" }).getAttribute("href")).toBe("/settings/health");
+    expect(screen.getByRole("link", { name: "Review workspace health" }).getAttribute("href")).toBe("/settings/health");
     expect(telemetry.emitCmdkSearchFailedTelemetry).toHaveBeenCalledWith({ queryLen: 19 });
   });
 
@@ -340,7 +340,7 @@ describe("CommandPalette", () => {
             recovery: {
               message: "No command result matched this query.",
               diagnosticId: "v10_command_zero_result",
-              actions: [{ label: "Open work queue", href: "/work", reason: "zero_result" }],
+              actions: [{ label: "Review work queue", href: "/work", reason: "zero_result" }],
             },
           }),
       })
@@ -361,7 +361,7 @@ describe("CommandPalette", () => {
     expect(screen.getByText("No command result matched this query.").closest("[data-v10-diagnostic-id]")?.getAttribute("data-v10-diagnostic-id")).toBe(
       "v10_command_zero_result"
     );
-    expect(screen.getByRole("link", { name: "Open work queue" }).getAttribute("href")).toBe("/work");
+    expect(screen.getByRole("link", { name: "Review work queue" }).getAttribute("href")).toBe("/work");
   });
 
   it("clears stale partial-search recovery copy when the query becomes too short for remote search", async () => {
@@ -379,7 +379,7 @@ describe("CommandPalette", () => {
             recovery: {
               message: "Some indexed destinations are temporarily unavailable; direct destinations are still available.",
               diagnosticId: "v10_command_index_partial",
-              actions: [{ label: "Open work queue", href: "/work", reason: "partial_index" }],
+              actions: [{ label: "Review work queue", href: "/work", reason: "partial_index" }],
             },
           }),
       })

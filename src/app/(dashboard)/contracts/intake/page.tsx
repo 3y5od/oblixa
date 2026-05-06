@@ -3,6 +3,7 @@ import { ArrowRightLeft, CheckCircle2, Inbox, ListOrdered } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { upsertContractIntakeRequestForm } from "@/actions/contracts";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 const STATUS_ORDER = [
   "awaiting_review",
@@ -28,7 +29,7 @@ export default async function IntakeQueuePage() {
     1,
     Number(workflowSettings?.weekly_intake_lookback_days ?? 30)
   );
-  const [{ data: contracts }, { data: throughput }, { data: membersData }] = await Promise.all([
+  const [{ data: contracts }, { data: throughput }, membersData] = await Promise.all([
     admin
       .from("contracts")
       .select(
@@ -45,16 +46,12 @@ export default async function IntakeQueuePage() {
         "created_at",
         new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000).toISOString()
       ),
-    admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", orgId),
+    loadOrgMemberProfileRows(admin, orgId),
   ]);
 
   const memberById = new Map<string, string>();
   for (const row of membersData ?? []) {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
-    memberById.set(row.user_id, profile?.full_name || profile?.email || "Member");
+    memberById.set(row.user_id, orgMemberProfileLabel(row.profiles));
   }
 
   const grouped = new Map<string, Array<Record<string, unknown>>>();
@@ -104,7 +101,7 @@ export default async function IntakeQueuePage() {
             icon={CheckCircle2}
             primaryValue={activeTransitions}
             primaryUnit="to active"
-            action={{ href: "/contracts/intake", label: "View queue" }}
+            action={{ href: "/contracts/intake", label: "Review intake queue" }}
             variant="compact"
           />
           <OperationalSummaryCard

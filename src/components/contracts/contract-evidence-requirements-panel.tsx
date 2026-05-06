@@ -116,21 +116,21 @@ export function ContractEvidenceRequirementsPanel({
             ) : null}
             {r.status === "rejected" ? (
               <>
-                <p className="font-medium text-rose-700">
+                <p className="ui-alert-error text-xs">
                   Rejected evidence still needs a corrected resubmission.
                 </p>
                 {latestSubmission?.rejection_reason ? (
-                  <p className="font-medium text-rose-700">
+                  <p className="ui-alert-error text-xs">
                     Rejection reason: {latestSubmission.rejection_reason}
                   </p>
                 ) : null}
               </>
             ) : r.status === "submitted" ? (
-              <p className="font-medium text-amber-700">
+              <p className="ui-alert-warning text-xs">
                 Submission is waiting for review before the linked work item can clear.
               </p>
             ) : r.status === "required" ? (
-              <p className="font-medium text-amber-700">
+              <p className="ui-alert-warning text-xs">
                 This requirement is still blocking completion of the linked work item.
               </p>
             ) : null}

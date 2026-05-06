@@ -186,7 +186,7 @@ describe("V10 command palette contract ranking", () => {
         record_type: "work_item",
         description_safe: "approval · open",
       })
-    ).toBe("Open work");
+    ).toBe("Continue work");
     expect(
       v10CommandActionLabel({
         record_type: "import_job",
@@ -198,187 +198,187 @@ describe("V10 command palette contract ranking", () => {
         record_type: "report_run",
         description_safe: "failed_terminal report generation",
       })
-    ).toBe("View diagnostics");
+    ).toBe("Inspect diagnostics");
     expect(
       v10CommandActionLabel({
         record_type: "field",
         description_safe: "field · missing · msa",
       })
-    ).toBe("Open field");
+    ).toBe("Review field");
     expect(
       v10CommandActionLabel({
         record_type: "reminder",
         description_safe: "renewal reminder · scheduled 2027-02-01 · msa",
       })
-    ).toBe("Open renewal");
+    ).toBe("Review renewal");
     expect(
       v10CommandActionLabel({
         record_type: "saved_view",
         description_safe: "tasks saved view · pinned",
       })
-    ).toBe("Open saved view");
+    ).toBe("Load saved view");
     expect(
       v10CommandActionLabel({
         record_type: "approval",
         description_safe: "Approval · pending",
       })
-    ).toBe("Open approval");
+    ).toBe("Review approval");
     expect(
       v10CommandActionLabel({
         record_type: "exception",
         description_safe: "Exception · high · open",
       })
-    ).toBe("Open exception");
+    ).toBe("Triage exception");
     expect(
       v10CommandActionLabel({
         record_type: "report_family",
         description_safe: "Core V10 report family",
       })
-    ).toBe("Open reports");
+    ).toBe("Review reports");
     expect(
       v10CommandActionLabel({
         record_type: "simulation",
         description_safe: "campaign eligibility impact · completed",
       })
-    ).toBe("Open compare view");
+    ).toBe("Compare scenario");
     expect(
       v10CommandActionLabel({
         record_type: "setting_destination",
         description_safe: "Settings destination",
       })
-    ).toBe("Open settings");
+    ).toBe("Configure settings");
     expect(
       v10CommandActionLabel({
         record_type: "nav",
         description_safe: "Primary navigation destination",
       })
-    ).toBe("Open page");
+    ).toBe("Go to page");
     expect(
       v10CommandActionLabel({
         record_type: "file_upload",
         description_safe: "contract file · pdf · msa",
       })
-    ).toBe("Open contract");
+    ).toBe("Inspect contract");
     expect(
       v10CommandActionLabel({
         record_type: "extraction_job",
         description_safe: "extraction · failed_retryable",
       })
-    ).toBe("Open extraction");
+    ).toBe("Review extraction");
     expect(
       v10CommandActionLabel({
         record_type: "notification_delivery",
         description_safe: "notification delivery · failed · email",
       })
-    ).toBe("View diagnostics");
+    ).toBe("Inspect diagnostics");
     expect(
       v10CommandActionLabel({
         record_type: "workspace_health_diagnostic",
         description_safe: "refresh partial · partial · 1 failure",
       })
-    ).toBe("View diagnostics");
+    ).toBe("Inspect diagnostics");
     expect(
       v10CommandActionLabel({
         record_type: "account",
         description_safe: "Account operational summary · watch · 1 contracts",
       })
-    ).toBe("Open workspace");
+    ).toBe("Review workspace");
     expect(
       v10CommandActionLabel({
         record_type: "playbook",
         description_safe: "awaiting approval · linked finding",
       })
-    ).toBe("Open playbook");
+    ).toBe("Review playbook");
     expect(
       v10CommandActionLabel({
         record_type: "finding",
         description_safe: "high · open · control gap · 1 contracts",
       })
-    ).toBe("Open finding");
+    ).toBe("Triage finding");
     expect(
       v10CommandActionLabel({
         record_type: "program_evolution",
         description_safe: "simulated · program evolution · linked program · target segment",
       })
-    ).toBe("Open experiment");
+    ).toBe("Review experiment");
     expect(
       v10CommandActionLabel({
         record_type: "contract",
         description_safe: "contract record",
       })
-    ).toBe("Open contract");
+    ).toBe("Inspect contract");
     expect(
       v10CommandActionLabel({
         record_type: "counterparty",
         description_safe: "Counterparty operational summary · degraded · 2 contracts",
       })
-    ).toBe("Open workspace");
+    ).toBe("Review workspace");
     expect(
       v10CommandActionLabel({
         record_type: "relationship",
         description_safe: "Relationship timeline · degraded · 2 contracts",
       })
-    ).toBe("Open relationship");
+    ).toBe("Inspect relationship");
     expect(
       v10CommandActionLabel({
         record_type: "decision",
         description_safe: "renewal recommendation · open · acme-inc · 1 contracts",
       })
-    ).toBe("Open decision");
+    ).toBe("Review decision");
     expect(
       v10CommandActionLabel({
         record_type: "campaign",
         description_safe: "renewal notice · active · 2 contracts · rollback safe",
       })
-    ).toBe("Open campaign");
+    ).toBe("Review campaign");
     expect(
       v10CommandActionLabel({
         record_type: "program",
         description_safe: "published · Reusable renewal workflow",
       })
-    ).toBe("Open program");
+    ).toBe("Review program");
     expect(
       v10CommandActionLabel({
         record_type: "control",
         description_safe: "warn · published · high",
       })
-    ).toBe("Open control");
+    ).toBe("Review control");
     expect(
       v10CommandActionLabel({
         record_type: "automation_run",
         description_safe: "awaiting approval · linked finding",
       })
-    ).toBe("Open automation");
+    ).toBe("Inspect automation");
     expect(
       v10CommandActionLabel({
         record_type: "scorecard",
         description_safe: "Score 82 · active · owner assigned",
       })
-    ).toBe("Open scorecard");
+    ).toBe("Review scorecard");
     expect(
       v10CommandActionLabel({
         record_type: "review_board",
         description_safe: "active · board workflow · owner assigned",
       })
-    ).toBe("Open review board");
+    ).toBe("Review board");
     expect(
       v10CommandActionLabel({
         record_type: "health_graph",
         description_safe: "control gap · linked nodes",
       })
-    ).toBe("Open health graph");
+    ).toBe("Inspect health graph");
     expect(
       v10CommandActionLabel({
         record_type: "segment",
         description_safe: "region · active",
       })
-    ).toBe("Open segment");
+    ).toBe("Review segment");
     expect(
       v10CommandActionLabel({
         record_type: "setting",
         description_safe: "Settings home destination",
       })
-    ).toBe("Open settings");
+    ).toBe("Configure settings");
   });
 
   it("does not fall back to generic destination copy for current indexed record types", () => {
@@ -423,7 +423,7 @@ describe("V10 command palette contract ranking", () => {
     ];
 
     for (const row of rows) {
-      expect(v10CommandActionLabel(row)).not.toBe("Open destination");
+      expect(v10CommandActionLabel(row)).not.toBe("Go to destination");
     }
   });
 
@@ -473,18 +473,18 @@ describe("V10 command palette contract ranking", () => {
       message: expect.stringContaining("No command result matched"),
       diagnosticId: "v10_command_zero_result",
       actions: expect.arrayContaining([
-        { label: "Open work queue", href: "/work", reason: "zero_result" },
-        { label: "Open reports", href: "/reports", reason: "zero_result" },
+        { label: "Review work queue", href: "/work", reason: "zero_result" },
+        { label: "Review reports", href: "/reports", reason: "zero_result" },
         { label: "Check system health", href: "/settings/health", reason: "zero_result" },
-        { label: "Open product settings", href: "/settings/product", reason: "zero_result" },
+        { label: "Configure product settings", href: "/settings/product", reason: "zero_result" },
       ]),
     });
     expect(buildV10CommandSearchRecovery({ query: "report", resultCount: 2, partialIndex: true, mode: "advanced" })).toMatchObject({
       diagnosticId: "v10_command_index_partial",
-      actions: expect.arrayContaining([{ label: "Open decisions", href: "/decisions", reason: "partial_index" }]),
+      actions: expect.arrayContaining([{ label: "Review decisions", href: "/decisions", reason: "partial_index" }]),
     });
     expect(buildV10CommandSearchRecovery({ query: "finding", resultCount: 0, partialIndex: false, mode: "assurance" })).toMatchObject({
-      actions: expect.arrayContaining([{ label: "Open assurance", href: "/assurance", reason: "zero_result" }]),
+      actions: expect.arrayContaining([{ label: "Inspect assurance", href: "/assurance", reason: "zero_result" }]),
     });
     expect(
       buildV10CommandSearchRecovery({

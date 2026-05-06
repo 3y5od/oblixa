@@ -121,7 +121,7 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
             Share submit URL: <span className="font-mono">{createdUrl}</span>
           </p>
           <ExternalLink href={createdUrl} className="ui-link mt-1 inline-flex items-center font-mono text-[11px]">
-            Open submit page
+            Continue submit page
           </ExternalLink>
         </div>
       )}
@@ -154,7 +154,7 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
                   </p>
                 ) : null}
                 {l.correctionMessage ? (
-                  <p className="mt-1 text-[11px] text-rose-700">Correction: {l.correctionMessage}</p>
+                  <p className="ui-alert-error mt-2 text-[11px]">Correction: {l.correctionMessage}</p>
                 ) : null}
               </li>
             ))

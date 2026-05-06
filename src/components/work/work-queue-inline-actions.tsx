@@ -318,9 +318,9 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
       </div>
       {message ? (
         <p
-          className={`text-[11px] ${messageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}
+          className={`text-[11px] ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
           role={messageTone === "success" ? "status" : "alert"}
-          aria-live="polite"
+          aria-live={messageTone === "success" ? "polite" : "assertive"}
         >
           {message}
         </p>

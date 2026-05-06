@@ -60,14 +60,14 @@ const PRIORITY_OPTIONS: { value: ContractTaskPriority; label: string }[] = [
 ];
 
 function priorityBadge(priority: ContractTaskPriority): string {
-  if (priority === "high") return "border-rose-200 bg-rose-50 text-rose-700";
+  if (priority === "high") return "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]";
   if (priority === "low") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-secondary)]";
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]";
 }
 
 function statusBadge(status: ContractTaskStatus): string {
   if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "blocked") return "border-rose-200 bg-rose-50 text-rose-700";
+  if (status === "blocked") return "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
   return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-secondary)]";
 }
@@ -463,7 +463,11 @@ export function ContractTasksPanel({
         </form>
       )}
 
-      {error && <p className="text-sm text-rose-700">{error}</p>}
+      {error && (
+        <p className="ui-alert-error text-sm" role="alert">
+          {error}
+        </p>
+      )}
 
       {tasks.length === 0 ? (
         <p className="text-sm text-[var(--text-tertiary)]">
@@ -508,7 +512,7 @@ export function ContractTasksPanel({
                       </span>
                     )}
                     {task.blocked_reason && task.status === "blocked" && (
-                      <span className="text-rose-700">Blocked: {task.blocked_reason}</span>
+                      <span className="font-medium text-[var(--danger)]">Blocked: {task.blocked_reason}</span>
                     )}
                     {task.recurrence_interval_days && task.recurrence_interval_days > 0 && (
                       <span className="text-[var(--text-tertiary)]">
@@ -534,7 +538,7 @@ export function ContractTasksPanel({
                         {blockedBy.map((label) => (
                           <span
                             key={`b-${task.id}-${label}`}
-                            className="rounded border border-amber-200 bg-amber-50/80 px-2 py-0.5 text-[10px] text-amber-900"
+                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[10px] text-[var(--warning-ink)]"
                           >
                             Blocked by {label}
                           </span>

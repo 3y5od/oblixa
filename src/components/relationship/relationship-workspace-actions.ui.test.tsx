@@ -17,15 +17,15 @@ describe("RelationshipWorkspaceActions", () => {
     });
 
     expect(actions.map((action) => action.label)).toEqual([
-      "Open filtered contracts",
-      "Open related work",
-      "Open renewal horizon",
+      "Review filtered contracts",
+      "Review related work",
+      "Review renewal horizon",
       "Request evidence",
       "Create task",
       "Create exception",
-      "Open timeline",
+      "Review timeline",
     ]);
-    expect(actions.find((action) => action.label === "Open filtered contracts")?.href).toBe(
+    expect(actions.find((action) => action.label === "Review filtered contracts")?.href).toBe(
       "/contracts?q=acme&account_key=acme"
     );
     expect(actions.find((action) => action.label === "Request evidence")?.href).toBe(
@@ -38,11 +38,11 @@ describe("RelationshipWorkspaceActions", () => {
       <RelationshipWorkspaceActions relationshipKind="counterparty" relationshipKey="globex" />
     );
 
-    expect(screen.getByRole("link", { name: /open filtered contracts/i }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: /review filtered contracts/i }).getAttribute("href")).toBe(
       "/contracts?q=globex&counterparty_key=globex"
     );
     expect(screen.getByRole("link", { name: /request evidence/i }).getAttribute("aria-disabled")).toBe("true");
     expect(screen.getByRole("link", { name: /create task/i }).getAttribute("aria-disabled")).toBe("true");
-    expect(screen.getByRole("link", { name: /open timeline/i }).getAttribute("href")).toBe("#relationship-timeline");
+    expect(screen.getByRole("link", { name: /review timeline/i }).getAttribute("href")).toBe("#relationship-timeline");
   });
 });

@@ -1,20 +1,9 @@
 import type { ContractStatus, Profile } from "@/lib/types";
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { SemanticStatus } from "@/components/ui/status-badge";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 type OwnerProfileSummary = Pick<Profile, "full_name" | "email">;
-
-type OwnerMembershipRow = {
-  user_id: string;
-  profiles: OwnerProfileSummary | OwnerProfileSummary[] | null;
-};
-
-function asOwnerProfileSummary(
-  profiles: OwnerMembershipRow["profiles"]
-): OwnerProfileSummary | undefined {
-  if (Array.isArray(profiles)) return profiles[0] ?? undefined;
-  return profiles ?? undefined;
-}
 
 export const STATUS_SEMANTICS: Record<ContractStatus, SemanticStatus> = {
   draft: "empty",
@@ -57,18 +46,12 @@ export async function attachOwnerProfiles<T extends { owner_id: string | null }>
     return contracts.map((c) => ({ ...c }));
   }
 
-  const { data: members, error } = await admin
-    .from("organization_members")
-    .select("user_id, profiles(full_name, email)")
-    .eq("organization_id", orgId)
-    .in("user_id", ownerIds);
-  if (error) console.error("Failed to load org owner profiles:", error);
+  const members = await loadOrgMemberProfileRows(admin, orgId, { userIds: ownerIds });
 
   const profileMap = new Map(
-    ((members ?? []) as OwnerMembershipRow[]).flatMap((member) => {
-      const profile = asOwnerProfileSummary(member.profiles);
-      return profile ? [[member.user_id, profile] as const] : [];
-    })
+    members.flatMap((member) =>
+      member.profiles ? [[member.user_id, member.profiles as OwnerProfileSummary] as const] : []
+    )
   );
 
   return contracts.map((c) => {

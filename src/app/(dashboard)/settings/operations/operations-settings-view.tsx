@@ -551,7 +551,7 @@ export function OperationsSettingsView({
               </li>
             </ul>
             <p className="mt-2 text-xs text-[var(--text-tertiary)]">
-              Outbound Slack alerts from automation include an <strong>Open in Oblixa</strong> link when a{" "}
+              Outbound Slack alerts from automation include a <strong>Review in Oblixa</strong> link when a{" "}
               <code className="text-[10px]">contract_id</code> is present in the event metadata. Set{" "}
               <code className="text-[10px]">NEXT_PUBLIC_APP_URL</code> in production so links resolve to your real domain.
             </p>

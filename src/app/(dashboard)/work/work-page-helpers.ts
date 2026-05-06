@@ -60,22 +60,22 @@ export function tasksEmptyLensAction(lens: WorkHubLens): { href: string; label: 
     case "assigned":
       return { href: "/contracts", label: "Browse contracts" };
     case "due_soon":
-      return { href: "/contracts/renewals?horizon=renewal_30", label: `Open renewals (≤${V9_DUE_SOON_DAYS}d)` };
+      return { href: "/contracts/renewals?horizon=renewal_30", label: `Review renewals (≤${V9_DUE_SOON_DAYS}d)` };
     case "overdue":
-      return { href: "/contracts/renewals?horizon=end_30", label: "Open end-date pressure (≤30d)" };
+      return { href: "/contracts/renewals?horizon=end_30", label: "Review end-date pressure (≤30d)" };
     case "blocked":
       return { href: workSectionHref("blocked", "tasks"), label: "Stay on blocked tasks" };
     case "recent":
       return { href: lensHref("assigned"), label: "Return to open work" };
     default:
-      return { href: lensHref("assigned"), label: "Open assigned work" };
+      return { href: lensHref("assigned"), label: "Review assigned work" };
   }
 }
 
 export function obligationsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
   switch (lens) {
     case "assigned":
-      return { href: "/contracts/obligations", label: "Open obligations ledger" };
+      return { href: "/contracts/obligations", label: "Review obligations ledger" };
     case "due_soon":
       return { href: lensHref("assigned"), label: "See all assigned obligations" };
     case "overdue":
@@ -85,31 +85,31 @@ export function obligationsEmptyLensAction(lens: WorkHubLens): { href: string; l
     case "recent":
       return { href: lensHref("assigned"), label: "Pick up open obligations" };
     default:
-      return { href: lensHref("assigned"), label: "Open assigned work" };
+      return { href: lensHref("assigned"), label: "Review assigned work" };
   }
 }
 
 export function approvalsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
   switch (lens) {
     case "assigned":
-      return { href: "/contracts/approvals?status=pending", label: "Open pending approvals" };
+      return { href: "/contracts/approvals?status=pending", label: "Review pending approvals" };
     case "due_soon":
       return { href: "/contracts/approvals?status=pending", label: "Review approval due dates" };
     case "overdue":
       return { href: "/contracts/approvals?status=pending", label: "Clear overdue approvals" };
     case "blocked":
-      return { href: "/contracts/approvals", label: "Open approvals workspace" };
+      return { href: "/contracts/approvals", label: "Review approvals workspace" };
     case "recent":
-      return { href: "/contracts/approvals", label: "View approvals history" };
+      return { href: "/contracts/approvals", label: "Review approvals history" };
     default:
-      return { href: "/contracts/approvals?status=pending", label: "Open pending approvals" };
+      return { href: "/contracts/approvals?status=pending", label: "Review pending approvals" };
   }
 }
 
 export function exceptionsEmptyLensAction(lens: WorkHubLens): { href: string; label: string } {
   switch (lens) {
     case "assigned":
-      return { href: "/contracts/exceptions?status=open", label: "Open exception ledger" };
+      return { href: "/contracts/exceptions?status=open", label: "Triage exception ledger" };
     case "due_soon":
       return { href: "/contracts/exceptions?status=open", label: "Prioritize dated exceptions" };
     case "overdue":
@@ -119,6 +119,6 @@ export function exceptionsEmptyLensAction(lens: WorkHubLens): { href: string; la
     case "recent":
       return { href: "/contracts/exceptions?status=resolved", label: "Browse resolved exceptions" };
     default:
-      return { href: "/contracts/exceptions?status=open", label: "Open active exception ledger" };
+      return { href: "/contracts/exceptions?status=open", label: "Triage active exception ledger" };
   }
 }

@@ -14,9 +14,9 @@ describe("settings health visible impact and report posture (V9)", () => {
     expect(raw).toContain("What workspace users may notice");
     expect(raw).toContain("Workflow reliability visibility");
     expect(raw).toContain("Reminder and digest emails may arrive late");
-    expect(raw).toContain("Open import history");
-    expect(raw).toContain("Open contract exports");
-    expect(raw).toContain("Open review and extraction follow-up");
+    expect(raw).toContain("Review import history");
+    expect(raw).toContain("Review contract exports");
+    expect(raw).toContain("Review extraction follow-up");
     expect(raw).toContain("Report run reliability");
     expect(raw).toContain("Latest successful digest");
     expect(raw).toContain("Latest failed digest");

@@ -107,7 +107,11 @@ export function ContractNotesPanel({
         </div>
       </form>
 
-      {error && <p className="text-sm text-rose-700">{error}</p>}
+      {error && (
+        <p className="ui-alert-error text-sm" role="alert">
+          {error}
+        </p>
+      )}
 
       {notes.length === 0 ? (
         <p className="text-sm text-[var(--text-tertiary)]">No notes yet.</p>
@@ -129,7 +133,7 @@ export function ContractNotesPanel({
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {note.pinned && (
-                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                      <span className="rounded-full border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-xs font-semibold text-[var(--warning-ink)]">
                         Pinned
                       </span>
                     )}

@@ -18,18 +18,23 @@ type AuthState =
 
 function authAction(mode: string) {
   return async (_prevState: AuthState, formData: FormData): Promise<AuthState> => {
-    const mod = await import("@/actions/auth");
-    switch (mode) {
-      case "login":
-        return mod.signIn(formData);
-      case "signup":
-        return mod.signUp(formData);
-      case "forgot-password":
-        return mod.forgotPassword(formData);
-      case "reset-password":
-        return mod.resetPassword(formData);
-      default:
-        return { error: "Invalid mode" };
+    try {
+      const mod = await import("@/actions/auth");
+      switch (mode) {
+        case "login":
+          return mod.signIn(formData);
+        case "signup":
+          return mod.signUp(formData);
+        case "forgot-password":
+          return mod.forgotPassword(formData);
+        case "reset-password":
+          return mod.resetPassword(formData);
+        default:
+          return { error: "Invalid mode" };
+      }
+    } catch (error) {
+      console.error("[auth-form] action failed", error);
+      return { error: "Sign-in could not be completed. Refresh the page and try again." };
     }
   };
 }

@@ -19,6 +19,17 @@ import {
 } from "@/lib/rate-limit";
 import { isKillSignup } from "@/lib/security/kill-switches";
 
+type AuthActionResult = { error: string } | { success: string } | { redirectTo: string };
+
+async function recoverAuthAction(scope: string, run: () => Promise<AuthActionResult>): Promise<AuthActionResult> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(`[auth] ${scope} failed`, error);
+    return { error: "Sign-in could not be completed. Refresh the page and try again." };
+  }
+}
+
 async function resolvePostAuthRedirectForUser(user: {
   id: string;
   user_metadata?: {
@@ -35,7 +46,11 @@ async function resolvePostAuthRedirectForUser(user: {
   return calibrationPath ?? "/dashboard";
 }
 
-export async function signUp(formData: FormData) {
+export async function signUp(formData: FormData): Promise<AuthActionResult> {
+  return recoverAuthAction("signUp", () => signUpUnsafe(formData));
+}
+
+async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`signup:${ip}`, RATE_LIMITS.signUp);
   if (!rl.ok) {
@@ -88,7 +103,11 @@ export async function signUp(formData: FormData) {
   return { redirectTo: "/dashboard" };
 }
 
-export async function signIn(formData: FormData) {
+export async function signIn(formData: FormData): Promise<AuthActionResult> {
+  return recoverAuthAction("signIn", () => signInUnsafe(formData));
+}
+
+async function signInUnsafe(formData: FormData): Promise<AuthActionResult> {
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`signin:${ip}`, RATE_LIMITS.signIn);
   if (!rl.ok) {
@@ -149,7 +168,11 @@ export async function signOut() {
   redirect("/api/auth/post-sign-out");
 }
 
-export async function forgotPassword(formData: FormData) {
+export async function forgotPassword(formData: FormData): Promise<AuthActionResult> {
+  return recoverAuthAction("forgotPassword", () => forgotPasswordUnsafe(formData));
+}
+
+async function forgotPasswordUnsafe(formData: FormData): Promise<AuthActionResult> {
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`forgot:${ip}`, RATE_LIMITS.forgotPassword);
   if (!rl.ok) {
@@ -174,7 +197,11 @@ export async function forgotPassword(formData: FormData) {
   return { success: "Check your email for a password reset link." };
 }
 
-export async function resetPassword(formData: FormData) {
+export async function resetPassword(formData: FormData): Promise<AuthActionResult> {
+  return recoverAuthAction("resetPassword", () => resetPasswordUnsafe(formData));
+}
+
+async function resetPasswordUnsafe(formData: FormData): Promise<AuthActionResult> {
   const supabase = await createClient();
   const password = formData.get("password") as string;
 

@@ -158,7 +158,7 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
             className="ui-link"
             href={`/api/assurance/check-runs/${encodeURIComponent(String(finding.source_check_run_id))}`}
           >
-            Open run JSON
+            Inspect run diagnostics
           </ApiJsonLink>
         </p>
       ) : null}

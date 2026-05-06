@@ -30,9 +30,11 @@ export function ExtractButton({
 
   if (!canEdit || !hasFiles) return null;
 
-  const extractionInFlight =
+  const extractionQueued = extractionJob?.status === "pending";
+  const extractionProcessing =
     extractionJob?.status === "processing" &&
     isExtractionActivelyBlocking(extractionJob.started_at);
+  const extractionInFlight = extractionQueued || extractionProcessing;
 
   function handleExtract() {
     if (requestLock || extractionInFlight) return;
@@ -81,7 +83,7 @@ export function ExtractButton({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-start">
       <button
         type="button"
         onClick={handleExtract}
@@ -89,15 +91,25 @@ export function ExtractButton({
         aria-busy={isPending || requestLock}
         title={
           extractionInFlight
-            ? "An extraction is already running. Wait or refresh the page."
+            ? "An extraction is already queued or running. Wait or refresh the page."
             : undefined
         }
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-400/30 bg-violet-950 px-3 py-2 text-sm font-medium text-white transition-[background-color,border-color] hover:border-violet-400/50 hover:bg-violet-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45"
+        className="ui-btn-primary w-full whitespace-nowrap px-3 py-2 text-sm disabled:pointer-events-none disabled:opacity-45 sm:w-auto"
       >
         {isPending ? (
           <>
             <Loader2 size={14} className="animate-spin" />
             Extracting...
+          </>
+        ) : extractionQueued ? (
+          <>
+            <Sparkles size={14} />
+            Extraction queued
+          </>
+        ) : extractionProcessing ? (
+          <>
+            <Sparkles size={14} />
+            Extraction running
           </>
         ) : (
           <>
@@ -108,8 +120,8 @@ export function ExtractButton({
       </button>
       {result && (
         <p
-          className={`text-sm ${
-            result.type === "error" ? "text-red-700" : "text-emerald-800"
+          className={`max-w-sm text-xs leading-snug ${
+            result.type === "error" ? "ui-alert-error" : "ui-alert-success"
           }`}
           role={result.type === "error" ? "alert" : "status"}
           aria-live="polite"

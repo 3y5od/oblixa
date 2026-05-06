@@ -36,7 +36,7 @@ export function AddFieldForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] hover:text-[var(--text-secondary)]"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-[var(--border-subtle)] px-3 py-2 text-sm font-medium text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] hover:text-[var(--text-secondary)] sm:w-auto sm:self-start"
       >
         <Plus size={14} />
         Add field manually
@@ -61,9 +61,9 @@ export function AddFieldForm({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/30 p-4">
+    <div className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/30 p-4">
       {error && (
-        <div className="rounded-lg border border-red-200/70 bg-red-50/80 p-2 text-sm text-red-800">
+        <div className="ui-alert-error text-sm" role="alert">
           {error}
         </div>
       )}
@@ -94,7 +94,7 @@ export function AddFieldForm({
           />
         </div>
       </div>
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={() => {

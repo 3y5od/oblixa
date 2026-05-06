@@ -160,7 +160,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
                   </div>
                   <div className="mt-1 h-2 w-full rounded-full bg-[color:color-mix(in_oklab,var(--surface-muted)_75%,var(--canvas))]">
                     <div
-                      className="h-2 rounded-full bg-amber-500/90"
+                      className="h-2 rounded-full bg-[color:var(--warning)]"
                       style={{ width: `${wPct}%` }}
                       title={`${stats.count} nodes`}
                     />

@@ -12,10 +12,42 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 import { isKillInvites } from "@/lib/security/kill-switches";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 const MAX_PROFILE_NAME_LEN = 200;
 const MAX_ORG_NAME_LEN = 200;
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+type SettingsActionResult = { error?: string; success?: true };
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
+async function recoverSettingsAction(scope: string, run: () => Promise<SettingsActionResult>): Promise<SettingsActionResult> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(`[settings] ${scope} failed`, error);
+    return { error: describeRecoverableMutationError(errorMessage(error)) };
+  }
+}
+
+async function safeInsertSettingsAuditEvent(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  row: Record<string, unknown>,
+  failureMessage: string
+): Promise<{ error: string } | null> {
+  try {
+    const { error } = await admin.from("audit_events").insert(row);
+    if (!error) return null;
+    console.error("[settings] audit_events insert failed:", error.message);
+  } catch (error) {
+    console.error("[settings] audit_events insert threw:", error);
+  }
+  return { error: failureMessage };
+}
 
 /** Supabase rejects admin invite-by-email when the address already exists in Auth. */
 function isExistingAuthUserInviteConflict(message: string): boolean {
@@ -27,7 +59,11 @@ function isExistingAuthUserInviteConflict(message: string): boolean {
   return false;
 }
 
-export async function updateProfile(formData: FormData) {
+export async function updateProfile(formData: FormData): Promise<SettingsActionResult> {
+  return recoverSettingsAction("updateProfile", () => updateProfileUnsafe(formData));
+}
+
+async function updateProfileUnsafe(formData: FormData): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -57,7 +93,11 @@ export async function updateProfile(formData: FormData) {
   return { success: true };
 }
 
-export async function updateOrganization(formData: FormData) {
+export async function updateOrganization(formData: FormData): Promise<SettingsActionResult> {
+  return recoverSettingsAction("updateOrganization", () => updateOrganizationUnsafe(formData));
+}
+
+async function updateOrganizationUnsafe(formData: FormData): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -102,7 +142,11 @@ export async function updateOrganization(formData: FormData) {
   return { success: true };
 }
 
-export async function inviteOrgMember(formData: FormData) {
+export async function inviteOrgMember(formData: FormData): Promise<SettingsActionResult> {
+  return recoverSettingsAction("inviteOrgMember", () => inviteOrgMemberUnsafe(formData));
+}
+
+async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -157,12 +201,9 @@ export async function inviteOrgMember(formData: FormData) {
     return { error: "Only admins can invite team members" };
   }
 
-  const { data: existingMember } = await admin
-    .from("organization_members")
-    .select("id, profiles!inner(email)")
-    .eq("organization_id", orgId)
-    .eq("profiles.email", email)
-    .maybeSingle();
+  const existingMember = (await loadOrgMemberProfileRows(admin, orgId, {
+    memberColumns: "id, user_id",
+  })).find((member) => member.profiles?.email?.toLowerCase() === email);
   if (existingMember) {
     return { error: "This user is already a member of the organization." };
   }
@@ -236,18 +277,27 @@ export async function inviteOrgMember(formData: FormData) {
     }
   }
 
-  await admin.from("audit_events").insert({
-    organization_id: orgId,
-    contract_id: null,
-    user_id: user.id,
-    action: "member.invited",
-    details: { email, role },
-  });
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: orgId,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invited",
+      details: { email, role },
+    },
+    "Invite created, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
 
   return { success: true };
 }
 
-export async function revokeOrgInvite(inviteId: string) {
+export async function revokeOrgInvite(inviteId: string): Promise<SettingsActionResult> {
+  return recoverSettingsAction("revokeOrgInvite", () => revokeOrgInviteUnsafe(inviteId));
+}
+
+async function revokeOrgInviteUnsafe(inviteId: string): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -286,18 +336,27 @@ export async function revokeOrgInvite(inviteId: string) {
 
   if (upErr) return { error: mapDataSourceError(upErr.message) };
 
-  await admin.from("audit_events").insert({
-    organization_id: inv.organization_id,
-    contract_id: null,
-    user_id: user.id,
-    action: "member.invite_revoked",
-    details: { invite_id: inviteId },
-  });
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: inv.organization_id,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invite_revoked",
+      details: { invite_id: inviteId },
+    },
+    "Invite revoked, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
 
   return { success: true };
 }
 
-export async function resendOrgInvite(inviteId: string) {
+export async function resendOrgInvite(inviteId: string): Promise<SettingsActionResult> {
+  return recoverSettingsAction("resendOrgInvite", () => resendOrgInviteUnsafe(inviteId));
+}
+
+async function resendOrgInviteUnsafe(inviteId: string): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -385,18 +444,27 @@ export async function resendOrgInvite(inviteId: string) {
     }
   }
 
-  await admin.from("audit_events").insert({
-    organization_id: inv.organization_id,
-    contract_id: null,
-    user_id: user.id,
-    action: "member.invite_resent",
-    details: { invite_id: inviteId, email: inv.email },
-  });
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: inv.organization_id,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invite_resent",
+      details: { invite_id: inviteId, email: inv.email },
+    },
+    "Invite resent, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
 
   return { success: true };
 }
 
-export async function completeProductOnboarding() {
+export async function completeProductOnboarding(): Promise<SettingsActionResult> {
+  return recoverSettingsAction("completeProductOnboarding", () => completeProductOnboardingUnsafe());
+}
+
+async function completeProductOnboardingUnsafe(): Promise<SettingsActionResult> {
   const supabase = await createClient();
   const admin = await createAdminClient();
 

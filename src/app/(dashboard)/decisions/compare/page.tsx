@@ -155,7 +155,7 @@ export default async function DecisionsComparePage(props: {
           )}
           {one.data?.id ? (
             <Link href={`/decisions/${one.data.id}`} className="ui-link mt-4 inline-block text-xs">
-              Open workspace
+              Review workspace
             </Link>
           ) : null}
         </article>
@@ -175,7 +175,7 @@ export default async function DecisionsComparePage(props: {
           )}
           {two.data?.id ? (
             <Link href={`/decisions/${two.data.id}`} className="ui-link mt-4 inline-block text-xs">
-              Open workspace
+              Review workspace
             </Link>
           ) : null}
         </article>

@@ -133,7 +133,7 @@ export function CampaignControlPanel({ campaignId, status, rolledBackAt, showCom
         </ExternalLink>
         <ConfirmActionButton
           type="button"
-          className="ui-btn-ghost px-3 py-2 text-xs text-rose-800"
+          className="ui-btn-ghost px-3 py-2 text-xs text-[var(--danger)]"
           disabled={isClosed || wasRolledBack || busy !== null}
           pending={busy === "rollback"}
           pendingLabel="Rolling back…"

@@ -531,9 +531,9 @@ export function CommandPalette(props: {
                   section="remote_search"
                   sourceObject="setting_destination"
                   diagnosticId={remoteSearchRecovery?.diagnosticId}
-                  nextActionLabel="Open recovery destination"
+                  nextActionLabel="Review recovery destination"
                   className="border-0 bg-transparent p-0"
-                  nextAction={(remoteSearchRecovery?.actions ?? [{ label: "Open workspace health", href: "/settings/health" }]).slice(0, 2).map((action) => (
+                  nextAction={(remoteSearchRecovery?.actions ?? [{ label: "Review workspace health", href: "/settings/health" }]).slice(0, 2).map((action) => (
                     <Link key={action.href} href={action.href} onClick={() => setOpen(false)} className="ui-link inline-flex">
                       {action.label}
                     </Link>
@@ -574,7 +574,7 @@ export function CommandPalette(props: {
                           </button>
                         ) : null}
                         <Link href="/settings/health" onClick={() => setOpen(false)} className="ui-link inline-flex">
-                          Open workspace health
+                          Review workspace health
                         </Link>
                         {remoteSearchRecovery
                           ? remoteSearchRecovery.actions.map((action) => (

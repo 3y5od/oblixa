@@ -28,7 +28,7 @@ export function ContractHeroMetrics(props: {
         icon={ListTree}
         primaryValue={props.fieldsCount}
         primaryUnit="extracted rows"
-        action={{ href: `${base}#extracted-fields`, label: "Open fields" }}
+        action={{ href: `${base}#extracted-fields`, label: "Review fields" }}
         variant="compact"
       />
       <OperationalSummaryCard
@@ -48,7 +48,7 @@ export function ContractHeroMetrics(props: {
         icon={Bell}
         primaryValue={props.upcomingRemindersCount}
         primaryUnit="not yet sent"
-        action={{ href: `${base}?tab=dates`, label: "View dates" }}
+        action={{ href: `${base}?tab=dates`, label: "Review dates" }}
         variant="compact"
       />
     </div>

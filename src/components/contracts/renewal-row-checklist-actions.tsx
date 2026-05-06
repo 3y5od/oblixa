@@ -123,12 +123,9 @@ export function RenewalRowChecklistActions(props: Props) {
         )}
         {message ? (
           <p
-            className={
-              tone === "error"
-                ? "rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700"
-                : "rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800"
-            }
+            className={`text-xs ${tone === "error" ? "ui-alert-error" : "ui-alert-success"}`}
             role={tone === "error" ? "alert" : "status"}
+            aria-live={tone === "error" ? "assertive" : "polite"}
           >
             {message}
           </p>
@@ -152,12 +149,9 @@ export function RenewalRowChecklistActions(props: Props) {
       </button>
       {message ? (
         <p
-          className={
-            tone === "error"
-              ? "rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700"
-              : "rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800"
-          }
+          className={`text-xs ${tone === "error" ? "ui-alert-error" : "ui-alert-success"}`}
           role={tone === "error" ? "alert" : "status"}
+          aria-live={tone === "error" ? "assertive" : "polite"}
         >
           {message}
         </p>

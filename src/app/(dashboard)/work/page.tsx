@@ -48,6 +48,7 @@ import { ExceptionMutationPanels } from "@/components/contracts/exception-mutati
 import { V10_WORK_ITEM_TYPES, V10_WORK_LENSES, type V10WorkItemType } from "@/lib/v10-release-contract";
 import { getV10WorkItemHref } from "@/lib/v10-job-routing";
 import { subDays } from "date-fns";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { operationalActionLabel } from "@/lib/ui/operational-copy";
 import { getV10ExceptionResolutionActionOptions } from "@/lib/v10-approval-exception";
 import {
@@ -209,13 +210,9 @@ export default async function WorkPage(props: {
     .order("updated_at", { ascending: false })
     .limit(20);
 
-  const membersPromise = ctx.admin
-    .from("organization_members")
-    .select("user_id, profiles(full_name, email)")
-    .eq("organization_id", ctx.orgId)
-    .limit(200);
+  const membersPromise = loadOrgMemberProfileRows(ctx.admin, ctx.orgId, { limit: 200 });
 
-  const [tasksRes, approvalsRes, obligationsRes, exceptionsRes, membersRes] = await Promise.all([
+  const [tasksRes, approvalsRes, obligationsRes, exceptionsRes, members] = await Promise.all([
     tasksPromise,
     approvalsPromise,
     obligationsPromise,
@@ -245,11 +242,10 @@ export default async function WorkPage(props: {
       }
     )
   );
-  const ownerOptions = (membersRes.data ?? []).map((row) => {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
+  const ownerOptions = members.map((row) => {
     return {
       id: String(row.user_id),
-      label: profile?.full_name || profile?.email || "Member",
+      label: orgMemberProfileLabel(row.profiles),
     };
   });
   const ownerLabelById = new Map(ownerOptions.map((owner) => [owner.id, owner.label]));

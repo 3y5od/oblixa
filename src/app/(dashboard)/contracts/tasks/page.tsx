@@ -12,6 +12,7 @@ import {
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export const metadata = { title: "Tasks" };
 
@@ -26,7 +27,7 @@ const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
 
 function statusTone(status: string): string {
   if (status === "done") return "text-emerald-700";
-  if (status === "blocked") return "text-rose-700";
+  if (status === "blocked") return "text-[var(--danger)]";
   if (status === "in_progress") return "text-blue-700";
   return "text-[var(--text-secondary)]";
 }
@@ -55,12 +56,9 @@ export default async function ContractTasksPage(props: {
   if (onlyMine) query.eq("assignee_id", user.id);
   if (team?.trim()) query.eq("team_key", team.trim());
 
-  const [{ data: tasksData }, { data: membersData }] = await Promise.all([
+  const [{ data: tasksData }, membersData] = await Promise.all([
     query,
-    admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", orgId),
+    loadOrgMemberProfileRows(admin, orgId),
   ]);
 
   const { data: savedViewsData } = await admin
@@ -84,8 +82,7 @@ export default async function ContractTasksPage(props: {
 
   const memberById = new Map<string, string>();
   for (const row of membersData ?? []) {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
-    memberById.set(row.user_id, profile?.full_name || profile?.email || "Member");
+    memberById.set(row.user_id, orgMemberProfileLabel(row.profiles));
   }
 
   const tasks = (tasksData ?? []).flatMap((row) => {
@@ -160,7 +157,7 @@ export default async function ContractTasksPage(props: {
           icon={ClipboardList}
           primaryValue={openTasks}
           primaryUnit="ready to move"
-          action={{ href: "/contracts/tasks?status=open", label: "Open task slice" }}
+          action={{ href: "/contracts/tasks?status=open", label: "Review task slice" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -180,7 +177,7 @@ export default async function ContractTasksPage(props: {
           icon={AlertTriangle}
           primaryValue={blockedTasks}
           primaryUnit="need unblock path"
-          action={{ href: "/contracts/tasks?status=blocked", label: "Open blocked" }}
+          action={{ href: "/contracts/tasks?status=blocked", label: "Triage blocked work" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -349,7 +346,7 @@ export default async function ContractTasksPage(props: {
                       Priority: <span className="font-medium">{task.priority}</span>
                     </p>
                     {task.blockedReason && task.status === "blocked" && (
-                      <p className="mt-1 text-xs text-rose-700">Blocked: {task.blockedReason}</p>
+                      <p className="ui-alert-error mt-2 text-xs">Blocked: {task.blockedReason}</p>
                     )}
                     {task.recurrenceIntervalDays && task.recurrenceIntervalDays > 0 && (
                       <p className="mt-1 text-xs text-[var(--text-tertiary)]">

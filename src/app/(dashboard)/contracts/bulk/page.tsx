@@ -118,7 +118,7 @@ export default async function BulkImportPage() {
             eyebrow="Hygiene"
             title="Backfill & correction"
             hint="Normalization campaigns and date backfills from the maintenance workspace."
-            actionLabel="Open maintenance"
+            actionLabel="Review maintenance"
             icon={Upload}
             tone="neutral"
           />
@@ -129,7 +129,7 @@ export default async function BulkImportPage() {
             eyebrow="Remediation"
             title="Coordinated campaigns"
             hint="After import, run structured outreach or follow-up as a campaign."
-            actionLabel="Open campaigns"
+            actionLabel="Review campaigns"
             icon={Megaphone}
             tone="neutral"
           />

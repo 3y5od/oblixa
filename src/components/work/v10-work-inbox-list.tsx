@@ -151,7 +151,11 @@ export function V10WorkInboxList({
               : `${selectableItems.length} row${selectableItems.length === 1 ? " is" : "s are"} eligible for bulk actions in this lens.`}
           </p>
           {message ? (
-            <p className={`mt-2 text-xs ${messageTone === "error" ? "text-rose-700" : "text-emerald-700"}`} role={messageTone === "error" ? "alert" : "status"}>
+            <p
+              className={`mt-2 text-xs ${messageTone === "error" ? "ui-alert-error" : "ui-alert-success"}`}
+              role={messageTone === "error" ? "alert" : "status"}
+              aria-live={messageTone === "error" ? "assertive" : "polite"}
+            >
               {message}
             </p>
           ) : null}

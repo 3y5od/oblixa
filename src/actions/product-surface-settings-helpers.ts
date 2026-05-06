@@ -125,31 +125,37 @@ export async function refreshV10SettingsReadModels(admin: ProductSurfaceActionCo
   }
 }
 
+
 export async function reserveV10SettingsMutation(
   ctx: ProductSurfaceActionContext,
   input: { mutationName: string; targetId: string; currentVersion: string; payload: Record<string, unknown> }
 ): Promise<{ error: string } | null> {
-  const { response } = await executeV10IdempotentMutation(
-    ctx.admin,
-    {
-      organizationId: ctx.orgId,
-      actorUserId: ctx.user.id,
-      mutationName: input.mutationName,
-      targetType: "setting",
-      targetId: input.targetId,
-      idempotencyKey: `v10-server-action:${crypto.randomUUID()}`,
-      expectedVersion: input.currentVersion,
-      currentVersion: input.currentVersion,
-      payload: input.payload,
-    },
-    async () =>
-      buildV10MutationResponse({
-        outcome: "success",
-        message: "Settings mutation reserved.",
-        changedObjectType: "setting",
-        changedObjectId: input.targetId,
-        nextDestinationHref: "/settings/health",
-      })
-  );
-  return response.outcome === "success" ? null : { error: response.user_visible_message };
+  try {
+    const { response } = await executeV10IdempotentMutation(
+      ctx.admin,
+      {
+        organizationId: ctx.orgId,
+        actorUserId: ctx.user.id,
+        mutationName: input.mutationName,
+        targetType: "setting",
+        targetId: input.targetId,
+        idempotencyKey: `v10-server-action:${crypto.randomUUID()}`,
+        expectedVersion: input.currentVersion,
+        currentVersion: input.currentVersion,
+        payload: input.payload,
+      },
+      async () =>
+        buildV10MutationResponse({
+          outcome: "success",
+          message: "Settings mutation reserved.",
+          changedObjectType: "setting",
+          changedObjectId: input.targetId,
+          nextDestinationHref: "/settings/health",
+        })
+    );
+    return response.outcome === "success" ? null : { error: response.user_visible_message };
+  } catch (error) {
+    console.error("[product-surface-settings] V10 reservation failed:", error);
+    return { error: "Settings could not be saved. Refresh the page and try again." };
+  }
 }

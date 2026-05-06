@@ -10,6 +10,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export const metadata = { title: "Approvals" };
 
@@ -38,7 +39,7 @@ export default async function ApprovalsPage(props: {
     query.eq("status", status);
   }
 
-  const [{ data: approvals }, { data: scenarios }, { data: membersData }] = await Promise.all([
+  const [{ data: approvals }, { data: scenarios }, membersData] = await Promise.all([
     query,
     admin
       .from("contract_renewal_scenarios")
@@ -46,15 +47,10 @@ export default async function ApprovalsPage(props: {
       .eq("organization_id", orgId)
       .order("updated_at", { ascending: false })
       .limit(100),
-    admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", orgId)
-      .order("created_at", { ascending: true }),
+    loadOrgMemberProfileRows(admin, orgId, { orderByCreatedAt: true }),
   ]);
   const memberOptions = (membersData ?? []).map((member) => {
-    const profile = member.profiles as unknown as { full_name: string | null; email: string | null } | null;
-    return { id: member.user_id, label: profile?.full_name || profile?.email || "Member" };
+    return { id: member.user_id, label: orgMemberProfileLabel(member.profiles) };
   });
   const pendingApprovals = (approvals ?? []).filter((row) => row.status === "pending").length;
   const approvedApprovals = (approvals ?? []).filter((row) => row.status === "approved").length;
@@ -208,7 +204,7 @@ export default async function ApprovalsPage(props: {
                       </div>
                       {row.notes && <p className="ui-support-copy mt-2">{row.notes}</p>}
                       {row.exception_flag && (
-                        <p className="ui-support-copy mt-2 text-amber-700">
+                        <p className="ui-alert-warning mt-2 text-xs">
                           Exception: {row.exception_reason || "No reason provided"}
                         </p>
                       )}
@@ -324,12 +320,12 @@ export default async function ApprovalsPage(props: {
                     ) : null}
                   </div>
                   {row.escalation_date && (
-                    <p className="ui-support-copy mt-2 text-amber-700">
+                    <p className="ui-alert-warning mt-2 text-xs">
                       Escalation:{" "}
                       {format(new Date(`${row.escalation_date}T12:00:00`), "MMM d, yyyy")}
                     </p>
                   )}
-                  {row.blocker && <p className="ui-support-copy mt-2 text-amber-700">Blocker: {row.blocker}</p>}
+                  {row.blocker && <p className="ui-alert-warning mt-2 text-xs">Blocker: {row.blocker}</p>}
                 </li>
               );
             })}

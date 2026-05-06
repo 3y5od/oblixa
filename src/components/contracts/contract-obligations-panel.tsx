@@ -46,7 +46,7 @@ function statusTone(status: ContractObligationStatus): string {
   if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "waived") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]";
 }
 
 export function ContractObligationsPanel({
@@ -310,7 +310,11 @@ export function ContractObligationsPanel({
         </form>
       )}
 
-      {error && <p className="text-sm text-rose-700">{error}</p>}
+      {error && (
+        <p className="ui-alert-error text-sm" role="alert">
+          {error}
+        </p>
+      )}
 
       {obligations.length === 0 ? (
         <p className="text-sm text-[var(--text-tertiary)]">No obligations recorded yet.</p>
@@ -361,7 +365,7 @@ export function ContractObligationsPanel({
                       </span>
                     )}
                     {ob.escalation_due_at && (
-                      <span className="text-rose-700">
+                      <span className="font-medium text-[var(--danger)]">
                         Escalates {format(new Date(ob.escalation_due_at), "MMM d, yyyy")}
                       </span>
                     )}
@@ -392,7 +396,7 @@ export function ContractObligationsPanel({
                         {blockedBy.map((label) => (
                           <span
                             key={`b-${ob.id}-${label}`}
-                            className="rounded border border-amber-200 bg-amber-50/80 px-2 py-0.5 text-[10px] text-amber-900"
+                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[10px] text-[var(--warning-ink)]"
                           >
                             Blocked by {label}
                           </span>

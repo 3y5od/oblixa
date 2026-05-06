@@ -18,6 +18,12 @@ import { runContractCsvImport } from "@/lib/import-jobs";
 function makeAdmin(ownerMembers: Array<{ user_id: string; profiles: { email: string | null } }> = []) {
   const eqLog: Array<{ table: string; col: string; val: string }> = [];
   const inLog: Array<{ table: string; col: string; vals: string[] }> = [];
+  const memberRows = ownerMembers.map((member) => ({ user_id: member.user_id }));
+  const profileRows = ownerMembers.map((member) => ({
+    id: member.user_id,
+    full_name: null,
+    email: member.profiles.email,
+  }));
   const contractInsert = vi.fn((rows: Record<string, unknown>[]) => ({
     select: vi.fn(async () => ({ data: rows.map((_, index) => ({ id: `contract-${index + 1}` })), error: null })),
   }));
@@ -28,14 +34,19 @@ function makeAdmin(ownerMembers: Array<{ user_id: string; profiles: { email: str
       if (table === "organization_members") {
         return {
           select: vi.fn(() => ({
-            eq: vi.fn((col: string, val: string) => {
+            eq: vi.fn(async (col: string, val: string) => {
               eqLog.push({ table, col, val });
-              return {
-                in: vi.fn(async (inCol: string, vals: string[]) => {
-                  inLog.push({ table, col: inCol, vals });
-                  return { data: ownerMembers, error: null };
-                }),
-              };
+              return { data: memberRows, error: null };
+            }),
+          })),
+        };
+      }
+      if (table === "profiles") {
+        return {
+          select: vi.fn(() => ({
+            in: vi.fn(async (col: string, vals: string[]) => {
+              inLog.push({ table, col, vals });
+              return { data: profileRows.filter((profile) => vals.includes(profile.id)), error: null };
             }),
           })),
         };
@@ -76,7 +87,7 @@ describe("runContractCsvImport owner assignment", () => {
 
     expect(result).toMatchObject({ success: true, created: 1, errors: 0, jobId: "job-1" });
     expect(eqLog).toContainEqual({ table: "organization_members", col: "organization_id", val: "org-1" });
-    expect(inLog).toContainEqual({ table: "organization_members", col: "profiles.email", vals: ["owner@acme.test"] });
+    expect(inLog).toContainEqual({ table: "profiles", col: "id", vals: ["member-1"] });
     expect(contractInsert).toHaveBeenCalledWith([
       expect.objectContaining({ organization_id: "org-1", owner_id: "member-1", created_by: "user-1" }),
     ]);

@@ -29,6 +29,10 @@ type V10AuditMetadataValue =
   | { [key: string]: V10AuditMetadataValue };
 type V10AuditMetadata = Record<string, V10AuditMetadataValue>;
 
+function recoverableErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
 export type V10IdempotentMutationInput = {
   organizationId: string;
   actorUserId: string;
@@ -369,10 +373,19 @@ async function claimV10IdempotencyRpc(
     };
   }
   // Must call via client.rpc(...) so SupabaseClient keeps correct `this` (rpc uses this.rest).
-  const { data, error } = await client.rpc("claim_v10_mutation_idempotency", {
-    ...buildV10IdempotencyRpcClaimArgs(input, requestHash, pendingResponse),
-    p_claim_expires_at: idempotencyClaimExpiresAt(),
-  });
+  let result: { data: unknown; error: { message: string } | null };
+  try {
+    result = await client.rpc("claim_v10_mutation_idempotency", {
+      ...buildV10IdempotencyRpcClaimArgs(input, requestHash, pendingResponse),
+      p_claim_expires_at: idempotencyClaimExpiresAt(),
+    });
+  } catch (error) {
+    return {
+      row: null,
+      error: { message: recoverableErrorMessage(error) },
+    };
+  }
+  const { data, error } = result;
   return {
     row: firstRpcRow<V10IdempotencyRpcClaimRow>(data),
     error: error ? { message: error.message } : null,
@@ -404,16 +417,22 @@ async function completeV10IdempotencyClaim(
   if (typeof client.rpc !== "function") {
     return { error: { message: "complete_v10_mutation_idempotency RPC is unavailable" } };
   }
-  const { data, error } = await client.rpc("complete_v10_mutation_idempotency", {
-    p_organization_id: input.organizationId,
-    p_actor_user_id: input.actorUserId,
-    p_mutation_name: canonicalizeV10MutationName(input.mutationName) ?? input.mutationName,
-    p_target_type: String(input.targetType),
-    p_target_id: input.targetId,
-    p_idempotency_key: input.idempotencyKey ?? "",
-    p_request_hash: requestHash,
-    p_response_json: responseJson,
-  });
+  let result: { data: unknown; error: { message: string } | null };
+  try {
+    result = await client.rpc("complete_v10_mutation_idempotency", {
+      p_organization_id: input.organizationId,
+      p_actor_user_id: input.actorUserId,
+      p_mutation_name: canonicalizeV10MutationName(input.mutationName) ?? input.mutationName,
+      p_target_type: String(input.targetType),
+      p_target_id: input.targetId,
+      p_idempotency_key: input.idempotencyKey ?? "",
+      p_request_hash: requestHash,
+      p_response_json: responseJson,
+    });
+  } catch (error) {
+    return { error: { message: recoverableErrorMessage(error) } };
+  }
+  const { data, error } = result;
   if (error) return { error: { message: error.message } };
   return { error: data === true ? null : { message: "idempotency completion did not update a claimed row" } };
 }

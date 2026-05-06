@@ -3,6 +3,10 @@ import {
   degradeOutboundEmailCopyForCore,
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
+import { safeFetch } from "@/lib/security/safe-fetch";
+import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+
+const RESEND_EMAILS_URL = validateOutboundHttpUrl("https://api.resend.com/emails");
 
 type EmailSendPayload = {
   from: string;
@@ -18,7 +22,10 @@ async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Erro
     return { error: new Error("Email provider is not configured") };
   }
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    if (!RESEND_EMAILS_URL) {
+      return { error: new Error("Email provider URL is not trusted") };
+    }
+    const res = await safeFetch(RESEND_EMAILS_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,

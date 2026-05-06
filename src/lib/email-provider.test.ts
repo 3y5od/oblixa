@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const safeFetchMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/security/safe-fetch", () => ({
+  safeFetch: safeFetchMock,
+}));
+
 describe("sendReminderEmail without provider", () => {
   const prevKey = process.env.RESEND_API_KEY;
   const prevFrom = process.env.EMAIL_FROM;
@@ -12,6 +18,7 @@ describe("sendReminderEmail without provider", () => {
 
   beforeEach(() => {
     vi.resetModules();
+    safeFetchMock.mockReset();
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
     vi.stubGlobal("fetch", vi.fn());
@@ -36,12 +43,13 @@ describe("sendReminderEmail without provider", () => {
     });
     expect(out.error).toBeInstanceOf(Error);
     expect(out.error?.message).toMatch(/not configured/i);
+    expect(safeFetchMock).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("sends via direct Resend HTTP API without importing the SDK", async () => {
+  it("sends via trusted Resend HTTP API without importing the SDK", async () => {
     process.env.RESEND_API_KEY = "re_test_key";
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 200 })));
+    safeFetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
 
     const { sendReminderEmail } = await import("@/lib/email");
     const out = await sendReminderEmail({
@@ -54,8 +62,8 @@ describe("sendReminderEmail without provider", () => {
     });
 
     expect(out.error).toBeNull();
-    expect(fetch).toHaveBeenCalledWith(
-      "https://api.resend.com/emails",
+    expect(safeFetchMock).toHaveBeenCalledWith(
+      expect.objectContaining({ href: "https://api.resend.com/emails" }),
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({ Authorization: "Bearer re_test_key" }),
@@ -67,6 +75,7 @@ describe("sendReminderEmail without provider", () => {
     const source = readFileSync("src/lib/email.ts", "utf8");
     expect(source).not.toContain('from "resend"');
     expect(source).not.toContain("new Resend");
-    expect(source).toContain('fetch("https://api.resend.com/emails"');
+    expect(source).toContain('safeFetch(RESEND_EMAILS_URL');
+    expect(source).not.toContain('fetch("https://api.resend.com/emails"');
   });
 });

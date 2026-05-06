@@ -26,7 +26,7 @@ export function RecentUploads({ files }: { files: RecentFileRow[] }) {
         <p className="ui-eyebrow">Activity</p>
         <h2 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">Recent uploads</h2>
         <p className="mt-1 text-xs text-[var(--text-secondary)]">
-          Latest files attached to contracts in your workspace. Open a contract to run
+          Latest files attached to contracts in your workspace. Choose a contract to run
           extraction or continue review.
         </p>
       </div>

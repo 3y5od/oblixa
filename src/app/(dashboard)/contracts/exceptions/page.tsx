@@ -16,6 +16,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { getV10ExceptionResolutionActionOptions } from "@/lib/v10-approval-exception";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";
 type SeverityFilter = "" | "low" | "medium" | "high" | "critical";
@@ -74,7 +75,7 @@ export default async function ExceptionsPage(props: {
   const contractFilter = rawContract && isUuid(rawContract) ? rawContract : null;
   if (contractFilter) query = query.eq("contract_id", contractFilter);
 
-  const [{ data: exceptions }, { data: contracts }, { data: events }, { data: members }] = await Promise.all([
+  const [{ data: exceptions }, { data: contracts }, { data: events }, members] = await Promise.all([
     query,
     ctx.admin.from("contracts").select("id, title").eq("organization_id", ctx.orgId).limit(500),
     ctx.admin
@@ -83,11 +84,7 @@ export default async function ExceptionsPage(props: {
       .eq("organization_id", ctx.orgId)
       .order("created_at", { ascending: false })
       .limit(800),
-    ctx.admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", ctx.orgId)
-      .limit(200),
+    loadOrgMemberProfileRows(ctx.admin, ctx.orgId, { limit: 200 }),
   ]);
 
   const contractById = new Map((contracts ?? []).map((row) => [row.id, row.title]));
@@ -98,10 +95,9 @@ export default async function ExceptionsPage(props: {
     eventsByException.set(row.exception_id, group);
   }
   const ownerOptions = (members ?? []).map((row) => {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
     return {
       id: row.user_id,
-      label: profile?.full_name || profile?.email || "Member",
+      label: orgMemberProfileLabel(row.profiles),
     };
   });
   const ownerLabelById = new Map(ownerOptions.map((owner) => [owner.id, owner.label]));

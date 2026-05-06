@@ -14,6 +14,7 @@ import {
   reassignOwnerForm,
 } from "@/actions/maintenance";
 import { revalidatePath } from "next/cache";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export default async function MaintenancePage() {
   const ctx = await getAuthContext();
@@ -69,11 +70,7 @@ export default async function MaintenancePage() {
         .lt("owner_assigned_at", staleOwnerCutoff)
         .limit(100)
         .then((r) => r.data ?? []),
-      admin
-        .from("organization_members")
-        .select("user_id, profiles(full_name, email)")
-        .eq("organization_id", orgId)
-        .then((r) => r.data ?? []),
+      loadOrgMemberProfileRows(admin, orgId),
       admin
         .from("contract_change_events")
         .select("id, contract_id, event_type, summary, impact_level, processed_at, created_at, contracts!inner(id, title, organization_id)")
@@ -170,10 +167,9 @@ export default async function MaintenancePage() {
   }
   const duplicates = [...normalized.values()].filter((rows) => rows.length > 1);
   const members = (membersData ?? []).map((row) => {
-    const profile = row.profiles as unknown as { full_name: string | null; email: string | null } | null;
     return {
       id: row.user_id,
-      label: profile?.full_name || profile?.email || "Member",
+      label: orgMemberProfileLabel(row.profiles),
     };
   });
 

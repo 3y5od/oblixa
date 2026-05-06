@@ -77,7 +77,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                     router.refresh();
                   });
                 }}
-                className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-900 transition-colors hover:bg-red-100 disabled:opacity-50"
+                className="ui-btn-danger min-h-0 px-3 py-1.5 text-xs disabled:opacity-50"
               >
                 Revoke
               </button>

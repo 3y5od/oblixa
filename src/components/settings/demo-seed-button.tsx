@@ -54,7 +54,9 @@ export function DemoSeedButton() {
           </div>
           {msg && (
             <p
-              className={`mt-2 text-xs ${msg.type === "err" ? "text-red-600" : "text-green-700"}`}
+              className={`mt-2 text-xs ${msg.type === "err" ? "ui-alert-error" : "ui-alert-success"}`}
+              role={msg.type === "err" ? "alert" : "status"}
+              aria-live={msg.type === "err" ? "assertive" : "polite"}
             >
               {msg.text}
             </p>

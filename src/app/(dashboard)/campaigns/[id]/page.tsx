@@ -132,7 +132,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
             title="Playbooks"
             hint="Tie bulk remediation and campaign follow-up to documented response playbooks."
             icon={BookOpen}
-            actionLabel="Open playbooks"
+            actionLabel="Review playbooks"
             tone="neutral"
           />
         </section>

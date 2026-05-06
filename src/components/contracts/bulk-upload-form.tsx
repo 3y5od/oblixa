@@ -77,11 +77,17 @@ export function BulkUploadForm({
       </div>
 
       {disabledReason && (
-        <p className="text-sm text-amber-800">{disabledReason}</p>
+        <p className="ui-alert-warning text-sm" role="status">
+          {disabledReason}
+        </p>
       )}
 
       {result && (
-        <div className={`text-sm ${result.type === "error" ? "text-red-600" : "text-green-700"}`}>
+        <div
+          className={`text-sm ${result.type === "error" ? "ui-alert-error" : "ui-alert-success"}`}
+          role={result.type === "error" ? "alert" : "status"}
+          aria-live={result.type === "error" ? "assertive" : "polite"}
+        >
           <p>{result.text}</p>
           {result.jobId && (
             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
@@ -90,7 +96,7 @@ export function BulkUploadForm({
               </a>
               <span className="text-[var(--text-tertiary)]">·</span>
               <a className="ui-link" href={`/api/import/contracts/${result.jobId}`}>
-                Open job details JSON
+                Inspect job diagnostics
               </a>
             </div>
           )}

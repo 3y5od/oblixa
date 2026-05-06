@@ -428,7 +428,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
                       : "—",
                 },
               ]}
-              action={{ href: "/contracts/collaboration", label: "View collaboration" }}
+              action={{ href: "/contracts/collaboration", label: "Review collaboration" }}
               variant="compact"
               className="mt-3"
             />
@@ -440,7 +440,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
               icon={Users}
               primaryValue={a.weekly_distinct_assurance_hub_visitors_rolling}
               primaryUnit="distinct users (7d)"
-              action={{ href: "/assurance", label: "Open assurance hub" }}
+              action={{ href: "/assurance", label: "Inspect assurance hub" }}
               variant="compact"
               className="mt-3"
             />
@@ -486,7 +486,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
           ) : null}
 
           <ApiJsonLink href="/api/assurance/analytics/summary" className="ui-link mt-3 inline-block text-xs">
-            Open assurance analytics JSON
+            Inspect assurance analytics feed
           </ApiJsonLink>
         </>
       ) : (

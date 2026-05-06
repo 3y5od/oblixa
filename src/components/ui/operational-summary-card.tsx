@@ -453,7 +453,7 @@ export function OperationalSurfaceLinkCard(props: {
   tone?: OperationalTone;
   icon: ComponentType<IconProps>;
   chips?: OperationalBreakdownItem[];
-  /** CTA on the link line; defaults to `Open {title} →` to match the card heading. */
+  /** CTA on the link line; defaults to an operator-action verb tied to the card tone. */
   actionLabel?: string;
   hint?: string;
   variant?: "default" | "hero";
@@ -463,10 +463,11 @@ export function OperationalSurfaceLinkCard(props: {
   const hero = props.variant === "hero";
   const badge = badgeForTone(tone);
   const Icon = props.icon;
+  const fallbackActionVerb = tone === "healthy" ? "Browse" : tone === "neutral" ? "Inspect" : "Review";
   const cta =
     typeof props.actionLabel === "string" && props.actionLabel.trim() !== ""
       ? props.actionLabel
-      : `Open ${props.title}`;
+      : `${fallbackActionVerb} ${props.title}`;
   const wrapClass = `ui-operational-focusable ${hero ? "ui-card-hero px-5 py-5 sm:px-6 sm:py-6" : "ui-operational-card py-4 pl-4 pr-4"} flex h-full min-h-0 flex-col ${OPERATIONAL_SHELL_BY_TONE[tone]} ${props.className ?? ""}`.trim();
   const inner = (
     <>

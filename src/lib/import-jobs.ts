@@ -2,6 +2,7 @@ import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import type { createAdminClient } from "@/lib/supabase/server";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -17,11 +18,6 @@ export type CsvRow = {
 
 type ImportMembership = {
   organization_id: string;
-};
-
-type ImportOwnerMembershipRow = {
-  user_id: string;
-  profiles: { email: string | null } | Array<{ email: string | null }> | null;
 };
 
 type ImportRowResult = {
@@ -40,13 +36,6 @@ const JOB_ROW_INSERT_BATCH_SIZE = 500;
 const AUTO_ATTACH_PROGRAMS_CONCURRENCY = 6;
 export const MAX_IMPORT_BODY_CHARS = 2_000_000;
 
-function getLowercasedProfileEmail(
-  profiles: ImportOwnerMembershipRow["profiles"]
-): string | null {
-  const profile = Array.isArray(profiles) ? profiles[0] : profiles;
-  return profile?.email?.toLowerCase().trim() ?? null;
-}
-
 async function resolveWorkspaceOwnerIdsByEmail(
   admin: Admin,
   organizationId: string,
@@ -54,21 +43,13 @@ async function resolveWorkspaceOwnerIdsByEmail(
 ): Promise<Map<string, string>> {
   if (ownerEmails.length === 0) return new Map();
 
-  const { data: members, error } = await admin
-    .from("organization_members")
-    .select("user_id, profiles!inner(email)")
-    .eq("organization_id", organizationId)
-    .in("profiles.email", ownerEmails);
-
-  if (error) {
-    console.error("Failed to load workspace owner emails:", error);
-    return new Map();
-  }
+  const normalizedEmails = new Set(ownerEmails.map((email) => email.toLowerCase().trim()));
+  const members = await loadOrgMemberProfileRows(admin, organizationId);
 
   return new Map(
-    ((members ?? []) as ImportOwnerMembershipRow[]).flatMap((member) => {
-      const email = getLowercasedProfileEmail(member.profiles);
-      return email ? [[email, member.user_id] as const] : [];
+    members.flatMap((member) => {
+      const email = member.profiles?.email?.toLowerCase().trim() ?? null;
+      return email && normalizedEmails.has(email) ? [[email, member.user_id] as const] : [];
     })
   );
 }

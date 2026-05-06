@@ -36,7 +36,7 @@ export default async function AssuranceControlPoliciesPage() {
           icon={Shield}
           primaryValue={policies.length}
           primaryUnit="in workspace"
-          action={{ href: "/api/control-policies", label: "View JSON", external: true }}
+          action={{ href: "/api/control-policies", label: "Inspect policy feed", external: true }}
           variant="compact"
         />
         <OperationalSummaryCard

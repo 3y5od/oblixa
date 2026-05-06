@@ -83,7 +83,7 @@ export default async function DecisionsPage({
           <p className="ui-eyebrow">Queue</p>
           <h2 className="ui-page-title mt-2 text-[1.8rem]">Decision metrics</h2>
           <p className="ui-section-lead mt-2">
-            Open workspaces, review pressure, and blocked decision paths.
+            Active workspaces, review pressure, and blocked decision paths.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -94,7 +94,7 @@ export default async function DecisionsPage({
             icon={Layers}
             primaryValue={rows.length}
             primaryUnit="rows shown"
-            action={{ href: "/decisions", label: "View queue" }}
+            action={{ href: "/decisions", label: "Review decision queue" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -118,7 +118,7 @@ export default async function DecisionsPage({
               { label: "In review", value: String(reviewCount) },
               { label: "Blocked", value: String(blockedCount) },
             ]}
-            action={{ href: "/decisions?queue=active", label: "View decisions" }}
+            action={{ href: "/decisions?queue=active", label: "Review decisions" }}
             variant="compact"
           />
         </div>

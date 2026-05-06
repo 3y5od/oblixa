@@ -33,7 +33,6 @@ export function EvidenceSubmissionForm({
   const label = status === "rejected" ? "Resubmission" : "Submission";
   const buttonLabel = status === "rejected" ? "Resubmit evidence" : "Submit evidence";
   const pendingLabel = status === "rejected" ? "Resubmitting..." : "Submitting...";
-  const successTone = useMemo(() => (state?.success ? "text-emerald-700" : ""), [state]);
   const errorMessage = useMemo(
     () => (state?.error ? describeRecoverableMutationError(state.error) : null),
     [state]
@@ -86,12 +85,12 @@ export function EvidenceSubmissionForm({
         </p>
       ) : null}
       {errorMessage ? (
-        <p className="basis-full text-[12px] text-rose-700" role="alert">
+        <p className="ui-alert-error basis-full text-[12px]" role="alert">
           {errorMessage}
         </p>
       ) : null}
       {state?.success ? (
-        <p className={`basis-full text-[12px] ${successTone}`} role="status" aria-live="polite">
+        <p className="ui-alert-success basis-full text-[12px]" role="status" aria-live="polite">
           {state.success}
         </p>
       ) : null}

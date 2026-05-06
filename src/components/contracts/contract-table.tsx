@@ -589,7 +589,7 @@ export function ContractTable({
                     <Link
                       href={`/contracts/${contract.id}`}
                       className="inline-flex rounded-[0.9rem] border border-transparent p-2 text-[var(--text-tertiary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] hover:text-[var(--text-primary)]"
-                      aria-label={`Open ${contract.title}`}
+                      aria-label={`Inspect ${contract.title}`}
                     >
                       <ChevronRight size={18} strokeWidth={1.75} aria-hidden />
                     </Link>

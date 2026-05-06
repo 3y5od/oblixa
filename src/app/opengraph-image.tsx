@@ -96,7 +96,7 @@ export default function OpenGraphImage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      width: "fit-content",
+                      alignSelf: "flex-start",
                       borderRadius: 999,
                       border: "1px solid rgba(255,255,255,0.14)",
                       background: "rgba(255,255,255,0.08)",

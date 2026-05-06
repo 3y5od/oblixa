@@ -49,7 +49,7 @@ export default async function ApprovalWorkloadPage() {
             icon={ListOrdered}
             primaryValue={(pending ?? []).length}
             primaryUnit="in sample"
-            action={{ href: "/contracts/approvals", label: "Open approvals" }}
+            action={{ href: "/contracts/approvals", label: "Review approvals" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -109,7 +109,7 @@ export default async function ApprovalWorkloadPage() {
                         value: row.approver_id ? String(row.approver_id) : "Unassigned",
                       },
                     ]}
-                    actionLabel="Open contract"
+                    actionLabel="Inspect contract"
                     tone="attention"
                   />
                 </li>

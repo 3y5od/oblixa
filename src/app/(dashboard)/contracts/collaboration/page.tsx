@@ -159,7 +159,7 @@ export default async function CollaborationPage() {
                             {notificationTypeLabel}
                           </span>
                           {!row.read_at ? (
-                            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                            <span className="rounded-full border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] font-semibold text-[var(--warning-ink)]">
                               Unread
                             </span>
                           ) : null}

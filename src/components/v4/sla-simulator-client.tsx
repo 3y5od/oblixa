@@ -65,7 +65,7 @@ export function SlaSimulatorClient() {
           <span className="font-semibold">{format(breachAt, "MMM d, yyyy h:mm a")}</span>
         </p>
       ) : (
-        <p className="text-sm text-rose-700">Enter a valid start time.</p>
+        <p className="ui-alert-error text-sm" role="alert">Enter a valid start time.</p>
       )}
     </div>
   );

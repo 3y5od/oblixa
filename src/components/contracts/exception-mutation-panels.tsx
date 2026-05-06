@@ -203,9 +203,9 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
 
       {message ? (
         <p
-          className={`md:col-span-3 text-[12px] ${messageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}
+          className={`text-[12px] md:col-span-3 ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
           role={messageTone === "success" ? "status" : "alert"}
-          aria-live="polite"
+          aria-live={messageTone === "success" ? "polite" : "assertive"}
         >
           {message}
         </p>

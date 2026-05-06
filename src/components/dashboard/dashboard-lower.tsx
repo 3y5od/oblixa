@@ -264,7 +264,7 @@ export async function DashboardLower(props: {
                         title={c.title}
                         hint={c.counterparty || "No counterparty"}
                         chips={[{ label: "Status", value: "Needs triage" }]}
-                        actionLabel="Open contract"
+                        actionLabel="Inspect contract"
                         tone="attention"
                       />
                     </li>
@@ -355,7 +355,7 @@ export async function DashboardLower(props: {
                 title="Exceptions"
                 hint="Stale records and workflow gaps."
                 chips={[{ label: "Focus", value: "Execution risk" }]}
-                actionLabel="View exceptions"
+                actionLabel="Triage exceptions"
                 tone="attention"
               />
             ) : null}
@@ -366,7 +366,7 @@ export async function DashboardLower(props: {
                 title="Pending approvals"
                 hint="Queued sign-offs and blockers."
                 chips={[{ label: "Focus", value: "Downstream flow" }]}
-                actionLabel="View approvals"
+                actionLabel="Review approvals"
                 tone="attention"
               />
             ) : null}
@@ -388,7 +388,7 @@ export async function DashboardLower(props: {
                 title="Open evidence requests"
                 hint="Submissions still required for gated work."
                 chips={[{ label: "Required", value: String(evidenceRequiredCount) }]}
-                actionLabel="Open evidence studio"
+                actionLabel="Review evidence studio"
                 tone={evidenceRequiredCount > 0 ? "attention" : "healthy"}
               />
             ) : null}

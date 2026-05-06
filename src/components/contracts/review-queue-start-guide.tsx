@@ -32,12 +32,12 @@ export function ReviewQueueStartGuide({
             <p className="ui-eyebrow">Start here</p>
             <h2 className="ui-page-title text-[1.75rem]">Work straight through the queue</h2>
             <p className="ui-page-lead max-w-3xl">
-              Open the highest-priority contract, review its pending fields, then continue to the next contract without returning to the list. Critical date gaps, open exceptions, and evidence blockers stay visible before you commit downstream state.
+              Choose the highest-priority contract, review its pending fields, then continue to the next contract without returning to the list. Critical date gaps, open exceptions, and evidence blockers stay visible before you commit downstream state.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href={nextContractHref} className="ui-btn-primary px-4 py-2">
-              Open next contract
+              Continue next contract
             </Link>
             <Link href="/contracts" className="ui-btn-secondary px-4 py-2">
               Browse all contracts

@@ -83,12 +83,12 @@ export default async function ReviewCadencePage() {
         </p>
       </header>
 
-      <div className="ui-toolbar w-fit flex-wrap gap-3">
+      <div className="ui-toolbar w-full items-stretch gap-3 sm:w-auto sm:items-center">
         <a href="/api/export/review-packet" className="ui-btn-secondary px-4 py-2 text-[13px]">
           Export review packet
         </a>
         <Link href="/contracts/analytics" className="ui-btn-secondary px-4 py-2 text-[13px]">
-          Open analytics
+          Review analytics
         </Link>
       </div>
       <p className="ui-support-copy max-w-2xl text-[13px]">
@@ -108,7 +108,7 @@ export default async function ReviewCadencePage() {
             icon={Inbox}
             primaryValue={monthly.intake}
             primaryUnit="from weekly window"
-            action={{ href: "/contracts/intake", label: "Open intake" }}
+            action={{ href: "/contracts/intake", label: "Start intake" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -118,7 +118,7 @@ export default async function ReviewCadencePage() {
             icon={AlertTriangle}
             primaryValue={monthly.exceptions}
             primaryUnit="contracts"
-            action={{ href: "/contracts/exceptions", label: "View exceptions" }}
+            action={{ href: "/contracts/exceptions", label: "Triage exceptions" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -128,7 +128,7 @@ export default async function ReviewCadencePage() {
             icon={Stamp}
             primaryValue={monthly.pendingApprovals}
             primaryUnit="in queue"
-            action={{ href: "/contracts/approvals", label: "View approvals" }}
+            action={{ href: "/contracts/approvals", label: "Review approvals" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -138,7 +138,7 @@ export default async function ReviewCadencePage() {
             icon={CalendarDays}
             primaryValue={monthly.renewals90d}
             primaryUnit={`within ${renewalHorizonDays}d`}
-            action={{ href: "/contracts/renewals", label: "View renewals" }}
+            action={{ href: "/contracts/renewals", label: "Review renewals" }}
             variant="compact"
           />
         </div>

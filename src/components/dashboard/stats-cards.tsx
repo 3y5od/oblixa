@@ -24,7 +24,7 @@ const metricsConfig = [
     valueKey: "totalContracts" as const,
     primaryUnit: "total records",
     href: "/contracts" as const,
-    actionLabel: "View contracts",
+    actionLabel: "Browse contracts",
     icon: FileText,
   },
   {
@@ -33,7 +33,7 @@ const metricsConfig = [
     valueKey: "pendingReview" as const,
     primaryUnit: "pending review",
     href: "/contracts?status=pending_review" as const,
-    actionLabel: "View review queue",
+    actionLabel: "Continue review queue",
     icon: Eye,
   },
   {
@@ -42,7 +42,7 @@ const metricsConfig = [
     valueKey: "upcomingDeadlines" as const,
     primaryUnit: "due within 30d",
     href: "/contracts/review-cadence" as const,
-    actionLabel: "View deadlines",
+    actionLabel: "Review deadlines",
     icon: CalendarDays,
   },
   {
@@ -60,7 +60,7 @@ const metricsConfig = [
     valueKey: "missingCriticalCount" as const,
     primaryUnit: "critical fields missing",
     href: "/contracts/data-quality" as const,
-    actionLabel: "View gaps",
+    actionLabel: "Review gaps",
     icon: TriangleAlert,
   },
 ] as const;

@@ -73,6 +73,7 @@ import {
 import { isEvidenceGapStatus } from "@/lib/evidence-status";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -156,7 +157,7 @@ export default async function ContractDetailPage(props: {
     { data: contractData },
     { data: auditEventsData },
     { data: remindersData },
-    { data: membersData },
+    membersData,
     { data: extractionJobData },
     { data: tasksData },
     { data: notesData },
@@ -193,11 +194,7 @@ export default async function ContractDetailPage(props: {
       .select("id, reminder_type, reminder_date, sent_at")
       .eq("contract_id", id)
       .order("reminder_date", { ascending: true }),
-    admin
-      .from("organization_members")
-      .select("user_id, profiles(full_name, email)")
-      .eq("organization_id", orgId)
-      .order("created_at", { ascending: true }),
+    loadOrgMemberProfileRows(admin, orgId, { orderByCreatedAt: true }),
     admin
       .from("contract_extraction_jobs")
       .select(
@@ -513,13 +510,9 @@ export default async function ContractDetailPage(props: {
   const auditEvents = auditEventsData ?? [];
 
   const ownerMembers = (membersData ?? []).map((m) => {
-    const profile = m.profiles as unknown as {
-      full_name: string | null;
-      email: string | null;
-    } | null;
     return {
       userId: m.user_id,
-      label: profile?.full_name || profile?.email || "Member",
+      label: orgMemberProfileLabel(m.profiles),
     };
   });
 
@@ -859,7 +852,7 @@ export default async function ContractDetailPage(props: {
 
   const accentClassByKey = {
     primary: "text-[var(--text-primary)]",
-    attention: "text-amber-700",
+    attention: "text-[var(--warning-ink)]",
     secondary: "text-[var(--text-secondary)]",
   } as const;
   const ownerWorkHref = !contract.owner_id
@@ -1285,10 +1278,10 @@ export default async function ContractDetailPage(props: {
                             </div>
                             <Link
                               href={sourceHref}
-                              aria-label={`Open source for ${String(deduction.label ?? deduction.key ?? "health deduction").replace(/_/g, " ")}`}
+                              aria-label={`Inspect source for ${String(deduction.label ?? deduction.key ?? "health deduction").replace(/_/g, " ")}`}
                               className="mt-2 inline-flex text-xs font-medium text-[var(--text-link)] underline underline-offset-2"
                             >
-                              Open source
+                              Inspect source
                             </Link>
                           </li>
                         );
@@ -1343,10 +1336,10 @@ export default async function ContractDetailPage(props: {
                     Review workspace health
                   </Link>
                   <Link href={`/work?lens=blocked`} className="ui-link">
-                    Open blocked work
+                    Review blocked work
                   </Link>
                   <Link href={`/contracts/${contract.id}?tab=audit`} className="ui-link">
-                    Open audit trail
+                    Review audit trail
                   </Link>
                 </div>
               </div>
@@ -1426,13 +1419,27 @@ export default async function ContractDetailPage(props: {
         <div className="space-y-7 md:space-y-8 lg:col-span-2">
           {(activeTab === "overview" || activeTab === "fields" || activeTab === "dates") && (
           <div id="extracted-fields" className="scroll-mt-28 ui-card overflow-hidden">
-            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
-              <div>
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-5 py-5 md:px-8">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0">
                 <h2 className="ui-section-title text-base">Extracted fields</h2>
-                <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Review before reminders run.</p>
+                <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                  Approve source-backed values before reminders, renewals, or downstream workflow rely on this contract.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
+                  <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
+                    {fieldsCount} field{fieldsCount === 1 ? "" : "s"}
+                  </span>
+                  <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
+                    {pendingFieldsCount} pending review
+                  </span>
+                  <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
+                    {filesCount} source file{filesCount === 1 ? "" : "s"}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Link href="/contracts/review" className="ui-link text-xs">
+              <div className="ui-toolbar w-full items-stretch justify-start gap-2 p-2 sm:items-center xl:w-auto xl:justify-end">
+                <Link href="/contracts/review" className="ui-btn-ghost w-full px-3 py-2 text-xs sm:w-auto">
                   Review queue
                 </Link>
                 <ExtractButton
@@ -1442,13 +1449,14 @@ export default async function ContractDetailPage(props: {
                   extractionJob={extractionJob}
                 />
                 {canEdit && (
-                  <form action={applyContractTemplatePackForm}>
+                  <form action={applyContractTemplatePackForm} className="w-full sm:w-auto">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <button type="submit" className="ui-btn-secondary px-3 py-2 text-xs">
+                    <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs sm:w-auto">
                       Apply template pack
                     </button>
                   </form>
                 )}
+              </div>
               </div>
             </div>
             <div className="space-y-5 px-4 py-6 md:px-8">
@@ -1458,16 +1466,16 @@ export default async function ContractDetailPage(props: {
                 pendingFieldsCount={pendingFieldsCount}
               />
               {reviewQueueContinuity ? (
-                <div className="rounded-2xl border border-indigo-200/70 bg-indigo-50/50 px-4 py-4 text-sm text-indigo-950">
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--info-soft)_36%,var(--surface))] px-4 py-4 text-sm text-[var(--text-secondary)]">
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-1.5">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-700/80">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
                         Review queue
                       </p>
-                      <p className="font-semibold text-indigo-950">
+                      <p className="font-semibold text-[var(--text-primary)]">
                         Contract {reviewQueueContinuity.position} of {reviewQueueContinuity.total} still needs attention.
                       </p>
-                      <p className="text-[13px] leading-relaxed text-indigo-900/85">
+                      <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
                         {reviewQueueContinuity.currentPendingCount > 0
                           ? `${reviewQueueContinuity.currentPendingCount} field${reviewQueueContinuity.currentPendingCount === 1 ? "" : "s"} on this contract are still pending.`
                           : "The contract is still marked pending review even though no extracted fields are pending."}{" "}
@@ -1476,7 +1484,7 @@ export default async function ContractDetailPage(props: {
                           : "This is the last contract currently waiting in the active queue."}
                       </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:justify-end">
                       <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
                         Review queue
                       </Link>
@@ -1485,7 +1493,7 @@ export default async function ContractDetailPage(props: {
                           href={`/contracts/${reviewQueueContinuity.nextContractId}?tab=overview&from=review&reviewPage=${reviewPage}#extracted-fields`}
                           className="ui-btn-primary px-3 py-2 text-xs"
                         >
-                          Open next contract
+                          Continue next contract
                           {reviewQueueContinuity.nextPendingCount > 0
                             ? ` (${reviewQueueContinuity.nextPendingCount} pending)`
                             : ""}
@@ -1522,7 +1530,7 @@ export default async function ContractDetailPage(props: {
               <div className="ui-card border-emerald-200/50 bg-emerald-50/30 p-5 md:p-6">
                 <h2 className="ui-section-title text-base">Relationship context</h2>
                 <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                  Open portfolio summaries for keys on this contract.
+                  Use portfolio summaries for keys on this contract.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(contract as { account_key?: string | null }).account_key ? (
@@ -2121,9 +2129,9 @@ export default async function ContractDetailPage(props: {
                           delivery.tone === "healthy"
                             ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                             : delivery.tone === "risk"
-                              ? "border-rose-200 bg-rose-50 text-rose-800"
+                              ? "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]"
                               : delivery.tone === "attention"
-                                ? "border-amber-200 bg-amber-50 text-amber-800"
+                                ? "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]"
                                 : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
                         return (
                           <li
@@ -2178,9 +2186,9 @@ export default async function ContractDetailPage(props: {
                           delivery.tone === "healthy"
                             ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                             : delivery.tone === "risk"
-                              ? "border-rose-200 bg-rose-50 text-rose-800"
+                              ? "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]"
                               : delivery.tone === "attention"
-                                ? "border-amber-200 bg-amber-50 text-amber-800"
+                                ? "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]"
                                 : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
                         return (
                           <li key={r.id} className="rounded-lg border border-[var(--border-subtle)]/70 px-3 py-2 text-sm text-[var(--text-secondary)]">

@@ -144,14 +144,14 @@ export function OnboardingBanner({
       done: stepUpload,
       href: stats.importJobProcessing ? "/contracts/bulk#recent-imports" : "/contracts/new",
       actionLabel: stepUpload
-        ? "Open contracts"
+        ? "Browse contracts"
         : stats.importJobProcessing
-          ? "View import progress"
+          ? "Review import progress"
           : "Upload first contract",
       detail: stepUpload
         ? stats.contractCount >= 1
           ? `${stats.contractCount} contract${stats.contractCount === 1 ? "" : "s"} created.`
-          : "A recent import finished with inserted rows. Open Contracts if the list has not refreshed yet."
+          : "A recent import finished with inserted rows. Browse Contracts if the list has not refreshed yet."
         : stats.importJobProcessing
           ? "A CSV import is still running. Contracts appear as rows are inserted; use Bulk import to monitor or retry if something fails."
           : "Add at least one signed agreement so extraction and review can begin.",
@@ -184,7 +184,7 @@ export function OnboardingBanner({
     review: {
       done: stepReview,
       href: "/contracts/review",
-      actionLabel: stepReview ? "Open review queue" : "Review extracted fields",
+      actionLabel: stepReview ? "Continue review queue" : "Review extracted fields",
       detail: stepReview
         ? "Extraction has produced reviewable data for this workspace."
         : stats.hasExtractions && stats.pendingReviewCount > 0
@@ -204,7 +204,7 @@ export function OnboardingBanner({
     owner: {
       done: stepOwner,
       href: "/contracts?sort=activity",
-      actionLabel: stepOwner ? "Open contracts" : "Check contract owners",
+      actionLabel: stepOwner ? "Browse contracts" : "Check contract owners",
       detail: stepOwner
         ? `${stats.ownerAssignedContracts} contract${stats.ownerAssignedContracts === 1 ? "" : "s"} already have an owner recorded.`
         : "Assign an owner so escalations, renewals, and follow-up work have a clear home.",
@@ -221,7 +221,7 @@ export function OnboardingBanner({
     approve: {
       done: stepApprove,
       href: "/contracts/review",
-      actionLabel: stepApprove ? "Open dashboard" : "Approve key operational dates",
+      actionLabel: stepApprove ? "Review dashboard" : "Approve key operational dates",
       detail: stepApprove
         ? `${stats.approvedOperationalDates} approved operational date${stats.approvedOperationalDates === 1 ? "" : "s"} now drive reminders and reporting.`
         : "Approve at least one key date so reminders, renewals, and reports can trust the record.",
@@ -240,10 +240,10 @@ export function OnboardingBanner({
       href: stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/contracts/renewals",
       actionLabel:
         stepWork && stats.visibleWorkItems > 0
-          ? "Open assigned work"
+          ? "Review assigned work"
           : stepWork
-            ? "Open renewals"
-            : "Open execution queues",
+            ? "Review renewals"
+            : "Review execution queues",
       detail: stepWork
         ? stats.visibleWorkItems > 0
           ? `${stats.visibleWorkItems} visible work item${stats.visibleWorkItems === 1 ? "" : "s"} can now be worked from the shared queue.`
@@ -265,7 +265,7 @@ export function OnboardingBanner({
     dashboard: {
       done: stepDashboard,
       href: "/dashboard",
-      actionLabel: stepDashboard ? "Open dashboard" : "Return to dashboard",
+      actionLabel: stepDashboard ? "Review dashboard" : "Return to dashboard",
       detail: stepDashboard
         ? "Dashboard cards now point to real queues and records for this workspace."
         : "Return to the dashboard once the first queue, renewal, or review signals are live so the home view becomes actionable.",
@@ -341,7 +341,7 @@ export function OnboardingBanner({
             </p>
           ) : null}
           {recoveryRow ? (
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+            <div className="ui-alert-warning mt-4 px-4 py-3 text-[13px]">
               <p className="font-semibold">Recovery available</p>
               <p className="mt-1">{recoveryRow.detail}</p>
             </div>

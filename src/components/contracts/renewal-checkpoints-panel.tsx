@@ -71,7 +71,7 @@ function statusTone(status: RenewalCheckpointStatus): string {
   if (status === "completed") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "skipped") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
   if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]";
 }
 
 function normalizeWorkspace(raw: unknown): WorkspaceShape {
@@ -265,7 +265,11 @@ export function RenewalCheckpointsPanel({
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-rose-700">{error}</p>}
+      {error && (
+        <p className="ui-alert-error text-sm" role="alert">
+          {error}
+        </p>
+      )}
       <ul className="space-y-3">
         {checkpoints.map((cp) => (
           <li key={cp.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">

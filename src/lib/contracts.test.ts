@@ -1,27 +1,45 @@
 import { describe, expect, it, vi } from "vitest";
 import { attachOwnerProfiles } from "@/lib/contracts";
 
-function buildAdminMock(result: { data: unknown; error: unknown }) {
-  const query = {
-    select: vi.fn(() => query),
-    eq: vi.fn(() => query),
-    in: vi.fn(async () => result),
+function buildAdminMock(result: {
+  members: { data: unknown; error: unknown };
+  profiles?: { data: unknown; error: unknown };
+}) {
+  const membersQuery = {
+    select: vi.fn(() => membersQuery),
+    eq: vi.fn(() => membersQuery),
+    in: vi.fn(async () => result.members),
   };
-  const from = vi.fn(() => query);
+  const profilesQuery = {
+    select: vi.fn(() => profilesQuery),
+    in: vi.fn(async () => result.profiles ?? { data: [], error: null }),
+  };
+  const from = vi.fn((table: string) => (table === "profiles" ? profilesQuery : membersQuery));
   const admin = { from } as unknown as Parameters<typeof attachOwnerProfiles>[0];
-  return { admin, from, query };
+  return { admin, from, membersQuery, profilesQuery };
 }
 
 describe("attachOwnerProfiles", () => {
   it("attaches only owners returned through org membership", async () => {
-    const { admin, query } = buildAdminMock({
-      data: [
+    const { admin, membersQuery, profilesQuery } = buildAdminMock({
+      members: {
+        data: [
+          {
+            user_id: "user-1",
+          },
+        ],
+        error: null,
+      },
+      profiles: {
+        data: [
         {
-          user_id: "user-1",
-          profiles: { full_name: "Alice Owner", email: "alice@example.com" },
+          id: "user-1",
+          full_name: "Alice Owner",
+          email: "alice@example.com",
         },
       ],
-      error: null,
+        error: null,
+      },
     });
 
     const contracts = await attachOwnerProfiles(admin, "org-1", [
@@ -30,8 +48,9 @@ describe("attachOwnerProfiles", () => {
       { id: "c-3", owner_id: null },
     ]);
 
-    expect(query.eq).toHaveBeenCalledWith("organization_id", "org-1");
-    expect(query.in).toHaveBeenCalledWith("user_id", ["user-1", "user-2"]);
+    expect(membersQuery.eq).toHaveBeenCalledWith("organization_id", "org-1");
+    expect(membersQuery.in).toHaveBeenCalledWith("user_id", ["user-1", "user-2"]);
+    expect(profilesQuery.in).toHaveBeenCalledWith("id", ["user-1"]);
     expect(contracts).toEqual([
       {
         id: "c-1",
@@ -43,8 +62,21 @@ describe("attachOwnerProfiles", () => {
     ]);
   });
 
+  it("degrades without console errors when owner profile hydration fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { admin } = buildAdminMock({
+      members: { data: null, error: { code: "PGRST200" } },
+    });
+
+    const contracts = await attachOwnerProfiles(admin, "org-1", [{ id: "c-1", owner_id: "user-1" }]);
+
+    expect(contracts).toEqual([{ id: "c-1", owner_id: "user-1" }]);
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
   it("skips the membership lookup when the contracts have no owners", async () => {
-    const { admin, from } = buildAdminMock({ data: [], error: null });
+    const { admin, from } = buildAdminMock({ members: { data: [], error: null } });
 
     const contracts = await attachOwnerProfiles(admin, "org-1", [{ id: "c-1", owner_id: null }]);
 

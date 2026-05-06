@@ -88,9 +88,9 @@ export function EvidenceSubmissionReviewActions({
       ) : null}
       {message ? (
         <p
-          className={`mt-2 text-[12px] ${messageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}
-          role="status"
-          aria-live="polite"
+          className={`mt-2 text-[12px] ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
+          role={messageTone === "success" ? "status" : "alert"}
+          aria-live={messageTone === "success" ? "polite" : "assertive"}
         >
           {message}
         </p>

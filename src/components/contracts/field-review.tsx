@@ -2,7 +2,6 @@
 
 import {
   memo,
-  useEffect,
   useMemo,
   useState,
   useTransition,
@@ -48,12 +47,13 @@ interface FieldReviewProps {
 }
 
 export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
-  const [currentFields, setCurrentFields] = useState(fields);
+  const [reviewState, setReviewState] = useState(() => ({
+    sourceFields: fields,
+    rows: fields,
+  }));
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setCurrentFields(fields);
-  }, [fields]);
+  const currentFields = reviewState.sourceFields === fields ? reviewState.rows : fields;
 
   const pendingCount = currentFields.filter((f) => f.status === "pending").length;
   const hasPending = pendingCount > 0;
@@ -96,46 +96,37 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
         </div>
       )}
       {(criticalSummary.pendingLabels.length > 0 || criticalSummary.missingLabels.length > 0) && (
-        <div className="ui-alert-warning px-4 py-3 text-sm">
-          <p className="font-semibold">Key date coverage still needs review</p>
-          <p className="mt-1 text-[13px] leading-relaxed">
-            Approve or add end, renewal, and notice values before reminders, renewal reporting, or downstream work should rely on this contract.
-          </p>
-          <div className="mt-2 flex flex-col gap-1 text-[12px]">
-            {criticalSummary.pendingLabels.length > 0 ? (
-              <p>Pending now: {criticalSummary.pendingLabels.join(", ")}.</p>
-            ) : null}
-            {criticalSummary.missingLabels.length > 0 ? (
-              <p>Still missing an approved value: {criticalSummary.missingLabels.join(", ")}.</p>
-            ) : null}
-          </div>
-        </div>
+        <CriticalDateReviewNotice
+          pendingLabels={criticalSummary.pendingLabels}
+          missingLabels={criticalSummary.missingLabels}
+          canEdit={canEdit}
+        />
       )}
       <div className="ui-table-shell">
         <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse text-[13px]">
+          <table className="min-w-[1080px] table-fixed border-collapse text-[13px]">
             <caption className="sr-only">
               Extracted contract fields — approve, reject, or edit pending rows
             </caption>
             <thead>
               <tr className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/90">
-                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left first:pl-6">
+                <th className="ui-table-header w-[22%] whitespace-nowrap px-4 py-3.5 text-left first:pl-6">
                   Field
                 </th>
-                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                <th className="ui-table-header w-[20%] whitespace-nowrap px-4 py-3.5 text-left">
                   Value
                 </th>
-                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                <th className="ui-table-header w-[13%] whitespace-nowrap px-4 py-3.5 text-left">
                   Model confidence
                 </th>
-                <th className="ui-table-header min-w-[220px] whitespace-nowrap px-4 py-3.5 text-left">
+                <th className="ui-table-header w-[25%] whitespace-nowrap px-4 py-3.5 text-left">
                   Source evidence
                 </th>
-                <th className="ui-table-header whitespace-nowrap px-4 py-3.5 text-left">
+                <th className="ui-table-header w-[10%] whitespace-nowrap px-4 py-3.5 text-left">
                   Status
                 </th>
                 {canEdit && (
-                  <th className="ui-table-header whitespace-nowrap px-4 py-3.5 pr-6 text-right">
+                  <th className="ui-table-header w-[10%] whitespace-nowrap px-4 py-3.5 pr-6 text-right">
                     Actions
                   </th>
                 )}
@@ -148,20 +139,18 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
                   field={field}
                   canEdit={canEdit}
                   onUpdated={(nextField, action) => {
-                    setCurrentFields((prev) => {
-                      const next = prev.map((candidate) =>
-                        candidate.id === nextField.id ? nextField : candidate
-                      );
-                      const nextPendingCount = next.filter((candidate) => candidate.status === "pending").length;
-                      setStatusMessage(
-                        buildFieldReviewStatusMessage({
-                          pendingCount: nextPendingCount,
-                          action,
-                          fieldLabel: nextField.field_name.replace(/_/g, " "),
-                        })
-                      );
-                      return next;
-                    });
+                    const next = currentFields.map((candidate) =>
+                      candidate.id === nextField.id ? nextField : candidate
+                    );
+                    const nextPendingCount = next.filter((candidate) => candidate.status === "pending").length;
+                    setReviewState({ sourceFields: fields, rows: next });
+                    setStatusMessage(
+                      buildFieldReviewStatusMessage({
+                        pendingCount: nextPendingCount,
+                        action,
+                        fieldLabel: nextField.field_name.replace(/_/g, " "),
+                      })
+                    );
                   }}
                 />
               ))}
@@ -170,6 +159,65 @@ export function FieldReview({ fields, canEdit = true }: FieldReviewProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function CriticalDateReviewNotice({
+  pendingLabels,
+  missingLabels,
+  canEdit,
+}: {
+  pendingLabels: string[];
+  missingLabels: string[];
+  canEdit: boolean;
+}) {
+  return (
+    <section
+      className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--warning-soft)_32%,var(--surface))] px-4 py-3 text-sm text-[var(--warning-ink)]"
+      role="status"
+      aria-labelledby="critical-date-review-title"
+      data-testid="critical-date-review-notice"
+    >
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 space-y-1">
+          <p id="critical-date-review-title" className="font-semibold text-[var(--text-primary)]">
+            Date automation is blocked until key dates are approved
+          </p>
+          <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
+            Reminders, renewals, and downstream workflow should not rely on this contract until the fields below have approved values.
+          </p>
+        </div>
+        <p className="shrink-0 text-[12px] font-medium text-[var(--text-secondary)]">
+          {canEdit ? "Approve, edit, or add the missing values below." : "Ask an editor to approve or add the missing values."}
+        </p>
+      </div>
+      <div className="mt-3 grid gap-2 md:grid-cols-2">
+        {pendingLabels.length > 0 ? (
+          <div className="min-w-0 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_72%,transparent)] px-3 py-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Needs review</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {pendingLabels.map((label) => (
+                <span key={`pending-${label}`} className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 text-[12px] font-medium text-[var(--text-secondary)]">
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {missingLabels.length > 0 ? (
+          <div className="min-w-0 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_72%,transparent)] px-3 py-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Missing approved value</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {missingLabels.map((label) => (
+                <span key={`missing-${label}`} className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 text-[12px] font-medium text-[var(--text-secondary)]">
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
@@ -204,39 +252,37 @@ const FieldRow = memo(function FieldRow({
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.field_value || "");
   const [isPending, startTransition] = useTransition();
-  const [currentField, setCurrentField] = useState(field);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const hasValue =
-    currentField.field_value != null &&
-    String(currentField.field_value).trim().length > 0;
+    field.field_value != null &&
+    String(field.field_value).trim().length > 0;
   const hasSnippet =
-    currentField.source_snippet != null &&
-    String(currentField.source_snippet).trim().length > 0;
+    field.source_snippet != null &&
+    String(field.source_snippet).trim().length > 0;
   const needsCitation =
-    currentField.status === "pending" &&
-    currentField.source === "ai" &&
+    field.status === "pending" &&
+    field.source === "ai" &&
     hasValue &&
     !hasSnippet;
 
   function handleAction(action: "approved" | "rejected" | "edited", newValue?: string) {
     setActionError(null);
     startTransition(async () => {
-      const result = await updateContractField(currentField.id, action, newValue);
+      const result = await updateContractField(field.id, action, newValue);
       if (result && "error" in result && result.error) {
         setActionError(describeRecoverableMutationError(result.error));
         return;
       }
       if (result && "success" in result && result.success) {
-        const wasPending = currentField.status === "pending";
+        const wasPending = field.status === "pending";
         const nextField = {
-          ...currentField,
+          ...field,
           status: action,
           ...(action === "edited" && newValue !== undefined
             ? { field_value: newValue, source: "human" as const }
             : {}),
         };
-        setCurrentField(nextField);
         onUpdated(nextField, action);
         setEditing(false);
         if (wasPending && (action === "approved" || action === "rejected" || action === "edited")) {
@@ -247,16 +293,16 @@ const FieldRow = memo(function FieldRow({
   }
 
   const rowBg =
-    currentField.status === "pending"
+    field.status === "pending"
       ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_34%,transparent)]"
-      : currentField.status === "approved"
+      : field.status === "approved"
         ? "bg-[color:color-mix(in_oklab,var(--success-soft)_28%,transparent)]"
-        : currentField.status === "rejected"
+        : field.status === "rejected"
           ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_30%,transparent)]"
           : "bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)]";
 
   const rowKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
-    if (!canEdit || currentField.status !== "pending" || editing) return;
+    if (!canEdit || field.status !== "pending" || editing) return;
     const t = e.target as HTMLElement;
     if (t.closest("input, textarea, button")) return;
 
@@ -271,27 +317,37 @@ const FieldRow = memo(function FieldRow({
     } else if (key === "e") {
       e.preventDefault();
       setEditing(true);
-      setEditValue(currentField.field_value || "");
+      setEditValue(field.field_value || "");
     }
   };
 
-  const fieldLabel = currentField.field_name.replace(/_/g, " ");
+  const fieldLabel = field.field_name.replace(/_/g, " ");
+  const provenanceLabel = fieldReviewProvenanceLabel({
+    status: field.status,
+    confidence:
+      field.confidence == null
+        ? null
+        : Math.round(Math.min(1, Math.max(0, field.confidence)) * 100),
+  });
 
   return (
     <tr
       ref={rowRef}
-      id={`field-${currentField.id}`}
+      id={`field-${field.id}`}
       className={`scroll-mt-28 outline-none transition-colors focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/20 ${rowBg}`}
-      tabIndex={canEdit && currentField.status === "pending" && !editing ? 0 : -1}
+      tabIndex={canEdit && field.status === "pending" && !editing ? 0 : -1}
       onKeyDown={rowKeyDown}
     >
-      <td className="whitespace-nowrap px-4 py-4 align-top first:pl-6">
+      <td className="px-4 py-4 align-top first:pl-6">
         <p className="font-semibold capitalize text-[var(--text-primary)]">{fieldLabel}</p>
         <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
-          {currentField.source === "ai" ? "AI extraction" : "Human entry"}
+          {field.source === "ai" ? "AI extraction" : "Human entry"}
+        </p>
+        <p className="mt-2 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_62%,transparent)] px-2.5 py-2 text-[11px] leading-snug text-[var(--text-secondary)] break-words">
+          {provenanceLabel}
         </p>
       </td>
-      <td className="max-w-[min(280px,32vw)] px-4 py-4 align-top text-[var(--text-primary)]">
+      <td className="px-4 py-4 align-top text-[var(--text-primary)]">
         {editing ? (
           <div className="flex flex-col gap-2">
             <input
@@ -329,8 +385,8 @@ const FieldRow = memo(function FieldRow({
           </div>
         ) : (
           <>
-            <span className="font-medium">
-              {currentField.field_value || (
+            <span className="block break-words font-medium leading-relaxed">
+              {field.field_value || (
                 <span className="font-normal italic text-[var(--text-tertiary)]">Unknown</span>
               )}
             </span>
@@ -347,26 +403,20 @@ const FieldRow = memo(function FieldRow({
       </td>
       <td className="whitespace-nowrap px-4 py-4 align-top">
         <span
-          className={`text-[13px] font-semibold tabular-nums ${confidenceTone(currentField.confidence)}`}
+          className={`text-[13px] font-semibold tabular-nums ${confidenceTone(field.confidence)}`}
           title="Model-reported certainty (0–100%)"
         >
-          {confidenceLabel(currentField.confidence)}
+          {confidenceLabel(field.confidence)}
         </span>
-        <p className="mt-2 max-w-[14rem] text-[11px] leading-snug text-[var(--text-tertiary)]">
-          {fieldReviewProvenanceLabel({
-            status: currentField.status,
-            confidence:
-              currentField.confidence == null
-                ? null
-                : Math.round(Math.min(1, Math.max(0, currentField.confidence)) * 100),
-          })}
+        <p className="mt-2 text-[11px] leading-snug text-[var(--text-tertiary)]">
+          Model signal only
         </p>
       </td>
-      <td className="max-w-[min(320px,40vw)] px-4 py-4 align-top">
-        {currentField.source_snippet ? (
-          <blockquote className="ui-source-quote rounded-r-lg text-[13px] leading-snug">
+      <td className="px-4 py-4 align-top">
+        {field.source_snippet ? (
+          <blockquote className="ui-source-quote max-h-28 overflow-y-auto rounded-r-lg text-[13px] leading-snug break-words">
             <span className="italic text-[var(--text-secondary)]">
-              &ldquo;{currentField.source_snippet}&rdquo;
+              &ldquo;{field.source_snippet}&rdquo;
             </span>
           </blockquote>
         ) : (
@@ -376,21 +426,21 @@ const FieldRow = memo(function FieldRow({
       <td className="whitespace-nowrap px-4 py-4 align-top">
         <span
           className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-            statusBadge[currentField.status]
+            statusBadge[field.status] ?? "ui-status-badge ui-status-badge-in-review"
           }`}
         >
-          {currentField.status === "pending"
+          {field.status === "pending"
             ? "Pending"
-            : currentField.status === "approved"
+            : field.status === "approved"
               ? "Approved"
-              : currentField.status === "rejected"
+              : field.status === "rejected"
                 ? "Rejected"
                 : "Edited"}
         </span>
       </td>
       {canEdit && (
         <td className="whitespace-nowrap px-4 py-4 pr-6 align-top text-right">
-          {currentField.status === "pending" && !editing && (
+          {field.status === "pending" && !editing && (
             <div className="inline-flex rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-0.5 shadow-[var(--shadow-1)]">
               <button
                 type="button"
@@ -410,7 +460,7 @@ const FieldRow = memo(function FieldRow({
                 type="button"
                 onClick={() => {
                   setEditing(true);
-                  setEditValue(currentField.field_value || "");
+                  setEditValue(field.field_value || "");
                 }}
                 disabled={isPending}
                 className="ui-icon-button min-h-0 min-w-0 rounded-[calc(var(--radius-lg)-0.1rem)] border-transparent bg-transparent p-2 text-[var(--accent)] shadow-none hover:bg-surface disabled:opacity-50"

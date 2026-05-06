@@ -65,7 +65,7 @@ export function ExtractionJobAlert({
   if (job.status === "pending") {
     return (
       <div
-        className="ui-alert-info mb-4"
+        className="ui-alert-info"
         role="status"
         aria-live="polite"
       >
@@ -97,8 +97,8 @@ export function ExtractionJobAlert({
       <div
         className={
           stale
-            ? "ui-alert-warning mb-4"
-            : "ui-alert-info mb-4"
+            ? "ui-alert-warning"
+            : "ui-alert-info"
         }
         role="status"
         aria-live="polite"
@@ -146,10 +146,10 @@ export function ExtractionJobAlert({
       <div
         className={
           noFieldsExtracted
-            ? "ui-alert-warning mb-4"
+            ? "ui-alert-warning"
             : needsReview
-              ? "ui-alert-success mb-4"
-              : "ui-alert-success mb-4"
+              ? "ui-alert-success"
+              : "ui-alert-success"
         }
         role="status"
         aria-live="polite"
@@ -181,7 +181,7 @@ export function ExtractionJobAlert({
   if (job.status === "failed") {
     return (
       <div
-        className="ui-alert-error mb-4"
+        className="ui-alert-error"
         role="alert"
       >
         <p className="font-medium">Last extraction failed</p>

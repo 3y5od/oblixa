@@ -72,7 +72,11 @@ export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesP
         onChange={(e) => handleFiles(e.target.files)}
       />
       {result && (
-        <p className={`text-xs ${result.type === "error" ? "text-red-600" : "text-green-600"}`}>
+        <p
+          className={`text-xs ${result.type === "error" ? "ui-alert-error" : "ui-alert-success"}`}
+          role={result.type === "error" ? "alert" : "status"}
+          aria-live={result.type === "error" ? "assertive" : "polite"}
+        >
           {result.message}
         </p>
       )}

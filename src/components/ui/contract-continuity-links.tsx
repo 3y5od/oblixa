@@ -46,7 +46,7 @@ export function ContractContinuityLinks(props: {
   const shell = props.className ?? "mt-1 text-[11px] text-[var(--text-tertiary)]";
   return (
     <p className={shell}>
-      <span className="font-medium text-[var(--text-secondary)]">Open in:</span>{" "}
+      <span className="font-medium text-[var(--text-secondary)]">Continue in:</span>{" "}
       {visible.map((l, i) => (
         <span key={l.page}>
           {i > 0 ? <span aria-hidden> · </span> : null}

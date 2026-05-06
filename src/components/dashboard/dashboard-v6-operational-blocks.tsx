@@ -143,7 +143,7 @@ export function DashboardV6AssuranceSnapshotSection(props: {
             icon={Share2}
             primaryValue={v6Snapshot.graphEdges}
             primaryUnit="health graph edges"
-            action={{ href: "/assurance/health-graph", label: "Open health graph" }}
+            action={{ href: "/assurance/health-graph", label: "Inspect health graph" }}
             variant="compact"
           />
         ) : null}
@@ -175,7 +175,7 @@ export function DashboardV6AssuranceSnapshotSection(props: {
                 ? [{ label: "Latest", value: watchSignalsPreview.join(", ").slice(0, 72) }]
                 : []
             }
-            action={{ href: "/api/assurance/check-runs?limit=40", label: "View check runs (JSON)", external: true }}
+            action={{ href: "/api/assurance/check-runs?limit=40", label: "Inspect check-run feed", external: true }}
             variant="compact"
           />
         ) : null}
@@ -259,7 +259,7 @@ export function DashboardOutcomeIntelligenceSection(props: {
           icon={BarChart3}
           primaryValue={summary.analysesCount}
           primaryUnit="completed analyses"
-          action={{ href: "/reports#outcome-intelligence", label: "View outcome reports" }}
+          action={{ href: "/reports#outcome-intelligence", label: "Review outcome reports" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -380,7 +380,7 @@ export function DashboardAssuranceSignalsSection(props: {
               { label: "Executed", value: String(a.autopilot_logs_last_30d.executed) },
               { label: "Dry-run", value: String(a.autopilot_logs_last_30d.dry_run) },
             ]}
-            action={{ href: "/reports#assurance-analytics", label: "View reports" }}
+            action={{ href: "/reports#assurance-analytics", label: "Review reports" }}
             variant="compact"
           />
         ) : null}

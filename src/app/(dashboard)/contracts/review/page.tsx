@@ -98,7 +98,7 @@ export default async function ContractReviewQueuePage(props: {
           <div className="mt-2 flex min-w-0 flex-wrap items-end gap-3">
             <h1 className="ui-display-title m-0 min-w-0">Review queue</h1>
             {queue.total > 0 ? (
-              <span className="mb-[0.18em] inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-amber-200/70 bg-amber-50/90 px-4 py-2 font-sans text-[13px] font-medium leading-none tracking-normal text-amber-950">
+              <span className="mb-[0.18em] inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-4 py-2 font-sans text-[13px] font-medium leading-none tracking-normal text-[var(--warning-ink)]">
                 <span className="tabular-nums">{queue.total}&nbsp;</span>
                 <span>{queue.total === 1 ? "needs" : "need"} attention</span>
               </span>
@@ -140,7 +140,7 @@ export default async function ContractReviewQueuePage(props: {
               icon={ClipboardPen}
               primaryValue={queue.total}
               primaryUnit="contracts in queue"
-              action={{ href: reviewContractHref(contracts[0].id, queue.page), label: "Open next review" }}
+              action={{ href: reviewContractHref(contracts[0].id, queue.page), label: "Continue next review" }}
               variant="compact"
               className="xl:col-span-2"
             />
@@ -162,7 +162,7 @@ export default async function ContractReviewQueuePage(props: {
               icon={AlertTriangle}
               primaryValue={currentPageCriticalGaps}
               primaryUnit="contracts on this page"
-              action={{ href: "/contracts?missing_data=critical_dates", label: "Open date gaps" }}
+              action={{ href: "/contracts?missing_data=critical_dates", label: "Review date gaps" }}
               variant="compact"
               className="xl:col-span-2"
             />
@@ -173,7 +173,7 @@ export default async function ContractReviewQueuePage(props: {
               icon={ShieldAlert}
               primaryValue={currentPageBlockedContracts}
               primaryUnit="contracts need extra follow-up"
-              action={{ href: "/contracts/exceptions?status=open", label: "Open blockers" }}
+              action={{ href: "/contracts/exceptions?status=open", label: "Triage blockers" }}
               variant="compact"
               className="xl:col-span-2"
             />
@@ -274,7 +274,7 @@ export default async function ContractReviewQueuePage(props: {
                   continuityContractId={contract.id}
                   continuityOmit={["contract"]}
                   nextAction={{
-                    label: "Open review",
+                    label: "Continue review",
                     href: reviewContractHref(contract.id, queue.page),
                   }}
                 />

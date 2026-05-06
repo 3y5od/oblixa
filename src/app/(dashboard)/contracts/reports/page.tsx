@@ -136,7 +136,7 @@ export default async function ReportsHistoryPage(props: {
             { label: "Failed", value: String(failedDigestRuns) },
             { label: "Selected", value: selectedRunId ? "Yes" : "—" },
           ]}
-          action={{ href: "#digest-runs", label: "Open run list" }}
+          action={{ href: "#digest-runs", label: "Review digest runs" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -171,7 +171,7 @@ export default async function ReportsHistoryPage(props: {
           icon={Layers}
           primaryValue={packRunRows.length}
           breakdown={[{ label: "Failed", value: String(failedPackRuns) }]}
-          action={{ href: "#pack-runs", label: "Open pack runs" }}
+          action={{ href: "#pack-runs", label: "Review pack runs" }}
           variant="compact"
         />
       </div>
@@ -392,7 +392,9 @@ export default async function ReportsHistoryPage(props: {
                       : ""}
                   </p>
                   {(recipient.delivery_error as string | null) ? (
-                    <p className="mt-1 text-xs text-rose-700">{String(recipient.delivery_error)}</p>
+                    <p className="ui-alert-error mt-2 text-xs" role="alert">
+                      {String(recipient.delivery_error)}
+                    </p>
                   ) : null}
                 </li>
               ))}

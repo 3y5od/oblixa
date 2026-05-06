@@ -2,7 +2,7 @@ import { ExternalLink } from "@/components/ui/external-link";
 import type { AdminClient } from "@/lib/v6/service";
 
 /**
- * Open external action links whose scope_json includes `contractId` (set when creating links with that scope).
+ * Surface external action links whose scope_json includes `contractId` (set when creating links with that scope).
  * Caller must set `allowed` from product-surface eligibility (collaboration family) and feature flags.
  */
 export async function ContractExternalCollaborationSummary({
@@ -38,7 +38,7 @@ export async function ContractExternalCollaborationSummary({
       <p className="ui-eyebrow">Collaboration</p>
       <h2 className="ui-section-title mt-1 text-base">External collaboration</h2>
       <p className="ui-muted-tight mt-1">
-        Open counterparty links scoped to this contract. Include <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">contractId</code>{" "}
+        Counterparty links scoped to this contract stay here. Include <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">contractId</code>{" "}
         in the link scope when creating requests.
       </p>
       <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
@@ -70,7 +70,7 @@ export async function ContractExternalCollaborationSummary({
               ) : null}
               <div className="mt-1">
                 <ExternalLink className="ui-link font-mono text-[11px]" href={`/external/${row.token}`}>
-                  Open external page
+                  Continue external page
                 </ExternalLink>
               </div>
             </li>

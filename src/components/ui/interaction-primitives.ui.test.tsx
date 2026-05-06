@@ -25,8 +25,8 @@ describe("interaction primitives", () => {
   });
 
   it("renders api json links with safe target behavior", () => {
-    renderWithProviders(<ApiJsonLink href="/api/example">Open JSON</ApiJsonLink>);
-    const link = screen.getByRole("link", { name: /open json/i });
+    renderWithProviders(<ApiJsonLink href="/api/example">Inspect diagnostics</ApiJsonLink>);
+    const link = screen.getByRole("link", { name: /inspect diagnostics/i });
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toContain("noopener");
   });

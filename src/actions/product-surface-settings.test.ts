@@ -268,6 +268,65 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     );
   });
 
+  it("returns a visible form error when legacy workspace audit insert throws", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const from = vi.fn((table: string) => ({
+      insert: vi.fn(async () => {
+        if (table === "audit_events") throw new Error("audit insert unavailable");
+        return { error: null };
+      }),
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          maybeSingle: vi.fn(async () => ({ data: null })),
+        })),
+        in: vi.fn(async () => ({ data: [] })),
+      })),
+      update: vi.fn(() => ({
+        eq: vi.fn(async () => ({ error: null })),
+        in: vi.fn(async () => ({ error: null })),
+      })),
+    }));
+    getAuthContext.mockResolvedValue({
+      admin: makeAdmin(from),
+      orgId: "org-1",
+      role: "admin",
+      user: { id: "u1" },
+    });
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "core");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({
+      error:
+        "Workspace settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying.",
+    });
+    consoleError.mockRestore();
+  });
+
+  it("returns a visible form error when V10 mutation reservation cannot be claimed", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    getAuthContext.mockResolvedValue({
+      admin: {
+        from: vi.fn(),
+        rpc: vi.fn(async () => {
+          throw new Error("network timeout");
+        }),
+      },
+      orgId: "org-1",
+      role: "admin",
+      user: { id: "u1" },
+    });
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "core");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({
+      error: "The change could not be started because retry protection could not reserve the request.",
+    });
+    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it("resetWorkspaceProductSurfaceDefaultsForm resets to conservative core defaults", async () => {
     const from = vi.fn((table: string) => {
       if (table === "v10_audit_events") {

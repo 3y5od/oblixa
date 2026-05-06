@@ -24,13 +24,13 @@ export function RelationshipWorkspaceOverview({ healthSignalJson, summaryJson, l
   const tiles: { label: string; value: number | string }[] = [
     { label: "Contracts (page sample)", value: liveMetrics.contract_sample_size },
     { label: "Pending approvals", value: liveMetrics.pending_approvals },
-    { label: "Open tasks", value: liveMetrics.open_tasks },
+    { label: "Active tasks", value: liveMetrics.open_tasks },
     { label: "Evidence required", value: liveMetrics.unsatisfied_evidence },
-    { label: "Open attestations", value: liveMetrics.open_attestations },
+    { label: "Pending attestations", value: liveMetrics.open_attestations },
     { label: "Campaign links (active)", value: liveMetrics.active_campaign_contract_links },
     { label: "Active program assignments", value: liveMetrics.active_program_assignments },
-    { label: "Open exceptions", value: liveMetrics.open_exceptions },
-    { label: "Open obligations", value: liveMetrics.open_obligations },
+    { label: "Active exceptions", value: liveMetrics.open_exceptions },
+    { label: "Active obligations", value: liveMetrics.open_obligations },
     { label: "Renewal checkpoints (pending)", value: liveMetrics.renewal_checkpoints_open },
   ];
 

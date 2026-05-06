@@ -91,7 +91,14 @@ function CompactExtractionRetryButton({ contractId }: { contractId: string }) {
       >
         {isPending ? "Retrying extraction..." : "Retry extraction"}
       </button>
-      {message ? <span className={`text-[11px] ${tone === "error" ? "text-amber-700" : "text-emerald-700"}`} role="status">{message}</span> : null}
+      {message ? (
+        <span
+          className={`text-[11px] ${tone === "error" ? "ui-alert-error" : "ui-alert-success"}`}
+          role={tone === "error" ? "alert" : "status"}
+        >
+          {message}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -116,13 +123,13 @@ export function inlineActionsForItem(
     return <ExceptionMutationPanels exceptionId={item.sourceId} ownerId={item.ownerUserId ?? null} dueDate={item.due ?? null} ownerOptions={ownerOptions} resolutionActionOptions={resolutionActionOptions} canAssign={mutationsEnabled && ["open", "in_progress"].includes(item.status)} canResolve={mutationsEnabled && ["open", "in_progress"].includes(item.status)} canReopen={mutationsEnabled && ["resolved", "closed"].includes(item.status)} />;
   }
   if (item.type === "import_failure") {
-    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: "import_failure", sourceId: item.sourceId })} label="Retry failed rows" successFallbackMessage="Retry started." testId="import-retry" /> : null}<div className="flex flex-wrap gap-2"><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Open diagnostics</Link>{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=files#source-documents`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Open contract files</Link> : null}</div></div>;
+    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: "import_failure", sourceId: item.sourceId })} label="Retry failed rows" successFallbackMessage="Retry started." testId="import-retry" /> : null}<div className="flex flex-wrap gap-2"><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link>{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=files#source-documents`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Review contract files</Link> : null}</div></div>;
   }
   if (item.type === "extraction_failure") {
-    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.contractId ? <CompactExtractionRetryButton contractId={item.contractId} /> : null}<div className="flex flex-wrap gap-2">{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=fields#extracted-fields`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Open extraction review</Link> : null}<Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Open diagnostics</Link></div></div>;
+    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.contractId ? <CompactExtractionRetryButton contractId={item.contractId} /> : null}<div className="flex flex-wrap gap-2">{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=fields#extracted-fields`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Review extraction</Link> : null}<Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link></div></div>;
   }
   if (item.type === "export_failure" || item.type === "report_failure") {
-    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: item.type, sourceId: item.sourceId })} label={item.type === "report_failure" ? "Retry report" : "Retry export"} successFallbackMessage={item.type === "report_failure" ? "Report retry completed." : "Export retry queued."} testId={item.type === "report_failure" ? "report-retry" : "export-retry"} /> : null}<div className="flex flex-wrap gap-2"><Link href={item.type === "report_failure" ? "/reports" : "/settings/health#exports"} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">{item.type === "report_failure" ? "Open reports" : "Open export diagnostics"}</Link><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Open diagnostics</Link></div></div>;
+    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: item.type, sourceId: item.sourceId })} label={item.type === "report_failure" ? "Retry report" : "Retry export"} successFallbackMessage={item.type === "report_failure" ? "Report retry completed." : "Export retry queued."} testId={item.type === "report_failure" ? "report-retry" : "export-retry"} /> : null}<div className="flex flex-wrap gap-2"><Link href={item.type === "report_failure" ? "/reports" : "/settings/health#exports"} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">{item.type === "report_failure" ? "Review reports" : "Inspect export diagnostics"}</Link><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link></div></div>;
   }
   return null;
 }

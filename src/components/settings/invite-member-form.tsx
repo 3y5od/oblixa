@@ -77,7 +77,9 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
       </form>
       {message && (
         <p
-          className={`mt-2 text-xs ${message.type === "ok" ? "text-green-700" : "text-red-600"}`}
+          className={`mt-2 text-xs ${message.type === "ok" ? "ui-alert-success" : "ui-alert-error"}`}
+          role={message.type === "ok" ? "status" : "alert"}
+          aria-live={message.type === "ok" ? "polite" : "assertive"}
         >
           {message.text}
         </p>

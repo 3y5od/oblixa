@@ -227,7 +227,7 @@ export default async function PersonaDashboardPage(props: {
         icon: DollarSign,
         primaryValue: `$${exposure.toLocaleString()}`,
         primaryUnit: "rolled up from contracts",
-        action: { href: "/contracts", label: "View contracts" },
+        action: { href: "/contracts", label: "Browse contracts" },
       },
       {
         key: "at-risk",
@@ -245,7 +245,7 @@ export default async function PersonaDashboardPage(props: {
         tone: pendingApprovals > 0 ? "attention" : "healthy",
         icon: Stamp,
         primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "View approvals" },
+        action: { href: "/contracts/approvals", label: "Review approvals" },
       },
     ];
   } else if (persona === "legal") {
@@ -257,7 +257,7 @@ export default async function PersonaDashboardPage(props: {
         tone: pendingApprovals > 0 ? "attention" : "healthy",
         icon: Stamp,
         primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "View approvals" },
+        action: { href: "/contracts/approvals", label: "Review approvals" },
       },
       {
         key: "obligations",
@@ -266,7 +266,7 @@ export default async function PersonaDashboardPage(props: {
         tone: obligations.length > 0 ? "neutral" : "healthy",
         icon: ListChecks,
         primaryValue: obligations.length,
-        action: { href: "/contracts/obligations", label: "View obligations" },
+        action: { href: "/contracts/obligations", label: "Review obligations" },
       },
       {
         key: "at-risk",
@@ -275,7 +275,7 @@ export default async function PersonaDashboardPage(props: {
         tone: atRisk > 0 ? "attention" : "healthy",
         icon: AlertTriangle,
         primaryValue: atRisk,
-        action: { href: "/contracts", label: "View contracts" },
+        action: { href: "/contracts", label: "Browse contracts" },
       },
     ];
   } else if (persona === "account_owner") {
@@ -287,7 +287,7 @@ export default async function PersonaDashboardPage(props: {
         tone: myOpenTasksCount > 0 ? "attention" : "healthy",
         icon: ClipboardList,
         primaryValue: myOpenTasksCount,
-        action: { href: "/contracts/tasks", label: "View tasks" },
+        action: { href: "/contracts/tasks", label: "Review tasks" },
       },
       {
         key: "blocked",
@@ -305,7 +305,7 @@ export default async function PersonaDashboardPage(props: {
         tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
         icon: ListChecks,
         primaryValue: myOpenObligationsCount,
-        action: { href: "/contracts/obligations", label: "View obligations" },
+        action: { href: "/contracts/obligations", label: "Review obligations" },
       },
     ];
   } else if (persona === "reviewer") {
@@ -317,7 +317,7 @@ export default async function PersonaDashboardPage(props: {
         tone: highPriorityOpenTasksCount > 0 ? "attention" : "healthy",
         icon: ClipboardList,
         primaryValue: highPriorityOpenTasksCount,
-        action: { href: "/contracts/tasks", label: "View tasks" },
+        action: { href: "/contracts/tasks", label: "Review tasks" },
       },
       {
         key: "approvals",
@@ -326,7 +326,7 @@ export default async function PersonaDashboardPage(props: {
         tone: pendingApprovals > 0 ? "attention" : "healthy",
         icon: Stamp,
         primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "View approvals" },
+        action: { href: "/contracts/approvals", label: "Review approvals" },
       },
       {
         key: "at-risk",
@@ -335,7 +335,7 @@ export default async function PersonaDashboardPage(props: {
         tone: atRisk > 0 ? "attention" : "healthy",
         icon: AlertTriangle,
         primaryValue: atRisk,
-        action: { href: "/contracts", label: "View contracts" },
+        action: { href: "/contracts", label: "Browse contracts" },
       },
     ];
   } else if (persona === "manager") {
@@ -348,7 +348,7 @@ export default async function PersonaDashboardPage(props: {
         icon: DollarSign,
         primaryValue: `$${exposure.toLocaleString()}`,
         primaryUnit: "rolled up from contracts",
-        action: { href: "/contracts", label: "View contracts" },
+        action: { href: "/contracts", label: "Browse contracts" },
       },
       {
         key: "at-risk",
@@ -366,7 +366,7 @@ export default async function PersonaDashboardPage(props: {
         tone: obligations.length > 0 ? "neutral" : "healthy",
         icon: ListChecks,
         primaryValue: obligations.length,
-        action: { href: "/contracts/obligations", label: "View obligations" },
+        action: { href: "/contracts/obligations", label: "Review obligations" },
       },
     ];
   } else {
@@ -378,7 +378,7 @@ export default async function PersonaDashboardPage(props: {
         tone: tasks.length > 0 ? "neutral" : "healthy",
         icon: ClipboardList,
         primaryValue: tasks.length,
-        action: { href: "/contracts/tasks", label: "View tasks" },
+        action: { href: "/contracts/tasks", label: "Review tasks" },
       },
       {
         key: "my-open",
@@ -387,7 +387,7 @@ export default async function PersonaDashboardPage(props: {
         tone: myOpenTasksCount > 0 ? "attention" : "healthy",
         icon: UserCircle,
         primaryValue: myOpenTasksCount,
-        action: { href: "/work", label: "Open work queue" },
+        action: { href: "/work", label: "Review work queue" },
       },
       {
         key: "my-obligations",
@@ -396,7 +396,7 @@ export default async function PersonaDashboardPage(props: {
         tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
         icon: ListChecks,
         primaryValue: myOpenObligationsCount,
-        action: { href: "/contracts/obligations", label: "View obligations" },
+        action: { href: "/contracts/obligations", label: "Review obligations" },
       },
     ];
   }
@@ -506,7 +506,7 @@ export default async function PersonaDashboardPage(props: {
                   eyebrow="Next"
                   title={row.label}
                   hint={row.meta}
-                  actionLabel="Open item"
+                  actionLabel="Review item"
                   tone="neutral"
                 />
               </li>

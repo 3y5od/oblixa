@@ -45,7 +45,7 @@ export function V10JobRetryButton({
       </button>
       {message ? (
         <span
-          className={`text-[11px] ${successMessage ? "text-emerald-700" : "text-amber-700"}`}
+          className={`text-[11px] ${successMessage ? "ui-alert-success" : "ui-alert-warning"}`}
           role="status"
         >
           {message}

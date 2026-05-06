@@ -155,7 +155,7 @@ export default async function AssuranceFindingsPage(props: {
           icon={ClipboardList}
           primaryValue={openRows}
           primaryUnit="needs triage"
-          action={{ href: "/assurance/findings?status=open", label: "View open" }}
+          action={{ href: "/assurance/findings?status=open", label: "Triage open findings" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -212,7 +212,7 @@ export default async function AssuranceFindingsPage(props: {
                 className="ui-link"
                 href={`/api/assurance/check-runs/${encodeURIComponent(String((lastRun as { id: string }).id))}`}
               >
-                Open this run JSON
+                Inspect latest run diagnostics
               </ApiJsonLink>
               {" · "}
               <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
@@ -315,7 +315,7 @@ export default async function AssuranceFindingsPage(props: {
         </ApiJsonLink>
         {" · "}
         <ApiJsonLink className="ui-link" href="/api/assurance/findings?status=open">
-          Open findings (JSON)
+          Review open findings feed
         </ApiJsonLink>
         {" · "}
         <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">

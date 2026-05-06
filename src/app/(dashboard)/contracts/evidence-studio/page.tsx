@@ -71,7 +71,7 @@ export default async function EvidenceStudioPage() {
           icon={FileStack}
           primaryValue={liveQueue.length}
           primaryUnit="in studio"
-          action={{ href: "/contracts?evidence=outstanding", label: "Open evidence gaps" }}
+          action={{ href: "/contracts?evidence=outstanding", label: "Review evidence gaps" }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -101,7 +101,7 @@ export default async function EvidenceStudioPage() {
           icon={Library}
           primaryValue={templates.length}
           primaryUnit="saved templates"
-          action={{ href: "/contracts/evidence-studio#template-library", label: "Open templates" }}
+          action={{ href: "/contracts/evidence-studio#template-library", label: "Browse templates" }}
           variant="compact"
         />
       </section>
@@ -117,7 +117,7 @@ export default async function EvidenceStudioPage() {
             <EmptyState
               eyebrow="Recovery"
               title="Evidence data could not fully load"
-              copy="Some evidence requests or templates are temporarily unavailable. Open the contracts workspace or outstanding evidence slice while this studio data recovers."
+              copy="Some evidence requests or templates are temporarily unavailable. Use the contracts workspace or outstanding evidence slice while this studio data recovers."
               action={
                 <>
                   <Link href="/contracts?evidence=outstanding" className="ui-btn-primary px-4 py-2 text-[13px]">

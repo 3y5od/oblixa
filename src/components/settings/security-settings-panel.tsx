@@ -269,7 +269,7 @@ export function SecuritySettingsPanel({
           </div>
           <AsyncActionButton
             type="submit"
-            className="ui-btn-primary w-fit px-4 py-2 text-sm"
+            className="ui-btn-primary w-full px-4 py-2 text-sm sm:w-auto sm:self-start"
             pending={stepUpPending}
             pendingLabel="Confirming…"
           >

@@ -71,6 +71,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="relative flex min-h-full flex-col font-sans text-[var(--text-secondary)]">

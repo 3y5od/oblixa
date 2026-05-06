@@ -22,7 +22,7 @@ export function DashboardPersonaPresets() {
           title="Ops daily"
           icon={ClipboardList}
           tone="neutral"
-          actionLabel="Open ops view"
+          actionLabel="Switch to ops view"
         />
         <OperationalSurfaceLinkCard
           href="/dashboard/persona?persona=legal"
@@ -30,7 +30,7 @@ export function DashboardPersonaPresets() {
           title="Legal approvals"
           icon={Scale}
           tone="neutral"
-          actionLabel="Open legal view"
+          actionLabel="Switch to legal view"
         />
         <OperationalSurfaceLinkCard
           href="/dashboard/persona?persona=finance"
@@ -38,7 +38,7 @@ export function DashboardPersonaPresets() {
           title="Finance renewals"
           icon={Wallet}
           tone="neutral"
-          actionLabel="Open finance view"
+          actionLabel="Switch to finance view"
         />
         <OperationalSurfaceLinkCard
           href="/dashboard/persona?persona=manager"
@@ -46,7 +46,7 @@ export function DashboardPersonaPresets() {
           title="Manager weekly"
           icon={UserCircle}
           tone="neutral"
-          actionLabel="Open manager view"
+          actionLabel="Switch to manager view"
         />
       </div>
     </section>

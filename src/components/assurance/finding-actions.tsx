@@ -68,7 +68,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          className="ui-btn-primary min-h-0 px-3 py-1.5 text-xs disabled:opacity-50"
           onClick={() => void submit("resolve")}
         >
           {pending ? "Working…" : "Mark resolved"}
@@ -76,13 +76,17 @@ export function FindingActions({ findingId }: { findingId: string }) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-lg border border-[var(--border-strong)] px-3 py-1.5 text-xs text-[var(--text-primary)] disabled:opacity-50"
+          className="ui-btn-secondary min-h-0 px-3 py-1.5 text-xs disabled:opacity-50"
           onClick={() => void submit("dismiss")}
         >
           Dismiss
         </button>
       </div>
-      {err ? <p className="mt-2 text-xs text-red-600">{err}</p> : null}
+      {err ? (
+        <p className="ui-alert-error mt-2 text-xs" role="alert">
+          {err}
+        </p>
+      ) : null}
     </div>
   );
 }

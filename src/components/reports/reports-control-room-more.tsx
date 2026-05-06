@@ -83,7 +83,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
         </article>
         <article className="ui-card p-5" id="portfolio-by-counterparty">
           <p className="ui-eyebrow">Counterparties</p>
-          <h3 className="ui-section-title mt-1 text-base">Open exceptions by counterparty</h3>
+          <h3 className="ui-section-title mt-1 text-base">Active exceptions by counterparty</h3>
           <p className="ui-muted-tight mt-1">Contracts with exceptions, grouped by counterparty key.</p>
           <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
             <table className="min-w-full text-left text-sm text-[var(--text-secondary)]">
@@ -313,7 +313,7 @@ export function ReportsCapacityCampaignsSection(props: {
           icon={Megaphone}
           primaryValue={(activeCampaigns ?? []).length}
           primaryUnit="active / paused"
-          action={{ href: "/campaigns", label: "Open campaign center" }}
+          action={{ href: "/campaigns", label: "Review campaign center" }}
           variant="compact"
           id="campaign-drift"
           footerExtra={
@@ -358,7 +358,7 @@ export function ReportsV5SignalQualitySection(props: {
             primaryValue={row.value}
             primaryUnit="count"
             showStatusBadge={false}
-            action={{ href: "/reports#success-metrics", label: "View on page" }}
+            action={{ href: "/reports#success-metrics", label: "Review success metrics" }}
             variant="compact"
           />
         ))}
@@ -522,7 +522,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
           primaryFallback="JSON"
           primaryUnit="endpoint"
           showStatusBadge={false}
-          action={{ href: "/api/outcomes/interventions", label: "Open interventions", external: true }}
+          action={{ href: "/api/outcomes/interventions", label: "Inspect interventions", external: true }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -534,7 +534,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
           primaryFallback="JSON"
           primaryUnit="endpoint"
           showStatusBadge={false}
-          action={{ href: "/api/outcomes/program-effectiveness", label: "Open program outcomes", external: true }}
+          action={{ href: "/api/outcomes/program-effectiveness", label: "Inspect program outcomes", external: true }}
           variant="compact"
         />
         <OperationalSummaryCard
@@ -546,7 +546,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
           primaryFallback="JSON"
           primaryUnit="endpoint"
           showStatusBadge={false}
-          action={{ href: "/api/outcomes/control-effectiveness", label: "Open control outcomes", external: true }}
+          action={{ href: "/api/outcomes/control-effectiveness", label: "Inspect control outcomes", external: true }}
           variant="compact"
         />
       </div>

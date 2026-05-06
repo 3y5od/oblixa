@@ -13,6 +13,7 @@ import {
 import type { OrganizationMember } from "@/lib/types";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { hasRoleCapability } from "@/lib/access-control";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 export default async function SettingsPage() {
   const ctx = await getAuthContext();
@@ -23,7 +24,7 @@ export default async function SettingsPage() {
   const [
     { data: profile },
     { data: membership },
-    { data: membersData },
+    membersData,
     { data: workflowSettings },
   ] =
     await Promise.all([
@@ -39,11 +40,10 @@ export default async function SettingsPage() {
         .eq("organization_id", orgId)
         .limit(1)
         .single(),
-      admin
-        .from("organization_members")
-        .select("id, organization_id, user_id, role, created_at, profiles(full_name, email)")
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: true }),
+      loadOrgMemberProfileRows(admin, orgId, {
+        memberColumns: "id, organization_id, user_id, role, created_at",
+        orderByCreatedAt: true,
+      }),
       admin
         .from("organization_workflow_settings")
         .select("role_policy_json")
@@ -165,7 +165,7 @@ export default async function SettingsPage() {
               <h2 className="ui-section-title mt-1 text-base">Organization</h2>
               <p className="ui-support-copy mt-1">Treat this as the workspace architecture layer: organization identity, member access, invite flow, and admin-only bootstrapping.</p>
             </div>
-            <span className="inline-flex w-fit shrink-0 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+            <span className="inline-flex shrink-0 self-start rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)] sm:self-auto">
               {roleLabels[membership.role] || membership.role}
             </span>
           </div>
