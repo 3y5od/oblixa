@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type SimEval = {
   evaluation_unit_key: string;
@@ -22,14 +25,15 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
     setBusy("sim");
     setErr(null);
     try {
-      const res = await fetch(`/api/control-policies/${props.policyId}/simulate`, { method: "POST" });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setErr(typeof j.error === "string" ? j.error : "Simulate failed");
+      const result = await mutateJson<{ evaluations?: SimEval[] }>(`/api/control-policies/${props.policyId}/simulate`, {
+        method: "POST",
+      });
+      if (!result.ok) {
+        setErr(result.message || "Simulate failed");
         setSimResult(null);
         return;
       }
-      setSimResult(Array.isArray(j.evaluations) ? j.evaluations : []);
+      setSimResult(Array.isArray(result.data.evaluations) ? result.data.evaluations : []);
       router.refresh();
     } finally {
       setBusy(null);
@@ -40,14 +44,13 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
     setBusy("pub");
     setErr(null);
     try {
-      const res = await fetch(`/api/control-policies/${props.policyId}/publish`, {
+      const result = await mutateJson(`/api/control-policies/${props.policyId}/publish`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setErr(typeof j.error === "string" ? j.error : "Publish failed");
+      if (!result.ok) {
+        setErr(result.message || "Publish failed");
         return;
       }
       router.refresh();
@@ -59,24 +62,28 @@ export function ControlPolicyDetailActions(props: { policyId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button
+        <AsyncActionButton
           type="button"
           className="ui-btn-secondary rounded-lg px-3 py-2 text-xs font-medium"
-          disabled={busy !== null}
+          pending={busy === "sim"}
+          pendingLabel="Simulating…"
+          disabled={busy === "pub"}
           onClick={() => void runSimulate()}
         >
-          {busy === "sim" ? "Simulating…" : "Run simulation"}
-        </button>
-        <button
+          Run simulation
+        </AsyncActionButton>
+        <AsyncActionButton
           type="button"
           className="rounded-lg bg-[var(--text-primary)] px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
-          disabled={busy !== null}
+          pending={busy === "pub"}
+          pendingLabel="Publishing…"
+          disabled={busy === "sim"}
           onClick={() => void runPublish()}
         >
-          {busy === "pub" ? "Publishing…" : "Publish new version"}
-        </button>
+          Publish new version
+        </AsyncActionButton>
       </div>
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
       {simResult && simResult.length > 0 ? (
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs">
           <p className="font-semibold text-[var(--text-primary)]">Latest simulation</p>

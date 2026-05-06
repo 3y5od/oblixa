@@ -2,6 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { ExternalLink } from "@/components/ui/external-link";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 export function ReviewBoardCreateForm() {
   const router = useRouter();
@@ -15,14 +20,13 @@ export function ReviewBoardCreateForm() {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch("/api/review-boards", {
+      const result = await mutateJson("/api/review-boards", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name, boardType }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Create failed");
+      if (!result.ok) {
+        setErr(result.message || "Create failed");
         return;
       }
       setName("");
@@ -42,11 +46,7 @@ export function ReviewBoardCreateForm() {
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <select
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
-        value={boardType}
-        onChange={(e) => setBoardType(e.target.value)}
-      >
+      <select className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm" value={boardType} onChange={(e) => setBoardType(e.target.value)}>
         <option value="weekly_portfolio_health">Weekly portfolio health</option>
         <option value="monthly_control_effectiveness">Monthly control effectiveness</option>
         <option value="renewal_readiness">Renewal readiness</option>
@@ -54,14 +54,10 @@ export function ReviewBoardCreateForm() {
         <option value="campaign_effectiveness">Campaign effectiveness</option>
         <option value="counterparty_risk">Counterparty risk</option>
       </select>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-      >
-        {pending ? "Saving…" : "Create"}
-      </button>
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
+      <AsyncActionButton type="submit" className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50" pending={pending} pendingLabel="Saving…">
+        Create
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
     </form>
   );
 }
@@ -86,17 +82,17 @@ export function ReviewBoardRunLifecycle({
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/review-boards/runs/${encodeURIComponent(runId)}`, {
+      const result = await mutateJson(`/api/review-boards/runs/${encodeURIComponent(runId)}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Update failed");
+      if (!result.ok) {
+        setErr(result.message || "Update failed");
         return;
       }
       setActionNote("");
+      setDecisionNote("");
       router.refresh();
     } finally {
       setPending(false);
@@ -120,24 +116,26 @@ export function ReviewBoardRunLifecycle({
     <div className="mt-2 space-y-2 border-t border-[var(--border-subtle)] pt-2">
       <div className="flex flex-wrap gap-2">
         {status === "generated" ? (
-          <button
+          <AsyncActionButton
             type="button"
-            disabled={pending}
             className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
+            pending={pending}
+            pendingLabel="Saving…"
             onClick={() => void patch({ status: "reviewed" })}
           >
-            {pending ? "Saving…" : "Mark reviewed"}
-          </button>
+            Mark reviewed
+          </AsyncActionButton>
         ) : null}
         {canLifecycle ? (
-          <button
+          <AsyncActionButton
             type="button"
-            disabled={pending}
             className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
+            pending={pending}
+            pendingLabel="Saving…"
             onClick={() => void patch({ status: "closed" })}
           >
             Close run
-          </button>
+          </AsyncActionButton>
         ) : null}
         <button
           type="button"
@@ -147,18 +145,12 @@ export function ReviewBoardRunLifecycle({
         >
           Download packet (JSON)
         </button>
-        <a
-          className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]"
-          href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=json`}
-        >
+        <ApiJsonLink className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]" href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=json`}>
           Export full run (JSON)
-        </a>
-        <a
-          className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]"
-          href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=csv`}
-        >
+        </ApiJsonLink>
+        <ExternalLink className="inline-flex items-center rounded border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]" href={`/api/review-boards/runs/${encodeURIComponent(runId)}?format=csv`}>
           Export summary (CSV)
-        </a>
+        </ExternalLink>
       </div>
       {canLifecycle ? (
         <div className="flex flex-col gap-1">
@@ -171,14 +163,16 @@ export function ReviewBoardRunLifecycle({
               placeholder="e.g. Follow up with owner on finding F-12"
             />
           </label>
-          <button
+          <AsyncActionButton
             type="button"
-            disabled={pending || !actionNote.trim()}
             className="self-start rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50"
+            pending={pending}
+            pendingLabel="Saving…"
+            disabled={!actionNote.trim()}
             onClick={() => void patch({ actionCapture: { note: actionNote.trim() } })}
           >
             Append action
-          </button>
+          </AsyncActionButton>
         </div>
       ) : null}
       {canLifecycle ? (
@@ -199,10 +193,12 @@ export function ReviewBoardRunLifecycle({
               placeholder="e.g. Approved remediation plan for campaign C-12"
             />
           </label>
-          <button
+          <AsyncActionButton
             type="button"
-            disabled={pending || !decisionNote.trim()}
             className="self-start rounded border border-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
+            pending={pending}
+            pendingLabel="Saving…"
+            disabled={!decisionNote.trim()}
             onClick={() =>
               void patch({
                 decisionLog: { decision_type: decisionType.trim() || "board_decision", summary: decisionNote.trim() },
@@ -210,10 +206,10 @@ export function ReviewBoardRunLifecycle({
             }
           >
             Append decision
-          </button>
+          </AsyncActionButton>
         </div>
       ) : null}
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
     </div>
   );
 }
@@ -269,14 +265,13 @@ export function ReviewBoardPatchPanel({
       return;
     }
     try {
-      const res = await fetch(`/api/review-boards/${encodeURIComponent(boardId)}`, {
+      const result = await mutateJson(`/api/review-boards/${encodeURIComponent(boardId)}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ subscriptions, agendaTemplate, cadence, active }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Save failed");
+      if (!result.ok) {
+        setErr(result.message || "Save failed");
         return;
       }
       router.refresh();
@@ -286,10 +281,7 @@ export function ReviewBoardPatchPanel({
   }
 
   return (
-    <form
-      onSubmit={(e) => void onSave(e)}
-      className="mt-3 space-y-2 rounded-lg border border-dashed border-[var(--border-subtle)] bg-surface/90 p-3 text-xs"
-    >
+    <form onSubmit={(e) => void onSave(e)} className="mt-3 space-y-2 rounded-lg border border-dashed border-[var(--border-subtle)] bg-surface/90 p-3 text-xs">
       <p className="font-semibold text-[var(--text-primary)]">Board settings (subscriptions and agenda)</p>
       <p className="text-[11px] text-[var(--text-tertiary)]">
         When a packet run is generated, email and Slack inbound webhooks listed here receive a short summary.
@@ -304,21 +296,11 @@ export function ReviewBoardPatchPanel({
           Slack:{" "}
           <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{"channel":"slack","webhookUrl":"https://hooks.slack.com/..."}`}</code>
         </span>
-        <textarea
-          className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]"
-          rows={4}
-          value={subsJson}
-          onChange={(e) => setSubsJson(e.target.value)}
-        />
+        <textarea className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]" rows={4} value={subsJson} onChange={(e) => setSubsJson(e.target.value)} />
       </label>
       <label className="block">
         <span className="text-[11px] font-medium text-[var(--text-secondary)]">Agenda template JSON (object)</span>
-        <textarea
-          className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]"
-          rows={3}
-          value={agendaJson}
-          onChange={(e) => setAgendaJson(e.target.value)}
-        />
+        <textarea className="mt-0.5 w-full rounded border border-[var(--border-subtle)] px-2 py-1 font-mono text-[11px]" rows={3} value={agendaJson} onChange={(e) => setAgendaJson(e.target.value)} />
       </label>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-1 text-[11px]">
@@ -327,11 +309,7 @@ export function ReviewBoardPatchPanel({
         </label>
         <label className="flex items-center gap-1 text-[11px]">
           Cadence
-          <select
-            className="rounded border border-[var(--border-subtle)] px-1 py-0.5"
-            value={cadence}
-            onChange={(e) => setCadence(e.target.value)}
-          >
+          <select className="rounded border border-[var(--border-subtle)] px-1 py-0.5" value={cadence} onChange={(e) => setCadence(e.target.value)}>
             <option value="weekly">weekly</option>
             <option value="biweekly">biweekly</option>
             <option value="monthly">monthly</option>
@@ -339,14 +317,10 @@ export function ReviewBoardPatchPanel({
           </select>
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50"
-      >
-        {pending ? "Saving…" : "Save board settings"}
-      </button>
-      {err ? <p className="text-[11px] text-red-600">{err}</p> : null}
+      <AsyncActionButton type="submit" className="rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50" pending={pending} pendingLabel="Saving…">
+        Save board settings
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="text-[11px]" />
     </form>
   );
 }
@@ -360,12 +334,11 @@ export function ReviewBoardGenerateButton({ boardId }: { boardId: string }) {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/review-boards/${encodeURIComponent(boardId)}/generate-run`, {
+      const result = await mutateJson(`/api/review-boards/${encodeURIComponent(boardId)}/generate-run`, {
         method: "POST",
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Generate failed");
+      if (!result.ok) {
+        setErr(result.message || "Generate failed");
         return;
       }
       router.refresh();
@@ -376,15 +349,10 @@ export function ReviewBoardGenerateButton({ boardId }: { boardId: string }) {
 
   return (
     <div className="mt-2">
-      <button
-        type="button"
-        disabled={pending}
-        className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
-        onClick={() => void onGen()}
-      >
-        {pending ? "Generating…" : "Generate run"}
-      </button>
-      {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
+      <AsyncActionButton type="button" className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50" pending={pending} pendingLabel="Generating…" onClick={() => void onGen()}>
+        Generate run
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />
     </div>
   );
 }

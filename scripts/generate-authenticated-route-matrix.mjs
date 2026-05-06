@@ -14,6 +14,7 @@ const authenticated = uiSurfaceManifest
   .map((entry) => ({
     route: entry.route,
     visitPath: entry.visitPath,
+    fixtureId: entry.fixtureId,
     routeFamily: entry.routeFamily,
     workspaceModeTier: entry.workspaceModeTier,
     coverage: [...entry.coverage],

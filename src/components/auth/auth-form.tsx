@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { assignNavigableHref } from "@/lib/navigation/client-navigation";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 
 interface AuthFormProps {
@@ -77,7 +78,7 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
   useEffect(() => {
     const path = state?.redirectTo;
     if (!path) return;
-    window.location.assign(path);
+    assignNavigableHref(path);
   }, [state]);
 
   const c = config[mode];

@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 export function SegmentRecomputeButton({ segmentId }: { segmentId: string }) {
   const router = useRouter();
@@ -12,12 +15,11 @@ export function SegmentRecomputeButton({ segmentId }: { segmentId: string }) {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/segments/${encodeURIComponent(segmentId)}/recompute`, {
+      const result = await mutateJson(`/api/segments/${encodeURIComponent(segmentId)}/recompute`, {
         method: "POST",
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Recompute failed");
+      if (!result.ok) {
+        setErr(result.message || "Recompute failed");
         return;
       }
       router.refresh();
@@ -28,15 +30,16 @@ export function SegmentRecomputeButton({ segmentId }: { segmentId: string }) {
 
   return (
     <div className="mt-2">
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Recomputing…"
         onClick={() => void onRecompute()}
       >
-        {pending ? "Recomputing…" : "Recompute memberships"}
-      </button>
-      {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
+        Recompute memberships
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />
     </div>
   );
 }

@@ -14,6 +14,7 @@ const publicRoutes = uiSurfaceManifest
   .map((entry) => ({
     route: entry.route,
     visitPath: entry.visitPath,
+    fixtureId: entry.fixtureId,
     routeFamily: entry.routeFamily,
     shellFamily: entry.shellFamily,
     expectedHeading: entry.expectedHeading,

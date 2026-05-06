@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { sendJsonKeepalive } from "@/lib/http/client-json";
 
 const MEASURED_PREFIXES = [
   "/dashboard",
@@ -28,16 +29,7 @@ function isMeasuredPath(path: string): boolean {
 
 function sendPageLoadMeasuredTelemetry(input: { path: string; durationMs: number }) {
   const body = JSON.stringify(input);
-  if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-    const blob = new Blob([body], { type: "application/json" });
-    if (navigator.sendBeacon("/api/product-telemetry/page-load", blob)) return;
-  }
-  void fetch("/api/product-telemetry/page-load", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-    keepalive: true,
-  }).catch(() => undefined);
+  sendJsonKeepalive("/api/product-telemetry/page-load", body);
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   ProgramEvolutionRecordResultButton,
   ProgramEvolutionSimulateButton,
 } from "@/components/assurance/program-evolution-form";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 
@@ -93,17 +94,17 @@ export default async function ProgramEvolutionPage() {
       </p>
       <ProgramEvolutionCreateForm />
       <p className="mt-4 text-xs text-[var(--text-tertiary)]">
-        <Link className="ui-link" href="/api/program-evolution/experiments" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/program-evolution/experiments">
           GET experiments (JSON)
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Assurance analytics summary
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
           Check runs JSON
-        </Link>
+        </ApiJsonLink>
       </p>
       <ul className="mt-4 space-y-2 text-sm">
         {(data ?? []).map((row) => (

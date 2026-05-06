@@ -1,3 +1,5 @@
+import { getUiRouteFixture, resolveUiRouteVisitPath } from "./ui-route-fixtures.source.mjs";
+
 const coreRoutes = [
   ["/dashboard", "dashboard", "Dashboard", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/dashboard/persona", "dashboard", "Persona dashboard", ["smoke", "a11y", "visual"]],
@@ -16,6 +18,7 @@ const coreRoutes = [
   ["/contracts/reports", "reports", "Contract report packs", ["smoke", "a11y"]],
   ["/reports", "reports", "Operational reports", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/settings", "settings", "Settings", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/settings/security", "settings", "Security", ["smoke", "a11y"]],
   ["/settings/billing", "settings", "Billing", ["smoke", "a11y"]],
   ["/settings/operations", "settings", "Workflow configuration", ["smoke", "a11y"]],
   ["/settings/product", "settings", "Product experience", ["smoke", "a11y"]],
@@ -67,25 +70,78 @@ const utilityRoutes = [
   ["/contracts/approvals/sla-simulator", "utilities", null, ["smoke", "a11y"]],
 ];
 
-function toAuthenticatedEntry([route, routeFamily, expectedHeading, coverage]) {
-  let workspaceModeTier = "core";
-  if (routeFamily === "advanced") workspaceModeTier = "advanced";
-  if (routeFamily === "assurance") workspaceModeTier = "assurance";
-  if (routeFamily === "utilities") workspaceModeTier = "utility";
+function ownerForRouteFamily(routeFamily, route) {
+  if (routeFamily === "marketing") return "growth";
+  if (routeFamily === "auth" || routeFamily === "external") return "security";
+  if (routeFamily === "settings" || route.startsWith("/settings/")) return "security";
+  if (routeFamily === "assurance") return "assurance";
+  if (routeFamily === "reports") return "release";
+  return "engineering";
+}
+
+function escalationForOwner(owner) {
+  if (owner === "security") return "security-oncall";
+  if (owner === "assurance") return "assurance-oncall";
+  if (owner === "release") return "release-oncall";
+  if (owner === "growth") return "growth-oncall";
+  return "engineering-oncall";
+}
+
+function smokeTierForCoverage(coverage) {
+  if (coverage.includes("multi_browser") || coverage.includes("visual")) return "core";
+  if (coverage.includes("smoke")) return "standard";
+  return "not_applicable";
+}
+
+function a11yTierForCoverage(coverage) {
+  return coverage.includes("a11y") ? "required" : "not_applicable";
+}
+
+function visualTierForCoverage(coverage) {
+  return coverage.includes("visual") ? "baseline" : "not_applicable";
+}
+
+function withManifestMetadata(entry) {
+  const owner = ownerForRouteFamily(entry.routeFamily, entry.route);
+  const fixture = getUiRouteFixture(entry.route);
   return {
-    route,
-    routeFamily,
-    mode: "authenticated",
-    workspaceModeTier,
-    shellFamily: "dashboard",
-    expectedHeading,
-    visitPath: route === "/contracts/[id]" || route === "/campaigns/[id]" || route === "/decisions/[id]" || route === "/assurance/findings/[id]" || route === "/assurance/control-policies/[id]" || route === "/accounts/[key]" || route === "/counterparties/[key]" ? null : route,
-    coverage,
+    ...entry,
+    visitPath: entry.visitPath ?? resolveUiRouteVisitPath(entry.route),
+    fixtureId: fixture?.fixtureId ?? null,
+    smokeTier: smokeTierForCoverage(entry.coverage),
+    a11yTier: a11yTierForCoverage(entry.coverage),
+    visualTier: visualTierForCoverage(entry.coverage),
+    owner,
+    ownerExpiry: null,
+    ownerEscalation: escalationForOwner(owner),
   };
 }
 
+function workspaceModeTierForRoute(routeFamily, route) {
+  if (route === "/onboarding/calibration") return "utility";
+  if (route === "/contracts/analytics") return "advanced";
+
+  if (routeFamily === "advanced") return "advanced";
+  if (routeFamily === "assurance") return "assurance";
+  if (routeFamily === "utilities") return "utility";
+  return "core";
+}
+
+function toAuthenticatedEntry([route, routeFamily, expectedHeading, coverage]) {
+  return withManifestMetadata({
+    route,
+    routeFamily,
+    mode: "authenticated",
+    workspaceModeTier: workspaceModeTierForRoute(routeFamily, route),
+    shellFamily: "dashboard",
+    expectedHeading,
+    visitPath: resolveUiRouteVisitPath(route),
+    coverage,
+  });
+}
+
 const publicRoutes = [
-  {
+  withManifestMetadata({
     route: "/",
     routeFamily: "marketing",
     mode: "public",
@@ -94,8 +150,8 @@ const publicRoutes = [
     expectedHeading: "Run renewals, approvals, and obligations from one trusted system",
     visitPath: "/",
     coverage: ["smoke", "a11y", "visual", "multi_browser"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/login",
     routeFamily: "auth",
     mode: "public",
@@ -104,8 +160,8 @@ const publicRoutes = [
     expectedHeading: "Sign in to your account",
     visitPath: "/login",
     coverage: ["smoke", "a11y", "visual", "multi_browser"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/signup",
     routeFamily: "auth",
     mode: "public",
@@ -114,8 +170,8 @@ const publicRoutes = [
     expectedHeading: "Create your account",
     visitPath: "/signup",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/forgot-password",
     routeFamily: "auth",
     mode: "public",
@@ -124,8 +180,8 @@ const publicRoutes = [
     expectedHeading: "Reset your password",
     visitPath: "/forgot-password",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/reset-password",
     routeFamily: "auth",
     mode: "public",
@@ -134,8 +190,8 @@ const publicRoutes = [
     expectedHeading: "Set a new password",
     visitPath: "/reset-password",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/privacy",
     routeFamily: "marketing",
     mode: "public",
@@ -144,8 +200,8 @@ const publicRoutes = [
     expectedHeading: "Privacy",
     visitPath: "/privacy",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/terms",
     routeFamily: "marketing",
     mode: "public",
@@ -154,8 +210,8 @@ const publicRoutes = [
     expectedHeading: "Terms of use",
     visitPath: "/terms",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/security",
     routeFamily: "marketing",
     mode: "public",
@@ -164,8 +220,8 @@ const publicRoutes = [
     expectedHeading: "Security",
     visitPath: "/security",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/accessibility",
     routeFamily: "marketing",
     mode: "public",
@@ -174,8 +230,8 @@ const publicRoutes = [
     expectedHeading: "Accessibility",
     visitPath: "/accessibility",
     coverage: ["smoke", "a11y", "visual"],
-  },
-  {
+  }),
+  withManifestMetadata({
     route: "/cookies",
     routeFamily: "marketing",
     mode: "public",
@@ -184,20 +240,20 @@ const publicRoutes = [
     expectedHeading: "Cookies",
     visitPath: "/cookies",
     coverage: ["smoke", "a11y", "visual"],
-  },
+  }),
 ];
 
 const externalRoutes = [
-  {
+  withManifestMetadata({
     route: "/external/[token]",
     routeFamily: "external",
     mode: "external",
     workspaceModeTier: "external",
     shellFamily: "external",
     expectedHeading: null,
-    visitPath: "/external/00000000-0000-0000-0000-000000000000",
+    visitPath: resolveUiRouteVisitPath("/external/[token]"),
     coverage: ["smoke", "a11y", "visual", "multi_browser"],
-  },
+  }),
 ];
 
 export const uiSurfaceManifest = [

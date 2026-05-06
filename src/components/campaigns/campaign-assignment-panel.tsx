@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type ContractRow = {
   id: string;
@@ -41,14 +44,12 @@ export function CampaignAssignmentPanel({
       } catch {
         throw new Error("assignment JSON is not valid JSON");
       }
-      const res = await fetch(`/api/campaigns/${campaignId}`, {
+      const result = await mutateJson(`/api/campaigns/${campaignId}`, {
         method: "PATCH",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assignmentJson: parsed }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error || res.statusText);
+      if (!result.ok) throw new Error(result.message || "Save failed");
       setSaved("Assignment rules saved.");
       router.refresh();
     } catch (e) {
@@ -85,20 +86,17 @@ export function CampaignAssignmentPanel({
             className="ui-input mt-3 w-full font-mono text-xs"
             spellCheck={false}
           />
-          {error ? (
-            <p className="mt-2 text-sm text-rose-700" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {saved ? <p className="mt-2 text-sm text-emerald-700">{saved}</p> : null}
-          <button
+          <InlineMutationStatus message={error} variant="error" className="mt-2 text-sm" />
+          <InlineMutationStatus message={saved} variant="success" className="mt-2 text-sm" />
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary mt-3 px-3 py-2 text-xs"
-            disabled={busy}
+            pending={busy}
+            pendingLabel="Saving…"
             onClick={() => void saveAssignmentJson()}
           >
-            {busy ? "Saving…" : "Save assignment rules"}
-          </button>
+            Save assignment rules
+          </AsyncActionButton>
         </>
       ) : (
         <pre className="mt-3 overflow-x-auto rounded-xl bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-3 text-xs text-[var(--text-secondary)]">
@@ -153,17 +151,15 @@ function CampaignContractRowForm({
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(`/api/campaigns/${campaignId}/contracts/${row.id}`, {
+      const result = await mutateJson(`/api/campaigns/${campaignId}/contracts/${row.id}`, {
         method: "PATCH",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           segmentKey: segment.trim() || null,
           assignedTeam: team.trim() || null,
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error || res.statusText);
+      if (!result.ok) throw new Error(result.message || "Save failed");
       onSaved();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -204,25 +200,22 @@ function CampaignContractRowForm({
               onChange={(e) => setTeam(e.target.value)}
             />
           </div>
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary px-2 py-1.5 text-[11px]"
-            disabled={busy}
+            pending={busy}
+            pendingLabel="Saving…"
             onClick={() => void saveRow()}
           >
-            {busy ? "…" : "Save row"}
-          </button>
+            Save row
+          </AsyncActionButton>
         </div>
       ) : (
         <p className="mt-1 text-xs text-[var(--text-tertiary)]">
           Team: {row.assigned_team || "—"} · Segment: {row.segment_key || "—"}
         </p>
       )}
-      {error ? (
-        <p className="mt-1 text-xs text-rose-700" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <InlineMutationStatus message={error} variant="error" className="mt-1 text-xs" />
     </li>
   );
 }

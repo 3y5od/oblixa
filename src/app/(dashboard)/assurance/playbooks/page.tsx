@@ -3,6 +3,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { EmptyState } from "@/components/ui/empty-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { PlaybookApproveButton } from "@/components/assurance/playbook-approve-button";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -138,13 +139,12 @@ export default async function AssurancePlaybooksPage() {
                     </>
                   ) : null}
                   {" · "}
-                  <Link
+                  <ApiJsonLink
                     className="ui-link"
                     href={`/api/playbooks/runs/${encodeURIComponent(rid)}`}
-                    target="_blank"
                   >
                     Run JSON
-                  </Link>
+                  </ApiJsonLink>
                 </p>
                 {steps.length > 0 ? (
                   <ol className="mt-3 space-y-1 border-l-2 border-[var(--border-subtle)] pl-3 text-xs text-[var(--text-secondary)]">
@@ -177,17 +177,17 @@ export default async function AssurancePlaybooksPage() {
           {(recentRuns ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
         <p className="mt-4 text-xs text-[var(--text-secondary)]">
-          <Link className="ui-link" href="/api/playbooks" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/playbooks">
             Playbooks JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
             Check runs JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
             Analytics summary
-          </Link>
+          </ApiJsonLink>
         </p>
       </AssuranceListCard>
 
@@ -216,9 +216,9 @@ export default async function AssurancePlaybooksPage() {
       {v6Outcomes ? (
         <p className="text-xs text-[var(--text-tertiary)]">
           Completed runs feed outcome intelligence analyses.{" "}
-          <Link className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0">
             Interventions JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
           <Link className="ui-link" href="/reports#outcome-intelligence">
             Outcome intelligence in reports

@@ -15,6 +15,7 @@ import {
   OperationalSurfaceLinkCard,
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { assertAnyV6PageFeature } from "@/lib/v6/feature-guards";
@@ -220,20 +221,20 @@ export default async function AssurancePage() {
             <Link className="ui-link" href="/assurance/findings">
               Findings queue
             </Link>
-            <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank" rel="noreferrer">
+            <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
               Check runs JSON
-            </Link>
-            <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank" rel="noreferrer">
+            </ApiJsonLink>
+            <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
               Analytics JSON
-            </Link>
+            </ApiJsonLink>
             {v6Outcomes ? (
               <>
                 <Link className="ui-link" href="/reports#outcome-intelligence">
                   Outcome intelligence
                 </Link>
-                <Link className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0" target="_blank" rel="noreferrer">
+                <ApiJsonLink className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0">
                   Outcomes JSON
-                </Link>
+                </ApiJsonLink>
               </>
             ) : null}
           </p>

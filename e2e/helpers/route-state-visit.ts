@@ -2,12 +2,11 @@
  * Shared visit paths + auth rules for generated loading/error/not-found route states.
  */
 
-export const ROUTE_STATE_DYNAMIC_FIXTURES: Record<string, string> = {
-  "/accounts/[key]": "/accounts/example-account",
-  "/contracts/[id]": "/contracts/00000000-0000-0000-0000-000000000000",
-  "/counterparties/[key]": "/counterparties/example-counterparty",
-  "/external/[token]": "/external/00000000-0000-0000-0000-000000000000",
-};
+import { uiRouteFixtureManifest } from "@/lib/qa/ui-route-fixtures.source.mjs";
+
+export const ROUTE_STATE_DYNAMIC_FIXTURES: Record<string, string> = Object.fromEntries(
+  uiRouteFixtureManifest.map((entry) => [entry.route, entry.visitPath])
+);
 
 const AUTH_ROUTE_PREFIXES = [
   "/dashboard",

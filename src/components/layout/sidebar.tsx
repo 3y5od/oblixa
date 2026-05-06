@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { signOut } from "@/actions/auth";
+import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import {
   getWorkflowAreaForNavItem,
@@ -177,11 +178,14 @@ export function Sidebar(props: {
   useEffect(() => {
     if (!props.navSurface) return;
     let cancelled = false;
-    void fetch("/api/workspace/nav-badges", {
+    void fetchJson("/api/workspace/nav-badges", {
       headers: { Accept: "application/json" },
     })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { navBadges?: SidebarNavBadges } | null) => {
+      .then((result) => {
+        if (!result.ok) return null;
+        return result.data as { navBadges?: SidebarNavBadges } | null;
+      })
+      .then((payload) => {
         if (!cancelled && payload?.navBadges) {
           setClientNavBadges(payload.navBadges);
         }

@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type Props = {
   recommendationId: string;
@@ -12,19 +15,20 @@ type Props = {
 export function RecommendationRowActions({ recommendationId, accepted, dismissed }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function patch(action: "accept" | "dismiss") {
     setBusy(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/intelligence/recommendations/${recommendationId}`, {
+      const result = await mutateJson(`/api/intelligence/recommendations/${recommendationId}`, {
         method: "PATCH",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-      if (!res.ok) {
-        const j = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(j.error || res.statusText);
+      if (!result.ok) {
+        setError(result.message);
+        return;
       }
       router.refresh();
     } finally {
@@ -37,23 +41,28 @@ export function RecommendationRowActions({ recommendationId, accepted, dismissed
   }
 
   return (
-    <span className="flex gap-1">
-      <button
-        type="button"
-        className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
-        disabled={busy}
-        onClick={() => void patch("accept")}
-      >
-        Accept
-      </button>
-      <button
-        type="button"
-        className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
-        disabled={busy}
-        onClick={() => void patch("dismiss")}
-      >
-        Dismiss
-      </button>
+    <span className="flex flex-col gap-1">
+      <span className="flex gap-1">
+        <AsyncActionButton
+          type="button"
+          className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
+          pending={busy}
+          pendingLabel="Saving…"
+          onClick={() => void patch("accept")}
+        >
+          Accept
+        </AsyncActionButton>
+        <AsyncActionButton
+          type="button"
+          className="rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))] disabled:opacity-50"
+          pending={busy}
+          pendingLabel="Saving…"
+          onClick={() => void patch("dismiss")}
+        >
+          Dismiss
+        </AsyncActionButton>
+      </span>
+      <InlineMutationStatus message={error} variant="error" className="text-[11px]" />
     </span>
   );
 }

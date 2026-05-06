@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Validate synthetic / SLO env wiring. In strict mode, staging-backed checks must have a base URL.
- * If any SLO monitor env is configured, the full trio must be present to avoid half-wired monitors.
+ * If monitor mode is explicitly enabled (or the healthcheck ping is configured), the full trio must
+ * be present to avoid half-wired monitors. Non-monitor CI jobs may still expose Supabase env.
  */
 import process from "node:process";
 
@@ -15,10 +16,12 @@ function isTruthy(value) {
 export function analyzeSyntheticSloEnv(env = process.env) {
   const strictSynthetic = isTruthy(env.SYNTHETIC_STRICT);
   const strictSloBudgets = isTruthy(env.SLO_BUDGETS_STRICT);
+  const requireSloMonitor = isTruthy(env.REQUIRE_SLO_MONITOR);
   const strict = strictSynthetic || strictSloBudgets;
   const hasStagingBaseUrl = Boolean(env.STAGING_BASE_URL?.trim());
   const configuredMonitorKeys = SLO_MONITOR_KEYS.filter((key) => Boolean(env[key]?.trim()));
   const missingMonitorKeys = SLO_MONITOR_KEYS.filter((key) => !env[key]?.trim());
+  const monitorPingConfigured = configuredMonitorKeys.includes("HC_SLO_MONITOR_PING");
   const issues = [];
 
   if (strict && !hasStagingBaseUrl) {
@@ -29,7 +32,7 @@ export function analyzeSyntheticSloEnv(env = process.env) {
     });
   }
 
-  if (configuredMonitorKeys.length > 0 && missingMonitorKeys.length > 0) {
+  if ((requireSloMonitor || monitorPingConfigured) && configuredMonitorKeys.length > 0 && missingMonitorKeys.length > 0) {
     issues.push({
       issue: "partial_slo_monitor_env",
       configured: configuredMonitorKeys,
@@ -43,6 +46,7 @@ export function analyzeSyntheticSloEnv(env = process.env) {
     strict,
     strictSynthetic,
     strictSloBudgets,
+    requireSloMonitor,
     hasStagingBaseUrl,
     configuredSloMonitorKeys: configuredMonitorKeys,
     issues,

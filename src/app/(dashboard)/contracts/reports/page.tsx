@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Activity, Layers, Mail, Package } from "lucide-react";
+import { ExternalLink } from "@/components/ui/external-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
@@ -224,30 +225,24 @@ export default async function ReportsHistoryPage(props: {
                     <Link href={`/api/report-packs/${pack.id}/runs`} className="ui-link">
                       JSON runs
                     </Link>
-                    <a
+                    <ExternalLink
                       href={`/api/report-packs/${pack.id}/runs?format=csv`}
                       className="ui-link"
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       Latest CSV
-                    </a>
-                    <a
+                    </ExternalLink>
+                    <ExternalLink
                       href={`/api/report-packs/${pack.id}/runs?format=html`}
                       className="ui-link"
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       Print / PDF-ready HTML
-                    </a>
-                    <a
+                    </ExternalLink>
+                    <ExternalLink
                       href={`/api/report-packs/${pack.id}/runs?format=pdf`}
                       className="ui-link"
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       PDF-ready (same HTML)
-                    </a>
+                    </ExternalLink>
                   </div>
                   <form action={saveAnnotationsFormAction} className="space-y-1 border-t border-[var(--border-subtle)] pt-2">
                     <input type="hidden" name="reportPackId" value={pack.id} />
@@ -329,22 +324,18 @@ export default async function ReportsHistoryPage(props: {
                     {run.completed_at ? ` · completed ${new Date(run.completed_at).toLocaleString()}` : ""}
                   </p>
                   <div className="mt-1 flex flex-wrap gap-2 text-[11px]">
-                    <a
+                    <ExternalLink
                       className="ui-link"
                       href={`/api/report-packs/${run.report_pack_id}/runs?format=csv&runId=${run.id}`}
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       CSV
-                    </a>
-                    <a
+                    </ExternalLink>
+                    <ExternalLink
                       className="ui-link"
                       href={`/api/report-packs/${run.report_pack_id}/runs?format=html&runId=${run.id}`}
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       HTML
-                    </a>
+                    </ExternalLink>
                   </div>
                 </li>
               ))}

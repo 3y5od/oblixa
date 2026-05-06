@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   addContractTaskChecklistItem,
   addContractTaskArtifact,
@@ -720,14 +721,12 @@ export function ContractTasksPanel({
                       .filter((artifact) => artifact.task_id === task.id)
                       .map((artifact) => (
                         <li key={artifact.id} className="flex items-center justify-between gap-2 text-xs">
-                          <a
+                          <ExternalLink
                             href={artifact.url}
-                            target="_blank"
-                            rel="noreferrer"
                             className="truncate text-blue-700 hover:underline"
                           >
                             {artifact.label}
-                          </a>
+                          </ExternalLink>
                           {canEdit && (
                             <button
                               type="button"

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, History } from "lucide-react";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import {
   DiagnosticDisclosure,
@@ -86,13 +87,12 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
         </div>
       </header>
       <DiagnosticDisclosure title="Relationship diagnostics">
-        <Link
+        <ApiJsonLink
           href={`/api/accounts/${encodeURIComponent(key)}/summary`}
           className="ui-link text-xs"
-          target="_blank"
         >
           Inspect support summary
-        </Link>
+        </ApiJsonLink>
       </DiagnosticDisclosure>
 
       <RelationshipWorkspaceOverview

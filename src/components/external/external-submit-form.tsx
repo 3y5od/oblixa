@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { LoadingCard } from "@/components/ui/segment-loading";
-import { readResponseJson } from "@/lib/http/client-json";
+import { fetchJson, mutateJson } from "@/lib/http/client-json";
 import { captureClientException } from "@/lib/observability/sentry";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 
@@ -119,10 +121,7 @@ export function ExternalSubmitForm({ token }: Props) {
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch(`/api/external-actions/${encodeURIComponent(token)}/status`, {
-        credentials: "same-origin",
-      });
-      const parsed = await readResponseJson(res);
+      const parsed = await fetchJson(`/api/external-actions/${encodeURIComponent(token)}/status`);
       if (!parsed.ok) {
         setLoadError(parsed.message);
         setStatus(null);
@@ -179,13 +178,11 @@ export function ExternalSubmitForm({ token }: Props) {
       const body: Record<string, unknown> = buildSubmitBody(status.action_type, fields);
       if (passcode.trim()) body.passcode = passcode.trim();
       if (submitTicket) body.submitTicket = submitTicket;
-      const res = await fetch(`/api/external-actions/${encodeURIComponent(token)}/submit`, {
+      const parsed = await mutateJson(`/api/external-actions/${encodeURIComponent(token)}/submit`, {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const parsed = await readResponseJson(res);
       if (!parsed.ok) {
         setError(parsed.message);
         await refreshStatus();
@@ -303,11 +300,7 @@ export function ExternalSubmitForm({ token }: Props) {
           </div>
         ) : null}
       </div>
-      {error ? (
-        <p className="ui-alert-error" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <InlineMutationStatus message={error} variant="error" />
 
       <label className="block text-xs font-medium text-[var(--text-secondary)]">
         Passcode {status.requires_passcode ? "(required)" : "(if required)"}
@@ -452,9 +445,9 @@ export function ExternalSubmitForm({ token }: Props) {
         </>
       ) : null}
 
-      <button type="submit" className="ui-btn-primary min-h-12 w-full text-[15px]" disabled={busy}>
-        {busy ? "Submitting…" : "Submit"}
-      </button>
+      <AsyncActionButton type="submit" className="ui-btn-primary min-h-12 w-full text-[15px]" pending={busy} pendingLabel="Submitting…">
+        Submit
+      </AsyncActionButton>
     </form>
   );
 }

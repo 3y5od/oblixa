@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 export function ProgramEvolutionCreateForm() {
   const router = useRouter();
@@ -18,7 +21,7 @@ export function ProgramEvolutionCreateForm() {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch("/api/program-evolution/experiments", {
+      const result = await mutateJson("/api/program-evolution/experiments", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -29,9 +32,8 @@ export function ProgramEvolutionCreateForm() {
           targetSegmentId: targetSegmentId || undefined,
         }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Create failed");
+      if (!result.ok) {
+        setErr(result.message || "Create failed");
         return;
       }
       setHypothesis("");
@@ -74,14 +76,15 @@ export function ProgramEvolutionCreateForm() {
         value={targetSegmentId}
         onChange={(e) => setTargetSegmentId(e.target.value)}
       />
-      <button
+      <AsyncActionButton
         type="submit"
-        disabled={pending}
         className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Creating…"
       >
-        {pending ? "Creating…" : "Create experiment"}
-      </button>
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
+        Create experiment
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
     </form>
   );
 }
@@ -96,7 +99,7 @@ export function ProgramEvolutionRecordResultButton({ experimentId }: { experimen
     setErr(null);
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const res = await fetch(`/api/program-evolution/experiments/${encodeURIComponent(experimentId)}/results`, {
+      const result = await mutateJson(`/api/program-evolution/experiments/${encodeURIComponent(experimentId)}/results`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -104,9 +107,8 @@ export function ProgramEvolutionRecordResultButton({ experimentId }: { experimen
           healthImpact: { source: "ui_manual_snapshot", recorded_at: new Date().toISOString() },
         }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Record failed");
+      if (!result.ok) {
+        setErr(result.message || "Record failed");
         return;
       }
       router.refresh();
@@ -117,15 +119,16 @@ export function ProgramEvolutionRecordResultButton({ experimentId }: { experimen
 
   return (
     <div className="mt-2">
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="rounded border border-emerald-300 bg-emerald-50/80 px-2 py-1 text-xs text-emerald-900 disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Recording…"
         onClick={() => void onRecord()}
       >
-        {pending ? "Recording…" : "Record result snapshot"}
-      </button>
-      {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
+        Record result snapshot
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />
     </div>
   );
 }
@@ -139,7 +142,7 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(
+      const result = await mutateJson(
         `/api/program-evolution/experiments/${encodeURIComponent(experimentId)}/advance-rollout`,
         {
           method: "POST",
@@ -147,9 +150,8 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
           body: JSON.stringify({ stage: "segment_expansion" }),
         }
       );
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Advance failed");
+      if (!result.ok) {
+        setErr(result.message || "Advance failed");
         return;
       }
       router.refresh();
@@ -160,18 +162,19 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
 
   return (
     <div className="mt-2">
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="rounded border border-amber-300 bg-amber-50/80 px-2 py-1 text-xs text-amber-950 disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Advancing…"
         onClick={() => void onAdvance()}
       >
-        {pending ? "Advancing…" : "Advance rollout stage"}
-      </button>
+        Advance rollout stage
+      </AsyncActionButton>
       <p className="mt-1 text-[10px] text-[var(--text-tertiary)]">
         Marks experiment running, logs a program_evolution_results milestone with live portfolio metrics.
       </p>
-      {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />
     </div>
   );
 }
@@ -185,12 +188,11 @@ export function ProgramEvolutionSimulateButton({ experimentId }: { experimentId:
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/program-evolution/experiments/${encodeURIComponent(experimentId)}/simulate`, {
+      const result = await mutateJson(`/api/program-evolution/experiments/${encodeURIComponent(experimentId)}/simulate`, {
         method: "POST",
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Simulate failed");
+      if (!result.ok) {
+        setErr(result.message || "Simulate failed");
         return;
       }
       router.refresh();
@@ -201,15 +203,16 @@ export function ProgramEvolutionSimulateButton({ experimentId }: { experimentId:
 
   return (
     <div className="mt-2">
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="rounded border border-[var(--border-strong)] px-2 py-1 text-xs text-[var(--text-primary)] disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Simulating…"
         onClick={() => void onSim()}
       >
-        {pending ? "Simulating…" : "Run simulate"}
-      </button>
-      {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
+        Run simulate
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />
     </div>
   );
 }

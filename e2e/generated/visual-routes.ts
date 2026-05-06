@@ -2,6 +2,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/dashboard",
     "visitPath": "/dashboard",
+    "fixtureId": null,
     "routeFamily": "dashboard",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -10,6 +11,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/dashboard/persona",
     "visitPath": "/dashboard/persona",
+    "fixtureId": null,
     "routeFamily": "dashboard",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -18,6 +20,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/contracts",
     "visitPath": "/contracts",
+    "fixtureId": null,
     "routeFamily": "contracts",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -26,6 +29,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/contracts/new",
     "visitPath": "/contracts/new",
+    "fixtureId": null,
     "routeFamily": "contracts",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -34,6 +38,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/work",
     "visitPath": "/work",
+    "fixtureId": null,
     "routeFamily": "work",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -42,6 +47,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/reports",
     "visitPath": "/reports",
+    "fixtureId": null,
     "routeFamily": "reports",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -50,6 +56,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/settings",
     "visitPath": "/settings",
+    "fixtureId": null,
     "routeFamily": "settings",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -58,6 +65,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/more",
     "visitPath": "/more",
+    "fixtureId": null,
     "routeFamily": "utilities",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -66,6 +74,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/campaigns",
     "visitPath": "/campaigns",
+    "fixtureId": null,
     "routeFamily": "advanced",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -74,6 +83,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/decisions",
     "visitPath": "/decisions",
+    "fixtureId": null,
     "routeFamily": "advanced",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -82,6 +92,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/assurance",
     "visitPath": "/assurance",
+    "fixtureId": null,
     "routeFamily": "assurance",
     "shellFamily": "dashboard",
     "mode": "authenticated",
@@ -90,6 +101,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/",
     "visitPath": "/",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -98,6 +110,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/login",
     "visitPath": "/login",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "public",
@@ -106,6 +119,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/signup",
     "visitPath": "/signup",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "public",
@@ -114,6 +128,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/forgot-password",
     "visitPath": "/forgot-password",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "public",
@@ -122,6 +137,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/reset-password",
     "visitPath": "/reset-password",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "public",
@@ -130,6 +146,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/privacy",
     "visitPath": "/privacy",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -138,6 +155,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/terms",
     "visitPath": "/terms",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -146,6 +164,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/security",
     "visitPath": "/security",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -154,6 +173,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/accessibility",
     "visitPath": "/accessibility",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -162,6 +182,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/cookies",
     "visitPath": "/cookies",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
@@ -170,6 +191,7 @@ export const GENERATED_VISUAL_ROUTES = [
   {
     "route": "/external/[token]",
     "visitPath": "/external/00000000-0000-0000-0000-000000000000",
+    "fixtureId": "external-token-default",
     "routeFamily": "external",
     "shellFamily": "external",
     "mode": "external",

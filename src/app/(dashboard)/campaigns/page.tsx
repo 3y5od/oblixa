@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ListOrdered, Megaphone, PauseCircle } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -118,12 +119,12 @@ export default async function CampaignsPage({
       </header>
       <DiagnosticDisclosure title="Campaign diagnostics">
         <div className="flex flex-wrap gap-3">
-          <Link href="/api/campaigns" className="ui-link text-xs" target="_blank">
+          <ApiJsonLink href="/api/campaigns" className="ui-link text-xs">
             Inspect campaign payload
-          </Link>
-          <Link href="/api/intelligence/portfolio-signals" className="ui-link text-xs" target="_blank">
+          </ApiJsonLink>
+          <ApiJsonLink href="/api/intelligence/portfolio-signals" className="ui-link text-xs">
             Inspect signal payload
-          </Link>
+          </ApiJsonLink>
         </div>
       </DiagnosticDisclosure>
 
@@ -197,14 +198,12 @@ export default async function CampaignsPage({
                     <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] pb-2 last:border-0">
                       <span className="font-medium text-[var(--text-primary)]">{s.name}</span>
                       <span className="font-mono text-[11px] text-[var(--text-tertiary)]">{s.simulation_type}</span>
-                      <Link
+                      <ApiJsonLink
                         href={`/api/simulations/${s.id}`}
                         className="ui-link text-xs"
-                        target="_blank"
-                        rel="noreferrer"
                       >
                         View JSON
-                      </Link>
+                      </ApiJsonLink>
                     </li>
                   ))
                 )}
@@ -230,14 +229,12 @@ export default async function CampaignsPage({
                         </>
                       ) : null}
                       <div className="mt-1">
-                        <Link
+                        <ApiJsonLink
                           href={`/api/simulations/${r.simulation_id}`}
                           className="ui-link"
-                          target="_blank"
-                          rel="noreferrer"
                         >
                           Simulation JSON
-                        </Link>
+                        </ApiJsonLink>
                       </div>
                     </li>
                   ))

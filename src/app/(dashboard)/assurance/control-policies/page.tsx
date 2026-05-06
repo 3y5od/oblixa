@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shield, ShieldCheck } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
@@ -69,17 +70,17 @@ export default async function AssuranceControlPoliciesPage() {
         {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No control policies yet.</li> : null}
       </ul>
       <p className="mt-4 text-xs text-[var(--text-secondary)]">
-        <Link className="ui-link" href="/api/control-policies" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/control-policies">
           Policies JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/checks/run" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/checks/run">
           POST checks/run (API)
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Analytics summary
-        </Link>
+        </ApiJsonLink>
         {" · "}
         <Link className="ui-link" href="/assurance">
           Assurance hub

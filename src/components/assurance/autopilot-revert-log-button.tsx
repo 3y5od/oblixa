@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ConfirmActionButton } from "@/components/ui/confirm-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 export function AutopilotRevertLogButton(props: { logId: string; canRevert: boolean }) {
   const router = useRouter();
@@ -14,12 +17,11 @@ export function AutopilotRevertLogButton(props: { logId: string; canRevert: bool
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/autopilot/run-logs/${encodeURIComponent(props.logId)}/revert`, {
+      const result = await mutateJson(`/api/autopilot/run-logs/${encodeURIComponent(props.logId)}/revert`, {
         method: "POST",
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Revert failed");
+      if (!result.ok) {
+        setErr(result.message || "Revert failed");
         return;
       }
       router.refresh();
@@ -30,15 +32,17 @@ export function AutopilotRevertLogButton(props: { logId: string; canRevert: bool
 
   return (
     <div className="mt-2">
-      <button
+      <ConfirmActionButton
         type="button"
-        disabled={pending}
         className="rounded border border-[var(--border-strong)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
-        onClick={() => void revert()}
+        pending={pending}
+        pendingLabel="Reverting…"
+        confirmMessage="Revert this autopilot log entry?"
+        onConfirm={revert}
       >
-        {pending ? "Reverting…" : "Revert (best effort)"}
-      </button>
-      {err ? <p className="mt-1 text-[11px] text-red-600">{err}</p> : null}
+        Revert (best effort)
+      </ConfirmActionButton>
+      <InlineMutationStatus message={err} variant="error" className="mt-1 text-[11px]" />
     </div>
   );
 }

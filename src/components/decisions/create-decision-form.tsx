@@ -1,8 +1,12 @@
 "use client";
-// V7 exempt: create flow only mounted from decisions surfaces; post-create router targets decisions routes.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { LiveRegion } from "@/components/ui/live-region";
+import { mutateJson } from "@/lib/http/client-json";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { DECISION_TYPES, DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
 
 export function CreateDecisionForm() {
@@ -33,9 +37,8 @@ export function CreateDecisionForm() {
     }
     setBusy(true);
     try {
-      const res = await fetch("/api/decisions", {
+      const result = await mutateJson<{ error?: string; decision?: { id: string } }>("/api/decisions", {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -43,11 +46,11 @@ export function CreateDecisionForm() {
           requiredInputs,
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; decision?: { id: string } };
-      if (!res.ok) throw new Error(data.error || res.statusText);
-      if (data.decision?.id) {
-        router.push(`/decisions/${data.decision.id}`);
-        router.refresh();
+      if (!result.ok) throw new Error(result.message);
+      if (result.data.decision?.id) {
+        if (!pushAppHref(router, `/decisions/${result.data.decision.id}`)) {
+          setError("The decision workspace was created, but it could not be opened automatically.");
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create");
@@ -58,11 +61,8 @@ export function CreateDecisionForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-4 space-y-3">
-      {error ? (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <LiveRegion message={busy ? "Creating decision workspace." : error ?? undefined} politeness={error ? "assertive" : "polite"} />
+      <InlineMutationStatus message={error} variant="error" />
       <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Title
         <input
@@ -97,9 +97,9 @@ export function CreateDecisionForm() {
           disabled={busy}
         />
       </label>
-      <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]" disabled={busy}>
-        {busy ? "Creating…" : "Create workspace"}
-      </button>
+      <AsyncActionButton type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]" pending={busy} pendingLabel="Creating…">
+        Create workspace
+      </AsyncActionButton>
     </form>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { readResponseJson } from "@/lib/http/client-json";
+import { fetchJson } from "@/lib/http/client-json";
 
 type TimelineEvent = {
   id: string;
@@ -21,8 +21,7 @@ async function loadTimeline(
     kind === "accounts"
       ? `/api/accounts/${encodeURIComponent(key)}/summary`
       : `/api/counterparties/${encodeURIComponent(key)}/summary`;
-  const res = await fetch(path, { credentials: "same-origin", signal });
-  const parsed = await readResponseJson(res);
+  const parsed = await fetchJson(path, { signal });
   if (!parsed.ok) return [];
   const payload = parsed.data as { timelineEvents?: TimelineEvent[] };
   return Array.isArray(payload.timelineEvents) ? payload.timelineEvents : [];

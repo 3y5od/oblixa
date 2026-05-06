@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import type { DecisionExecutionContext } from "@/lib/v5/decision-context";
 
 type Props = {
@@ -109,9 +110,9 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
       </div>
 
       <p className="mt-4 text-xs text-[var(--text-tertiary)]">
-        <Link href={`/api/decisions/${decisionId}/context`} className="ui-link font-mono text-[11px]" target="_blank">
+        <ApiJsonLink href={`/api/decisions/${decisionId}/context`} className="ui-link font-mono text-[11px]">
           GET /api/decisions/…/context (JSON)
-        </Link>
+        </ApiJsonLink>
       </p>
     </section>
   );

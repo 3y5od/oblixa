@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { ConfirmActionButton } from "@/components/ui/confirm-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { LiveRegion } from "@/components/ui/live-region";
 import {
   startTotpEnrollment,
   unenrollTotpFactor,
@@ -8,6 +12,7 @@ import {
   verifyTotpEnrollment,
 } from "@/actions/mfa";
 import { revokeOtherSessions } from "@/actions/sessions";
+import { mutateJson } from "@/lib/http/client-json";
 
 export type TotpFactorRow = {
   id: string;
@@ -43,6 +48,7 @@ export function SecuritySettingsPanel({
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [orgMfa, setOrgMfa] = useState(orgMfaRequired);
+  const [stepUpPending, setStepUpPending] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const qrSrc = useMemo(() => {
@@ -58,22 +64,30 @@ export function SecuritySettingsPanel({
     e.preventDefault();
     setError(null);
     setMessage(null);
-    const res = await fetch("/api/settings/step-up", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (!res.ok) {
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      setError(j.error ?? "Could not verify password");
-      return;
+    setStepUpPending(true);
+    try {
+      const result = await mutateJson<{ error?: string }>("/api/settings/step-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!result.ok) {
+        setError(result.message || "Could not verify password");
+        return;
+      }
+      setPassword("");
+      setMessage("Step-up confirmed for ~10 minutes. You can create or revoke API keys and start integration OAuth.");
+    } finally {
+      setStepUpPending(false);
     }
-    setPassword("");
-    setMessage("Step-up confirmed for ~10 minutes. You can create or revoke API keys and start integration OAuth.");
   }
 
   return (
     <div className="flex flex-col gap-10">
+      <LiveRegion
+        message={pending || stepUpPending ? "Security action in progress." : error ?? message ?? undefined}
+        politeness={error ? "assertive" : "polite"}
+      />
       <section className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,transparent)] p-6">
         <h2 className="text-base font-semibold text-[var(--text-primary)]">Authenticator (TOTP)</h2>
         <p className="ui-support-copy mt-2 text-sm">
@@ -85,16 +99,8 @@ export function SecuritySettingsPanel({
             </>
           ) : null}
         </p>
-        {error ? (
-          <div className="ui-alert-error mt-3 text-sm" role="alert">
-            {error}
-          </div>
-        ) : null}
-        {message ? (
-          <div className="ui-alert-success mt-3 text-sm" role="status">
-            {message}
-          </div>
-        ) : null}
+        <InlineMutationStatus message={error} variant="error" className="mt-3 text-sm" />
+        <InlineMutationStatus message={message} variant="success" className="mt-3 text-sm" />
 
         <ul className="mt-4 space-y-2 text-sm">
           {factors.length === 0 ? <li className="text-[var(--text-tertiary)]">No TOTP factors enrolled.</li> : null}
@@ -107,11 +113,14 @@ export function SecuritySettingsPanel({
                 <span className="font-mono text-xs">{f.id.slice(0, 8)}…</span>{" "}
                 <span className="text-[var(--text-secondary)]">({f.status})</span>
               </span>
-              <button
+              <ConfirmActionButton
                 type="button"
                 className="ui-btn-secondary px-3 py-1 text-xs"
                 disabled={pending}
-                onClick={() =>
+                pending={pending}
+                pendingLabel="Removing…"
+                confirmMessage="Remove this authenticator from your account?"
+                onConfirm={() =>
                   startTransition(async () => {
                     setError(null);
                     const r = await unenrollTotpFactor(f.id);
@@ -125,16 +134,17 @@ export function SecuritySettingsPanel({
                 }
               >
                 Remove
-              </button>
+              </ConfirmActionButton>
             </li>
           ))}
         </ul>
 
         {!enroll ? (
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary mt-4 px-4 py-2 text-sm"
-            disabled={pending}
+            pending={pending}
+            pendingLabel="Preparing…"
             onClick={() =>
               startTransition(async () => {
                 setError(null);
@@ -148,7 +158,7 @@ export function SecuritySettingsPanel({
             }
           >
             Add authenticator
-          </button>
+          </AsyncActionButton>
         ) : (
           <div className="mt-4 space-y-4">
             {qrSrc ? (
@@ -193,9 +203,9 @@ export function SecuritySettingsPanel({
                   onChange={(ev) => setCode(ev.target.value)}
                 />
               </div>
-              <button type="submit" className="ui-btn-primary px-4 py-2 text-sm" disabled={pending}>
+              <AsyncActionButton type="submit" className="ui-btn-primary px-4 py-2 text-sm" pending={pending} pendingLabel="Confirming…">
                 Confirm
-              </button>
+              </AsyncActionButton>
             </form>
             <button
               type="button"
@@ -214,11 +224,13 @@ export function SecuritySettingsPanel({
           Detailed per-device listings require Supabase dashboard access; you can revoke other active sessions for this
           account.
         </p>
-        <button
+        <ConfirmActionButton
           type="button"
           className="ui-btn-secondary mt-4 px-4 py-2 text-sm"
-          disabled={pending}
-          onClick={() =>
+          pending={pending}
+          pendingLabel="Signing out…"
+          confirmMessage="Sign out your other active sessions?"
+          onConfirm={() =>
             startTransition(async () => {
               setError(null);
               const r = await revokeOtherSessions();
@@ -231,7 +243,7 @@ export function SecuritySettingsPanel({
           }
         >
           Sign out other sessions
-        </button>
+        </ConfirmActionButton>
       </section>
 
       <section className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,transparent)] p-6">
@@ -255,9 +267,14 @@ export function SecuritySettingsPanel({
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="ui-btn-primary w-fit px-4 py-2 text-sm" disabled={pending}>
+          <AsyncActionButton
+            type="submit"
+            className="ui-btn-primary w-fit px-4 py-2 text-sm"
+            pending={stepUpPending}
+            pendingLabel="Confirming…"
+          >
             Confirm step-up
-          </button>
+          </AsyncActionButton>
         </form>
       </section>
 

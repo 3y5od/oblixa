@@ -18,6 +18,7 @@ import { BatchApproveButton } from "@/components/contracts/batch-approve-button"
 import { ReviewSaveNextTelemetryLink } from "@/components/contracts/review-save-next-telemetry-link";
 import { ContractTasksPanel } from "@/components/contracts/contract-tasks-panel";
 import { ContractNotesPanel } from "@/components/contracts/contract-notes-panel";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { ContractObligationsPanel } from "@/components/contracts/contract-obligations-panel";
 import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoints-panel";
 import { ContractEvidenceRequirementsPanel } from "@/components/contracts/contract-evidence-requirements-panel";
@@ -1774,14 +1775,12 @@ export default async function ContractDetailPage(props: {
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   Export submissions and requirements for audits.
                 </p>
-                <a
+                <ApiJsonLink
                   href={`/api/evidence/export/${contract.id}`}
                   className="ui-link mt-2 inline-block text-xs"
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   Download evidence pack (JSON)
-                </a>
+                </ApiJsonLink>
                 <div className="mt-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     Active requirements

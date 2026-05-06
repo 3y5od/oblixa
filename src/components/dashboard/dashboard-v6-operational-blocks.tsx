@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   TrendingUp,
 } from "lucide-react";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 import type { AssuranceAnalyticsSummary } from "@/lib/v6/assurance-analytics";
@@ -308,9 +309,9 @@ export function DashboardOutcomeIntelligenceSection(props: {
         <Link className="ui-link" href="/reports#outcome-intelligence">
           Review outcome reports
         </Link>
-        <Link className="ui-link" href="/api/outcomes/interventions?limit=15&offset=0" target="_blank" rel="noreferrer">
+        <ApiJsonLink className="ui-link" href="/api/outcomes/interventions?limit=15&offset=0">
           Outcomes JSON
-        </Link>
+        </ApiJsonLink>
       </div>
     </section>
   );
@@ -406,9 +407,9 @@ export function DashboardAssuranceSignalsSection(props: {
         </ul>
       </details>
       <div className="flex flex-wrap gap-2 text-xs">
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Analytics JSON
-        </Link>
+        </ApiJsonLink>
         <Link className="ui-link" href="/assurance" prefetch={false}>
           Assurance hub
         </Link>

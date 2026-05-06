@@ -48,6 +48,7 @@ import {
   CALIBRATION_REQUIRED_FIELD_ORDER,
   clampCalibrationWizardStep,
 } from "@/lib/onboarding/calibration-wizard-step";
+import { replaceAppHref } from "@/lib/navigation/client-navigation";
 
 const REQUIRED_FIELDS = CALIBRATION_REQUIRED_FIELD_ORDER;
 const LAST_STEP_INDEX = CALIBRATION_LAST_STEP_INDEX;
@@ -487,7 +488,7 @@ export function CalibrationWizard(props: {
                         answers_required: req as CalibrationAnswersRequired,
                         answers_optional: opt,
                       }),
-                    () => router.replace("/dashboard")
+                    () => replaceAppHref(router, "/dashboard")
                   )
                 }
               >
@@ -497,7 +498,7 @@ export function CalibrationWizard(props: {
                 type="button"
                 disabled={wizardBusy}
                 className="ui-btn-secondary min-h-9 w-full px-4 py-2.5"
-                onClick={() => runComplete(() => completeQuestionnaireSimplerSetup(), () => router.replace("/dashboard"))}
+                onClick={() => runComplete(() => completeQuestionnaireSimplerSetup(), () => replaceAppHref(router, "/dashboard"))}
               >
                 {actionSimpler}
               </button>
@@ -507,7 +508,7 @@ export function CalibrationWizard(props: {
                 className="ui-btn-secondary min-h-9 w-full px-4 py-2.5"
                 onClick={() =>
                   runComplete(() => completeQuestionnaireOpenAdvancedSettings(), () =>
-                    router.replace("/settings/product")
+                    replaceAppHref(router, "/settings/product")
                   )
                 }
               >
@@ -538,9 +539,7 @@ export function CalibrationWizard(props: {
                   type="button"
                   className="ui-link min-h-9 self-center text-sm"
                   disabled={wizardBusy}
-                  onClick={() =>
-                    runComplete(() => completeQuestionnaireSimplerSetup(), () => router.replace("/dashboard"))
-                  }
+                  onClick={() => runComplete(() => completeQuestionnaireSimplerSetup(), () => replaceAppHref(router, "/dashboard"))}
                 >
                   {actionSimpler}
                 </button>
@@ -548,9 +547,7 @@ export function CalibrationWizard(props: {
                   type="button"
                   className="ui-link min-h-9 self-center text-sm"
                   disabled={wizardBusy}
-                  onClick={() =>
-                    runComplete(() => skipQuestionnaireExplicitMinimal(), () => router.replace("/dashboard"))
-                  }
+                  onClick={() => runComplete(() => skipQuestionnaireExplicitMinimal(), () => replaceAppHref(router, "/dashboard"))}
                 >
                   {actionSkipMinimal}
                 </button>

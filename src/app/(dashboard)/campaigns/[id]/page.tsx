@@ -3,6 +3,7 @@ import { BookOpen } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CampaignAssignmentPanel } from "@/components/campaigns/campaign-assignment-panel";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
@@ -87,9 +88,9 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/api/campaigns/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
+          <ApiJsonLink href={`/api/campaigns/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Open JSON
-          </Link>
+          </ApiJsonLink>
           <Link href="/campaigns" className="ui-btn-ghost px-4 py-2.5 text-[13px]">
             Back to campaigns
           </Link>

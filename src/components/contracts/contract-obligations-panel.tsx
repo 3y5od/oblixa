@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   applyObligationTemplatesToContractForm,
   createContractObligation,
@@ -371,14 +372,12 @@ export function ContractObligationsPanel({
                   {ob.evidence_url && (
                     <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       Evidence link:{" "}
-                      <a
+                      <ExternalLink
                         href={ob.evidence_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="ui-link"
                       >
                         open
-                      </a>
+                      </ExternalLink>
                     </p>
                   )}
                   {(() => {

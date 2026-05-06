@@ -12,6 +12,7 @@ const telemetry = vi.hoisted(() => ({
 vi.mock("@/actions/product-telemetry", () => telemetry);
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { openCommandPalette } from "@/test-utils/mock-command-palette-bridge";
+import { mockRouter, resetMockRouter } from "@/test-utils/mock-router";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { CommandPalette } from "./command-palette";
@@ -37,6 +38,7 @@ describe("CommandPalette", () => {
     telemetry.emitCmdkResultSelectedTelemetry.mockClear();
     telemetry.emitCmdkSearchFailedTelemetry.mockClear();
     telemetry.emitCmdkZeroResultsTelemetry.mockClear();
+    resetMockRouter();
     vi.unstubAllGlobals();
     window.localStorage.clear();
   });
@@ -104,20 +106,21 @@ describe("CommandPalette", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
-          contracts: [
-            {
-              id: "/settings",
-              title: "Settings",
-              href: "/settings",
-              resultType: "setting",
-              description: "Members, workspace product mode, and workflow configuration.",
-              actionLabel: "Open destination",
-            },
-          ],
-          partial: null,
-          recovery: null,
-        }),
+        text: async () =>
+          JSON.stringify({
+            contracts: [
+              {
+                id: "/settings",
+                title: "Settings",
+                href: "/settings",
+                resultType: "setting",
+                description: "Members, workspace product mode, and workflow configuration.",
+                actionLabel: "Open destination",
+              },
+            ],
+            partial: null,
+            recovery: null,
+          }),
       })
     );
     renderWithProviders(
@@ -157,6 +160,40 @@ describe("CommandPalette", () => {
     expect(screen.getByPlaceholderText(/search pages, queues, reports, tools/i)).toBeTruthy();
     expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThan(0);
     expect(screen.getByText(/^Workflows · \/contracts$/i)).toBeTruthy();
+  });
+
+  it("navigates the active result when Enter is pressed", async () => {
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={coreSurface}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+        contractResults={[
+          {
+            id: "contract-1",
+            title: "Acme Master Services Agreement",
+            counterparty: "Acme Corp",
+            status: "active",
+            ownerLabel: "Taylor Ops",
+          },
+        ]}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("acme");
+    });
+
+    expect(await screen.findByRole("dialog", { name: /command palette/i })).toBeTruthy();
+    fireEvent.keyDown(window, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith("/contracts/contract-1");
+    });
+    expect(telemetry.emitCmdkResultSelectedTelemetry).toHaveBeenCalledWith({
+      href: "/contracts/contract-1",
+      queryLen: 4,
+    });
   });
 
   it("returns focus to the trigger after Escape closes the palette", async () => {
@@ -252,6 +289,7 @@ describe("CommandPalette", () => {
   });
 
   it("emits debounced zero-results telemetry when no command matches", async () => {
+    vi.useFakeTimers();
     renderWithProviders(
       <CommandPalette
         role="viewer"
@@ -261,23 +299,18 @@ describe("CommandPalette", () => {
     );
 
     await act(async () => {
-      openCommandPalette("");
+      openCommandPalette("zzzz-no-local-match");
     });
 
-    fireEvent.change(screen.getByPlaceholderText(/search pages, queues, reports, tools/i), {
-      target: { value: "zzzz-no-match" },
+    await act(async () => {
+      vi.advanceTimersByTime(700);
     });
 
-    await waitFor(
-      () => {
-        expect(telemetry.emitCmdkZeroResultsTelemetry).toHaveBeenCalledWith({ queryLen: 13 });
-      },
-      { timeout: 3000 }
-    );
+    expect(telemetry.emitCmdkZeroResultsTelemetry).toHaveBeenCalledWith({ queryLen: 19 });
   });
 
   it("shows V10 recovery actions when remote command search fails", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("boom")));
     renderWithProviders(
       <CommandPalette
         role="viewer"
@@ -301,14 +334,15 @@ describe("CommandPalette", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
-          contracts: [],
-          recovery: {
-            message: "No command result matched this query.",
-            diagnosticId: "v10_command_zero_result",
-            actions: [{ label: "Open work queue", href: "/work", reason: "zero_result" }],
-          },
-        }),
+        text: async () =>
+          JSON.stringify({
+            contracts: [],
+            recovery: {
+              message: "No command result matched this query.",
+              diagnosticId: "v10_command_zero_result",
+              actions: [{ label: "Open work queue", href: "/work", reason: "zero_result" }],
+            },
+          }),
       })
     );
     renderWithProviders(
@@ -335,18 +369,19 @@ describe("CommandPalette", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
-          contracts: [],
-          partial: {
-            reason: "V10 command index could not load; contract matches are still available.",
-            diagnosticId: "v10_command_index_partial",
-          },
-          recovery: {
-            message: "Some indexed destinations are temporarily unavailable; direct destinations are still available.",
-            diagnosticId: "v10_command_index_partial",
-            actions: [{ label: "Open work queue", href: "/work", reason: "partial_index" }],
-          },
-        }),
+        text: async () =>
+          JSON.stringify({
+            contracts: [],
+            partial: {
+              reason: "V10 command index could not load; contract matches are still available.",
+              diagnosticId: "v10_command_index_partial",
+            },
+            recovery: {
+              message: "Some indexed destinations are temporarily unavailable; direct destinations are still available.",
+              diagnosticId: "v10_command_index_partial",
+              actions: [{ label: "Open work queue", href: "/work", reason: "partial_index" }],
+            },
+          }),
       })
     );
     renderWithProviders(
@@ -373,4 +408,3 @@ describe("CommandPalette", () => {
     });
   });
 });
-

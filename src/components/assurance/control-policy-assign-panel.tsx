@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type SegmentOpt = { id: string; name: string; key: string };
 
@@ -51,14 +54,13 @@ export function ControlPolicyAssignPanel({
                 ? "program"
                 : "contract_class");
       }
-      const res = await fetch(`/api/control-policies/${encodeURIComponent(policyId)}/assign`, {
+      const result = await mutateJson(`/api/control-policies/${encodeURIComponent(policyId)}/assign`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Assign failed");
+      if (!result.ok) {
+        setErr(result.message || "Assign failed");
         return;
       }
       router.refresh();
@@ -126,14 +128,15 @@ export function ControlPolicyAssignPanel({
           </label>
         </>
       ) : null}
-      <button
+      <AsyncActionButton
         type="submit"
-        disabled={pending}
         className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Saving…"
       >
-        {pending ? "Saving…" : "Create assignment"}
-      </button>
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
+        Create assignment
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
     </form>
   );
 }

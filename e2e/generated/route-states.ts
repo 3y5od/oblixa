@@ -156,6 +156,12 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/settings/security",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/onboarding/calibration",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",

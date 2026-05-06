@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { RecommendationRowActions } from "@/components/reports/recommendation-row-actions";
 import { OutcomeEffectivenessBreakdown } from "@/components/reports/outcome-effectiveness-breakdown";
+import { CapacityReassignmentPlannerForm } from "@/components/reports/capacity-reassignment-planner-form";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import {
   OperationalMetricChip,
   OperationalSectionHeader,
@@ -75,9 +77,9 @@ export function ReportsPortfolioAnalyticsSection(props: {
               </tbody>
             </table>
           </div>
-          <Link href="/api/intelligence/portfolio-by-program" className="ui-link mt-3 inline-block text-xs" target="_blank" rel="noreferrer">
+          <ApiJsonLink href="/api/intelligence/portfolio-by-program" className="ui-link mt-3 inline-block text-xs">
             View JSON
-          </Link>
+          </ApiJsonLink>
         </article>
         <article className="ui-card p-5" id="portfolio-by-counterparty">
           <p className="ui-eyebrow">Counterparties</p>
@@ -120,14 +122,12 @@ export function ReportsPortfolioAnalyticsSection(props: {
               </tbody>
             </table>
           </div>
-          <Link
+          <ApiJsonLink
             href="/api/intelligence/portfolio-by-counterparty"
             className="ui-link mt-3 inline-block text-xs"
-            target="_blank"
-            rel="noreferrer"
           >
             View JSON
-          </Link>
+          </ApiJsonLink>
         </article>
       </div>
       <details className="ui-soft-details p-4 text-xs text-[var(--text-secondary)]">
@@ -262,44 +262,11 @@ export function ReportsCapacityCampaignsSection(props: {
               : "Model delegation and track operational workload shifts."
           }
         />
-        <form
-          className="mt-4 grid gap-2"
-          action="/api/capacity/reassignment-plan"
-          method="post"
-          target="_blank"
-        >
-          <label className="text-xs text-[var(--text-secondary)]">
-            Team key
-            <input name="teamKey" className="ui-input-compact mt-1 w-full" defaultValue="ops" required />
-          </label>
-          <label className="text-xs text-[var(--text-secondary)]">
-            Current load
-            <input
-              name="currentLoad"
-              type="number"
-              className="ui-input-compact mt-1 w-full"
-              defaultValue={latestOpenTasks ?? 0}
-              required
-            />
-          </label>
-          <label className="text-xs text-[var(--text-secondary)]">
-            Target load
-            <input
-              name="targetLoad"
-              type="number"
-              className="ui-input-compact mt-1 w-full"
-              defaultValue={latestPendingApprovals ?? 0}
-              required
-            />
-          </label>
-          {showAnalyticsLinks ? (
-            <button type="submit" className="ui-btn-secondary mt-2 px-3 py-2 text-xs">
-              Generate reassignment plan
-            </button>
-          ) : (
-            <p className="mt-2 text-xs text-[var(--text-tertiary)]">Reassignment planner is hidden for this workspace.</p>
-          )}
-        </form>
+        <CapacityReassignmentPlannerForm
+          defaultCurrentLoad={latestOpenTasks ?? 0}
+          defaultTargetLoad={latestPendingApprovals ?? 0}
+          enabled={showAnalyticsLinks}
+        />
       </article>
 
       <article className="ui-card p-4">
@@ -329,14 +296,12 @@ export function ReportsCapacityCampaignsSection(props: {
           {(recommendations ?? []).length === 0 ? <li className="py-2 text-[var(--text-tertiary)]">No recommendations.</li> : null}
         </ul>
         {showAnalyticsLinks ? (
-          <Link
+          <ApiJsonLink
             href="/api/intelligence/recommendations"
             className="ui-link mt-3 inline-block text-xs"
-            target="_blank"
-            rel="noreferrer"
           >
             Recommendations JSON
-          </Link>
+          </ApiJsonLink>
         ) : null}
       </article>
 
@@ -538,9 +503,9 @@ export function ReportsOutcomeIntelligenceSection(props: {
             ))}
           </ul>
           <p className="mt-2 text-[11px] text-[var(--text-tertiary)]">
-            <Link className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0" target="_blank" rel="noreferrer">
+            <ApiJsonLink className="ui-link" href="/api/outcomes/interventions?limit=20&offset=0">
               Paginated API
-            </Link>
+            </ApiJsonLink>
           </p>
         </div>
       ) : null}

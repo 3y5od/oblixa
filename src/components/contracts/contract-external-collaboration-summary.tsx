@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "@/components/ui/external-link";
 import type { AdminClient } from "@/lib/v6/service";
 
 /**
@@ -69,9 +70,9 @@ export async function ContractExternalCollaborationSummary({
                 <p className="mt-1 text-[11px] text-[var(--text-secondary)]">Workflow steps recorded: {chain.length}</p>
               ) : null}
               <div className="mt-1">
-                <Link className="ui-link font-mono text-[11px]" href={`/external/${row.token}`} target="_blank">
+                <ExternalLink className="ui-link font-mono text-[11px]" href={`/external/${row.token}`}>
                   Open external page
-                </Link>
+                </ExternalLink>
               </div>
             </li>
           );

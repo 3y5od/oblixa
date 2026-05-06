@@ -2,6 +2,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/",
     "visitPath": "/",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Run renewals, approvals, and obligations from one trusted system",
@@ -15,6 +16,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/login",
     "visitPath": "/login",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "expectedHeading": "Sign in to your account",
@@ -28,6 +30,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/signup",
     "visitPath": "/signup",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "expectedHeading": "Create your account",
@@ -40,6 +43,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/forgot-password",
     "visitPath": "/forgot-password",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "expectedHeading": "Reset your password",
@@ -52,6 +56,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/reset-password",
     "visitPath": "/reset-password",
+    "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
     "expectedHeading": "Set a new password",
@@ -64,6 +69,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/privacy",
     "visitPath": "/privacy",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Privacy",
@@ -76,6 +82,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/terms",
     "visitPath": "/terms",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Terms of use",
@@ -88,6 +95,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/security",
     "visitPath": "/security",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Security",
@@ -100,6 +108,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/accessibility",
     "visitPath": "/accessibility",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Accessibility",
@@ -112,6 +121,7 @@ export const GENERATED_PUBLIC_ROUTES = [
   {
     "route": "/cookies",
     "visitPath": "/cookies",
+    "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Cookies",

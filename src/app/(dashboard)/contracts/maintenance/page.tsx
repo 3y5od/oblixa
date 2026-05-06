@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Copy, FileQuestion, Timer, UserRoundX, Users } from "lucide-react";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { CampaignRollbackButton } from "@/components/v4/campaign-maintenance-actions";
@@ -295,14 +296,12 @@ export default async function MaintenancePage() {
                       </p>
                     ) : null}
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <a
+                      <ApiJsonLink
                         href={`/api/maintenance/campaigns/${campaign.id}/preview`}
-                        target="_blank"
-                        rel="noreferrer"
                         className="ui-btn-secondary inline-block px-3 py-1.5 text-xs"
                       >
                         Preview row counts
-                      </a>
+                      </ApiJsonLink>
                       <CampaignRollbackButton campaignId={campaign.id} />
                     </div>
                     {campaign.status !== "completed" ? (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 
@@ -169,17 +170,16 @@ export default async function AssuranceScorecardsPage() {
                   </>
                 ) : null}
                 <span className="text-[var(--text-tertiary)]">·</span>
-                <Link
+                <ApiJsonLink
                   className="ui-link"
                   href={`/api/assurance/scorecards/${encodeURIComponent(String(row.id))}/snapshots`}
-                  target="_blank"
                 >
                   Snapshots JSON
-                </Link>
+                </ApiJsonLink>
                 <span className="text-[var(--text-tertiary)]">·</span>
-                <Link className="ui-link" href="/api/assurance/scorecards" target="_blank">
+                <ApiJsonLink className="ui-link" href="/api/assurance/scorecards">
                   Scorecards API
-                </Link>
+                </ApiJsonLink>
               </p>
             </li>
           );
@@ -187,21 +187,21 @@ export default async function AssuranceScorecardsPage() {
         {(data ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No scorecards yet.</li> : null}
       </ul>
       <p className="mt-4 text-xs text-[var(--text-secondary)]">
-        <Link className="ui-link" href="/api/assurance/scorecards" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/scorecards">
           Scorecards JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/health-graph" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/health-graph">
           Health graph JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
           Check runs JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Analytics summary
-        </Link>
+        </ApiJsonLink>
       </p>
     </AssuranceListCard>
   );

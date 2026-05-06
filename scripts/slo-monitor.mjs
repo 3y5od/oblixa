@@ -1,4 +1,5 @@
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 
 function env(name) {
@@ -27,6 +28,46 @@ const diagnostics = {
   generatedAt: new Date().toISOString(),
   checks: [],
 };
+
+export function assessRetryWorkerHeartbeat({
+  queueDepth,
+  heartbeatAgeMin,
+  hasHeartbeat,
+}) {
+  if (!hasHeartbeat) {
+    if (queueDepth === 0) {
+      return {
+        error: null,
+        warnings: ["retry-worker heartbeat missing but queue is empty"],
+        status: "missing_but_idle",
+      };
+    }
+    return {
+      error: "critical: no retry-worker heartbeat found",
+      warnings: [],
+      status: "missing",
+    };
+  }
+
+  const warnings = [];
+  if (heartbeatAgeMin > 60) {
+    if (queueDepth === 0) {
+      warnings.push(`retry-worker heartbeat stale (${heartbeatAgeMin}m) but queue is empty`);
+      return { error: null, warnings, status: "stale_but_idle" };
+    }
+    return {
+      error: `critical: retry-worker heartbeat stale (${heartbeatAgeMin}m)`,
+      warnings,
+      status: "stale",
+    };
+  }
+
+  if (heartbeatAgeMin > 30) {
+    warnings.push(`retry-worker heartbeat ${heartbeatAgeMin}m (warn if >30m; critical if >60m)`);
+  }
+
+  return { error: null, warnings, status: "fresh" };
+}
 
 async function main() {
   const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
@@ -119,32 +160,44 @@ async function main() {
     .maybeSingle();
 
   if (heartbeatErr) throw new Error(`heartbeat query failed: ${heartbeatErr.message}`);
-  if (!heartbeatRow?.created_at) throw new Error("critical: no retry-worker heartbeat found");
-
-  const heartbeatAgeMin = Math.round((now - new Date(heartbeatRow.created_at).getTime()) / 60000);
-  pass(`retry heartbeat age=${heartbeatAgeMin}m`);
-  diagnostics.checks.push({
-    name: "retry_worker_heartbeat_age_minutes",
-    heartbeatAgeMin,
-  });
-
-  // Vercel cron is */15; allow several windows of drift, cold starts, or deploy gaps
-  // before treating the worker as missing. 31–60m is a warning only.
-  if (heartbeatAgeMin > 60) {
-    throw new Error(`critical: retry-worker heartbeat stale (${heartbeatAgeMin}m)`);
+  const heartbeatAgeMin = heartbeatRow?.created_at
+    ? Math.round((now - new Date(heartbeatRow.created_at).getTime()) / 60000)
+    : null;
+  if (heartbeatAgeMin === null) {
+    diagnostics.checks.push({
+      name: "retry_worker_heartbeat_age_minutes",
+      heartbeatAgeMin: null,
+    });
+  } else {
+    pass(`retry heartbeat age=${heartbeatAgeMin}m`);
+    diagnostics.checks.push({
+      name: "retry_worker_heartbeat_age_minutes",
+      heartbeatAgeMin,
+    });
   }
-  if (heartbeatAgeMin > 30) {
-    warn(`retry-worker heartbeat ${heartbeatAgeMin}m (warn if >30m; critical if >60m)`);
+
+  const heartbeatAssessment = assessRetryWorkerHeartbeat({
+    queueDepth,
+    heartbeatAgeMin,
+    hasHeartbeat: heartbeatAgeMin !== null,
+  });
+  for (const message of heartbeatAssessment.warnings) {
+    warn(message);
+  }
+  if (heartbeatAssessment.error) {
+    throw new Error(heartbeatAssessment.error);
   }
 
   pass("slo-monitor completed");
   console.log(JSON.stringify({ ok: true, ...diagnostics }, null, 2));
 }
 
-main().catch((err) => {
-  const message = err instanceof Error ? err.message : String(err);
-  diagnostics.checks.push({ name: "failure", message });
-  console.log(JSON.stringify({ ok: false, ...diagnostics }, null, 2));
-  fail(message);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    const message = err instanceof Error ? err.message : String(err);
+    diagnostics.checks.push({ name: "failure", message });
+    console.log(JSON.stringify({ ok: false, ...diagnostics }, null, 2));
+    fail(message);
+    process.exit(1);
+  });
+}

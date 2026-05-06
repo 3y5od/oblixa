@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type Props = {
   initialAutopilotAllowExecution: boolean | null;
@@ -32,7 +35,7 @@ export function OrgV6SettingsPanel({
         .split(/[,;\n]+/)
         .map((s) => s.trim())
         .filter(Boolean);
-      const res = await fetch("/api/workspace/v6-settings", {
+      const result = await mutateJson("/api/workspace/v6-settings", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -40,9 +43,8 @@ export function OrgV6SettingsPanel({
           reviewBoardNotificationEmails: list,
         }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Save failed");
+      if (!result.ok) {
+        setErr(result.message || "Save failed");
         return;
       }
       setOk("Saved.");
@@ -83,16 +85,17 @@ export function OrgV6SettingsPanel({
           />
         </label>
       </div>
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        pending={pending}
+        pendingLabel="Saving…"
         onClick={() => void save()}
       >
-        {pending ? "Saving…" : "Save org settings"}
-      </button>
-      {err ? <p className="text-xs text-red-600">{err}</p> : null}
-      {ok ? <p className="text-xs text-emerald-700">{ok}</p> : null}
+        Save org settings
+      </AsyncActionButton>
+      <InlineMutationStatus message={err} variant="error" className="text-xs" />
+      <InlineMutationStatus message={ok} variant="success" className="text-xs" />
     </div>
   );
 }

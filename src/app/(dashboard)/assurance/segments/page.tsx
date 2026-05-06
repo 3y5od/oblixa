@@ -2,6 +2,7 @@ import Link from "next/link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { SegmentRecomputeButton } from "@/components/assurance/segment-recompute-button";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
@@ -90,13 +91,13 @@ export default async function AssuranceSegmentsPage() {
         {(segments ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No segments yet.</li> : null}
       </ul>
       <p className="mt-4 text-xs text-[var(--text-secondary)]">
-        <Link className="ui-link" href="/api/segments" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/segments">
           Segments JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Analytics summary
-        </Link>
+        </ApiJsonLink>
         {" · "}
         <Link className="ui-link" href="/assurance">
           Back to assurance

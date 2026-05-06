@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
 import { ArrowRight, Clock3, Search } from "lucide-react";
+import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { STATUS_LABELS } from "@/lib/contracts";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 import {
   WORKFLOW_AREA_LABELS,
   getWorkflowAreaForNavItem,
@@ -51,6 +54,7 @@ export function CommandPalette(props: {
   contractResults?: ContractPaletteResult[];
   initialQuery?: string;
 }) {
+  const router = useRouter();
   const role = props.role ?? "viewer";
   const v5Flags = useMemo(
     () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
@@ -169,12 +173,17 @@ export function CommandPalette(props: {
     }
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
-      void fetch(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`, {
+      void fetchJson(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`, {
         headers: { Accept: "application/json" },
         signal: controller.signal,
       })
-        .then((response) => (response.ok ? response.json() : null))
-        .then((payload: { contracts?: ContractPaletteResult[]; partial?: { reason?: string; diagnosticId?: string } | null; recovery?: CommandPaletteRecovery | null } | null) => {
+        .then((result) => {
+          if (!result.ok) return null;
+          return result.data as
+            | { contracts?: ContractPaletteResult[]; partial?: { reason?: string; diagnosticId?: string } | null; recovery?: CommandPaletteRecovery | null }
+            | null;
+        })
+        .then((payload) => {
           if (!controller.signal.aborted) {
             setRemoteContractResults(payload?.contracts ?? []);
             setRemoteSearchFailed(payload === null);
@@ -400,11 +409,14 @@ export function CommandPalette(props: {
         href: item.href,
         queryLen: deferredFilterQ.length,
       });
-      window.location.assign(item.href);
+      rememberCommand(item);
+      if (pushAppHref(router, item.href)) {
+        setOpen(false);
+      }
     }
     window.addEventListener("keydown", onEnter);
     return () => window.removeEventListener("keydown", onEnter);
-  }, [clampedActiveIndex, deferredFilterQ, flatItems, open]);
+  }, [clampedActiveIndex, deferredFilterQ.length, flatItems, open, router]);
 
   function rememberCommand(item: PaletteItem) {
     setRecentHrefs((current) => {

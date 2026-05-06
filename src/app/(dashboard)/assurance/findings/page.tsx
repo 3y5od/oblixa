@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertTriangle, ClipboardList, Layers } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { OperationalMetricChip, OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
@@ -207,31 +208,30 @@ export default async function AssuranceFindingsPage(props: {
           ) : null}
           {(lastRun as { id?: string }).id ? (
             <p className="mt-2">
-              <Link
+              <ApiJsonLink
                 className="ui-link"
                 href={`/api/assurance/check-runs/${encodeURIComponent(String((lastRun as { id: string }).id))}`}
-                target="_blank"
               >
                 Open this run JSON
-              </Link>
+              </ApiJsonLink>
               {" · "}
-              <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+              <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
                 All recent check runs
-              </Link>
+              </ApiJsonLink>
             </p>
           ) : (
             <p className="mt-2">
-              <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+              <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
                 Recent check runs (JSON)
-              </Link>
+              </ApiJsonLink>
             </p>
           )}
         </div>
       ) : (
         <p className="mb-4 text-xs text-[var(--text-tertiary)]">
-          <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
             Browse assurance check runs
-          </Link>
+          </ApiJsonLink>
         </p>
       )}
       <div className="space-y-2">
@@ -310,17 +310,17 @@ export default async function AssuranceFindingsPage(props: {
         </div>
       </div>
       <p className="mt-3 text-xs text-[var(--text-secondary)]">
-        <Link className="ui-link" href={apiFindingsJsonHref} target="_blank">
+        <ApiJsonLink className="ui-link" href={apiFindingsJsonHref}>
           Matching findings (JSON)
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/findings?status=open" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/findings?status=open">
           Open findings (JSON)
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Assurance analytics summary
-        </Link>
+        </ApiJsonLink>
       </p>
       <ul className="mt-4 space-y-2 text-sm">
         {(data ?? []).map((row) => {

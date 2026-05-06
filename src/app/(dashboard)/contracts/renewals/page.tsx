@@ -16,6 +16,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { SlackRenewalSummaryForm } from "@/components/v4/slack-renewal-summary-form";
 import { RenewalRowChecklistActions } from "@/components/contracts/renewal-row-checklist-actions";
@@ -437,14 +438,12 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
           <Link href="/contracts/tasks" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Open task queue
           </Link>
-          <Link
+          <ApiJsonLink
             href="/api/renewals/portfolio-signals"
             className="ui-btn-secondary px-4 py-2.5 text-[13px]"
-            target="_blank"
-            rel="noopener noreferrer"
           >
             Open portfolio signals
-          </Link>
+          </ApiJsonLink>
           {showDecisionsCta ? (
             <Link href="/decisions" prefetch={false} className="ui-btn-primary px-4 py-2.5 text-[13px]">
               Review decisions
@@ -534,14 +533,12 @@ export default async function RenewalsWorkspacePage(props: { searchParams: Promi
             <OperationalMetricChip label="Confidence tracked" value={String(confidenceCoverage)} />
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link
+            <ApiJsonLink
               href="/api/renewals/portfolio-signals"
               className="ui-btn-secondary px-4 py-2 text-[13px]"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Open portfolio signals JSON
-            </Link>
+            </ApiJsonLink>
             {showDecisionsCta ? (
               <Link href="/decisions" prefetch={false} className="ui-btn-secondary px-4 py-2 text-[13px]">
                 Compare decisions

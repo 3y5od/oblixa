@@ -1,8 +1,10 @@
 "use client";
-// V7 exempt: control policy actions only mounted from assurance policy surfaces; hrefs stay in assurance tree.
 
 import Link from "next/link";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 
 type Props = {
   policyId: string;
@@ -12,17 +14,19 @@ type Props = {
 export function FindingPolicyActions({ policyId, canSimulate }: Props) {
   const [pending, setPending] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [variant, setVariant] = useState<"success" | "error">("success");
 
   async function runSimulate() {
     setPending(true);
     setMsg(null);
+    setVariant("success");
     try {
-      const res = await fetch(`/api/control-policies/${encodeURIComponent(policyId)}/simulate`, {
+      const result = await mutateJson(`/api/control-policies/${encodeURIComponent(policyId)}/simulate`, {
         method: "POST",
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setMsg(j.error ?? "Simulation failed");
+      if (!result.ok) {
+        setVariant("error");
+        setMsg(result.message || "Simulation failed");
         return;
       }
       setMsg("What-if simulation recorded. See control policy detail for results.");
@@ -40,17 +44,18 @@ export function FindingPolicyActions({ policyId, canSimulate }: Props) {
           Open policy
         </Link>
         {canSimulate ? (
-          <button
+          <AsyncActionButton
             type="button"
-            disabled={pending}
             className="rounded border border-[var(--border-strong)] px-2 py-1 text-[11px] text-[var(--text-primary)] disabled:opacity-50"
+            pending={pending}
+            pendingLabel="Running…"
             onClick={() => void runSimulate()}
           >
-            {pending ? "Running…" : "Run policy what-if simulate"}
-          </button>
+            Run policy what-if simulate
+          </AsyncActionButton>
         ) : null}
       </div>
-      {msg ? <p className="mt-2 text-[11px] text-[var(--text-secondary)]">{msg}</p> : null}
+      <InlineMutationStatus message={msg} variant={variant} className="mt-2 text-[11px]" />
     </div>
   );
 }

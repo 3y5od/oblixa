@@ -4,6 +4,7 @@ import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { AutopilotDisableButton, AutopilotRulePatchForm } from "@/components/assurance/autopilot-rule-patch";
 import { AutopilotRevertLogButton } from "@/components/assurance/autopilot-revert-log-button";
 import { OrgV6SettingsPanel } from "@/components/assurance/org-v6-settings-panel";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -175,17 +176,17 @@ export default async function AssuranceAutopilotPage() {
           {(logs ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
         <p className="mt-4 text-xs text-[var(--text-secondary)]">
-          <Link className="ui-link" href="/api/autopilot/rules" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/autopilot/rules">
             Rules JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/autopilot/runs" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/autopilot/runs">
             Run logs JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
             Analytics summary
-          </Link>
+          </ApiJsonLink>
           {" · "}
           <Link className="ui-link" href="/assurance">
             Back to assurance

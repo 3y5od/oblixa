@@ -1,8 +1,8 @@
 "use client";
-// V7 exempt: relationship workspace utility; router targets are advanced account/counterparty hubs only reached from native relationship-workspaces pages.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 
 export function RelationshipKeyJump() {
   const router = useRouter();
@@ -13,14 +13,14 @@ export function RelationshipKeyJump() {
     e.preventDefault();
     const k = accountKey.trim();
     if (!k) return;
-    router.push(`/accounts/${encodeURIComponent(k)}`);
+    pushAppHref(router, `/accounts/${encodeURIComponent(k)}`);
   }
 
   function goCounterparty(e: React.FormEvent) {
     e.preventDefault();
     const k = counterpartyKey.trim();
     if (!k) return;
-    router.push(`/counterparties/${encodeURIComponent(k)}`);
+    pushAppHref(router, `/counterparties/${encodeURIComponent(k)}`);
   }
 
   return (

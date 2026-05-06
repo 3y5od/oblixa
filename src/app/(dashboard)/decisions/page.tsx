@@ -3,6 +3,7 @@ import { CircleDot, Layers, Split } from "lucide-react";
 import { CreateDecisionForm } from "@/components/decisions/create-decision-form";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
@@ -72,9 +73,9 @@ export default async function DecisionsPage({
             ) : null}
           </p>
         </div>
-        <Link href="/api/decisions" className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
+        <ApiJsonLink href="/api/decisions" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
           View JSON
-        </Link>
+        </ApiJsonLink>
       </header>
 
       <section className="ui-page-shell space-y-3">

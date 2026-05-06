@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { fetchJson, mutateJson } from "@/lib/http/client-json";
 
 type PlaybookRow = { id: string; name: string };
 
@@ -22,10 +25,10 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const res = await fetch("/api/playbooks");
-      const j = (await res.json().catch(() => ({}))) as { playbooks?: PlaybookRow[] };
-      if (!cancelled && res.ok && Array.isArray(j.playbooks)) {
-        setPlaybooks(j.playbooks);
+      const result = await fetchJson("/api/playbooks");
+      if (!cancelled && result.ok) {
+        const data = result.data as { playbooks?: PlaybookRow[] };
+        if (Array.isArray(data.playbooks)) setPlaybooks(data.playbooks);
       }
     })();
     return () => {
@@ -37,16 +40,15 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
     setPending(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/control-policies/${encodeURIComponent(props.policyId)}`, {
+      const result = await mutateJson(`/api/control-policies/${encodeURIComponent(props.policyId)}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           remediationPlaybookId: selected === "" ? null : selected,
         }),
       });
-      const j = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setErr(j.error ?? "Update failed");
+      if (!result.ok) {
+        setErr(result.message || "Update failed");
         return;
       }
       router.refresh();
@@ -74,16 +76,17 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
             </option>
           ))}
         </select>
-        <button
+        <AsyncActionButton
           type="button"
-          disabled={pending}
           className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          pending={pending}
+          pendingLabel="Saving…"
           onClick={() => void save()}
         >
-          {pending ? "Saving…" : "Save link"}
-        </button>
+          Save link
+        </AsyncActionButton>
       </div>
-      {err ? <p className="mt-2 text-xs text-red-600">{err}</p> : null}
+      <InlineMutationStatus message={err} variant="error" className="mt-2 text-xs" />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import type { AssuranceAnalyticsSummary } from "@/lib/v6/assurance-analytics";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import {
   OperationalMetricChip,
   OperationalSectionHeader,
@@ -484,9 +485,9 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             </Panel>
           ) : null}
 
-          <Link href="/api/assurance/analytics/summary" className="ui-link mt-3 inline-block text-xs" target="_blank" rel="noreferrer">
+          <ApiJsonLink href="/api/assurance/analytics/summary" className="ui-link mt-3 inline-block text-xs">
             Open assurance analytics JSON
-          </Link>
+          </ApiJsonLink>
         </>
       ) : (
         <p className="text-sm text-[var(--text-secondary)]">

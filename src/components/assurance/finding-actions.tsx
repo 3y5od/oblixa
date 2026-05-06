@@ -1,9 +1,9 @@
 "use client";
-// V7 exempt: client actions mounted only from assurance finding surfaces; post-mutation navigation stays in-family.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fetchJson } from "@/lib/http/client-json";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { captureClientException } from "@/lib/observability/sentry";
 
 export function FindingActions({ findingId }: { findingId: string }) {
@@ -30,8 +30,9 @@ export function FindingActions({ findingId }: { findingId: string }) {
         setErr(result.message);
         return;
       }
-      router.push("/assurance/findings");
-      router.refresh();
+      if (!pushAppHref(router, "/assurance/findings")) {
+        setErr("The finding was updated, but the follow-up page could not be opened.");
+      }
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Request failed");
       captureClientException(e, { extra: { surface: "FindingActions" } });

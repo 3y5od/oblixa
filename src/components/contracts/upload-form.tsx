@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Upload, X, FileText, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { createContract } from "@/actions/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 
 interface UploadFormProps {
@@ -260,7 +261,9 @@ export function UploadForm({
         summaryParts.push("extraction not available in this environment");
       }
       setUploadOutcome(summaryParts.join(" · "));
-      router.push(result.redirectTo);
+      if (!pushAppHref(router, result.redirectTo)) {
+        setError("The contract was created, but the detail page could not be opened automatically.");
+      }
     });
   }
 

@@ -5,6 +5,7 @@ import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
 import { DemoSeedButton } from "@/components/settings/demo-seed-button";
 import { InviteMemberForm } from "@/components/settings/invite-member-form";
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   PendingInvitesList,
   type PendingInviteRow,
@@ -117,22 +118,18 @@ export default async function SettingsPage() {
               Policy registry
             </Link>
           ) : null}
-          <a
+          <ExternalLink
             href="/api/export/calendar?role=legal"
             className="ui-btn-secondary px-4 py-2 text-[13px]"
-            target="_blank"
-            rel="noreferrer"
           >
             Legal calendar (.ics)
-          </a>
-          <a
+          </ExternalLink>
+          <ExternalLink
             href="/api/export/calendar?role=finance"
             className="ui-btn-secondary px-4 py-2 text-[13px]"
-            target="_blank"
-            rel="noreferrer"
           >
             Finance calendar (.ics)
-          </a>
+          </ExternalLink>
         </div>
       </header>
 

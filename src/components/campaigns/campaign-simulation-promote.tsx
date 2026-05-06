@@ -1,8 +1,12 @@
 "use client";
-// V7 exempt: simulation promote UI only mounted from campaign contexts; navigation targets campaigns routes.
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { LiveRegion } from "@/components/ui/live-region";
+import { mutateJson } from "@/lib/http/client-json";
+import { pushAppHref } from "@/lib/navigation/client-navigation";
 
 type Props = { campaignContextId?: string };
 
@@ -20,9 +24,11 @@ export function CampaignSimulationPromote({ campaignContextId }: Props) {
     setError(null);
     setMessage(null);
     try {
-      const res = await fetch(`/api/simulations/${id}/promote-to-campaign`, {
+      const result = await mutateJson<{
+        error?: string;
+        campaign?: { id?: string };
+      }>(`/api/simulations/${id}/promote-to-campaign`, {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           campaignName: campaignContextId
@@ -30,15 +36,16 @@ export function CampaignSimulationPromote({ campaignContextId }: Props) {
             : undefined,
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        campaign?: { id?: string };
-      };
-      if (!res.ok) throw new Error(data.error || res.statusText);
-      const newId = data.campaign?.id;
+      if (!result.ok) throw new Error(result.message);
+      const newId = result.data.campaign?.id;
       setMessage(newId ? `Created campaign ${newId}` : "Promotion completed.");
-      if (newId) router.push(`/campaigns/${newId}`);
-      else router.refresh();
+      if (newId) {
+        if (!pushAppHref(router, `/campaigns/${newId}`)) {
+          setError("The campaign was created, but it could not be opened automatically.");
+        }
+      } else {
+        router.refresh();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -59,20 +66,22 @@ export function CampaignSimulationPromote({ campaignContextId }: Props) {
         onChange={(e) => setSimulationId(e.target.value)}
         disabled={busy}
       />
-      {error && (
-        <p className="mt-2 text-xs text-rose-700" role="alert">
-          {error}
-        </p>
-      )}
-      {message && <p className="mt-2 text-xs text-emerald-700">{message}</p>}
-      <button
+      <LiveRegion
+        message={busy ? "Promoting simulation to a campaign." : error ?? message ?? undefined}
+        politeness={error ? "assertive" : "polite"}
+      />
+      <InlineMutationStatus message={error} variant="error" className="mt-2 text-xs" />
+      <InlineMutationStatus message={message} variant="success" className="mt-2 text-xs" />
+      <AsyncActionButton
         type="button"
         className="ui-btn-secondary mt-2 px-3 py-2 text-xs"
-        disabled={busy || !simulationId.trim()}
+        disabled={!simulationId.trim()}
+        pending={busy}
+        pendingLabel="Promoting…"
         onClick={() => void promote()}
       >
-        {busy ? "Promoting…" : "Promote"}
-      </button>
+        Promote
+      </AsyncActionButton>
     </div>
   );
 }

@@ -15,5 +15,7 @@ paths = [
   '''^e2e/''',
   '''.*\.test\.ts$''',
   '''.*\.test\.tsx$''',
+  '''^artifacts/assurance/api-runtime-smoke-registry\.json$''',
+  '''^artifacts/assurance/route-provider-dependencies\.json$''',
   '''^scripts/check-hardening-debt-ratchet\.mjs$''',
 ]

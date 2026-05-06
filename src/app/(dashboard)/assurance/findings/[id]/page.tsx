@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalMetricChip } from "@/components/ui/operational-summary-card";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { FindingActions } from "@/components/assurance/finding-actions";
 import { RecommendedPlaybookRun } from "@/components/assurance/recommended-playbook-run";
 import { FindingPolicyActions } from "@/components/assurance/finding-policy-actions";
@@ -86,9 +87,9 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
       <p className="text-xs text-[var(--text-secondary)]">
         Triage: address higher severity and <span className="font-medium">open</span> items first; use the queue filters
         or{" "}
-        <Link className="ui-link" href="/api/assurance/findings?status=open" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/findings?status=open">
           open findings JSON
-        </Link>{" "}
+        </ApiJsonLink>{" "}
         for the same scope as the list view.
       </p>
       <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -153,13 +154,12 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
           Source check run:{" "}
           <span className="font-mono text-[11px]">{String(finding.source_check_run_id)}</span>
           {" · "}
-          <Link
+          <ApiJsonLink
             className="ui-link"
             href={`/api/assurance/check-runs/${encodeURIComponent(String(finding.source_check_run_id))}`}
-            target="_blank"
           >
             Open run JSON
-          </Link>
+          </ApiJsonLink>
         </p>
       ) : null}
       {finding.recommended_playbook_id ? (
@@ -216,21 +216,20 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
         {(events ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No events yet.</li> : null}
       </ul>
       <p className="mt-4 text-xs">
-        <Link
+        <ApiJsonLink
           className="ui-link"
           href={`/api/assurance/findings?findingType=${encodeURIComponent(String(finding.finding_type))}`}
-          target="_blank"
         >
           Same-type findings (JSON)
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href={`/api/assurance/findings/${encodeURIComponent(id)}/events`} target="_blank">
+        <ApiJsonLink className="ui-link" href={`/api/assurance/findings/${encodeURIComponent(id)}/events`}>
           Export events JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
           Check runs JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
         <Link className="ui-link" href="/assurance/findings">
           Back to findings

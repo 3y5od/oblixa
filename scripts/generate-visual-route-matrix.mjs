@@ -14,6 +14,7 @@ const visualRoutes = uiSurfaceManifest
   .map((entry) => ({
     route: entry.route,
     visitPath: entry.visitPath,
+    fixtureId: entry.fixtureId,
     routeFamily: entry.routeFamily,
     shellFamily: entry.shellFamily,
     mode: entry.mode,

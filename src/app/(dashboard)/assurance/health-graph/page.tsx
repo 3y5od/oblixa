@@ -2,6 +2,7 @@ import Link from "next/link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { HealthGraphConcentrationDynamic } from "@/components/assurance/health-graph-concentration-dynamic";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/v6/feature-guards";
 import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/v6/health-graph-paths";
@@ -222,17 +223,17 @@ export default async function AssuranceHealthGraphPage(props: {
         ))}
       </ul>
       <p className="mt-6 text-xs text-[var(--text-secondary)]">
-        <Link className="ui-link" href="/api/assurance/health-graph" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/health-graph">
           Health graph JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
           Check runs JSON
-        </Link>
+        </ApiJsonLink>
         {" · "}
-        <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+        <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
           Analytics summary
-        </Link>
+        </ApiJsonLink>
         {" · "}
         <Link className="ui-link" href="/assurance">
           Assurance hub

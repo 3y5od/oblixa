@@ -6,6 +6,10 @@ export type ReadJsonResult =
   | { ok: true; data: unknown; status: number }
   | { ok: false; message: string; status: number };
 
+export type JsonMutationResult<T> =
+  | { ok: true; data: T; status: number }
+  | { ok: false; message: string; status: number; data: null };
+
 /** Shown when the server returns 401/403 and no JSON error string. */
 export const SESSION_OR_AUTH_MESSAGE =
   "Your session may have expired, or you may not have access. Try signing in again.";
@@ -108,4 +112,39 @@ export async function fetchJson(input: RequestInfo | URL, init?: RequestInit): P
     clearTimeout(timeoutId);
   }
   return readResponseJson(res);
+}
+
+export async function mutateJson<T = Record<string, unknown>>(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<JsonMutationResult<T>> {
+  try {
+    const result = await fetchJson(input, init);
+    if (!result.ok) {
+      return { ok: false, message: result.message, status: result.status, data: null };
+    }
+    return { ok: true, data: result.data as T, status: result.status };
+  } catch {
+    return {
+      ok: false,
+      message: "Network error. Check your connection and retry.",
+      status: 0,
+      data: null,
+    };
+  }
+}
+
+export function sendJsonKeepalive(input: RequestInfo | URL, body: string): void {
+  if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+    const blob = new Blob([body], { type: "application/json" });
+    if (navigator.sendBeacon(input, blob)) return;
+  }
+
+  void fetch(input, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    keepalive: true,
+    credentials: "same-origin",
+  }).catch(() => undefined);
 }

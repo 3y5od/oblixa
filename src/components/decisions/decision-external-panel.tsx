@@ -2,6 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { ExternalLink } from "@/components/ui/external-link";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 import {
   EXTERNAL_ACTION_TYPES,
   type ExternalActionType,
@@ -40,9 +44,11 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
     setError(null);
     setCreatedUrl(null);
     try {
-      const res = await fetch("/api/external-actions/create-link", {
+      const result = await mutateJson<{
+        error?: string;
+        externalAction?: { token?: string };
+      }>("/api/external-actions/create-link", {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           actionType,
@@ -50,12 +56,8 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
           scope: { decisionWorkspaceId: decisionId },
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        externalAction?: { token?: string };
-      };
-      if (!res.ok) throw new Error(data.error || res.statusText);
-      const token = data.externalAction?.token;
+      if (!result.ok) throw new Error(result.message || "Failed");
+      const token = result.data.externalAction?.token;
       if (!token) throw new Error("Missing token");
       const prefix = appOrigin?.replace(/\/$/, "") ?? "";
       setCreatedUrl(prefix ? `${prefix}/external/${token}` : `/external/${token}`);
@@ -74,11 +76,7 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
       <p className="ui-muted-tight mt-2">
         Time-bound links for counterparties. Submissions are scope-limited to this decision.
       </p>
-      {error && (
-        <p className="mt-2 text-sm text-rose-700" role="alert">
-          {error}
-        </p>
-      )}
+      <InlineMutationStatus message={error} variant="error" className="mt-2 text-sm" />
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className="flex-1 text-xs font-medium text-[var(--text-secondary)]">
           Action type
@@ -107,19 +105,25 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
             disabled={busy}
           />
         </label>
-        <button
+        <AsyncActionButton
           type="button"
           className="ui-btn-secondary px-3 py-2 text-xs"
-          disabled={busy}
+          pending={busy}
+          pendingLabel="Creating…"
           onClick={() => void createLink()}
         >
-          {busy ? "Creating…" : "Create link"}
-        </button>
+          Create link
+        </AsyncActionButton>
       </div>
       {createdUrl && (
-        <p className="mt-3 break-all text-xs text-emerald-800">
-          Share submit URL: <span className="font-mono">{createdUrl}</span>
-        </p>
+        <div className="mt-3 break-all text-xs text-emerald-800">
+          <p>
+            Share submit URL: <span className="font-mono">{createdUrl}</span>
+          </p>
+          <ExternalLink href={createdUrl} className="ui-link mt-1 inline-flex items-center font-mono text-[11px]">
+            Open submit page
+          </ExternalLink>
+        </div>
       )}
       <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
         <p className="text-xs font-semibold text-[var(--text-secondary)]">Recent links for this decision</p>
@@ -133,9 +137,12 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
                 {new Date(l.expires_at).toLocaleString()}
                 <div className="mt-1 break-all text-[11px] text-[var(--text-tertiary)]">
                   Page:{" "}
-                  {appOrigin
-                    ? `${appOrigin.replace(/\/$/, "")}/external/${l.token}`
-                    : `/external/${l.token}`}
+                  <ExternalLink
+                    href={appOrigin ? `${appOrigin.replace(/\/$/, "")}/external/${l.token}` : `/external/${l.token}`}
+                    className="ui-link font-mono text-[11px]"
+                  >
+                    {appOrigin ? `${appOrigin.replace(/\/$/, "")}/external/${l.token}` : `/external/${l.token}`}
+                  </ExternalLink>
                 </div>
                 {(l.workflowStepCount ?? 0) > 0 || l.workflowDeadlineIso ? (
                   <p className="mt-1 text-[11px] text-[var(--text-secondary)]">

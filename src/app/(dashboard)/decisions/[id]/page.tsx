@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { DecisionExecutionContextCard } from "@/components/decisions/decision-execution-context";
 import { DecisionWorkspacePanel } from "@/components/decisions/decision-workspace-panel";
 import { DecisionExternalPanel } from "@/components/decisions/decision-external-panel";
+import { ExternalLink } from "@/components/ui/external-link";
 import { RelationshipTimelineCard } from "@/components/relationship/relationship-timeline-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { buildDecisionExecutionContext } from "@/lib/v5/decision-context";
@@ -128,9 +130,9 @@ export default async function DecisionDetailPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/api/decisions/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]" target="_blank">
+          <ApiJsonLink href={`/api/decisions/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]">
             Open JSON
-          </Link>
+          </ApiJsonLink>
           <Link href="/decisions" className="ui-btn-ghost px-4 py-2.5 text-[13px]">
             Back to queue
           </Link>
@@ -317,31 +319,25 @@ export default async function DecisionDetailPage({
                 <span>
                   {p.packet_type} · {p.exported_at ? new Date(p.exported_at).toLocaleString() : "—"}
                 </span>
-                <Link
+                <ApiJsonLink
                   href={`/api/decisions/${id}/packet-runs/${p.id}`}
                   className="ui-link text-xs"
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   JSON
-                </Link>
-                <Link
+                </ApiJsonLink>
+                <ExternalLink
                   href={`/api/decisions/${id}/packet-runs/${p.id}?format=html`}
                   className="ui-link text-xs"
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   HTML (print to PDF)
-                </Link>
+                </ExternalLink>
                 {serverPacketPdf ? (
-                  <Link
+                  <ExternalLink
                     href={`/api/decisions/${id}/packet-runs/${p.id}?format=pdf`}
                     className="ui-link text-xs"
-                    target="_blank"
-                    rel="noreferrer"
                   >
                     Server PDF
-                  </Link>
+                  </ExternalLink>
                 ) : null}
               </li>
             ))

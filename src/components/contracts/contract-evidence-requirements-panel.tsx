@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { EvidenceSubmissionReviewActions } from "@/components/contracts/evidence-submission-review-actions";
 import { EvidenceSubmissionForm } from "@/components/contracts/evidence-submission-form";
 import {
@@ -150,9 +151,9 @@ export function ContractEvidenceRequirementsPanel({
         </li>
       ))}
       <li className="text-xs text-[var(--text-tertiary)]">
-        <Link href={`/api/evidence/export/${contractId}`} className="ui-link" target="_blank" rel="noreferrer">
+        <ApiJsonLink href={`/api/evidence/export/${contractId}`} className="ui-link">
           Export evidence pack (JSON)
-        </Link>
+        </ApiJsonLink>
       </li>
     </ul>
   );

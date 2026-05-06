@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
+import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   ReviewBoardCreateForm,
   ReviewBoardGenerateButton,
@@ -101,27 +103,23 @@ export default async function AssuranceReviewBoardsPage() {
                 }
               />
               <p className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[11px]">
-                <a
+                <ApiJsonLink
                   className="ui-link"
                   href={`/api/review-boards/runs/${encodeURIComponent(String(row.id))}`}
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   Export JSON
-                </a>
+                </ApiJsonLink>
                 <span className="text-[var(--text-tertiary)]">·</span>
-                <a
+                <ExternalLink
                   className="ui-link"
                   href={`/api/review-boards/runs/${encodeURIComponent(String(row.id))}?format=csv`}
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   Export CSV
-                </a>
+                </ExternalLink>
                 <span className="text-[var(--text-tertiary)]">·</span>
-                <Link className="ui-link" href={`/api/review-boards/${encodeURIComponent(String(row.review_board_id))}/runs`} target="_blank">
+                <ApiJsonLink className="ui-link" href={`/api/review-boards/${encodeURIComponent(String(row.review_board_id))}/runs`}>
                   Runs JSON
-                </Link>
+                </ApiJsonLink>
               </p>
               {row.packet_json && typeof row.packet_json === "object" ? (
                 <pre className="ui-soft-details mt-2 max-h-32 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
@@ -133,17 +131,17 @@ export default async function AssuranceReviewBoardsPage() {
           {(runs ?? []).length === 0 ? <li className="text-[var(--text-tertiary)]">No runs yet.</li> : null}
         </ul>
         <p className="mt-4 text-xs text-[var(--text-secondary)]">
-          <Link className="ui-link" href="/api/review-boards" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/review-boards">
             Boards JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/assurance/check-runs?limit=40" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/check-runs?limit=40">
             Check runs JSON
-          </Link>
+          </ApiJsonLink>
           {" · "}
-          <Link className="ui-link" href="/api/assurance/analytics/summary" target="_blank">
+          <ApiJsonLink className="ui-link" href="/api/assurance/analytics/summary">
             Analytics summary
-          </Link>
+          </ApiJsonLink>
           {" · "}
           <Link className="ui-link" href="/assurance">
             Back to assurance

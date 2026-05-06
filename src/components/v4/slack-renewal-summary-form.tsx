@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { MessageSquare, Send } from "lucide-react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { mutateJson } from "@/lib/http/client-json";
 
 export function SlackRenewalSummaryForm(props: { defaultContractId?: string }) {
   const [contractId, setContractId] = useState(props.defaultContractId ?? "");
@@ -65,23 +68,22 @@ export function SlackRenewalSummaryForm(props: { defaultContractId?: string }) {
         rows={2}
         className="ui-input mt-1 w-full text-xs"
       />
-      <button
+      <AsyncActionButton
         type="button"
-        disabled={pending}
         className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs disabled:opacity-50"
+        pending={pending}
+        pendingLabel={<><Send className="mr-1.5 inline h-3.5 w-3.5" aria-hidden />Sending…</>}
         onClick={async () => {
           setMsg(null);
           setPending(true);
           try {
-            const res = await fetch("/api/integrations/slack/renewal-summary", {
+            const result = await mutateJson("/api/integrations/slack/renewal-summary", {
               method: "POST",
-              credentials: "same-origin",
               headers: { "content-type": "application/json" },
               body: JSON.stringify({ contractId, outcome, details }),
             });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-              setMsg(data.error ?? "Request failed");
+            if (!result.ok) {
+              setMsg(result.message ?? "Request failed");
               return;
             }
             setMsg("Posted to Slack.");
@@ -91,16 +93,13 @@ export function SlackRenewalSummaryForm(props: { defaultContractId?: string }) {
         }}
       >
         <Send className="mr-1.5 inline h-3.5 w-3.5" aria-hidden />
-        {pending ? "Sending…" : "Send summary"}
-      </button>
-      {msg ? (
-        <p
-          className="mt-3 rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] px-3 py-2 text-xs text-[var(--text-secondary)]"
-          role={msg === "Posted to Slack." ? "status" : "alert"}
-        >
-          {msg}
-        </p>
-      ) : null}
+        Send summary
+      </AsyncActionButton>
+      <InlineMutationStatus
+        message={msg}
+        variant={msg === "Posted to Slack." ? "success" : "error"}
+        className="mt-3 text-xs"
+      />
     </div>
   );
 }

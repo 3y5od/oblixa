@@ -2,6 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { ConfirmActionButton } from "@/components/ui/confirm-action-button";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { mutateJson } from "@/lib/http/client-json";
 import {
   DECISION_TYPES,
   DECISION_TYPE_LABELS,
@@ -28,27 +32,23 @@ type Props = {
 };
 
 async function postJson(url: string, body?: Record<string, unknown>) {
-  const res = await fetch(url, {
+  const result = await mutateJson(url, {
     method: "POST",
-    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new Error(data.error || res.statusText);
-  return data;
+  if (!result.ok) throw new Error(result.message || "Request failed");
+  return result.data;
 }
 
 async function patchJson(url: string, body: Record<string, unknown>) {
-  const res = await fetch(url, {
+  const result = await mutateJson(url, {
     method: "PATCH",
-    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new Error(data.error || res.statusText);
-  return data;
+  if (!result.ok) throw new Error(result.message || "Request failed");
+  return result.data;
 }
 
 export function DecisionWorkspacePanel({
@@ -122,11 +122,7 @@ export function DecisionWorkspacePanel({
     <section className="ui-card p-5">
       <p className="ui-eyebrow">Decision</p>
       <h2 className="ui-section-title mt-1 text-base">Workspace actions</h2>
-      {error && (
-        <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
-          {error}
-        </p>
-      )}
+      <InlineMutationStatus message={error} variant="error" className="mt-2 text-sm" />
 
       <div className="mt-4 space-y-4">
         <div className="border-b border-[var(--border-subtle)] pb-4">
@@ -192,10 +188,12 @@ export function DecisionWorkspacePanel({
               disabled={closed || busy !== null}
             />
           </label>
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary mt-2 px-3 py-2 text-xs"
             disabled={closed || busy !== null}
+            pending={busy === "patch"}
+            pendingLabel="Saving…"
             onClick={() =>
               run("patch", () => {
                 let requiredInputs: Record<string, unknown> = {};
@@ -226,25 +224,29 @@ export function DecisionWorkspacePanel({
               })
             }
           >
-            {busy === "patch" ? "Saving…" : "Save workspace details"}
-          </button>
+            Save workspace details
+          </AsyncActionButton>
           <div className="mt-2 flex flex-wrap gap-2">
-            <button
+            <AsyncActionButton
               type="button"
               className="ui-btn-ghost px-2 py-1.5 text-[11px]"
               disabled={closed || busy !== null || status === "in_review"}
+              pending={busy === "review"}
+              pendingLabel="Saving…"
               onClick={() => run("review", () => patchJson(`/api/decisions/${decisionId}`, { status: "in_review" }))}
             >
               Move to in review
-            </button>
-            <button
+            </AsyncActionButton>
+            <AsyncActionButton
               type="button"
               className="ui-btn-ghost px-2 py-1.5 text-[11px]"
               disabled={closed || busy !== null || status === "open"}
+              pending={busy === "open"}
+              pendingLabel="Saving…"
               onClick={() => run("open", () => patchJson(`/api/decisions/${decisionId}`, { status: "open" }))}
             >
               Set to open
-            </button>
+            </AsyncActionButton>
           </div>
         </div>
 
@@ -257,10 +259,12 @@ export function DecisionWorkspacePanel({
             onChange={(e) => setRecText(e.target.value)}
             disabled={closed || busy !== null}
           />
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary mt-2 px-3 py-2 text-xs"
             disabled={closed || busy !== null || !recText.trim()}
+            pending={busy === "rec"}
+            pendingLabel="Saving…"
             onClick={() =>
               run("rec", () =>
                 postJson(`/api/decisions/${decisionId}/recommend`, {
@@ -273,8 +277,8 @@ export function DecisionWorkspacePanel({
               )
             }
           >
-            {busy === "rec" ? "Saving…" : "Save recommendation"}
-          </button>
+            Save recommendation
+          </AsyncActionButton>
         </div>
 
         <div className="border-t border-[var(--border-subtle)] pt-4">
@@ -286,10 +290,12 @@ export function DecisionWorkspacePanel({
             onChange={(e) => setStakeholderId(e.target.value)}
             disabled={closed || busy !== null}
           />
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary mt-2 px-3 py-2 text-xs"
             disabled={closed || busy !== null || !stakeholderId.trim()}
+            pending={busy === "stake"}
+            pendingLabel="Adding…"
             onClick={() =>
               run("stake", () =>
                 postJson(`/api/decisions/${decisionId}/stakeholders`, {
@@ -301,30 +307,35 @@ export function DecisionWorkspacePanel({
               )
             }
           >
-            {busy === "stake" ? "Adding…" : "Add stakeholder"}
-          </button>
+            Add stakeholder
+          </AsyncActionButton>
         </div>
 
         <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
-          <button
+          <AsyncActionButton
             type="button"
             className="ui-btn-secondary px-3 py-2 text-xs"
             disabled={
               closed || busy !== null || status === "approved" || !["open", "in_review"].includes(status)
             }
+            pending={busy === "approve"}
+            pendingLabel="Saving…"
             onClick={() =>
               run("approve", () =>
                 postJson(`/api/decisions/${decisionId}/approve`, { note: "Approved via workspace panel" })
               )
             }
           >
-            {busy === "approve" ? "…" : "Mark approved"}
-          </button>
-          <button
+            Mark approved
+          </AsyncActionButton>
+          <ConfirmActionButton
             type="button"
             className="ui-btn-secondary px-3 py-2 text-xs"
             disabled={closed || busy !== null}
-            onClick={() =>
+            pending={busy === "close"}
+            pendingLabel="Closing…"
+            confirmMessage="Close this decision?"
+            onConfirm={() =>
               run("close", () =>
                 postJson(`/api/decisions/${decisionId}/close`, {
                   finalDisposition: { outcome: "closed_via_ui" },
@@ -333,8 +344,8 @@ export function DecisionWorkspacePanel({
               )
             }
           >
-            {busy === "close" ? "…" : "Close decision"}
-          </button>
+            Close decision
+          </ConfirmActionButton>
           <div className="flex flex-wrap items-center gap-2">
             <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
               <span className="whitespace-nowrap">Packet type</span>
@@ -354,10 +365,12 @@ export function DecisionWorkspacePanel({
                 ))}
               </select>
             </label>
-            <button
+            <AsyncActionButton
               type="button"
               className="ui-btn-secondary px-3 py-2 text-xs"
               disabled={closed || busy !== null}
+              pending={busy === "packet"}
+              pendingLabel="Exporting…"
               onClick={() =>
                 run("packet", () =>
                   postJson(`/api/decisions/${decisionId}/packet`, {
@@ -366,8 +379,8 @@ export function DecisionWorkspacePanel({
                 )
               }
             >
-              {busy === "packet" ? "…" : "Export decision packet"}
-            </button>
+              Export decision packet
+            </AsyncActionButton>
           </div>
         </div>
       </div>

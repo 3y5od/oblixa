@@ -26,6 +26,7 @@ export const routeStateManifest = [
   { route: "/more", kind: "loading", sourcePath: "src/app/(dashboard)/more/loading.tsx", shellFamily: "dashboard" },
   { route: "/relationship-workspaces", kind: "loading", sourcePath: "src/app/(dashboard)/relationship-workspaces/loading.tsx", shellFamily: "dashboard" },
   { route: "/settings", kind: "loading", sourcePath: "src/app/(dashboard)/settings/loading.tsx", shellFamily: "dashboard" },
+  { route: "/settings/security", kind: "loading", sourcePath: "src/app/(dashboard)/settings/loading.tsx", shellFamily: "dashboard" },
   { route: "/onboarding/calibration", kind: "loading", sourcePath: "src/app/(dashboard)/onboarding/calibration/loading.tsx", shellFamily: "dashboard" },
   { route: "/accounts/[key]", kind: "loading", sourcePath: "src/app/(dashboard)/accounts/[key]/loading.tsx", shellFamily: "dashboard" },
   { route: "/counterparties/[key]", kind: "loading", sourcePath: "src/app/(dashboard)/counterparties/[key]/loading.tsx", shellFamily: "dashboard" },

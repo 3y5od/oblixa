@@ -11,6 +11,10 @@ export type UiShellFamily =
 
 export type UiCoverageLevel = "smoke" | "a11y" | "visual" | "route_state" | "multi_browser";
 
+export type UiSmokeTier = "core" | "standard" | "not_applicable";
+export type UiAccessibilityTier = "required" | "not_applicable";
+export type UiVisualTier = "baseline" | "not_applicable";
+
 export type UiSurfaceFamily =
   | "dashboard"
   | "contracts"
@@ -32,7 +36,14 @@ export type UiSurfaceEntry = {
   shellFamily: UiShellFamily;
   expectedHeading: string | null;
   visitPath: string | null;
+  fixtureId: string | null;
   coverage: readonly UiCoverageLevel[];
+  smokeTier: UiSmokeTier;
+  a11yTier: UiAccessibilityTier;
+  visualTier: UiVisualTier;
+  owner: string;
+  ownerExpiry: string | null;
+  ownerEscalation: string;
 };
 
 export const UI_SURFACE_MANIFEST = uiSurfaceManifest as readonly UiSurfaceEntry[];
