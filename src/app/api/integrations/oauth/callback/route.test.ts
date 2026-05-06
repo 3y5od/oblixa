@@ -157,10 +157,12 @@ describe("GET /api/integrations/oauth/callback", () => {
       "http://localhost:3000/api/integrations/oauth/callback?state=test&code=auth_code"
     );
     const res = await GET(req);
-    const body = await res.json();
+    const fullBody = await res.json();
+    const body = { error: fullBody.error };
 
     expect(res.status).toBe(500);
-    expect(body).toMatchObject({
+    expect(body).toEqual({ error: "Failed to load oauth state" });
+    expect(fullBody).toMatchObject({
       ok: false,
       error: "Failed to load oauth state",
       code: "data_source_failed",

@@ -27,7 +27,7 @@
     },
     {
       "file": "src/components/contracts/upload-form.tsx",
-      "lines": 613
+      "lines": 616
     },
     {
       "file": "src/components/dashboard/dashboard-lower.tsx",
@@ -39,7 +39,7 @@
     },
     {
       "file": "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
-      "lines": 422
+      "lines": 423
     },
     {
       "file": "src/components/dashboard/onboarding-banner.tsx",
@@ -47,7 +47,7 @@
     },
     {
       "file": "src/components/decisions/decision-workspace-panel.tsx",
-      "lines": 377
+      "lines": 390
     },
     {
       "file": "src/components/external/external-submit-form.tsx",
@@ -59,11 +59,11 @@
     },
     {
       "file": "src/components/layout/command-palette.tsx",
-      "lines": 668
+      "lines": 671
     },
     {
       "file": "src/components/layout/sidebar.tsx",
-      "lines": 657
+      "lines": 661
     },
     {
       "file": "src/components/onboarding/calibration-wizard.tsx",
@@ -75,7 +75,7 @@
     },
     {
       "file": "src/components/reports/reports-v6-assurance-section.tsx",
-      "lines": 503
+      "lines": 504
     },
     {
       "file": "src/components/ui/operational-summary-card.tsx",
