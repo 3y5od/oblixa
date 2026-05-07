@@ -101,7 +101,7 @@ async function insertProductSurfaceAuditCalibration(input: {
   }
 }
 
-async function safeApplyWorkspaceProductTransitionSideEffects(
+async function applyWorkspaceProductTransitionSideEffectsSafely(
   input: Parameters<typeof applyWorkspaceProductTransitionSideEffects>[0]
 ): Promise<Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>> {
   try {
@@ -152,7 +152,7 @@ export async function applyBlockingCalibrationMinimalSkip(input: {
   });
   if (error || !merged) return { ok: false, error: error?.message ?? "Update failed." };
   const nextMode = parseWorkspaceMode(merged);
-  const transition = await safeApplyWorkspaceProductTransitionSideEffects({
+  const transition = await applyWorkspaceProductTransitionSideEffectsSafely({
     admin,
     orgId,
     userId: actorUserId,

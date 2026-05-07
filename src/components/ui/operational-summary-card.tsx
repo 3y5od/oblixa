@@ -136,10 +136,7 @@ function badgeForTone(tone: OperationalTone): { status: SemanticStatus; label: s
 
 export function OperationalMetricChip({ label, value }: OperationalBreakdownItem) {
   return (
-    <div
-      role="listitem"
-      className="ui-metric-chip"
-    >
+    <div role="listitem" className="ui-metric-chip">
       <span className="ui-metric-label">{label}</span>
       <span className="font-semibold tabular-nums text-[var(--text-primary)]">{value}</span>
     </div>

@@ -16,6 +16,7 @@ export function EvidenceSubmissionReviewActions({
   const [showReject, setShowReject] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"success" | "error">("success");
+  const [messageRole, setMessageRole] = useState<"status" | "alert">("status");
 
   function runReviewAction(action: "approve" | "reject", reason?: string) {
     setMessage(null);
@@ -26,10 +27,12 @@ export function EvidenceSubmissionReviewActions({
       });
       if (!result.ok) {
         setMessageTone("error");
+        setMessageRole(result.status === 429 ? "status" : "alert");
         setMessage(result.userMessage);
         return;
       }
       setMessageTone("success");
+      setMessageRole("status");
       setMessage(result.response.user_visible_message || (action === "approve" ? "Evidence approved." : "Evidence rejected with feedback."));
       setShowReject(false);
       setRejectReason("");
@@ -89,8 +92,8 @@ export function EvidenceSubmissionReviewActions({
       {message ? (
         <p
           className={`mt-2 text-[12px] ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
-          role={messageTone === "success" ? "status" : "alert"}
-          aria-live={messageTone === "success" ? "polite" : "assertive"}
+          role={messageRole}
+          aria-live={messageRole === "status" ? "polite" : "assertive"}
         >
           {message}
         </p>

@@ -75,7 +75,7 @@ export default async function DecisionsManagerReviewPage() {
       <header className="border-b border-[var(--border-subtle)] pb-8">
         <div>
           <p className="ui-eyebrow">Manager review</p>
-          <h1 className="ui-display-title mt-2">Active decision queue</h1>
+          <h1 className="ui-display-title mt-2">Decision review queue</h1>
           <p className="ui-muted-tight mt-3 max-w-2xl">
             Prioritize by due date and SLA, open a workspace, or export a manager review packet in one step.
           </p>

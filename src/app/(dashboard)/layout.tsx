@@ -7,23 +7,15 @@ import { CommandPaletteLoader } from "@/components/layout/command-palette-loader
 import { RefetchOnWindowFocus } from "@/components/layout/refetch-on-window-focus";
 import { V9PageLoadReporter } from "@/components/layout/v9-page-load-reporter";
 import { createClient, getAuthContext } from "@/lib/supabase/server";
-import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import { moreToolsIndexHasVisibleEntries } from "@/lib/product-surface/more-index-visibility";
-import { filterNavBadgesForSurface, toNavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import { toNavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
 import { assertPagePathEligibleForContextOrNotFound } from "@/lib/product-surface/route-guard";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
-
-type NavBadges = {
-  reviewQueue: number;
-  approvals: number;
-  obligations: number;
-  watchlists: number;
-};
 
 function normalizePathnameFromHeader(raw: string | null): string | null {
   if (raw == null || raw === "") return null;
@@ -59,7 +51,6 @@ export default async function DashboardLayout({
   const v5Flags = getFeatureFlags();
 
   let navSurface: NavSurfaceInput | null = null;
-  const navBadges: Partial<Record<keyof NavBadges, number>> = {};
   let showHeaderUtilitiesLink = true;
   if (ctx) {
     const surface =
@@ -74,14 +65,6 @@ export default async function DashboardLayout({
       isFeatureEnabled("v6Autopilot") ||
       isFeatureEnabled("v6Segments");
     showHeaderUtilitiesLink = moreToolsIndexHasVisibleEntries(navSurface, v6Any);
-    try {
-      Object.assign(
-        navBadges,
-        filterNavBadgesForSurface(await fetchNavBadgeCounts(ctx.orgId, ctx.user.id), navSurface)
-      );
-    } catch {
-      // Badge counts progressively refresh on the client; keep server failures quiet for users.
-    }
   }
 
   return (
@@ -90,7 +73,6 @@ export default async function DashboardLayout({
       <V9PageLoadReporter />
       <Sidebar
         role={role}
-        navBadges={navBadges}
         v5Flags={v5Flags}
         navSurface={navSurface}
         showToolsLink={showHeaderUtilitiesLink}

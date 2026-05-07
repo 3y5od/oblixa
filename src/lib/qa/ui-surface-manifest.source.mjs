@@ -35,7 +35,7 @@ const advancedRoutes = [
   ["/decisions", "advanced", "Decision Queue", ["smoke", "a11y", "visual"]],
   ["/decisions/[id]", "advanced", null, ["smoke"]],
   ["/decisions/compare", "advanced", "Decision compare", ["smoke"]],
-  ["/decisions/review", "advanced", "Open decision queue", ["smoke"]],
+  ["/decisions/review", "advanced", "Decision review queue", ["smoke"]],
   ["/contracts/programs", "advanced", "Contract Programs", ["smoke", "a11y"]],
   ["/relationship-workspaces", "advanced", "Relationship workspaces", ["smoke", "a11y"]],
   ["/accounts/[key]", "advanced", null, ["smoke"]],
@@ -264,4 +264,3 @@ export const uiSurfaceManifest = [
   ...publicRoutes,
   ...externalRoutes,
 ];
-

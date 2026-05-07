@@ -31,13 +31,8 @@ type MemberOption = {
 
 type ContractTaskListItem = Pick<
   ContractTask,
-  | "id"
-  | "title"
-  | "details"
-  | "status"
-  | "priority"
-  | "due_date"
-  | "assignee_id"
+  | "id" | "title" | "details" | "status" | "priority"
+  | "due_date" | "assignee_id"
   | "completed_at"
   | "created_via"
   | "team_key"

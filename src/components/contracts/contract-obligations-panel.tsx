@@ -17,15 +17,8 @@ import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-
 type MemberOption = { userId: string; label: string };
 type ObligationRow = Pick<
   ContractObligation,
-  | "id"
-  | "title"
-  | "details"
-  | "obligation_type"
-  | "cadence"
-  | "recurrence_type"
-  | "recurrence_interval_days"
-  | "next_due_date"
-  | "escalation_due_at"
+  | "id" | "title" | "details" | "obligation_type" | "cadence"
+  | "recurrence_type" | "recurrence_interval_days" | "next_due_date" | "escalation_due_at"
   | "escalation_status"
   | "due_date"
   | "status"

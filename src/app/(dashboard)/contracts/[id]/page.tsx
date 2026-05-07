@@ -30,24 +30,18 @@ import { createClarificationTaskForm } from "@/actions/tasks";
 import { removeWatchlistEntry, upsertWatchlistEntryForm } from "@/actions/watchlists";
 import { requestContractApprovalForm, upsertRenewalScenarioForm } from "@/actions/approvals";
 import {
+  applyContractTemplatePackForm,
   updateContractHandoffChecklistStatusForm,
-  upsertContractHandoffChecklistForm,
-  supersedeContractFileForm,
   updateContractExternalLinkForm,
   updateContractOperationalStateForm,
-  applyContractTemplatePackForm,
+  supersedeContractFileForm,
+  upsertContractHandoffChecklistForm,
 } from "@/actions/contracts";
 import { updateProgramAssignmentOverrideFormAction } from "@/actions/v4";
 import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
 import type {
-  ContractApproval,
-  ContractExtractionJob,
-  ContractObligation,
-  ContractNote,
-  ContractRenewalScenario,
-  ContractRenewalCheckpoint,
-  ContractTask,
-  OrgRole,
+  ContractApproval, ContractExtractionJob, ContractObligation, ContractNote,
+  ContractRenewalScenario, ContractRenewalCheckpoint, ContractTask, OrgRole,
 } from "@/lib/types";
 import { buildUnifiedWorkflowTimeline } from "@/lib/workflow-activity";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -59,17 +53,10 @@ import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metric
 import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { emitProductTelemetryIfFirstForOrgUser } from "@/lib/product-telemetry";
-import {
-  getReminderDeliveryState,
-  groupReminderDeliveriesByReminderId,
-} from "@/lib/reminder-delivery-visibility";
+import { getReminderDeliveryState, groupReminderDeliveriesByReminderId } from "@/lib/reminder-delivery-visibility";
 import { fetchReviewQueueContinuity } from "@/lib/contract-review-stats";
 import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
-import {
-  buildContractImmediateActions,
-  buildContractOperationsStrip,
-  type ContractDetailIconKey,
-} from "@/lib/contract-detail-summary";
+import { buildContractImmediateActions, buildContractOperationsStrip, type ContractDetailIconKey } from "@/lib/contract-detail-summary";
 import { isEvidenceGapStatus } from "@/lib/evidence-status";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";

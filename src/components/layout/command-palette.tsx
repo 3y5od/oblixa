@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
-import { ArrowRight, Clock3, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { STATUS_LABELS } from "@/lib/contracts";
@@ -46,6 +46,7 @@ import {
   type ContractPaletteResult,
   type PaletteItem,
 } from "./command-palette-helpers";
+import { CommandPaletteRecentDestinations } from "./command-palette-recent-destinations";
 
 function persistRecentCommands(next: string[]) {
   try {
@@ -69,22 +70,22 @@ export function CommandPalette(props: {
     () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
     [props.v5Flags]
   );
-  const surface = useMemo(
+  const baseSurface = useMemo(
     () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
     [props.navSurface, role, v5Flags]
   );
   const showToolsLink = props.showToolsLink ?? true;
-  const paletteSurface = useMemo((): NavSurfaceInput => {
-    const hidden = surface.utilityModulesHidden;
+  const surface = useMemo((): NavSurfaceInput => {
+    const hidden = baseSurface.utilityModulesHidden;
     const hasMoreHidden = hidden.includes("more_tools");
     if (showToolsLink && hasMoreHidden) {
-      return { ...surface, utilityModulesHidden: hidden.filter((key) => key !== "more_tools") };
+      return { ...baseSurface, utilityModulesHidden: hidden.filter((key) => key !== "more_tools") };
     }
     if (!showToolsLink && !hasMoreHidden) {
-      return { ...surface, utilityModulesHidden: [...hidden, "more_tools"] };
+      return { ...baseSurface, utilityModulesHidden: [...hidden, "more_tools"] };
     }
-    return surface;
-  }, [showToolsLink, surface]);
+    return baseSurface;
+  }, [showToolsLink, baseSurface]);
   const [open, setOpen] = useState(true);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -124,18 +125,11 @@ export function CommandPalette(props: {
     });
   }, []);
 
-  const isPaletteHrefVisible = useCallback(
-    (href: string) => {
-      return isCmdkHrefAllowed(href, paletteSurface);
-    },
-    [paletteSurface]
-  );
-
   const isPaletteItemVisible = useCallback(
     (item: PaletteItem) => {
-      return isNavItemVisibleForSurface(item, paletteSurface) && isCmdkHrefAllowed(item.href, paletteSurface);
+      return isNavItemVisibleForSurface(item, surface) && isCmdkHrefAllowed(item.href, surface);
     },
-    [paletteSurface]
+    [surface]
   );
 
   function clearRemoteSearchFeedback() {
@@ -283,14 +277,14 @@ export function CommandPalette(props: {
   }, []);
 
   const searchJumpNavItems = useMemo((): PaletteItem[] => {
-    return getCmdkSearchJumpItems(paletteSurface, query).map((j) => ({
+    return getCmdkSearchJumpItems(surface, query).map((j) => ({
       name: j.name,
       href: j.href,
       description: j.description,
       section: "workspace",
       resultMeta: j.meta,
     }));
-  }, [paletteSurface, query]);
+  }, [surface, query]);
 
   const contractItems = useMemo((): PaletteItem[] => {
     const q = deferredFilterQ;
@@ -374,8 +368,15 @@ export function CommandPalette(props: {
   }, [contractItems, deferredFilterQ, isPaletteItemVisible, searchJumpNavItems]);
 
   const visibleRecentHrefs = useMemo(
-    () => cmdkFilterRecentHrefsForSurface(recentHrefs, paletteSurface).filter((href) => isPaletteHrefVisible(href)),
-    [isPaletteHrefVisible, paletteSurface, recentHrefs]
+    () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface).filter((href) => isCmdkHrefAllowed(href, surface)),
+    [surface, recentHrefs]
+  );
+  const recentItems = useMemo(
+    () =>
+      visibleRecentHrefs
+        .map((href) => allCommandItems().find((item) => item.href === href) ?? null)
+        .filter((match): match is PaletteItem => match !== null && isNavItemVisibleForSurface(match, surface) && isCmdkHrefAllowed(match.href, surface)),
+    [surface, visibleRecentHrefs]
   );
 
   useEffect(() => {
@@ -509,37 +510,15 @@ export function CommandPalette(props: {
                 <span className="ui-kbd">K</span>
               </div>
             </div>
-            {!query && visibleRecentHrefs.length > 0 && (
-              <div className="border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
-                <p className="ui-eyebrow">
-                  Recent destinations
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {visibleRecentHrefs.map((href) => {
-                    const match = allCommandItems().find((item) => item.href === href);
-                    if (!match || !isPaletteItemVisible(match))
-                      return null;
-                    return (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => {
-                          void emitCmdkResultSelectedTelemetry({
-                            href: match.href,
-                            queryLen: deferredFilterQ.length,
-                          });
-                          rememberCommand(match);
-                          setOpen(false);
-                        }}
-                        className="ui-chip gap-1.5 px-3 py-1.5 text-[11px] font-medium hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_92%,transparent)]"
-                      >
-                        <Clock3 size={12} aria-hidden />
-                        {match.name}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
+            {!query && (
+              <CommandPaletteRecentDestinations
+                items={recentItems}
+                onSelect={(item) => {
+                  void emitCmdkResultSelectedTelemetry({ href: item.href, queryLen: deferredFilterQ.length });
+                  rememberCommand(item);
+                  setOpen(false);
+                }}
+              />
             )}
             {remoteSearchPartial ? (
               <div className="border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">

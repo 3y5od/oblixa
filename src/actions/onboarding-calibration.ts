@@ -339,7 +339,7 @@ async function insertProductSurfaceAudit(input: {
   }
 }
 
-async function safeApplyWorkspaceProductTransitionSideEffects(
+async function applyWorkspaceProductTransitionSideEffectsSafely(
   input: Parameters<typeof applyWorkspaceProductTransitionSideEffects>[0]
 ): Promise<Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>> {
   try {
@@ -428,7 +428,7 @@ export async function completeQuestionnaireAcceptRecommendation(
     if (err2 || !merged2) throw new Error(err2?.message ?? "merge calibration snapshot failed");
 
     const nextMode = parseWorkspaceMode(merged2);
-    const transition = await safeApplyWorkspaceProductTransitionSideEffects({
+    const transition = await applyWorkspaceProductTransitionSideEffectsSafely({
       admin: ctx.admin,
       orgId: ctx.orgId,
       userId: ctx.user.id,

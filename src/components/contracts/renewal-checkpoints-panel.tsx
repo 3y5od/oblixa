@@ -14,14 +14,8 @@ import type { ContractRenewalCheckpoint, RenewalCheckpointStatus } from "@/lib/t
 
 type CheckpointRow = Pick<
   ContractRenewalCheckpoint,
-  | "id"
-  | "label"
-  | "offset_days"
-  | "due_date"
-  | "status"
-  | "completed_at"
-  | "renewal_state"
-  | "workspace_json"
+  | "id" | "label" | "offset_days" | "due_date"
+  | "status" | "completed_at" | "renewal_state" | "workspace_json"
 >;
 
 type StakeholderItem = { role: string; item: string; done: boolean };

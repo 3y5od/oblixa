@@ -480,6 +480,7 @@ export function Sidebar(props: {
       }
       const target = restoreFocusRef.current;
       if (target?.isConnected) target.focus();
+      else mobileOpenButtonRef.current?.focus();
     };
   }, [mobileOpen]);
 
