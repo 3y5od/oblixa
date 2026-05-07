@@ -29,6 +29,40 @@ const coreSurface: NavSurfaceInput = {
   searchScope: "match_mode",
 };
 
+const hiddenMoreSurface: NavSurfaceInput = {
+  ...coreSurface,
+  utilityModulesHidden: ["more_tools"],
+};
+
+const allFlags = {
+  v5DecisionFoundation: true,
+  v5ControlRoomUx: true,
+  v5PortfolioCampaigns: true,
+  v5RelationshipLayer: true,
+  v6AssuranceCore: true,
+  v6ControlPolicies: true,
+  v6AdaptivePlaybooks: true,
+  v6ReviewBoards: true,
+  v6Autopilot: true,
+  v6Segments: true,
+  v6OutcomeIntelligence: true,
+} as Record<FeatureFlagKey, boolean>;
+
+const advancedSurface: NavSurfaceInput = {
+  ...coreSurface,
+  mode: "advanced",
+  role: "admin",
+  featureFlags: allFlags,
+  seesAdvancedPrimaryNav: true,
+};
+
+const assuranceSurface: NavSurfaceInput = {
+  ...advancedSurface,
+  mode: "assurance",
+  role: "manager",
+  seesAssuranceNav: true,
+};
+
 const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 
 describe("CommandPalette", () => {
@@ -286,6 +320,97 @@ describe("CommandPalette", () => {
     await waitFor(() => {
       expect(JSON.parse(window.localStorage.getItem(RECENT_COMMANDS_KEY) ?? "[]")).toEqual(["/contracts"]);
     });
+  });
+
+  it("keeps /more visible in Cmd-K when the shared Tools visibility boolean is true", async () => {
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={hiddenMoreSurface}
+        showToolsLink
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "/more")).toBe(true);
+  });
+
+  it("keeps Cmd-K static destinations aligned with Core sidebar visibility", async () => {
+    renderWithProviders(<CommandPalette role="viewer" navSurface={coreSurface} v5Flags={{} as Record<FeatureFlagKey, boolean>} />);
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    const text = screen.getByTestId("command-palette-results").textContent ?? "";
+    expect(text).toContain("Contracts");
+    expect(text).not.toContain("Decisions");
+    expect(text).not.toContain("Assurance");
+  });
+
+  it("keeps Cmd-K static destinations aligned with Advanced sidebar visibility", async () => {
+    renderWithProviders(<CommandPalette role="admin" navSurface={advancedSurface} v5Flags={allFlags} />);
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    const text = screen.getByTestId("command-palette-results").textContent ?? "";
+    expect(text).toContain("Decisions");
+    expect(text).toContain("Campaigns");
+    expect(text).not.toContain("Assurance");
+  });
+
+  it("keeps Cmd-K static destinations aligned with Assurance sidebar visibility", async () => {
+    renderWithProviders(<CommandPalette role="manager" navSurface={assuranceSurface} v5Flags={allFlags} />);
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    expect(screen.getByTestId("command-palette-results").textContent).toContain("Assurance");
+  });
+
+  it("removes hidden Advanced and Assurance modules from recents", async () => {
+    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(["/campaigns", "/assurance/playbooks", "/contracts"]));
+    renderWithProviders(
+      <CommandPalette
+        role="manager"
+        navSurface={{ ...assuranceSurface, advancedModulesHidden: ["campaigns"], assuranceModulesHidden: ["playbooks"] }}
+        v5Flags={allFlags}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    await waitFor(() => {
+      expect(JSON.parse(window.localStorage.getItem(RECENT_COMMANDS_KEY) ?? "[]")).toEqual(["/contracts"]);
+    });
+  });
+
+  it("hides /more recents in Cmd-K when the shared Tools visibility boolean is false", async () => {
+    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(["/more", "/contracts"]));
+    renderWithProviders(
+      <CommandPalette
+        role="viewer"
+        navSurface={hiddenMoreSurface}
+        showToolsLink={false}
+        v5Flags={{} as Record<FeatureFlagKey, boolean>}
+      />
+    );
+
+    await act(async () => {
+      openCommandPalette("");
+    });
+
+    expect(await screen.findByText("Recent destinations")).toBeTruthy();
+    expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "/more")).toBe(false);
   });
 
   it("emits debounced zero-results telemetry when no command matches", async () => {

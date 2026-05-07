@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-05T00:17:36.033Z",
+  "generatedAt": "2026-05-07T01:33:53.954Z",
   "rows": [
     {
       "route": "/",
@@ -4657,8 +4657,10 @@
     {
       "route": "action:workspace-mode-billing-eligibility.test",
       "sourcePath": "src/actions/workspace-mode-billing-eligibility.test.ts",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "stripe"
+      ],
+      "fallbackRequired": true
     }
   ]
 }

@@ -3,7 +3,7 @@
   "offenders": [
     {
       "file": "src/actions/approvals.ts",
-      "lines": 782
+      "lines": 758
     },
     {
       "file": "src/actions/automation.ts",
@@ -15,7 +15,7 @@
     },
     {
       "file": "src/actions/contracts.ts",
-      "lines": 1912
+      "lines": 1910
     },
     {
       "file": "src/actions/obligations.ts",
@@ -23,11 +23,15 @@
     },
     {
       "file": "src/actions/onboarding-calibration.ts",
-      "lines": 698
+      "lines": 734
     },
     {
       "file": "src/actions/product-surface-settings.ts",
-      "lines": 521
+      "lines": 513
+    },
+    {
+      "file": "src/actions/settings.ts",
+      "lines": 485
     },
     {
       "file": "src/actions/tasks.ts",
@@ -35,7 +39,7 @@
     },
     {
       "file": "src/actions/v10-bulk-compatible-work.ts",
-      "lines": 589
+      "lines": 501
     },
     {
       "file": "src/actions/v4.ts",

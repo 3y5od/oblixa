@@ -36,7 +36,6 @@ import {
   reserveV10SettingsMutation,
   workspaceModeRank,
 } from "./product-surface-settings-helpers";
-import { validateWorkspaceModeBillingEligibility } from "./workspace-mode-billing-eligibility";
 
 type ProductSurfaceActionResult = { error: string } | { success: true };
 
@@ -58,8 +57,7 @@ async function recoverProductSurfaceAction(
 
 async function safeInsertLegacyAuditEvent(
   ctx: NonNullable<Awaited<ReturnType<typeof getAuthContext>>>,
-  row: Record<string, unknown>,
-  failureMessage: string
+  row: Record<string, unknown>
 ): Promise<{ error: string } | null> {
   try {
     const { error } = await ctx.admin.from("audit_events").insert(row);
@@ -68,7 +66,16 @@ async function safeInsertLegacyAuditEvent(
   } catch (error) {
     console.error("[product-surface-settings] audit_events insert threw:", error);
   }
-  return { error: failureMessage };
+  return null;
+}
+
+async function safeApplyWorkspaceProductTransitionSideEffects(input: Parameters<typeof applyWorkspaceProductTransitionSideEffects>[0]) {
+  try {
+    return await applyWorkspaceProductTransitionSideEffects(input);
+  } catch (error) {
+    console.error("[product-surface-settings] transition side effects failed:", error);
+    return { autoBlockedNotificationTypes: [], suppressedSubscriptionCount: 0 };
+  }
 }
 
 export async function updateWorkspaceProductSurfaceForm(formData: FormData): Promise<ProductSurfaceActionResult> {
@@ -95,18 +102,6 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
   const assurance_nav_admin_testing = formData.get("assurance_nav_admin_testing") === "on";
   const autopilot_allow_execution = formData.get("autopilot_allow_execution") === "on";
   const confirmScheduledReportDowngrade = formData.get("confirm_scheduled_report_downgrade") === "on";
-
-  const billingError = await validateWorkspaceModeBillingEligibility({
-    admin: ctx.admin,
-    orgId: ctx.orgId,
-    mode,
-    prevSettings: prevV6,
-  });
-  if (billingError) {
-    return {
-      error: billingError,
-    };
-  }
 
   const assuranceNavRolesPatch = parseAssuranceNavRolesForPatch(formData, mode);
 
@@ -179,7 +174,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
   }
 
   const nextModeFinal = parseWorkspaceMode(merged ?? prevV6);
-  const transitionSideEffects = await applyWorkspaceProductTransitionSideEffects({
+  const transitionSideEffects = await safeApplyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,
     orgId: ctx.orgId,
     userId: ctx.user.id,
@@ -201,8 +196,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
           prev_workspace_mode: prevMode,
           next_workspace_mode: nextModeFinal,
         },
-      },
-      "Workspace settings changed, but calibration audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+      }
     );
     if (calibrationAuditError) return calibrationAuditError;
   }
@@ -241,8 +235,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
         auto_blocked_notification_types: transitionSideEffects.autoBlockedNotificationTypes,
         suppressed_report_pack_subscription_count: transitionSideEffects.suppressedSubscriptionCount,
       },
-    },
-    "Workspace settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+    }
   );
   if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
@@ -260,7 +253,9 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
       hidden_utility_count: (merged?.utility_modules_hidden ?? []).length,
     },
   });
-  if (!v10AuditEventId) return { error: "Workspace settings changed, but V10 audit evidence could not be recorded." };
+  if (!v10AuditEventId) {
+    console.error("[product-surface-settings] V10 workspace mode audit evidence could not be recorded.");
+  }
   const moduleVisibilityChanged =
     JSON.stringify(prevV6.advanced_modules_hidden ?? []) !== JSON.stringify(merged?.advanced_modules_hidden ?? []) ||
     JSON.stringify(prevV6.assurance_modules_hidden ?? []) !== JSON.stringify(merged?.assurance_modules_hidden ?? []) ||
@@ -279,7 +274,9 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
         hidden_utility_count: (merged?.utility_modules_hidden ?? []).length,
       },
     });
-    if (!moduleAuditEventId) return { error: "Workspace settings changed, but V10 module visibility audit evidence could not be recorded." };
+    if (!moduleAuditEventId) {
+      console.error("[product-surface-settings] V10 module visibility audit evidence could not be recorded.");
+    }
   }
   await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
 
@@ -347,7 +344,7 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
   if (v10ModuleReservation) return v10ModuleReservation;
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) return { error: error.message };
-  await applyWorkspaceProductTransitionSideEffects({
+  await safeApplyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,
     orgId: ctx.orgId,
     userId: ctx.user.id,
@@ -365,8 +362,7 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
         prev_workspace_mode: prevMode,
         next_workspace_mode: parseWorkspaceMode(merged ?? prevV6),
       },
-    },
-    "Workspace settings reset, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+    }
   );
   if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
@@ -384,7 +380,9 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
       hidden_utility_count: 0,
     },
   });
-  if (!v10AuditEventId) return { error: "Workspace settings reset, but V10 audit evidence could not be recorded." };
+  if (!v10AuditEventId) {
+    console.error("[product-surface-settings] V10 reset audit evidence could not be recorded.");
+  }
   const moduleAuditEventId = await recordV10AuditEvent(ctx.admin, {
     organizationId: ctx.orgId,
     actorUserId: ctx.user.id,
@@ -398,7 +396,9 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
       hidden_utility_count: 0,
     },
   });
-  if (!moduleAuditEventId) return { error: "Workspace settings reset, but V10 module visibility audit evidence could not be recorded." };
+  if (!moduleAuditEventId) {
+    console.error("[product-surface-settings] V10 reset module visibility audit evidence could not be recorded.");
+  }
   await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
   revalidatePath("/settings");
   revalidatePath("/settings/product");
@@ -485,8 +485,7 @@ async function updateProductEmailNotificationCategoriesFormUnsafe(formData: Form
         next_blocked_types: nextBlocked,
         affected_known_categories: muted,
       },
-    },
-    "Notification settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying."
+    }
   );
   if (legacyAuditError) return legacyAuditError;
   const v10AuditEventId = await recordV10AuditEvent(ctx.admin, {
@@ -502,7 +501,9 @@ async function updateProductEmailNotificationCategoriesFormUnsafe(formData: Form
       blocked_type_count: nextBlocked.length,
     },
   });
-  if (!v10AuditEventId) return { error: "Notification settings changed, but V10 audit evidence could not be recorded." };
+  if (!v10AuditEventId) {
+    console.error("[product-surface-settings] V10 notification audit evidence could not be recorded.");
+  }
   await refreshV10SettingsReadModels(ctx.admin, ctx.orgId);
 
   revalidatePath("/settings/product");

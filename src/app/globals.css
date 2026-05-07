@@ -63,6 +63,12 @@
   --sidebar-border: oklch(0.35 0.022 258);
   --sidebar-muted: oklch(0.76 0.024 255);
   --sidebar-fg: oklch(0.97 0.006 252);
+  --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 48%, transparent);
+  --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
+  --sidebar-active: color-mix(in oklab, var(--sidebar-surface) 86%, white);
+  --sidebar-active-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+  --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 9%, transparent);
+  --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 66%, var(--accent));
   --success-soft: oklch(0.958 0.038 154);
   --success-ink: oklch(0.38 0.108 154);
   --warning-soft: oklch(0.968 0.046 86);
@@ -111,6 +117,12 @@
     --sidebar-border: oklch(0.27 0.02 258);
     --sidebar-muted: oklch(0.66 0.018 254);
     --sidebar-fg: oklch(0.96 0.006 252);
+    --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
+    --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 11%, transparent);
+    --sidebar-active: color-mix(in oklab, var(--sidebar-surface) 84%, white);
+    --sidebar-active-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+    --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
+    --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 70%, var(--accent));
     --success-soft: oklch(0.27 0.06 154);
     --success-ink: oklch(0.87 0.08 154);
     --warning-soft: oklch(0.28 0.06 86);
@@ -796,7 +808,7 @@
   }
 
   .ui-sidebar-link {
-    @apply relative flex min-w-0 items-center gap-3 px-3 py-2.5 text-[13px] font-medium;
+    @apply relative flex min-h-10 min-w-0 items-center gap-3 px-3 py-2 text-[13px] font-medium;
     border-radius: var(--radius-lg);
     color: var(--sidebar-muted);
     transition-property: background-color, color, border-color, box-shadow;
@@ -806,11 +818,8 @@
 
   .ui-sidebar-link-active {
     color: var(--sidebar-fg);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--sidebar-surface) 92%, white) 0%, color-mix(in oklab, var(--accent) 22%, transparent) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 16px 34px rgba(0, 0, 0, 0.2);
+    background: var(--sidebar-active);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), var(--sidebar-active-shadow);
   }
 
   .ui-sidebar-link-active-rail {
@@ -825,12 +834,12 @@
 
   .ui-sidebar-link-idle:hover {
     color: var(--sidebar-fg);
-    background: rgba(255, 255, 255, 0.09);
+    background: var(--sidebar-hover);
   }
 
   .ui-sidebar-sublink-active {
     color: var(--sidebar-fg);
-    background: rgba(255, 255, 255, 0.11);
+    background: color-mix(in oklab, var(--sidebar-fg) 11%, transparent);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   }
 
@@ -1255,6 +1264,12 @@
 
   .ui-sidebar-link-active,
   .ui-sidebar-sublink-active {
-    box-shadow: inset 0 0 0 1px currentColor;
+    background: color-mix(in oklab, var(--sidebar-fg) 18%, transparent);
+    box-shadow: inset 0 0 0 2px currentColor;
+  }
+
+  .ui-sidebar-link-idle:hover,
+  .ui-sidebar-link:focus-visible {
+    box-shadow: inset 0 0 0 2px currentColor;
   }
 }

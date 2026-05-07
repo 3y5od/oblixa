@@ -78,6 +78,36 @@ test.describe("@v10 V10 core smoke", () => {
     await expect(page.getByText(/^Route health$/)).toBeVisible({ timeout: 15_000 });
   });
 
+  test("@v10 sidebar refinement: expanded, collapsed, mobile drawer, and command parity", async ({ page, app }) => {
+    await app.loginAsDefaultUser();
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("sidebar-desktop")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("navigation", { name: /primary navigation/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("link", { name: /^contracts$/i }).first()).toBeVisible({ timeout: 10_000 });
+
+    await page.getByTestId("sidebar-collapse-toggle").click();
+    await expect(page.getByTestId("sidebar-collapse-toggle")).toHaveAttribute("aria-expanded", "false");
+    await page.getByRole("link", { name: /^settings$/i }).first().focus();
+    await expect(page.getByText(/^Settings$/).last()).toBeVisible({ timeout: 5_000 });
+
+    await page.keyboard.press(process.platform === "darwin" ? "Meta+K" : "Control+K");
+    await expect(page.getByRole("dialog", { name: /command palette/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("link", { name: /^Contracts/i }).first()).toBeVisible({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: /open navigation/i }).click();
+    const drawer = page.getByRole("dialog", { name: /navigation drawer/i });
+    await expect(drawer).toBeVisible({ timeout: 10_000 });
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+      .toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(drawer).not.toBeVisible({ timeout: 5_000 });
+  });
+
   test("@v10 keyboard: command palette closes with Escape and returns focus", async ({ page, app }) => {
     await app.loginAsDefaultUser();
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });

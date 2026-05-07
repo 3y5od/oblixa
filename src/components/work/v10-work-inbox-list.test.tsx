@@ -211,7 +211,7 @@ describe("V10WorkInboxList", () => {
     );
 
     expect(screen.getByTestId("import-retry").textContent).toContain("/api/import/contracts/job-1");
-    expect(screen.getByRole("link", { name: /open diagnostics/i }).getAttribute("href")).toBe("/settings/health#jobs");
+    expect(screen.getByRole("link", { name: /inspect diagnostics/i }).getAttribute("href")).toBe("/settings/health#jobs");
   });
 
   it("shows export-failure retry controls when recovery is available", () => {
@@ -236,7 +236,7 @@ describe("V10WorkInboxList", () => {
     );
 
     expect(screen.getByTestId("export-retry").textContent).toContain("/api/export/contracts/export-job-1");
-    expect(screen.getByRole("link", { name: /open export diagnostics/i }).getAttribute("href")).toBe("/settings/health#exports");
+    expect(screen.getByRole("link", { name: /inspect export diagnostics/i }).getAttribute("href")).toBe("/settings/health#exports");
   });
 
   it("shows report-failure retry controls when recovery is available", () => {
@@ -261,7 +261,7 @@ describe("V10WorkInboxList", () => {
     );
 
     expect(screen.getByTestId("report-retry").textContent).toContain("/api/report-runs/report-run-1/retry");
-    expect(screen.getByRole("link", { name: /open reports/i }).getAttribute("href")).toBe("/reports");
+    expect(screen.getByRole("link", { name: /review reports/i }).getAttribute("href")).toBe("/reports");
   });
 
   it("hides import retry controls for terminal import failures", () => {
@@ -286,7 +286,7 @@ describe("V10WorkInboxList", () => {
     );
 
     expect(screen.queryByTestId("import-retry")).toBeNull();
-    expect(screen.getByRole("link", { name: /open diagnostics/i }).getAttribute("href")).toBe("/settings/health#jobs");
+    expect(screen.getByRole("link", { name: /inspect diagnostics/i }).getAttribute("href")).toBe("/settings/health#jobs");
   });
 
   it("runs extraction retry from extraction-failure cards", async () => {

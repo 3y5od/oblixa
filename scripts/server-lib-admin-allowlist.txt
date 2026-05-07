@@ -19,6 +19,7 @@ src/lib/integrations/slack.ts
 src/lib/missing-critical-fields.ts
 src/lib/notification-delivery.ts
 src/lib/notification-policy.ts
+src/lib/org-member-profiles.ts
 src/lib/permissions.ts
 src/lib/plan.ts
 src/lib/product-telemetry.ts

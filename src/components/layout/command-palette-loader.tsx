@@ -26,6 +26,7 @@ export function CommandPaletteLoader(props: {
   role?: WorkspaceRole;
   v5Flags?: Record<FeatureFlagKey, boolean>;
   navSurface?: NavSurfaceInput | null;
+  showToolsLink?: boolean;
 }) {
   const [openRequest, setOpenRequest] = useState<{ id: number; query: string } | null>(null);
   const shouldLoad = openRequest !== null;
@@ -61,6 +62,7 @@ export function CommandPaletteLoader(props: {
       role={props.role}
       v5Flags={props.v5Flags}
       navSurface={props.navSurface}
+      showToolsLink={props.showToolsLink}
       initialQuery={openRequest.query}
     />
   );

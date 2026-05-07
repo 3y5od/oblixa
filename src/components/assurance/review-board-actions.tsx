@@ -54,7 +54,7 @@ export function ReviewBoardCreateForm() {
         <option value="campaign_effectiveness">Campaign effectiveness</option>
         <option value="counterparty_risk">Counterparty risk</option>
       </select>
-      <AsyncActionButton type="submit" className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50" pending={pending} pendingLabel="Saving…">
+      <AsyncActionButton type="submit" className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-inverse)] disabled:opacity-50" pending={pending} pendingLabel="Saving…">
         Create
       </AsyncActionButton>
       <InlineMutationStatus message={err} variant="error" className="text-xs" />

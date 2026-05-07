@@ -67,33 +67,49 @@ async function insertProductSurfaceAuditCalibration(input: {
 }) {
   const { admin, orgId, userId, prevV6, merged, source, transition } = input;
   const prevMode = parseWorkspaceMode(prevV6);
-  await admin.from("audit_events").insert({
-    organization_id: orgId,
-    contract_id: null,
-    user_id: userId,
-    action: "workspace.product_surface_updated",
-    details: {
-      source,
-      prev_workspace_mode: prevMode,
-      next_workspace_mode: parseWorkspaceMode(merged),
-      prev_default_landing_path: prevV6.default_landing_path ?? null,
-      next_default_landing_path: merged.default_landing_path ?? null,
-      prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
-      next_advanced_modules_hidden: merged.advanced_modules_hidden ?? [],
-      prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
-      next_assurance_modules_hidden: merged.assurance_modules_hidden ?? [],
-      prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
-      next_utility_modules_hidden: merged.utility_modules_hidden ?? [],
-      prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
-      next_home_hidden_sections: merged.home_hidden_sections ?? [],
-      prev_search_scope: prevV6.search_scope ?? "match_mode",
-      next_search_scope: merged.search_scope ?? "match_mode",
-      prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
-      next_autopilot_allow_execution: merged.autopilot_allow_execution === true,
-      auto_blocked_notification_types: transition.autoBlockedNotificationTypes,
-      suppressed_report_pack_subscription_count: transition.suppressedSubscriptionCount,
-    },
-  });
+  try {
+    const { error } = await admin.from("audit_events").insert({
+      organization_id: orgId,
+      contract_id: null,
+      user_id: userId,
+      action: "workspace.product_surface_updated",
+      details: {
+        source,
+        prev_workspace_mode: prevMode,
+        next_workspace_mode: parseWorkspaceMode(merged),
+        prev_default_landing_path: prevV6.default_landing_path ?? null,
+        next_default_landing_path: merged.default_landing_path ?? null,
+        prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
+        next_advanced_modules_hidden: merged.advanced_modules_hidden ?? [],
+        prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
+        next_assurance_modules_hidden: merged.assurance_modules_hidden ?? [],
+        prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
+        next_utility_modules_hidden: merged.utility_modules_hidden ?? [],
+        prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
+        next_home_hidden_sections: merged.home_hidden_sections ?? [],
+        prev_search_scope: prevV6.search_scope ?? "match_mode",
+        next_search_scope: merged.search_scope ?? "match_mode",
+        prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
+        next_autopilot_allow_execution: merged.autopilot_allow_execution === true,
+        auto_blocked_notification_types: transition.autoBlockedNotificationTypes,
+        suppressed_report_pack_subscription_count: transition.suppressedSubscriptionCount,
+      },
+    });
+    if (error) console.error("[onboarding-calibration] product surface audit insert error", error.message);
+  } catch (error) {
+    console.error("[onboarding-calibration] product surface audit insert threw", error);
+  }
+}
+
+async function safeApplyWorkspaceProductTransitionSideEffects(
+  input: Parameters<typeof applyWorkspaceProductTransitionSideEffects>[0]
+): Promise<Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>> {
+  try {
+    return await applyWorkspaceProductTransitionSideEffects(input);
+  } catch (error) {
+    console.error("[onboarding-calibration] transition side effects failed", error);
+    return { autoBlockedNotificationTypes: [], suppressedSubscriptionCount: 0 };
+  }
 }
 
 export type BlockingMinimalChoice = "skip" | "simpler";
@@ -136,7 +152,7 @@ export async function applyBlockingCalibrationMinimalSkip(input: {
   });
   if (error || !merged) return { ok: false, error: error?.message ?? "Update failed." };
   const nextMode = parseWorkspaceMode(merged);
-  const transition = await applyWorkspaceProductTransitionSideEffects({
+  const transition = await safeApplyWorkspaceProductTransitionSideEffects({
     admin,
     orgId,
     userId: actorUserId,
@@ -157,21 +173,26 @@ export async function applyBlockingCalibrationMinimalSkip(input: {
     source: "onboarding_calibration",
     transition,
   });
-  await admin.from("audit_events").insert([
-    {
-      organization_id: orgId,
-      contract_id: null,
-      user_id: actorUserId,
-      action: "onboarding.questionnaire_skipped",
-      details: { path: choice },
-    },
-    {
-      organization_id: orgId,
-      contract_id: null,
-      user_id: actorUserId,
-      action: "onboarding.questionnaire_completed",
-      details: { choice },
-    },
-  ]);
+  try {
+    const { error } = await admin.from("audit_events").insert([
+      {
+        organization_id: orgId,
+        contract_id: null,
+        user_id: actorUserId,
+        action: "onboarding.questionnaire_skipped",
+        details: { path: choice },
+      },
+      {
+        organization_id: orgId,
+        contract_id: null,
+        user_id: actorUserId,
+        action: "onboarding.questionnaire_completed",
+        details: { choice },
+      },
+    ]);
+    if (error) console.error("[onboarding-calibration] minimal skip audit insert error", error.message);
+  } catch (error) {
+    console.error("[onboarding-calibration] minimal skip audit insert threw", error);
+  }
   return { ok: true };
 }

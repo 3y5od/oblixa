@@ -184,7 +184,7 @@ function CriticalDateReviewNotice({
             Date automation is blocked until key dates are approved
           </p>
           <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
-            Reminders, renewals, and downstream workflow should not rely on this contract until the fields below have approved values.
+            Key date coverage still needs review: reminders, renewals, and downstream workflow should not rely on this contract until the fields below have approved values.
           </p>
         </div>
         <p className="shrink-0 text-[12px] font-medium text-[var(--text-secondary)]">

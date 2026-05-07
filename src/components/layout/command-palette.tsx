@@ -59,6 +59,7 @@ export function CommandPalette(props: {
   role?: WorkspaceRole;
   v5Flags?: Record<FeatureFlagKey, boolean>;
   navSurface?: NavSurfaceInput | null;
+  showToolsLink?: boolean;
   contractResults?: ContractPaletteResult[];
   initialQuery?: string;
 }) {
@@ -72,6 +73,18 @@ export function CommandPalette(props: {
     () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
     [props.navSurface, role, v5Flags]
   );
+  const showToolsLink = props.showToolsLink ?? true;
+  const paletteSurface = useMemo((): NavSurfaceInput => {
+    const hidden = surface.utilityModulesHidden;
+    const hasMoreHidden = hidden.includes("more_tools");
+    if (showToolsLink && hasMoreHidden) {
+      return { ...surface, utilityModulesHidden: hidden.filter((key) => key !== "more_tools") };
+    }
+    if (!showToolsLink && !hasMoreHidden) {
+      return { ...surface, utilityModulesHidden: [...hidden, "more_tools"] };
+    }
+    return surface;
+  }, [showToolsLink, surface]);
   const [open, setOpen] = useState(true);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +123,20 @@ export function CommandPalette(props: {
       return next;
     });
   }, []);
+
+  const isPaletteHrefVisible = useCallback(
+    (href: string) => {
+      return isCmdkHrefAllowed(href, paletteSurface);
+    },
+    [paletteSurface]
+  );
+
+  const isPaletteItemVisible = useCallback(
+    (item: PaletteItem) => {
+      return isNavItemVisibleForSurface(item, paletteSurface) && isCmdkHrefAllowed(item.href, paletteSurface);
+    },
+    [paletteSurface]
+  );
 
   function clearRemoteSearchFeedback() {
     setRemoteSearchFailed(false);
@@ -256,14 +283,14 @@ export function CommandPalette(props: {
   }, []);
 
   const searchJumpNavItems = useMemo((): PaletteItem[] => {
-    return getCmdkSearchJumpItems(surface, query).map((j) => ({
+    return getCmdkSearchJumpItems(paletteSurface, query).map((j) => ({
       name: j.name,
       href: j.href,
       description: j.description,
       section: "workspace",
       resultMeta: j.meta,
     }));
-  }, [query, surface]);
+  }, [paletteSurface, query]);
 
   const contractItems = useMemo((): PaletteItem[] => {
     const q = deferredFilterQ;
@@ -313,9 +340,7 @@ export function CommandPalette(props: {
 
   const items = useMemo(() => {
     const base = allCommandItems();
-    const filtered = base.filter(
-      (item) => isNavItemVisibleForSurface(item, surface) && isCmdkHrefAllowed(item.href, surface)
-    );
+    const filtered = base.filter((item) => isPaletteItemVisible(item));
     const sorted = [...filtered].sort((a, b) => {
       const d = cmdkResultSortKey(a.href) - cmdkResultSortKey(b.href);
       if (d !== 0) return d;
@@ -346,11 +371,11 @@ export function CommandPalette(props: {
       return !hrefSeen.has(path) && !hrefSeen.has(item.href);
     });
     return q ? [...contractItems, ...extra, ...dedupedNavPart] : [...dedupedNavPart, ...extra];
-  }, [contractItems, deferredFilterQ, surface, searchJumpNavItems]);
+  }, [contractItems, deferredFilterQ, isPaletteItemVisible, searchJumpNavItems]);
 
   const visibleRecentHrefs = useMemo(
-    () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface),
-    [recentHrefs, surface]
+    () => cmdkFilterRecentHrefsForSurface(recentHrefs, paletteSurface).filter((href) => isPaletteHrefVisible(href)),
+    [isPaletteHrefVisible, paletteSurface, recentHrefs]
   );
 
   useEffect(() => {
@@ -492,11 +517,7 @@ export function CommandPalette(props: {
                 <div className="mt-2 flex flex-wrap gap-2">
                   {visibleRecentHrefs.map((href) => {
                     const match = allCommandItems().find((item) => item.href === href);
-                    if (
-                      !match ||
-                      !isNavItemVisibleForSurface(match, surface) ||
-                      !isCmdkHrefAllowed(match.href, surface)
-                    )
+                    if (!match || !isPaletteItemVisible(match))
                       return null;
                     return (
                       <Link

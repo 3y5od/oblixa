@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-05T00:17:36.032Z",
+  "generatedAt": "2026-05-07T01:33:53.954Z",
   "rows": [
     {
       "route": "/",
@@ -11085,7 +11085,6 @@
       "dbDependencies": {
         "tables": [
           "contract_export_jobs",
-          "organization_members",
           "report_subscriptions",
           "saved_views"
         ],
@@ -11270,7 +11269,6 @@
           "execution_graph_edges",
           "notification_deliveries",
           "operational_casefile_events",
-          "organization_members",
           "organization_workflow_settings",
           "profiles",
           "reminders",
@@ -11494,8 +11492,7 @@
       "dbDependencies": {
         "tables": [
           "contract_approvals",
-          "contract_renewal_scenarios",
-          "organization_members"
+          "contract_renewal_scenarios"
         ],
         "rpcs": []
       },
@@ -12261,8 +12258,7 @@
         "tables": [
           "contracts",
           "exception_events",
-          "exceptions",
-          "organization_members"
+          "exceptions"
         ],
         "rpcs": []
       },
@@ -12469,7 +12465,6 @@
         "tables": [
           "contract_intake_history",
           "contracts",
-          "organization_members",
           "organization_workflow_settings"
         ],
         "rpcs": []
@@ -12575,7 +12570,6 @@
           "contracts",
           "maintenance_campaign_rows",
           "maintenance_campaigns",
-          "organization_members",
           "organization_workflow_settings"
         ],
         "rpcs": []
@@ -12681,7 +12675,6 @@
       "dbDependencies": {
         "tables": [
           "contract_obligations",
-          "organization_members",
           "report_subscriptions",
           "saved_views"
         ],
@@ -13310,7 +13303,6 @@
       "dbDependencies": {
         "tables": [
           "contract_tasks",
-          "organization_members",
           "report_subscriptions",
           "saved_views"
         ],
@@ -15564,7 +15556,6 @@
           "contract_tasks",
           "exceptions",
           "execution_graph_edges",
-          "organization_members",
           "v10_work_items"
         ],
         "rpcs": []
@@ -28611,7 +28602,9 @@
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
-      "providers": [],
+      "providers": [
+        "stripe"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []

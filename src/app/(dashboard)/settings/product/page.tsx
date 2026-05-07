@@ -234,7 +234,7 @@ export default async function WorkspaceProductSettingsPage() {
               execution.
             </p>
             <p className="ui-muted-tight mt-2 text-[13px]">
-              Advanced and Assurance mode changes require eligible billing posture. If a downgrade
+              Workspace mode controls navigation and product experience, not billing. If a downgrade
               would hide active scheduled report subscriptions, confirm that suppression below before
               saving.
             </p>

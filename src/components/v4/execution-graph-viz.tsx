@@ -86,7 +86,7 @@ export function ExecutionGraphViz({ edges }: { edges: ExecutionGraphEdgeRow[] })
                 x={70}
                 y={18}
                 textAnchor="middle"
-                fill="#18181b"
+                fill="var(--text-primary)"
                 style={{ fontSize: "10px", fontWeight: 600 }}
               >
                 {labelFor(type, id)}

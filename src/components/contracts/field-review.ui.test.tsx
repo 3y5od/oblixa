@@ -27,6 +27,7 @@ const baseField = (overrides: Partial<ExtractedField>): ExtractedField => ({
   ...overrides,
 });
 
+// V9 review-queue anchor: key date coverage still needs review (see v9-review-queue-surface.v9.test.ts)
 describe("FieldReview — §11.2 critical date grouping", () => {
   it("surfaces an operator-first blocker when critical dates are pending or lack approved values", () => {
     const fields: ExtractedField[] = [

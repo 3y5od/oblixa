@@ -6,7 +6,6 @@ const getV6OrgSettingsJson = vi.fn();
 const requireServerActionEligibility = vi.fn();
 const applyWorkspaceProductTransitionSideEffects = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
-const validateWorkspaceModeBillingEligibility = vi.fn();
 
 function makeV10Rpc() {
   return vi.fn((fn: string, args: Record<string, unknown>) => {
@@ -64,10 +63,6 @@ vi.mock("@/lib/v10-read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
 }));
 
-vi.mock("@/actions/workspace-mode-billing-eligibility", () => ({
-  validateWorkspaceModeBillingEligibility: (...args: unknown[]) => validateWorkspaceModeBillingEligibility(...args),
-}));
-
 vi.mock("@/lib/product-surface/landing-eligibility", () => ({
   isValidDefaultLandingPath: (path: string, mode: string) =>
     !(mode === "core" && ["/decisions", "/campaigns"].includes(path)),
@@ -88,7 +83,6 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
       autoBlockedNotificationTypes: [],
       suppressedSubscriptionCount: 0,
     });
-    validateWorkspaceModeBillingEligibility.mockResolvedValue(null);
   });
 
   it("returns error when unauthenticated", async () => {
@@ -132,12 +126,27 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
-  it("rejects workspace mode when explicit billing plan is insufficient", async () => {
-    validateWorkspaceModeBillingEligibility.mockResolvedValue(
-      "Assurance mode is not included in the current workspace billing plan. Open Billing before saving this change."
-    );
+  it("allows workspace mode changes even when stored billing metadata is lower tier", async () => {
+    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
+    mergeV6OrgSettingsJson.mockResolvedValue({ data: { workspace_mode: "assurance" }, error: null });
+    const from = vi.fn((table: string) => {
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-audit-1" }, error: null })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert: vi.fn(async () => ({ error: null })),
+        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
+        update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+      };
+    });
     getAuthContext.mockResolvedValue({
-      admin: { from: vi.fn() },
+      admin: makeAdmin(from),
       orgId: "org-1",
       role: "admin",
       user: { id: "u1" },
@@ -146,10 +155,12 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "assurance");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({
-      error: "Assurance mode is not included in the current workspace billing plan. Open Billing before saving this change.",
-    });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(result).toEqual({ success: true });
+    expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
+      expect.objectContaining({ from }),
+      "org-1",
+      expect.objectContaining({ workspace_mode: "assurance" })
+    );
   });
 
   it("requires confirmation before downgrade suppresses scheduled report subscriptions", async () => {
@@ -268,7 +279,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     );
   });
 
-  it("returns a visible form error when legacy workspace audit insert throws", async () => {
+  it("still succeeds when legacy workspace audit insert throws after settings are saved", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const from = vi.fn((table: string) => ({
       insert: vi.fn(async () => {
@@ -296,18 +307,32 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "core");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({
-      error:
-        "Workspace settings changed, but audit evidence could not be recorded. Refresh the page to confirm the current settings before retrying.",
-    });
+    expect(result).toEqual({ success: true });
+    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 
-  it("returns a visible form error when V10 mutation reservation cannot be claimed", async () => {
+  it("still saves settings when V10 mutation reservation cannot be claimed", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const from = vi.fn((table: string) => {
+      if (table === "v10_audit_events") {
+        return {
+          insert: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { audit_event_id: "v10-audit-1" }, error: null })),
+            })),
+          })),
+        };
+      }
+      return {
+        insert: vi.fn(async () => ({ error: null })),
+        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })) })),
+        update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+      };
+    });
     getAuthContext.mockResolvedValue({
       admin: {
-        from: vi.fn(),
+        from,
         rpc: vi.fn(async () => {
           throw new Error("network timeout");
         }),
@@ -320,10 +345,8 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     const fd = new FormData();
     fd.set("workspace_mode", "core");
     const result = await updateWorkspaceProductSurfaceForm(fd);
-    expect(result).toEqual({
-      error: "The change could not be started because retry protection could not reserve the request.",
-    });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(result).toEqual({ success: true });
+    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 

@@ -1,70 +1,53 @@
 "use client";
-/* Primary nav Links use default Next prefetch (hover-driven). Rare / heavy destinations use prefetch={false} at call sites. */
+/* Primary nav Links use default Next prefetch (hover-driven). Rare / heavy destinations use prefetch={false}. */
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
-  BriefcaseBusiness,
   BadgeCheck,
   BarChart3,
   BellRing,
   Boxes,
   CalendarClock,
-  FileCheck2,
-  GitBranch,
-  LayoutDashboard,
-  SearchCheck,
-  Files,
-  ListTodo,
-  Megaphone,
-  Settings,
   CreditCard,
-  LogOut,
-  Orbit,
-  PanelLeftOpen,
-  PanelLeftClose,
+  FileCheck2,
+  Files,
+  GitBranch,
   Grid2x2,
+  LayoutDashboard,
+  ListTodo,
+  LogOut,
+  Megaphone,
+  Orbit,
+  PanelLeftClose,
+  PanelLeftOpen,
+  SearchCheck,
+  Settings,
   Shield,
   X,
+  type LucideIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { signOut } from "@/actions/auth";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
-import {
-  getWorkflowAreaForNavItem,
-  NAV_ITEMS,
-  PRIMARY_NAV_GROUPS,
-  WORKFLOW_AREA_LABELS,
-  isActivePath,
-  type NavItem,
-  type WorkspaceRole,
-} from "@/lib/navigation";
+import type { WorkspaceRole } from "@/lib/navigation";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import {
-  isNavChildVisibleForSurface,
-  isNavItemVisibleForSurface,
-} from "@/lib/product-surface/nav-visibility";
+import { filterNavBadgesForSurface } from "@/lib/product-surface/nav-visibility";
 import { shellTestIds } from "@/lib/qa/test-ids";
+import {
+  buildSidebarModel,
+  type SidebarBadgeModel,
+  type SidebarItemModel,
+  type SidebarNavBadges,
+  type SidebarSectionModel,
+} from "./sidebar-model";
 
-function fallbackNavSurface(
-  role: WorkspaceRole,
-  flags: Record<FeatureFlagKey, boolean>
-): NavSurfaceInput {
-  return {
-    mode: "core",
-    role,
-    featureFlags: flags,
-    seesAdvancedPrimaryNav: false,
-    seesAssuranceNav: false,
-    advancedModulesHidden: [],
-    assuranceModulesHidden: [],
-    utilityModulesHidden: [],
-    searchScope: "match_mode",
-  };
-}
+const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
+const COLLAPSED_PREF_EVENT = "oblixa:sidebar-collapsed-change";
+const DESKTOP_SIDEBAR_BODY_ID = "desktop-sidebar-body";
 
-const iconByKey = {
+const iconByKey: Record<NonNullable<SidebarItemModel["icon"]>, LucideIcon> = {
   dashboard: LayoutDashboard,
   review: SearchCheck,
   contracts: Files,
@@ -81,68 +64,317 @@ const iconByKey = {
   settings: Settings,
   billing: CreditCard,
   more: Grid2x2,
-} as const;
+};
 
-const areaIconByKey = {
-  monitor: Orbit,
-  workflows: BriefcaseBusiness,
-  assurance: Shield,
-  insights: SearchCheck,
-  workspace: Settings,
-} as const;
-
-const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
-
-/** Heavy RSC destinations: avoid viewport prefetch churn (default hover prefetch stays on elsewhere). */
-function sidebarPrefetch(href: string): boolean | undefined {
-  const pathOnly = href.split("?")[0]?.split("#")[0] ?? href;
-  if (
-    pathOnly.startsWith("/contracts") ||
-    pathOnly.startsWith("/reports") ||
-    pathOnly.startsWith("/assurance") ||
-    pathOnly.startsWith("/more")
-  ) {
-    return false;
-  }
-  return undefined;
+function fallbackNavSurface(role: WorkspaceRole, flags: Record<FeatureFlagKey, boolean>): NavSurfaceInput {
+  return {
+    mode: "core",
+    role,
+    featureFlags: flags,
+    seesAdvancedPrimaryNav: false,
+    seesAssuranceNav: false,
+    advancedModulesHidden: [],
+    assuranceModulesHidden: [],
+    utilityModulesHidden: [],
+    searchScope: "match_mode",
+  };
 }
 
-const RAIL_NAV_HREFS = [
-  "/dashboard",
-  "/contracts",
-  "/contracts/review",
-  "/work",
-  "/reports",
-  "/settings",
-  "/assurance",
-  "/more",
-] as const;
-
-type SidebarNavBadges = Partial<
-  Record<"reviewQueue" | "approvals" | "obligations" | "watchlists", number>
->;
-
-function pathOnly(href: string): string {
-  return href.split("?")[0]?.split("#")[0] ?? href;
-}
-
-function badgeToneClass(badgeKey: NavItem["badgeKey"]): string {
-  if (badgeKey === "reviewQueue") return "bg-amber-300/20 text-amber-100";
-  if (badgeKey === "approvals") return "bg-orange-300/20 text-orange-100";
-  if (badgeKey === "obligations") return "bg-rose-300/20 text-rose-100";
+function badgeToneClass(tone: SidebarBadgeModel["tone"]): string {
+  if (tone === "reviewQueue") return "bg-amber-300/20 text-amber-100";
+  if (tone === "approvals") return "bg-orange-300/20 text-orange-100";
+  if (tone === "obligations") return "bg-rose-300/20 text-rose-100";
   return "bg-white/[0.16] text-[color:color-mix(in_oklab,var(--sidebar-fg)_90%,transparent)]";
 }
 
-function badgeLabel(badgeKey: NavItem["badgeKey"], value: number): string {
-  const noun =
-    badgeKey === "reviewQueue"
-      ? "review queue items"
-      : badgeKey === "approvals"
-        ? "pending approvals"
-        : badgeKey === "obligations"
-          ? "open obligations"
-          : "watchlist items";
-  return `${value} ${noun}`;
+function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; collapsed: boolean }) {
+  if (!badge) return null;
+  if (collapsed && badge.showDotOnlyWhenCollapsed) {
+    return (
+      <span
+        aria-hidden="true"
+        title={badge.label}
+        className={`absolute right-1.5 top-1.5 h-2 min-w-2 rounded-full ring-1 ring-black/20 ${badgeToneClass(badge.tone)}`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ${badgeToneClass(badge.tone)}`}
+      aria-label={badge.label}
+      title={badge.label}
+    >
+      {badge.displayValue}
+    </span>
+  );
+}
+
+function SidebarNavLink({
+  item,
+  collapsed,
+  child = false,
+  onNavigate,
+  tooltipHref,
+  setTooltipHref,
+}: {
+  item: SidebarItemModel;
+  collapsed: boolean;
+  child?: boolean;
+  onNavigate: () => void;
+  tooltipHref: string | null;
+  setTooltipHref: (href: string | null) => void;
+}) {
+  const Icon = item.icon ? iconByKey[item.icon] : null;
+  const tooltipId = `sidebar-tooltip-${item.href.replace(/[^a-z0-9]+/gi, "-")}`;
+  const tooltipVisible = collapsed && tooltipHref === item.href;
+  const childClass = child
+    ? `${Icon ? "ui-sidebar-sublink-align-icon" : "ui-sidebar-sublink-align-dot"} text-[12px] ${
+        item.active ? "ui-sidebar-sublink-active" : "ui-sidebar-link-idle opacity-90"
+      }`
+    : item.active
+      ? `ui-sidebar-link-active ${collapsed ? "ui-sidebar-link-active-rail" : ""}`
+      : "ui-sidebar-link-idle";
+
+  return (
+    <Link
+      href={item.href}
+      prefetch={item.prefetch}
+      onClick={onNavigate}
+      onFocus={() => collapsed && setTooltipHref(item.href)}
+      onBlur={() => collapsed && setTooltipHref(null)}
+      onMouseEnter={() => collapsed && setTooltipHref(item.href)}
+      onMouseLeave={() => collapsed && setTooltipHref(null)}
+      className={`ui-sidebar-link ${childClass}`}
+      aria-current={item.exactActive ? "page" : undefined}
+      aria-label={collapsed ? item.collapsedLabel : undefined}
+      aria-describedby={tooltipVisible ? tooltipId : undefined}
+      data-sidebar-href={item.href}
+    >
+      {Icon ? (
+        <Icon size={18} strokeWidth={1.65} className="shrink-0 opacity-90" aria-hidden />
+      ) : (
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${item.active ? "bg-white" : "bg-white/35"}`} />
+      )}
+      {collapsed && <SidebarBadge badge={item.badge} collapsed />}
+      {!collapsed && <span className="min-w-0 flex-1 truncate">{item.name}</span>}
+      {!collapsed && <SidebarBadge badge={item.badge} collapsed={false} />}
+      {tooltipVisible ? (
+        <span
+          id={tooltipId}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[calc(100%+0.5rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md border border-white/10 bg-[var(--sidebar-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--sidebar-fg)] shadow-[var(--shadow-2)]"
+        >
+          {item.collapsedLabel}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
+function SidebarSection({
+  section,
+  collapsed,
+  onNavigate,
+  tooltipHref,
+  setTooltipHref,
+}: {
+  section: SidebarSectionModel;
+  collapsed: boolean;
+  onNavigate: () => void;
+  tooltipHref: string | null;
+  setTooltipHref: (href: string | null) => void;
+}) {
+  if (section.items.length === 0) return null;
+  return (
+    <section className={section.variant === "rail" ? "mt-2" : "mt-4 border-t border-[var(--sidebar-section-border)] pt-3"}>
+      <h2
+        id={`${section.id}-heading`}
+        className={
+          collapsed
+            ? "sr-only"
+            : "px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--sidebar-heading)]"
+        }
+      >
+        {section.label}
+      </h2>
+      <nav aria-labelledby={`${section.id}-heading`} className={collapsed ? "space-y-1.5" : "mt-2 space-y-1.5"}>
+        {section.items.map((item) => (
+          <div key={item.href} className="space-y-0.5">
+            <SidebarNavLink
+              item={item}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+              tooltipHref={tooltipHref}
+              setTooltipHref={setTooltipHref}
+            />
+            {!collapsed &&
+              item.children.map((child) => (
+                <SidebarNavLink
+                  key={`${child.name}-${child.href}`}
+                  item={child}
+                  child
+                  collapsed={false}
+                  onNavigate={onNavigate}
+                  tooltipHref={tooltipHref}
+                  setTooltipHref={setTooltipHref}
+                />
+              ))}
+          </div>
+        ))}
+      </nav>
+    </section>
+  );
+}
+
+function SidebarHeader({
+  mobile,
+  collapsed,
+  forcedCollapsed,
+  onToggleCollapsed,
+  onCloseMobile,
+  closeButtonRef,
+}: {
+  mobile: boolean;
+  collapsed: boolean;
+  forcedCollapsed: boolean;
+  onToggleCollapsed: () => void;
+  onCloseMobile: () => void;
+  closeButtonRef: RefObject<HTMLButtonElement | null>;
+}) {
+  return (
+    <div className="flex h-[4.25rem] shrink-0 items-center justify-between border-b border-[var(--sidebar-section-border)] px-3">
+      {!collapsed && (
+        <div className="flex min-w-0 items-center gap-3 pl-1">
+          <span className="flex h-9 w-9 items-center justify-center rounded-[0.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] text-white shadow-[0_8px_18px_rgba(0,0,0,0.14)]">
+            <Orbit size={18} strokeWidth={1.85} aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <Link href="/dashboard" className="block truncate text-[15px] font-semibold tracking-tight text-white">
+              Oblixa
+            </Link>
+            <p className="truncate text-[10px] uppercase tracking-[0.18em] text-white/52">Contract operations OS</p>
+          </div>
+        </div>
+      )}
+      {mobile ? (
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={onCloseMobile}
+          className="ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          aria-label="Close navigation"
+        >
+          <X size={18} aria-hidden />
+        </button>
+      ) : forcedCollapsed ? (
+        <div className="mx-auto h-10 w-10 shrink-0" aria-hidden />
+      ) : (
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          data-testid={shellTestIds.sidebarCollapseToggle}
+          className={`ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)] ${collapsed ? "mx-auto" : ""}`}
+          aria-controls={DESKTOP_SIDEBAR_BODY_ID}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <PanelLeftOpen size={18} aria-hidden /> : <PanelLeftClose size={18} aria-hidden />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function SidebarFooter({ collapsed }: { collapsed: boolean }) {
+  return (
+    <div className="border-t border-[var(--sidebar-section-border)] p-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+      <form action={signOut}>
+        <button
+          type="submit"
+          data-testid={shellTestIds.sidebarSignOut}
+          className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2.5 text-[13px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          aria-label={collapsed ? "Sign out" : undefined}
+        >
+          <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-95" aria-hidden />
+          {!collapsed && <span>Sign out</span>}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function MobileNavigationTrigger({ buttonRef, onOpen }: { buttonRef: RefObject<HTMLButtonElement | null>; onOpen: () => void }) {
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={onOpen}
+      data-testid={shellTestIds.sidebarMobileOpen}
+      className="fixed left-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 inline-flex min-h-10 min-w-10 items-center justify-center rounded-[0.8rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] backdrop-blur transition-transform duration-[var(--ui-duration)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      aria-label="Open navigation"
+    >
+      <Grid2x2 size={18} aria-hidden />
+    </button>
+  );
+}
+
+function MobileNavigationDrawer({
+  drawerRef,
+  children,
+  onClose,
+}: {
+  drawerRef: RefObject<HTMLDivElement | null>;
+  children: ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      ref={drawerRef}
+      className="fixed inset-0 z-50 flex lg:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation drawer"
+      data-testid={shellTestIds.sidebarMobileDrawer}
+    >
+      <aside className="flex h-dvh max-h-dvh min-h-0 w-[min(22rem,calc(100vw-1rem))] flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] pt-[env(safe-area-inset-top)]">
+        {children}
+      </aside>
+      <button
+        type="button"
+        className="ui-overlay-scrim h-full flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        onClick={onClose}
+        aria-label="Close navigation overlay"
+      />
+    </div>
+  );
+}
+
+function focusableElements(root: HTMLElement): HTMLElement[] {
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  ).filter((node) => !node.hasAttribute("disabled") && node.getAttribute("aria-hidden") !== "true");
+}
+
+function getStoredCollapsedPreference(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(COLLAPSED_PREF_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function subscribeCollapsedPreference(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  const handler = () => callback();
+  window.addEventListener("storage", handler);
+  window.addEventListener(COLLAPSED_PREF_EVENT, handler);
+  return () => {
+    window.removeEventListener("storage", handler);
+    window.removeEventListener(COLLAPSED_PREF_EVENT, handler);
+  };
 }
 
 export function Sidebar(props: {
@@ -150,510 +382,212 @@ export function Sidebar(props: {
   v5Flags?: Record<FeatureFlagKey, boolean>;
   navSurface?: NavSurfaceInput | null;
   navBadges?: SidebarNavBadges;
+  showToolsLink?: boolean;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const role = props.role ?? "viewer";
-  const v5Flags = useMemo(
-    () => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>),
-    [props.v5Flags]
-  );
-  const [clientNavBadges, setClientNavBadges] = useState<SidebarNavBadges>(
-    () => props.navBadges ?? {}
-  );
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const current = window.localStorage.getItem(COLLAPSED_PREF_KEY);
-      if (current != null) return current === "1";
-      return false;
-    } catch {
-      return false;
-    }
-  });
+  const v5Flags = useMemo(() => props.v5Flags ?? ({} as Record<FeatureFlagKey, boolean>), [props.v5Flags]);
+  const surface = useMemo(() => props.navSurface ?? fallbackNavSurface(role, v5Flags), [props.navSurface, role, v5Flags]);
+  const [clientNavBadges, setClientNavBadges] = useState<SidebarNavBadges>(() => props.navBadges ?? {});
+  const collapsed = useSyncExternalStore(subscribeCollapsedPreference, getStoredCollapsedPreference, () => false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const mobileNavOpenedRef = useRef(false);
+  const [hash, setHash] = useState("");
+  const [tooltipHref, setTooltipHref] = useState<string | null>(null);
   const mobileOpenButtonRef = useRef<HTMLButtonElement>(null);
   const mobileCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const previousPathnameRef = useRef(pathname);
+
+  const isOnboardingShell = pathname.startsWith("/onboarding");
+  const effectiveCollapsed = isOnboardingShell || collapsed;
+  const showToolsLink = props.showToolsLink ?? true;
+
+  const toggleCollapsed = useCallback(() => {
+    const next = !collapsed;
+    try {
+      window.localStorage.setItem(COLLAPSED_PREF_KEY, next ? "1" : "0");
+      window.dispatchEvent(new Event(COLLAPSED_PREF_EVENT));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [collapsed]);
+
+  useEffect(() => {
+    const update = () => setHash(window.location.hash);
+    update();
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, [pathname]);
+
+  useEffect(() => {
+    const next = filterNavBadgesForSurface(props.navBadges ?? {}, surface);
+    const frame = window.requestAnimationFrame(() => setClientNavBadges(next));
+    return () => window.cancelAnimationFrame(frame);
+  }, [props.navBadges, surface]);
 
   useEffect(() => {
     if (!props.navSurface) return;
     let cancelled = false;
-    void fetchJson("/api/workspace/nav-badges", {
-      headers: { Accept: "application/json" },
-    })
-      .then((result) => {
-        if (!result.ok) return null;
-        return result.data as { navBadges?: SidebarNavBadges } | null;
-      })
+    void fetchJson("/api/workspace/nav-badges", { headers: { Accept: "application/json" } })
+      .then((result) => (result.ok ? (result.data as { navBadges?: SidebarNavBadges } | null) : null))
       .then((payload) => {
         if (!cancelled && payload?.navBadges) {
-          setClientNavBadges(payload.navBadges);
+          setClientNavBadges(filterNavBadgesForSurface(payload.navBadges, surface));
         }
       })
       .catch(() => undefined);
     return () => {
       cancelled = true;
     };
-  }, [props.navSurface, role]);
+  }, [props.navSurface, surface]);
 
   useEffect(() => {
-    if (mobileOpen) {
-      mobileNavOpenedRef.current = true;
-      requestAnimationFrame(() => mobileCloseButtonRef.current?.focus());
-    } else if (mobileNavOpenedRef.current) {
-      mobileOpenButtonRef.current?.focus();
-    }
-  }, [mobileOpen]);
+    if (previousPathnameRef.current === pathname) return;
+    previousPathnameRef.current = pathname;
+    const frame = window.requestAnimationFrame(() => setMobileOpen(false));
+    return () => window.cancelAnimationFrame(frame);
+  }, [pathname]);
 
   useEffect(() => {
-    if (!mobileOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMobileOpen(false);
+    if (!tooltipHref) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setTooltipHref(null);
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [mobileOpen]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [tooltipHref]);
 
   useEffect(() => {
     if (!mobileOpen) return;
     const previousOverflow = document.body.style.overflow;
+    const appContent = document.querySelector<HTMLElement>("[data-app-content]");
+    const previousAriaHidden = appContent?.getAttribute("aria-hidden");
+    const previousInert = appContent ? Boolean((appContent as HTMLElement & { inert?: boolean }).inert) : false;
+    if (appContent) {
+      appContent.setAttribute("aria-hidden", "true");
+      (appContent as HTMLElement & { inert?: boolean }).inert = true;
+    }
     document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => mobileCloseButtonRef.current?.focus());
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (appContent) {
+        if (previousAriaHidden == null) appContent.removeAttribute("aria-hidden");
+        else appContent.setAttribute("aria-hidden", previousAriaHidden);
+        (appContent as HTMLElement & { inert?: boolean }).inert = previousInert;
+      }
+      const target = restoreFocusRef.current;
+      if (target?.isConnected) target.focus();
     };
   }, [mobileOpen]);
 
-  /** Onboarding routes: icon rail only on desktop (focused calibration shell; pathname-driven). */
-  const isOnboardingShell = pathname.startsWith("/onboarding");
-  const effectiveCollapsed = isOnboardingShell || collapsed;
-
   useEffect(() => {
-    try {
-      window.localStorage.setItem(COLLAPSED_PREF_KEY, collapsed ? "1" : "0");
-    } catch {
-      // Ignore storage errors.
+    if (!mobileOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !mobileDrawerRef.current) return;
+      const focusables = focusableElements(mobileDrawerRef.current);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     }
-  }, [collapsed]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
 
-  const surface = useMemo(
-    () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
-    [props.navSurface, role, v5Flags]
-  );
-  const navBadges = clientNavBadges;
+  const closeMobileDrawer = useCallback(() => setMobileOpen(false), []);
+  const openMobileDrawer = useCallback(() => {
+    restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : mobileOpenButtonRef.current;
+    setMobileOpen(true);
+  }, []);
+  const noopNavigate = useCallback(() => undefined, []);
 
-  const navBySection = useMemo(() => {
-    const visible = NAV_ITEMS.filter((item) => isNavItemVisibleForSurface(item, surface));
-    return {
-      primary: visible.filter((item) => item.section === "primary"),
-      operations: visible.filter((item) => item.section === "operations"),
-      personal: visible.filter((item) => item.section === "personal"),
-      workspace: visible.filter((item) => item.section === "workspace"),
-    };
-  }, [surface]);
-
-  const workflowHubs = useMemo(() => {
-    const hubs: NavItem[] = [];
-    for (const href of RAIL_NAV_HREFS) {
-      const match = navBySection.primary.find((item) => item.href === href);
-      if (match) hubs.push(match);
-    }
-    return hubs;
-  }, [navBySection.primary]);
-
-  const groupedPrimary = useMemo(() => {
-    return PRIMARY_NAV_GROUPS.map((group) => ({
-      label: group.label,
-      items: navBySection.primary.filter((item) => group.hrefs.includes(item.href)),
-    })).filter((group) => group.items.length > 0);
-  }, [navBySection.primary]);
-
-  const renderNavSection = ({
-    title,
-    items,
-    compact = false,
-    collapsed: sectionCollapsed = effectiveCollapsed,
-  }: {
-    title?: string;
-    items: NavItem[];
-    compact?: boolean;
-    collapsed?: boolean;
-  }) => (
-    <div className={title ? "mt-4 border-t border-white/[0.08] pt-3.5" : ""}>
-      {title && !compact && (
-        <p id={`sidebar-section-${title.toLowerCase().replace(/\s+/g, "-")}`} className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/42">
-          {title}
-        </p>
-      )}
-      <nav aria-label={title ?? "Primary navigation"} className={title ? "mt-2.5 space-y-1.5" : "space-y-1.5"}>
-        {items.map((item) => {
-          const visibleChildren = (item.navChildren ?? []).filter((c) =>
-            isNavChildVisibleForSurface(c, surface)
-          );
-          const activeChildHref = visibleChildren.find((c) => {
-            const childPath = pathOnly(c.href);
-            return pathname === childPath || pathname.startsWith(`${childPath}/`);
-          })?.href;
-          const isExactActive = isActivePath(pathname, item.href);
-          const isActive = isExactActive || Boolean(activeChildHref);
-          const hasBadgeValue =
-            item.badgeKey != null &&
-            Object.prototype.hasOwnProperty.call(navBadges, item.badgeKey);
-          const badgeValue =
-            item.badgeKey && hasBadgeValue ? Number(navBadges[item.badgeKey] ?? 0) : 0;
-          const badgeTone = badgeToneClass(item.badgeKey);
-          const renderedBadge =
-            item.badgeKey && hasBadgeValue && badgeValue > 0 ? (
-              <span
-                className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ${badgeTone}`}
-                aria-label={badgeLabel(item.badgeKey, badgeValue)}
-                title={badgeLabel(item.badgeKey, badgeValue)}
-              >
-                {badgeValue > 99 ? "99+" : badgeValue}
-              </span>
-            ) : null;
-          const renderedCollapsedBadge =
-            item.badgeKey && hasBadgeValue && badgeValue > 0 ? (
-              <span
-                className={`absolute right-1.5 top-1.5 h-2 min-w-2 rounded-full ${badgeTone}`}
-                aria-label={badgeLabel(item.badgeKey, badgeValue)}
-                title={badgeLabel(item.badgeKey, badgeValue)}
-              />
-            ) : null;
-          const iconKey = item.icon;
-          const Icon = iconKey ? iconByKey[iconKey] : null;
-          if (compact || Icon) {
-            return (
-              <div key={item.href} className="space-y-0.5">
-                <Link
-                  href={item.href}
-                  prefetch={sidebarPrefetch(item.href)}
-                  onClick={() => setMobileOpen(false)}
-                  className={`ui-sidebar-link ${
-                    isActive
-                      ? "ui-sidebar-link-active ui-sidebar-link-active-rail"
-                      : "ui-sidebar-link-idle"
-                  }`}
-                  aria-current={isExactActive ? "page" : undefined}
-                  title={sectionCollapsed ? item.name : undefined}
-                >
-                  {Icon ? (
-                    <Icon
-                      size={18}
-                      strokeWidth={1.65}
-                      className="shrink-0 opacity-90"
-                      aria-hidden
-                    />
-                  ) : (
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-white/35"}`}
-                    />
-                  )}
-                  {sectionCollapsed ? renderedCollapsedBadge : null}
-                  {!sectionCollapsed && (
-                    <>
-                      <span className="min-w-0 truncate">{item.name}</span>
-                      {renderedBadge}
-                    </>
-                  )}
-                </Link>
-                {!sectionCollapsed && visibleChildren.length
-                  ? visibleChildren.map((c) => {
-                      const childPath = pathOnly(c.href);
-                      const childActive = activeChildHref === c.href;
-                      return (
-                        <Link
-                          key={`${c.name}-${c.href}`}
-                          href={c.href}
-                          prefetch={sidebarPrefetch(c.href)}
-                          onClick={() => setMobileOpen(false)}
-                          className={`ui-sidebar-link text-[12px] ${
-                            childActive ? "ui-sidebar-sublink-active" : "ui-sidebar-link-idle opacity-90"
-                          } ${Icon ? "ui-sidebar-sublink-align-icon" : "ui-sidebar-sublink-align-dot"}`}
-                          aria-current={pathname === childPath ? "page" : undefined}
-                        >
-                          <span className="min-w-0 truncate">{c.name}</span>
-                        </Link>
-                      );
-                    })
-                  : null}
-              </div>
-            );
-          }
-
-          return (
-            <div key={item.href} className="space-y-0.5">
-              <Link
-                href={item.href}
-                prefetch={sidebarPrefetch(item.href)}
-                onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                  isActive
-                    ? "bg-white/[0.12] text-[color:color-mix(in_oklab,var(--sidebar-fg)_92%,transparent)]"
-                    : "text-[var(--text-tertiary)] hover:bg-white/[0.06] hover:text-[color:color-mix(in_oklab,var(--sidebar-fg)_92%,transparent)]"
-                }`}
-                aria-current={isExactActive ? "page" : undefined}
-                title={item.description}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))]" : "bg-white/35"}`}
-                />
-                <span className="min-w-0 truncate">{item.name}</span>
-                {renderedBadge}
-              </Link>
-              {!sectionCollapsed && visibleChildren.length
-                ? visibleChildren.map((c) => {
-                    const childPath = pathOnly(c.href);
-                    const childActive = activeChildHref === c.href;
-                    return (
-                      <Link
-                        key={`${c.name}-${c.href}`}
-                        href={c.href}
-                        prefetch={sidebarPrefetch(c.href)}
-                        onClick={() => setMobileOpen(false)}
-                        className={`ui-sidebar-sublink-align-dot-row flex items-center gap-2 rounded-lg py-1.5 pr-3 text-[12px] transition-colors ${
-                          childActive
-                            ? "ui-sidebar-sublink-active"
-                            : "text-[var(--text-tertiary)] hover:bg-white/[0.05] hover:text-[color:color-mix(in_oklab,var(--sidebar-fg)_92%,transparent)]"
-                        }`}
-                        aria-current={pathname === childPath ? "page" : undefined}
-                      >
-                        <span className="min-w-0 truncate">{c.name}</span>
-                      </Link>
-                    );
-                  })
-                : null}
-            </div>
-          );
-        })}
-      </nav>
-    </div>
+  const model = useMemo(
+    () =>
+      buildSidebarModel({
+        pathname,
+        search: searchParams.toString(),
+        hash,
+        surface,
+        navBadges: clientNavBadges,
+        showToolsLink,
+        forcedCollapsed: effectiveCollapsed,
+      }),
+    [pathname, searchParams, hash, surface, clientNavBadges, showToolsLink, effectiveCollapsed]
   );
 
-  const workflowAreaLinks = useMemo(() => {
-    return (["monitor", "workflows", "assurance", "insights", "workspace"] as const)
-      .map((area) => {
-        const item = navBySection.primary.find((entry) => getWorkflowAreaForNavItem(entry) === area) ??
-          (area === "workspace"
-            ? NAV_ITEMS.find((entry) => entry.href === "/settings")
-            : area === "insights"
-              ? NAV_ITEMS.find((entry) => entry.href === "/reports")
-              : area === "assurance"
-                ? NAV_ITEMS.find((entry) => entry.href === "/assurance")
-                : area === "monitor"
-                  ? NAV_ITEMS.find((entry) => entry.href === "/dashboard")
-                  : NAV_ITEMS.find((entry) => entry.href === "/work"));
-        if (!item || !isNavItemVisibleForSurface(item, surface)) return null;
-        return { area, item };
-      })
-      .filter((value): value is NonNullable<typeof value> => value != null);
-  }, [navBySection.primary, surface]);
-
-  const activeWorkflowArea = useMemo(() => {
-    const active = NAV_ITEMS
-      .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
-      .sort((a, b) => b.href.length - a.href.length)[0];
-    return active ? getWorkflowAreaForNavItem(active) : "monitor";
-  }, [pathname]);
-
-  const renderSidebarBody = ({ mobile = false }: { mobile?: boolean }) => {
-    const bodyCollapsed = mobile ? false : effectiveCollapsed;
-
+  const renderBody = (mobile = false) => {
+    const bodyCollapsed = mobile ? false : model.collapsed;
     return (
-    <>
-      <div className="flex h-[4.5rem] items-center justify-between border-b border-white/[0.08] px-3">
-        {!bodyCollapsed && (
-          <div className="flex min-w-0 items-center gap-3 pl-1">
-            <span className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.05))] text-white shadow-[0_14px_28px_rgba(0,0,0,0.18)]">
-              <Orbit size={18} strokeWidth={1.85} aria-hidden />
-            </span>
-            <div className="min-w-0">
-              <Link
-                href="/dashboard"
-                className="block truncate text-[15px] font-semibold tracking-tight text-white"
-              >
-                Oblixa
-              </Link>
-              <p className="truncate text-[10px] uppercase tracking-[0.18em] text-white/52">
-                Contract operations OS
-              </p>
-            </div>
+      <>
+        <SidebarHeader
+          mobile={mobile}
+          collapsed={bodyCollapsed}
+          forcedCollapsed={isOnboardingShell && !mobile}
+          onToggleCollapsed={toggleCollapsed}
+          onCloseMobile={closeMobileDrawer}
+          closeButtonRef={mobileCloseButtonRef}
+        />
+        <div id={mobile ? undefined : DESKTOP_SIDEBAR_BODY_ID} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-3">
+          {mobile && showToolsLink ? (
+            <Link
+              href="/more"
+              prefetch={false}
+              onClick={closeMobileDrawer}
+              className="mb-3 block rounded-[0.8rem] border border-white/[0.14] bg-white/[0.06] px-3 py-2 text-[12px] font-semibold text-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+            >
+              Browse tools
+            </Link>
+          ) : null}
+          <div data-testid={shellTestIds.primaryNav} className={bodyCollapsed ? "space-y-2" : "space-y-1"}>
+            {model.sections.map((section) => (
+              <SidebarSection
+                key={section.id}
+                section={section}
+                collapsed={bodyCollapsed}
+                onNavigate={mobile ? closeMobileDrawer : noopNavigate}
+                tooltipHref={tooltipHref}
+                setTooltipHref={setTooltipHref}
+              />
+            ))}
           </div>
-        )}
-        {mobile ? (
-          <button
-            ref={mobileCloseButtonRef}
-            type="button"
-            onClick={() => setMobileOpen(false)}
-            className="ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white"
-            aria-label="Close navigation"
-          >
-            <X size={18} aria-hidden />
-          </button>
-        ) : isOnboardingShell ? (
-          <div className="mx-auto h-10 w-10 shrink-0" aria-hidden />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setCollapsed((v) => !v)}
-            data-testid={shellTestIds.sidebarCollapseToggle}
-            className={`ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white ${collapsed ? "mx-auto" : ""}`}
-            aria-expanded={!collapsed}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? (
-              <PanelLeftOpen size={18} aria-hidden />
-            ) : (
-              <PanelLeftClose size={18} aria-hidden />
-            )}
-          </button>
-        )}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-4">
-        {mobile && !bodyCollapsed ? (
-          <Link
-            href="/more"
-            prefetch={false}
-            onClick={() => setMobileOpen(false)}
-            className="mb-4 block rounded-[1rem] border border-white/[0.14] bg-white/[0.06] px-3 py-2.5 text-[12px] font-semibold text-white/95"
-          >
-            Open tools
-          </Link>
-        ) : null}
-        {!bodyCollapsed ? (
-          <div className="mb-5 rounded-[1.35rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/46">
-              Workflow areas
-            </p>
-            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-              {workflowAreaLinks.map(({ area, item }) => {
-                const Icon = areaIconByKey[area];
-                const isAreaActive = activeWorkflowArea === area;
-                return (
-                  <Link
-                    key={`${area}-${item.href}`}
-                    href={item.href}
-                    prefetch={sidebarPrefetch(item.href)}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-2 rounded-[0.95rem] px-2.5 py-2 text-[12px] font-semibold transition-colors ${
-                      isAreaActive
-                        ? "bg-white/[0.14] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                        : "text-white/70 hover:bg-white/[0.08] hover:text-white"
-                    }`}
-                  >
-                    <Icon size={14} strokeWidth={1.8} aria-hidden />
-                    <span>{WORKFLOW_AREA_LABELS[area]}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-        <div data-testid={shellTestIds.primaryNav}>
-          {bodyCollapsed ? renderNavSection({ title: "Primary", items: workflowHubs, compact: true, collapsed: bodyCollapsed }) : null}
-          {!bodyCollapsed
-            ? groupedPrimary.map((group) => (
-                <div key={group.label}>
-                  {renderNavSection({
-                    title: group.label,
-                    items: group.items,
-                    compact: true,
-                    collapsed: bodyCollapsed,
-                  })}
-                </div>
-              ))
-            : null}
         </div>
-        {!bodyCollapsed && (
-          <>
-            {renderNavSection({
-              title: "Workflow queues",
-              items: navBySection.operations.slice(0, 6),
-              collapsed: bodyCollapsed,
-            })}
-            {navBySection.operations.length > 6 && (
-              <Link
-                href="/more?section=workflows"
-                prefetch={false}
-                onClick={() => setMobileOpen(false)}
-                className="mt-2.5 block rounded-[var(--radius-lg)] px-3 py-2 text-[12px] font-medium text-[color:color-mix(in_oklab,var(--sidebar-fg)_78%,transparent)] transition-colors duration-[var(--ui-duration)] hover:bg-white/[0.08] hover:text-white"
-              >
-                Browse all queues
-              </Link>
-            )}
-            {renderNavSection({
-              title: "My views",
-              items: navBySection.personal,
-              collapsed: bodyCollapsed,
-            })}
-          </>
-        )}
-        {renderNavSection({
-          title: bodyCollapsed ? undefined : "Workspace",
-          items: navBySection.workspace,
-          compact: true,
-          collapsed: bodyCollapsed,
-        })}
-      </div>
-
-      <div className="border-t border-white/[0.08] p-2.5">
-        <form action={signOut}>
-          <button
-            type="submit"
-            data-testid={shellTestIds.sidebarSignOut}
-            className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2.5 text-[13px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-white/[0.08] hover:text-white"
-            title={bodyCollapsed ? "Sign out" : undefined}
-          >
-            <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-95" aria-hidden />
-            {!bodyCollapsed && <span>Sign out</span>}
-          </button>
-        </form>
-      </div>
-    </>
+        <SidebarFooter collapsed={bodyCollapsed} />
+      </>
     );
   };
 
   return (
     <>
-      <button
-        ref={mobileOpenButtonRef}
-        type="button"
-        onClick={() => setMobileOpen(true)}
-        data-testid={shellTestIds.sidebarMobileOpen}
-        className="fixed left-4 top-4 z-40 inline-flex min-h-11 min-w-11 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] backdrop-blur lg:hidden"
-        aria-label="Open navigation"
-      >
-        <Grid2x2 size={18} aria-hidden />
-      </button>
+      <MobileNavigationTrigger buttonRef={mobileOpenButtonRef} onOpen={openMobileDrawer} />
 
       {mobileOpen && (
-        <div
-          className="fixed inset-0 z-50 flex lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation drawer"
-          data-testid={shellTestIds.sidebarMobileDrawer}
-        >
-          <button
-            type="button"
-            className="ui-overlay-scrim h-full flex-1"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close navigation overlay"
-          />
-          <aside className="flex h-dvh max-h-dvh min-h-0 w-[22rem] max-w-[92vw] flex-col border-l border-[var(--sidebar-border)] bg-[var(--sidebar)]">
-            {renderSidebarBody({ mobile: true })}
-          </aside>
-        </div>
+        <MobileNavigationDrawer drawerRef={mobileDrawerRef} onClose={closeMobileDrawer}>
+          {renderBody(true)}
+        </MobileNavigationDrawer>
       )}
 
       <aside
         aria-label="Workspace"
         data-testid={shellTestIds.sidebarDesktop}
-        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[radial-gradient(circle_at_top,color-mix(in_oklab,var(--accent)_20%,transparent),transparent_28%),linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_92%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] lg:flex ${
-          effectiveCollapsed ? "w-[4.75rem]" : "w-[19.5rem]"
+        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_94%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] motion-reduce:transition-none lg:flex ${
+          model.collapsed ? "w-[4.75rem]" : "w-[18.5rem]"
         }`}
       >
-        {renderSidebarBody({})}
+        {renderBody(false)}
       </aside>
     </>
   );

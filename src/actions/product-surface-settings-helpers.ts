@@ -153,9 +153,12 @@ export async function reserveV10SettingsMutation(
           nextDestinationHref: "/settings/health",
         })
     );
-    return response.outcome === "success" ? null : { error: response.user_visible_message };
+    if (response.outcome !== "success") {
+      console.error("[product-surface-settings] V10 reservation skipped:", response.user_visible_message);
+    }
+    return null;
   } catch (error) {
     console.error("[product-surface-settings] V10 reservation failed:", error);
-    return { error: "Settings could not be saved. Refresh the page and try again." };
+    return null;
   }
 }

@@ -1,18 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const orgHasActivePlan = vi.fn();
-
-vi.mock("@/lib/plan", () => ({
-  orgHasActivePlan: (...args: unknown[]) => orgHasActivePlan(...args),
-}));
+import { describe, expect, it } from "vitest";
 
 describe("validateWorkspaceModeBillingEligibility", () => {
-  beforeEach(() => {
-    orgHasActivePlan.mockReset();
-    orgHasActivePlan.mockResolvedValue(true);
-  });
-
-  it("rejects when explicit billing plan is insufficient for the selected mode", async () => {
+  it("does not gate workspace product mode by explicit billing plan metadata", async () => {
     const { validateWorkspaceModeBillingEligibility } = await import("@/actions/workspace-mode-billing-eligibility");
     await expect(
       validateWorkspaceModeBillingEligibility({
@@ -21,12 +10,10 @@ describe("validateWorkspaceModeBillingEligibility", () => {
         mode: "assurance",
         prevSettings: { workspace_plan: "core" },
       })
-    ).resolves.toBe("Assurance mode is not included in the current workspace billing plan. Open Billing before saving this change.");
-    expect(orgHasActivePlan).not.toHaveBeenCalled();
+    ).resolves.toBeNull();
   });
 
-  it("requires an active plan for non-core mode when no explicit workspace plan is stored", async () => {
-    orgHasActivePlan.mockResolvedValue(false);
+  it("does not require active Stripe subscription metadata when no explicit workspace plan is stored", async () => {
     const { validateWorkspaceModeBillingEligibility } = await import("@/actions/workspace-mode-billing-eligibility");
     await expect(
       validateWorkspaceModeBillingEligibility({
@@ -35,8 +22,7 @@ describe("validateWorkspaceModeBillingEligibility", () => {
         mode: "advanced",
         prevSettings: {},
       })
-    ).resolves.toBe("Advanced mode requires an active billing plan. Open Billing before saving this change.");
-    expect(orgHasActivePlan).toHaveBeenCalledWith({}, "org-1");
+    ).resolves.toBeNull();
   });
 
   it("allows mode changes when billing requirements are satisfied", async () => {

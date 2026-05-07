@@ -161,23 +161,27 @@ export async function recordQuestionnaireStarted(): Promise<CalibrationActionRes
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
-  const { data: existingStart } = await ctx.admin
-    .from("audit_events")
-    .select("id")
-    .eq("organization_id", ctx.orgId)
-    .eq("action", "onboarding.questionnaire_started")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!existingStart) {
-    const { error: auditErr } = await ctx.admin.from("audit_events").insert({
-      organization_id: ctx.orgId,
-      contract_id: null,
-      user_id: ctx.user.id,
-      action: "onboarding.questionnaire_started",
-      details: { source: "wizard" },
-    });
-    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  try {
+    const { data: existingStart } = await ctx.admin
+      .from("audit_events")
+      .select("id")
+      .eq("organization_id", ctx.orgId)
+      .eq("action", "onboarding.questionnaire_started")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!existingStart) {
+      const { error: auditErr } = await ctx.admin.from("audit_events").insert({
+        organization_id: ctx.orgId,
+        contract_id: null,
+        user_id: ctx.user.id,
+        action: "onboarding.questionnaire_started",
+        details: { source: "wizard" },
+      });
+      if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    }
+  } catch (error) {
+    console.error("[onboarding-calibration] questionnaire start audit failed", error);
   }
   revalidateCalibrationSurfaces();
   return { ok: true };
@@ -251,14 +255,18 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
-  const { error: auditErr } = await ctx.admin.from("audit_events").insert({
-    organization_id: ctx.orgId,
-    contract_id: null,
-    user_id: ctx.user.id,
-    action: "onboarding.recalibration_run",
-    details: { source: "settings" },
-  });
-  if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  try {
+    const { error: auditErr } = await ctx.admin.from("audit_events").insert({
+      organization_id: ctx.orgId,
+      contract_id: null,
+      user_id: ctx.user.id,
+      action: "onboarding.recalibration_run",
+      details: { source: "settings" },
+    });
+    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  } catch (error) {
+    console.error("[onboarding-calibration] recalibration audit insert threw", error);
+  }
   await emitProductTelemetryEvent(ctx.admin, {
     organizationId: ctx.orgId,
     userId: ctx.user.id,
@@ -297,33 +305,49 @@ async function insertProductSurfaceAudit(input: {
 }) {
   const { admin, orgId, userId, prevV6, merged, source, transition } = input;
   const prevMode = parseWorkspaceMode(prevV6);
-  await admin.from("audit_events").insert({
-    organization_id: orgId,
-    contract_id: null,
-    user_id: userId,
-    action: "workspace.product_surface_updated",
-    details: {
-      source,
-      prev_workspace_mode: prevMode,
-      next_workspace_mode: parseWorkspaceMode(merged),
-      prev_default_landing_path: prevV6.default_landing_path ?? null,
-      next_default_landing_path: merged.default_landing_path ?? null,
-      prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
-      next_advanced_modules_hidden: merged.advanced_modules_hidden ?? [],
-      prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
-      next_assurance_modules_hidden: merged.assurance_modules_hidden ?? [],
-      prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
-      next_utility_modules_hidden: merged.utility_modules_hidden ?? [],
-      prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
-      next_home_hidden_sections: merged.home_hidden_sections ?? [],
-      prev_search_scope: prevV6.search_scope ?? "match_mode",
-      next_search_scope: merged.search_scope ?? "match_mode",
-      prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
-      next_autopilot_allow_execution: merged.autopilot_allow_execution === true,
-      auto_blocked_notification_types: transition.autoBlockedNotificationTypes,
-      suppressed_report_pack_subscription_count: transition.suppressedSubscriptionCount,
-    },
-  });
+  try {
+    const { error } = await admin.from("audit_events").insert({
+      organization_id: orgId,
+      contract_id: null,
+      user_id: userId,
+      action: "workspace.product_surface_updated",
+      details: {
+        source,
+        prev_workspace_mode: prevMode,
+        next_workspace_mode: parseWorkspaceMode(merged),
+        prev_default_landing_path: prevV6.default_landing_path ?? null,
+        next_default_landing_path: merged.default_landing_path ?? null,
+        prev_advanced_modules_hidden: prevV6.advanced_modules_hidden ?? [],
+        next_advanced_modules_hidden: merged.advanced_modules_hidden ?? [],
+        prev_assurance_modules_hidden: prevV6.assurance_modules_hidden ?? [],
+        next_assurance_modules_hidden: merged.assurance_modules_hidden ?? [],
+        prev_utility_modules_hidden: prevV6.utility_modules_hidden ?? [],
+        next_utility_modules_hidden: merged.utility_modules_hidden ?? [],
+        prev_home_hidden_sections: prevV6.home_hidden_sections ?? [],
+        next_home_hidden_sections: merged.home_hidden_sections ?? [],
+        prev_search_scope: prevV6.search_scope ?? "match_mode",
+        next_search_scope: merged.search_scope ?? "match_mode",
+        prev_autopilot_allow_execution: prevV6.autopilot_allow_execution === true,
+        next_autopilot_allow_execution: merged.autopilot_allow_execution === true,
+        auto_blocked_notification_types: transition.autoBlockedNotificationTypes,
+        suppressed_report_pack_subscription_count: transition.suppressedSubscriptionCount,
+      },
+    });
+    if (error) console.error("[onboarding-calibration] product surface audit insert error", error.message);
+  } catch (error) {
+    console.error("[onboarding-calibration] product surface audit insert threw", error);
+  }
+}
+
+async function safeApplyWorkspaceProductTransitionSideEffects(
+  input: Parameters<typeof applyWorkspaceProductTransitionSideEffects>[0]
+): Promise<Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>> {
+  try {
+    return await applyWorkspaceProductTransitionSideEffects(input);
+  } catch (error) {
+    console.error("[onboarding-calibration] transition side effects failed", error);
+    return { autoBlockedNotificationTypes: [], suppressedSubscriptionCount: 0 };
+  }
 }
 
 export async function completeQuestionnaireAcceptRecommendation(
@@ -404,7 +428,7 @@ export async function completeQuestionnaireAcceptRecommendation(
     if (err2 || !merged2) throw new Error(err2?.message ?? "merge calibration snapshot failed");
 
     const nextMode = parseWorkspaceMode(merged2);
-    const transition = await applyWorkspaceProductTransitionSideEffects({
+    const transition = await safeApplyWorkspaceProductTransitionSideEffects({
       admin: ctx.admin,
       orgId: ctx.orgId,
       userId: ctx.user.id,
@@ -428,49 +452,53 @@ export async function completeQuestionnaireAcceptRecommendation(
       transition,
     });
 
-    const { error: auditErr } = await ctx.admin.from("audit_events").insert([
-      {
-        organization_id: ctx.orgId,
-        contract_id: null,
-        user_id: ctx.user.id,
-        action: "onboarding.recommendation_generated",
-        details: {
-          recommended_mode: rec.recommended_workspace_mode,
-          answers_hash: answerHash,
+    try {
+      const { error: auditErr } = await ctx.admin.from("audit_events").insert([
+        {
+          organization_id: ctx.orgId,
+          contract_id: null,
+          user_id: ctx.user.id,
+          action: "onboarding.recommendation_generated",
+          details: {
+            recommended_mode: rec.recommended_workspace_mode,
+            answers_hash: answerHash,
+          },
         },
-      },
-      {
-        organization_id: ctx.orgId,
-        contract_id: null,
-        user_id: ctx.user.id,
-        action: "onboarding.recommendation_accepted",
-        details: { next_mode: rec.recommended_workspace_mode },
-      },
-      {
-        organization_id: ctx.orgId,
-        contract_id: null,
-        user_id: ctx.user.id,
-        action: "onboarding.questionnaire_completed",
-        details: { choice: "accept" },
-      },
-      {
-        organization_id: ctx.orgId,
-        contract_id: null,
-        user_id: ctx.user.id,
-        action: "onboarding.calibration_applied",
-        details: {
-          prev_workspace_mode: prevMode,
-          next_workspace_mode: nextMode,
-          prev_advanced_hidden: prevV6.advanced_modules_hidden ?? [],
-          next_advanced_hidden: merged2.advanced_modules_hidden ?? [],
-          prev_assurance_hidden: prevV6.assurance_modules_hidden ?? [],
-          next_assurance_hidden: merged2.assurance_modules_hidden ?? [],
-          prev_home_hidden: prevV6.home_hidden_sections ?? [],
-          next_home_hidden: merged2.home_hidden_sections ?? [],
+        {
+          organization_id: ctx.orgId,
+          contract_id: null,
+          user_id: ctx.user.id,
+          action: "onboarding.recommendation_accepted",
+          details: { next_mode: rec.recommended_workspace_mode },
         },
-      },
-    ]);
-    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+        {
+          organization_id: ctx.orgId,
+          contract_id: null,
+          user_id: ctx.user.id,
+          action: "onboarding.questionnaire_completed",
+          details: { choice: "accept" },
+        },
+        {
+          organization_id: ctx.orgId,
+          contract_id: null,
+          user_id: ctx.user.id,
+          action: "onboarding.calibration_applied",
+          details: {
+            prev_workspace_mode: prevMode,
+            next_workspace_mode: nextMode,
+            prev_advanced_hidden: prevV6.advanced_modules_hidden ?? [],
+            next_advanced_hidden: merged2.advanced_modules_hidden ?? [],
+            prev_assurance_hidden: prevV6.assurance_modules_hidden ?? [],
+            next_assurance_hidden: merged2.assurance_modules_hidden ?? [],
+            prev_home_hidden: prevV6.home_hidden_sections ?? [],
+            next_home_hidden: merged2.home_hidden_sections ?? [],
+          },
+        },
+      ]);
+      if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    } catch (error) {
+      console.error("[onboarding-calibration] audit insert threw", error);
+    }
     await emitProductTelemetryEvent(ctx.admin, {
       organizationId: ctx.orgId,
       userId: ctx.user.id,
@@ -514,14 +542,18 @@ export async function completeQuestionnaireAcceptRecommendation(
       orgId: ctx.orgId,
       mode: "core",
     });
-    const { error: auditErr } = await ctx.admin.from("audit_events").insert({
-      organization_id: ctx.orgId,
-      contract_id: null,
-      user_id: ctx.user.id,
-      action: "onboarding.calibration_error",
-      details: { phase: "accept_recommendation", answers_hash: answerHash },
-    });
-    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    try {
+      const { error: auditErr } = await ctx.admin.from("audit_events").insert({
+        organization_id: ctx.orgId,
+        contract_id: null,
+        user_id: ctx.user.id,
+        action: "onboarding.calibration_error",
+        details: { phase: "accept_recommendation", answers_hash: answerHash },
+      });
+      if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+    } catch (error) {
+      console.error("[onboarding-calibration] fallback audit insert threw", error);
+    }
     await emitProductTelemetryEvent(ctx.admin, {
       organizationId: ctx.orgId,
       userId: ctx.user.id,
@@ -628,23 +660,27 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
-  const { error: auditErr } = await ctx.admin.from("audit_events").insert([
-    {
-      organization_id: ctx.orgId,
-      contract_id: null,
-      user_id: ctx.user.id,
-      action: "onboarding.recommendation_overridden",
-      details: { destination: "/settings/product" },
-    },
-    {
-      organization_id: ctx.orgId,
-      contract_id: null,
-      user_id: ctx.user.id,
-      action: "onboarding.questionnaire_completed",
-      details: { choice: "settings" },
-    },
-  ]);
-  if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  try {
+    const { error: auditErr } = await ctx.admin.from("audit_events").insert([
+      {
+        organization_id: ctx.orgId,
+        contract_id: null,
+        user_id: ctx.user.id,
+        action: "onboarding.recommendation_overridden",
+        details: { destination: "/settings/product" },
+      },
+      {
+        organization_id: ctx.orgId,
+        contract_id: null,
+        user_id: ctx.user.id,
+        action: "onboarding.questionnaire_completed",
+        details: { choice: "settings" },
+      },
+    ]);
+    if (auditErr) console.error("[onboarding-calibration] audit insert error", auditErr.message);
+  } catch (error) {
+    console.error("[onboarding-calibration] settings path audit insert threw", error);
+  }
   await emitProductTelemetryEvent(ctx.admin, {
     organizationId: ctx.orgId,
     userId: ctx.user.id,

@@ -92,7 +92,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "ring" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
+            view === "ring" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--text-inverse)]" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("ring");
@@ -104,7 +104,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "top_edges" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
+            view === "top_edges" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--text-inverse)]" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("top_edges");
@@ -116,7 +116,7 @@ export function HealthGraphConcentration({ nodes, edges }: HealthGraphConcentrat
         <button
           type="button"
           className={`rounded-full border px-2.5 py-0.5 text-xs ${
-            view === "by_type" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
+            view === "by_type" ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--text-inverse)]" : "border-[var(--border-subtle)] bg-surface text-[var(--text-secondary)]"
           }`}
           onClick={() => {
             setView("by_type");
