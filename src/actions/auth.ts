@@ -168,7 +168,7 @@ export async function signOut() {
   redirect("/api/auth/post-sign-out");
 }
 
-export async function forgotPassword(formData: FormData): Promise<AuthActionResult> {
+export async function forgotPassword(formData: FormData) {
   return recoverAuthAction("forgotPassword", () => forgotPasswordUnsafe(formData));
 }
 
@@ -197,7 +197,7 @@ async function forgotPasswordUnsafe(formData: FormData): Promise<AuthActionResul
   return { success: "Check your email for a password reset link." };
 }
 
-export async function resetPassword(formData: FormData): Promise<AuthActionResult> {
+export async function resetPassword(formData: FormData) {
   return recoverAuthAction("resetPassword", () => resetPasswordUnsafe(formData));
 }
 

@@ -414,6 +414,10 @@ export function Sidebar(props: {
     }
   }, [collapsed]);
 
+  const focusMobileOpenButton = useCallback(() => {
+    mobileOpenButtonRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     const update = () => setHash(window.location.hash);
     update();
@@ -423,8 +427,13 @@ export function Sidebar(props: {
 
   useEffect(() => {
     const next = filterNavBadgesForSurface(props.navBadges ?? {}, surface);
-    const frame = window.requestAnimationFrame(() => setClientNavBadges(next));
-    return () => window.cancelAnimationFrame(frame);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setClientNavBadges(next);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [props.navBadges, surface]);
 
   useEffect(() => {
@@ -465,6 +474,7 @@ export function Sidebar(props: {
     const appContent = document.querySelector<HTMLElement>("[data-app-content]");
     const previousAriaHidden = appContent?.getAttribute("aria-hidden");
     const previousInert = appContent ? Boolean((appContent as HTMLElement & { inert?: boolean }).inert) : false;
+    const mobileOpenButton = mobileOpenButtonRef.current;
     if (appContent) {
       appContent.setAttribute("aria-hidden", "true");
       (appContent as HTMLElement & { inert?: boolean }).inert = true;
@@ -480,9 +490,10 @@ export function Sidebar(props: {
       }
       const target = restoreFocusRef.current;
       if (target?.isConnected) target.focus();
-      else mobileOpenButtonRef.current?.focus();
+      else if (mobileOpenButton?.isConnected) mobileOpenButton.focus();
+      else focusMobileOpenButton();
     };
-  }, [mobileOpen]);
+  }, [focusMobileOpenButton, mobileOpen]);
 
   useEffect(() => {
     if (!mobileOpen) return;
