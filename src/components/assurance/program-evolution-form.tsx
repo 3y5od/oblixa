@@ -46,32 +46,27 @@ export function ProgramEvolutionCreateForm() {
   return (
     <form onSubmit={(e) => void onSubmit(e)} className="space-y-2 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
       <p className="text-xs font-semibold text-[var(--text-secondary)]">New experiment</p>
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Hypothesis (optional)" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Hypothesis (optional)"
         value={hypothesis}
         onChange={(e) => setHypothesis(e.target.value)}
       />
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Program UUID (optional)" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Program UUID (optional)"
         value={programId}
         onChange={(e) => setProgramId(e.target.value)}
       />
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Baseline program version UUID (optional)" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Baseline program version UUID (optional)"
         value={baselineVersionId}
         onChange={(e) => setBaselineVersionId(e.target.value)}
       />
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Candidate program version UUID (optional)" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Candidate program version UUID (optional)"
         value={candidateVersionId}
         onChange={(e) => setCandidateVersionId(e.target.value)}
       />
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Target segment UUID (optional)" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Target segment UUID (optional)"
         value={targetSegmentId}
         onChange={(e) => setTargetSegmentId(e.target.value)}
@@ -171,7 +166,7 @@ export function ProgramEvolutionAdvanceRolloutButton({ experimentId }: { experim
       >
         Advance rollout stage
       </AsyncActionButton>
-      <p className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+      <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
         Marks experiment running, logs a program_evolution_results milestone with live portfolio metrics.
       </p>
       <InlineMutationStatus message={err} variant="error" className="mt-1 text-xs" />

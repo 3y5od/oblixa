@@ -22,6 +22,8 @@ test.describe("@v10 V10 device matrix (chromium desktop)", () => {
   test("dashboard shell on chromium desktop", async ({ page, app }) => {
     await app.loginAsDefaultUser();
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText(/Daily brief/i)).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByRole("heading", { name: /Contract tracking/i })).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByText("Needs review").first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: "Review Queue" })).toBeVisible({ timeout: 10_000 });
   });
 });

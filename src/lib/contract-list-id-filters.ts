@@ -128,6 +128,31 @@ export async function getContractIdsWithV10HealthWatch(
   return [...new Set((data ?? []).map((r) => r.contract_id as string))];
 }
 
+export async function getContractIdsWithOpenWork(
+  admin: Admin,
+  orgId: string,
+  viewer: { role?: string | null; workspaceMode?: string | null } = {}
+): Promise<string[]> {
+  const query = applyV10ReadModelVisibility(
+    admin.from("v10_work_items").select("contract_id"),
+    {
+      organizationId: orgId,
+      role: viewer.role ?? "viewer",
+      workspaceMode: viewer.workspaceMode ?? "core",
+    }
+  );
+  const { data, error } = await query
+    .not("contract_id", "is", null)
+    .neq("status", "done")
+    .neq("status", "canceled");
+
+  if (error) {
+    console.error("[contract-list-id-filters] v10_work_items:", formatUnknownForServerLog(error.message));
+    return [];
+  }
+  return [...new Set((data ?? []).map((r) => r.contract_id as string))];
+}
+
 export async function getContractIdsMissingCriticalDates(
   admin: Admin,
   orgId: string
@@ -141,7 +166,9 @@ export interface ContractListAuxFilterParams {
   review?: string;
   data_quality?: string;
   evidence?: string;
+  work?: string;
   health?: string;
+  viewer?: { role?: string | null; workspaceMode?: string | null };
 }
 
 export async function resolveAuxiliaryContractListIntersectIds(
@@ -163,8 +190,11 @@ export async function resolveAuxiliaryContractListIntersectIds(
   if (params.evidence === "outstanding") {
     parts.push(await getContractIdsWithOutstandingEvidence(admin, orgId));
   }
+  if (params.work === "open") {
+    parts.push(await getContractIdsWithOpenWork(admin, orgId, params.viewer));
+  }
   if (params.health === "watch") {
-    parts.push(await getContractIdsWithV10HealthWatch(admin, orgId));
+    parts.push(await getContractIdsWithV10HealthWatch(admin, orgId, params.viewer));
   }
 
   return combineContractListIntersectIds(parts);

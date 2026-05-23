@@ -1,24 +1,25 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash, randomBytes } from "node:crypto";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/export/calendar/feed";
 
 function createFeedToken(): string {
   return randomBytes(32).toString("hex");
 }
 
 function calendarFeedFailure(error: string, diagnosticId: string, status = 500) {
-  return NextResponse.json(
-    {
-      ok: false,
-      error,
-      code: "data_source_failed",
-      diagnostic_id: diagnosticId,
-      phase: "persist",
-    },
-    { status }
-  );
+  return jsonProblem(status, {
+    error,
+    code: "data_source_failed",
+    diagnostic_id: diagnosticId,
+    route: ROUTE,
+    details: { phase: "persist" },
+  });
 }
 
 export async function GET(request: Request) {
@@ -28,25 +29,24 @@ export async function GET(request: Request) {
     windowMs: 60_000,
   });
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_not_found",
+      diagnostic_id: "calendar_feed_organization_not_found",
+      route: ROUTE,
+    });
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -55,10 +55,18 @@ export async function GET(request: Request) {
   });
   if (modeGate) return modeGate;
 
+  void recordApiRouteAuditEvent(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   const expiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString();
   const { data: existing, error: existingError } = await admin
     .from("calendar_feeds")
-    .select("id, token, token_prefix, token_hash, expires_at")
+    .select("id, token_prefix, token_hash, expires_at")
     .eq("organization_id", membership.organization_id)
     .eq("user_id", user.id)
     .eq("active", true)
@@ -68,13 +76,6 @@ export async function GET(request: Request) {
     .maybeSingle();
   if (existingError) {
     return calendarFeedFailure("Could not load calendar feed", "calendar_feed_lookup_failed");
-  }
-  if (existing?.token) {
-    return NextResponse.json({
-      token: existing.token,
-      feedPath: `/api/export/calendar/feed/${existing.token}`,
-      expiresAt: existing.expires_at,
-    });
   }
 
   const token = createFeedToken();

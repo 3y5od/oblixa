@@ -4,6 +4,15 @@
   "allowlists": [
     {
       "description": "E2E fixtures and known false positives",
+      "metadata": {
+        "owner": "security",
+        "reviewedOn": "2026-05-11",
+        "reason": "Mirrors the reviewed Gitleaks false-positive path inventory; expansion must stay anchored and synchronized with .gitleaks.toml.",
+        "expiresOn": "2027-12-31",
+        "compensatingTest": "scripts/check-gitleaks-allowlist.mjs",
+        "allowBroadPattern": true,
+        "controlRationale": "Anchored false-positive regexes are mirrored from the Gitleaks config and verified by the allowlist check."
+      },
       "paths": [
         "^e2e/",
         ".*\\.test\\.ts$",

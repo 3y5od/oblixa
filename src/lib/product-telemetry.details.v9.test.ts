@@ -19,4 +19,9 @@ describe("product telemetry details clamp", () => {
     const out = clampProductTelemetryDetails({ surface: "notify ops@corp.test" });
     expect(out.surface).toBe("notify [redacted]");
   });
+
+  it("strips sensitive query values before telemetry persistence", () => {
+    const out = clampProductTelemetryDetails({ href: "/settings?token=secret&tab=billing" });
+    expect(out.href).toBe("/settings?tab=billing");
+  });
 });

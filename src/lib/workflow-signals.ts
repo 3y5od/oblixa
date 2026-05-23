@@ -33,6 +33,7 @@ export async function recomputeContractSignals(
     admin
       .from("extracted_fields")
       .select("field_name, status")
+      .eq("organization_id", contract.organization_id)
       .eq("contract_id", contractId)
       .in("field_name", ["end_date", "renewal_date", "notice_window"]),
     admin
@@ -53,6 +54,7 @@ export async function recomputeContractSignals(
       admin
         .from("contract_approvals")
         .select("id")
+        .eq("organization_id", contract.organization_id)
         .eq("contract_id", contractId)
         .eq("status", "pending"),
       admin
@@ -148,6 +150,7 @@ export async function recomputeContractSignals(
       health_status: healthStatus,
       required_next_step: requiredNextStep,
     })
+    .eq("organization_id", contract.organization_id)
     .eq("id", contractId);
   await persistContractDataQualitySnapshot(admin, contractId);
 

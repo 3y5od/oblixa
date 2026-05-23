@@ -199,8 +199,7 @@ export function ContractObligationsPanel({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="ui-label-caps">Obligation</label>
-              <input
-                name="title"
+              <input aria-label="Deliver quarterly compliance report" name="title"
                 required
                 maxLength={240}
                 placeholder="Deliver quarterly compliance report"
@@ -209,8 +208,7 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Type</label>
-              <input
-                name="obligationType"
+              <input aria-label="reporting" name="obligationType"
                 maxLength={80}
                 placeholder="reporting"
                 className="ui-input w-full"
@@ -218,8 +216,7 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Cadence</label>
-              <input
-                name="cadence"
+              <input aria-label="monthly / quarterly / annual" name="cadence"
                 maxLength={120}
                 placeholder="monthly / quarterly / annual"
                 className="ui-input w-full"
@@ -239,8 +236,7 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Recurrence interval days</label>
-              <input
-                name="recurrenceIntervalDays"
+              <input aria-label="e.g. 30" name="recurrenceIntervalDays"
                 type="number"
                 min={1}
                 max={3650}
@@ -261,11 +257,11 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Due date</label>
-              <input name="dueDate" type="date" className="ui-input w-full" />
+              <input aria-label="Due date" name="dueDate" type="date" className="ui-input w-full" />
             </div>
             <div>
               <label className="ui-label-caps">Escalation due at</label>
-              <input name="escalationDueAt" type="datetime-local" className="ui-input w-full" />
+              <input aria-label="Escalation due at" name="escalationDueAt" type="datetime-local" className="ui-input w-full" />
             </div>
             <div className="sm:col-span-2">
               <label className="ui-label-caps">Details (optional)</label>
@@ -279,8 +275,7 @@ export function ContractObligationsPanel({
             </div>
             <div className="sm:col-span-2">
               <label className="ui-label-caps">Evidence URL (optional)</label>
-              <input
-                name="evidenceUrl"
+              <input aria-label="https://..." name="evidenceUrl"
                 type="url"
                 placeholder="https://..."
                 className="ui-input w-full"
@@ -289,7 +284,7 @@ export function ContractObligationsPanel({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs text-[var(--text-tertiary)]">Obligations track non-date commitments tied to this contract.</p>
-            <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
+            <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
               {isPending ? "Saving..." : "Add obligation"}
             </button>
           </div>
@@ -297,7 +292,7 @@ export function ContractObligationsPanel({
       )}
       {canEdit && (
         <form action={applyObligationTemplatesToContractForm.bind(null, contractId) as never}>
-          <button type="submit" disabled={isPending} className="ui-btn-secondary px-4 py-2 text-[13px]">
+          <button type="submit" disabled={isPending} className="ui-btn-secondary px-4 py-2 text-[12.5px]">
             Apply templates for this contract type
           </button>
         </form>
@@ -389,7 +384,7 @@ export function ContractObligationsPanel({
                         {blockedBy.map((label) => (
                           <span
                             key={`b-${ob.id}-${label}`}
-                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[10px] text-[var(--warning-ink)]"
+                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] text-[var(--warning-ink)]"
                           >
                             Blocked by {label}
                           </span>
@@ -397,7 +392,7 @@ export function ContractObligationsPanel({
                         {unblocks.map((label) => (
                           <span
                             key={`u-${ob.id}-${label}`}
-                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[10px] text-sky-900"
+                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[11px] text-sky-900"
                           >
                             {label}
                           </span>
@@ -476,8 +471,7 @@ export function ContractObligationsPanel({
                     <option value="yearly">yearly</option>
                     <option value="custom_days">custom_days</option>
                   </select>
-                  <input
-                    name="recurrenceIntervalDays"
+                  <input aria-label="interval" name="recurrenceIntervalDays"
                     type="number"
                     min={1}
                     max={3650}
@@ -495,8 +489,7 @@ export function ContractObligationsPanel({
                     <option value="sent">esc:sent</option>
                     <option value="acked">esc:acked</option>
                   </select>
-                  <input
-                    name="escalationDueAt"
+                  <input aria-label="Escalation due at" name="escalationDueAt"
                     type="datetime-local"
                     defaultValue={
                       ob.escalation_due_at
@@ -508,15 +501,13 @@ export function ContractObligationsPanel({
                   <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
                     Save ops fields
                   </button>
-                  <input
-                    name="evidenceUrl"
+                  <input aria-label="Evidence URL" name="evidenceUrl"
                     type="url"
                     defaultValue={ob.evidence_url ?? ""}
                     placeholder="Evidence URL"
                     className="ui-input py-1.5 text-xs sm:col-span-2"
                   />
-                  <input
-                    name="evidenceNotes"
+                  <input aria-label="Evidence notes" name="evidenceNotes"
                     defaultValue={ob.evidence_notes ?? ""}
                     placeholder="Evidence notes"
                     className="ui-input py-1.5 text-xs sm:col-span-3"

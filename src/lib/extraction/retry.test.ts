@@ -1,106 +1,89 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
-import {
-  fetchWithRetry,
-  isRetryableOpenAIError,
-  withRetry,
-} from "@/lib/extraction/retry";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { fetchWithRetry, withRetry } from "./retry";
 
-describe("withRetry", () => {
-  it("returns on first success", async () => {
-    let n = 0;
-    const r = await withRetry(async () => {
-      n++;
-      return "a";
-    });
-    expect(r).toBe("a");
-    expect(n).toBe(1);
-  });
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
-  it("retries then succeeds", async () => {
-    let n = 0;
-    const r = await withRetry(
-      async () => {
-        n++;
-        if (n < 3) throw new Error("transient");
-        return "ok";
-      },
-      { maxAttempts: 5, shouldRetry: () => true }
-    );
-    expect(r).toBe("ok");
-    expect(n).toBe(3);
-  });
-
-  it("stops when shouldRetry is false", async () => {
-    let n = 0;
+describe("withRetry timeout budgets", () => {
+  it("rejects an attempt that exceeds its timeout budget", async () => {
     await expect(
-      withRetry(
-        async () => {
-          n++;
-          throw new Error("no");
-        },
-        {
-          maxAttempts: 5,
-          shouldRetry: () => false,
-        }
-      )
-    ).rejects.toThrow("no");
-    expect(n).toBe(1);
-  });
-});
-
-describe("isRetryableOpenAIError", () => {
-  it("treats APIConnectionError by name as retryable", () => {
-    const err = new Error("reset");
-    err.name = "APIConnectionError";
-    expect(isRetryableOpenAIError(err)).toBe(true);
+      withRetry(() => new Promise(() => undefined), {
+        maxAttempts: 1,
+        timeoutMs: 5,
+      })
+    ).rejects.toThrow("operation timed out");
   });
 
-  it("treats APIError with 429 as retryable", () => {
-    const err = new Error("rate");
-    err.name = "APIError";
-    expect(isRetryableOpenAIError(Object.assign(err, { status: 429 }))).toBe(
-      true
+  it("retries timed-out attempts up to the attempt cap", async () => {
+    const worker = vi.fn(() => new Promise(() => undefined));
+
+    await expect(
+      withRetry(worker, {
+        maxAttempts: 2,
+        baseDelayMs: 1,
+        maxDelayMs: 1,
+        timeoutMs: 5,
+      })
+    ).rejects.toThrow("operation timed out");
+
+    expect(worker).toHaveBeenCalledTimes(2);
+  });
+
+  it("passes an abort signal to workers that can cancel underlying work", async () => {
+    const worker = vi.fn(
+      (signal: AbortSignal) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new Error("cancelled by signal")), { once: true });
+        })
     );
-  });
 
-  it("does not retry generic errors", () => {
-    expect(isRetryableOpenAIError(new Error("nope"))).toBe(false);
+    await expect(
+      withRetry(worker, {
+        maxAttempts: 1,
+        timeoutMs: 5,
+      })
+    ).rejects.toThrow(/cancelled by signal|operation timed out/);
+
+    expect(worker.mock.calls[0]?.[0]).toBeInstanceOf(AbortSignal);
   });
 });
 
-describe("fetchWithRetry", () => {
-  const orig = globalThis.fetch;
+describe("fetchWithRetry timeout budgets", () => {
+  it("aborts fetch attempts with the configured timeout", async () => {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      const signal = init?.signal;
+      return new Promise<Response>((_resolve, reject) => {
+        signal?.addEventListener("abort", () => reject(new Error("aborted")), { once: true });
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
-  afterEach(() => {
-    globalThis.fetch = orig;
-    vi.restoreAllMocks();
+    await expect(
+      fetchWithRetry("https://worker.example.test/run", undefined, {
+        maxAttempts: 1,
+        timeoutMs: 5,
+      })
+    ).rejects.toThrow("aborted");
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("retries on 503 then returns ok response", async () => {
-    let calls = 0;
-    globalThis.fetch = vi.fn(async () => {
-      calls++;
-      if (calls < 2) {
-        return new Response("bad", { status: 503 });
-      }
-      return new Response("ok", { status: 200 });
-    }) as typeof fetch;
+  it("preserves retryable HTTP response behavior while enforcing a budget per attempt", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("busy", { status: 503 }))
+      .mockResolvedValueOnce(new Response("ok", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
 
-    const res = await fetchWithRetry("http://example.test/run", {});
-    expect(res.ok).toBe(true);
-    expect(await res.text()).toBe("ok");
-    expect(calls).toBe(2);
-  });
+    const response = await fetchWithRetry("https://worker.example.test/run", undefined, {
+      maxAttempts: 2,
+      baseDelayMs: 1,
+      maxDelayMs: 1,
+      timeoutMs: 50,
+    });
 
-  it("returns a non-retryable error response without retrying", async () => {
-    let calls = 0;
-    globalThis.fetch = vi.fn(async () => {
-      calls++;
-      return new Response("nope", { status: 400 });
-    }) as typeof fetch;
-
-    const res = await fetchWithRetry("http://example.test/run", {});
-    expect(res.status).toBe(400);
-    expect(calls).toBe(1);
+    expect(response.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

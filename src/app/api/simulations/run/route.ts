@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/v4/policy-registry";
@@ -6,17 +7,23 @@ import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { buildSimulationTypeSpecificSignals } from "@/lib/v5/simulation-type-metrics";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import {
   SIMULATION_TYPE_FOCUS,
   isValidSimulationType,
   simulationTypeValidationError,
 } from "@/lib/v5/simulation-types";
 
+const ROUTE = "/api/simulations/run";
+
 export async function POST(request: Request) {
   const disabled = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -24,9 +31,13 @@ export async function POST(request: Request) {
     apiPath: "/api/simulations/run",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/simulations/run",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -39,7 +50,12 @@ export async function POST(request: Request) {
 
   const rawSim = toSafeString(body.simulationType) || "campaign_eligibility_impact";
   if (!isValidSimulationType(rawSim)) {
-    return NextResponse.json({ error: simulationTypeValidationError() }, { status: 400 });
+    return jsonProblem(400, {
+      error: simulationTypeValidationError(),
+      code: "invalid_simulation_type",
+      diagnostic_id: "simulation_type_invalid",
+      route: ROUTE,
+    });
   }
   const simulationType = rawSim;
   const name = toSafeString(body.name) || `Simulation ${new Date().toISOString().slice(0, 10)}`;
@@ -84,7 +100,14 @@ export async function POST(request: Request) {
     })
     .select("id, simulation_type, name")
     .single();
-  if (simulationError) return NextResponse.json({ error: simulationError.message }, { status: 400 });
+  if (simulationError) {
+    return jsonProblem(400, {
+      error: simulationError.message,
+      code: "simulation_create_failed",
+      diagnostic_id: "simulation_create_failed",
+      route: ROUTE,
+    });
+  }
 
   const portfolioAffected = affectedCount ?? 0;
   const manualOverride = Number(input["affectedContracts"]);
@@ -175,7 +198,14 @@ export async function POST(request: Request) {
     })
     .select("id, status, result_json, created_at")
     .single();
-  if (runError) return NextResponse.json({ error: runError.message }, { status: 400 });
+  if (runError) {
+    return jsonProblem(400, {
+      error: runError.message,
+      code: "simulation_run_create_failed",
+      diagnostic_id: "simulation_run_create_failed",
+      route: ROUTE,
+    });
+  }
 
   await ctx.admin
     .from("change_simulations")

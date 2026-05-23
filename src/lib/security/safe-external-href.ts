@@ -2,7 +2,7 @@
  * Sanitize tenant- or user-controlled hrefs for rich text / markdown.
  * Blocks dangerous schemes; optional policy for secondary schemes (mailto, tel, sms, intent).
  */
-const DANGEROUS_SCHEME = /^(javascript|data|vbscript|file)\s*:/i;
+const DANGEROUS_SCHEME = /^(javascript|data|vbscript|file)[\s\u0000-\u001f]*:/i;
 
 export type SecondarySchemePolicy = "allow" | "strip";
 
@@ -12,9 +12,12 @@ export function sanitizeExternalHref(
 ): string | null {
   const t = String(raw).trim();
   if (!t) return null;
+  const withoutC0Controls = t.replace(/[\u0000-\u001f]+/g, "");
+  if (withoutC0Controls !== t || t.includes("\u007f")) return null;
   const lower = t.toLowerCase();
   if (lower.startsWith("#")) return t;
   if (DANGEROUS_SCHEME.test(lower)) return null;
+  if (lower.startsWith("//")) return null;
   if (secondary === "strip") {
     if (/^(mailto|tel|sms|intent)\s*:/i.test(lower)) return null;
   }

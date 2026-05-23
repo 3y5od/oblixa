@@ -52,7 +52,14 @@ describe("kill-switches", () => {
   it("killSwitchJsonResponse returns 503 JSON", async () => {
     const res = killSwitchJsonResponse("test");
     expect(res.status).toBe(503);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(res.headers.get("Vary")).toContain("Cookie");
     const body = await res.json();
-    expect(body).toEqual({ error: "Service temporarily unavailable", subsystem: "test" });
+    expect(body).toMatchObject({
+      error: "Service temporarily unavailable",
+      code: "service_temporarily_unavailable",
+      diagnostic_id: "kill_switch_active",
+      details: { subsystem: "test" },
+    });
   });
 });

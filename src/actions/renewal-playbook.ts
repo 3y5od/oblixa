@@ -4,11 +4,13 @@ import { subDays } from "date-fns";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import { isUuid, validateBoundedString } from "@/lib/security/validation";
 import type { RenewalCheckpointStatus } from "@/lib/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+
+const MAX_WORKSPACE_NOTE_LEN = 4000;
 
 const CHECKPOINT_STATUSES: RenewalCheckpointStatus[] = [
   "pending",
@@ -293,9 +295,16 @@ export async function addRenewalWorkspaceNote(input: {
 
   if (!user) return { error: "Not authenticated" };
   if (!isUuid(input.contractId)) return { error: "Invalid contract" };
-  const body = input.body.trim();
-  if (!body) return { error: "Note is required" };
-  if (body.length > 4000) return { error: "Note is too long" };
+  const bodyValidation = validateBoundedString(input.body, {
+    maxLength: MAX_WORKSPACE_NOTE_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!bodyValidation.ok) {
+    if (bodyValidation.error === "string_too_long") return { error: "Note is too long" };
+    if (bodyValidation.error === "unsafe_characters") return { error: "Note contains unsupported characters" };
+    return { error: "Note is required" };
+  }
+  const body = bodyValidation.value;
 
   const contract = await getContractAndRole(admin, user.id, input.contractId);
   if (!contract) return { error: "Access denied" };

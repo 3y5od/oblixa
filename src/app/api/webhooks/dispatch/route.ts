@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { claimDueRow } from "@/lib/cron/claim-due-row";
-import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { BODY_LIMIT_STRICT_INBOUND, readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { safeFetch } from "@/lib/security/safe-fetch";
@@ -10,12 +11,16 @@ import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { isKillWebhookDispatch, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { appendCasefileEvent } from "@/lib/v4/casefile";
+import { scrubOutboundPayloadValue } from "@/lib/messaging/outbound-payload-scrub";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_FAILURES_REPORTED = 200;
 const DELIVERY_LEASE_MS = 5 * 60 * 1000;
+const ROUTE = "/api/webhooks/dispatch";
 
 function hex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
@@ -145,14 +150,21 @@ export const GET = withCronRoute({
       .lte("next_attempt_at", nowIso);
 
     const subById = new Map(eligibleSubs.map((sub) => [sub.id, sub]));
+    const safeEventPayload = scrubOutboundPayloadValue(event.payload ?? {}, {
+      maxDepth: 8,
+      maxArrayLength: 100,
+      maxKeys: 100,
+      maxStringLength: 4000,
+    }) as Record<string, unknown>;
+    const schemaVersion = String(safeEventPayload.schema_version ?? "v1");
     const payload = JSON.stringify({
       id: event.id,
       type: event.event_type,
       entity_type: event.entity_type,
       entity_id: event.entity_id,
       occurred_at: event.created_at,
-      schema_version: (event.payload as Record<string, unknown> | null)?.schema_version ?? "v1",
-      data: event.payload ?? {},
+      schema_version: schemaVersion,
+      data: safeEventPayload,
     });
     type DeliveryPatch = {
       id: string;
@@ -250,9 +262,7 @@ export const GET = withCronRoute({
             "content-type": "application/json",
             "x-oblixa-signature": signature,
             "x-oblixa-event": event.event_type,
-            "x-oblixa-schema-version": String(
-              (event.payload as Record<string, unknown> | null)?.schema_version ?? "v1"
-            ),
+            "x-oblixa-schema-version": schemaVersion,
           },
           body: payload,
         });
@@ -354,17 +364,50 @@ export async function POST(request: Request) {
   const deny = gateCronRequest(request);
   if (deny) return deny;
   const admin = await createAdminClient();
-  const _lb_body = await readJsonBodyLimited(request);
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.webhooks.dispatch",
+    actorKey: "cron",
+  });
+  if (duplicate) return duplicate;
+  const _lb_body = await readJsonBodyLimited(request, BODY_LIMIT_STRICT_INBOUND);
   if (!_lb_body.ok) return _lb_body.response;
   const body = (_lb_body.body ?? {}) as {
     action?: "replay_event";
     eventId?: string;
   };
   if (body.action !== "replay_event") {
-    return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Unsupported action",
+      code: "unsupported_action",
+      diagnostic_id: "webhook_dispatch_unsupported_action",
+      route: ROUTE,
+    });
   }
   const eventId = String(body.eventId ?? "").trim();
-  if (!eventId) return NextResponse.json({ error: "eventId is required" }, { status: 400 });
+  if (!eventId) {
+    return jsonProblem(400, {
+      error: "eventId is required",
+      code: "event_id_required",
+      diagnostic_id: "webhook_dispatch_event_id_required",
+      route: ROUTE,
+    });
+  }
+
+  const { data: eventRow } = await admin
+    .from("outbound_events")
+    .select("organization_id")
+    .eq("id", eventId)
+    .maybeSingle();
+  if (eventRow?.organization_id) {
+    void recordApiMutationAuditEvent(admin, {
+      organizationId: String(eventRow.organization_id),
+      actorUserId: null,
+      actorType: "system",
+      route: ROUTE,
+      method: "POST",
+    }).catch(() => undefined);
+  }
 
   await admin
     .from("outbound_events")

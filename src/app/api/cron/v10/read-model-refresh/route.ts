@@ -7,6 +7,7 @@ import {
 } from "@/lib/v10-read-model-refresh";
 import { V10_REQUIRED_READ_MODEL_KEYS } from "@/lib/v10-read-models";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { parseFixedEnumParam, parseIsoTimestampParam, parsePositiveIntParam } from "@/lib/security/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,12 +15,21 @@ export const maxDuration = 120;
 
 const DEFAULT_ORG_LIMIT = 50;
 const MAX_ORG_LIMIT = 250;
+const READ_MODEL_REFRESH_SCOPES = [
+  "full",
+  "full_org",
+  "incremental",
+  "repair",
+  "dry_run",
+  "one_org",
+  "one_contract",
+  "one_model",
+] as const satisfies readonly V10ReadModelRefreshScope[];
+const CHANGED_SINCE_MAX_LOOKBACK_DAYS = 90;
 
 function getOrgLimit(request: Request): number {
   const raw = new URL(request.url).searchParams.get("limit");
-  const parsed = raw ? Number(raw) : DEFAULT_ORG_LIMIT;
-  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_ORG_LIMIT;
-  return Math.min(Math.floor(parsed), MAX_ORG_LIMIT);
+  return parsePositiveIntParam(raw, { defaultValue: DEFAULT_ORG_LIMIT, max: MAX_ORG_LIMIT });
 }
 
 function getOrgCursor(request: Request): string | null {
@@ -29,19 +39,7 @@ function getOrgCursor(request: Request): string | null {
 
 function getRefreshScope(request: Request): V10ReadModelRefreshScope {
   const raw = new URL(request.url).searchParams.get("scope");
-  if (
-    raw === "full" ||
-    raw === "full_org" ||
-    raw === "incremental" ||
-    raw === "repair" ||
-    raw === "dry_run" ||
-    raw === "one_org" ||
-    raw === "one_contract" ||
-    raw === "one_model"
-  ) {
-    return raw;
-  }
-  return "full";
+  return parseFixedEnumParam(raw, READ_MODEL_REFRESH_SCOPES, "full");
 }
 
 function getRefreshReason(scope: V10ReadModelRefreshScope): string {
@@ -67,11 +65,11 @@ function getContractId(request: Request): string | null {
   return /^[a-zA-Z0-9_-]{3,80}$/.test(raw) ? raw : null;
 }
 
-function getChangedSince(request: Request): Date | undefined {
+function getChangedSince(request: Request): { ok: true; value?: Date } | { ok: false; error: string } {
   const raw = new URL(request.url).searchParams.get("changed_since");
-  if (!raw) return undefined;
-  const parsed = new Date(raw);
-  return Number.isFinite(parsed.getTime()) ? parsed : undefined;
+  const parsed = parseIsoTimestampParam(raw, { maxLookbackDays: CHANGED_SINCE_MAX_LOOKBACK_DAYS });
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+  return { ok: true, value: parsed.date };
 }
 
 function getModelKeys(request: Request): V10ReadModelKey[] | undefined {
@@ -100,6 +98,20 @@ export const GET = withCronRoute({
     const contractId = getContractId(request);
     const modelKeys = getModelKeys(request);
     const changedSince = getChangedSince(request);
+    if (!changedSince.ok) {
+      return {
+        status: 400,
+        ok: false,
+        errorsCount: 1,
+        pingReason: "invalid_changed_since",
+        body: {
+          error: "changed_since must be a recent ISO timestamp",
+          code: "invalid_changed_since",
+          diagnostic_id: "v10_read_model_refresh_changed_since_invalid",
+          details: { reason: changedSince.error },
+        },
+      };
+    }
     let orgQuery = admin.from("organizations").select("id");
     if (cursor) {
       orgQuery = orgQuery.gt("id", cursor);
@@ -129,7 +141,7 @@ export const GET = withCronRoute({
           refreshScope,
           contractId: refreshScope === "one_contract" ? contractId ?? undefined : undefined,
           modelKeys,
-          changedSince,
+          changedSince: changedSince.value,
         });
         const auditEventId = await recordV10AuditEvent(admin, {
           organizationId,

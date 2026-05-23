@@ -3,8 +3,10 @@
 
 # Generic V6 CRUD helpers return full inserted/updated rows; table is dynamic at runtime.
 # Allowlisted for performance-static-audit select("*"); revisit when insert/update table sets stabilize.
+# meta: reviewedOn=2026-05-11 owner=@performance expiry=2027-12-31 reason=v6_dynamic_crud_helper_select_shape_is_reviewed_by_static_performance_gate compensatingTest=scripts/performance-static-audit.mjs
 src/lib/v6/service.ts
 
 # Contract filter helpers intentionally cap large deadline/search candidate sets to 5000 before
 # in-memory narrowing; revisit if a paginated alternative lands.
+# meta: reviewedOn=2026-05-11 owner=@performance expiry=2027-12-31 reason=contract_filter_candidate_limit_is_bounded_before_in_memory_narrowing compensatingTest=scripts/performance-static-audit.mjs
 src/lib/contract-filters.ts

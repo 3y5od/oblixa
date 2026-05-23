@@ -1,8 +1,9 @@
 "use client";
 
-import { useTransition } from "react";
+import { useId, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateContractOwner, updateContractSecondaryOwner } from "@/actions/contracts";
+import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
 
 interface MemberOption {
   userId: string;
@@ -24,6 +25,8 @@ export function OwnerAssignmentForm({
 }: OwnerAssignmentFormProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const ownerLabelId = useId();
+  const secondaryLabelId = useId();
 
   function onChange(userId: string) {
     if (!userId || userId === currentOwnerId) return;
@@ -42,40 +45,56 @@ export function OwnerAssignmentForm({
     });
   }
 
+  const ownerOptions: UiSelectOption[] = members.map((m) => ({
+    value: m.userId,
+    label: m.label,
+  }));
+  const secondaryOptions: UiSelectOption[] = [
+    { value: "", label: "None" },
+    ...members.map((m) => ({ value: m.userId, label: m.label })),
+  ];
+  const disabled = isPending || members.length === 0;
+
   return (
-    <div className="mt-3">
-      <label className="block text-xs font-medium text-[var(--text-tertiary)] mb-1">Reassign owner</label>
-      <select
-        defaultValue={currentOwnerId ?? ""}
-        disabled={isPending || members.length === 0}
-        onChange={(e) => onChange(e.target.value)}
-        className="ui-input disabled:opacity-50"
-      >
-        <option value="">Select owner…</option>
-        {members.map((m) => (
-          <option key={m.userId} value={m.userId}>
-            {m.label}
-          </option>
-        ))}
-      </select>
-      <label className="mt-3 block text-xs font-medium text-[var(--text-tertiary)] mb-1">
-        Secondary stakeholder
-      </label>
-      <select
-        defaultValue={currentSecondaryOwnerId ?? ""}
-        disabled={isPending || members.length === 0}
-        onChange={(e) => onSecondaryChange(e.target.value)}
-        className="ui-input disabled:opacity-50"
-      >
-        <option value="">None</option>
-        {members.map((m) => (
-          <option key={m.userId} value={m.userId}>
-            {m.label}
-          </option>
-        ))}
-      </select>
+    <div className="mt-3 space-y-3">
+      <div>
+        <p
+          id={ownerLabelId}
+          className="mb-1 block text-xs font-medium text-[var(--text-tertiary)]"
+        >
+          Reassign owner
+        </p>
+        <UiSelect
+          className="block w-full"
+          buttonClassName="w-full"
+          value={currentOwnerId ?? ""}
+          onChange={onChange}
+          options={ownerOptions}
+          placeholder="Select owner…"
+          disabled={disabled}
+          ariaLabel="Reassign owner"
+        />
+      </div>
+      <div>
+        <p
+          id={secondaryLabelId}
+          className="mb-1 block text-xs font-medium text-[var(--text-tertiary)]"
+        >
+          Secondary stakeholder
+        </p>
+        <UiSelect
+          className="block w-full"
+          buttonClassName="w-full"
+          value={currentSecondaryOwnerId ?? ""}
+          onChange={onSecondaryChange}
+          options={secondaryOptions}
+          placeholder="None"
+          disabled={disabled}
+          ariaLabel="Secondary stakeholder"
+        />
+      </div>
       {isPending && (
-        <p className="mt-1 text-xs text-[var(--text-tertiary)]">Updating…</p>
+        <p className="text-xs text-[var(--text-tertiary)]">Updating…</p>
       )}
     </div>
   );

@@ -195,20 +195,25 @@ describe("org scope on decision/campaign/intelligence routes", () => {
                     eq: (col2: string, val2: string) => {
                       eqLog.push({ table, col: col2, val: val2 });
                       return {
-                        select: () => ({
-                          maybeSingle: vi.fn(async () => ({
-                            data: {
-                              id: "camp-1",
-                              name: "Updated",
-                              campaign_type: "renewal",
-                              status: "draft",
-                              eligibility_json: {},
-                              assignment_json: {},
-                              updated_at: "2026-01-01T00:00:00Z",
-                            },
-                            error: null,
-                          })),
-                        }),
+                        eq: (col3: string, val3: string) => {
+                          eqLog.push({ table, col: col3, val: val3 });
+                          return {
+                            select: () => ({
+                              maybeSingle: vi.fn(async () => ({
+                                data: {
+                                  id: "camp-1",
+                                  name: "Updated",
+                                  campaign_type: "renewal",
+                                  status: "draft",
+                                  eligibility_json: {},
+                                  assignment_json: {},
+                                  updated_at: "2026-01-01T00:00:00Z",
+                                },
+                                error: null,
+                              })),
+                            }),
+                          };
+                        },
                       };
                     },
                   };
@@ -233,16 +238,20 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     const res = await PATCH(
       new Request("http://localhost/api/campaigns/camp-1", {
         method: "PATCH",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "x-v10-expected-version": "2026-01-01T00:00:00Z",
+        },
         body: JSON.stringify({ name: "Updated" }),
       }),
       { params: Promise.resolve({ id: "camp-1" }) }
     );
     expect(res.status).toBe(200);
     const pc = eqLog.filter((e) => e.table === "portfolio_campaigns");
-    expect(pc.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(pc.map((e) => e.col)).toEqual(["organization_id", "id", "updated_at"]);
     expect(pc[0]?.val).toBe(ORG);
     expect(pc[1]?.val).toBe("camp-1");
+    expect(pc[2]?.val).toBe("2026-01-01T00:00:00Z");
   });
 
   it("PATCH /api/intelligence/recommendations/[id] scopes operational_recommendations update by organization_id", async () => {
@@ -656,9 +665,14 @@ describe("org scope on decision/campaign/intelligence routes", () => {
                   eq: (col2: string, val2: string) => {
                     eqLog.push({ table, col: col2, val: val2 });
                     return {
-                      select: () => ({
-                        maybeSingle: vi.fn(async () => ({ data: { id: "rule-1" }, error: null })),
-                      }),
+                      eq: (col3: string, val3: string) => {
+                        eqLog.push({ table, col: col3, val: val3 });
+                        return {
+                          select: () => ({
+                            maybeSingle: vi.fn(async () => ({ data: { id: "rule-1" }, error: null })),
+                          }),
+                        };
+                      },
                     };
                   },
                 };
@@ -675,16 +689,20 @@ describe("org scope on decision/campaign/intelligence routes", () => {
     const res = await PATCH(
       new Request("http://localhost", {
         method: "PATCH",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "x-v10-expected-version": "2026-01-01T00:00:00Z",
+        },
         body: JSON.stringify({ allowlist: ["f1"] }),
       }),
       { params: Promise.resolve({ id: "rule-1" }) }
     );
     expect(res.status).toBe(200);
     const rows = eqLog.filter((e) => e.table === "autopilot_rules");
-    expect(rows.map((e) => e.col)).toEqual(["organization_id", "id"]);
+    expect(rows.map((e) => e.col)).toEqual(["organization_id", "id", "updated_at"]);
     expect(rows[0]?.val).toBe(ORG);
     expect(rows[1]?.val).toBe("rule-1");
+    expect(rows[2]?.val).toBe("2026-01-01T00:00:00Z");
   });
 
   function adminListRowsMock(eqLog: EqLog[]) {

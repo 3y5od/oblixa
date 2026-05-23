@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
@@ -8,13 +8,20 @@ import { gatherPortfolioMetrics, type V6PortfolioMetrics } from "@/lib/v6/portfo
 import { recordCampaignInterventionOutcome } from "@/lib/v6/outcome-writers";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+const ROUTE = "/api/campaigns/[id]/close";
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -22,25 +29,39 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     apiPath: "/api/campaigns/[id]/close",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
 
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/campaigns/[id]/close",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/campaigns/[id]/close");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: currentCamp } = await ctx.admin
     .from("portfolio_campaigns")
     .select("id, status, progress_summary_json, updated_at")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!currentCamp) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!currentCamp) return jsonNotFound(ROUTE);
   if (currentCamp.status === "closed") {
-    return NextResponse.json({ campaign: currentCamp });
+    return jsonOk({ campaign: currentCamp });
   }
   if (!["active", "paused"].includes(currentCamp.status)) {
-    return NextResponse.json(
-      { error: `Cannot close a campaign with status "${currentCamp.status}"` },
-      { status: 409 }
-    );
+    return jsonProblem(409, {
+      error: `Cannot close a campaign with status "${currentCamp.status}"`,
+      code: "campaign_close_invalid_status",
+      diagnostic_id: "campaign_close_invalid_status",
+      route: ROUTE,
+    });
   }
 
   const [{ count: pending }, { count: inProgress }, { count: processed }, { count: failed }] =
@@ -91,10 +112,34 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .update({ status: "closed", progress_summary_json: progress })
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
+    .in("status", ["active", "paused"])
     .select("id, status, progress_summary_json, updated_at")
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  if (!data) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "campaign_close_failed",
+      diagnostic_id: "campaign_close_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) {
+    const { data: latestCamp } = await ctx.admin
+      .from("portfolio_campaigns")
+      .select("id, status, progress_summary_json, updated_at")
+      .eq("organization_id", ctx.orgId)
+      .eq("id", id)
+      .maybeSingle();
+    if (latestCamp?.status === "closed") {
+      return jsonOk({ campaign: latestCamp });
+    }
+    return jsonProblem(409, {
+      error: "Campaign status changed before close",
+      code: "campaign_close_stale_status",
+      diagnostic_id: "campaign_close_stale_status",
+      route: ROUTE,
+    });
+  }
 
   await ctx.admin.from("portfolio_campaign_events").insert({
     organization_id: ctx.orgId,
@@ -132,6 +177,5 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
 
-  return NextResponse.json({ campaign: data });
+  return jsonOk({ campaign: data });
 }
-

@@ -23,7 +23,7 @@ describe("GET /api/exceptions", () => {
     const { GET } = await import("@/app/api/exceptions/route");
     const res = await GET(new Request("http://localhost:3000/api/exceptions"));
     expect(res.status).toBe(401);
-    expect(await res.json()).toEqual({ error: "Not authenticated" });
+    expect(await res.json()).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("returns exception list for authenticated user", async () => {

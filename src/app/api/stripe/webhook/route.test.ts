@@ -89,10 +89,8 @@ describe("POST /api/stripe/webhook", () => {
     const body = await res.json();
     expect(res.status).toBe(503);
     expect(body).toMatchObject({
-      ok: false,
       code: "dependency_blocked",
       diagnostic_id: "stripe_webhook_secret_missing",
-      phase: "dependency_preflight",
     });
   });
 
@@ -107,7 +105,29 @@ describe("POST /api/stripe/webhook", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Missing signature" });
+    expect(body).toMatchObject({
+      error: "Missing signature",
+      code: "missing_signature",
+      diagnostic_id: "stripe_webhook_missing_signature",
+    });
+  });
+
+  it("rejects oversized webhook bodies before signature verification or DB access", async () => {
+    process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const req = new Request("http://localhost:3000/api/stripe/webhook", {
+      method: "POST",
+      body: "{}",
+      headers: {
+        "content-length": "9999999",
+        "stripe-signature": "sig",
+      },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(413);
+    expect(constructEvent).not.toHaveBeenCalled();
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 400 when constructEvent rejects (invalid signature)", async () => {
@@ -124,7 +144,11 @@ describe("POST /api/stripe/webhook", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: "Invalid signature" });
+    expect(await res.json()).toMatchObject({
+      error: "Invalid signature",
+      code: "invalid_signature",
+      diagnostic_id: "stripe_webhook_invalid_signature",
+    });
   });
 
   it("returns 429 when rate limited", async () => {
@@ -164,10 +188,8 @@ describe("POST /api/stripe/webhook", () => {
     const res = await POST(req);
     expect(res.status).toBe(503);
     expect(await res.json()).toMatchObject({
-      ok: false,
       code: "dependency_blocked",
       diagnostic_id: "stripe_webhook_provider_missing",
-      phase: "dependency_preflight",
     });
   });
 
@@ -217,5 +239,69 @@ describe("POST /api/stripe/webhook", () => {
     const res = await POST(req);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
+  });
+
+  it("does not bind checkout to an org when a valid signature carries a mismatched customer", async () => {
+    process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
+    const retrieve = vi.fn();
+    getStripeClient.mockImplementationOnce(async () => ({
+      ok: true as const,
+      stripe: { webhooks: { constructEvent }, subscriptions: { retrieve } },
+      priceId: "price_123",
+    }));
+    constructEvent.mockReturnValue({
+      id: "evt_checkout_mismatch",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_mismatch",
+          metadata: { organization_id: "org_1" },
+          subscription: "sub_1",
+          customer: "cus_received",
+        },
+      },
+    });
+    const organizationUpdate = vi.fn();
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "stripe_webhook_events") {
+          return {
+            insert: vi.fn(async () => ({ error: null })),
+            update: vi.fn(() => ({
+              eq: vi.fn(async () => ({ error: null })),
+            })),
+            delete: vi.fn(() => ({
+              eq: vi.fn(async () => ({ error: null })),
+            })),
+          };
+        }
+        if (table === "organizations") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => ({
+                  data: { stripe_customer_id: "cus_expected" },
+                  error: null,
+                })),
+              })),
+            })),
+            update: organizationUpdate,
+          };
+        }
+        return {};
+      }),
+    });
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const req = new Request("http://localhost:3000/api/stripe/webhook", {
+      method: "POST",
+      body: "{}",
+      headers: { "stripe-signature": "sig" },
+    });
+    const res = await POST(req);
+
+    expect(res.status).toBe(200);
+    expect(retrieve).not.toHaveBeenCalled();
+    expect(organizationUpdate).not.toHaveBeenCalled();
   });
 });

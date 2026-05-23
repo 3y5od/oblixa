@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Megaphone } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CampaignAssignmentPanel } from "@/components/campaigns/campaign-assignment-panel";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
@@ -79,23 +80,28 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-8 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="ui-eyebrow">Campaign detail</p>
-          <h1 className="ui-display-title mt-2">{campaign.name}</h1>
-          <p className="ui-muted-tight mt-2">
-            Type: {campaign.campaign_type} · Status: {campaign.status}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ApiJsonLink href={`/api/campaigns/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Open JSON
-          </ApiJsonLink>
-          <Link href="/campaigns" className="ui-btn-ghost px-4 py-2.5 text-[13px]">
-            Back to campaigns
-          </Link>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Megaphone className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Campaign detail"
+        title={campaign.name}
+        lead={`Type: ${campaign.campaign_type} · Status: ${campaign.status}`}
+        actions={
+          <>
+            <ApiJsonLink
+              href={`/api/campaigns/${id}`}
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              Open JSON
+            </ApiJsonLink>
+            <Link
+              href="/campaigns"
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              Back to campaigns
+            </Link>
+          </>
+        }
+      />
 
       {showRelationship && (eligAccount || eligCounterparty) ? (
         <>
@@ -165,7 +171,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
               <p className="ui-label-caps">Segment / cohort breakdown</p>
               <div className="mt-2 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
                 <table className="min-w-full text-left text-xs text-[var(--text-secondary)]">
-                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     <tr>
                       <th className="px-3 py-2">Segment</th>
                       <th className="px-3 py-2">Pending</th>
@@ -196,7 +202,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
               <p className="ui-label-caps">Assigned team cohort breakdown</p>
               <div className="mt-2 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
                 <table className="min-w-full text-left text-xs text-[var(--text-secondary)]">
-                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+                  <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                     <tr>
                       <th className="px-3 py-2">Team</th>
                       <th className="px-3 py-2">Pending</th>

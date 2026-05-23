@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Workflow } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import type { WorkspaceRole } from "@/lib/navigation";
 import {
   isAssuranceModuleHidden,
@@ -14,6 +16,7 @@ import {
 } from "@/actions/v4";
 import { ProgramImpactPreviewButton } from "@/components/v4/program-impact-preview-button";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 const PROGRAM_DEFINITION_PLACEHOLDER = `{
   "taskBundles": [
@@ -49,9 +52,9 @@ export default async function ContractProgramsPage() {
     !isAssuranceModuleHidden(productSurface, "program_evolution");
 
   // Wall clock for rolling apply windows; acceptable in async server component request scope.
-  const now = Date.now();
-  const cutoff30Iso = new Date(now - 30 * 86400000).toISOString();
-  const cutoff90Iso = new Date(now - 90 * 86400000).toISOString();
+  const now = new Date();
+  const cutoff30Iso = new Date(now.getTime() - 30 * 86400000).toISOString();
+  const cutoff90Iso = new Date(now.getTime() - 90 * 86400000).toISOString();
 
   const [
     { data: programs },
@@ -149,7 +152,6 @@ export default async function ContractProgramsPage() {
     "use server";
     const result = await createProgramAction(formData);
     if (result && "error" in result && result.error) {
-      const { formatUnknownForServerLog } = await import("@/lib/observability/log-redaction");
       console.error("[v4] createProgramAction", formatUnknownForServerLog(result.error));
     }
   }
@@ -178,31 +180,28 @@ export default async function ContractProgramsPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Programs</p>
-          <h1 className="ui-display-title mt-2">Contract Programs</h1>
-          <p className="ui-page-lead mt-3">
-            Reusable execution blueprints that generate tasks, obligations, approvals, and checkpoints.
-          </p>
-          {showProgramEvolutionCta ? (
-            <p className="mt-3 text-sm text-[var(--text-secondary)]">
-              <Link href="/assurance/program-evolution" prefetch={false} className="ui-link font-medium">
-                Open program evolution
-              </Link>{" "}
-              to compare blueprint drift and adoption in Assurance.
-            </p>
-          ) : null}
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Workflow className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Programs"
+        title="Contract programs"
+        lead="Reusable execution blueprints that generate tasks, obligations, approvals, and checkpoints."
+      />
+      {showProgramEvolutionCta ? (
+        <p className="text-[12.5px] text-[var(--text-secondary)]">
+          <Link href="/assurance/program-evolution" prefetch={false} className="ui-link font-medium">
+            Open program evolution
+          </Link>{" "}
+          to compare blueprint drift and adoption in Assurance.
+        </p>
+      ) : null}
 
       <section className="ui-page-shell">
         <p className="ui-label-caps">Create program</p>
         <p className="ui-support-copy mt-1">Start a reusable execution blueprint here, then publish versions and route them into the right contracts.</p>
         <form action={createProgramFormAction} className="mt-3 grid gap-3 md:grid-cols-2">
-          <input name="name" required placeholder="Customer MSA Program" className="ui-input" />
-          <input name="description" placeholder="Quarterly attestations + renewal prep" className="ui-input" />
-          <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
+          <input aria-label="Customer MSA Program" name="name" required placeholder="Customer MSA Program" className="ui-input" />
+          <input aria-label="Quarterly attestations + renewal prep" name="description" placeholder="Quarterly attestations + renewal prep" className="ui-input" />
+          <button type="submit" className="ui-btn-primary px-4 py-2 text-[12.5px] md:col-span-2">
             Create program draft
           </button>
         </form>
@@ -211,7 +210,7 @@ export default async function ContractProgramsPage() {
       <section className="ui-page-shell">
         <p className="ui-label-caps">Program analytics</p>
         <p className="ui-support-copy mt-1">
-          Apply counts come from casefile events <code className="text-[10px]">program.applied</code> (manual apply +
+          Apply counts come from casefile events <code className="text-[11px]">program.applied</code> (manual apply +
           auto-attach), rolling windows by event time.
         </p>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
@@ -311,7 +310,7 @@ export default async function ContractProgramsPage() {
                         }
                         className="ui-input font-mono text-[11px]"
                       />
-                      <input name="changelog" placeholder="Changelog (optional)" className="ui-input text-xs" />
+                      <input aria-label="Changelog (optional)" name="changelog" placeholder="Changelog (optional)" className="ui-input text-xs" />
                       <button type="submit" className="ui-btn-primary px-3 py-1.5 text-xs">
                         Save new draft version
                       </button>
@@ -331,7 +330,7 @@ export default async function ContractProgramsPage() {
                         className="ui-input font-mono text-[11px]"
                       />
                       <label className="block text-[11px] font-medium text-[var(--text-secondary)]">defaultRoutingJson</label>
-                      <p className="text-[10px] text-[var(--text-tertiary)]">
+                      <p className="text-[11px] text-[var(--text-tertiary)]">
                         Optional{" "}
                         <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">auto_attach_rules</code>: array of{" "}
                         <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{ "match": { "contract_type", "source_system", "intake_source", "region", "counterparty_contains" }, "priority"?: number }`}</code>

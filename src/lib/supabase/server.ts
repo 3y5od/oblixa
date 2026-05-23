@@ -5,6 +5,14 @@ import {
   getSupabasePublicEnv,
   getSupabaseServiceRoleKey,
 } from "@/lib/env/server";
+import { safeFetch } from "@/lib/security/safe-fetch";
+import {
+  buildSupabaseUnavailableResponse,
+  isTransientSupabaseFetchFailure,
+  normalizeSupabaseFetchInit,
+  normalizeSupabaseFetchInput,
+  SUPABASE_SERVER_FETCH_TIMEOUT_MS,
+} from "@/lib/supabase/fetch";
 import type { OrgRole } from "@/lib/types";
 import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
 import { ONBOARDING_CALIBRATION_JSON_VERSION } from "@/lib/onboarding/calibration-types";
@@ -12,6 +20,22 @@ import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
   ALL_ASSURANCE_NAV_MODULE_KEYS,
 } from "@/lib/product-surface/workspace-module-keys";
+import { resolveExplicitOrSingleMembership } from "@/lib/supabase/org-scoped-admin";
+
+export const supabaseServerFetch: typeof fetch = async (input, init) => {
+  try {
+    return await safeFetch(normalizeSupabaseFetchInput(input), {
+      ...normalizeSupabaseFetchInit(input, init),
+      allowLocalhostInDev: true,
+      timeoutMs: SUPABASE_SERVER_FETCH_TIMEOUT_MS,
+    });
+  } catch (error) {
+    if (isTransientSupabaseFetchFailure(error)) {
+      return buildSupabaseUnavailableResponse();
+    }
+    throw error;
+  }
+};
 
 /** product-surface policy §13.1 / §17.1 — persisted on first org creation via `ensureUserOrg`. */
 export const NEW_WORKSPACE_V6_ORG_SETTINGS_JSON: V6OrgSettingsJson = {
@@ -50,6 +74,9 @@ export async function createClient() {
           }
         },
       },
+      global: {
+        fetch: supabaseServerFetch,
+      },
     }
   );
 }
@@ -70,27 +97,25 @@ export async function createAdminClient() {
         getAll: () => [],
         setAll: () => {},
       },
+      global: {
+        fetch: supabaseServerFetch,
+      },
     }
   );
 }
 
 /**
- * Picks one org per user for server-side resolution (dashboard, API routes, server actions).
- * Uses the earliest membership by `created_at`. There is no org switcher yet; users in multiple
- * orgs always resolve to this same row everywhere `getDeterministicMembership` is used.
+ * Backward-compatible membership resolver for older call sites.
+ * It no longer chooses an "earliest" organization: callers without explicit org context only
+ * resolve when the user has exactly one membership. Multi-org users fail closed.
  */
 export async function getDeterministicMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   userId: string
 ): Promise<{ organization_id: string; role: OrgRole } | null> {
-  const { data: memberships } = await admin
-    .from("organization_members")
-    .select("organization_id, role, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(1);
-  const membership = memberships?.[0];
-  if (!membership?.organization_id || !membership?.role) return null;
+  const resolution = await resolveExplicitOrSingleMembership(admin, userId);
+  if (!resolution.ok) return null;
+  const membership = resolution.membership;
   return {
     organization_id: membership.organization_id as string,
     role: membership.role as OrgRole,
@@ -119,8 +144,14 @@ export async function getOrEnsureDeterministicMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
   user: UserWithOptionalProfile
 ): Promise<{ organization_id: string; role: OrgRole } | null> {
-  const membership = await getDeterministicMembership(admin, user.id);
-  if (membership) return membership;
+  const resolution = await resolveExplicitOrSingleMembership(admin, user.id);
+  if (resolution.ok) {
+    return {
+      organization_id: resolution.membership.organization_id as string,
+      role: resolution.membership.role as OrgRole,
+    };
+  }
+  if (resolution.reason !== "organization_membership_missing") return null;
   await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user), admin);
   return await getDeterministicMembership(admin, user.id);
 }

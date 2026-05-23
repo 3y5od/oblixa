@@ -71,6 +71,53 @@ describe("sendReminderEmail without provider", () => {
     );
   });
 
+  it("redacts sensitive reminder snippets before sending provider payloads", async () => {
+    process.env.RESEND_API_KEY = "re_test_key";
+    safeFetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+
+    const { sendReminderEmail } = await import("@/lib/email");
+    const out = await sendReminderEmail({
+      to: "a@b.co",
+      contractTitle: "Contract",
+      fieldName: "source",
+      fieldValue: "Bearer field-secret-token",
+      daysUntil: 3,
+      contractUrl: "https://app.test/contracts/1?token=abc&signature=def",
+      sourceSnippet: "Cookie: session=secret; Bearer snippet-secret-token",
+    });
+
+    expect(out.error).toBeNull();
+    const [, init] = safeFetchMock.mock.calls[0] ?? [];
+    const payload = JSON.parse(String(init?.body ?? "{}")) as { html?: string; subject?: string };
+    expect(payload.html).toContain("Bearer [redacted]");
+    expect(payload.html).toContain("token=[redacted]");
+    expect(payload.html).toContain("signature=[redacted]");
+    expect(payload.html).not.toContain("field-secret-token");
+    expect(payload.html).not.toContain("session=secret");
+  });
+
+  it("sanitizes review board HTML before sending provider payloads", async () => {
+    process.env.RESEND_API_KEY = "re_test_key";
+    safeFetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+
+    const { sendReviewBoardPacketEmail } = await import("@/lib/email");
+    const out = await sendReviewBoardPacketEmail({
+      to: "a@b.co",
+      subject: "Packet",
+      htmlBody:
+        '<p onclick="steal()">ok</p><script>alert(1)</script><a href="javascript:alert(1)">x</a> Bearer html-secret-token',
+    });
+
+    expect(out.error).toBeNull();
+    const [, init] = safeFetchMock.mock.calls[0] ?? [];
+    const payload = JSON.parse(String(init?.body ?? "{}")) as { html?: string };
+    expect(payload.html?.toLowerCase()).not.toContain("<script");
+    expect(payload.html?.toLowerCase()).not.toContain("onclick=");
+    expect(payload.html?.toLowerCase()).not.toContain("javascript:");
+    expect(payload.html).toContain("Bearer [redacted]");
+    expect(payload.html).not.toContain("html-secret-token");
+  });
+
   it("does not statically import the Resend SDK in production route bundles", () => {
     const source = readFileSync("src/lib/email.ts", "utf8");
     expect(source).not.toContain('from "resend"');

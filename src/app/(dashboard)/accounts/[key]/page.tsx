@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText, History } from "lucide-react";
+import { Building2, FileText, History } from "lucide-react";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import {
   DiagnosticDisclosure,
   OperationalSummaryCard,
@@ -79,13 +80,12 @@ export default async function AccountWorkspacePage({ params }: { params: Promise
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Account workspace</p>
-          <h1 className="ui-page-title-compact mt-2">{workspace.display_name}</h1>
-          <p className="ui-page-lead mt-2 text-[13px]">Key: {workspace.account_key}</p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Building2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Account workspace"
+        title={workspace.display_name}
+        lead={`Key: ${workspace.account_key}`}
+      />
       <DiagnosticDisclosure title="Relationship diagnostics">
         <ApiJsonLink
           href={`/api/accounts/${encodeURIComponent(key)}/summary`}

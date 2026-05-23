@@ -16,7 +16,7 @@ export function AssuranceListCard(props: {
         <h2 className="ui-page-title mt-2 text-[1.8rem]">{props.title}</h2>
       </header>
       {props.explainer ? (
-        <div className="ui-surface-tint mt-4 rounded-[var(--radius-2xl)] p-3 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
+        <div className="ui-surface-tint mt-4 rounded-[var(--radius-2xl)] p-3 text-[12.5px] leading-[1.55] text-[var(--text-secondary)]">
           {props.explainer}
         </div>
       ) : null}

@@ -127,7 +127,58 @@ describe("GET /api/report-packs/[id]/runs", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
     expect(await res.text()).toContain("'=SUM(1,1)");
+  });
+
+  it("sanitizes report pack export filenames and private cache headers", async () => {
+    getApiAuthContext.mockResolvedValue({
+      admin: adminForRuns("workspace_health_report", [
+        {
+          id: "run-1",
+          status: "succeeded",
+          started_at: "2026-05-01T00:00:00.000Z",
+          completed_at: "2026-05-01T00:01:00.000Z",
+          created_at: "2026-05-01T00:00:00.000Z",
+          metrics_json: { total: 1 },
+          output_refs_json: {},
+          error: null,
+        },
+      ]),
+      userId: "u1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/report-packs/[id]/runs/route");
+    const res = await GET(new Request("http://localhost/api/report-packs/p1/runs?format=csv"), {
+      params: Promise.resolve({ id: "p1" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
+    const disposition = res.headers.get("content-disposition") ?? "";
+    expect(disposition).toBe(
+      `attachment; filename="report-pack-p1-run.csv"; filename*=UTF-8''report-pack-p1-run.csv`
+    );
+    expect(disposition).not.toMatch(/[\r\n]/);
+  });
+
+  it("rejects unsafe route params before export", async () => {
+    getApiAuthContext.mockResolvedValue({
+      admin: adminForRuns("workspace_health_report", []),
+      userId: "u1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/report-packs/[id]/runs/route");
+    const res = await GET(new Request("http://localhost/api/report-packs/p1/runs?format=csv"), {
+      params: Promise.resolve({ id: "p1\r\nX-Bad: yes" }),
+    });
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      details: { reason: "invalid_route_param", param: "id" },
+    });
   });
 });

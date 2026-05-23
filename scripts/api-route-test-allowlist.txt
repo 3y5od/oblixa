@@ -4,20 +4,14 @@
 # meta lines MUST end with bundleProofTest=<path-relative-to-src/>
 
 # campaigns/[id]/lifecycle-routes.test.ts
-# meta: owner=@api-surface expiry=2027-12-31 reason=bundled lifecycle route tests cover pause/resume/start/preview mutations. bundleProofTest=app/api/campaigns/[id]/lifecycle-routes.test.ts
-campaigns/[id]/pause/route.ts
+# meta: reviewedOn=2026-05-11 owner=@api-surface expiry=2027-12-31 reason=bundled lifecycle route tests cover preview mutations. bundleProofTest=app/api/campaigns/[id]/lifecycle-routes.test.ts
 campaigns/[id]/preview/route.ts
-campaigns/[id]/resume/route.ts
-
-# security-org-scope-queries.test.ts
-# meta: owner=@security expiry=2027-12-31 reason=org-scope integration suite covers campaign record route behaviors. bundleProofTest=app/api/security-org-scope-queries.test.ts
-campaigns/[id]/route.ts
 
 # cron/v5/v5-crons-feature-skip.test.ts
-# meta: owner=@cron expiry=2027-12-31 reason=cron-v5 suite covers feature-gated cron handlers as a bundle. bundleProofTest=app/api/cron/v5/v5-crons-feature-skip.test.ts
+# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v5 suite covers feature-gated cron handlers as a bundle. bundleProofTest=app/api/cron/v5/v5-crons-feature-skip.test.ts
 
 # intelligence/v5-intelligence-routes.test.ts
-# meta: owner=@v5-intelligence expiry=2027-12-31 reason=intelligence bundle test exercises v5 portfolio and decision intelligence endpoints. bundleProofTest=app/api/intelligence/v5-intelligence-routes.test.ts
+# meta: reviewedOn=2026-05-11 owner=@v5-intelligence expiry=2027-12-31 reason=intelligence bundle test exercises v5 portfolio and decision intelligence endpoints. bundleProofTest=app/api/intelligence/v5-intelligence-routes.test.ts
 intelligence/decision-queue/route.ts
 intelligence/portfolio-by-counterparty/route.ts
 intelligence/portfolio-by-program/route.ts
@@ -25,42 +19,23 @@ intelligence/portfolio-signals/route.ts
 intelligence/recommendations/route.ts
 
 # v6-api-feature-gate.test.ts + security-org-scope-queries.test.ts (findings GET also needs Request URL in callers)
-# meta: owner=@v6-assurance expiry=2027-12-31 reason=v6 assurance integration tests assert auth, mode gates, and org scope across grouped handlers. bundleProofTest=app/api/v6-api-feature-gate.test.ts
+# meta: reviewedOn=2026-05-11 owner=@v6-assurance expiry=2027-12-31 reason=v6 assurance integration tests assert auth, mode gates, and org scope across grouped handlers. bundleProofTest=app/api/v6-api-feature-gate.test.ts
 assurance/findings/route.ts
 assurance/scorecards/route.ts
 assurance/analytics/summary/route.ts
-control-policies/route.ts
-control-policies/[id]/simulate/route.ts
-control-policies/[id]/assign/route.ts
-playbooks/route.ts
-playbooks/[id]/preview/route.ts
-playbooks/[id]/run/route.ts
 playbooks/runs/[id]/route.ts
 autopilot/rules/route.ts
 autopilot/rules/[id]/enable/route.ts
 autopilot/rules/[id]/route.ts
 autopilot/runs/route.ts
-review-boards/route.ts
 review-boards/[id]/runs/route.ts
-review-boards/runs/[id]/route.ts
-assurance/external-links/[id]/response-pack/route.ts
-program-evolution/experiments/[id]/advance-rollout/route.ts
-segments/route.ts
-segments/[id]/recompute/route.ts
 
 # workspace v6 org settings
 
-# program evolution (v6AssuranceCore)
-# meta: owner=@v6-program-evolution expiry=2027-12-31 reason=program evolution coverage is centralized in v6 assurance/core bundle tests. bundleProofTest=app/api/security-org-scope-queries.test.ts
-program-evolution/experiments/route.ts
-program-evolution/experiments/[id]/simulate/route.ts
-program-evolution/experiments/[id]/results/route.ts
-
 # cron/v6/v6-crons-feature-skip.test.ts
-# meta: owner=@cron expiry=2027-12-31 reason=cron-v6 suite validates auth + feature gate behavior for v6 cron surfaces. bundleProofTest=app/api/cron/v6/v6-crons-feature-skip.test.ts
+# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v6 suite validates auth + feature gate behavior for v6 cron surfaces. bundleProofTest=app/api/cron/v6/v6-crons-feature-skip.test.ts
 
 # v9 command palette / telemetry / navigation surface bundles
-# meta: owner=@v9-core-surface expiry=2027-12-31 reason=v9 route, telemetry, and product-surface suites cover these grouped Core surface APIs. bundleProofTest=lib/v10-no-exclusions-matrix.v10.test.ts
+# meta: reviewedOn=2026-05-11 owner=@v9-core-surface expiry=2027-12-31 reason=v9 route, telemetry, and product-surface suites cover these grouped Core surface APIs. bundleProofTest=lib/v10-no-exclusions-matrix.v10.test.ts
 command-palette/contracts/route.ts
-product-telemetry/page-load/route.ts
 workspace/nav-badges/route.ts

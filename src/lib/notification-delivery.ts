@@ -1,6 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { claimDueRow } from "@/lib/cron/claim-due-row";
 import { sendReminderEmail, sendReviewBoardPacketEmail, sendSavedViewSummaryEmail } from "@/lib/email";
+import { sanitizeChatSnippet } from "@/lib/messaging/chat-snippet-sanitize";
+import {
+  redactOutboundMessageText,
+  sanitizeOutboundHtml,
+  scrubOutboundMetadata,
+} from "@/lib/messaging/outbound-payload-scrub";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
@@ -15,6 +21,10 @@ const RETRY_PROCESS_CONCURRENCY = 5;
 
 function limitString(value: string | null | undefined, maxLen: number): string {
   return String(value ?? "").slice(0, maxLen);
+}
+
+function scrubLimitedText(value: string | null | undefined, maxLen: number): string {
+  return redactOutboundMessageText(limitString(value, maxLen), maxLen);
 }
 
 type RetryPayload =
@@ -47,7 +57,7 @@ type RetryPayload =
     }
   | {
       kind: "slack_workflow";
-      webhookUrl: string;
+      webhookUrl?: string;
       title: string;
       body: string;
       channel?: string | null;
@@ -55,18 +65,22 @@ type RetryPayload =
       metadata?: Record<string, unknown>;
     };
 
-function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPayload | null {
+function sanitizeRetryPayload(
+  payload: RetryPayload | undefined | null,
+  options: { redactWebhookUrl?: boolean } = {}
+): RetryPayload | null {
   if (!payload) return null;
+  const redactWebhookUrl = options.redactWebhookUrl ?? true;
   if (payload.kind === "reminder_due") {
     return {
       kind: "reminder_due",
-      to: limitString(payload.to, 320),
-      contractTitle: limitString(payload.contractTitle, 240),
-      fieldName: limitString(payload.fieldName, 120),
-      fieldValue: limitString(payload.fieldValue, 240),
+      to: scrubLimitedText(payload.to, 320),
+      contractTitle: scrubLimitedText(payload.contractTitle, 240),
+      fieldName: scrubLimitedText(payload.fieldName, 120),
+      fieldValue: scrubLimitedText(payload.fieldValue, 240),
       daysUntil: Math.max(0, Math.min(3650, Math.trunc(Number(payload.daysUntil) || 0))),
-      contractUrl: limitString(payload.contractUrl, 1024),
-      sourceSnippet: payload.sourceSnippet ? limitString(payload.sourceSnippet, 2000) : null,
+      contractUrl: scrubLimitedText(payload.contractUrl, 1024),
+      sourceSnippet: payload.sourceSnippet ? scrubLimitedText(payload.sourceSnippet, 2000) : null,
     };
   }
   if (payload.kind === "saved_view_summary") {
@@ -75,41 +89,41 @@ function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPa
       mode === "core" || mode === "advanced" || mode === "assurance" ? mode : undefined;
     return {
       kind: "saved_view_summary",
-      to: limitString(payload.to, 320),
-      viewName: limitString(payload.viewName, 200),
-      appUrl: limitString(payload.appUrl, 1024),
+      to: scrubLimitedText(payload.to, 320),
+      viewName: scrubLimitedText(payload.viewName, 200),
+      appUrl: scrubLimitedText(payload.appUrl, 1024),
       itemCount: Math.max(0, Math.min(10_000, Math.trunc(Number(payload.itemCount) || 0))),
-      workspacePath: limitString(payload.workspacePath, 1024),
+      workspacePath: scrubLimitedText(payload.workspacePath, 1024),
       sampleRows: (payload.sampleRows ?? []).slice(0, MAX_RETRY_ROWS).map((row) => ({
-        label: limitString(row.label, 200),
-        href: limitString(row.href, 1024),
-        meta: limitString(row.meta, 280),
+        label: scrubLimitedText(row.label, 200),
+        href: scrubLimitedText(row.href, 1024),
+        meta: scrubLimitedText(row.meta, 280),
       })),
-      openPixelUrl: payload.openPixelUrl ? limitString(payload.openPixelUrl, 1024) : null,
+      openPixelUrl: payload.openPixelUrl ? scrubLimitedText(payload.openPixelUrl, 1024) : null,
       workspaceProductMode: safeMode,
     };
   }
   if (payload.kind === "review_board_packet") {
     return {
       kind: "review_board_packet",
-      to: limitString(payload.to, 320),
-      subject: limitString(payload.subject, 240),
-      htmlBody: limitString(payload.htmlBody, 14_000),
+      to: scrubLimitedText(payload.to, 320),
+      subject: scrubLimitedText(payload.subject, 240),
+      htmlBody: sanitizeOutboundHtml(payload.htmlBody, 14_000),
     };
   }
   return {
     kind: "slack_workflow",
-    webhookUrl: limitString(payload.webhookUrl, 1024),
-    title: limitString(payload.title, 240),
-    body: limitString(payload.body, 4000),
-    channel: payload.channel ? limitString(payload.channel, 120) : null,
-    username: payload.username ? limitString(payload.username, 120) : null,
-    metadata: payload.metadata ?? {},
+    webhookUrl: redactWebhookUrl ? "[redacted]" : scrubLimitedText(payload.webhookUrl, 1024),
+    title: sanitizeChatSnippet(scrubLimitedText(payload.title, 240)),
+    body: sanitizeChatSnippet(scrubLimitedText(payload.body, 4000)),
+    channel: payload.channel ? scrubLimitedText(payload.channel, 120) : null,
+    username: payload.username ? scrubLimitedText(payload.username, 120) : null,
+    metadata: scrubOutboundMetadata(payload.metadata ?? {}),
   };
 }
 
 function sanitizeMetadata(metadata: Record<string, unknown> | null | undefined): Record<string, unknown> {
-  const out = { ...(metadata ?? {}) };
+  const out = scrubOutboundMetadata(metadata ?? {});
   delete out.retry_payload;
   delete out.max_attempts;
   let encoded = "";
@@ -139,7 +153,7 @@ function isTerminalDeliveryError(message: string): boolean {
 function parseRetryPayload(metadata: Record<string, unknown> | null | undefined): RetryPayload | null {
   const payload = metadata?.retry_payload;
   if (!payload || typeof payload !== "object") return null;
-  return payload as RetryPayload;
+  return sanitizeRetryPayload(payload as RetryPayload, { redactWebhookUrl: false });
 }
 
 function getMaxAttempts(metadata: Record<string, unknown> | null | undefined, fallback: number): number {
@@ -179,7 +193,48 @@ async function emitReminderDeliveryTelemetry(
   });
 }
 
-async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | null }> {
+function isAllowedSlackWebhookUrl(url: URL): boolean {
+  return url.protocol === "https:" && url.hostname.toLowerCase() === "hooks.slack.com";
+}
+
+async function resolveSlackRetryWebhook(
+  admin: AdminClient,
+  organizationId: string,
+  payload: Extract<RetryPayload, { kind: "slack_workflow" }>
+): Promise<{ webhookUrl: URL; channel?: string | null; username?: string | null } | { error: Error }> {
+  const existing =
+    payload.webhookUrl && payload.webhookUrl !== "[redacted]"
+      ? validateOutboundHttpUrl(payload.webhookUrl)
+      : null;
+  if (existing && isAllowedSlackWebhookUrl(existing)) {
+    return { webhookUrl: existing, channel: payload.channel ?? null, username: payload.username ?? null };
+  }
+  const { data: connection } = await admin
+    .from("integration_connections")
+    .select("config_json, status")
+    .eq("organization_id", organizationId)
+    .eq("provider", "slack")
+    .maybeSingle();
+  if (!connection || connection.status !== "connected") return { error: new Error("slack_not_connected") };
+  const cfg = (connection.config_json ?? {}) as {
+    webhookUrl?: string;
+    channel?: string;
+    username?: string;
+  };
+  const configured = cfg.webhookUrl ? validateOutboundHttpUrl(cfg.webhookUrl) : null;
+  if (!configured || !isAllowedSlackWebhookUrl(configured)) return { error: new Error("invalid_webhook_url") };
+  return {
+    webhookUrl: configured,
+    channel: payload.channel ?? cfg.channel ?? null,
+    username: payload.username ?? cfg.username ?? null,
+  };
+}
+
+async function runRetryPayload(
+  admin: AdminClient,
+  organizationId: string,
+  payload: RetryPayload
+): Promise<{ error: Error | null }> {
   if (payload.kind === "reminder_due") {
     const result = await sendReminderEmail({
       to: payload.to,
@@ -213,17 +268,19 @@ async function runRetryPayload(payload: RetryPayload): Promise<{ error: Error | 
     });
     return { error: result.error ?? null };
   }
-  const webhook = validateOutboundHttpUrl(payload.webhookUrl);
-  if (!webhook) return { error: new Error("invalid_webhook_url") };
+  const resolved = await resolveSlackRetryWebhook(admin, organizationId, payload);
+  if ("error" in resolved) return { error: resolved.error };
   try {
-    const response = await safeFetch(webhook.toString(), {
+    const safeTitle = sanitizeChatSnippet(payload.title);
+    const safeBody = sanitizeChatSnippet(payload.body);
+    const response = await safeFetch(resolved.webhookUrl.toString(), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        text: `${payload.title}\n${payload.body}`,
-        channel: payload.channel ?? undefined,
-        username: payload.username ?? "Oblixa",
-        metadata: payload.metadata ?? {},
+        text: `${safeTitle}\n${safeBody}`,
+        channel: resolved.channel ?? undefined,
+        username: resolved.username ?? "Oblixa",
+        metadata: scrubOutboundMetadata(payload.metadata ?? {}),
       }),
     });
     if (!response.ok) return { error: new Error(`http_${response.status}`) };
@@ -293,7 +350,7 @@ async function attemptDelivery(
       sendResult = { error: new Error("invalid_retry_payload_kind") };
     } else {
       sendResult = retryPayload
-        ? await runRetryPayload(retryPayload)
+        ? await runRetryPayload(admin, row.organization_id, retryPayload)
         : { error: new Error("missing_retry_payload") };
     }
   }
@@ -308,6 +365,7 @@ async function attemptDelivery(
         last_error: null,
         next_attempt_at: null,
       })
+      .eq("organization_id", row.organization_id)
       .eq("id", deliveryId);
     if (updateErr) {
       console.error("[notification-delivery] post-send delivered update failed:", updateErr.message);
@@ -328,7 +386,8 @@ async function attemptDelivery(
     return { delivered: true, error: null, finalStatus: "delivered" };
   }
 
-  const terminal = isTerminalDeliveryError(sendResult.error.message);
+  const sanitizedError = redactOutboundMessageText(sendResult.error.message, 500);
+  const terminal = isTerminalDeliveryError(sanitizedError);
   const isFinal = terminal || nextAttempt >= maxAttempts;
   const backoffSeconds = Math.min(3600, Math.pow(2, nextAttempt) * 30);
   const { error: failUpdateErr } = await admin
@@ -336,11 +395,12 @@ async function attemptDelivery(
     .update({
       status: isFinal ? "failed" : "retrying",
       attempt_count: nextAttempt,
-      last_error: `${terminal ? "[terminal] " : ""}${sendResult.error.message}`.slice(0, 500),
+      last_error: `${terminal ? "[terminal] " : ""}${sanitizedError}`.slice(0, 500),
       next_attempt_at: isFinal
         ? null
         : new Date(Date.now() + backoffSeconds * 1000).toISOString(),
     })
+    .eq("organization_id", row.organization_id)
     .eq("id", deliveryId);
   if (failUpdateErr) {
     console.error("[notification-delivery] post-send failure update failed:", failUpdateErr.message);
@@ -360,7 +420,7 @@ async function attemptDelivery(
   });
   return {
     delivered: false,
-    error: sendResult.error.message,
+    error: sanitizedError,
     finalStatus: isFinal ? "failed" : "retrying",
     phase: "notify",
     diagnosticId: isFinal ? "notification_delivery_terminal_failure" : undefined,
@@ -390,8 +450,8 @@ export async function deliverWithRetries(
       organization_id: input.organizationId,
       channel: input.channel,
       notification_type: input.notificationType,
-      recipient: input.recipient ?? null,
-      subject: input.subject ?? null,
+      recipient: input.recipient ? scrubLimitedText(input.recipient, 320) : null,
+      subject: input.subject ? scrubLimitedText(input.subject, 240) : null,
       status: "pending",
       attempt_count: 0,
       next_attempt_at: new Date().toISOString(),
@@ -408,7 +468,7 @@ export async function deliverWithRetries(
   }
   if (!row?.id) {
     const result = await input.send();
-    return { delivered: !result.error, error: result.error?.message ?? null };
+    return { delivered: !result.error, error: result.error ? redactOutboundMessageText(result.error.message, 500) : null };
   }
   return attemptDelivery(admin, row.id, {
     send: input.send,
@@ -427,15 +487,16 @@ export async function markNotificationSuppressed(
     metadata?: Record<string, unknown>;
   }
 ) {
+  const metadata = sanitizeMetadata(input.metadata ?? {});
   const { error } = await admin.from("notification_deliveries").insert({
     organization_id: input.organizationId,
     channel: input.channel,
     notification_type: input.notificationType,
-    recipient: input.recipient ?? null,
-    subject: input.subject ?? null,
+    recipient: input.recipient ? scrubLimitedText(input.recipient, 320) : null,
+    subject: input.subject ? scrubLimitedText(input.subject, 240) : null,
     status: "suppressed",
     attempt_count: 0,
-    metadata: input.metadata ?? {},
+    metadata,
   });
   if (error) {
     console.error("[notification-delivery] suppressed insert failed:", error.message);
@@ -444,7 +505,7 @@ export async function markNotificationSuppressed(
   await emitReminderDeliveryTelemetry(admin, {
     organizationId: input.organizationId,
     notificationType: input.notificationType,
-    metadata: input.metadata ?? {},
+    metadata,
     action: "product.v9.reminder_suppressed",
   });
 }

@@ -1,11 +1,24 @@
+import type { PostgrestError } from "@supabase/supabase-js";
 import type { AdminClient } from "@/lib/v6/service";
-import { createRow, listRows, updateRowById } from "@/lib/v6/service";
+import { createRow, listRows } from "@/lib/v6/service";
 import { createFindingEvent, recomputeScorecards, runAssuranceChecks } from "@/lib/v6/service";
 
 export type ListFindingsFilters = {
   status?: string;
   severity?: string;
   finding_type?: string;
+};
+
+const FINDING_NOT_ACTIVE_ERROR: PostgrestError = {
+  name: "PostgrestError",
+  message: "finding_not_active",
+  details: "Finding is already resolved or dismissed.",
+  hint: "",
+  code: "409",
+  toJSON() {
+    const { name, message, details, hint, code } = this;
+    return { name, message, details, hint, code };
+  },
 };
 
 export async function listFindings(admin: AdminClient, orgId: string, filters?: ListFindingsFilters) {
@@ -30,12 +43,24 @@ export async function resolveFinding(
   resolutionNote?: string,
   signalFeedback?: string | null
 ) {
-  const result = await updateRowById(admin, "assurance_findings", orgId, findingId, {
-    status: "resolved",
-    resolved_at: new Date().toISOString(),
-    resolved_by: userId,
-    analyst_note: resolutionNote ?? null,
-  });
+  const { data, error } = await admin
+    .from("assurance_findings")
+    .update({
+      status: "resolved",
+      resolved_at: new Date().toISOString(),
+      resolved_by: userId,
+      analyst_note: resolutionNote ?? null,
+    })
+    .eq("organization_id", orgId)
+    .eq("id", findingId)
+    .neq("status", "resolved")
+    .neq("status", "dismissed")
+    .select("id,organization_id,created_at,updated_at")
+    .maybeSingle();
+  const result = {
+    data: (data ?? null) as Record<string, unknown> | null,
+    error: error ?? (data ? null : FINDING_NOT_ACTIVE_ERROR),
+  };
 
   if (result.data?.id) {
     await createFindingEvent(admin, orgId, String(result.data.id), "finding.resolved", userId, {
@@ -55,12 +80,24 @@ export async function dismissFinding(
   resolutionNote?: string,
   signalFeedback?: string | null
 ) {
-  const result = await updateRowById(admin, "assurance_findings", orgId, findingId, {
-    status: "dismissed",
-    resolved_at: new Date().toISOString(),
-    resolved_by: userId,
-    analyst_note: resolutionNote ?? null,
-  });
+  const { data, error } = await admin
+    .from("assurance_findings")
+    .update({
+      status: "dismissed",
+      resolved_at: new Date().toISOString(),
+      resolved_by: userId,
+      analyst_note: resolutionNote ?? null,
+    })
+    .eq("organization_id", orgId)
+    .eq("id", findingId)
+    .neq("status", "resolved")
+    .neq("status", "dismissed")
+    .select("id,organization_id,created_at,updated_at")
+    .maybeSingle();
+  const result = {
+    data: (data ?? null) as Record<string, unknown> | null,
+    error: error ?? (data ? null : FINDING_NOT_ACTIVE_ERROR),
+  };
 
   if (result.data?.id) {
     await createFindingEvent(admin, orgId, String(result.data.id), "finding.dismissed", userId, {

@@ -21,6 +21,57 @@ describe("BulkUploadForm", () => {
   afterEach(() => {
     resetMockRouter();
     bulkCreateContractsFromFiles.mockReset();
+    vi.unstubAllGlobals();
+  });
+
+  it("imports CSV rows through the Core import API", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, jobId: "job-csv-1", created: 2 }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { container } = renderWithProviders(
+      <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
+    );
+
+    // v23 aesthetic pass: the form h2 ("Replace the tracking
+    // spreadsheet") + verbose lead were dropped per §10.7 + §10.4.
+    // The form is now anchored by the eyebrow + tab buttons +
+    // surviving section eyebrows ("Minimum spreadsheet shape") +
+    // column-group values.
+    expect(screen.getByText(/import source/i)).toBeTruthy();
+    expect(screen.getByText(/minimum spreadsheet shape/i)).toBeTruthy();
+    expect(screen.getByText(/title, counterparty/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText(/csv file/i), {
+      target: {
+        files: [
+          new File(["title,counterparty\nAcme MSA,Acme Corp"], "contracts.csv", {
+            type: "text/csv",
+          }),
+        ],
+      },
+    });
+    fireEvent.submit(container.querySelector("form")!);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/import/contracts",
+      expect.objectContaining({
+        method: "POST",
+        body: "title,counterparty\nAcme MSA,Acme Corp",
+      })
+    );
+    expect(await screen.findByText(/csv import created 2 contracts for review/i)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /review import status/i }).getAttribute("href")).toBe(
+      "#recent-imports"
+    );
+    expect(screen.getByRole("link", { name: /open job details/i }).getAttribute("href")).toBe(
+      "/api/import/contracts/job-csv-1"
+    );
+    expect(mockRouter.refresh).toHaveBeenCalled();
   });
 
   it("maps recoverable failures into user-safe copy", async () => {
@@ -30,8 +81,13 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement | null;
-    if (!input) throw new Error("expected file input");
+    fireEvent.click(screen.getByRole("tab", { name: /signed files/i }));
+    // v23 aesthetic pass: the signed-files h3 ("Create one contract per
+    // signed source file") + sub-paragraph were dropped per §10.7. The
+    // section is now anchored by the field label + format chips.
+    expect(screen.getByLabelText(/signed pdf or docx files/i)).toBeTruthy();
+    const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
+    if (!input) throw new Error("expected signed file input");
     fireEvent.change(input, {
       target: {
         files: [new File(["pdf"], "agreement.pdf", { type: "application/pdf" })],
@@ -56,8 +112,9 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement | null;
-    if (!input) throw new Error("expected file input");
+    fireEvent.click(screen.getByRole("tab", { name: /signed files/i }));
+    const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
+    if (!input) throw new Error("expected signed file input");
     fireEvent.change(input, {
       target: {
         files: [new File(["pdf"], "agreement.pdf", { type: "application/pdf" })],
@@ -71,6 +128,9 @@ describe("BulkUploadForm", () => {
     expect(screen.getByText(/could not reach the server/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /review import status/i }).getAttribute("href")).toBe(
       "#recent-imports"
+    );
+    expect(screen.getByRole("link", { name: /open job details/i }).getAttribute("href")).toBe(
+      "/api/import/contracts/job-1"
     );
     expect(mockRouter.refresh).toHaveBeenCalled();
   });

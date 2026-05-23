@@ -34,8 +34,15 @@ function rationaleForField(fieldName: string): string {
   return "Approved effective date is entering the execution horizon.";
 }
 
-export function UpcomingActions({ actions }: UpcomingActionsProps) {
+export function UpcomingActions({ actions, embedded = false }: UpcomingActionsProps & { embedded?: boolean }) {
   if (actions.length === 0) {
+    if (embedded) {
+      return (
+        <p className="ui-support-copy rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3 py-3">
+          No approved dates enter the two-week horizon.
+        </p>
+      );
+    }
     return (
       <section>
         <EmptyState
@@ -49,10 +56,10 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
   }
 
   return (
-    <section className="ui-card overflow-hidden">
-      <div className="ui-surface-tint px-4 py-3.5 md:px-6 md:py-4">
+    <section className={embedded ? "overflow-hidden rounded-lg border border-[var(--border-subtle)]" : "ui-card overflow-hidden"}>
+      <div className={embedded ? "border-b border-[var(--border-subtle)] px-3 py-2" : "ui-surface-tint px-4 py-3.5 md:px-6 md:py-4"}>
         <h2 className="ui-section-title">Upcoming actions</h2>
-        <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
+        <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12.5px]">
           Approved operational dates in the next 90 days
         </p>
       </div>
@@ -68,10 +75,10 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-strong)] md:text-[15px]">
+                <p className="text-[14px] font-semibold leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-strong)] md:text-[14px]">
                   {action.contract.title}
                 </p>
-                <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
+                <p className="mt-0.5 text-[12.5px] text-[var(--text-secondary)]">
                   <span className="text-[var(--text-primary)]">
                     {action.field.field_name.replace(/_/g, " ")}
                   </span>
@@ -84,7 +91,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <span
-                  className={`text-right text-[13px] font-semibold tabular-nums ${
+                  className={`text-right text-[12.5px] font-semibold tabular-nums ${
                     action.daysUntil <= 7
                       ? "text-[var(--danger-ink)]"
                       : action.daysUntil <= 30
@@ -101,7 +108,7 @@ export function UpcomingActions({ actions }: UpcomingActionsProps) {
                 <ArrowUpRight
                   size={16}
                   className="text-[var(--text-tertiary)] transition-colors group-hover:text-[var(--accent-strong)]"
-                  strokeWidth={1.75}
+                  strokeWidth={1.65}
                   aria-hidden
                 />
               </div>

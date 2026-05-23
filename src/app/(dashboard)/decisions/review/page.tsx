@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { AlertTriangle, CircleDot, Layers, Timer } from "lucide-react";
+import { AlertTriangle, CheckSquare, CircleDot, Layers, Timer } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
@@ -72,21 +73,18 @@ export default async function DecisionsManagerReviewPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-[var(--border-subtle)] pb-8">
-        <div>
-          <p className="ui-eyebrow">Manager review</p>
-          <h1 className="ui-display-title mt-2">Decision review queue</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
-            Prioritize by due date and SLA, open a workspace, or export a manager review packet in one step.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<CheckSquare className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Manager review"
+        title="Decision review queue"
+        lead="Prioritize by due date and SLA, open a workspace, or export a manager review packet in one step."
+      />
 
       <section className="space-y-4">
         <div>
           <p className="ui-eyebrow">Queue health</p>
           <h2 className="ui-section-title mt-1 text-base">Review posture</h2>
-          <p className="ui-muted-tight mt-2 max-w-2xl text-[13px]">
+          <p className="ui-muted-tight mt-2 max-w-2xl text-[12.5px]">
             SLA counts for open and in-review workspaces in this view.
           </p>
         </div>
@@ -149,7 +147,7 @@ export default async function DecisionsManagerReviewPage() {
                       </div>
                     }
                     action={
-                      <Link href="/decisions" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
+                      <Link href="/decisions" className="ui-btn-secondary px-5 py-2.5 text-[12.5px]">
                         View all decisions
                       </Link>
                     }
@@ -186,8 +184,7 @@ export default async function DecisionsManagerReviewPage() {
                       <form action={submitReviewAction} className="flex items-center gap-2">
                         <input type="hidden" name="decisionId" value={r.id} />
                         <input type="hidden" name="action" value="approve" />
-                        <input
-                          name="note"
+                        <input aria-label="Optional note" name="note"
                           placeholder="Optional note"
                           className="ui-input-compact w-28 text-[11px]"
                         />

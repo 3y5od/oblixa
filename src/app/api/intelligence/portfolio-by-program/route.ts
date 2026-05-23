@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { getPortfolioByProgramRows } from "@/lib/v5/portfolio-analytics";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+
+const ROUTE = "/api/intelligence/portfolio-by-program";
 
 /** Grounded workload by active program assignment (§16-style portfolio analytics). */
 export async function GET() {
   const disabled = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -19,7 +22,14 @@ export async function GET() {
   if (modeGate) return modeGate;
 
   const { programs, error } = await getPortfolioByProgramRows(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error,
+      code: "portfolio_by_program_failed",
+      diagnostic_id: "portfolio_by_program_failed",
+      route: ROUTE,
+    });
+  }
 
   return NextResponse.json({
     programs,

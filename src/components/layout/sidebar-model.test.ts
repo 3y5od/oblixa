@@ -62,16 +62,13 @@ function findItem(name: string, m = model()) {
 describe("sidebar model", () => {
   it("keeps the Core primary navigation contract", () => {
     expect(primaryNames()).toEqual([
-      "Home",
+      "Dashboard",
       "Contracts",
-      "Review",
       "Work",
       "Renewals",
-      "Exceptions",
       "Evidence",
       "Reports",
       "Settings",
-      "Tools",
     ]);
   });
 
@@ -128,20 +125,22 @@ describe("sidebar model", () => {
     expect(topLevelNames(m)).not.toContain("Tools");
     expect(findItem("Assurance", m)?.children.map((child) => child.name)).not.toContain("Playbooks");
     expect(findItem("Watchlists", m)).toBeUndefined();
-    expect(findItem("Review", m)?.badge?.displayValue).toBe("4");
+    expect(findItem("Contracts", m)?.children.find((child) => child.name === "Review fields")?.badge?.displayValue).toBe("4");
   });
 
-  it("marks parent links visually active without aria-current when a child is exact", () => {
-    const m = model({ pathname: "/contracts/tasks" });
+  it("marks the release-state Work destination exact-active without legacy child lanes", () => {
+    const m = model({ pathname: "/work" });
     const work = findItem("Work", m);
     expect(work?.active).toBe(true);
-    expect(work?.exactActive).toBe(false);
-    expect(work?.children.find((child) => child.name === "Tasks")?.exactActive).toBe(true);
+    expect(work?.exactActive).toBe(true);
+    expect(work?.children).toEqual([]);
   });
 
   it("keeps contracts root and settings exact-active semantics", () => {
     expect(isSidebarHrefExactActive(parseSidebarHref("/contracts/abc"), parseSidebarHref("/contracts"))).toBe(true);
-    expect(findItem("Settings", model({ pathname: "/settings/security" }))?.exactActive).toBe(false);
+    const settings = findItem("Settings", model({ pathname: "/settings/security" }));
+    expect(settings?.active).toBe(true);
+    expect(settings?.exactActive).toBe(false);
   });
 
   it("chooses query children deterministically", () => {
@@ -156,41 +155,80 @@ describe("sidebar model", () => {
     expect(campaigns?.children.find((child) => child.name === "History")?.active).toBe(false);
   });
 
-  it("chooses hash children deterministically", () => {
-    const reports = findItem("Reports", model({ pathname: "/reports", hash: "#portfolio-signals", surface: surface({ mode: "advanced", role: "admin", featureFlags: allFlags, seesAdvancedPrimaryNav: true }) }));
-    expect(reports?.children.find((child) => child.name === "Portfolio signals")?.active).toBe(true);
-    expect(reports?.children.find((child) => child.name === "Portfolio analytics")?.active).toBe(false);
+  it("keeps same-page Settings anchors out of sidebar children", () => {
+    const settings = findItem("Settings", model({ pathname: "/settings", hash: "#team-access" }));
+    expect(settings?.active).toBe(true);
+    expect(settings?.exactActive).toBe(true);
+    expect(settings?.children).toEqual([]);
   });
 
-  it("renders duplicate primary and child destinations with only primary exact-current", () => {
+  it("renders Renewals as a top-level primary nav item active for its route", () => {
+    // v11 dashboard spec compliance: Renewals promoted from Work child to
+    // top-level primary nav per docs/oblixa-release-state.md §In-App Pages.
     const m = model({ pathname: "/contracts/renewals" });
-    expect(findItem("Renewals", m)?.exactActive).toBe(true);
-    expect(findItem("Work", m)?.children.find((child) => child.name === "Renewals")?.exactActive).toBe(false);
+    expect(findItem("Renewals", m)).toBeDefined();
+    expect(findItem("Renewals", m)?.active).toBe(true);
   });
 
-  it("treats collapsed mode as a first-class rail with ordered items and 99+ badges", () => {
+  it("treats collapsed mode as a first-class rail with ordered items and 99+ child badges", () => {
     const m = model({ forcedCollapsed: true, pathname: "/contracts/review", navBadges: { reviewQueue: 101 } });
     expect(m.collapsed).toBe(true);
     expect(m.sections[0]?.variant).toBe("rail");
     expect(m.sections[0]?.items.map((item) => item.name)).toEqual([
-      "Home",
+      "Dashboard",
       "Contracts",
-      "Review",
       "Work",
       "Renewals",
-      "Exceptions",
       "Evidence",
       "Reports",
       "Settings",
-      "Tools",
     ]);
-    expect(findItem("Review", m)?.badge).toMatchObject({ displayValue: "99+", label: "101 review queue items" });
+    expect(findItem("Contracts", m)?.badge).toMatchObject({ displayValue: "99+", label: "101 field review items need action" });
+  });
+
+  it("preserves review badge semantics and keeps old Work queue badges off Core sidebar", () => {
+    const zero = model({ pathname: "/contracts/review", navBadges: { reviewQueue: 0 } });
+    expect(findItem("Contracts", zero)?.children.find((child) => child.name === "Review fields")?.badge).toBeUndefined();
+
+    const positive = model({ pathname: "/contracts/approvals", navBadges: { approvals: 4 } });
+    expect(findItem("Work", positive)?.children).toEqual([]);
+
+    const large = model({ pathname: "/contracts/obligations", navBadges: { obligations: 104 } });
+    expect(findItem("Work", large)?.children).toEqual([]);
+  });
+
+  it("does not aggregate hidden old Work lane badges when collapsed in Core", () => {
+    const m = model({ forcedCollapsed: true, pathname: "/work", navBadges: { approvals: 4, obligations: 8 } });
+    expect(findItem("Work", m)?.badge).toBeUndefined();
+  });
+
+  it("keeps Work as a single release-state destination", () => {
+    expect(findItem("Work")?.children).toEqual([]);
+  });
+
+  it("keeps Reports focused on output destinations", () => {
+    // Report packs and analytics anchors are no longer surfaced in Core
+    // navigation. Reports remains a single export destination.
+    expect(findItem("Reports")?.children.map((child) => child.name)).not.toContain("Report packs");
+    expect(findItem("Reports")?.children.map((child) => child.name)).not.toContain("Contract report packs");
+    expect(findItem("Reports")?.children).toEqual([]);
+  });
+
+  it("does not render one-item My views sections in default Core", () => {
+    expect(model().sections.map((section) => section.label)).not.toContain("My views");
   });
 
   it("uses unique section labels and omits empty sections", () => {
     const labels = model().sections.map((section) => section.ariaLabel);
     expect(new Set(labels).size).toBe(labels.length);
     expect(labels).not.toContain("Workspace navigation");
+  });
+
+  it("keeps Settings as one sidebar destination; its directory owns subsections", () => {
+    const m = model({ surface: surface({ role: "admin" }) });
+    expect(m.sections.find((section) => section.variant === "workspace")).toBeUndefined();
+    const settings = findItem("Settings", m);
+    expect(settings?.children).toEqual([]);
   });
 
   it("keeps prefetch disabled for heavy destinations and defaulted for light destinations", () => {

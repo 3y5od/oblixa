@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -8,6 +9,11 @@ import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { addProgramEvolutionResult } from "@/lib/v6/program-evolution";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/program-evolution/experiments/[id]/results";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -24,7 +30,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (modeGate) return modeGate;
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.program-evolution.experiments.id.results",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/program-evolution/experiments/[id]/results",
+    method: "POST",
+  }).catch(() => undefined);
+
   const experimentId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: experimentId }, ["id"], "/api/program-evolution/experiments/[id]/results");
+
+  if (routeParamRejection) return routeParamRejection;
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
     readJsonBody<{
       periodStart?: string;
@@ -63,7 +86,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     decisionSlippageDelta: body.decisionSlippageDelta,
     recommendation: body.recommendation,
   });
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    return jsonProblem(400, {
+      error: result.error.message,
+      code: "program_evolution_result_capture_failed",
+      diagnostic_id: "program_evolution_result_capture_failed",
+      route: ROUTE,
+    });
+  }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_program_evolution_result_capture_total", 1).catch(
     () => undefined
   );

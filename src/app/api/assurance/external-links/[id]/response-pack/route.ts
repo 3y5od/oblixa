@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -6,6 +7,11 @@ import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { mergeExternalResponsePack } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/assurance/external-links/[id]/response-pack";
 
 function routeFailure(input: {
   status: number;
@@ -14,16 +20,13 @@ function routeFailure(input: {
   diagnosticId: string;
   phase: string;
 }) {
-  return NextResponse.json(
-    {
-      ok: false,
-      error: input.error,
-      code: input.code,
-      diagnostic_id: input.diagnosticId,
-      phase: input.phase,
-    },
-    { status: input.status }
-  );
+  return jsonProblem(input.status, {
+    error: input.error,
+    code: input.code,
+    diagnostic_id: input.diagnosticId,
+    route: ROUTE,
+    details: { phase: input.phase },
+  });
 }
 
 /**
@@ -44,7 +47,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (modeGate) return modeGate;
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.assurance.external-links.id.response-pack",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/assurance/external-links/[id]/response-pack",
+    method: "POST",
+  }).catch(() => undefined);
+
   const linkId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: linkId }, ["id"], "/api/assurance/external-links/[id]/response-pack");
+
+  if (routeParamRejection) return routeParamRejection;
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
     readJsonBody<{ pack?: Record<string, unknown> }>(raw ?? {}, {})
   );
@@ -52,7 +72,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const body = parsedBody.data;
   const pack = body.pack && typeof body.pack === "object" ? body.pack : null;
   if (!pack || Object.keys(pack).length === 0) {
-    return NextResponse.json({ error: "pack object is required" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "pack object is required",
+      code: "pack_required",
+      diagnostic_id: "external_response_pack_required",
+      route: ROUTE,
+    });
   }
 
   const { data: link, error: linkError } = await ctx.admin
@@ -70,7 +95,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       phase: "source_query",
     });
   }
-  if (!link) return NextResponse.json({ error: "External link not found" }, { status: 404 });
+  if (!link) return jsonNotFound(ROUTE);
 
   const { data, error } = await mergeExternalResponsePack(ctx.admin, ctx.orgId, linkId, pack);
   if (error) {

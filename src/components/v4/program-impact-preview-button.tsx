@@ -35,7 +35,7 @@ export function ProgramImpactPreviewButton({ programId }: { programId: string })
       </AsyncActionButton>
       <InlineMutationStatus message={error} variant="error" className="text-xs" />
       {preview ? (
-        <pre className="max-h-48 overflow-auto rounded border border-[var(--border-subtle)] bg-surface p-2 text-[10px] text-[var(--text-primary)]">
+        <pre className="max-h-48 overflow-auto rounded border border-[var(--border-subtle)] bg-surface p-2 text-[11px] text-[var(--text-primary)]">
           {preview}
         </pre>
       ) : null}

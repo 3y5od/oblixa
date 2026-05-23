@@ -14,7 +14,8 @@ describe("export contracts CSV route (V9)", () => {
 
   it("derives CSV columns from workspace-aware field list so headers stay aligned with extraction schema", () => {
     const route = readFileSync(join(process.cwd(), "src/app/api/export/contracts/route.ts"), "utf8");
+    const csv = readFileSync(join(process.cwd(), "src/lib/export/contracts-csv.ts"), "utf8");
     expect(route).toContain("getExportCsvExtractedFieldNamesForWorkspaceMode");
-    expect(route).toContain("escapeCsvCellForSpreadsheet");
+    expect(csv).toContain("escapeCsvCellForSpreadsheet");
   });
 });

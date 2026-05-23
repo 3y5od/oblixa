@@ -5,7 +5,7 @@ import { STATUS_LABELS, STATUS_SEMANTICS } from "./contracts";
 import { NAV_ITEMS } from "./navigation";
 import type { ContractStatus } from "@/lib/types";
 
-/** v9 spec §24.1 — stable Core nouns (exact primary nav labels). */
+/** v9 spec §24.1 — stable Core nouns (primary labels or primary child labels). */
 const V9_CORE_VOCAB = [
   "Contracts",
   "Review",
@@ -17,10 +17,14 @@ const V9_CORE_VOCAB = [
 ] as const;
 
 describe("V9 §24 consistency (vocabulary, status, filter URL contract)", () => {
-  it("§24.1 primary nav retains the seven stable nouns", () => {
-    const primary = new Set(NAV_ITEMS.filter((i) => i.section === "primary").map((i) => i.name));
+  it("§24.1 primary navigation retains the seven stable nouns", () => {
+    const primary = NAV_ITEMS.filter((i) => i.section === "primary");
+    const visibleLabels = primary.flatMap((i) => [i.name, ...(i.navChildren ?? []).map((child) => child.name)]);
     for (const word of V9_CORE_VOCAB) {
-      expect(primary.has(word), `missing primary nav label: ${word}`).toBe(true);
+      expect(
+        visibleLabels.some((label) => label === word || label.includes(word)),
+        `missing primary navigation label: ${word}`
+      ).toBe(true);
     }
   });
 

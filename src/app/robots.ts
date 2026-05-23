@@ -42,6 +42,22 @@ export default function robots(): MetadataRoute.Robots {
           "/more/",
         ],
       },
+      {
+        userAgent: "GPTBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "OAI-SearchBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "Google-Extended",
+        disallow: "/",
+      },
+      {
+        userAgent: "PerplexityBot",
+        disallow: "/",
+      },
     ],
     sitemap: `${base}/sitemap.xml`,
   };

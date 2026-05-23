@@ -5,9 +5,13 @@
 
 /** Readable without a session (not in `publicRoutes` — those redirect authed users to dashboard). */
 export const PUBLIC_INFORMATION_PATHS = [
+  "/product",
+  "/pricing",
+  "/contact",
   "/privacy",
   "/terms",
   "/security",
+  "/acceptable-use",
   "/accessibility",
   "/cookies",
 ] as const;

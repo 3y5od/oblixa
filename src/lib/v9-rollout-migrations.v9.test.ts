@@ -9,9 +9,9 @@ describe("V9 migrations folder", () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
-  it("050_v9_status_foundations defines export job columns used by UI/API", () => {
+  it("050 migration defines export job columns used by UI/API", () => {
     const sql = readFileSync(
-      join(process.cwd(), "supabase/migrations/050_v9_status_foundations.sql"),
+      join(process.cwd(), "supabase/migrations/050_v6_contract_tags.sql"),
       "utf8"
     );
     expect(sql).toContain("contract_export_jobs");

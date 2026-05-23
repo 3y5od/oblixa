@@ -9,24 +9,33 @@ const REQUIRED_PACKAGE_SCRIPTS = ["check:trusted-host-handling"];
 const REQUIRED_CI_COMMANDS = ["npm run check:trusted-host-handling"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:trusted-host-handling"'];
 const REQUIRED_FILE_MARKERS = {
+  "src/lib/security/trusted-origin.ts": [
+    "OBLIXA_TRUSTED_APP_ORIGINS",
+    "export function resolveTrustedOriginFromHeaders",
+    "export function resolveTrustedOriginFromRequest",
+    "export function isTrustedAppOrigin",
+    "isProductionLikeOriginEnv",
+  ],
   "src/lib/security/trusted-forwarded.ts": [
     "export function getTrustedPublicOriginFromRequest(request: Request)",
-    'request.headers.get("x-forwarded-proto")',
-    'request.headers.get("x-forwarded-host")',
-    'return `${proto}://${host}`',
+    "resolveTrustedOriginFromRequest(request)",
+    "getCanonicalTrustedAppOriginFromEnv()",
+    "Missing trusted public origin",
   ],
   "src/lib/security/trusted-forwarded.test.ts": [
     "prefers x-forwarded-proto and x-forwarded-host when present",
     "falls back to request URL when forwards absent",
+    "ignores untrusted forwarded hosts in production",
   ],
   "src/lib/app-url.ts": [
-    'const host = h.get("x-forwarded-host") ?? h.get("host")',
-    'h.get("x-forwarded-proto")',
-    'return `${proto}://${host}`.replace(/\\/+$/, "")',
+    "resolveTrustedOriginFromHeaders(h)",
+    "getCanonicalTrustedAppOriginFromEnv",
+    "Missing trusted app origin",
   ],
   "src/lib/app-url.test.ts": [
     "prefers x-forwarded-host and x-forwarded-proto when present",
-    "builds an origin from forwarded headers as provided (edge must validate host trust)",
+    "rejects untrusted forwarded hosts in production",
+    "accepts allowlisted forwarded hosts in production",
   ],
 };
 

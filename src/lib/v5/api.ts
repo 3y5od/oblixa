@@ -1,4 +1,10 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import {
+  publicTokenHash,
+  publicTokenHashMatches,
+  publicTokenPrefix,
+  publicTokenStableKey,
+} from "@/lib/security/public-token-key";
 
 const SUBMIT_TICKET_TTL_MS = 15 * 60 * 1000;
 
@@ -115,6 +121,44 @@ function resolvePasscodePepper(): string {
 export function hashExternalPasscode(plain: string): string {
   const secret = resolvePasscodePepper();
   return createHash("sha256").update(`${secret}:${plain}`, "utf8").digest("hex");
+}
+
+export function externalActionTokenHash(token: string): string {
+  return publicTokenHash(token);
+}
+
+export function externalActionTokenPrefix(token: string): string {
+  return publicTokenPrefix(token);
+}
+
+export function externalActionTokenStableKey(token: string): string {
+  return publicTokenStableKey(token);
+}
+
+export function isExternalActionTokenSyntax(token: string): boolean {
+  if (/^[0-9a-f]{48}$/.test(token)) return true;
+  if (/^(?:ap|pb|pe|v6)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(token)) {
+    return true;
+  }
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(token)) return false;
+  return /^[A-Za-z0-9_-]{3,128}$/.test(token);
+}
+
+export function externalActionTokenStorageFields(token: string): {
+  token: null;
+  token_hash: string;
+  token_prefix: string;
+} {
+  return {
+    token: null,
+    token_hash: externalActionTokenHash(token),
+    token_prefix: externalActionTokenPrefix(token),
+  };
+}
+
+export function externalActionTokenMatches(row: { token_hash?: unknown }, token: string): boolean {
+  const hash = externalActionTokenHash(token);
+  return publicTokenHashMatches(row.token_hash, hash);
 }
 
 export function verifyExternalPasscode(plain: string | undefined, storedHash: string | null): boolean {

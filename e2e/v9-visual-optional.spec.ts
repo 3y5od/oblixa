@@ -47,7 +47,7 @@ test.describe("@v9 visual optional (dashboard/contracts/review/work shell)", () 
 
   test("@v9 reports shell at 1280px", async ({ page, app }) => {
     await app.loginAsDefaultUser();
-    await captureShell(page, "/reports", /^Operational reports$/i);
+    await captureShell(page, "/reports", /^Reports$/i);
   });
 
   test("@v9 health shell at 1280px", async ({ page, app }) => {

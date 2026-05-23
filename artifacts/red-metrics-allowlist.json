@@ -1,4 +1,11 @@
 {
+  "metadata": {
+    "owner": "observability",
+    "reviewedOn": "2026-05-11",
+    "reason": "Reviewed RED metric name registry enforced by the static metric-name scanner.",
+    "expiresOn": "2027-12-31",
+    "compensatingTest": "scripts/check-red-metrics-json.mjs"
+  },
   "metricNames": [
     "activeContracts",
     "approvals_past_due",

@@ -42,13 +42,26 @@ function toApiRelative(abs) {
   return path.relative(apiRoot, abs).replace(/\\/g, "/");
 }
 
+function parseKeyValueMeta(raw) {
+  const matches = [...raw.matchAll(/\b([A-Za-z][A-Za-z0-9_-]*)=/gu)];
+  const meta = {};
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index];
+    const key = match[1];
+    const valueStart = (match.index ?? 0) + match[0].length;
+    const valueEnd =
+      index + 1 < matches.length ? matches[index + 1].index ?? raw.length : raw.length;
+    meta[key] = raw.slice(valueStart, valueEnd).trim();
+  }
+  return meta;
+}
+
 function loadAllowlist() {
   if (!fs.existsSync(allowlistPath)) return { routes: new Set(), metadataIssues: [] };
   const raw = fs.readFileSync(allowlistPath, "utf8");
   const routes = new Set();
   const metadataIssues = [];
   let currentMeta = null;
-  const metaRe = /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
   const isExpired = (dateStr) => {
     const parsed = Date.parse(dateStr);
     return Number.isNaN(parsed) || parsed < Date.now();
@@ -58,9 +71,20 @@ function loadAllowlist() {
     const t = line.trim();
     if (!t) continue;
     if (t.startsWith("#")) {
-      const m = t.match(metaRe);
-      if (m) {
-        currentMeta = { owner: m[1], expiry: m[2], reason: m[3].trim() };
+      const match = t.match(/^#\s*meta:\s*(?<body>.*)$/u);
+      if (match?.groups?.body) {
+        const meta = parseKeyValueMeta(match.groups.body);
+        if (!meta.owner || !meta.expiry || !meta.reason) {
+          metadataIssues.push({ line: idx + 1, issue: "invalid_allowlist_meta", meta });
+          currentMeta = null;
+          continue;
+        }
+        currentMeta = {
+          owner: meta.owner,
+          expiry: meta.expiry,
+          reason: meta.reason.trim(),
+          reviewedOn: meta.reviewedOn ?? meta.reviewDate ?? meta.lastReviewed ?? null,
+        };
         if (isExpired(currentMeta.expiry)) {
           metadataIssues.push({ line: idx + 1, issue: "expired_allowlist_meta", meta: currentMeta });
         }

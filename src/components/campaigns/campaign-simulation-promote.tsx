@@ -59,8 +59,7 @@ export function CampaignSimulationPromote({ campaignContextId }: Props) {
       <p className="mt-1 text-xs text-[var(--text-tertiary)]">
         Creates a draft campaign from the latest run of the simulation you specify.
       </p>
-      <input
-        className="ui-input-compact mt-2 w-full"
+      <input aria-label="Simulation UUID" className="ui-input-compact mt-2 w-full"
         placeholder="Simulation UUID"
         value={simulationId}
         onChange={(e) => setSimulationId(e.target.value)}

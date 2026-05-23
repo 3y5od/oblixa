@@ -13,8 +13,15 @@ function priorityTone(priority: ContractTask["priority"]) {
   return "text-[var(--warning-ink)]";
 }
 
-export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
+export function MyTasks({ tasks, embedded = false }: { tasks: TaskRow[]; embedded?: boolean }) {
   if (tasks.length === 0) {
+    if (embedded) {
+      return (
+        <p className="ui-support-copy rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3 py-3">
+          No open tasks assigned to you.
+        </p>
+      );
+    }
     return (
       <section>
         <EmptyState
@@ -28,16 +35,16 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
   }
 
   return (
-    <section className="ui-card overflow-hidden">
-      <div className="ui-surface-tint px-4 py-3.5 md:px-6 md:py-4">
+    <section className={embedded ? "overflow-hidden rounded-lg border border-[var(--border-subtle)]" : "ui-card overflow-hidden"}>
+      <div className={embedded ? "border-b border-[var(--border-subtle)] px-3 py-2" : "ui-surface-tint px-4 py-3.5 md:px-6 md:py-4"}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="ui-section-title">My open tasks</h2>
-            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12px]">
+            <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12.5px]">
               Assigned work that still needs action
             </p>
           </div>
-          <Link href="/contracts/tasks" className="ui-link text-[12px] md:text-[13px]">
+          <Link href="/contracts/tasks" className="ui-link text-[12.5px] md:text-[12.5px]">
             Full queue
           </Link>
         </div>
@@ -49,9 +56,9 @@ export function MyTasks({ tasks }: { tasks: TaskRow[] }) {
               href={`/contracts/${task.contracts.id}`}
               className="block px-4 py-3.5 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] md:px-6 md:py-4"
             >
-              <p className="text-[14px] font-semibold text-[var(--text-primary)] md:text-[15px]">{task.title}</p>
-              <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">{task.contracts.title}</p>
-              <p className="mt-1 text-[12px]">
+              <p className="text-[14px] font-semibold text-[var(--text-primary)] md:text-[14px]">{task.title}</p>
+              <p className="mt-0.5 text-[12.5px] text-[var(--text-secondary)]">{task.contracts.title}</p>
+              <p className="mt-1 text-[12.5px]">
                 <span className={`font-semibold ${priorityTone(task.priority)}`}>
                   {task.priority}
                 </span>

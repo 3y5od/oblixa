@@ -172,6 +172,7 @@ export function V10WorkInboxList({
                 <label className={`flex items-center gap-2 text-xs text-[var(--text-secondary)] ${selectionLocked ? "opacity-60" : ""}`}>
                   <input
                     type="checkbox"
+                    className="ui-checkbox"
                     aria-label={`Select ${item.title} for bulk actions`}
                     checked={selectedIds.includes(item.v10WorkItemId)}
                     disabled={!mutationsEnabled || isPending || selectionLocked}

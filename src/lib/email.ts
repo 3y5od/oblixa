@@ -3,6 +3,10 @@ import {
   degradeOutboundEmailCopyForCore,
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
+import {
+  redactOutboundMessageText,
+  sanitizeOutboundHtml,
+} from "@/lib/messaging/outbound-payload-scrub";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 
@@ -35,14 +39,14 @@ async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Erro
     });
     if (res.ok) return { error: null };
     const text = await res.text().catch(() => "");
-    return { error: new Error(`Email provider send failed (${res.status}): ${text.slice(0, 500)}`) };
+    return { error: new Error(`Email provider send failed (${res.status}): ${redactOutboundMessageText(text, 500)}`) };
   } catch (error) {
-    return { error: error instanceof Error ? error : new Error(String(error)) };
+    return { error: error instanceof Error ? new Error(redactOutboundMessageText(error.message, 500)) : new Error(redactOutboundMessageText(String(error), 500)) };
   }
 }
 
 function sanitizeSubject(s: string): string {
-  return s.replace(/[\r\n]+/g, " ").trim();
+  return redactOutboundMessageText(s.replace(/[\r\n]+/g, " ").trim(), 240);
 }
 
 function escapeHtml(str: string): string {
@@ -78,13 +82,13 @@ export async function sendReminderEmail({
   const urgency =
     daysUntil <= 1 ? "URGENT" : daysUntil <= 7 ? "Upcoming" : "Reminder";
 
-  const safeLabel = escapeHtml(label);
-  const safeTitle = escapeHtml(contractTitle);
-  const safeValue = escapeHtml(fieldValue);
-  const safeUrl = escapeHtml(contractUrl);
+  const safeLabel = escapeHtml(redactOutboundMessageText(label, 120));
+  const safeTitle = escapeHtml(redactOutboundMessageText(contractTitle, 240));
+  const safeValue = escapeHtml(redactOutboundMessageText(fieldValue, 240));
+  const safeUrl = escapeHtml(redactOutboundMessageText(contractUrl, 1024));
   const safeSnippet =
     sourceSnippet && sourceSnippet.trim()
-      ? escapeHtml(sourceSnippet.trim())
+      ? escapeHtml(redactOutboundMessageText(sourceSnippet.trim(), 2000))
       : null;
 
   const { error } = await sendResendEmail({
@@ -140,7 +144,7 @@ export async function sendReviewBoardPacketEmail({
     from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     to,
     subject: sanitizeSubject(subject),
-    html: htmlBody,
+    html: sanitizeOutboundHtml(htmlBody),
   });
   return { error };
 }
@@ -218,9 +222,9 @@ export async function sendSavedViewSummaryEmail({
       : `<ul style="padding-left:18px;margin:0;">
           ${rowsForEmail
             .map((row) => {
-              const safeTitle = escapeHtml(row.label);
-              const safeMeta = escapeHtml(row.meta);
-              const safeHref = `${safeAppUrl}${row.href}`;
+              const safeTitle = escapeHtml(redactOutboundMessageText(row.label, 200));
+              const safeMeta = escapeHtml(redactOutboundMessageText(row.meta, 280));
+              const safeHref = `${safeAppUrl}${escapeHtml(redactOutboundMessageText(row.href, 1024))}`;
               return `<li style="margin:0 0 8px;">
                         <a href="${safeHref}" style="color:#1f2937;text-decoration:none;font-weight:600;">${safeTitle}</a>
                         <span style="color:#6b7280;font-size:12px;"> · ${safeMeta}</span>
@@ -292,8 +296,8 @@ export async function sendReportPackDigestEmail({
         value: degradeOutboundEmailCopyForCore(m.value),
       }))
     : metricsSummary;
-  const safeName = escapeHtml(packNameForEmail);
-  const safeType = escapeHtml(reportTypeForEmail);
+  const safeName = escapeHtml(redactOutboundMessageText(packNameForEmail, 200));
+  const safeType = escapeHtml(redactOutboundMessageText(reportTypeForEmail, 120));
   const base = appUrl.replace(/\/+$/, "");
   const safeBase = escapeHtml(base);
   const rows =
@@ -304,9 +308,9 @@ export async function sendReportPackDigestEmail({
             .map(
               (r) =>
                 `<tr><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;color:#52525b;">${escapeHtml(
-                  r.label
+                  redactOutboundMessageText(r.label, 200)
                 )}</td><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#18181b;">${escapeHtml(
-                  r.value
+                  redactOutboundMessageText(r.value, 200)
                 )}</td></tr>`
             )
             .join("")}

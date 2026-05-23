@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fetchJson } from "@/lib/http/client-json";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export function FindingActions({ findingId }: { findingId: string }) {
   const router = useRouter();
@@ -54,7 +54,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
       <label className="mt-2 block text-xs text-[var(--text-secondary)]">
         Signal quality (optional — used for calibration and reporting)
         <select
-          className="mt-1 block w-full max-w-md rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+          className="ui-input mt-1 block w-full max-w-md"
           value={signalFeedback}
           onChange={(e) => setSignalFeedback(e.target.value)}
         >

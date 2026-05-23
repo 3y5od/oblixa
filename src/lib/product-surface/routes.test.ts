@@ -5,6 +5,7 @@ describe("isPathAllowedForWorkspaceMode", () => {
   it("allows core routes in core mode", () => {
     expect(isPathAllowedForWorkspaceMode("/dashboard", "core")).toBe(true);
     expect(isPathAllowedForWorkspaceMode("/contracts/review", "core")).toBe(true);
+    expect(isPathAllowedForWorkspaceMode("/contracts/evidence-studio", "core")).toBe(true);
   });
 
   it("blocks advanced paths in core mode", () => {

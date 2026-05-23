@@ -1,6 +1,8 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import Link from "next/link";
+import { Network } from "lucide-react";
 import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import type { ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
 
 export default async function ExecutionGraphPage(props: {
@@ -69,15 +71,12 @@ export default async function ExecutionGraphPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Execution graph</p>
-          <h1 className="ui-display-title mt-2">Dependency and Blocker View</h1>
-          <p className="ui-page-lead mt-3">
-            Cross-work dependency graph across tasks, approvals, obligations, and renewal checkpoints.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Network className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Execution graph"
+        title="Dependency and blocker view"
+        lead="Cross-work dependency graph across tasks, approvals, obligations, and renewal checkpoints."
+      />
 
       <section className="ui-page-shell p-5">
         <p className="ui-label-caps">Portfolio blocker summary</p>

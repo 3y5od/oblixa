@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
 
-export const alt = "Oblixa — Contract execution for post-signature teams";
+export const alt = "Oblixa — Track renewals, obligations, and owners from signed contracts";
 
 export const size = {
   width: 1200,
@@ -128,7 +128,7 @@ export default function OpenGraphImage() {
                   color: "rgba(241, 245, 249, 0.9)",
                 }}
               >
-                Contract execution for post-signature teams
+                Track renewals, obligations, and owners from signed contracts
               </div>
               <div
                 style={{
@@ -138,7 +138,7 @@ export default function OpenGraphImage() {
                   color: "rgba(191, 219, 254, 0.86)",
                 }}
               >
-                Turn signed agreements into tracked work, deadlines, approvals, obligations, and audit-ready evidence.
+                Replace the contract tracking spreadsheet — review terms, track dates and owners, follow up on obligations, request evidence, export reports.
               </div>
             </div>
             <div

@@ -8,13 +8,183 @@ import {
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { encryptIntegrationToken } from "@/lib/security/token-crypto";
-import { isUuid } from "@/lib/security/validation";
+import {
+  hasUnsafeJsonKey,
+  isJsonShapeWithinLimits,
+  isUuid,
+  parseFixedEnumParam,
+  parseFutureIsoTimestamp,
+  parsePositiveIntParam,
+  validateBoundedString,
+} from "@/lib/security/validation";
 import { sanitizeRolePolicyJson } from "@/lib/settings/sanitize-role-policy-json";
+import { SETTINGS_NOTIFICATIONS_STRINGS } from "@/lib/settings/spec-strings";
 import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
-import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
+import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
+
+const WORKFLOW_INTEGRATION_PROVIDERS = ["google_calendar", "outlook_calendar", "slack", "email", "crm"] as const;
+const WORKFLOW_INTEGRATION_STATUSES = ["not_connected", "connected", "error"] as const;
+const WORKFLOW_TASK_PRIORITIES = ["low", "medium", "high"] as const;
+const WORKFLOW_POLICY_PACKS = ["balanced", "compliance", "revenue"] as const;
+const WORKFLOW_APPROVAL_TYPES = [
+  "renewal_decision",
+  "notice_action",
+  "commercial_exception",
+  "ownership_handoff",
+] as const;
+const CORE_NOTIFICATION_TYPES = SETTINGS_NOTIFICATIONS_STRINGS.categories.map((category) => category.key);
+function isCoreNotificationType(value: string): value is (typeof CORE_NOTIFICATION_TYPES)[number] {
+  return (CORE_NOTIFICATION_TYPES as readonly string[]).includes(value);
+}
+
+const MAX_WORKFLOW_KEY_LEN = 120;
+const MAX_WORKFLOW_LABEL_LEN = 240;
+const MAX_WORKFLOW_CONTRACT_TYPE_LEN = 160;
+const MAX_WORKFLOW_URL_LEN = 2048;
+const MAX_WORKFLOW_SECRET_LEN = 1024;
+const MAX_WORKFLOW_EVENTS_CSV_LEN = 1000;
+const MAX_WORKFLOW_EVENT_COUNT = 25;
+const MAX_WORKFLOW_DEFAULT_VALUE_LEN = 4000;
+const MAX_WORKFLOW_TASK_DETAILS_LEN = 4000;
+const MAX_WORKFLOW_JSON_LEN = 12000;
+const MAX_WORKFLOW_ERROR_TEXT_LEN = 1000;
+const MAX_WORKFLOW_CSV_LEN = 1000;
+const MAX_WORKFLOW_CSV_ITEMS = 50;
+const MAX_WORKFLOW_TOKEN_LEN = 4096;
+const MAX_WORKFLOW_CONNECTED_ACCOUNT_LEN = 254;
+const MAX_WORKFLOW_API_KEY_LABEL_LEN = 120;
+const MAX_WORKFLOW_API_KEY_REASON_LEN = 1000;
+const MAX_WORKFLOW_OFFSET_DAYS = 3650;
+const MAX_WORKFLOW_EXPIRY_DAYS = 3650;
+const SAFE_WORKFLOW_TOKEN_RE = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,119}$/;
+
+type WorkflowStringResult =
+  | { ok: true; value: string }
+  | { ok: false; error: "invalid_string" | "string_too_long" | "unsafe_characters" };
+
+function readWorkflowString(
+  formData: FormData,
+  key: string,
+  options: { maxLength: number; allowEmpty?: boolean; allowTextWhitespaceControls?: boolean }
+): WorkflowStringResult {
+  return validateBoundedString(formData.get(key) ?? "", options);
+}
+
+function readOptionalWorkflowString(
+  formData: FormData,
+  key: string,
+  options: { maxLength: number; allowTextWhitespaceControls?: boolean }
+): WorkflowStringResult {
+  return validateBoundedString(formData.get(key) ?? "", {
+    ...options,
+    allowEmpty: true,
+  });
+}
+
+function textInputError(field: string, result: Extract<WorkflowStringResult, { ok: false }>): string {
+  if (result.error === "string_too_long") return `${field} is too long`;
+  if (result.error === "unsafe_characters") return `${field} contains unsupported characters`;
+  return `${field} is invalid`;
+}
+
+function readWorkflowEnum<T extends string>(
+  formData: FormData,
+  key: string,
+  allowed: readonly T[]
+): T | null {
+  const raw = formData.get(key);
+  if (raw != null && typeof raw !== "string") return null;
+  const value = (raw ?? "").trim();
+  if (!value) return null;
+  const parsed = parseFixedEnumParam(value, allowed, allowed[0]);
+  return parsed === value ? parsed : null;
+}
+
+function parseWorkflowInt(
+  formData: FormData,
+  key: string,
+  options: { defaultValue: number; min?: number; max: number }
+): number {
+  return parsePositiveIntParam(String(formData.get(key) ?? "").trim(), options);
+}
+
+function parseWorkflowStrictInt(
+  formData: FormData,
+  key: string,
+  options: { min?: number; max: number }
+): number | null {
+  const raw = String(formData.get(key) ?? "").trim();
+  if (!/^\d+$/.test(raw)) return null;
+  return parsePositiveIntParam(raw, { defaultValue: options.min ?? 0, min: options.min ?? 0, max: options.max });
+}
+
+function parseWorkflowTokenCsv(
+  value: string,
+  options: { maxItems?: number } = {}
+): { ok: true; values: string[] } | { ok: false } {
+  if (!value) return { ok: true, values: [] };
+  const values = value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  if (values.length > (options.maxItems ?? MAX_WORKFLOW_CSV_ITEMS)) return { ok: false };
+  if (!values.every((entry) => SAFE_WORKFLOW_TOKEN_RE.test(entry))) return { ok: false };
+  return { ok: true, values: Array.from(new Set(values)) };
+}
+
+function parseWorkflowHttpsUrl(value: string): { ok: true; value: string } | { ok: false; error: string } {
+  if (!value) return { ok: false, error: "URL and secret are required" };
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return { ok: false, error: "Webhook URL must be a valid HTTPS URL" };
+  }
+  if (url.protocol !== "https:") return { ok: false, error: "Webhook URL must use HTTPS" };
+  if (url.username || url.password) return { ok: false, error: "Webhook URL must not include credentials" };
+  if (url.hash) url.hash = "";
+  return { ok: true, value: url.toString() };
+}
+
+function parseWorkflowJsonObject(
+  value: string,
+  options: { maxDepth?: number; maxArrayLength?: number; maxKeys?: number; maxStringLength?: number } = {}
+): { ok: true; value: Record<string, unknown> } | { ok: false } {
+  if (!value) return { ok: true, value: {} };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return { ok: false };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ok: false };
+  if (hasUnsafeJsonKey(parsed)) return { ok: false };
+  if (
+    !isJsonShapeWithinLimits(parsed, {
+      allowJsonWhitespaceControls: true,
+      maxDepth: options.maxDepth ?? 6,
+      maxArrayLength: options.maxArrayLength ?? 50,
+      maxKeys: options.maxKeys ?? 100,
+      maxStringLength: options.maxStringLength ?? 2000,
+    })
+  ) {
+    return { ok: false };
+  }
+  return { ok: true, value: parsed as Record<string, unknown> };
+}
+
+function normalizeOptionalExpiryIso(value: string | null): { ok: true; value: string | null } | { ok: false } {
+  if (!value) return { ok: true, value: null };
+  const raw = value.trim();
+  const normalizedInput = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw) ? `${raw}:00Z` : raw;
+  const parsed = parseFutureIsoTimestamp(normalizedInput, { maxFutureDays: MAX_WORKFLOW_EXPIRY_DAYS });
+  if (!parsed.ok) return { ok: false };
+  return { ok: true, value: parsed.value ?? null };
+}
 
 async function getMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -51,6 +221,17 @@ async function logTemplateChange(
 }
 
 export async function createRenewalPlaybookTemplateForm(formData: FormData) {
+  const nameValidation = readWorkflowString(formData, "taskKey", { maxLength: MAX_WORKFLOW_KEY_LEN });
+  const labelValidation = readWorkflowString(formData, "label", { maxLength: MAX_WORKFLOW_LABEL_LEN });
+  const contractTypeValidation = readOptionalWorkflowString(formData, "contractType", {
+    maxLength: MAX_WORKFLOW_CONTRACT_TYPE_LEN,
+  });
+  const offsetDays = parseWorkflowStrictInt(formData, "offsetDays", { min: 0, max: MAX_WORKFLOW_OFFSET_DAYS });
+  if (!nameValidation.ok) return { error: textInputError("Playbook task key", nameValidation) };
+  if (!labelValidation.ok) return { error: textInputError("Playbook label", labelValidation) };
+  if (!contractTypeValidation.ok) return { error: textInputError("Contract type", contractTypeValidation) };
+  if (offsetDays == null) return { error: "Invalid playbook template input" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -58,12 +239,9 @@ export async function createRenewalPlaybookTemplateForm(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const name = String(formData.get("taskKey") ?? "").trim();
-  const label = String(formData.get("label") ?? "").trim();
-  const offsetDays = Number(String(formData.get("offsetDays") ?? "").trim() || "0");
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
-  if (!name || !label || !Number.isFinite(offsetDays) || offsetDays < 0)
-    return { error: "Invalid playbook template input" };
+  const name = nameValidation.value;
+  const label = labelValidation.value;
+  const contractType = contractTypeValidation.value || null;
 
   const { data: membership } = await getMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer"))
@@ -75,7 +253,7 @@ export async function createRenewalPlaybookTemplateForm(formData: FormData) {
       contract_type: contractType,
       task_key: name,
       label,
-      offset_days: Math.trunc(offsetDays),
+      offset_days: offsetDays,
       active: true,
       created_by: user.id,
     },
@@ -99,7 +277,7 @@ export async function createRenewalPlaybookTemplateForm(formData: FormData) {
       templateId: row.id,
       action: "created",
       userId: user.id,
-      details: { contract_type: contractType, task_key: name, offset_days: Math.trunc(offsetDays) },
+      details: { contract_type: contractType, task_key: name, offset_days: offsetDays },
     });
   }
   return { success: true };
@@ -142,6 +320,17 @@ export async function toggleRenewalPlaybookTemplateForm(
 }
 
 export async function createWebhookSubscriptionForm(formData: FormData) {
+  const urlValidation = readWorkflowString(formData, "url", { maxLength: MAX_WORKFLOW_URL_LEN });
+  const secretValidation = readWorkflowString(formData, "secret", { maxLength: MAX_WORKFLOW_SECRET_LEN });
+  const eventsValidation = readOptionalWorkflowString(formData, "events", { maxLength: MAX_WORKFLOW_EVENTS_CSV_LEN });
+  if (!urlValidation.ok) return { error: textInputError("Webhook URL", urlValidation) };
+  if (!secretValidation.ok) return { error: textInputError("Webhook secret", secretValidation) };
+  if (!eventsValidation.ok) return { error: textInputError("Webhook events", eventsValidation) };
+  const webhookUrl = parseWorkflowHttpsUrl(urlValidation.value);
+  if (!webhookUrl.ok) return { error: webhookUrl.error };
+  const parsedEvents = parseWorkflowTokenCsv(eventsValidation.value, { maxItems: MAX_WORKFLOW_EVENT_COUNT });
+  if (!parsedEvents.ok) return { error: "Invalid webhook events" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -149,23 +338,12 @@ export async function createWebhookSubscriptionForm(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const url = String(formData.get("url") ?? "").trim();
-  const secret = String(formData.get("secret") ?? "").trim();
-  const events = String(formData.get("events") ?? "").trim();
-  if (!url || !secret) return { error: "URL and secret are required" };
-  if (url && !/^https:\/\//i.test(url)) return { error: "Webhook URL must use HTTPS" };
-
-  const parsedEvents = events
-    .split(",")
-    .map((e) => e.trim())
-    .filter(Boolean);
-
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
 
   let encryptedSecret: string;
   try {
-    encryptedSecret = encryptIntegrationToken(secret) ?? "";
+    encryptedSecret = encryptIntegrationToken(secretValidation.value) ?? "";
   } catch {
     return { error: "Webhook secret encryption failed" };
   }
@@ -173,9 +351,9 @@ export async function createWebhookSubscriptionForm(formData: FormData) {
 
   const { error } = await admin.from("webhook_subscriptions").insert({
     organization_id: membership.organization_id,
-    url,
+    url: webhookUrl.value,
     secret: encryptedSecret,
-    events: parsedEvents.length ? parsedEvents : ["contract.updated", "reminder.due"],
+    events: parsedEvents.values.length ? parsedEvents.values : ["contract.updated", "reminder.due"],
     active: true,
     created_by: user.id,
   });
@@ -210,20 +388,28 @@ export async function toggleWebhookSubscriptionForm(id: string, active: boolean)
 }
 
 export async function createFieldTemplateForm(formData: FormData) {
+  const fieldNameValidation = readWorkflowString(formData, "fieldName", { maxLength: MAX_WORKFLOW_KEY_LEN });
+  const contractTypeValidation = readOptionalWorkflowString(formData, "contractType", {
+    maxLength: MAX_WORKFLOW_CONTRACT_TYPE_LEN,
+  });
+  const defaultValueValidation = readOptionalWorkflowString(formData, "defaultValue", {
+    maxLength: MAX_WORKFLOW_DEFAULT_VALUE_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!fieldNameValidation.ok) return { error: textInputError("Field name", fieldNameValidation) };
+  if (!contractTypeValidation.ok) return { error: textInputError("Contract type", contractTypeValidation) };
+  if (!defaultValueValidation.ok) return { error: textInputError("Default value", defaultValueValidation) };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const fieldName = String(formData.get("fieldName") ?? "").trim();
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
-  const defaultValue = String(formData.get("defaultValue") ?? "").trim() || null;
+  const fieldName = fieldNameValidation.value;
+  const contractType = contractTypeValidation.value || null;
+  const defaultValue = defaultValueValidation.value || null;
   const required = String(formData.get("required") ?? "") === "1";
-  if (!fieldName) return { error: "Field name is required" };
-  if (fieldName.length > 120) return { error: "Field name must be 120 characters or fewer" };
-  if (defaultValue && defaultValue.length > 4000)
-    return { error: "Default value must be 4000 characters or fewer" };
   const { data: membership } = await getMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer"))
     return { error: "Access denied" };
@@ -261,18 +447,27 @@ export async function createFieldTemplateForm(formData: FormData) {
 }
 
 export async function createReminderTemplateForm(formData: FormData) {
+  const contractTypeValidation = readOptionalWorkflowString(formData, "contractType", {
+    maxLength: MAX_WORKFLOW_CONTRACT_TYPE_LEN,
+  });
+  const fieldNameValidation = readWorkflowString(formData, "fieldName", { maxLength: MAX_WORKFLOW_KEY_LEN });
+  const reminderTypeValidation = readWorkflowString(formData, "reminderType", { maxLength: MAX_WORKFLOW_KEY_LEN });
+  const offsetDays = parseWorkflowStrictInt(formData, "offsetDays", { min: 0, max: MAX_WORKFLOW_OFFSET_DAYS });
+  if (!contractTypeValidation.ok) return { error: textInputError("Contract type", contractTypeValidation) };
+  if (!fieldNameValidation.ok) return { error: textInputError("Field name", fieldNameValidation) };
+  if (!reminderTypeValidation.ok) return { error: textInputError("Reminder type", reminderTypeValidation) };
+  if (!SAFE_WORKFLOW_TOKEN_RE.test(reminderTypeValidation.value)) return { error: "Invalid reminder template input" };
+  if (offsetDays == null) return { error: "Invalid reminder template input" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
-  const fieldName = String(formData.get("fieldName") ?? "").trim();
-  const reminderType = String(formData.get("reminderType") ?? "").trim();
-  const offsetDays = Number(String(formData.get("offsetDays") ?? "").trim() || "0");
-  if (!fieldName || !reminderType || !Number.isFinite(offsetDays) || offsetDays < 0)
-    return { error: "Invalid reminder template input" };
+  const contractType = contractTypeValidation.value || null;
+  const fieldName = fieldNameValidation.value;
+  const reminderType = reminderTypeValidation.value;
   const { data: membership } = await getMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer"))
     return { error: "Access denied" };
@@ -281,7 +476,7 @@ export async function createReminderTemplateForm(formData: FormData) {
       organization_id: membership.organization_id,
       contract_type: contractType,
       field_name: fieldName,
-      offset_days: Math.trunc(offsetDays),
+      offset_days: offsetDays,
       reminder_type: reminderType,
       active: true,
       created_by: user.id,
@@ -297,7 +492,7 @@ export async function createReminderTemplateForm(formData: FormData) {
     .select("id")
     .eq("organization_id", membership.organization_id)
     .eq("field_name", fieldName)
-    .eq("offset_days", Math.trunc(offsetDays))
+    .eq("offset_days", offsetDays)
     .eq("reminder_type", reminderType)
     .is("contract_type", contractType)
     .maybeSingle();
@@ -315,39 +510,47 @@ export async function createReminderTemplateForm(formData: FormData) {
 }
 
 export async function createTaskTemplateForm(formData: FormData) {
+  const contractTypeValidation = readOptionalWorkflowString(formData, "contractType", {
+    maxLength: MAX_WORKFLOW_CONTRACT_TYPE_LEN,
+  });
+  const teamKeyValidation = readOptionalWorkflowString(formData, "teamKey", { maxLength: MAX_WORKFLOW_KEY_LEN });
+  const titleValidation = readWorkflowString(formData, "title", { maxLength: MAX_WORKFLOW_LABEL_LEN });
+  const detailsValidation = readOptionalWorkflowString(formData, "details", {
+    maxLength: MAX_WORKFLOW_TASK_DETAILS_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  const dueOffsetDays = parseWorkflowStrictInt(formData, "dueOffsetDays", { min: 0, max: MAX_WORKFLOW_OFFSET_DAYS });
+  const priority = readWorkflowEnum(formData, "priority", WORKFLOW_TASK_PRIORITIES);
+  if (!contractTypeValidation.ok) return { error: textInputError("Contract type", contractTypeValidation) };
+  if (!teamKeyValidation.ok) return { error: textInputError("Team key", teamKeyValidation) };
+  if (!titleValidation.ok) return { error: textInputError("Task title", titleValidation) };
+  if (!detailsValidation.ok) return { error: textInputError("Task details", detailsValidation) };
+  if (dueOffsetDays == null || !priority) return { error: "Invalid task template input" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
-  const teamKey = String(formData.get("teamKey") ?? "").trim() || null;
-  const title = String(formData.get("title") ?? "").trim();
-  const details = String(formData.get("details") ?? "").trim() || null;
-  const dueOffsetDays = Number(String(formData.get("dueOffsetDays") ?? "").trim() || "7");
-  const priority = String(formData.get("priority") ?? "medium").trim();
-  if (!title || !Number.isFinite(dueOffsetDays) || dueOffsetDays < 0)
-    return { error: "Invalid task template input" };
-  if (title.length > 240) return { error: "Task title must be 240 characters or fewer" };
-  if (details && details.length > 4000)
-    return { error: "Task details must be 4000 characters or fewer" };
-  if (!["low", "medium", "high"].includes(priority))
-    return { error: "Invalid priority" };
+  const contractType = contractTypeValidation.value || null;
+  const teamKey = teamKeyValidation.value || null;
+  const title = titleValidation.value;
+  const details = detailsValidation.value || null;
   const { data: membership } = await getMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as "admin" | "editor" | "viewer"))
     return { error: "Access denied" };
   const { data: row, error } = await admin
     .from("task_templates")
     .insert({
-    organization_id: membership.organization_id,
-    contract_type: contractType,
-    team_key: teamKey,
-    title,
-    details,
-    due_offset_days: Math.trunc(dueOffsetDays),
-    priority,
-    active: true,
+      organization_id: membership.organization_id,
+      contract_type: contractType,
+      team_key: teamKey,
+      title,
+      details,
+      due_offset_days: dueOffsetDays,
+      priority,
+      active: true,
       created_by: user.id,
     })
     .select("id")
@@ -367,36 +570,38 @@ export async function createTaskTemplateForm(formData: FormData) {
 }
 
 export async function upsertIntegrationConnectionForm(formData: FormData) {
+  const provider = readWorkflowEnum(formData, "provider", WORKFLOW_INTEGRATION_PROVIDERS);
+  const status = readWorkflowEnum(formData, "status", WORKFLOW_INTEGRATION_STATUSES);
+  const configValidation = readOptionalWorkflowString(formData, "configJson", {
+    maxLength: MAX_WORKFLOW_JSON_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  const lastErrorValidation = readOptionalWorkflowString(formData, "lastError", {
+    maxLength: MAX_WORKFLOW_ERROR_TEXT_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!provider) return { error: "Invalid provider" };
+  if (!status) return { error: "Invalid status" };
+  if (!configValidation.ok) return { error: textInputError("Integration config", configValidation) };
+  if (!lastErrorValidation.ok) return { error: textInputError("Integration last error", lastErrorValidation) };
+  const parsedConfig = parseWorkflowJsonObject(configValidation.value);
+  if (!parsedConfig.ok) return { error: "Invalid configJson payload" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const provider = String(formData.get("provider") ?? "").trim();
-  const status = String(formData.get("status") ?? "not_connected").trim();
-  const config = String(formData.get("configJson") ?? "").trim();
-  const lastError = String(formData.get("lastError") ?? "").trim() || null;
-  if (!["google_calendar", "outlook_calendar", "slack", "email", "crm"].includes(provider))
-    return { error: "Invalid provider" };
-  if (!["not_connected", "connected", "error"].includes(status))
-    return { error: "Invalid status" };
+  const lastError = lastErrorValidation.value || null;
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
-  let configJson: Record<string, unknown> = {};
-  if (config) {
-    try {
-      configJson = JSON.parse(config) as Record<string, unknown>;
-    } catch {
-      return { error: "Invalid configJson payload" };
-    }
-  }
   const { error } = await admin.from("integration_connections").upsert(
     {
       organization_id: membership.organization_id,
       provider,
       status,
-      config_json: configJson,
+      config_json: parsedConfig.value,
       last_error: lastError,
       last_synced_at: status === "connected" ? new Date().toISOString() : null,
       created_by: user.id,
@@ -408,69 +613,102 @@ export async function upsertIntegrationConnectionForm(formData: FormData) {
 }
 
 export async function upsertWorkflowSettingsForm(formData: FormData) {
+  const weeklyIntakeLookbackDays = parseWorkflowInt(formData, "weeklyIntakeLookbackDays", {
+    defaultValue: 7,
+    min: 1,
+    max: 30,
+  });
+  const renewalHorizonDays = parseWorkflowInt(formData, "renewalHorizonDays", {
+    defaultValue: 90,
+    min: 30,
+    max: 365,
+  });
+  const staleContractDays = parseWorkflowInt(formData, "staleContractDays", {
+    defaultValue: 120,
+    min: 30,
+    max: 365,
+  });
+  const staleOwnershipDays = parseWorkflowInt(formData, "staleOwnershipDays", {
+    defaultValue: 90,
+    min: 14,
+    max: 365,
+  });
+  const emailQuietStart = parseWorkflowInt(formData, "emailQuietStartUtc", { defaultValue: 0, min: 0, max: 23 });
+  const emailQuietEnd = parseWorkflowInt(formData, "emailQuietEndUtc", { defaultValue: 0, min: 0, max: 23 });
+  const slackQuietStart = parseWorkflowInt(formData, "slackQuietStartUtc", { defaultValue: 0, min: 0, max: 23 });
+  const slackQuietEnd = parseWorkflowInt(formData, "slackQuietEndUtc", { defaultValue: 0, min: 0, max: 23 });
+  const emailBlockedTypesValidation = readOptionalWorkflowString(formData, "emailBlockedTypes", {
+    maxLength: MAX_WORKFLOW_CSV_LEN,
+  });
+  const slackBlockedTypesValidation = readOptionalWorkflowString(formData, "slackBlockedTypes", {
+    maxLength: MAX_WORKFLOW_CSV_LEN,
+  });
+  const rolePolicyValidation = readOptionalWorkflowString(formData, "rolePolicyJson", {
+    maxLength: MAX_WORKFLOW_JSON_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!emailBlockedTypesValidation.ok)
+    return { error: textInputError("Email blocked notification types", emailBlockedTypesValidation) };
+  if (!slackBlockedTypesValidation.ok)
+    return { error: textInputError("Slack blocked notification types", slackBlockedTypesValidation) };
+  if (!rolePolicyValidation.ok) return { error: textInputError("Role policy JSON", rolePolicyValidation) };
+  const selectedNotificationCategories = new Set(
+    formData
+      .getAll("notificationCategories")
+      .filter((value): value is (typeof CORE_NOTIFICATION_TYPES)[number] => typeof value === "string" && isCoreNotificationType(value))
+  );
+  const usesCategoryForm = formData.get("notificationCategoryForm") === "1";
+  const emailBlockedTypes = usesCategoryForm
+    ? {
+        ok: true as const,
+        values: CORE_NOTIFICATION_TYPES.filter((type) => !selectedNotificationCategories.has(type)),
+      }
+    : parseWorkflowTokenCsv(emailBlockedTypesValidation.value, {
+        maxItems: MAX_WORKFLOW_CSV_ITEMS,
+      });
+  const slackBlockedTypes = parseWorkflowTokenCsv(slackBlockedTypesValidation.value, {
+    maxItems: MAX_WORKFLOW_CSV_ITEMS,
+  });
+  if (!emailBlockedTypes.ok || !slackBlockedTypes.ok) return { error: "Invalid notification type filters" };
+  const parsedRolePolicyJson = parseWorkflowJsonObject(rolePolicyValidation.value, {
+    maxDepth: 5,
+    maxArrayLength: 10,
+    maxKeys: 100,
+    maxStringLength: 200,
+  });
+  if (!parsedRolePolicyJson.ok) return { error: "Invalid rolePolicyJson payload" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const weeklyIntakeLookbackDays = Number(String(formData.get("weeklyIntakeLookbackDays") ?? "7"));
-  const renewalHorizonDays = Number(String(formData.get("renewalHorizonDays") ?? "90"));
-  const staleContractDays = Number(String(formData.get("staleContractDays") ?? "120"));
-  const staleOwnershipDays = Number(String(formData.get("staleOwnershipDays") ?? "90"));
   const emailEnabled = formData.has("emailEnabled");
   const slackEnabled = formData.has("slackEnabled");
-  const emailQuietStart = Number(String(formData.get("emailQuietStartUtc") ?? "").trim() || "0");
-  const emailQuietEnd = Number(String(formData.get("emailQuietEndUtc") ?? "").trim() || "0");
-  const slackQuietStart = Number(String(formData.get("slackQuietStartUtc") ?? "").trim() || "0");
-  const slackQuietEnd = Number(String(formData.get("slackQuietEndUtc") ?? "").trim() || "0");
-  const emailBlockedTypes = String(formData.get("emailBlockedTypes") ?? "")
-    .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean);
-  const slackBlockedTypes = String(formData.get("slackBlockedTypes") ?? "")
-    .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean);
   const dashboardTrackingEnabled = formData.has("dashboardTrackingEnabled");
-  const rolePolicyJsonRaw = String(formData.get("rolePolicyJson") ?? "").trim();
-  if (
-    !Number.isFinite(weeklyIntakeLookbackDays) ||
-    !Number.isFinite(renewalHorizonDays) ||
-    !Number.isFinite(staleContractDays) ||
-    !Number.isFinite(staleOwnershipDays)
-  ) {
-    return { error: "Invalid numeric settings" };
-  }
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
-  let rolePolicyJson: Record<string, unknown> = {};
-  if (rolePolicyJsonRaw) {
-    try {
-      rolePolicyJson = sanitizeRolePolicyJson(JSON.parse(rolePolicyJsonRaw) as Record<string, unknown>);
-    } catch {
-      return { error: "Invalid rolePolicyJson payload" };
-    }
-  }
+  const rolePolicyJson = sanitizeRolePolicyJson(parsedRolePolicyJson.value);
   const { error } = await admin.from("organization_workflow_settings").upsert(
     {
       organization_id: membership.organization_id,
-      weekly_intake_lookback_days: Math.min(Math.max(Math.trunc(weeklyIntakeLookbackDays), 1), 30),
-      renewal_horizon_days: Math.min(Math.max(Math.trunc(renewalHorizonDays), 30), 365),
-      stale_contract_days: Math.min(Math.max(Math.trunc(staleContractDays), 30), 365),
-      stale_ownership_days: Math.min(Math.max(Math.trunc(staleOwnershipDays), 14), 365),
+      weekly_intake_lookback_days: weeklyIntakeLookbackDays,
+      renewal_horizon_days: renewalHorizonDays,
+      stale_contract_days: staleContractDays,
+      stale_ownership_days: staleOwnershipDays,
       notification_policy_json: {
         email: {
           enabled: emailEnabled,
-          quiet_hours_start_utc: Math.min(Math.max(Math.trunc(emailQuietStart), 0), 23),
-          quiet_hours_end_utc: Math.min(Math.max(Math.trunc(emailQuietEnd), 0), 23),
-          blocked_types: emailBlockedTypes,
+          quiet_hours_start_utc: emailQuietStart,
+          quiet_hours_end_utc: emailQuietEnd,
+          blocked_types: emailBlockedTypes.values,
         },
         slack: {
           enabled: slackEnabled,
-          quiet_hours_start_utc: Math.min(Math.max(Math.trunc(slackQuietStart), 0), 23),
-          quiet_hours_end_utc: Math.min(Math.max(Math.trunc(slackQuietEnd), 0), 23),
-          blocked_types: slackBlockedTypes,
+          quiet_hours_start_utc: slackQuietStart,
+          quiet_hours_end_utc: slackQuietEnd,
+          blocked_types: slackBlockedTypes.values,
         },
       },
       role_policy_json: rolePolicyJson,
@@ -480,19 +718,21 @@ export async function upsertWorkflowSettingsForm(formData: FormData) {
     { onConflict: "organization_id", ignoreDuplicates: false }
   );
   if (error) return { error: mapDataSourceError(error.message) };
+  revalidatePath("/settings");
+  revalidatePath("/settings/operations");
   return { success: true };
 }
 
 export async function applyPolicyPackForm(formData: FormData) {
+  const policyPack = readWorkflowEnum(formData, "policyPack", WORKFLOW_POLICY_PACKS);
+  if (!policyPack) return { error: "Invalid policy pack" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const policyPack = String(formData.get("policyPack") ?? "").trim();
-  if (!["balanced", "compliance", "revenue"].includes(policyPack))
-    return { error: "Invalid policy pack" };
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
 
@@ -549,24 +789,26 @@ export async function applyPolicyPackForm(formData: FormData) {
 }
 
 export async function createApprovalPolicyForm(formData: FormData) {
+  const approvalType = readWorkflowEnum(formData, "approvalType", WORKFLOW_APPROVAL_TYPES);
+  const contractTypeValidation = readOptionalWorkflowString(formData, "contractType", {
+    maxLength: MAX_WORKFLOW_CONTRACT_TYPE_LEN,
+  });
+  const requiredApproverId = String(formData.get("requiredApproverId") ?? "").trim() || null;
+  const minAnnualValueRaw = String(formData.get("minAnnualValue") ?? "").trim();
+  if (!approvalType) return { error: "Invalid approval type" };
+  if (!contractTypeValidation.ok) return { error: textInputError("Contract type", contractTypeValidation) };
+  if (requiredApproverId && !isUuid(requiredApproverId)) return { error: "Invalid approver ID" };
+  const minAnnualValue = minAnnualValueRaw ? Number(minAnnualValueRaw) : null;
+  if (minAnnualValueRaw && (!Number.isFinite(minAnnualValue) || (minAnnualValue ?? 0) < 0))
+    return { error: "Invalid minimum annual value" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const approvalType = String(formData.get("approvalType") ?? "").trim();
-  const minAnnualValueRaw = String(formData.get("minAnnualValue") ?? "").trim();
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
-  const requiredApproverId = String(formData.get("requiredApproverId") ?? "").trim() || null;
-  if (!["renewal_decision", "notice_action", "commercial_exception", "ownership_handoff"].includes(approvalType)) {
-    return { error: "Invalid approval type" };
-  }
-  if (requiredApproverId && !isUuid(requiredApproverId))
-    return { error: "Invalid approver ID" };
-  const minAnnualValue = minAnnualValueRaw ? Number(minAnnualValueRaw) : null;
-  if (minAnnualValueRaw && (!Number.isFinite(minAnnualValue) || (minAnnualValue ?? 0) < 0))
-    return { error: "Invalid minimum annual value" };
+  const contractType = contractTypeValidation.value || null;
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
   if (requiredApproverId) {
@@ -608,21 +850,40 @@ export async function toggleApprovalPolicyForm(policyId: string, active: boolean
 }
 
 export async function setIntegrationTokenForm(formData: FormData) {
+  const provider = readWorkflowEnum(formData, "provider", WORKFLOW_INTEGRATION_PROVIDERS);
+  const accessTokenValidation = readOptionalWorkflowString(formData, "accessToken", {
+    maxLength: MAX_WORKFLOW_TOKEN_LEN,
+  });
+  const refreshTokenValidation = readOptionalWorkflowString(formData, "refreshToken", {
+    maxLength: MAX_WORKFLOW_TOKEN_LEN,
+  });
+  const connectedAccountValidation = readOptionalWorkflowString(formData, "connectedAccount", {
+    maxLength: MAX_WORKFLOW_CONNECTED_ACCOUNT_LEN,
+  });
+  const expiresAtValidation = readOptionalWorkflowString(formData, "tokenExpiresAt", { maxLength: 80 });
+  if (!provider) return { error: "Invalid provider" };
+  if (!accessTokenValidation.ok) return { error: textInputError("Access token", accessTokenValidation) };
+  if (!refreshTokenValidation.ok) return { error: textInputError("Refresh token", refreshTokenValidation) };
+  if (!connectedAccountValidation.ok) return { error: textInputError("Connected account", connectedAccountValidation) };
+  if (!expiresAtValidation.ok) return { error: textInputError("Token expiry date", expiresAtValidation) };
+  const expiresAt = normalizeOptionalExpiryIso(expiresAtValidation.value);
+  if (!expiresAt.ok) return { error: "Invalid token expiry date" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const provider = String(formData.get("provider") ?? "").trim();
-  const accessToken = String(formData.get("accessToken") ?? "").trim() || null;
-  const refreshToken = String(formData.get("refreshToken") ?? "").trim() || null;
-  const connectedAccount = String(formData.get("connectedAccount") ?? "").trim() || null;
-  const expiresAt = String(formData.get("tokenExpiresAt") ?? "").trim() || null;
-  if (!["google_calendar", "outlook_calendar", "slack", "email", "crm"].includes(provider))
-    return { error: "Invalid provider" };
-  if (expiresAt && Number.isNaN(Date.parse(expiresAt)))
-    return { error: "Invalid token expiry date" };
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
+    return {
+      error: "Confirm your password under Settings → Security before updating integration tokens.",
+      needStepUp: true as const,
+    };
+  }
+  const accessToken = accessTokenValidation.value || null;
+  const refreshToken = refreshTokenValidation.value || null;
+  const connectedAccount = connectedAccountValidation.value || null;
   const { data: membership } = await getMembership(admin, user);
   if (!membership || membership.role !== "admin") return { error: "Access denied" };
   let encryptedAccessToken: string | null = null;
@@ -640,7 +901,7 @@ export async function setIntegrationTokenForm(formData: FormData) {
       status: accessToken ? "connected" : "not_connected",
       access_token: encryptedAccessToken,
       refresh_token: encryptedRefreshToken,
-      token_expires_at: expiresAt,
+      token_expires_at: expiresAt.value,
       connected_account: connectedAccount,
       oauth_connected_at: accessToken ? new Date().toISOString() : null,
       created_by: user.id,
@@ -648,6 +909,21 @@ export async function setIntegrationTokenForm(formData: FormData) {
     { onConflict: "organization_id,provider", ignoreDuplicates: false }
   );
   if (error) return { error: mapDataSourceError(error.message) };
+  void recordSecurityAuditEvent(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    action: "security.integration_token_updated",
+    targetType: "integration_connection",
+    targetId: provider,
+    outcome: "success",
+    safeMetadata: {
+      provider,
+      accessTokenSet: Boolean(accessToken),
+      refreshTokenSet: Boolean(refreshToken),
+      connectedAccountSet: Boolean(connectedAccount),
+      expiresAtSet: Boolean(expiresAt.value),
+    },
+  });
   return { success: true };
 }
 
@@ -671,19 +947,19 @@ export async function createIntegrationApiKey(input: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const jar = await cookies();
-  if (!isStepUpCookieValidForUser(jar, user.id)) {
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
     return {
       error: "Confirm your password under Settings → Security before creating API keys.",
       needStepUp: true as const,
     };
   }
   const organizationId = input.organizationId.trim();
-  const label = input.label.trim();
-  if (!isUuid(organizationId) || !label) return { error: "Invalid request" };
+  const labelValidation = validateBoundedString(input.label, { maxLength: MAX_WORKFLOW_API_KEY_LABEL_LEN });
+  if (!isUuid(organizationId) || !labelValidation.ok) return { error: "Invalid request" };
+  const label = labelValidation.value;
   const scopes = normalizeApiKeyScopes(input.scopes);
-  const expiresAt = input.expiresAt?.trim() ? input.expiresAt.trim() : null;
-  if (expiresAt && Number.isNaN(Date.parse(expiresAt))) {
+  const expiresAt = normalizeOptionalExpiryIso(input.expiresAt?.trim() ? input.expiresAt.trim() : null);
+  if (!expiresAt.ok) {
     return { error: "Invalid expiry date" };
   }
   const role = await getOrgMemberRole(admin, user.id, organizationId);
@@ -699,7 +975,7 @@ export async function createIntegrationApiKey(input: {
       key_prefix: keyPrefix,
       key_hash: keyHash,
       scopes,
-      expires_at: expiresAt,
+      expires_at: expiresAt.value,
       active: true,
       created_by: user.id,
     })
@@ -722,6 +998,14 @@ export async function createIntegrationApiKey(input: {
 
 /** Form wrapper for Settings → Workflow configuration; resolves org server-side (no client org id). */
 export async function createIntegrationApiKeyFromOperationsForm(formData: FormData) {
+  const labelValidation = readWorkflowString(formData, "label", { maxLength: MAX_WORKFLOW_API_KEY_LABEL_LEN });
+  const scopesValidation = readOptionalWorkflowString(formData, "scopes", { maxLength: MAX_WORKFLOW_CSV_LEN });
+  const expiresAtValidation = readOptionalWorkflowString(formData, "expiresAt", { maxLength: 80 });
+  if (!labelValidation.ok || !scopesValidation.ok || !expiresAtValidation.ok) return;
+  const scopes = parseWorkflowTokenCsv(scopesValidation.value, { maxItems: 10 });
+  const expiresAt = normalizeOptionalExpiryIso(expiresAtValidation.value);
+  if (!scopes.ok || !expiresAt.ok) return;
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -732,19 +1016,11 @@ export async function createIntegrationApiKeyFromOperationsForm(formData: FormDa
   const membership = await getOrEnsureDeterministicMembership(admin, user);
   if (!membership) return;
 
-  const label = String(formData.get("label") ?? "").trim();
-  const scopesRaw = String(formData.get("scopes") ?? "").trim();
-  const expiresAtRaw = String(formData.get("expiresAt") ?? "").trim();
-  if (!label) return;
-
   const res = await createIntegrationApiKey({
     organizationId: membership.organization_id,
-    label,
-    scopes: scopesRaw
-      .split(",")
-      .map((scope) => scope.trim())
-      .filter(Boolean),
-    expiresAt: expiresAtRaw || null,
+    label: labelValidation.value,
+    scopes: scopes.values,
+    expiresAt: expiresAt.value,
   });
 
   if (res && "error" in res && res.error) {
@@ -767,22 +1043,27 @@ export async function createIntegrationApiKeyFromOperationsForm(formData: FormDa
 }
 
 export async function revokeIntegrationApiKeyForm(formData: FormData) {
+  const keyId = String(formData.get("keyId") ?? "").trim();
+  const reasonValidation = readOptionalWorkflowString(formData, "reason", {
+    maxLength: MAX_WORKFLOW_API_KEY_REASON_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!isUuid(keyId)) return { error: "Invalid key ID" };
+  if (!reasonValidation.ok) return { error: textInputError("Revocation reason", reasonValidation) };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const jar = await cookies();
-  if (!isStepUpCookieValidForUser(jar, user.id)) {
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
     return {
       error: "Confirm your password under Settings → Security before revoking API keys.",
       needStepUp: true as const,
     };
   }
-  const keyId = String(formData.get("keyId") ?? "").trim();
-  const reason = String(formData.get("reason") ?? "").trim() || null;
-  if (!isUuid(keyId)) return { error: "Invalid key ID" };
+  const reason = reasonValidation.value || null;
   const { data: row } = await admin
     .from("integration_api_keys")
     .select("id, organization_id, revoked_at")
@@ -813,26 +1094,31 @@ export async function revokeIntegrationApiKeyForm(formData: FormData) {
 }
 
 export async function updateIntegrationApiKeyPolicyForm(formData: FormData) {
+  const keyId = String(formData.get("keyId") ?? "").trim();
+  const scopesValidation = readOptionalWorkflowString(formData, "scopes", { maxLength: MAX_WORKFLOW_CSV_LEN });
+  const expiresAtValidation = readOptionalWorkflowString(formData, "expiresAt", { maxLength: 80 });
+  if (!isUuid(keyId)) return { error: "Invalid key ID" };
+  if (!scopesValidation.ok) return { error: textInputError("API key scopes", scopesValidation) };
+  if (!expiresAtValidation.ok) return { error: textInputError("API key expiry date", expiresAtValidation) };
+  const parsedScopes = parseWorkflowTokenCsv(scopesValidation.value, { maxItems: 10 });
+  if (!parsedScopes.ok) return { error: "Invalid API key scopes" };
+  const expiresAt = normalizeOptionalExpiryIso(expiresAtValidation.value);
+  if (!expiresAt.ok) return { error: "Invalid expiry date" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  const keyId = String(formData.get("keyId") ?? "").trim();
-  if (!isUuid(keyId)) return { error: "Invalid key ID" };
-  const scopesRaw = String(formData.get("scopes") ?? "").trim();
-  const expiresAtRaw = String(formData.get("expiresAt") ?? "").trim();
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
+    return {
+      error: "Confirm your password under Settings → Security before updating API key policy.",
+      needStepUp: true as const,
+    };
+  }
   const active = String(formData.get("active") ?? "") === "1";
-  const scopes = normalizeApiKeyScopes(
-    scopesRaw
-      .split(",")
-      .map((scope) => scope.trim())
-      .filter(Boolean)
-  );
-  const expiresAt = expiresAtRaw ? new Date(expiresAtRaw) : null;
-  if (expiresAt && Number.isNaN(expiresAt.getTime()))
-    return { error: "Invalid expiry date" };
+  const scopes = normalizeApiKeyScopes(parsedScopes.values);
   const { data: row } = await admin
     .from("integration_api_keys")
     .select("id, organization_id, revoked_at")
@@ -845,10 +1131,23 @@ export async function updateIntegrationApiKeyPolicyForm(formData: FormData) {
     .from("integration_api_keys")
     .update({
       scopes,
-      expires_at: expiresAt ? expiresAt.toISOString() : null,
+      expires_at: expiresAt.value,
       active,
     })
     .eq("id", keyId);
   if (error) return { error: mapDataSourceError(error.message) };
+  void recordSecurityAuditEvent(admin, {
+    organizationId: row.organization_id,
+    actorUserId: user.id,
+    action: "security.integration_api_key_policy_updated",
+    targetType: "integration_api_key",
+    targetId: keyId,
+    outcome: "success",
+    safeMetadata: {
+      scopes,
+      expiresAt: expiresAt.value,
+      active,
+    },
+  });
   return { success: true };
 }

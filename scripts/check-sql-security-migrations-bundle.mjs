@@ -4,8 +4,12 @@ import { pathToFileURL } from "node:url";
 import { runSequential } from "./lib/scheduler.mjs";
 
 export const SQL_SECURITY_MIGRATIONS_BUNDLE_STEPS = [
+  "check:migrations:strict",
+  "check:rls-sanity-tables",
+  "check:rls-policy-drift",
   "check:migration-security-patterns:strict-inner",
   "check:sql-definer-invoker-inventory",
+  "test:rls-smoke",
 ];
 
 export async function runSqlSecurityMigrationsBundle() {

@@ -96,9 +96,10 @@ describe("ContractTable", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/1 selected/i).textContent).toMatch(/1 outside this page/i);
+      expect(screen.getByText(/1 selected/i)).toBeTruthy();
+      expect(screen.getByText(/1 outside this page/i)).toBeTruthy();
     });
-    expect(screen.getByText(/bulk actions keep the same selected contract ids across pages and filters\./i)).toBeTruthy();
+    expect(screen.getByText(/persists across filters/i)).toBeTruthy();
   });
 
   it("renders review backlog, horizon urgency, and row signals in the visible table (§9.2)", () => {
@@ -114,6 +115,7 @@ describe("ContractTable", () => {
             nextHorizonDate: "2026-04-19",
             nextHorizonDays: 0,
             openExceptionCount: 2,
+            openWorkCount: 0,
             outstandingEvidenceCount: 1,
             missingCriticalDates: true,
           },
@@ -129,6 +131,26 @@ describe("ContractTable", () => {
     expect(screen.getByText(/renewal due today/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /2 exceptions/i }).getAttribute("href")).toContain("/contracts/exceptions");
     expect(screen.getByText(/1 evidence request/i)).toBeTruthy();
+  });
+
+  it("renders the dates gap row action when no next important date is available", () => {
+    renderWithProviders(
+      <ContractTable
+        contracts={[baseContracts[0]]}
+        rowSignals={{
+          "contract-1": {
+            nextHorizonField: null,
+            nextHorizonDate: null,
+            nextHorizonDays: null,
+            openExceptionCount: 0,
+            openWorkCount: 0,
+            outstandingEvidenceCount: 0,
+            missingCriticalDates: true,
+          },
+        }}
+      />
+    );
+
     expect(screen.getByRole("link", { name: /dates gap/i }).getAttribute("href")).toBe("/contracts/contract-1#dates");
   });
 

@@ -1,4 +1,7 @@
 import { isRetryableOpenAIError, withRetry } from "@/lib/extraction/retry";
+import { redactModelBoundContractText } from "@/lib/extraction/model-context-redaction";
+import { OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS } from "@/lib/extraction/constants";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 type OpenAIClient = InstanceType<Awaited<typeof import("openai")>["default"]>;
 
@@ -15,6 +18,23 @@ async function getOpenAiForPdf() {
     }));
   }
   return openAiModulePromise;
+}
+
+export async function deleteOpenAiUploadedFile(
+  client: Pick<OpenAIClient, "files">,
+  fileId: string
+): Promise<boolean> {
+  try {
+    const result = await client.files.delete(fileId);
+    if (result && typeof result === "object" && "deleted" in result && result.deleted === false) {
+      console.error("[openai-pdf-text] upload deletion was not confirmed");
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("[openai-pdf-text] upload deletion failed:", formatUnknownForServerLog(error));
+    return false;
+  }
 }
 
 /**
@@ -51,7 +71,7 @@ export async function extractTextFromPdfViaOpenAi(
               {
                 role: "system",
                 content:
-                  "You extract plain text from PDF documents. Output only the document text, preserving paragraph breaks. Use a blank line between sections. Do not summarize or add commentary.",
+                  "You extract plain text from PDF documents. Output only the document text, preserving paragraph breaks. Use a blank line between sections. Do not summarize or add commentary. Replace provider tokens, cookies, private URLs, signed URL secret parameters, and unrelated tenant identifiers with [redacted from model context].",
               },
               {
                 role: "user",
@@ -65,12 +85,12 @@ export async function extractTextFromPdfViaOpenAi(
               },
             ],
           });
-          return response.choices[0]?.message?.content?.trim() ?? "";
+          return redactModelBoundContractText(response.choices[0]?.message?.content?.trim() ?? "");
         } finally {
-          await client.files.delete(upload.id).catch(() => {});
+          await deleteOpenAiUploadedFile(client, upload.id);
         }
       },
-      { maxAttempts: 3, baseDelayMs: 600, shouldRetry: isRetryableOpenAIError }
+      { maxAttempts: OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS, baseDelayMs: 600, shouldRetry: isRetryableOpenAIError }
     );
   };
 
@@ -82,7 +102,7 @@ export async function extractTextFromPdfViaOpenAi(
   } catch (e) {
     console.warn(
       "[openai-pdf-text] primary model failed:",
-      e instanceof Error ? e.message : e
+      formatUnknownForServerLog(e)
     );
   }
 
@@ -98,7 +118,7 @@ export async function extractTextFromPdfViaOpenAi(
   } catch (e) {
     console.error(
       "[openai-pdf-text] fallback failed:",
-      e instanceof Error ? e.message : e
+      formatUnknownForServerLog(e)
     );
   }
 

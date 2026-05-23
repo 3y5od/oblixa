@@ -4,6 +4,11 @@ const createAdminClient = vi.fn();
 const rateLimitCheck = vi.fn();
 const getClientIpFromRequest = vi.fn();
 
+const ORG_ID = "11111111-1111-1111-1111-111111111111";
+const OTHER_ORG_ID = "22222222-2222-2222-2222-222222222222";
+const CONTRACT_ID = "33333333-3333-3333-3333-333333333333";
+const SUBMISSION_ID = "44444444-4444-4444-4444-444444444444";
+
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
 }));
@@ -24,18 +29,31 @@ describe("POST /api/integrations/actions/callback", () => {
     getClientIpFromRequest.mockReturnValue("127.0.0.1");
     rateLimitCheck.mockResolvedValue({ ok: true });
     createAdminClient.mockResolvedValue({
-      from: vi.fn(() => ({
-        insert: vi.fn().mockResolvedValue({}),
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "contracts") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: CONTRACT_ID }, error: null }),
+                }),
+              }),
+            }),
+          };
+        }
+        return {
+          insert: vi.fn().mockResolvedValue({}),
+          update: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+              eq: vi.fn().mockReturnValue({
+                select: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+                }),
               }),
             }),
           }),
-        }),
-      })),
+        };
+      }),
     });
   });
 
@@ -51,7 +69,7 @@ describe("POST /api/integrations/actions/callback", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
     expect(rateLimitCheck).toHaveBeenCalled();
   });
 
@@ -66,13 +84,54 @@ describe("POST /api/integrations/actions/callback", () => {
         authorization: "Bearer callback-only",
       },
       body: JSON.stringify({
-        organizationId: "11111111-1111-1111-1111-111111111111",
+        organizationId: ORG_ID,
         action: "ack_complete",
-        contractId: "22222222-2222-2222-2222-222222222222",
+        contractId: CONTRACT_ID,
       }),
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
+  });
+
+  it("returns 400 for malformed JSON when authorized", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: "{",
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      diagnostic_id: "route_invalid_request",
+      details: { reason: "invalid_json" },
+    });
+  });
+
+  it("returns 400 for malformed organizationId", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: JSON.stringify({ organizationId: "org-1", action: "create_task" }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "organizationId must be a valid UUID",
+      code: "validation_failed",
+      diagnostic_id: "integration_callback_org_id_invalid",
+    });
   });
 
   it("validates missing id for approve_evidence action", async () => {
@@ -85,14 +144,14 @@ describe("POST /api/integrations/actions/callback", () => {
         authorization: "Bearer token",
       },
       body: JSON.stringify({
-        organizationId: "org-1",
+        organizationId: ORG_ID,
         action: "approve_evidence",
       }),
     });
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "id is required" });
+    expect(body).toMatchObject({ error: "id is required", code: "validation_failed" });
   });
 
   it("returns 404 when approve_evidence update matches no row in the allowed org", async () => {
@@ -119,15 +178,15 @@ describe("POST /api/integrations/actions/callback", () => {
         authorization: "Bearer token",
       },
       body: JSON.stringify({
-        organizationId: "org-1",
+        organizationId: ORG_ID,
         action: "approve_evidence",
-        id: "submission-1",
+        id: SUBMISSION_ID,
       }),
     });
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(404);
-    expect(body).toEqual({ error: "Evidence submission not found for organization" });
+    expect(body).toMatchObject({ error: "Not found", code: "not_found" });
   });
 
   it("returns 401 when bearer token does not match", async () => {
@@ -144,7 +203,7 @@ describe("POST /api/integrations/actions/callback", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Unauthorized" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("returns 429 when rate limit is exceeded", async () => {
@@ -162,7 +221,37 @@ describe("POST /api/integrations/actions/callback", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(429);
-    expect(body).toEqual({ error: "Too many requests", retryAfterMs: 2500 });
+    expect(body).toMatchObject({ error: "Too many requests", code: "rate_limited", details: { retryAfterMs: 2500 } });
+  });
+
+  it("returns 429 when organization/action rate limit is exceeded", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    rateLimitCheck
+      .mockResolvedValueOnce({ ok: true })
+      .mockResolvedValueOnce({ ok: false, retryAfterMs: 3500 });
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: JSON.stringify({
+        organizationId: ORG_ID,
+        action: "create_task",
+        contractId: CONTRACT_ID,
+      }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(429);
+    expect(body).toMatchObject({ error: "Too many requests", code: "rate_limited", details: { retryAfterMs: 3500 } });
+    expect(rateLimitCheck).toHaveBeenNthCalledWith(
+      2,
+      `inbound:integrations-actions:org:${ORG_ID}:create_task`,
+      { max: 60, windowMs: 60_000 }
+    );
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 403 when organization is not in INBOUND_AUTOMATION_ORG_ALLOWLIST", async () => {
@@ -176,7 +265,7 @@ describe("POST /api/integrations/actions/callback", () => {
         authorization: "Bearer token",
       },
       body: JSON.stringify({
-        organizationId: "22222222-2222-2222-2222-222222222222",
+        organizationId: OTHER_ORG_ID,
         action: "create_task",
       }),
     });
@@ -184,6 +273,53 @@ describe("POST /api/integrations/actions/callback", () => {
     const json = await res.json();
     expect(res.status).toBe(403);
     expect(json.error).toMatch(/not permitted/);
+  });
+
+  it("rejects create_task when contract is not in the claimed organization", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const taskInsert = vi.fn();
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn((table: string) => {
+        if (table === "contracts") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                }),
+              }),
+            }),
+          };
+        }
+        if (table === "contract_tasks") {
+          return { insert: taskInsert };
+        }
+        return { insert: vi.fn().mockResolvedValue({}) };
+      }),
+    });
+
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer token",
+      },
+      body: JSON.stringify({
+        organizationId: ORG_ID,
+        action: "create_task",
+        contractId: CONTRACT_ID,
+        title: "Wrong org task",
+      }),
+    });
+    const res = await POST(req);
+    const json = await res.json();
+    expect(res.status).toBe(400);
+    expect(json).toMatchObject({
+      error: "Contract not found in organization",
+      diagnostic_id: "integration_callback_contract_not_found",
+    });
+    expect(taskInsert).not.toHaveBeenCalled();
   });
 
   it("accepts create_exception payload shape and inserts normalized exception fields", async () => {
@@ -195,6 +331,17 @@ describe("POST /api/integrations/actions/callback", () => {
     }));
     createAdminClient.mockResolvedValueOnce({
       from: vi.fn((table: string) => {
+        if (table === "contracts") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: CONTRACT_ID }, error: null }),
+                }),
+              }),
+            }),
+          };
+        }
         if (table === "exceptions") {
           return { insert };
         }
@@ -221,9 +368,9 @@ describe("POST /api/integrations/actions/callback", () => {
         authorization: "Bearer token",
       },
       body: JSON.stringify({
-        organizationId: "org-1",
+        organizationId: ORG_ID,
         action: "create_exception",
-        contractId: "contract-1",
+        contractId: CONTRACT_ID,
         title: " Escalated issue ",
         details: " details from upstream ",
       }),
@@ -235,8 +382,8 @@ describe("POST /api/integrations/actions/callback", () => {
     expect(body).toEqual({ ok: true, exceptionId: "exception-1" });
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        organization_id: "org-1",
-        contract_id: "contract-1",
+        organization_id: ORG_ID,
+        contract_id: CONTRACT_ID,
         title: "Escalated issue",
         details: "details from upstream",
         exception_type: "inbound_action",
@@ -248,7 +395,7 @@ describe("POST /api/integrations/actions/callback", () => {
 
   it("handles duplicate replay of approve_evidence callback idempotently", async () => {
     process.env.INBOUND_AUTOMATION_TOKEN = "token";
-    const maybeSingle = vi.fn().mockResolvedValue({ data: { id: "submission-1" }, error: null });
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { id: SUBMISSION_ID }, error: null });
     const update = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -272,9 +419,9 @@ describe("POST /api/integrations/actions/callback", () => {
           authorization: "Bearer token",
         },
         body: JSON.stringify({
-          organizationId: "org-1",
+          organizationId: ORG_ID,
           action: "approve_evidence",
-          id: "submission-1",
+          id: SUBMISSION_ID,
         }),
       });
 
@@ -282,9 +429,9 @@ describe("POST /api/integrations/actions/callback", () => {
     const second = await POST(buildRequest());
 
     expect(first.status).toBe(200);
-    await expect(first.json()).resolves.toEqual({ ok: true, submissionId: "submission-1" });
+    await expect(first.json()).resolves.toEqual({ ok: true, submissionId: SUBMISSION_ID });
     expect(second.status).toBe(200);
-    await expect(second.json()).resolves.toEqual({ ok: true, submissionId: "submission-1" });
+    await expect(second.json()).resolves.toEqual({ ok: true, submissionId: SUBMISSION_ID });
     expect(update).toHaveBeenCalledTimes(2);
     expect(maybeSingle).toHaveBeenCalledTimes(2);
   });

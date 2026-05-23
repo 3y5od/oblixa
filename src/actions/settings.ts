@@ -2,10 +2,11 @@
 
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { resolveAppBaseUrl } from "@/lib/app-url";
+import { revalidatePath } from "next/cache";
 import { sendWorkspaceInviteLinkEmail } from "@/lib/email";
 import { mapAuthError, mapDataSourceError } from "@/lib/errors/user-facing";
 import type { OrgRole } from "@/lib/types";
-import { isReasonableEmail, isUuid } from "@/lib/security/validation";
+import { isReasonableEmail, isUuid, parseFixedEnumParam, validateBoundedString } from "@/lib/security/validation";
 import {
   getClientIpFromHeaders,
   rateLimitCheck,
@@ -17,7 +18,9 @@ import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 const MAX_PROFILE_NAME_LEN = 200;
 const MAX_ORG_NAME_LEN = 200;
+const MAX_INVITE_EMAIL_LEN = 254;
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const VALID_INVITE_ROLES: OrgRole[] = ["admin", "editor", "viewer"];
 
 type SettingsActionResult = { error?: string; success?: true };
 
@@ -72,9 +75,15 @@ async function updateProfileUnsafe(formData: FormData): Promise<SettingsActionRe
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const fullName = ((formData.get("fullName") as string) || "")
-    .trim()
-    .slice(0, MAX_PROFILE_NAME_LEN);
+  const fullNameValidation = validateBoundedString(formData.get("fullName") ?? "", {
+    maxLength: MAX_PROFILE_NAME_LEN,
+    allowEmpty: true,
+  });
+  if (!fullNameValidation.ok) {
+    if (fullNameValidation.error === "string_too_long") return { error: "Name is too long" };
+    return { error: "Name contains unsupported characters" };
+  }
+  const fullName = fullNameValidation.value;
 
   const { error } = await admin
     .from("profiles")
@@ -90,6 +99,7 @@ async function updateProfileUnsafe(formData: FormData): Promise<SettingsActionRe
     console.error("[settings] updateUser:", updateUserError.message);
   }
 
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -106,11 +116,19 @@ async function updateOrganizationUnsafe(formData: FormData): Promise<SettingsAct
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const orgId = (formData.get("organizationId") as string)?.trim() ?? "";
-  const name = (formData.get("name") as string)?.trim().slice(0, MAX_ORG_NAME_LEN) ?? "";
+  const orgIdEntry = formData.get("organizationId");
+  const orgId = typeof orgIdEntry === "string" ? orgIdEntry.trim() : "";
+  const nameValidation = validateBoundedString(formData.get("name") ?? "", {
+    maxLength: MAX_ORG_NAME_LEN,
+  });
 
-  if (!orgId || !name) return { error: "Organization name is required" };
   if (!isUuid(orgId)) return { error: "Invalid organization" };
+  if (!nameValidation.ok) {
+    if (nameValidation.error === "string_too_long") return { error: "Organization name is too long" };
+    if (nameValidation.error === "unsafe_characters") return { error: "Organization name contains unsupported characters" };
+    return { error: "Organization name is required" };
+  }
+  const name = nameValidation.value;
 
   const { data: membership, error: memErr } = await admin
     .from("organization_members")
@@ -139,6 +157,7 @@ async function updateOrganizationUnsafe(formData: FormData): Promise<SettingsAct
 
   if (error) return { error: mapDataSourceError(error.message) };
 
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -147,6 +166,32 @@ export async function inviteOrgMember(formData: FormData): Promise<SettingsActio
 }
 
 async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsActionResult> {
+  const orgIdEntry = formData.get("organizationId");
+  const orgId = typeof orgIdEntry === "string" ? orgIdEntry.trim() : "";
+  const emailValidation = validateBoundedString(formData.get("email") ?? "", {
+    maxLength: MAX_INVITE_EMAIL_LEN,
+  });
+  const roleEntry = formData.get("role");
+  if (roleEntry != null && typeof roleEntry !== "string") {
+    return { error: "Invalid role" };
+  }
+  const roleValue = typeof roleEntry === "string" && roleEntry.trim() ? roleEntry.trim() : "editor";
+  const role = parseFixedEnumParam(roleValue, VALID_INVITE_ROLES, "editor");
+
+  if (!orgId) return { error: "Organization is required" };
+  if (!isUuid(orgId)) return { error: "Invalid organization" };
+  if (!emailValidation.ok) {
+    if (emailValidation.error === "invalid_string") return { error: "Email is required" };
+    return { error: "Invalid email address" };
+  }
+  const email = emailValidation.value.toLowerCase();
+  if (!isReasonableEmail(email)) {
+    return { error: "Invalid email address" };
+  }
+  if (role !== roleValue) {
+    return { error: "Invalid role" };
+  }
+
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -155,30 +200,10 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  if (isKillInvites()) {
-    return { error: "Invitations are temporarily disabled." };
-  }
-
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`invite:${user.id}:${ip}`, RATE_LIMITS.inviteMember);
   if (!rl.ok) {
     return { error: "Too many invites. Try again later." };
-  }
-
-  const orgId = (formData.get("organizationId") as string)?.trim() ?? "";
-  const email = ((formData.get("email") as string) || "").trim().toLowerCase();
-  const role = (formData.get("role") as string) || "editor";
-
-  if (!orgId) return { error: "Organization is required" };
-  if (!isUuid(orgId)) return { error: "Invalid organization" };
-  if (!email) return { error: "Email is required" };
-  if (!isReasonableEmail(email)) {
-    return { error: "Invalid email address" };
-  }
-
-  const validRoles: OrgRole[] = ["admin", "editor", "viewer"];
-  if (!validRoles.includes(role as OrgRole)) {
-    return { error: "Invalid role" };
   }
 
   const { data: membership, error: memErr } = await admin
@@ -199,6 +224,10 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
 
   if (membership.role !== "admin") {
     return { error: "Only admins can invite team members" };
+  }
+
+  if (isKillInvites()) {
+    return { error: "Invitations are temporarily disabled." };
   }
 
   const existingMember = (await loadOrgMemberProfileRows(admin, orgId, {
@@ -290,6 +319,7 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
   );
   if (auditError) return auditError;
 
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -349,6 +379,7 @@ async function revokeOrgInviteUnsafe(inviteId: string): Promise<SettingsActionRe
   );
   if (auditError) return auditError;
 
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -457,6 +488,7 @@ async function resendOrgInviteUnsafe(inviteId: string): Promise<SettingsActionRe
   );
   if (auditError) return auditError;
 
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -480,5 +512,6 @@ async function completeProductOnboardingUnsafe(): Promise<SettingsActionResult> 
 
   if (error) return { error: mapDataSourceError(error.message) };
 
+  revalidatePath("/settings");
   return { success: true };
 }

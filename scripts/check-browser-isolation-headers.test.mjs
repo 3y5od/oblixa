@@ -16,10 +16,10 @@ test("analyzeBrowserIsolationHeaders validates COOP/CORP header wiring", () => {
   write(root, "package.json", JSON.stringify({ scripts: { "check:browser-isolation-headers": "x" } }));
   write(root, ".github/workflows/ci.yml", "npm run check:browser-isolation-headers\n");
   write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:browser-isolation-headers"\n');
-  write(root, "next.config.ts", 'import { buildSecurityHeaders } from "@/lib/security/csp-builders";\nconst securityHeaders = buildSecurityHeaders({});\nexport default { async headers() { return [{ source: "/:path*", headers: securityHeaders }]; } };\n');
-  write(root, "src/lib/security/csp-builders.ts", 'key: "X-Frame-Options", value: "SAMEORIGIN"\nkey: "Cross-Origin-Opener-Policy", value: "same-origin"\nkey: "Cross-Origin-Resource-Policy", value: "same-origin"\n');
-  write(root, "src/lib/security/csp-builders.test.ts", "prod CSP omits unsafe-eval in main policy\nframe-ancestors 'self'\n");
-  write(root, "e2e/security-headers-smoke.spec.ts", "cross-origin-opener-policy\ncross-origin-resource-policy\n");
+  write(root, "next.config.ts", 'import { buildApiNoStoreHeaders, buildSecurityHeaders } from "@/lib/security/csp-builders";\nconst securityHeaders = buildSecurityHeaders({});\nexport default { async headers() { return [{ source: "/:path*", headers: securityHeaders }]; } };\n');
+  write(root, "src/lib/security/csp-builders.ts", 'key: "X-Frame-Options", value: "DENY"\nkey: "Cross-Origin-Opener-Policy", value: "same-origin"\nkey: "Cross-Origin-Resource-Policy", value: "same-origin"\nscript-src-attr \'none\'\nupgrade-insecure-requests\n');
+  write(root, "src/lib/security/csp-builders.test.ts", "prod CSP omits unsafe-eval in main policy\nframe-ancestors 'none'\nreport-only CSP carries script attribute and mixed-content protections\n");
+  write(root, "e2e/security-headers-smoke.spec.ts", "cross-origin-opener-policy\ncross-origin-resource-policy\nscript-src-attr 'none'\nupgrade-insecure-requests\n");
 
   const report = analyzeBrowserIsolationHeaders(root);
   assert.equal(report.ok, true);

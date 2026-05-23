@@ -9,18 +9,18 @@ export type ProductSurfaceDiagnosticChannel =
   | "server_action_eligibility_denied"
   | "landing_path_normalized";
 
-import { addProductSurfaceDiagnosticBreadcrumb } from "@/lib/observability/sentry";
+import { addProductSurfaceDiagnosticBreadcrumb } from "@/lib/observability/sentry-client";
 
 /**
  * Optional dev-time warning hook for product-surface leakage diagnostics (§21.2).
- * Enable with PRODUCT_SURFACE_DIAGNOSTICS=1 outside production.
- * Production breadcrumbs: PRODUCT_SURFACE_SENTRY_DIAGNOSTICS=1 (scrubbed keys only).
+ * Enable with NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS=1 outside production.
+ * Production breadcrumbs: NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS=1 (scrubbed keys only).
  */
 export function logProductSurfaceDiagnostic(
   channel: ProductSurfaceDiagnosticChannel,
   details: Record<string, unknown>
 ): void {
-  if (process.env.NODE_ENV !== "production" && process.env.PRODUCT_SURFACE_DIAGNOSTICS === "1") {
+  if (process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS === "1") {
     console.warn(`[product-surface:diagnostic] ${channel}`, details);
   }
   addProductSurfaceDiagnosticBreadcrumb(channel, details);

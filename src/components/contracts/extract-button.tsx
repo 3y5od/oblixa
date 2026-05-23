@@ -94,7 +94,7 @@ export function ExtractButton({
             ? "An extraction is already queued or running. Wait or refresh the page."
             : undefined
         }
-        className="ui-btn-primary w-full whitespace-nowrap px-3 py-2 text-sm disabled:pointer-events-none disabled:opacity-45 sm:w-auto"
+        className="ui-btn-primary w-full whitespace-nowrap px-4 py-2 text-sm disabled:pointer-events-none disabled:opacity-45 sm:w-auto sm:px-5"
       >
         {isPending ? (
           <>

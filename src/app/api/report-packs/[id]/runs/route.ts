@@ -1,18 +1,29 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
+import {
+  contentDispositionAttachment,
+  contentDispositionInline,
+  sanitizeExportFileName,
+  sanitizeExportFileNameToken,
+} from "@/lib/security/export-filename";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { parseFixedEnumParam } from "@/lib/security/validation";
+
+const ROUTE = "/api/report-packs/[id]/runs";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -21,22 +32,35 @@ export async function GET(
   });
   if (modeGate) return modeGate;
 
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   const url = new URL(request.url);
-  const format = url.searchParams.get("format");
+  const format = parseFixedEnumParam(url.searchParams.get("format"), ["json", "csv", "html", "pdf"] as const, "json");
   const runId = url.searchParams.get("runId");
 
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/report-packs/[id]/runs");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: pack } = await ctx.admin
     .from("report_packs")
     .select("id, name, report_type, annotations_json")
     .eq("id", id)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
-  if (!pack) return NextResponse.json({ error: "Report pack not found" }, { status: 404 });
+  if (!pack) return jsonNotFound(ROUTE);
 
   const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const mode = parseWorkspaceMode(v6);
   if (!workspaceModeAllowsReportType(mode, String(pack.report_type ?? ""))) {
-    return NextResponse.json({ error: "Feature not available in workspace mode" }, { status: 404 });
+    return jsonNotFound(ROUTE);
   }
 
   const { data, error } = await ctx.admin
@@ -46,14 +70,23 @@ export async function GET(
     .eq("report_pack_id", id)
     .order("created_at", { ascending: false })
     .limit(100);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "report_pack_runs_list_failed",
+      diagnostic_id: "report_pack_runs_list_failed",
+      route: ROUTE,
+    });
+  }
 
   const runs = data ?? [];
   const target = runId ? runs.find((r) => r.id === runId) : runs[0];
+  const safePackId = sanitizeExportFileNameToken(id);
 
   if (format === "csv") {
     if (!target) return new NextResponse("No runs to export", { status: 404 });
     const metrics = (target.metrics_json ?? {}) as Record<string, unknown>;
+    const csvFileName = sanitizeExportFileName(`report-pack-${safePackId}-run.csv`);
     const lines = ["key,value"];
     for (const [k, v] of Object.entries(metrics)) {
       lines.push(
@@ -66,8 +99,8 @@ export async function GET(
       status: 200,
       headers: {
         "content-type": "text/csv; charset=utf-8",
-        "content-disposition": `attachment; filename="report-pack-${id}-run.csv"`,
-        "cache-control": "no-store",
+        "content-disposition": contentDispositionAttachment(csvFileName),
+        "cache-control": "private, no-store",
       },
     });
   }
@@ -87,6 +120,7 @@ export async function GET(
     const annRows = annotations
       .map((a, i) => `<li>${escapeHtml(typeof a === "object" ? JSON.stringify(a) : String(a))} (${i + 1})</li>`)
       .join("");
+    const htmlFileName = sanitizeExportFileName(`report-pack-${safePackId}.html`);
     const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>Report pack — ${escapeHtml(
       pack.name ?? id
     )}</title><style>body{font-family:system-ui,sans-serif;padding:24px;color:#18181b}h1{font-size:20px}table{border-collapse:collapse;width:100%;max-width:720px}@media print{body{padding:12px}}</style></head><body><h1>${escapeHtml(
@@ -100,16 +134,16 @@ export async function GET(
     }<p style="margin-top:32px;font-size:12px;color:#71717a">Print this page or save as PDF from your browser.</p></body></html>`;
     const headers: Record<string, string> = {
       "content-type": "text/html; charset=utf-8",
-      "cache-control": "no-store",
+      "content-disposition": contentDispositionInline(htmlFileName),
+      "cache-control": "private, no-store",
     };
     if (format === "pdf") {
       headers["x-oblixa-print-hint"] = "Save as PDF from browser print dialog";
-      headers["content-disposition"] = `inline; filename="report-pack-${id}.html"`;
     }
     return new NextResponse(html, { status: 200, headers });
   }
 
-  return NextResponse.json({ runs });
+  return NextResponse.json({ runs }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 function escapeHtml(s: string) {

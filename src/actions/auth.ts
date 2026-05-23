@@ -18,14 +18,65 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 import { isKillSignup } from "@/lib/security/kill-switches";
+import {
+  containsControlOrBidi,
+  isReasonableEmail,
+  validateBoundedString,
+} from "@/lib/security/validation";
 
 type AuthActionResult = { error: string } | { success: string } | { redirectTo: string };
+
+const MAX_AUTH_EMAIL_LEN = 254;
+const MAX_AUTH_PASSWORD_LEN = 128;
+const MIN_AUTH_PASSWORD_LEN = 8;
+const MAX_AUTH_NAME_LEN = 200;
+
+function readAuthEmail(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
+  const validation = validateBoundedString(formData.get("email") ?? "", { maxLength: MAX_AUTH_EMAIL_LEN });
+  if (!validation.ok) return { ok: false, error: "Please enter a valid email address." };
+  const email = validation.value.toLowerCase();
+  if (!isReasonableEmail(email)) return { ok: false, error: "Please enter a valid email address." };
+  return { ok: true, value: email };
+}
+
+function readAuthDisplayName(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
+  const validation = validateBoundedString(formData.get("fullName") ?? "", {
+    maxLength: MAX_AUTH_NAME_LEN,
+    allowEmpty: true,
+  });
+  if (!validation.ok) {
+    if (validation.error === "string_too_long") return { ok: false, error: "Name is too long." };
+    return { ok: false, error: "Name contains unsupported characters." };
+  }
+  return { ok: true, value: validation.value };
+}
+
+function readAuthPassword(
+  formData: FormData,
+  options: { requireMinimum: boolean }
+): { ok: true; value: string } | { ok: false; error: string } {
+  const raw = formData.get("password");
+  if (typeof raw !== "string") return { ok: false, error: "Password must be between 8 and 128 characters." };
+  if (containsControlOrBidi(raw)) return { ok: false, error: "Password contains unsupported characters." };
+  if (raw.length > MAX_AUTH_PASSWORD_LEN) {
+    return { ok: false, error: "Password must be between 8 and 128 characters." };
+  }
+  if (options.requireMinimum && raw.length < MIN_AUTH_PASSWORD_LEN) {
+    return { ok: false, error: "Password must be between 8 and 128 characters." };
+  }
+  if (!options.requireMinimum && raw.length === 0) return { ok: false, error: "Please enter your password." };
+  return { ok: true, value: raw };
+}
 
 async function recoverAuthAction(scope: string, run: () => Promise<AuthActionResult>): Promise<AuthActionResult> {
   try {
     return await run();
   } catch (error) {
     console.error(`[auth] ${scope} failed`, error);
+    const mapped = mapAuthError(error as { message?: string; name?: string; status?: number; code?: string });
+    if (mapped === "Authentication is temporarily unavailable. Try again in a few minutes.") {
+      return { error: mapped };
+    }
     return { error: "Sign-in could not be completed. Refresh the page and try again." };
   }
 }
@@ -60,29 +111,28 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     return { error: "New sign-ups are temporarily disabled." };
   }
 
+  const email = readAuthEmail(formData);
+  if (!email.ok) return { error: email.error };
+  const password = readAuthPassword(formData, { requireMinimum: true });
+  if (!password.ok) return { error: password.error };
+  const fullName = readAuthDisplayName(formData);
+  if (!fullName.ok) return { error: fullName.error };
+
   const supabase = await createClient();
-
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const fullName = formData.get("fullName") as string;
-
-  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
-  if (!password || password.length < 8 || password.length > 128) return { error: "Password must be between 8 and 128 characters." };
-  if (fullName && fullName.length > 200) return { error: "Name is too long." };
 
   const appUrl = await resolveAppBaseUrl();
 
   const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
+    email: email.value,
+    password: password.value,
     options: {
-      data: { full_name: fullName },
+      data: { full_name: fullName.value },
       emailRedirectTo: `${appUrl}/auth/callback`,
     },
   });
 
   if (error) {
-    return { error: mapAuthError(error.message) };
+    return { error: mapAuthError(error) };
   }
 
   if (data.user && !data.session) {
@@ -109,32 +159,37 @@ export async function signIn(formData: FormData): Promise<AuthActionResult> {
 
 async function signInUnsafe(formData: FormData): Promise<AuthActionResult> {
   const ip = await getClientIpFromHeaders();
-  const rl = await rateLimitCheck(`signin:${ip}`, RATE_LIMITS.signIn);
+  const rl = await rateLimitCheck(`signin:${ip}`, RATE_LIMITS.signIn, {
+    backendFailureMode: "memory-fallback",
+    timeoutMs: 1_500,
+  });
   if (!rl.ok) {
     return { error: "Too many sign-in attempts. Try again in a few minutes." };
   }
 
+  const email = readAuthEmail(formData);
+  if (!email.ok) return { error: email.error };
+  const password = readAuthPassword(formData, { requireMinimum: false });
+  if (!password.ok) return { error: password.error };
+
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
-
   const t0 = Date.now();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email: email.value, password: password.value });
 
   if (error) {
     const elapsed = Date.now() - t0;
     await new Promise((r) => setTimeout(r, Math.max(0, 200 - elapsed)));
-    return { error: mapAuthError(error.message) };
+    return { error: mapAuthError(error) };
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    return { redirectTo: await resolvePostAuthRedirectForUser(user) };
+  if (data.user) {
+    try {
+      return { redirectTo: await resolvePostAuthRedirectForUser(data.user) };
+    } catch (error) {
+      console.error("[auth] post-sign-in redirect resolution failed", error);
+      return { redirectTo: "/dashboard" };
+    }
   }
 
   return { redirectTo: "/dashboard" };
@@ -179,19 +234,19 @@ async function forgotPasswordUnsafe(formData: FormData): Promise<AuthActionResul
     return { error: "Too many reset requests. Try again later." };
   }
 
-  const supabase = await createClient();
-  const email = formData.get("email") as string;
+  const email = readAuthEmail(formData);
+  if (!email.ok) return { error: email.error };
 
-  if (!email || email.length > 320 || !email.includes("@")) return { error: "Please enter a valid email address." };
+  const supabase = await createClient();
 
   const appUrl = await resolveAppBaseUrl();
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await supabase.auth.resetPasswordForEmail(email.value, {
     redirectTo: `${appUrl}/reset-password`,
   });
 
   if (error) {
-    return { error: mapAuthError(error.message) };
+    return { error: mapAuthError(error) };
   }
 
   return { success: "Check your email for a password reset link." };
@@ -202,15 +257,15 @@ export async function resetPassword(formData: FormData) {
 }
 
 async function resetPasswordUnsafe(formData: FormData): Promise<AuthActionResult> {
+  const password = readAuthPassword(formData, { requireMinimum: true });
+  if (!password.ok) return { error: password.error };
+
   const supabase = await createClient();
-  const password = formData.get("password") as string;
 
-  if (!password || password.length < 8 || password.length > 128) return { error: "Password must be between 8 and 128 characters." };
-
-  const { error } = await supabase.auth.updateUser({ password });
+  const { error } = await supabase.auth.updateUser({ password: password.value });
 
   if (error) {
-    return { error: mapAuthError(error.message) };
+    return { error: mapAuthError(error) };
   }
 
   const {

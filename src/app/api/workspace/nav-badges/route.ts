@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { fetchNavBadgeCounts } from "@/lib/dashboard-data";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import {
@@ -8,10 +9,12 @@ import {
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 
+const ROUTE = "/api/workspace/nav-badges";
+
 export async function GET() {
   const ctx = await getAuthContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized(ROUTE);
   }
 
   try {
@@ -30,6 +33,11 @@ export async function GET() {
       "[workspace/nav-badges] failed:",
       error instanceof Error ? error.message : "unknown error"
     );
-    return NextResponse.json({ error: "Could not load nav badges" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Could not load nav badges",
+      code: "nav_badges_load_failed",
+      diagnostic_id: "nav_badges_load_failed",
+      route: ROUTE,
+    });
   }
 }

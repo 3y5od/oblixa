@@ -7,6 +7,7 @@ import { V10RecoverableState } from "./v10-recoverable-state";
 describe("V10RecoverableState", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllEnvs();
   });
 
   it("renders recoverable copy with an accessible status name", () => {
@@ -92,6 +93,7 @@ describe("V10RecoverableState", () => {
 
   it("surfaces contract violations in development diagnostics", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", "1");
     render(
       <V10RecoverableState
         state="failed"
@@ -108,6 +110,27 @@ describe("V10RecoverableState", () => {
       "[v10-recoverable-state] contract violation",
       expect.objectContaining({ state: "failed" })
     );
+    warn.mockRestore();
+  });
+
+  it("does not surface contract diagnostics in production even when the public flag is set", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", "1");
+
+    render(
+      <V10RecoverableState
+        state="failed"
+        title="Missing recovery copy"
+        reason="The operation failed without a next action."
+        accessibleName="Invalid failed state"
+      />
+    );
+
+    const alert = screen.getByRole("alert", { name: "Invalid failed state" });
+    expect(alert.getAttribute("data-v10-contract-ok")).toBe("false");
+    expect(screen.queryByText(/State contract needs attention/)).toBeNull();
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 });

@@ -21,15 +21,15 @@ describe("core CTA gating tripwire", () => {
     const idx = raw.indexOf('href="/decisions"');
     expect(idx).toBeGreaterThan(-1);
     const before = raw.slice(Math.max(0, idx - 500), idx);
-    expect(before.includes("{showDecisionsCta ? (")).toBe(true);
+    // Accept both inline `{showDecisionsCta ? (` and the prop form `actions={\n  showDecisionsCta ? (` after the DashboardPageHeader extraction.
+    expect(before).toMatch(/\{\s*showDecisionsCta \?\s*\(/);
   });
 
-  it("keeps campaign CTA on bulk import behind visibility predicate", () => {
+  it("keeps campaign CTA off the Core import surface", () => {
     const raw = readFileSync(BULK_PAGE, "utf8");
     const idx = raw.indexOf('href="/campaigns"');
-    expect(idx).toBeGreaterThan(-1);
-    const before = raw.slice(Math.max(0, idx - 500), idx);
-    expect(before.includes("{showCampaignCta ? (")).toBe(true);
+    expect(idx).toBe(-1);
+    expect(raw).not.toContain("showCampaignCta");
   });
 
   it("keeps work-queue decisions CTA behind visibility predicate", () => {

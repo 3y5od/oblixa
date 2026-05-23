@@ -106,9 +106,11 @@ describe("POST /api/import/contracts/[jobId] retry idempotency (V9)", () => {
     const body = await res.json();
     expect(body).toMatchObject({
       error: "Job not found",
-      v10: {
-        outcome: "not_found",
-        diagnostic_id: "v10_import_retry_job_not_found",
+      details: {
+        v10: expect.objectContaining({
+          outcome: "not_found",
+          diagnostic_id: "v10_import_retry_job_not_found",
+        }),
       },
     });
     expect(runContractCsvImport).not.toHaveBeenCalled();

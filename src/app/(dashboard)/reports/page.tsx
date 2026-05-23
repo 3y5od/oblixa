@@ -1,216 +1,313 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { AlertTriangle, BarChart3, ClipboardList } from "lucide-react";
+import { ArrowUpRight, BarChart3, Download } from "lucide-react";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { UiSelect } from "@/components/ui/ui-select";
+import { UiTabs } from "@/components/ui/ui-tabs";
+import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { loadProductSurfaceContext } from "@/lib/product-surface/context";
-import { ReportsAdvancedContent } from "./reports-advanced-content";
-import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
+import { loadProductSurfaceContext } from "@/lib/product-surface";
 import {
-  buildReportsControlRoomSummary,
-  type ReportRunVisibilityInput,
-} from "@/lib/reports-control-room";
-import type { ExportJobVisibilityInput } from "@/lib/export-job-visibility";
+  buildReportsHref,
+  loadReportsPageModel,
+} from "@/lib/reports/model";
+import {
+  REPORT_CONTENT_LABELS,
+  REPORT_FILTER_LABELS,
+  REPORTS_EMPTY_STATE,
+  REPORTS_PAGE_TITLE,
+  REPORTS_PARTIAL_DATA_REASON,
+  REPORTS_PARTIAL_DATA_TITLE,
+} from "@/lib/reports/spec-strings";
+import type { ReportFilterState, ReportsPageModel } from "@/lib/reports/types";
 
-export const metadata = { title: "Operational reports" };
+export const metadata = { title: REPORTS_PAGE_TITLE };
 
-function ReportsAdvancedFallback() {
+type ReportsPageSearchParams = {
+  report?: string | string[];
+  family?: string | string[];
+  window?: string | string[];
+  owner?: string | string[];
+  counterparty?: string | string[];
+  status?: string | string[];
+};
+
+export default async function ReportsPage(props: {
+  searchParams: Promise<ReportsPageSearchParams>;
+}) {
+  const searchParams = await props.searchParams;
+  const ctx = await getAuthContext();
+  if (!ctx) return <WorkspaceRequiredState />;
+
+  const productSurface = await loadProductSurfaceContext(
+    ctx.admin,
+    ctx.orgId,
+    ctx.role as WorkspaceRole
+  );
+  const model = await loadReportsPageModel(ctx.admin, ctx.orgId, {
+    userId: ctx.user.id,
+    role: ctx.role,
+    workspaceMode: productSurface.mode,
+    report: firstParam(searchParams.report),
+    family: firstParam(searchParams.family),
+    window: firstParam(searchParams.window),
+    owner: firstParam(searchParams.owner),
+    counterparty: firstParam(searchParams.counterparty),
+    status: firstParam(searchParams.status),
+  });
+
   return (
-    <div className="ui-page-stack" aria-hidden>
-      <div className="ui-page-header-compact space-y-3">
-        <div className="ui-skeleton h-4 w-40 rounded" />
-        <div className="ui-skeleton h-10 w-72 rounded" />
-        <div className="ui-skeleton h-4 max-w-xl rounded" />
-      </div>
-      <div className="ui-skeleton h-40 rounded-2xl" />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <div className="ui-skeleton h-36 rounded-2xl" />
-        <div className="ui-skeleton h-36 rounded-2xl" />
-        <div className="ui-skeleton h-36 rounded-2xl" />
-      </div>
+    <div className="ui-page-stack mx-auto max-w-7xl">
+      <DashboardPageHeader
+        icon={<BarChart3 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow={model.eyebrow}
+        title={REPORTS_PAGE_TITLE}
+        actions={
+          <Link
+            href={model.exportHref}
+            className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2"
+          >
+            <Download className="h-4 w-4" aria-hidden />
+            {model.primaryCta}
+          </Link>
+        }
+      />
+
+      {model.warnings.length > 0 ? (
+        // Compact density: this is an edge-state notice (data freshness
+        // hiccup) — it should be visible but shouldn't dominate the page
+        // above the actual report content. Reason text + action link
+        // already convey the recoverability; the standard-density card
+        // was over-prominent for a transient partial-data state.
+        <V10RecoverableState
+          state="partial"
+          density="compact"
+          title={REPORTS_PARTIAL_DATA_TITLE}
+          reason={REPORTS_PARTIAL_DATA_REASON}
+          accessibleName="Reports partial data state"
+          nextActionLabel="Review workspace health"
+          nextAction={
+            <Link href="/settings/health" className="ui-link">
+              Review workspace health
+            </Link>
+          }
+        />
+      ) : null}
+
+      <section className="ui-card overflow-hidden p-0" aria-labelledby="reports-surface-title">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
+          <div className="space-y-1">
+            <p className="ui-caps-2 text-[var(--text-tertiary)]">Core exports</p>
+            <h2 id="reports-surface-title" className="text-lg font-semibold text-[var(--text-primary)]">
+              {model.activeDefinition.label}
+            </h2>
+            <p className="max-w-2xl text-sm text-[var(--text-secondary)]">
+              {model.activeDefinition.description}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
+            <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5">
+              All contracts
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+            </Link>
+          </div>
+        </div>
+
+        <UiTabs
+          ariaLabel="Reports"
+          items={model.reports.map((report) => ({
+            href: report.href,
+            label: report.label,
+            active: report.active,
+            count: report.count,
+          }))}
+          className="px-5"
+        />
+
+        <ReportsFilters model={model} />
+
+        <ReportPreviewTable model={model} />
+      </section>
     </div>
   );
 }
 
-export default async function ReportsControlRoomPage() {
-  const ctx = await getAuthContext();
-  if (!ctx) return <WorkspaceRequiredState />;
-  const { admin, orgId, role } = ctx;
-  const productSurface = await loadProductSurfaceContext(admin, orgId, role as WorkspaceRole);
-  const { data: controlRoomSnapshot } = await admin.rpc("reports_control_room_snapshot", {
-    p_org_id: orgId,
-  });
-  const snapshot =
-    controlRoomSnapshot && typeof controlRoomSnapshot === "object"
-      ? (controlRoomSnapshot as Record<string, unknown>)
-      : {};
-  const reportRuns = (Array.isArray(snapshot.recentReportRuns) ? snapshot.recentReportRuns : []) as ReportRunVisibilityInput[];
-  const exportJobs = (Array.isArray(snapshot.recentExportJobs) ? snapshot.recentExportJobs : []) as ExportJobVisibilityInput[];
-  const summary = buildReportsControlRoomSummary({
-    reportRuns,
-    exportJobs,
-  });
-  if (productSurface.mode === "core") {
-    return (
-      <div className="ui-page-stack">
-        <header className="ui-page-header-compact">
-          <div>
-            <p className="ui-eyebrow">Reports</p>
-            <h1 className="ui-page-title-compact mt-2">Operational reports</h1>
-            <p className="ui-page-lead mt-2 max-w-2xl">
-              Report failures, partial outputs, and scheduled-summary delivery issues appear before routine report destinations.
-            </p>
-          </div>
-          <Link href="/contracts/reports" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Contract report packs
-          </Link>
-        </header>
-        <section
-          className={
-            summary.reportsNeedAttention
-              ? "ui-status-panel ui-status-panel-warning"
-              : "ui-status-panel ui-status-panel-success"
-          }
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <AlertTriangle
-                  className={`h-4 w-4 ${
-                    summary.reportsNeedAttention ? "text-[var(--warning-ink)]" : "text-[var(--success-ink)]"
-                  }`}
-                  aria-hidden
-                />
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
-                  Report delivery posture
-                </p>
-              </div>
-              <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
-                {summary.reportsNeedAttention
-                  ? "Recent report runs need review before you rely on outbound summaries."
-                  : "Recent report samples are delivering normally."}
-              </p>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                {summary.failedRunsCount > 0
-                  ? `${summary.failedRunsCount} failed, ${summary.runningRunsCount} running, and ${summary.succeededRunsCount} successful report runs in the recent sample.`
-                  : `${summary.succeededRunsCount} successful and ${summary.runningRunsCount} running report runs in the recent sample.`}
-              </p>
-              <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                {summary.latestFailedRunAt
-                  ? `Latest failure: ${new Date(summary.latestFailedRunAt).toISOString()}`
-                  : summary.latestSucceededRunAt
-                    ? `Latest successful sample: ${new Date(summary.latestSucceededRunAt).toISOString()}`
-                    : "No recent report samples recorded yet."}
-              </p>
-              {summary.runningRunsCount > 0 ? (
-                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]" data-v9-anchor="report-generation-in-progress">
-                  Report generation in progress
-                  {summary.runningRunsCount > 1 ? ` — ${summary.runningRunsCount} samples still running.` : "."}
-                </p>
-              ) : null}
-              {summary.failedRunsCount > 0 ? (
-                <p className="mt-2 text-sm font-semibold text-[var(--warning-ink)]" data-v9-anchor="report-generation-failed">
-                  Report generation failed
-                  {summary.failedRunsCount > 1 ? ` — ${summary.failedRunsCount} failures in the recent sample.` : "."}
-                </p>
-              ) : null}
-              <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]" data-v9-anchor="export-follow-through-state">
-                {summary.latestExportStateLabel}
-              </p>
-              <p className="mt-1 text-[11px] leading-snug text-[var(--text-secondary)]">
-                Report outputs and CSV exports use the same workspace mode and hidden-surface suppression as the lists
-                or selections you start them from. Truncated or partial exports say so in the download response and in
-                export job history.
-              </p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="ui-support-panel px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Latest report sample
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
-                    {summary.failedRunsCount > 0
-                      ? "Recent report samples include failures"
-                      : summary.runningRunsCount > 0
-                        ? "Recent report samples are still running"
-                        : "Recent report samples look healthy"}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                    {summary.failedRunsCount} failed · {summary.runningRunsCount} running · {summary.succeededRunsCount} successful
-                  </p>
-                </div>
-                <div
-                  className={`px-4 py-3 ${
-                    summary.latestExportTone === "risk"
-                      ? "ui-status-panel ui-status-panel-risk"
-                      : summary.latestExportTone === "attention"
-                        ? "ui-status-panel ui-status-panel-warning"
-                        : "ui-support-panel"
-                  }`}
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Latest export follow-through
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{summary.latestExportHeadline}</p>
-                  <p className="mt-1 text-xs text-[var(--text-secondary)]">{summary.latestExportDetail}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2 text-[13px]">
-              <Link href="/contracts/reports" className="ui-btn-secondary px-3 py-2 text-xs">
-                Open report history
-              </Link>
-              <Link href="/settings/health" className="ui-btn-secondary px-3 py-2 text-xs">
-                View system health
-              </Link>
-            </div>
-          </div>
-        </section>
-        <section className="ui-page-shell space-y-4">
-          <div>
-            <p className="ui-eyebrow">Collections</p>
-            <h2 className="ui-page-title mt-2 text-[1.8rem]">Report families</h2>
-            <p className="ui-section-lead mt-2">Choose the reporting surface based on whether you need historical runs, recurring ritual review, or system-level delivery diagnostics.</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <OperationalSurfaceLinkCard
-              href="/contracts/reports"
-              eyebrow="Pack"
-              title="Contract report packs"
-              hint="Portfolio packs, trend views, and operational exports."
-              icon={ClipboardList}
-              tone="neutral"
-            />
-            <OperationalSurfaceLinkCard
-              href="/contracts/review-cadence"
-              eyebrow="Ritual"
-              title="Review cadence"
-              hint="Weekly and monthly review ritual workspace."
-              icon={BarChart3}
-              tone="neutral"
-            />
-            <OperationalSurfaceLinkCard
-              href="/settings/health"
-              eyebrow="Diagnostics"
-              title="System health"
-              hint="Delivery diagnostics for report runs, reminders, imports, exports, and extraction reliability."
-              icon={AlertTriangle}
-              tone={summary.reportsNeedAttention ? "attention" : "neutral"}
-            />
-          </div>
-        </section>
-      </div>
-    );
-  }
+function ReportsFilters({ model }: { model: ReportsPageModel }) {
+  const clearHref = buildReportsHref({ report: model.activeReport });
+  const hasFilters = hasActiveFilters(model.filters);
 
   return (
-    <Suspense fallback={<ReportsAdvancedFallback />}>
-      <ReportsAdvancedContent
-        admin={admin}
-        orgId={orgId}
-        role={role as WorkspaceRole}
-        productSurface={productSurface}
+    <form
+      action="/reports"
+      className="grid gap-3 px-5 py-4 md:grid-cols-[repeat(4,minmax(0,1fr))_auto]"
+      aria-label={REPORT_CONTENT_LABELS.filters}
+    >
+      <input type="hidden" name="report" value={model.activeReport} />
+      <FilterSelect
+        label={REPORT_FILTER_LABELS.window}
+        name="window"
+        value={model.filters.window}
+        options={model.filterOptions.windows}
       />
-    </Suspense>
+      <FilterSelect
+        label={REPORT_FILTER_LABELS.owner}
+        name="owner"
+        value={model.filters.owner}
+        options={model.filterOptions.owners}
+      />
+      <FilterSelect
+        label={REPORT_FILTER_LABELS.counterparty}
+        name="counterparty"
+        value={model.filters.counterparty}
+        options={model.filterOptions.counterparties}
+      />
+      <FilterSelect
+        label={REPORT_FILTER_LABELS.status}
+        name="status"
+        value={model.filters.status}
+        options={model.filterOptions.statuses}
+      />
+      <div className="flex items-end gap-2">
+        <button type="submit" className="ui-btn-secondary px-4 py-2">
+          Apply
+        </button>
+        {hasFilters ? (
+          <Link href={clearHref} className="ui-btn-ghost px-3 py-2 text-[12.5px]">
+            Clear filters
+          </Link>
+        ) : null}
+      </div>
+    </form>
   );
+}
+
+function FilterSelect({
+  label,
+  name,
+  value,
+  options,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  options: ReportsPageModel["filterOptions"]["windows"];
+}) {
+  return (
+    <label className="block min-w-0 space-y-2 text-[12.5px] font-medium text-[var(--text-secondary)]">
+      <span>{label}</span>
+      <UiSelect
+        className="block w-full"
+        buttonClassName="w-full"
+        name={name}
+        defaultValue={value}
+        options={options}
+        ariaLabel={label}
+      />
+    </label>
+  );
+}
+
+function ReportPreviewTable({ model }: { model: ReportsPageModel }) {
+  // Match the row's grid-template-columns to the header's so column cells
+  // align vertically across header + every row. The previous template
+  // (auto-fit minmax(11rem, 1fr)) could yield a different column count than
+  // the header (which uses a fixed N), producing misalignment at certain
+  // widths.
+  const gridTemplate = `repeat(${model.previewColumns.length}, minmax(0, 1fr))`;
+  return (
+    <div className="px-5 py-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="ui-caps-2 text-[var(--text-tertiary)]">{REPORT_CONTENT_LABELS.previewTable}</p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {/* Spec §Reports.eachReportShouldInclude — "Last generated
+              timestamp" rendered as caps eyebrow + value chip so the
+              chip's uppercase styling doesn't double-uppercase the value
+              (the previous all-in-one chip produced an awkward "LAST
+              GENERATED Never generated" caps-then-mixed-case fragment). */}
+          <div className="flex items-center gap-1.5">
+            <p className="ui-caps-2 text-[var(--text-tertiary)]">Last generated</p>
+            <span className="ui-chip">
+              <span className="font-mono normal-case tracking-normal">
+                {model.lastGeneratedLabel}
+              </span>
+            </span>
+          </div>
+          <span className="ui-chip">
+            <span className="font-mono tabular-nums">{model.totalPreviewRows}</span>
+            <span className="ml-1">rows</span>
+          </span>
+        </div>
+      </div>
+      {model.previewRows.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] px-5 py-8 text-center text-sm text-[var(--text-secondary)]">
+          {REPORTS_EMPTY_STATE}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)]">
+          <div
+            className="hidden gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,transparent)] px-4 py-3 text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)] lg:grid"
+            style={{ gridTemplateColumns: gridTemplate }}
+          >
+            {model.previewColumns.map((column) => (
+              <span key={column}>{column}</span>
+            ))}
+          </div>
+          <div className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)]">
+            {model.previewRows.map((row) => (
+              <div
+                key={row.id}
+                className="grid gap-3 px-4 py-4 text-sm text-[var(--text-secondary)] lg:items-center"
+                style={{ gridTemplateColumns: gridTemplate }}
+              >
+                {model.previewColumns.map((column, index) => {
+                  const rawValue = row.cells[column];
+                  const isEmpty = !rawValue || rawValue.trim().length === 0;
+                  const value = isEmpty ? "—" : rawValue;
+                  const isPrimary = index === 0;
+                  return (
+                    <div key={`${row.id}-${column}`} className="min-w-0 space-y-1">
+                      <p className="text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)] lg:hidden">
+                        {column}
+                      </p>
+                      {isPrimary && row.href ? (
+                        <Link href={row.href} className="ui-link font-semibold text-[var(--accent-strong)]">
+                          {value}
+                        </Link>
+                      ) : (
+                        <p
+                          className={
+                            isPrimary
+                              ? "font-semibold text-[var(--text-primary)]"
+                              : isEmpty
+                                ? "text-[var(--text-tertiary)]"
+                                : ""
+                          }
+                        >
+                          {value}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {model.totalPreviewRows > model.previewRows.length ? (
+        <p className="mt-3 text-[12.5px] text-[var(--text-tertiary)]">
+          Preview limited to {model.previewRows.length} rows. Use {model.primaryCta} for the full CSV.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function hasActiveFilters(filters: ReportFilterState) {
+  return filters.window !== "90" || Boolean(filters.owner || filters.counterparty || filters.status);
+}
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }

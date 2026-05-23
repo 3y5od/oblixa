@@ -14,8 +14,9 @@ const REQUIRED_FILE_MARKERS = {
     'await new Promise((r) => setTimeout(r, Math.max(0, 200 - elapsed)));',
     'return { error: mapAuthError(error.message) };',
     'export async function resetPassword(formData: FormData) {',
-    'if (!password || password.length < 8 || password.length > 128) return { error: "Password must be between 8 and 128 characters." };',
-    'const { error } = await supabase.auth.updateUser({ password });',
+    "const password = readAuthPassword(formData, { requireMinimum: true });",
+    "if (!password.ok) return { error: password.error };",
+    "const { error } = await supabase.auth.updateUser({ password: password.value });",
   ],
   "src/lib/errors/user-facing.ts": [
     'if (lower.includes("invalid login credentials")) {',
@@ -25,6 +26,7 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/actions/auth-actions.test.ts": [
     'it("resetPassword rejects too-short replacement passwords before calling updateUser"',
+    'it("resetPassword rejects unsafe replacement passwords before calling updateUser"',
     'expect(authServerMocks.updateUser).not.toHaveBeenCalled()',
     'expect(authServerMocks.updateUser).toHaveBeenCalledWith({ password: "longpassword123" });',
     'describe("resetPassword redirect resolution"',

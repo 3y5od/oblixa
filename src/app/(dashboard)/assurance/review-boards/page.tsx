@@ -59,7 +59,7 @@ export default async function AssuranceReviewBoardsPage() {
         <ul className="mt-4 space-y-2 text-sm">
           {(boards ?? []).map((row) => (
             <li key={row.id} className="ui-operational-card p-4">
-              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
+              <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
               <p className="ui-support-copy mt-1">
                 {row.board_type} · {row.cadence} · {row.active ? "active" : "inactive"}
               </p>
@@ -74,7 +74,7 @@ export default async function AssuranceReviewBoardsPage() {
                 />
               ) : null}
               {row.agenda_template_json && Object.keys(row.agenda_template_json as object).length > 0 ? (
-                <pre className="ui-soft-details mt-2 max-h-24 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+                <pre className="ui-soft-details mt-2 max-h-24 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.agenda_template_json, null, 2)}
                 </pre>
               ) : null}
@@ -88,7 +88,7 @@ export default async function AssuranceReviewBoardsPage() {
         <ul className="space-y-2 text-sm">
           {(runs ?? []).map((row) => (
             <li key={row.id} className="ui-operational-card p-4">
-              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+              <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
                 {row.status} · {String(row.generated_at)}
                 {row.reviewed_at ? <span className="text-[var(--text-tertiary)]"> · reviewed {String(row.reviewed_at)}</span> : null}
               </p>
@@ -122,7 +122,7 @@ export default async function AssuranceReviewBoardsPage() {
                 </ApiJsonLink>
               </p>
               {row.packet_json && typeof row.packet_json === "object" ? (
-                <pre className="ui-soft-details mt-2 max-h-32 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+                <pre className="ui-soft-details mt-2 max-h-32 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.packet_json, null, 2)}
                 </pre>
               ) : null}

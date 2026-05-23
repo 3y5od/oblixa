@@ -61,7 +61,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                 }}
                 className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] disabled:opacity-50"
               >
-                Resend
+                Resend invite
               </button>
               <button
                 type="button"
@@ -79,7 +79,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                 }}
                 className="ui-btn-danger min-h-0 px-3 py-1.5 text-xs disabled:opacity-50"
               >
-                Revoke
+                Revoke invite
               </button>
             </div>
           </li>

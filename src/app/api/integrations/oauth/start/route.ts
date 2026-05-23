@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash, randomBytes } from "crypto";
@@ -7,9 +8,14 @@ import { readOAuthProviderConfigFromEnv, readOAuthProviderConfigFromConnection }
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { cookies } from "next/headers";
-import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
+import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
 import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+
+const ROUTE = "/api/integrations/oauth/start";
+
+export const maxDuration = 60;
 
 const ALLOWED_PROVIDERS = new Set([
   "google_calendar",
@@ -43,16 +49,25 @@ function oauthFailure(input: {
   phase: string;
   details?: Record<string, unknown>;
 }) {
-  return NextResponse.json(
-    {
-      ok: false,
-      error: input.error,
-      code: input.code,
-      diagnostic_id: input.diagnosticId,
+  return jsonProblem(input.status, {
+    error: input.error,
+    code: input.code,
+    diagnostic_id: input.diagnosticId,
+    route: ROUTE,
+    details: {
       phase: input.phase,
-      ...(input.details ? { details: input.details } : {}),
+      ...(input.details ?? {}),
     },
-    { status: input.status }
+  });
+}
+
+function isAllowedOAuthCallbackRedirect(request: Request, redirect: URL): boolean {
+  const requestOrigin = getRequestOrigin(request);
+  return (
+    redirect.origin === requestOrigin &&
+    redirect.pathname === "/api/integrations/oauth/callback" &&
+    redirect.search === "" &&
+    redirect.hash === ""
   );
 }
 
@@ -60,45 +75,42 @@ export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`oauth-start:${ip}`, { max: 30, windowMs: 60_000 });
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
-  const _lb_body = await readJsonBodyLimited(request);
-  if (!_lb_body.ok) return _lb_body.response;
-  const body = (_lb_body.body ?? {}) as {
-    provider?: string;
-    redirectUri?: string;
-  };
-  const provider = String(body.provider ?? "").trim();
-  if (!ALLOWED_PROVIDERS.has(provider)) {
-    return NextResponse.json({ error: "Unsupported provider" }, { status: 400 });
-  }
-  const providerId = provider as OAuthProvider;
 
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership || membership.role !== "admin") {
-    return NextResponse.json({ error: "Only admins can start integration auth" }, { status: 403 });
+    return jsonProblem(403, {
+      error: "Only admins can start integration auth",
+      code: "admin_required",
+      diagnostic_id: "oauth_start_admin_required",
+      route: ROUTE,
+    });
   }
-  const jar = await cookies();
-  if (!isStepUpCookieValidForUser(jar, user.id)) {
-    return NextResponse.json(
-      { error: "Step-up required", needStepUp: true },
-      { status: 403 }
-    );
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
+    void recordSecurityAuditEvent(admin, {
+      organizationId: membership.organization_id,
+      actorUserId: user.id,
+      action: "security.integration_oauth_start_blocked",
+      targetType: "integration_oauth",
+      targetId: membership.organization_id,
+      outcome: "forbidden",
+      safeMetadata: { reason: "sensitive_action_proof_required" },
+    }).catch(() => undefined);
+    return jsonProblem(403, {
+      error: "Step-up required",
+      code: "step_up_required",
+      diagnostic_id: "oauth_start_step_up_required",
+      route: ROUTE,
+      details: { needStepUp: true },
+    });
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
@@ -112,6 +124,30 @@ export async function POST(request: Request) {
     actorKey: `${membership.organization_id}:${user.id}`,
   });
   if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    route: "/api/integrations/oauth/start",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const _lb_body = await readJsonBodyLimited(request);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = (_lb_body.body ?? {}) as {
+    provider?: string;
+    redirectUri?: string;
+  };
+  const provider = String(body.provider ?? "").trim();
+  if (!ALLOWED_PROVIDERS.has(provider)) {
+    return jsonProblem(400, {
+      error: "Unsupported provider",
+      code: "unsupported_provider",
+      diagnostic_id: "oauth_start_provider_unsupported",
+      route: ROUTE,
+    });
+  }
+  const providerId = provider as OAuthProvider;
   const providerConfigFromEnv = readOAuthProviderConfigFromEnv(providerId);
   const { data: existingConnection, error: existingConnectionError } = await admin
     .from("integration_connections")
@@ -172,13 +208,28 @@ export async function POST(request: Request) {
   try {
     redirect = new URL(redirectCandidate);
   } catch {
-    return NextResponse.json({ error: "Invalid redirectUri" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Invalid redirectUri",
+      code: "invalid_redirect_uri",
+      diagnostic_id: "oauth_start_redirect_uri_invalid",
+      route: ROUTE,
+    });
   }
   if (redirect.origin !== requestOrigin) {
-    return NextResponse.json(
-      { error: "redirectUri must match request origin" },
-      { status: 400 }
-    );
+    return jsonProblem(400, {
+      error: "redirectUri must match request origin",
+      code: "redirect_origin_mismatch",
+      diagnostic_id: "oauth_start_redirect_origin_mismatch",
+      route: ROUTE,
+    });
+  }
+  if (!isAllowedOAuthCallbackRedirect(request, redirect)) {
+    return jsonProblem(400, {
+      error: "redirectUri must match OAuth callback route",
+      code: "redirect_path_mismatch",
+      diagnostic_id: "oauth_start_redirect_path_mismatch",
+      route: ROUTE,
+    });
   }
   const verifier = randomBytes(32).toString("base64url");
   const challenge = createHash("sha256").update(verifier).digest("base64url");

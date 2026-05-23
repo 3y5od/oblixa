@@ -1,11 +1,9 @@
-import type { AdminClient } from "@/lib/v6/service";
 import { NAV_ITEMS, type NavItem } from "@/lib/navigation";
 import {
   isNavChildVisibleForSurface,
   isNavItemVisibleForSurface,
   type NavSurfaceInput,
 } from "@/lib/product-surface/nav-visibility";
-import { isNotificationAllowed } from "@/lib/notification-policy";
 import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
@@ -14,6 +12,54 @@ import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibil
 
 /** Extra cmd-K entries not on primary NAV_ITEMS (keep aligned with command-palette DEEP_LINK_COMMANDS). */
 export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
+  {
+    name: "Profile",
+    href: "/settings#profile",
+    description: "Update your name and account identity.",
+    section: "primary",
+  },
+  {
+    name: "Workspace",
+    href: "/settings#workspace-identity",
+    description: "Rename the workspace shown in navigation, invites, exports, and billing.",
+    section: "primary",
+  },
+  {
+    name: "Team",
+    href: "/settings#team-access",
+    description: "Review members, roles, invitations, and pending access.",
+    section: "primary",
+  },
+  {
+    name: "Billing",
+    href: "/settings/billing",
+    description: "Review subscription status, invoices, and billing access.",
+    section: "primary",
+  },
+  {
+    name: "Notifications",
+    href: "/settings/operations#notifications",
+    description: "Reminder defaults for renewals, review, work, evidence, and weekly digest email.",
+    section: "primary",
+  },
+  {
+    name: "Security",
+    href: "/settings/security",
+    description: "Account security and session controls.",
+    section: "primary",
+  },
+  {
+    name: "Imports and exports",
+    href: "/contracts/bulk",
+    description: "Bulk contract imports and signed-file intake.",
+    section: "primary",
+  },
+  {
+    name: "Data export",
+    href: "/reports?report=contract_inventory",
+    description: "Export the contract inventory report.",
+    section: "primary",
+  },
   {
     name: "Compare campaigns & simulations",
     href: "/campaigns/compare",
@@ -51,10 +97,10 @@ function allCmdkNavItems(): NavItem[] {
 }
 
 export function isCmdkHrefAllowed(href: string, surface: NavSurfaceInput): boolean {
-  const path = href.split("?")[0] ?? href;
+  const path = (href.split("?")[0] ?? href).split("#")[0] ?? href;
   if (surface.searchScope === "core_only" && minWorkspaceModeForPath(path) !== "core") return false;
   if (!isHrefEligibleForNavSurface(surface, href)) return false;
-  const item = allCmdkNavItems().find((i) => (i.href.split("?")[0] ?? i.href) === path);
+  const item = allCmdkNavItems().find((i) => ((i.href.split("?")[0] ?? i.href).split("#")[0] ?? i.href) === path);
   if (item) return isNavItemVisibleForSurface(item, surface);
 
   for (const parent of NAV_ITEMS) {
@@ -110,11 +156,4 @@ export function cmdkResultSortKey(href: string): number {
     if (p === prefix || p.startsWith(`${prefix}/`)) return rank;
   }
   return 1000 + (p.length ? p.codePointAt(0)! : 0);
-}
-
-export async function isNotificationCategoryAllowed(
-  admin: AdminClient,
-  input: { organizationId: string; channel: "email" | "slack"; notificationType: string }
-): Promise<boolean> {
-  return isNotificationAllowed(admin, input);
 }

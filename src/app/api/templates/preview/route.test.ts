@@ -36,7 +36,7 @@ describe("GET /api/templates/preview", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Invalid contractId" });
+    expect(body).toMatchObject({ error: "Invalid contractId" });
   });
 
   it("queries contracts scoped to user organization memberships", async () => {
@@ -82,7 +82,9 @@ describe("GET /api/templates/preview", () => {
         if (table === "extracted_fields" || table === "reminders") {
           return {
             select: () => ({
-              eq: vi.fn(async () => ({ data: [], error: null })),
+              eq: () => ({
+                eq: vi.fn(async () => ({ data: [], error: null })),
+              }),
             }),
           };
         }
@@ -90,7 +92,9 @@ describe("GET /api/templates/preview", () => {
           return {
             select: () => ({
               eq: () => ({
-                in: vi.fn(async () => ({ data: [], error: null })),
+                eq: () => ({
+                  in: vi.fn(async () => ({ data: [], error: null })),
+                }),
               }),
             }),
           };
@@ -123,7 +127,7 @@ describe("GET /api/templates/preview", () => {
 
     expect(res.status).toBe(429);
     expect(createAdminClient).not.toHaveBeenCalled();
-    expect(await res.json()).toEqual({ error: "Too many requests" });
+    expect(await res.json()).toMatchObject({ error: "Too many requests", code: "rate_limited" });
   });
 });
 

@@ -15,11 +15,16 @@ const REQUIRED_FILE_MARKERS = {
     'redirect("/api/auth/post-sign-out")',
   ],
   "src/actions/sessions.ts": [
+    "hasSensitiveActionProof(supabase, user.id)",
+    "before revoking other sessions",
+    'needStepUp: true as const',
     'await supabase.auth.signOut({ scope: "others" })',
     'action: "security.sessions_revoke_others"',
+    'outcome: "forbidden"',
     'return { success: true as const }',
   ],
   "src/actions/sessions.test.ts": [
+    "revokeOtherSessions requires step-up or AAL2 before sign-out",
     "revokeOtherSessions audits with organization_id when org present",
     "expect(res).toEqual({ success: true })",
   ],

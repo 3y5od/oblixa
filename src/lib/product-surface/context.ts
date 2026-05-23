@@ -2,8 +2,9 @@
  * Product surface resolution (product-surface policy §5–§6, §13, §17.3).
  *
  * **§5 layers → flags**
- * - **Layer 1 (Core)** — Always the default narrative: primary nav for Contracts, Review, Work, Renewals,
- *   Exceptions, Evidence, Reports, Settings; mode `core` unless org JSON overrides.
+ * - **Layer 1 (Core)** — Always the default narrative: compact primary nav for Contracts, Work,
+ *   Reports, Settings, and eligible Tools, with Review, Renewals, Exceptions, Evidence, and
+ *   Report packs exposed as child or contextual destinations; mode `core` unless org JSON overrides.
  * - **Layer 2 (Advanced)** — `mode` is `advanced` or `assurance`; `seesAdvancedPrimaryNav` exposes Decisions,
  *   Campaigns, Programs, Relationships subject to `advanced_modules_hidden` and `advanced_nav_roles`.
  * - **Layer 3 (Assurance)** — `mode === "assurance"` plus role defaults (or admin `assurance_nav_admin_testing`)

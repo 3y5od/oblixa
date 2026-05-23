@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { parsePositiveIntParam } from "@/lib/security/validation";
+
+const ROUTE = "/api/assurance/check-runs";
 
 export async function GET(request: Request) {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -24,8 +28,7 @@ export async function GET(request: Request) {
   );
 
   const url = new URL(request.url);
-  const limitRaw = Number(url.searchParams.get("limit") ?? "30");
-  const limit = Number.isFinite(limitRaw) ? Math.min(80, Math.max(1, Math.floor(limitRaw))) : 30;
+  const limit = parsePositiveIntParam(url.searchParams.get("limit"), { defaultValue: 30, max: 80 });
 
   const { data, error } = await ctx.admin
     .from("assurance_check_runs")
@@ -36,6 +39,13 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "assurance_check_runs_list_failed",
+      diagnostic_id: "assurance_check_runs_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ checkRuns: data ?? [] });
 }

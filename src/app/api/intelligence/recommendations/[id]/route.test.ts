@@ -77,6 +77,7 @@ describe("PATCH /api/intelligence/recommendations/[id]", () => {
     const res = await PATCH(
       new Request("http://localhost", {
         method: "PATCH",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ action: "accept" }),
       }),
       { params: Promise.resolve({ id: "r1" }) }
@@ -89,6 +90,7 @@ describe("PATCH /api/intelligence/recommendations/[id]", () => {
     const res = await PATCH(
       new Request("http://localhost", {
         method: "PATCH",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ action: "accept" }),
       }),
       { params: Promise.resolve({ id: "r1" }) }
@@ -102,6 +104,7 @@ describe("PATCH /api/intelligence/recommendations/[id]", () => {
       PATCH(
         new Request("http://localhost", {
           method: "PATCH",
+          headers: { "content-type": "application/json" },
           body: JSON.stringify({ action: "accept" }),
         }),
         { params: Promise.resolve({ id: "r1" }) }

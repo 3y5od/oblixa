@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -13,6 +14,9 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { enforceIdempotency } from "@/lib/idempotency";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/control-policies/[id]/publish";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6ControlPolicies");
@@ -35,6 +39,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (duplicate) return duplicate;
 
   const policyId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: policyId }, ["id"], "/api/control-policies/[id]/publish");
+
+  if (routeParamRejection) return routeParamRejection;
   const metricsBefore = await gatherPortfolioMetrics(ctx.admin, ctx.orgId);
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
     readJsonBody<{
@@ -56,10 +64,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (result.error) {
     const err = result.error as { message?: string; issues?: unknown };
-    return NextResponse.json(
-      { error: err.message ?? "Publish failed", issues: err.issues },
-      { status: 400 }
-    );
+    return jsonProblem(400, {
+      error: err.message ?? "Publish failed",
+      code: "control_policy_publish_failed",
+      diagnostic_id: "control_policy_publish_failed",
+      route: ROUTE,
+      details: { issues: err.issues },
+    });
   }
   await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_control_policy_publish_total", 1).catch(() => undefined);

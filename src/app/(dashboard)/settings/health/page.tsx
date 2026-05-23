@@ -1,35 +1,184 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import Link from "next/link";
+import {
+  Activity,
+  ArrowLeft,
+  ChevronRight,
+  FileText,
+  HeartPulse,
+  RefreshCw,
+  Send,
+  ShieldAlert,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { hasRoleCapability } from "@/lib/access-control";
 import {
   getImportJobDetail,
   getImportJobHeadline,
-  getImportJobTone,
+  importJobCanRetry,
 } from "@/lib/import-job-visibility";
-import { getExportJobDetail, getExportJobHeadline, getExportJobTone } from "@/lib/export-job-visibility";
+import { getExportJobDetail, getExportJobHeadline } from "@/lib/export-job-visibility";
 import { isExtractionProcessingStale } from "@/lib/extraction/constants";
-import { buildV10SettingsHealthDiagnostics } from "@/lib/v10-governance";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
-import { V10_OPS_RELEASE_READINESS_CONTRACTS } from "@/lib/v10-operational-contracts";
+import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { ImportJobRetryButton, V10JobRetryButton } from "@/components/contracts/import-job-retry-button";
+import {
+  buildWorkspaceHealthItem,
+  filterWorkspaceHealthItems,
+  formatIsoMinute,
+  formatPercentOrNoSample,
+  formatSampleDetail,
+  getAffectedWorkspaceHealthCount,
+  getOverallWorkspaceHealthStatus,
+  parseWorkspaceHealthMode,
+  statusLabel,
+  statusTone,
+  type WorkspaceHealthItem,
+} from "@/lib/workspace-health-model";
 import { SettingsHealthDiagnosticsSections } from "./settings-health-diagnostics-sections";
 
 export const metadata = { title: "System health" };
+
+type HealthTone = "neutral" | "attention" | "risk" | "healthy";
+
+type FailedDeliveryRow = {
+  notification_type: string | null;
+  last_error: string | null;
+  created_at: string;
+  metadata: unknown;
+};
+
+type StatusRow = { status?: string | null; intake_status?: string | null; due_at?: string | null };
+
+function humanize(value: unknown): string {
+  return String(value ?? "").replace(/_/g, " ");
+}
+
+function healthItemTone(item: WorkspaceHealthItem): HealthTone {
+  const tone = statusTone(item.status);
+  return tone === "healthy" ? "healthy" : tone;
+}
+
+function countRows(rows: unknown[] | null | undefined, predicate?: (row: StatusRow) => boolean): number {
+  const list = (rows ?? []) as StatusRow[];
+  return predicate ? list.filter(predicate).length : list.length;
+}
+
+function workspaceStatusHeadline(item: WorkspaceHealthItem | null): string {
+  if (!item) return "Workspace systems are clear";
+  if (item.id === "automated-recovery" && item.status === "not_configured") {
+    return "Recovery setup needed";
+  }
+  if (item.status === "blocked") return `${item.label} is blocked`;
+  if (item.status === "delayed") return `${item.label} is delayed`;
+  return `${item.label} needs attention`;
+}
+
+function visibleStatusLabel(status: WorkspaceHealthItem["status"]): string {
+  if (status === "not_configured") return "Setup needed";
+  return statusLabel(status);
+}
+
+function heroNarrativeText(
+  item: WorkspaceHealthItem | null,
+  allClearSentence: string,
+): string {
+  if (!item) return allClearSentence;
+  if (item.id === "automated-recovery" && item.status === "not_configured") {
+    return "Recovery worker is not configured. Reminder and notification retries cannot be trusted.";
+  }
+  return item.userImpact ?? item.detail ?? `${item.label} needs attention.`;
+}
+
+function workspaceSemanticStatus(status: WorkspaceHealthItem["status"]): SemanticStatus {
+  if (status === "healthy") return "healthy";
+  if (status === "blocked" || status === "needs_attention") return "critical";
+  if (status === "delayed" || status === "not_configured") return "warning";
+  return "info";
+}
+
+function heroMedallionClass(status: WorkspaceHealthItem["status"]): string {
+  const base =
+    "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border shadow-[var(--shadow-1)]";
+  if (status === "healthy") {
+    return `${base} border-[color:color-mix(in_oklab,var(--success-soft)_42%,var(--border-subtle))] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--success-soft)_88%,white)_0%,color-mix(in_oklab,var(--success-soft)_62%,white)_100%)] text-[var(--success-ink)]`;
+  }
+  if (status === "blocked" || status === "needs_attention") {
+    return `${base} border-[color:color-mix(in_oklab,var(--danger-soft)_42%,var(--border-subtle))] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--danger-soft)_88%,white)_0%,color-mix(in_oklab,var(--danger-soft)_62%,white)_100%)] text-[var(--danger-ink)]`;
+  }
+  if (status === "delayed" || status === "not_configured") {
+    return `${base} border-[color:color-mix(in_oklab,var(--warning-soft)_42%,var(--border-subtle))] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--warning-soft)_88%,white)_0%,color-mix(in_oklab,var(--warning-soft)_62%,white)_100%)] text-[var(--warning-ink)]`;
+  }
+  return `${base} border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)]`;
+}
+
+function HeroStatusIcon({ status }: { status: WorkspaceHealthItem["status"] }) {
+  const cls = "h-7 w-7";
+  if (status === "healthy") return <ShieldCheck className={cls} strokeWidth={1.65} aria-hidden />;
+  if (status === "blocked" || status === "needs_attention") {
+    return <ShieldAlert className={cls} strokeWidth={1.65} aria-hidden />;
+  }
+  if (status === "delayed" || status === "not_configured") {
+    return <Wrench className={cls} strokeWidth={1.65} aria-hidden />;
+  }
+  return <RefreshCw className={cls} strokeWidth={1.65} aria-hidden />;
+}
+
+function usefulHealthChips(item: WorkspaceHealthItem) {
+  return (item.chips ?? []).filter((chip) => chip.value !== "0");
+}
+
+function hasUsefulHealthyDetail(item: WorkspaceHealthItem): boolean {
+  return usefulHealthChips(item).length > 0 || /\d{4}-\d{2}-\d{2}/.test(item.detail ?? "");
+}
+
+function healthyDetailText(item: WorkspaceHealthItem): string {
+  const chips = usefulHealthChips(item);
+  if (chips.length > 0) {
+    return chips.map((chip) => `${chip.label}: ${chip.value}`).join(" · ");
+  }
+  return item.detail ?? "Clear";
+}
+
+function HealthCheckRow({ item }: { item: WorkspaceHealthItem }) {
+  const detail = healthyDetailText(item);
+  return (
+    <li className="group/row flex items-center gap-3 py-2 text-sm">
+      <span
+        className="inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--success-ink)] ring-2 ring-[color:color-mix(in_oklab,var(--success-soft)_42%,transparent)]"
+        aria-hidden
+      />
+      <span className="shrink-0 text-[14px] font-medium tracking-tight text-[var(--text-primary)]">
+        {item.label}
+      </span>
+      <span
+        className="min-w-0 flex-1 truncate text-right font-mono text-[11px] text-[var(--text-tertiary)]"
+        title={detail}
+      >
+        {detail}
+      </span>
+    </li>
+  );
+}
 
 export default async function SettingsHealthPage() {
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   const { admin, orgId, user } = ctx;
 
-  const [role, workflowSettingsRes] = await Promise.all([
+  const [role, workflowSettingsRes, orgSettings] = await Promise.all([
     getOrgMemberRole(admin, user.id, orgId),
     admin
       .from("organization_workflow_settings")
       .select("role_policy_json")
       .eq("organization_id", orgId)
       .maybeSingle(),
+    getV6OrgSettingsJson(admin, orgId),
   ]);
   const canOpenHealth = hasRoleCapability({
     role,
@@ -39,25 +188,33 @@ export default async function SettingsHealthPage() {
   if (!canOpenHealth) {
     return (
       <div className="ui-card px-6 py-8">
-        <p className="ui-eyebrow">Workspace</p>
-        <h1 className="ui-display-title mt-2">System health</h1>
-        <V10RecoverableState
-          state="forbidden"
-          title="System health is restricted"
-          reason="You do not have permission to view operational health details for this workspace."
-          accessibleName="System health access restricted"
-          noActionExplanation="Ask a workspace admin to grant settings access or open a support-safe diagnostic from another authorized account."
-          className="mt-6 max-w-xl"
-        />
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">Workspace</p>
+        <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">System health</h1>
+        <div className="mt-6 max-w-xl rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-5">
+          <p className="text-[12.5px] font-semibold text-[var(--text-primary)]">System health is restricted</p>
+          <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+            You do not have permission to view operational health details for this workspace.
+          </p>
+          <p className="mt-3 text-[11px] text-[var(--text-tertiary)]">
+            Ask a workspace admin to grant settings access or open a support-safe diagnostic from another authorized
+            account.
+          </p>
+        </div>
       </div>
     );
   }
 
+  const mode = parseWorkspaceHealthMode(orgSettings.workspace_mode);
+  const hiddenFeatures = new Set<string>([
+    ...((orgSettings.advanced_modules_hidden ?? []) as string[]).map((key) => `advanced:${key}`),
+    ...((orgSettings.assurance_modules_hidden ?? []) as string[]).map((key) => `assurance:${key}`),
+    ...((orgSettings.utility_modules_hidden ?? []) as string[]).map((key) => `utility:${key}`),
+  ]);
   const nowIso = new Date().toISOString();
   const [
     webhookRes,
     reportRunsRes,
-    cronAuditRes,
+    operationalEventsRes,
     pendingRes,
     retryingRes,
     failedRes,
@@ -66,145 +223,239 @@ export default async function SettingsHealthPage() {
     exportJobsRes,
     extractionJobsRes,
     remindersRes,
-    v10JobRowsRes,
-    v10ReportRowsRes,
-    v10RefreshJobsRes,
-    v10CoverageRowsRes,
-    v10ArtifactRowsRes,
-    v10IdempotencyBacklogRes,
-    v10ExpiredIdempotencyClaimsRes,
-    v10PostGaBlockersRes,
-  ] =
-    await Promise.all([
-      admin
-        .from("outbound_event_deliveries")
-        .select("delivered, attempt_count, next_attempt_at, created_at")
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(200),
-      admin
-        .from("report_runs")
-        .select("status, started_at")
-        .eq("organization_id", orgId)
-        .order("started_at", { ascending: false })
-        .limit(100),
-      admin
-        .from("audit_events")
-        .select("action, created_at")
-        .eq("organization_id", orgId)
-        .in("action", [
-          "integration.calendar_sync_run",
-          "maintenance.correction_campaign",
-          "maintenance.change_events_processed",
-          "notifications.retry_deliveries_run",
-        ])
-        .order("created_at", { ascending: false })
-        .limit(100),
-      admin
-        .from("notification_deliveries")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "pending"),
-      admin
-        .from("notification_deliveries")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "retrying"),
-      admin
-        .from("notification_deliveries")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "failed"),
-      admin
-        .from("notification_deliveries")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "suppressed"),
-      admin
-        .from("contract_import_jobs")
-        .select(
-          "status, total_rows, inserted_rows, error_rows, failure_reason, updated_at, completed_at, retry_of_job_id, superseded_by_job_id, created_at"
-        )
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      admin
-        .from("contract_export_jobs")
-        .select(
-          "status, selected_contract_count, exported_rows, truncated, error_message, created_at, completed_at"
-        )
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      admin
-        .from("contract_extraction_jobs")
-        .select("status, attempt_count, last_error, started_at, completed_at")
-        .eq("organization_id", orgId)
-        .order("started_at", { ascending: false, nullsFirst: false })
-        .limit(50),
-      admin
-        .from("reminders")
-        .select("id, reminder_type, reminder_date, sent_at, created_at")
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      applyV10ReadModelVisibility(
-        admin
-          .from("v10_job_run_visibility")
-          .select("job_id, job_class, status, failure_category, diagnostic_id, user_visible_detail, retry_action, completed_count, failed_count, retryable_count, started_at, completed_at"),
-        { organizationId: orgId, role, includeWorkspaceMode: false }
+    contractsRes,
+    tasksRes,
+    obligationsRes,
+    approvalsRes,
+    exceptionsRes,
+    evidenceReqsRes,
+    maintenanceCampaignsRes,
+    reportPacksRes,
+    watchlistsRes,
+    fieldCommentsRes,
+    programsRes,
+    findingsRes,
+    controlPoliciesRes,
+    scorecardsRes,
+    playbooksRes,
+    playbookRunsRes,
+    reviewBoardsRes,
+    reviewBoardRunsRes,
+    segmentsRes,
+    autopilotRulesRes,
+    autopilotRunsRes,
+    programEvolutionRes,
+    healthGraphNodesRes,
+  ] = await Promise.all([
+    admin
+      .from("outbound_event_deliveries")
+      .select("delivered, attempt_count, next_attempt_at, created_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("report_runs")
+      .select("id, status, started_at")
+      .eq("organization_id", orgId)
+      .order("started_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("audit_events")
+      .select("action, created_at")
+      .eq("organization_id", orgId)
+      .in("action", [
+        "integration.calendar_sync_run",
+        "maintenance.correction_campaign",
+        "maintenance.change_events_processed",
+        "notifications.retry_deliveries_run",
+      ])
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("notification_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "pending"),
+    admin
+      .from("notification_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "retrying"),
+    admin
+      .from("notification_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "failed"),
+    admin
+      .from("notification_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "suppressed"),
+    admin
+      .from("contract_import_jobs")
+      .select(
+        "id, status, total_rows, inserted_rows, error_rows, failure_reason, updated_at, completed_at, retry_of_job_id, superseded_by_job_id, created_at"
       )
-        .order("started_at", { ascending: false, nullsFirst: false })
-        .limit(8),
-      applyV10ReadModelVisibility(
-        admin
-          .from("v10_report_run_visibility")
-          .select("report_run_id, report_family, status, failure_category, diagnostic_id, retry_action, started_at, completed_at"),
-        { organizationId: orgId, role, includeWorkspaceMode: false }
-      )
-        .order("started_at", { ascending: false, nullsFirst: false })
-        .limit(8),
-      admin
-        .from("v10_read_model_refresh_jobs")
-        .select("refresh_job_id, refresh_reason, status, failure_count, failed_source_tables, diagnostic_id, started_at, completed_at, updated_at")
-        .eq("organization_id", orgId)
-        .order("updated_at", { ascending: false })
-        .limit(6),
-      admin
-        .from("v10_runtime_coverage_ledger")
-        .select("coverage_key, coverage_kind, priority, owner, runtime_status, test_status, freshness_state, residual_risk, updated_at")
-        .or(`organization_id.is.null,organization_id.eq.${orgId}`)
-        .order("updated_at", { ascending: false })
-        .limit(12),
-      applyV10ReadModelVisibility(
-        admin
-          .from("v10_runtime_artifacts")
-          .select("artifact_key, artifact_kind, classification, access_scope, evidence_key, diagnostic_id, expires_at, revoked_at, updated_at"),
-        { organizationId: orgId, role, includeWorkspaceMode: false }
-      )
-        .order("updated_at", { ascending: false })
-        .limit(8),
-      admin
-        .from("v10_mutation_idempotency")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("claim_status", "in_progress"),
-      admin
-        .from("v10_mutation_idempotency")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("claim_status", "in_progress")
-        .not("claim_expires_at", "is", null)
-        .lt("claim_expires_at", nowIso),
-      admin
-        .from("v10_external_blocker_records")
-        .select("blocker_key, blocker_reason, evidence_kind, status")
-        .eq("organization_id", orgId)
-        .in("status", ["release_check_required", "candidate"])
-        .or("evidence_kind.eq.operational_slo_window,evidence_kind.eq.post_ga_dashboard,blocker_key.ilike.%post_ga%")
-        .order("updated_at", { ascending: false })
-        .limit(12),
-    ]);
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("contract_export_jobs")
+      .select("status, selected_contract_count, exported_rows, truncated, error_message, created_at, completed_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("contract_extraction_jobs")
+      .select("status, attempt_count, last_error, started_at, completed_at")
+      .eq("organization_id", orgId)
+      .order("started_at", { ascending: false, nullsFirst: false })
+      .limit(50),
+    admin
+      .from("reminders")
+      .select("id, reminder_type, reminder_date, sent_at, created_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("contracts")
+      .select("id, intake_status, status, required_next_step")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("contract_tasks")
+      .select("id, status, due_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("contract_obligations")
+      .select("id, status, due_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("contract_approvals")
+      .select("id, status, due_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("exceptions")
+      .select("id, status, due_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("evidence_requirements")
+      .select("id, status, due_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("maintenance_campaigns")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("report_packs")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("contract_watchlists")
+      .select("id")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("contract_field_comments")
+      .select("id")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("contract_programs")
+      .select("id, state")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("assurance_findings")
+      .select("id, status, severity")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin
+      .from("control_policies")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("scorecard_snapshots")
+      .select("id, snapshot_at")
+      .eq("organization_id", orgId)
+      .order("snapshot_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("adaptive_playbooks")
+      .select("id, active")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("adaptive_playbook_runs")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("review_boards")
+      .select("id, active")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("review_board_runs")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("generated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("segment_definitions")
+      .select("id, active")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("autopilot_rules")
+      .select("id, enabled")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("autopilot_run_logs")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("program_evolution_experiments")
+      .select("id, status")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+    admin
+      .from("portfolio_health_graph_nodes")
+      .select("id, updated_at")
+      .eq("organization_id", orgId)
+      .order("updated_at", { ascending: false })
+      .limit(100),
+  ]);
   const [failedTypesRes, deliveredRecentRes, failedRecentRes] = await Promise.all([
     admin
       .from("notification_deliveries")
@@ -228,6 +479,7 @@ export default async function SettingsHealthPage() {
       .order("created_at", { ascending: false })
       .limit(200),
   ]);
+
   const pendingDeliveries = pendingRes.count ?? 0;
   const retryingDeliveries = retryingRes.count ?? 0;
   const failedDeliveries = failedRes.count ?? 0;
@@ -235,76 +487,45 @@ export default async function SettingsHealthPage() {
   const retryQueueDepth = pendingDeliveries + retryingDeliveries;
   const deliveredRecent = deliveredRecentRes.data?.length ?? 0;
   const failedRecent = failedRecentRes.data?.length ?? 0;
+  const hasDeliverySample = deliveredRecent + failedRecent > 0;
+  const deliverySuccessRateRecent = hasDeliverySample
+    ? (deliveredRecent / (deliveredRecent + failedRecent)) * 100
+    : null;
+
   const reportRuns = reportRunsRes.data ?? [];
   const reportRunsFailed = reportRuns.filter((run) => run.status === "failed");
   const reportRunsSucceeded = reportRuns.filter((run) => run.status === "succeeded");
   const reportRunsRunning = reportRuns.filter((run) => run.status === "running");
-  const deliverySuccessRateRecent =
-    deliveredRecent + failedRecent === 0 ? 100 : (deliveredRecent / (deliveredRecent + failedRecent)) * 100;
+  const failedReportRuns = reportRunsFailed.length;
+  const hasReportRunSample = reportRunsSucceeded.length + reportRunsFailed.length > 0;
+  const reportSuccessRateRecent = hasReportRunSample
+    ? (reportRunsSucceeded.length / (reportRunsSucceeded.length + reportRunsFailed.length)) * 100
+    : null;
+  const latestFailedReportAt = reportRunsFailed[0]?.started_at ?? null;
+  const latestFailedReportId = (reportRunsFailed[0] as { id?: string } | undefined)?.id ?? null;
+  const latestSucceededReportAt = reportRunsSucceeded[0]?.started_at ?? null;
+
   const webhookPending = (webhookRes.data ?? []).filter((d) => !d.delivered).length;
   const webhookHighAttempts = (webhookRes.data ?? []).filter((d) => Number(d.attempt_count ?? 0) >= 3).length;
-  const failedReportRuns = reportRunsFailed.length;
-  const reportSuccessRateRecent =
-    reportRunsSucceeded.length + reportRunsFailed.length === 0
-      ? 100
-      : (reportRunsSucceeded.length / (reportRunsSucceeded.length + reportRunsFailed.length)) * 100;
-  const latestFailedReportAt = reportRunsFailed[0]?.started_at ?? null;
-  const latestSucceededReportAt = reportRunsSucceeded[0]?.started_at ?? null;
   const importJobs = importJobsRes.data ?? [];
   const exportJobs = exportJobsRes.data ?? [];
   const extractionJobs = extractionJobsRes.data ?? [];
   const reminderRuns = remindersRes.data ?? [];
   const todayIso = nowIso.slice(0, 10);
+
   const latestImportJob = importJobs[0] ?? null;
+  const retryableImportJob = importJobs.find((job) => importJobCanRetry(job)) ?? null;
   const latestExportJob = exportJobs[0] ?? null;
   const latestExtractionJob = extractionJobs[0] ?? null;
   const latestReminderRun = reminderRuns[0] ?? null;
-  const v10JobRows = v10JobRowsRes.data ?? [];
-  const v10ReportRows = v10ReportRowsRes.data ?? [];
-  const v10RefreshJobs = v10RefreshJobsRes.data ?? [];
-  const v10CoverageRows = v10CoverageRowsRes.data ?? [];
-  const v10ArtifactRows = v10ArtifactRowsRes.data ?? [];
-  const v10IdempotencyBacklog = v10IdempotencyBacklogRes.count ?? 0;
-  const v10ExpiredIdempotencyClaims = v10ExpiredIdempotencyClaimsRes.count ?? 0;
-  const v10PostGaBlockerRows = v10PostGaBlockersRes.data ?? [];
-  const postGaOperationalSloMisses = v10PostGaBlockerRows.map((row) => {
-    const key = String(row.blocker_key ?? "");
-    const evidenceKind = String(row.evidence_kind ?? "");
-    const window: "7d" | "30d" =
-      key.includes("30_day") || key.includes("30d") || evidenceKind.includes("30") ? "30d" : "7d";
-    return {
-      window,
-      sloKey: key || "post_ga_operational_slo",
-      observedSummary: String(
-        row.blocker_reason ?? "External blocker requires owner mitigation before SLO debt widens."
-      ),
-    };
-  });
-  const v10RetryableJobs = v10JobRows.filter((row) => row.retry_action);
-  const v10RetryableReports = v10ReportRows.filter((row) => row.retry_action);
-  const latestV10RefreshJob = v10RefreshJobs[0] ?? null;
-  const v10FailedOrPartialRefreshJobs = v10RefreshJobs.filter((row) =>
-    ["partial", "failed_retryable", "failed_terminal"].includes(String(row.status))
-  );
-  const v10CoverageBlockers = v10CoverageRows.filter((row) =>
-    ["external_blocker", "environment_gated", "release_check_required"].includes(String(row.runtime_status))
-  );
-  const v10StaleCoverageRows = v10CoverageRows.filter((row) =>
-    ["stale", "partial", "failed", "missing"].includes(String(row.freshness_state))
-  );
-  const v10RevokedArtifacts = v10ArtifactRows.filter((row) => row.revoked_at);
   const failedImportJobs = importJobs.filter((job) => job.status === "failed").length;
   const partialImportJobs = importJobs.filter(
     (job) => job.status !== "failed" && Number(job.error_rows ?? 0) > 0
   ).length;
   const processingImportJobs = importJobs.filter((job) => job.status === "processing").length;
   const failedExportJobs = exportJobs.filter((job) => job.status === "failed").length;
-  const limitedExportJobs = exportJobs.filter(
-    (job) => job.status === "partial" || Boolean(job.truncated)
-  ).length;
-  const activeExportJobs = exportJobs.filter(
-    (job) => job.status === "queued" || job.status === "processing"
-  ).length;
+  const limitedExportJobs = exportJobs.filter((job) => job.status === "partial" || Boolean(job.truncated)).length;
+  const activeExportJobs = exportJobs.filter((job) => job.status === "queued" || job.status === "processing").length;
   const failedExtractionJobs = extractionJobs.filter((job) => job.status === "failed").length;
   const staleExtractionJobs = extractionJobs.filter(
     (job) => job.status === "processing" && isExtractionProcessingStale(job.started_at)
@@ -319,16 +540,71 @@ export default async function SettingsHealthPage() {
     (row) => !row.sent_at && String(row.reminder_date ?? "") > todayIso
   ).length;
   const sentReminderRuns = reminderRuns.filter((row) => Boolean(row.sent_at)).length;
+  const contractRows = (contractsRes.data ?? []) as StatusRow[];
+  const intakeWaitingCount = countRows(contractRows, (row) =>
+    ["awaiting_review", "in_clarification"].includes(String(row.intake_status ?? ""))
+  );
+  const reviewReadyCount = countRows(contractRows, (row) => Boolean((row as { required_next_step?: string | null }).required_next_step));
+  const taskRows = (tasksRes.data ?? []) as StatusRow[];
+  const blockedTaskCount = countRows(taskRows, (row) => row.status === "blocked");
+  const openTaskCount = countRows(taskRows, (row) => ["open", "in_progress"].includes(String(row.status ?? "")));
+  const obligationRows = (obligationsRes.data ?? []) as StatusRow[];
+  const openObligationCount = countRows(obligationRows, (row) => ["open", "in_progress"].includes(String(row.status ?? "")));
+  const approvalRows = (approvalsRes.data ?? []) as StatusRow[];
+  const pendingApprovalCount = countRows(approvalRows, (row) => ["pending", "escalated"].includes(String(row.status ?? "")));
+  const exceptionRows = (exceptionsRes.data ?? []) as StatusRow[];
+  const openExceptionCount = countRows(exceptionRows, (row) => ["open", "in_progress"].includes(String(row.status ?? "")));
+  const evidenceRows = (evidenceReqsRes.data ?? []) as StatusRow[];
+  const rejectedEvidenceCount = countRows(evidenceRows, (row) => row.status === "rejected");
+  const requiredEvidenceCount = countRows(evidenceRows, (row) => row.status === "required");
+  const maintenanceRows = (maintenanceCampaignsRes.data ?? []) as StatusRow[];
+  const failedMaintenanceCount = countRows(maintenanceRows, (row) => row.status === "failed");
+  const activeMaintenanceCount = countRows(maintenanceRows, (row) => ["running", "paused"].includes(String(row.status ?? "")));
+  const reportPackRows = (reportPacksRes.data ?? []) as StatusRow[];
+  const failedReportPackCount = countRows(reportPackRows, (row) => row.status === "failed");
+  const runningReportPackCount = countRows(reportPackRows, (row) => ["queued", "running"].includes(String(row.status ?? "")));
+  const watchlistCount = watchlistsRes.data?.length ?? 0;
+  const fieldCommentCount = fieldCommentsRes.data?.length ?? 0;
+  const programRows = (programsRes.data ?? []) as Array<{ state?: string | null }>;
+  const programCount = programRows.length;
+  const activeProgramCount = programRows.filter((row) => ["active", "published"].includes(String(row.state ?? ""))).length;
+  const findingRows = (findingsRes.data ?? []) as Array<StatusRow & { severity?: string | null }>;
+  const openFindingCount = countRows(findingRows, (row) => ["open", "in_review"].includes(String(row.status ?? "")));
+  const criticalFindingCount = findingRows.filter((row) => ["high", "critical"].includes(String(row.severity ?? ""))).length;
+  const controlPolicyRows = (controlPoliciesRes.data ?? []) as StatusRow[];
+  const publishedControlPolicyCount = countRows(controlPolicyRows, (row) => row.status === "published");
+  const draftControlPolicyCount = countRows(controlPolicyRows, (row) => row.status === "draft");
+  const scorecardSnapshotCount = scorecardsRes.data?.length ?? 0;
+  const playbookRows = (playbooksRes.data ?? []) as Array<{ active?: boolean | null }>;
+  const activePlaybookCount = playbookRows.filter((row) => row.active).length;
+  const playbookRunRows = (playbookRunsRes.data ?? []) as StatusRow[];
+  const failedPlaybookRunCount = countRows(playbookRunRows, (row) => row.status === "failed");
+  const runningPlaybookRunCount = countRows(playbookRunRows, (row) =>
+    ["queued", "previewed", "awaiting_approval", "running"].includes(String(row.status ?? ""))
+  );
+  const reviewBoardRows = (reviewBoardsRes.data ?? []) as Array<{ active?: boolean | null }>;
+  const activeReviewBoardCount = reviewBoardRows.filter((row) => row.active).length;
+  const reviewBoardRunRows = (reviewBoardRunsRes.data ?? []) as StatusRow[];
+  const generatedReviewBoardRunCount = countRows(reviewBoardRunRows, (row) => row.status === "generated");
+  const segmentRows = (segmentsRes.data ?? []) as Array<{ active?: boolean | null }>;
+  const activeSegmentCount = segmentRows.filter((row) => row.active).length;
+  const autopilotRuleRows = (autopilotRulesRes.data ?? []) as Array<{ enabled?: boolean | null }>;
+  const enabledAutopilotCount = autopilotRuleRows.filter((row) => row.enabled).length;
+  const autopilotRunRows = (autopilotRunsRes.data ?? []) as StatusRow[];
+  const failedAutopilotRunCount = countRows(autopilotRunRows, (row) => row.status === "failed");
+  const blockedAutopilotRunCount = countRows(autopilotRunRows, (row) => row.status === "blocked");
+  const programEvolutionRows = (programEvolutionRes.data ?? []) as StatusRow[];
+  const runningProgramEvolutionCount = countRows(programEvolutionRows, (row) => row.status === "running");
+  const healthGraphNodeCount = healthGraphNodesRes.data?.length ?? 0;
+
   const latestImportHeadline = latestImportJob ? getImportJobHeadline(latestImportJob) : "No recent imports";
   const latestImportDetail = latestImportJob
     ? getImportJobDetail(latestImportJob)
     : "No recent import jobs are recorded yet.";
-  const latestImportTone = latestImportJob ? getImportJobTone(latestImportJob) : "neutral";
   const latestExportHeadline = latestExportJob ? getExportJobHeadline(latestExportJob) : "No recent exports";
   const latestExportDetail = latestExportJob
     ? getExportJobDetail(latestExportJob)
     : "No recent export jobs are recorded yet.";
-  const latestExportTone = !latestExportJob ? "neutral" : getExportJobTone(latestExportJob);
   const latestExtractionHeadline =
     !latestExtractionJob
       ? "No recent extraction jobs"
@@ -355,17 +631,6 @@ export default async function SettingsHealthPage() {
             : latestExtractionJob.completed_at
               ? `Latest extraction completed ${new Date(latestExtractionJob.completed_at).toISOString()}.`
               : "The latest extraction completed successfully.";
-  const latestExtractionTone =
-    !latestExtractionJob
-      ? "neutral"
-      : latestExtractionJob.status === "failed"
-        ? "risk"
-        : latestExtractionJob.status === "processing" &&
-            isExtractionProcessingStale(latestExtractionJob.started_at)
-          ? "risk"
-          : latestExtractionJob.status === "processing" || latestExtractionJob.status === "pending"
-            ? "attention"
-            : "healthy";
   const latestReminderHeadline =
     !latestReminderRun
       ? "No recent reminders"
@@ -380,24 +645,17 @@ export default async function SettingsHealthPage() {
     !latestReminderRun
       ? "No recent reminder runs are recorded yet."
       : latestReminderRun.sent_at
-        ? `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder sent ${new Date(latestReminderRun.sent_at).toISOString()}.`
+        ? `Latest ${humanize(latestReminderRun.reminder_type || "reminder")} reminder sent ${new Date(latestReminderRun.sent_at).toISOString()}.`
         : String(latestReminderRun.reminder_date ?? "") < todayIso
-          ? `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder has been due since ${String(latestReminderRun.reminder_date)}.`
-          : `Latest ${String(latestReminderRun.reminder_type ?? "reminder").replace(/_/g, " ")} reminder is scheduled for ${String(latestReminderRun.reminder_date ?? "the configured date")}.`;
-  const latestReminderTone =
-    !latestReminderRun
-      ? "neutral"
-      : dueReminderRuns > 0
-        ? "risk"
-        : scheduledReminderRuns > 0
-          ? "attention"
-          : "healthy";
+          ? `Latest ${humanize(latestReminderRun.reminder_type || "reminder")} reminder has been due since ${String(latestReminderRun.reminder_date)}.`
+          : `Latest ${humanize(latestReminderRun.reminder_type || "reminder")} reminder is scheduled for ${String(latestReminderRun.reminder_date ?? "the configured date")}.`;
   const lastRetryRunAt =
-    (cronAuditRes.data ?? []).find((evt) => evt.action === "notifications.retry_deliveries_run")?.created_at ?? null;
+    (operationalEventsRes.data ?? []).find((evt) => evt.action === "notifications.retry_deliveries_run")
+      ?.created_at ?? null;
   const referenceTimestamps = [
     (webhookRes.data ?? [])[0]?.created_at,
-    (cronAuditRes.data ?? [])[0]?.created_at,
-    (reportRunsRes.data ?? [])[0]?.started_at,
+    (operationalEventsRes.data ?? [])[0]?.created_at,
+    reportRuns[0]?.started_at,
   ].filter((v): v is string => Boolean(v));
   const referenceMs =
     referenceTimestamps.length > 0
@@ -407,53 +665,498 @@ export default async function SettingsHealthPage() {
     lastRetryRunAt && referenceMs != null
       ? Math.max(0, Math.round((referenceMs - new Date(lastRetryRunAt).getTime()) / 60_000))
       : null;
-  const alerts: string[] = [];
-  if (retryQueueDepth >= 25) alerts.push(`Notification retry queue is elevated (${retryQueueDepth}).`);
-  if (failedDeliveries >= 10) alerts.push(`High failed notification volume in recent samples (${failedDeliveries}).`);
-  if (deliverySuccessRateRecent < 90) {
-    alerts.push(`Recent notification delivery success rate is low (${deliverySuccessRateRecent.toFixed(1)}%).`);
-  }
-  if (failedReportRuns >= 3) alerts.push(`Recent report delivery failures are elevated (${failedReportRuns}).`);
-  if (failedReportRuns > 0 && reportRunsSucceeded.length === 0) {
-    alerts.push("Recent report samples show failures without a successful digest recovery yet.");
-  }
-  if (failedImportJobs > 0) alerts.push(`Recent contract imports failed (${failedImportJobs}).`);
-  if (partialImportJobs > 0) {
-    alerts.push(`Recent contract imports completed with row-level corrections still needed (${partialImportJobs}).`);
-  }
-  if (failedExportJobs > 0) alerts.push(`Recent contract exports failed (${failedExportJobs}).`);
-  if (limitedExportJobs > 0) alerts.push(`Recent contract exports completed with limits (${limitedExportJobs}).`);
-  if (failedExtractionJobs > 0) alerts.push(`Recent extraction runs failed (${failedExtractionJobs}).`);
-  if (staleExtractionJobs > 0) alerts.push(`Some extraction jobs appear stale or stuck (${staleExtractionJobs}).`);
-  if (dueReminderRuns > 0) alerts.push(`Recent reminder runs are due or overdue (${dueReminderRuns}).`);
-  if (v10FailedOrPartialRefreshJobs.length > 0) {
-    alerts.push(`Data freshness refresh has partial or failed runs (${v10FailedOrPartialRefreshJobs.length}).`);
-  }
-  if (v10CoverageBlockers.length > 0) {
-    alerts.push(`V10 runtime coverage has unresolved release blockers (${v10CoverageBlockers.length}).`);
-  }
-  if (v10ExpiredIdempotencyClaims > 0) {
-    alerts.push(`V10 mutation idempotency has expired in-progress claims (${v10ExpiredIdempotencyClaims}).`);
-  } else if (v10IdempotencyBacklog >= 10) {
-    alerts.push(`V10 mutation idempotency backlog is elevated (${v10IdempotencyBacklog}).`);
-  }
-  const v10SettingsHealthDiagnostics = buildV10SettingsHealthDiagnostics({
-    failedJobCount: v10RetryableJobs.length + v10RetryableReports.length,
-    staleReadModelCount: v10FailedOrPartialRefreshJobs.length + v10StaleCoverageRows.length,
-    notificationFailureCount: failedDeliveries,
-    releaseBlockerCount: v10CoverageBlockers.length,
-    postGaOperationalSloMisses,
-  });
-  for (const diagnostic of v10SettingsHealthDiagnostics) {
-    if (!alerts.includes(diagnostic.userVisibleSummary)) alerts.push(diagnostic.userVisibleSummary);
-  }
-  if (lastRetryRunAt == null) alerts.push("Retry worker has no recorded heartbeat.");
-  if (retryRunAgeMinutes != null && retryRunAgeMinutes > 30) {
-    alerts.push(`Retry worker heartbeat appears stale (${retryRunAgeMinutes} minutes behind activity).`);
-  }
+  const hasRecoveryHeartbeat = lastRetryRunAt != null;
+  const hasRecoveryLag = retryRunAgeMinutes != null && retryRunAgeMinutes > 30;
+  const hasActiveDeliveryIssue = retryQueueDepth > 0 || failedDeliveries > 0;
+  const hasActiveReportIssue = failedReportRuns > 0 || reportRunsRunning.length > 0;
+  const recoveryLastRunAt = formatIsoMinute(lastRetryRunAt);
+  const recoveryStateLabel = !hasRecoveryHeartbeat
+    ? "No recovery heartbeat recorded"
+    : hasRecoveryLag
+      ? `${retryRunAgeMinutes}m behind latest activity`
+      : "Recovery activity recorded";
+  const reportReliabilityLabel = formatPercentOrNoSample(reportSuccessRateRecent, "No report runs sampled");
+  const deliveryReliabilityLabel = formatPercentOrNoSample(deliverySuccessRateRecent, "No deliveries sampled");
+  const reportSampleDetail = formatSampleDetail(reportRunsSucceeded.length, failedReportRuns, "report run");
+  const deliverySampleDetail = formatSampleDetail(deliveredRecent, failedRecent, "delivery");
+
+  const healthItems = [
+    buildWorkspaceHealthItem({
+      id: "automated-recovery",
+      area: "notifications",
+      label: "Automated recovery",
+      status: !hasRecoveryHeartbeat ? "not_configured" : hasRecoveryLag ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        !hasRecoveryHeartbeat || hasRecoveryLag
+          ? "Automated recovery has not recorded a heartbeat. Configure recovery before relying on reminder and notification retries."
+          : undefined,
+      detail: recoveryLastRunAt
+        ? `${recoveryStateLabel}. Last recorded run ${recoveryLastRunAt}.`
+        : recoveryStateLabel,
+      primaryAction: { href: "/settings/operations", label: "Inspect recovery settings" },
+      chips: recoveryLastRunAt ? [{ label: "Last run", value: recoveryLastRunAt }] : [],
+    }),
+    buildWorkspaceHealthItem({
+      id: "intake",
+      area: "imports",
+      label: "Contract intake",
+      status: intakeWaitingCount > 25 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      requiredFeature: "utility:intake",
+      userImpact: intakeWaitingCount > 25 ? `${intakeWaitingCount} intake record${intakeWaitingCount === 1 ? "" : "s"} still need review or clarification.` : undefined,
+      detail: `${intakeWaitingCount} contract${intakeWaitingCount === 1 ? "" : "s"} awaiting review or clarification in recent activity.`,
+      primaryAction: { href: "/contracts/intake", label: "Review intake" },
+      chips: [{ label: "Waiting", value: String(intakeWaitingCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "imports",
+      area: "imports",
+      label: "Imports",
+      status: failedImportJobs > 0 ? "needs_attention" : processingImportJobs > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        failedImportJobs > 0 || partialImportJobs > 0 || processingImportJobs > 0 ? latestImportHeadline : undefined,
+      detail: latestImportDetail,
+      primaryAction: { href: "/contracts/bulk#recent-imports", label: "Review import history" },
+      chips: [
+        { label: "Processing", value: String(processingImportJobs) },
+        { label: "Failed", value: String(failedImportJobs) },
+        { label: "Partial", value: String(partialImportJobs) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "contract-review",
+      area: "extraction",
+      label: "Contract review",
+      status: reviewReadyCount > 25 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact: reviewReadyCount > 25 ? `${reviewReadyCount} contract${reviewReadyCount === 1 ? "" : "s"} have a recorded next step.` : undefined,
+      detail: `${reviewReadyCount} contract${reviewReadyCount === 1 ? "" : "s"} include a required next step in recent activity.`,
+      primaryAction: { href: "/contracts/review", label: "Review contracts" },
+      chips: [{ label: "Next steps", value: String(reviewReadyCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "tasks",
+      area: "configuration",
+      label: "Tasks",
+      status: blockedTaskCount > 0 ? "blocked" : openTaskCount > 25 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact: blockedTaskCount > 0 ? `${blockedTaskCount} task${blockedTaskCount === 1 ? " is" : "s are"} blocked.` : undefined,
+      detail: `${openTaskCount} open or in-progress task${openTaskCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/tasks", label: "Review tasks" },
+      chips: [
+        { label: "Open", value: String(openTaskCount) },
+        { label: "Blocked", value: String(blockedTaskCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "obligations",
+      area: "configuration",
+      label: "Obligations",
+      status: openObligationCount > 50 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact: openObligationCount > 50 ? `${openObligationCount} obligation${openObligationCount === 1 ? "" : "s"} are open or in progress.` : undefined,
+      detail: `${openObligationCount} open or in-progress obligation${openObligationCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/obligations", label: "Review obligations" },
+      chips: [{ label: "Open", value: String(openObligationCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "extraction",
+      area: "extraction",
+      label: "Extraction",
+      status: failedExtractionJobs > 0 || staleExtractionJobs > 0 ? "needs_attention" : activeExtractionJobs > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        failedExtractionJobs > 0 || staleExtractionJobs > 0 || activeExtractionJobs > 0
+          ? latestExtractionHeadline
+          : undefined,
+      detail: latestExtractionDetail,
+      primaryAction: { href: "/contracts/review", label: "Review extraction follow-up" },
+      chips: [
+        { label: "Active", value: String(activeExtractionJobs) },
+        { label: "Failed", value: String(failedExtractionJobs) },
+        { label: "Stale", value: String(staleExtractionJobs) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "exports",
+      area: "reports",
+      label: "Exports",
+      status: failedExportJobs > 0 ? "needs_attention" : activeExportJobs > 0 || limitedExportJobs > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact: failedExportJobs > 0 || limitedExportJobs > 0 || activeExportJobs > 0 ? latestExportHeadline : undefined,
+      detail: latestExportDetail,
+      primaryAction: { href: "/contracts#exports", label: "Review contract exports" },
+      chips: [
+        { label: "Active", value: String(activeExportJobs) },
+        { label: "Failed", value: String(failedExportJobs) },
+        { label: "Limited", value: String(limitedExportJobs) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "reports",
+      area: "reports",
+      label: "Reports",
+      status: failedReportRuns >= 3 ? "needs_attention" : failedReportRuns > 0 || reportRunsRunning.length > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        failedReportRuns > 0
+          ? latestFailedReportAt
+            ? `Latest failed run started ${new Date(latestFailedReportAt).toISOString()}.`
+            : `${failedReportRuns} recent report run${failedReportRuns === 1 ? " has" : "s have"} failed.`
+          : undefined,
+      detail: hasReportRunSample
+        ? `${reportReliabilityLabel} successful runs in recent activity. ${reportSampleDetail}.`
+        : `${reportReliabilityLabel}.`,
+      primaryAction: { href: "/contracts/reports", label: "Review report history" },
+      chips: [
+        { label: "Succeeded", value: String(reportRunsSucceeded.length) },
+        { label: "Running", value: String(reportRunsRunning.length) },
+        { label: "Failed", value: String(failedReportRuns) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "reminders",
+      area: "reminders",
+      label: "Reminders",
+      status: dueReminderRuns > 0 ? "needs_attention" : scheduledReminderRuns > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact: dueReminderRuns > 0 || scheduledReminderRuns > 0 ? latestReminderHeadline : undefined,
+      detail: latestReminderDetail,
+      primaryAction: { href: "/contracts/renewals", label: "Review renewals" },
+      chips: [
+        { label: "Due", value: String(dueReminderRuns) },
+        { label: "Scheduled", value: String(scheduledReminderRuns) },
+        { label: "Sent", value: String(sentReminderRuns) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "notifications",
+      area: "notifications",
+      label: "Notifications",
+      status: failedDeliveries >= 10 ? "needs_attention" : retryQueueDepth > 0 || failedDeliveries > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        retryQueueDepth > 0
+          ? `Reminder and digest messages may arrive late while ${retryQueueDepth} delivery item${retryQueueDepth === 1 ? " is" : "s are"} pending or retrying.`
+          : failedDeliveries > 0
+            ? `${failedDeliveries} failed delivery item${failedDeliveries === 1 ? "" : "s"} in recent activity.`
+            : undefined,
+      detail: hasDeliverySample
+        ? `${deliveryReliabilityLabel} delivered vs failed in recent activity. ${deliverySampleDetail}.`
+        : `${deliveryReliabilityLabel}.`,
+      primaryAction: { href: "/settings/operations", label: "Review notification settings" },
+      chips: [
+        { label: "Pending", value: String(pendingDeliveries) },
+        { label: "Retrying", value: String(retryingDeliveries) },
+        { label: "Failed", value: String(failedDeliveries) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "integrations",
+      area: "integrations",
+      label: "Integrations",
+      status: webhookPending > 0 || webhookHighAttempts > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["core"],
+      userImpact:
+        webhookPending > 0 || webhookHighAttempts > 0
+          ? "Connected systems may not have received the latest workspace events."
+          : undefined,
+      detail: `${webhookPending} undelivered outbound sample${webhookPending === 1 ? "" : "s"}; ${webhookHighAttempts} needed 3+ attempts.`,
+      primaryAction: { href: "/settings/operations", label: "Check integrations" },
+      chips: [
+        { label: "Undelivered", value: String(webhookPending) },
+        { label: "3+ attempts", value: String(webhookHighAttempts) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-approvals",
+      area: "approvals",
+      label: "Approvals",
+      status: pendingApprovalCount > 25 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "utility:approval_workload",
+      userImpact: pendingApprovalCount > 25 ? `${pendingApprovalCount} approval${pendingApprovalCount === 1 ? "" : "s"} are pending or escalated.` : undefined,
+      detail: `${pendingApprovalCount} pending or escalated approval${pendingApprovalCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/approvals", label: "Review approvals" },
+      chips: [{ label: "Pending", value: String(pendingApprovalCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-exceptions",
+      area: "exceptions",
+      label: "Exceptions",
+      status: openExceptionCount > 0 ? "needs_attention" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      userImpact: openExceptionCount > 0 ? `${openExceptionCount} exception${openExceptionCount === 1 ? "" : "s"} need review.` : undefined,
+      detail: `${openExceptionCount} open or in-progress exception${openExceptionCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/exceptions", label: "Review exceptions" },
+      chips: [{ label: "Open", value: String(openExceptionCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-evidence",
+      area: "evidence",
+      label: "Evidence and review cadence",
+      status: rejectedEvidenceCount > 0 ? "needs_attention" : requiredEvidenceCount > 25 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "utility:review_cadence",
+      userImpact: rejectedEvidenceCount > 0 ? `${rejectedEvidenceCount} evidence request${rejectedEvidenceCount === 1 ? "" : "s"} were rejected.` : undefined,
+      detail: `${requiredEvidenceCount} required evidence item${requiredEvidenceCount === 1 ? "" : "s"} and ${rejectedEvidenceCount} rejected item${rejectedEvidenceCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/evidence-studio", label: "Review evidence" },
+      chips: [
+        { label: "Required", value: String(requiredEvidenceCount) },
+        { label: "Rejected", value: String(rejectedEvidenceCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-analytics",
+      area: "analytics",
+      label: "Analytics and reports",
+      status: failedReportPackCount > 0 ? "needs_attention" : runningReportPackCount > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "advanced:analytics",
+      userImpact: failedReportPackCount > 0 ? `${failedReportPackCount} report pack${failedReportPackCount === 1 ? "" : "s"} failed.` : undefined,
+      detail: `${runningReportPackCount} report pack${runningReportPackCount === 1 ? "" : "s"} queued or running; ${failedReportPackCount} failed.`,
+      primaryAction: { href: "/reports", label: "Review reports" },
+      chips: [
+        { label: "Running", value: String(runningReportPackCount) },
+        { label: "Failed", value: String(failedReportPackCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-watchlists",
+      area: "analytics",
+      label: "Watchlists",
+      status: watchlistCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "utility:watchlists",
+      detail: `${watchlistCount} watchlist entr${watchlistCount === 1 ? "y" : "ies"} in recent activity.`,
+      primaryAction: { href: "/contracts/watchlists", label: "Review watchlists" },
+      chips: [{ label: "Entries", value: String(watchlistCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-bulk-maintenance",
+      area: "configuration",
+      label: "Bulk operations and maintenance",
+      status: failedMaintenanceCount > 0 ? "needs_attention" : activeMaintenanceCount > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "advanced:maintenance",
+      userImpact: failedMaintenanceCount > 0 ? `${failedMaintenanceCount} maintenance campaign${failedMaintenanceCount === 1 ? "" : "s"} failed.` : undefined,
+      detail: `${activeMaintenanceCount} maintenance campaign${activeMaintenanceCount === 1 ? "" : "s"} running or paused; ${failedMaintenanceCount} failed.`,
+      primaryAction: { href: "/contracts/maintenance", label: "Review maintenance" },
+      chips: [
+        { label: "Active", value: String(activeMaintenanceCount) },
+        { label: "Failed", value: String(failedMaintenanceCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-collaboration",
+      area: "configuration",
+      label: "Collaboration",
+      status: fieldCommentCount > 100 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "advanced:collaboration",
+      detail: `${fieldCommentCount} recent field comment${fieldCommentCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/collaboration", label: "Review collaboration" },
+      chips: [{ label: "Comments", value: String(fieldCommentCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "advanced-programs",
+      area: "configuration",
+      label: "Programs",
+      status: programCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["advanced"],
+      requiredFeature: "advanced:programs",
+      detail: `${programCount} program${programCount === 1 ? "" : "s"} in recent activity; ${activeProgramCount} active or published.`,
+      primaryAction: { href: "/contracts/programs", label: "Review programs" },
+      chips: [
+        { label: "Programs", value: String(programCount) },
+        { label: "Active", value: String(activeProgramCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-findings",
+      area: "assurance",
+      label: "Findings",
+      status: criticalFindingCount > 0 ? "needs_attention" : openFindingCount > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:findings",
+      userImpact: criticalFindingCount > 0 ? `${criticalFindingCount} high or critical finding${criticalFindingCount === 1 ? "" : "s"} need review.` : undefined,
+      detail: `${openFindingCount} open or in-review finding${openFindingCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/assurance/findings", label: "Review findings" },
+      chips: [
+        { label: "Open", value: String(openFindingCount) },
+        { label: "High+", value: String(criticalFindingCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-controls",
+      area: "assurance",
+      label: "Control policies",
+      status: publishedControlPolicyCount === 0 ? "not_configured" : draftControlPolicyCount > 10 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:control_policies",
+      userImpact: publishedControlPolicyCount === 0 ? "No published control policies are available for assurance checks." : undefined,
+      detail: `${publishedControlPolicyCount} published policy${publishedControlPolicyCount === 1 ? "" : "ies"} and ${draftControlPolicyCount} draft policy${draftControlPolicyCount === 1 ? "" : "ies"}.`,
+      primaryAction: { href: "/assurance/control-policies", label: "Review policies" },
+      chips: [
+        { label: "Published", value: String(publishedControlPolicyCount) },
+        { label: "Draft", value: String(draftControlPolicyCount) },
+      ],
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-scorecards",
+      area: "assurance",
+      label: "Scorecards",
+      status: scorecardSnapshotCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:scorecards",
+      detail: `${scorecardSnapshotCount} scorecard snapshot${scorecardSnapshotCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/assurance/scorecards", label: "Review scorecards" },
+      chips: [{ label: "Snapshots", value: String(scorecardSnapshotCount) }],
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-playbooks",
+      area: "assurance",
+      label: "Playbooks",
+      status: failedPlaybookRunCount > 0 ? "needs_attention" : runningPlaybookRunCount > 0 ? "delayed" : activePlaybookCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:playbooks",
+      userImpact: failedPlaybookRunCount > 0 ? `${failedPlaybookRunCount} playbook run${failedPlaybookRunCount === 1 ? "" : "s"} failed.` : undefined,
+      detail: `${activePlaybookCount} active playbook${activePlaybookCount === 1 ? "" : "s"}; ${runningPlaybookRunCount} queued or running; ${failedPlaybookRunCount} failed.`,
+      primaryAction: { href: "/assurance/playbooks", label: "Review playbooks" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-review-boards",
+      area: "assurance",
+      label: "Review boards",
+      status: activeReviewBoardCount === 0 ? "not_configured" : generatedReviewBoardRunCount > 10 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:review_boards",
+      detail: `${activeReviewBoardCount} active board${activeReviewBoardCount === 1 ? "" : "s"}; ${generatedReviewBoardRunCount} generated run${generatedReviewBoardRunCount === 1 ? "" : "s"} awaiting review or close.`,
+      primaryAction: { href: "/assurance/review-boards", label: "Review boards" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-segments",
+      area: "assurance",
+      label: "Segments",
+      status: activeSegmentCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:segments",
+      detail: `${activeSegmentCount} active segment${activeSegmentCount === 1 ? "" : "s"} available for assurance workflows.`,
+      primaryAction: { href: "/assurance/segments", label: "Review segments" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-autopilot",
+      area: "assurance",
+      label: "Autopilot",
+      status: failedAutopilotRunCount > 0 ? "needs_attention" : blockedAutopilotRunCount > 0 ? "delayed" : enabledAutopilotCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:autopilot",
+      userImpact: failedAutopilotRunCount > 0 ? `${failedAutopilotRunCount} autopilot run${failedAutopilotRunCount === 1 ? "" : "s"} failed.` : undefined,
+      detail: `${enabledAutopilotCount} enabled rule${enabledAutopilotCount === 1 ? "" : "s"}; ${blockedAutopilotRunCount} blocked run${blockedAutopilotRunCount === 1 ? "" : "s"}; ${failedAutopilotRunCount} failed.`,
+      primaryAction: { href: "/assurance/autopilot", label: "Review autopilot" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-program-evolution",
+      area: "assurance",
+      label: "Program evolution",
+      status: runningProgramEvolutionCount > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:program_evolution",
+      detail: `${runningProgramEvolutionCount} experiment${runningProgramEvolutionCount === 1 ? "" : "s"} currently running.`,
+      primaryAction: { href: "/assurance/program-evolution", label: "Review evolution" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-health-graph",
+      area: "assurance",
+      label: "Health graph",
+      status: healthGraphNodeCount === 0 ? "not_configured" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:health_graph",
+      detail: `${healthGraphNodeCount} health graph node${healthGraphNodeCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/assurance/health-graph", label: "Review health graph" },
+    }),
+    buildWorkspaceHealthItem({
+      id: "assurance-reports",
+      area: "assurance",
+      label: "Assurance reports",
+      status: failedReportPackCount > 0 ? "needs_attention" : runningReportPackCount > 0 ? "delayed" : "healthy",
+      visibility: "user",
+      modes: ["assurance"],
+      requiredFeature: "assurance:outcome_intelligence",
+      userImpact: failedReportPackCount > 0 ? `${failedReportPackCount} assurance report pack${failedReportPackCount === 1 ? "" : "s"} failed.` : undefined,
+      detail: `${runningReportPackCount} report pack${runningReportPackCount === 1 ? "" : "s"} queued or running; ${failedReportPackCount} failed.`,
+      primaryAction: { href: "/reports", label: "Review assurance reports" },
+      chips: [
+        { label: "Running", value: String(runningReportPackCount) },
+        { label: "Failed", value: String(failedReportPackCount) },
+      ],
+    }),
+  ];
+  const userItems = filterWorkspaceHealthItems(healthItems, mode, "user", hiddenFeatures);
+  const affectedItems = userItems.filter((item) => item.status !== "healthy");
+  const healthyItems = userItems.filter((item) => item.status === "healthy");
+  const overallStatus = getOverallWorkspaceHealthStatus(userItems);
+  const affectedCount = getAffectedWorkspaceHealthCount(userItems);
+  const primaryAction = affectedItems.find((item) => item.primaryAction)?.primaryAction ?? {
+    href: "/settings/product",
+    label: "Review workspace mode",
+  };
+  const primaryAffectedItem = affectedItems[0] ?? null;
+  const secondaryAffectedItems = affectedItems.filter((item) => item.id !== primaryAffectedItem?.id);
+  const lastCheckedLabel = formatIsoMinute(nowIso) ?? nowIso.slice(0, 16);
+  const allClearSentence =
+    "No failed, blocked, overdue, or delayed workspace workflows are visible for this mode.";
+  const heroCtaLabel =
+    overallStatus === "not_configured" && primaryAffectedItem?.id === "automated-recovery"
+      ? "Configure recovery worker"
+      : primaryAction.label;
+  const reportMetadataLabel = hasActiveReportIssue
+    ? "Reports need attention"
+    : hasReportRunSample
+      ? "Reports clear"
+      : "No report sample";
+  const deliveryMetadataLabel = hasActiveDeliveryIssue
+    ? "Deliveries need attention"
+    : hasDeliverySample
+      ? "Deliveries clear"
+      : "No delivery sample";
+  const healthyItemsWithDetails = healthyItems.filter(hasUsefulHealthyDetail);
+  const additionalHealthyCount = healthyItems.length - healthyItemsWithDetails.length;
+
   const failedTypeCounts = new Map<string, number>();
   const failureSignatureCounts = new Map<string, number>();
-  for (const row of failedTypesRes.data ?? []) {
+  for (const row of (failedTypesRes.data ?? []) as FailedDeliveryRow[]) {
     const type = String(row.notification_type ?? "unknown");
     failedTypeCounts.set(type, (failedTypeCounts.get(type) ?? 0) + 1);
     const signature = String(row.last_error ?? "unknown")
@@ -463,7 +1166,7 @@ export default async function SettingsHealthPage() {
   }
   const topFailedTypes = [...failedTypeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
   const topFailureSignatures = [...failureSignatureCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
-  const recentFailedDeliveries = (failedTypesRes.data ?? []).slice(0, 6).map((row) => {
+  const recentFailedDeliveries = ((failedTypesRes.data ?? []) as FailedDeliveryRow[]).slice(0, 6).map((row) => {
     const metadata =
       (row.metadata as
         | {
@@ -479,611 +1182,310 @@ export default async function SettingsHealthPage() {
       retryPayload?.to ||
       retryPayload?.channel ||
       (retryPayload?.kind === "slack_workflow" ? "Slack workflow" : "Workspace recipient");
-    const kind = String(retryPayload?.kind ?? row.notification_type ?? "delivery").replace(/_/g, " ");
     return {
       id: `${row.notification_type}-${row.created_at}-${target}`,
-      type: String(row.notification_type ?? "unknown").replace(/_/g, " "),
-      kind,
+      type: humanize(row.notification_type ?? "unknown"),
+      kind: humanize(retryPayload?.kind ?? row.notification_type ?? "delivery"),
       target,
       createdAt: row.created_at,
       error: String(row.last_error ?? "Unknown delivery error"),
     };
   });
-  type UserVisibleImpactRow = {
-    href: string;
-    eyebrow: string;
-    title: string;
-    hint: string;
-    actionLabel: string;
-    tone: "neutral" | "attention" | "risk";
-  };
-  const userVisibleImpactCandidates: Array<UserVisibleImpactRow | null> = [
-    retryQueueDepth > 0
-      ? {
-          href: "/settings/operations",
-          eyebrow: "Notifications",
-          title: "Reminder and digest emails may arrive late",
-          hint: `${retryQueueDepth} delivery item${retryQueueDepth === 1 ? " is" : "s are"} still pending or retrying across the workspace.`,
-          actionLabel: "Check delivery operations",
-          tone: retryQueueDepth >= 25 ? ("risk" as const) : ("attention" as const),
-        }
-      : null,
-    failedReportRuns > 0
-      ? {
-          href: "/contracts/reports",
-          eyebrow: "Reports",
-          title: "Scheduled summaries may be incomplete or missing",
-          hint:
-            latestFailedReportAt != null
-              ? `Latest failed run started ${new Date(latestFailedReportAt).toISOString()}. Review report history before sharing status externally.`
-              : `${failedReportRuns} recent report run${failedReportRuns === 1 ? " has" : "s have"} failed.`,
-          actionLabel: "Review report history",
-          tone: failedReportRuns >= 3 ? ("risk" as const) : ("attention" as const),
-        }
-      : null,
-    webhookPending > 0 || webhookHighAttempts > 0
-      ? {
-          href: "/settings/operations",
-          eyebrow: "Integrations",
-          title: "Connected systems may be stale",
-          hint: `${webhookPending} outbound delivery sample${webhookPending === 1 ? " is" : "s are"} undelivered and ${webhookHighAttempts} have needed 3+ attempts.`,
-          actionLabel: "Inspect integrations",
-          tone: webhookHighAttempts > 0 ? ("attention" as const) : ("neutral" as const),
-        }
-      : null,
-    failedImportJobs > 0 || partialImportJobs > 0 || processingImportJobs > 0
-      ? {
-          href: "/contracts/bulk#recent-imports",
-          eyebrow: "Imports",
-          title: latestImportHeadline,
-          hint: latestImportDetail,
-          actionLabel: "Review import history",
-          tone: failedImportJobs > 0 ? ("risk" as const) : ("attention" as const),
-        }
-      : null,
-    failedExportJobs > 0 || limitedExportJobs > 0 || activeExportJobs > 0
-      ? {
-          href: "/contracts",
-          eyebrow: "Exports",
-          title: latestExportHeadline,
-          hint: latestExportDetail,
-          actionLabel: "Review contract exports",
-          tone: failedExportJobs > 0 ? ("risk" as const) : ("attention" as const),
-        }
-      : null,
-    failedExtractionJobs > 0 || staleExtractionJobs > 0 || activeExtractionJobs > 0
-      ? {
-          href: "/contracts/review",
-          eyebrow: "Extraction",
-          title: latestExtractionHeadline,
-          hint: latestExtractionDetail,
-          actionLabel: "Review extraction follow-up",
-          tone:
-            failedExtractionJobs > 0 || staleExtractionJobs > 0
-              ? ("risk" as const)
-              : ("attention" as const),
-        }
-      : null,
-    dueReminderRuns > 0 || scheduledReminderRuns > 0
-      ? {
-          href: "/contracts/renewals",
-          eyebrow: "Reminders",
-          title: latestReminderHeadline,
-          hint: latestReminderDetail,
-          actionLabel: "Review renewals",
-          tone: dueReminderRuns > 0 ? ("risk" as const) : ("attention" as const),
-        }
-      : null,
-  ];
-  const userVisibleImpacts = userVisibleImpactCandidates.filter(
-    (row): row is UserVisibleImpactRow => Boolean(row)
-  );
-  const routeHealthRows: UserVisibleImpactRow[] = [
-    {
-      href: "/work?lens=failed_jobs",
-      eyebrow: "Work recovery",
-      title:
-        v10RetryableJobs.length + v10RetryableReports.length > 0
-          ? "Retryable recovery work is visible"
-          : "No retryable recovery rows",
-      hint:
-        v10JobRows.length + v10ReportRows.length > 0
-          ? `${v10JobRows.length} job visibility row${v10JobRows.length === 1 ? "" : "s"} and ${v10ReportRows.length} report visibility row${v10ReportRows.length === 1 ? "" : "s"} are materialized.`
-          : "No job/report visibility rows are materialized; refresh or source job coverage may be missing.",
-      actionLabel: "Review failed-job lens",
-      tone: v10JobRows.length + v10ReportRows.length > 0 ? "neutral" : "attention",
-    },
-    {
-      href: "/settings/health#read-models",
-      eyebrow: "Data freshness",
-      title:
-        latestV10RefreshJob == null
-          ? "No V10 refresh job recorded"
-          : ["partial", "failed_retryable", "failed_terminal"].includes(String(latestV10RefreshJob.status))
-            ? "Latest V10 refresh needs attention"
-            : "Latest V10 refresh is recorded",
-      hint:
-        latestV10RefreshJob == null
-          ? "Home, Work, contract detail, command search, reports, and health cards need a refresh job record before release evidence can promote."
-          : `${String(latestV10RefreshJob.refresh_reason).replace(/_/g, " ")} finished with status ${String(latestV10RefreshJob.status).replace(/_/g, " ")} and ${Number(latestV10RefreshJob.failure_count ?? 0)} failure${Number(latestV10RefreshJob.failure_count ?? 0) === 1 ? "" : "s"}.`,
-      actionLabel: "Review freshness",
-      tone:
-        latestV10RefreshJob == null ||
-        ["partial", "failed_retryable", "failed_terminal"].includes(String(latestV10RefreshJob.status))
-          ? "attention"
-          : "neutral",
-    },
-    {
-      href: "/settings/product",
-      eyebrow: "Configuration",
-      title: lastRetryRunAt == null ? "Retry worker heartbeat missing" : "Retry worker heartbeat recorded",
-      hint:
-        lastRetryRunAt == null
-          ? "Notification and reminder recovery needs a configured worker heartbeat before GA evidence can be promoted."
-          : `Latest retry worker heartbeat: ${new Date(lastRetryRunAt).toISOString()}.`,
-      actionLabel: "Configure product settings",
-      tone: lastRetryRunAt == null ? "attention" : "neutral",
-    },
-    {
-      href: "/settings/health#v10-idempotency",
-      eyebrow: "Mutations",
-      title:
-        v10ExpiredIdempotencyClaims > 0
-          ? "Expired mutation claims need cleanup"
-          : v10IdempotencyBacklog > 0
-            ? "Mutation claims are in progress"
-            : "No in-progress mutation backlog",
-      hint:
-        v10ExpiredIdempotencyClaims > 0
-          ? `${v10ExpiredIdempotencyClaims} in-progress claim${v10ExpiredIdempotencyClaims === 1 ? "" : "s"} passed claim expiry and should be cleaned up by the V10 idempotency cron.`
-          : `${v10IdempotencyBacklog} in-progress idempotency claim${v10IdempotencyBacklog === 1 ? "" : "s"} currently protects duplicate V10 mutations.`,
-      actionLabel: "Review mutation health",
-      tone: v10ExpiredIdempotencyClaims > 0 ? "attention" : "neutral",
-    },
-  ];
-  const apiRouteHealthRows: UserVisibleImpactRow[] = [
-    {
-      href: "/api/health",
-      eyebrow: "API route health",
-      title: "/api/health",
-      hint: "Public health probes should stay reachable for smoke checks, deployment checks, and support-safe heartbeat validation.",
-      actionLabel: "Inspect health route",
-      tone: "neutral",
-    },
-    {
-      href: "/settings/product",
-      eyebrow: "API route health",
-      title: "/api/notifications/retry-deliveries",
-      hint:
-        lastRetryRunAt == null
-          ? "Notification retry worker has no recorded heartbeat yet. Reminder and digest recovery stays at risk until this hook writes fresh activity."
-          : `Latest retry-deliveries heartbeat was recorded ${new Date(lastRetryRunAt).toISOString()}.`,
-      actionLabel: "Configure recovery settings",
-      tone: lastRetryRunAt == null || (retryRunAgeMinutes != null && retryRunAgeMinutes > 30) ? "attention" : "neutral",
-    },
-    ...V10_OPS_RELEASE_READINESS_CONTRACTS.filter((contract) => contract.cronRoute).map((contract) => {
-      const routePath = String(contract.cronRoute).replace(/^src\/app/, "").replace(/\/route\.ts$/, "");
-      const tone =
-        contract.key === "read_model_refresh"
-          ? latestV10RefreshJob == null || v10FailedOrPartialRefreshJobs.length > 0
-            ? "attention"
-            : "neutral"
-          : contract.key === "idempotency_cleanup"
-            ? v10ExpiredIdempotencyClaims > 0
-              ? "attention"
-              : "neutral"
-            : "neutral";
-      return {
-        href: contract.recoveryDestination,
-        eyebrow: "API route health",
-        title: routePath,
-        hint: `${String(contract.key).replace(/_/g, " ")} backs ${String(contract.sloDashboardKey).replace(/_/g, " ")} recovery and routes operators to ${contract.recoveryDestination}.`,
-        actionLabel: "Inspect recovery path",
-        tone,
-      } satisfies UserVisibleImpactRow;
-    }),
-  ];
 
   return (
-    <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Admin</p>
-          <h1 className="ui-page-title-compact mt-2">System health</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            User-visible trust, failed automation, report delivery, and data freshness issues appear before diagnostics.
-          </p>
+    <div className="ui-page-stack-dense mx-auto max-w-6xl">
+      <Link
+        href="/settings"
+        className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+        Back to settings
+      </Link>
+
+      {/* Flat page identity — no card. The workspace-status hero below is the focal surface. */}
+      <DashboardPageHeader
+        icon={<HeartPulse className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Internal settings"
+        title="System health"
+        lead="Workflow reliability, delivery status, and configuration issues for this workspace."
+        actions={
+          <dl className="flex shrink-0 items-baseline gap-1.5 pt-1 text-[11px]">
+            <dt className="font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              Checked
+            </dt>
+            <dd className="font-mono text-[var(--text-secondary)]">{lastCheckedLabel}</dd>
+          </dl>
+        }
+      />
+
+      <section
+        id="workspace-health-status"
+        aria-labelledby="workspace-health-headline"
+        className="ui-card-hero relative overflow-hidden px-5 py-6 sm:px-7 md:px-9 md:py-8"
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-[3px]"
+          style={{
+            background:
+              overallStatus === "healthy"
+                ? "linear-gradient(180deg, color-mix(in oklab, var(--success-ink) 80%, transparent) 0%, color-mix(in oklab, var(--success-ink) 20%, transparent) 100%)"
+                : overallStatus === "blocked" || overallStatus === "needs_attention"
+                  ? "linear-gradient(180deg, color-mix(in oklab, var(--danger-ink) 80%, transparent) 0%, color-mix(in oklab, var(--danger-ink) 20%, transparent) 100%)"
+                  : overallStatus === "delayed" || overallStatus === "not_configured"
+                    ? "linear-gradient(180deg, color-mix(in oklab, var(--warning-ink) 80%, transparent) 0%, color-mix(in oklab, var(--warning-ink) 20%, transparent) 100%)"
+                    : "linear-gradient(180deg, color-mix(in oklab, var(--border-contrast) 70%, transparent) 0%, color-mix(in oklab, var(--border-contrast) 20%, transparent) 100%)",
+          }}
+        />
+        <div className="relative flex min-w-0 gap-4 sm:gap-5">
+          <span className={heroMedallionClass(overallStatus)}>
+            <HeroStatusIcon status={overallStatus} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
+                Workspace status
+              </p>
+              <span aria-hidden className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block" />
+              <StatusBadge status={workspaceSemanticStatus(overallStatus)}>
+                {visibleStatusLabel(overallStatus)}
+              </StatusBadge>
+            </div>
+            <h2
+              id="workspace-health-headline"
+              className="mt-3 text-[1.75rem] font-semibold leading-[1.1] tracking-[-0.01em] text-[var(--text-primary)] sm:text-[2.125rem] md:text-[2.4rem]"
+            >
+              {workspaceStatusHeadline(primaryAffectedItem)}
+            </h2>
+            <p className="mt-3 max-w-[42rem] text-[14px] leading-[1.6] text-[var(--text-secondary)]">
+              {heroNarrativeText(primaryAffectedItem, allClearSentence)}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-x-1 gap-y-2">
+              <Link
+                href={primaryAction.href}
+                className="ui-btn-primary min-h-10 px-4 py-2.5 text-[12.5px]"
+              >
+                <span>{affectedCount === 0 ? "Inspect health" : heroCtaLabel}</span>
+                <ChevronRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <a
+                href="#support"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_42%,transparent)] hover:text-[var(--accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              >
+                Inspect diagnostics
+                <ChevronRight className="h-3.5 w-3.5 opacity-60 transition-transform group-hover:translate-x-0.5" aria-hidden />
+              </a>
+            </div>
+          </div>
         </div>
-      </header>
 
-      {alerts.length > 0 && (
-        <section className="ui-status-panel ui-status-panel-warning">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--warning-ink)]">Attention needed</p>
-          <ul className="mt-2 space-y-1 text-sm">
-            {alerts.map((alert) => (
-              <li key={alert}>- {alert}</li>
-            ))}
-          </ul>
+        {/* At-a-glance footer: two prominent numeric cells. Reports/Deliveries status moved into the
+            Support diagnostics summary where it's more actionable. */}
+        <dl
+          aria-label="Workspace health overview"
+          className="relative mt-7 grid grid-cols-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_72%,transparent)] pt-5 sm:divide-x sm:divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]"
+        >
+          <div className="pr-5 sm:pr-8">
+            <dt className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <span
+                aria-hidden
+                className="inline-flex h-2 w-2 rounded-full"
+                style={{
+                  background:
+                    affectedCount === 0
+                      ? "var(--success-ink)"
+                      : overallStatus === "blocked" || overallStatus === "needs_attention"
+                        ? "var(--danger-ink)"
+                        : "var(--warning-ink)",
+                  boxShadow: `0 0 0 3px color-mix(in oklab, ${
+                    affectedCount === 0
+                      ? "var(--success-soft)"
+                      : overallStatus === "blocked" || overallStatus === "needs_attention"
+                        ? "var(--danger-soft)"
+                        : "var(--warning-soft)"
+                  } 42%, transparent)`,
+                }}
+              />
+              Needs action
+            </dt>
+            <dd className="mt-2 flex items-baseline gap-2">
+              <span
+                className="text-[2.25rem] font-semibold leading-none tabular-nums tracking-[-0.02em]"
+                style={{
+                  color:
+                    affectedCount === 0
+                      ? "var(--success-ink)"
+                      : overallStatus === "blocked" || overallStatus === "needs_attention"
+                        ? "var(--danger-ink)"
+                        : "var(--warning-ink)",
+                }}
+              >
+                {affectedCount}
+              </span>
+              <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
+                of {affectedCount + healthyItems.length}
+              </span>
+            </dd>
+          </div>
+          <div className="pl-5 sm:pl-8">
+            <dt className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <span
+                aria-hidden
+                className="inline-flex h-2 w-2 rounded-full bg-[var(--success-ink)]"
+                style={{ boxShadow: "0 0 0 3px color-mix(in oklab, var(--success-soft) 42%, transparent)" }}
+              />
+              Workflows clear
+            </dt>
+            <dd className="mt-2 flex items-baseline gap-2">
+              <span className="text-[2.25rem] font-semibold leading-none tabular-nums tracking-[-0.02em] text-[var(--success-ink)]">
+                {healthyItems.length}
+              </span>
+              <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
+                of {affectedCount + healthyItems.length}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      {retryableImportJob || latestFailedReportId ? (
+        <section
+          className="rounded-lg border border-l-[0.25rem] border-[color:var(--border-card)] border-l-[color:var(--warning-ink)] bg-[var(--surface)] px-3 py-3"
+          aria-labelledby="direct-recovery-actions"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="ui-eyebrow">Retry available</p>
+              <h2 id="direct-recovery-actions" className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+                Direct recovery actions
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {retryableImportJob ? <ImportJobRetryButton jobId={String(retryableImportJob.id)} /> : null}
+              {latestFailedReportId ? (
+                <V10JobRetryButton
+                  url={`/api/report-runs/${encodeURIComponent(latestFailedReportId)}/retry`}
+                  label="Retry report"
+                  successFallbackMessage="Report retry completed."
+                  testId="report-retry"
+                />
+              ) : null}
+            </div>
+          </div>
         </section>
-      )}
+      ) : null}
 
-      {userVisibleImpacts.length > 0 && (
+      {secondaryAffectedItems.length > 0 ? (
         <section className="space-y-3">
           <div>
-            <p className="ui-eyebrow">Visible impact</p>
-            <h2 className="ui-page-title mt-2 text-[1.8rem]">What workspace users may notice</h2>
+            <p className="ui-eyebrow">Workflow health</p>
+            <h2 className="ui-section-title">Other workflow issues</h2>
           </div>
           <div className="grid gap-3 lg:grid-cols-3">
-            {userVisibleImpacts.map((row) => (
+            {secondaryAffectedItems.map((item) => (
               <OperationalQueueRow
-                key={`${row.eyebrow}-${row.title}`}
-                href={row.href}
-                eyebrow={row.eyebrow}
-                title={row.title}
-                hint={row.hint}
-                actionLabel={row.actionLabel}
-                tone={row.tone}
+                key={item.id}
+                href={item.primaryAction?.href ?? primaryAction.href}
+                eyebrow={statusLabel(item.status)}
+                title={item.label}
+                hint={item.detail ?? item.userImpact ?? statusLabel(item.status)}
+                chips={item.chips}
+                actionLabel={item.primaryAction?.label ?? primaryAction.label}
+                tone={healthItemTone(item)}
               />
             ))}
           </div>
         </section>
-      )}
-
-      {postGaOperationalSloMisses.length > 0 ? (
-        <section
-          id="v10-post-ga-slo"
-          className="ui-page-shell overflow-hidden"
-          aria-labelledby="v10-post-ga-slo-title"
-        >
-          <div className="ui-surface-tint px-5 py-3">
-            <p className="ui-eyebrow">Post-GA operations</p>
-            <h2 id="v10-post-ga-slo-title" className="ui-section-title mt-1 text-base">
-              Operational SLO windows need attention
-            </h2>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              Per the V10 release contract post-GA operational SLO policy, misses surface here until production dashboards and mitigations are recorded.
-            </p>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {postGaOperationalSloMisses.map((miss) => (
-              <li key={`${miss.window}-${miss.sloKey}`} className="px-5 py-4 text-sm">
-                <p className="font-semibold text-[var(--text-primary)]">
-                  {miss.window === "7d" ? "7-day" : "30-day"} window · {miss.sloKey}
-                </p>
-                <p className="mt-1 text-[var(--text-secondary)]">{miss.observedSummary}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
       ) : null}
 
-      <section id="read-models" className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Route health</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Recoverable destinations and configuration gaps</h2>
-        </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          {routeHealthRows.map((row) => (
-            <OperationalQueueRow
-              key={`${row.eyebrow}-${row.title}`}
-              href={row.href}
-              eyebrow={row.eyebrow}
-              title={row.title}
-              hint={row.hint}
-              actionLabel={row.actionLabel}
-              tone={row.tone}
+      {healthyItems.length > 0 ? (
+        <details id="healthy-workflow-checks" className="group">
+          <summary className="flex cursor-pointer list-none items-center gap-3 border-y border-[color:var(--border-card)] py-3 outline-none transition-colors marker:hidden hover:border-[color:color-mix(in_oklab,var(--success)_18%,var(--border-subtle))] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] [&::-webkit-details-marker]:hidden">
+            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--success)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_32%,var(--surface-raised))] text-[var(--success-ink)]">
+            <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1 text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+            <span className="tabular-nums">{healthyItems.length}</span> workflow check{healthyItems.length === 1 ? "" : "s"} clear
+          </span>
+            <ChevronRight
+              className="h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform duration-150 group-open:rotate-90"
+              aria-hidden
             />
-          ))}
-        </div>
-      </section>
+          </summary>
+          <div className="py-3 pl-10">
+            <ul className="flex flex-col divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
+              {healthyItemsWithDetails.map((item) => (
+                <HealthCheckRow key={item.id} item={item} />
+              ))}
+              {additionalHealthyCount > 0 ? (
+                <li className="flex items-center gap-3 py-2 text-[12.5px] text-[var(--text-tertiary)]">
+                  <span
+                    className="inline-flex h-2 w-2 shrink-0 rounded-full bg-[color:color-mix(in_oklab,var(--success-ink)_55%,var(--border-contrast))]"
+                    aria-hidden
+                  />
+                  <span>
+                    +<span className="font-mono tabular-nums">{additionalHealthyCount}</span> additional workflow check{additionalHealthyCount === 1 ? "" : "s"} clear
+                  </span>
+                </li>
+              ) : null}
+            </ul>
+          </div>
+        </details>
+      ) : null}
 
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">API route health</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Critical product path hooks</h2>
-          <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">
-            Critical API routes stay visible here so operators can confirm the health hook, retry worker, and V10 cron-backed recovery paths.
-          </p>
-        </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          {apiRouteHealthRows.map((row) => (
-            <OperationalQueueRow
-              key={`${row.eyebrow}-${row.title}`}
-              href={row.href}
-              eyebrow={row.eyebrow}
-              title={row.title}
-              hint={row.hint}
-              actionLabel={row.actionLabel}
-              tone={row.tone}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section id="jobs" className="space-y-3">
-        <span id="v10-jobs" className="sr-only">
-          V10 job diagnostics
-        </span>
-        <span id="v10-runtime" className="sr-only">
-          V10 runtime operations
-        </span>
-        <div>
-          <p className="ui-eyebrow">V10 runtime</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Data freshness and coverage ledger</h2>
-        </div>
-        {latestV10RefreshJob == null ? (
-          <V10RecoverableState
-            state="empty"
-            title="No V10 refresh job has been recorded"
-            reason="The runtime tables may be empty or the refresh worker has not written its diagnostic job row yet."
-            accessibleName="V10 data freshness refresh missing"
-            nextAction={
-              <a className="ui-button ui-button-secondary" href="/api/contracts/recompute-signals">
-                Recompute signals
-              </a>
-            }
-            nextActionLabel="Recompute signals"
+      <details id="support" className="group">
+        <summary className="flex cursor-pointer list-none items-center gap-3 border-y border-[color:var(--border-card)] py-3 outline-none transition-colors marker:hidden hover:border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] [&::-webkit-details-marker]:hidden">
+          <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]">
+            <Activity className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+              Support diagnostics
+            </span>
+            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[11px] text-[var(--text-tertiary)]">
+              <span className="inline-flex items-center gap-1">
+                <FileText className="h-3 w-3" aria-hidden />
+                <span>{reportMetadataLabel}</span>
+              </span>
+              <span aria-hidden>·</span>
+              <span className="inline-flex items-center gap-1">
+                <Send className="h-3 w-3" aria-hidden />
+                <span>{deliveryMetadataLabel}</span>
+              </span>
+            </span>
+          </div>
+          <ChevronRight
+            className="h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform duration-150 group-open:rotate-90"
+            aria-hidden
           />
-        ) : (
-          <div className="grid gap-3 lg:grid-cols-3">
-            <OperationalQueueRow
-              href="/settings/health#read-models"
-              eyebrow="Refresh"
-              title={String(latestV10RefreshJob.status).replace(/_/g, " ")}
-              hint={`${String(latestV10RefreshJob.refresh_reason).replace(/_/g, " ")} · ${Number(latestV10RefreshJob.failure_count ?? 0)} failure${Number(latestV10RefreshJob.failure_count ?? 0) === 1 ? "" : "s"} · ${latestV10RefreshJob.completed_at ? new Date(latestV10RefreshJob.completed_at).toISOString() : "not completed"}`}
-              actionLabel="Review refresh state"
-              tone={v10FailedOrPartialRefreshJobs.length > 0 ? "attention" : "neutral"}
-            />
-            <OperationalQueueRow
-              href="/settings/health#coverage-ledger"
-              eyebrow="Coverage"
-              title={
-                v10CoverageBlockers.length > 0
-                  ? `${v10CoverageBlockers.length} release blocker${v10CoverageBlockers.length === 1 ? "" : "s"}`
-                  : "No sampled blockers"
-              }
-              hint={`${v10CoverageRows.length} sampled coverage row${v10CoverageRows.length === 1 ? "" : "s"} with ${v10StaleCoverageRows.length} stale, partial, failed, or missing freshness state${v10StaleCoverageRows.length === 1 ? "" : "s"}.`}
-              actionLabel="Review coverage ledger"
-              tone={v10CoverageBlockers.length > 0 || v10StaleCoverageRows.length > 0 ? "attention" : "neutral"}
-            />
-            <OperationalQueueRow
-              href="/settings/health#runtime-artifacts"
-              eyebrow="Artifacts"
-              title={`${v10ArtifactRows.length} sampled support artifact${v10ArtifactRows.length === 1 ? "" : "s"}`}
-              hint={`${v10RevokedArtifacts.length} revoked artifact${v10RevokedArtifacts.length === 1 ? "" : "s"} in the latest sample. Classifications remain support-safe on this surface.`}
-              actionLabel="Review artifacts"
-              tone={v10RevokedArtifacts.length > 0 ? "attention" : "neutral"}
-            />
-            <OperationalQueueRow
-              href="/settings/health#v10-idempotency"
-              eyebrow="Idempotency"
-              title={
-                v10ExpiredIdempotencyClaims > 0
-                  ? `${v10ExpiredIdempotencyClaims} expired claim${v10ExpiredIdempotencyClaims === 1 ? "" : "s"}`
-                  : `${v10IdempotencyBacklog} in-progress claim${v10IdempotencyBacklog === 1 ? "" : "s"}`
-              }
-              hint="Duplicate mutation protection is visible here without exposing request payloads or private object data."
-              actionLabel="Review mutation backlog"
-              tone={v10ExpiredIdempotencyClaims > 0 ? "attention" : "neutral"}
-            />
-          </div>
-        )}
-        {(v10CoverageRows.length > 0 || v10ArtifactRows.length > 0) && (
-          <div className="grid gap-3 lg:grid-cols-2">
-            <section id="coverage-ledger" className="ui-page-shell overflow-hidden">
-              <div className="ui-surface-tint px-5 py-3">
-                <p className="ui-eyebrow">Coverage ledger</p>
-                <h3 className="ui-section-title mt-1 text-base">Sampled release-impact rows</h3>
-              </div>
-              <ul className="divide-y divide-[var(--border-subtle)]">
-                {v10CoverageRows.slice(0, 6).map((row) => (
-                  <li key={`${row.coverage_kind}:${row.coverage_key}`} className="px-5 py-3 text-sm">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-semibold text-[var(--text-primary)]">{String(row.coverage_key).replace(/_/g, " ")}</p>
-                      <span className="rounded-full bg-[var(--surface-muted)] px-2 py-1 text-xs text-[var(--text-secondary)]">
-                        {String(row.runtime_status).replace(/_/g, " ")}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-                      {String(row.coverage_kind).replace(/_/g, " ")} · owner {String(row.owner)} · freshness{" "}
-                      {String(row.freshness_state).replace(/_/g, " ")}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section id="runtime-artifacts" className="ui-page-shell overflow-hidden">
-              <div className="ui-surface-tint px-5 py-3">
-                <p className="ui-eyebrow">Runtime artifacts</p>
-                <h3 className="ui-section-title mt-1 text-base">Support-safe artifact state</h3>
-              </div>
-              <ul className="divide-y divide-[var(--border-subtle)]">
-                {v10ArtifactRows.slice(0, 6).map((row) => (
-                  <li key={`${row.artifact_kind}:${row.artifact_key}`} className="px-5 py-3 text-sm">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-semibold text-[var(--text-primary)]">{String(row.artifact_key).replace(/_/g, " ")}</p>
-                      <span className="rounded-full bg-[var(--surface-muted)] px-2 py-1 text-xs text-[var(--text-secondary)]">
-                        {String(row.classification).replace(/_/g, " ")}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-                      {String(row.artifact_kind).replace(/_/g, " ")} · {String(row.access_scope).replace(/_/g, " ")}
-                      {row.diagnostic_id ? ` · Diagnostic ${row.diagnostic_id}` : ""}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        )}
-      </section>
-
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Release operations</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Runbooks, providers, canary, and rollback</h2>
-          <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">
-            These operator destinations mirror the V10 release-readiness contracts so runbook links, recovery anchors, and support-safe diagnostics stay aligned.
-          </p>
-        </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          {V10_OPS_RELEASE_READINESS_CONTRACTS.filter((contract) => contract.key !== "read_model_refresh").map((contract) => {
-            const anchor = contract.recoveryDestination.split("#")[1] ?? contract.key;
-            return (
-              <div key={contract.key} id={anchor}>
-                <OperationalQueueRow
-                  href={contract.recoveryDestination}
-                  eyebrow={String(contract.owner)}
-                  title={String(contract.key).replace(/_/g, " ")}
-                  hint={`${contract.diagnosticPrefix} · ${contract.providerBlockers.length} provider blocker${contract.providerBlockers.length === 1 ? "" : "s"} · ${contract.rollbackCommand}`}
-                  actionLabel="Inspect runbook destination"
-                  tone={contract.cronRoute == null ? "attention" : "neutral"}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Pipelines</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Workflow reliability visibility</h2>
-          <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">
-            Recent reminder runs stay visible beside import, extraction, export, and report recovery so operators can see user-facing timing risk first.
-          </p>
-        </div>
-        {(v10JobRows.length > 0 || v10ReportRows.length > 0) ? (
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-4">
-            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="ui-eyebrow">Recovery state</p>
-                <h3 className="mt-2 text-base font-semibold text-[var(--text-primary)]">
-                  Retry diagnostics from materialized job visibility
-                </h3>
-                <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                  {v10RetryableJobs.length + v10RetryableReports.length} retryable job/report item
-                  {v10RetryableJobs.length + v10RetryableReports.length === 1 ? "" : "s"} currently expose a recovery action.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              {[...v10JobRows, ...v10ReportRows].slice(0, 6).map((row) => {
-                const id = "job_id" in row ? row.job_id : row.report_run_id;
-                const label = "job_class" in row ? row.job_class : row.report_family;
-                return (
-                  <div key={`${label}:${id}`} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                          {String(label).replace(/_/g, " ")}
-                        </p>
-                        <p className="mt-1 font-medium text-[var(--text-primary)]">
-                          {String(row.status).replace(/_/g, " ")}
-                        </p>
-                      </div>
-                      {row.retry_action ? (
-                        <span className="rounded-full bg-[color:color-mix(in_oklab,var(--warning)_14%,transparent)] px-2 py-1 text-xs font-semibold text-[var(--warning-strong)]">
-                          {String(row.retry_action).replace(/_/g, " ")}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                      {row.diagnostic_id ? `Diagnostic ${row.diagnostic_id}` : row.failure_category ?? "No diagnostic needed"}
-                    </p>
-                    {"user_visible_detail" in row && row.user_visible_detail ? (
-                      <p className="mt-1 text-xs text-[var(--text-tertiary)]">{row.user_visible_detail}</p>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-        <div className="grid gap-3 lg:grid-cols-3">
-          <OperationalQueueRow
-            href="/contracts/bulk#recent-imports"
-            eyebrow="Imports"
-            title={latestImportHeadline}
-            hint={latestImportDetail}
-            chips={[
-              { label: "Processing", value: String(processingImportJobs) },
-              { label: "Failed", value: String(failedImportJobs) },
-              { label: "Partial", value: String(partialImportJobs) },
-            ]}
-            actionLabel="Review import history"
-            tone={latestImportTone}
+        </summary>
+        <div className="py-4 pl-10">
+          <SettingsHealthDiagnosticsSections
+            retryQueueDepth={retryQueueDepth}
+            pendingDeliveries={pendingDeliveries}
+            retryingDeliveries={retryingDeliveries}
+            failedDeliveries={failedDeliveries}
+            suppressedDeliveries={suppressedDeliveries}
+            webhookPending={webhookPending}
+            webhookHighAttempts={webhookHighAttempts}
+            retryRunAgeMinutes={retryRunAgeMinutes}
+            lastRetryRunAt={lastRetryRunAt}
+            reportSuccessRateRecent={reportSuccessRateRecent}
+            reportRunsSucceededCount={reportRunsSucceeded.length}
+            reportRunsRunningCount={reportRunsRunning.length}
+            failedReportRuns={failedReportRuns}
+            deliverySuccessRateRecent={deliverySuccessRateRecent}
+            deliveredRecent={deliveredRecent}
+            failedRecent={failedRecent}
+            latestSucceededReportAt={latestSucceededReportAt}
+            latestFailedReportAt={latestFailedReportAt}
+            topFailedTypes={topFailedTypes}
+            topFailureSignatures={topFailureSignatures}
+            recentFailedDeliveries={recentFailedDeliveries}
+            cronAuditEvents={operationalEventsRes.data ?? []}
           />
-          <div id="exports">
-            <OperationalQueueRow
-              href="/contracts#exports"
-              eyebrow="Exports"
-              title={latestExportHeadline}
-              hint={latestExportDetail}
-              chips={[
-                { label: "Active", value: String(activeExportJobs) },
-                { label: "Failed", value: String(failedExportJobs) },
-                { label: "Limited", value: String(limitedExportJobs) },
-              ]}
-              actionLabel="Review contract exports"
-              tone={latestExportTone}
-            />
-          </div>
-          <OperationalQueueRow
-            href="/contracts/review"
-            eyebrow="Extraction"
-            title={latestExtractionHeadline}
-            hint={latestExtractionDetail}
-            chips={[
-              { label: "Active", value: String(activeExtractionJobs) },
-              { label: "Failed", value: String(failedExtractionJobs) },
-              { label: "Stale", value: String(staleExtractionJobs) },
-            ]}
-            actionLabel="Review extraction follow-up"
-            tone={latestExtractionTone}
-          />
-          <div id="reminders">
-            <OperationalQueueRow
-              href="/contracts/renewals"
-              eyebrow="Reminders"
-              title={latestReminderHeadline}
-              hint={latestReminderDetail}
-              chips={[
-                { label: "Due", value: String(dueReminderRuns) },
-                { label: "Scheduled", value: String(scheduledReminderRuns) },
-                { label: "Sent", value: String(sentReminderRuns) },
-              ]}
-              actionLabel="Review renewals"
-              tone={latestReminderTone}
-            />
-          </div>
         </div>
-      </section>
-
-      <SettingsHealthDiagnosticsSections
-        retryQueueDepth={retryQueueDepth}
-        pendingDeliveries={pendingDeliveries}
-        retryingDeliveries={retryingDeliveries}
-        failedDeliveries={failedDeliveries}
-        suppressedDeliveries={suppressedDeliveries}
-        webhookPending={webhookPending}
-        webhookHighAttempts={webhookHighAttempts}
-        retryRunAgeMinutes={retryRunAgeMinutes}
-        lastRetryRunAt={lastRetryRunAt}
-        reportSuccessRateRecent={reportSuccessRateRecent}
-        reportRunsSucceededCount={reportRunsSucceeded.length}
-        reportRunsRunningCount={reportRunsRunning.length}
-        failedReportRuns={failedReportRuns}
-        deliverySuccessRateRecent={deliverySuccessRateRecent}
-        deliveredRecent={deliveredRecent}
-        failedRecent={failedRecent}
-        latestSucceededReportAt={latestSucceededReportAt}
-        latestFailedReportAt={latestFailedReportAt}
-        topFailedTypes={topFailedTypes}
-        topFailureSignatures={topFailureSignatures}
-        recentFailedDeliveries={recentFailedDeliveries}
-        cronAuditEvents={cronAuditRes.data ?? []}
-      />
+      </details>
     </div>
   );
 }

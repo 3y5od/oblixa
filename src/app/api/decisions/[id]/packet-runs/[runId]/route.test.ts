@@ -4,6 +4,10 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const recordV10AuditEvent = vi.fn(async (...args: unknown[]) => {
+  void args;
+  return "audit-1";
+});
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -20,6 +24,10 @@ vi.mock("@/lib/v5/decision-packet-pdf", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
+vi.mock("@/lib/v10-server-contracts", () => ({
+  recordV10AuditEvent: (...args: unknown[]) => recordV10AuditEvent(...args),
 }));
 
 describe("GET /api/decisions/[id]/packet-runs/[runId]", () => {
@@ -301,8 +309,19 @@ describe("GET /api/decisions/[id]/packet-runs/[runId]", () => {
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.signedUrl).toBe("https://example.com/signed");
-      expect(body.expiresIn).toBe(3600);
+      expect(body.expiresIn).toBe(300);
+      expect(typeof body.expiresAt).toBe("string");
       expect(body.artifact).toBe("json");
+      expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+      expect(createSignedUrl).toHaveBeenCalledWith("o1/run-1/packet.json", 300);
+      expect(recordV10AuditEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          action: "decision_packet_artifact.download_url_created",
+          targetId: "run-1",
+          safeMetadata: expect.objectContaining({ artifact: "json", expires_in_seconds: 300 }),
+        })
+      );
     } finally {
       process.env.V5_DECISION_PACKET_BUCKET = prev;
     }
@@ -355,6 +374,57 @@ describe("GET /api/decisions/[id]/packet-runs/[runId]", () => {
       const body = await res.json();
       expect(body.signedUrl).toBe("https://example.com/signed-pdf");
       expect(body.artifact).toBe("pdf");
+      expect(body.expiresIn).toBe(300);
+    } finally {
+      process.env.V5_DECISION_PACKET_BUCKET = prev;
+    }
+  });
+
+  it("rejects cross-org artifact storage paths before signing", async () => {
+    const prev = process.env.V5_DECISION_PACKET_BUCKET;
+    process.env.V5_DECISION_PACKET_BUCKET = "packets";
+    try {
+      const createSignedUrl = vi.fn(async () => ({
+        data: { signedUrl: "https://example.com/signed" },
+        error: null,
+      }));
+      getApiAuthContext.mockResolvedValue({
+        userId: "u1",
+        orgId: "o1",
+        admin: {
+          from: vi.fn(() => ({
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn(async () => ({
+                    data: {
+                      id: "run-1",
+                      packet_type: "renewal_packet",
+                      payload_json: {},
+                      exported_at: null,
+                      created_at: "2026-01-01T00:00:00Z",
+                      decision_workspace_id: "dec-1",
+                      artifact_storage_path: "other-org/run-1/packet.json",
+                      artifact_pdf_storage_path: "o1/run-1/packet.pdf",
+                    },
+                    error: null,
+                  })),
+                })),
+              })),
+            })),
+          })),
+          storage: {
+            from: vi.fn(() => ({ createSignedUrl })),
+          },
+        },
+      } as never);
+
+      const { GET } = await import("@/app/api/decisions/[id]/packet-runs/[runId]/route");
+      const res = await GET(new Request("http://localhost/api?signed=1"), {
+        params: Promise.resolve({ id: "dec-1", runId: "run-1" }),
+      });
+      expect(res.status).toBe(404);
+      expect(createSignedUrl).not.toHaveBeenCalled();
     } finally {
       process.env.V5_DECISION_PACKET_BUCKET = prev;
     }

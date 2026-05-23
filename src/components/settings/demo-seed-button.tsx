@@ -37,10 +37,8 @@ export function DemoSeedButton() {
             <div className="min-w-0 space-y-2">
               <h3 className="text-sm font-semibold text-[var(--text-primary)]">Demo workspace</h3>
               <p className="text-xs text-[var(--text-secondary)]">
-                Load sample contracts (titles prefixed with &quot;Demo:&quot;) for
-                training or pilots. Requires{" "}
-                <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_75%,var(--canvas))] px-1">ENABLE_DEMO_SEED=true</code>{" "}
-                on the server.
+                Creates sample contracts prefixed with Demo:.
+                Demo data is not enabled for this workspace if this action is unavailable.
               </p>
             </div>
             <button

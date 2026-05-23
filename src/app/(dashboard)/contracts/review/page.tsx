@@ -1,32 +1,37 @@
 import { redirect } from "next/navigation";
-import { getAuthContext } from "@/lib/supabase/server";
-import { ContractTable } from "@/components/contracts/contract-table";
-import { ContractPagination } from "@/components/contracts/contract-pagination";
-import { attachOwnerProfiles } from "@/lib/contracts";
-import { CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
-import {
-  fetchReviewQueuePage,
-  getReviewStatsForContractIds,
-} from "@/lib/contract-review-stats";
-import { getContractListRowSignalsMap } from "@/lib/contract-list-row-signals";
 import Link from "next/link";
-import { AlertTriangle, ClipboardPen, PlayCircle, ShieldAlert } from "lucide-react";
-import { QueueItemCard } from "@/components/ui/queue-item-card";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { ArrowUpRight, ClipboardPen, FileText } from "lucide-react";
+import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ReviewQueueStartGuide } from "@/components/contracts/review-queue-start-guide";
-import type { WorkspaceRole } from "@/lib/navigation";
-import { loadProductSurfaceContext, resolveWorkflowDestination } from "@/lib/product-surface";
+import { FieldReviewWorkspaceActions } from "@/components/contracts/field-review-workspace-actions";
+import {
+  FIELD_REVIEW_EMPTY_STATE,
+  FIELD_REVIEW_EYEBROW,
+  FIELD_REVIEW_REQUIRED_CONTENT,
+  FIELD_REVIEW_TITLE,
+} from "@/lib/field-review/spec-strings";
+import { loadFieldReviewWorkspaceModel } from "@/lib/field-review/model";
+import { isUuid } from "@/lib/security/validation";
 
-export const metadata = { title: "Review queue" };
+export const metadata = { title: FIELD_REVIEW_TITLE };
 
-function reviewContractHref(contractId: string, page: number) {
-  return `/contracts/${contractId}?tab=overview&from=review&reviewPage=${page}#extracted-fields`;
+function parsePage(value: string | undefined): number {
+  const parsed = Number.parseInt(value ?? "1", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function safeUuid(value: string | undefined): string | null {
+  return value && isUuid(value) ? value : null;
+}
+
+function displayValue(value: string | null): string {
+  return value && value.trim().length > 0 ? value : "Unknown";
 }
 
 export default async function ContractReviewQueuePage(props: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; contract?: string; field?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const ctx = await getAuthContext();
@@ -34,284 +39,220 @@ export default async function ContractReviewQueuePage(props: {
     return (
       <WorkspaceRequiredState
         title="Workspace required for review"
-        message="Review queue access depends on a workspace context. Refresh this page, then ask a workspace admin to restore your contract access if the queue still does not load."
+        message="Review field access depends on a workspace context. Refresh this page, then ask a workspace admin to restore your contract access if the review workspace still does not load."
       />
     );
   }
 
-  const { orgId, admin } = ctx;
-  const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
-  const reviewDestination = resolveWorkflowDestination(productSurface, "review");
-  const reviewCopy = reviewDestination?.visible ? reviewDestination.copy : null;
-  const parsedPage = parseInt(searchParams.page ?? "1", 10);
-  const page =
-    Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const model = await loadFieldReviewWorkspaceModel(ctx.admin, ctx.orgId, {
+    page: parsePage(searchParams.page),
+    contract: safeUuid(searchParams.contract),
+    field: safeUuid(searchParams.field),
+  });
 
-  const queue = await fetchReviewQueuePage(admin, orgId, page);
-  const totalPages =
-    queue.total > 0 ? Math.max(1, Math.ceil(queue.total / queue.pageSize)) : 1;
-
-  if (page > totalPages && queue.total > 0) {
+  if (model.totalContracts > 0 && model.page > model.totalPages) {
     const next = new URLSearchParams();
-    next.set("page", String(totalPages));
+    next.set("page", String(model.totalPages));
     redirect(`/contracts/review?${next.toString()}`);
   }
 
-  const contracts = await attachOwnerProfiles(admin, orgId, queue.contracts);
-  const { data: profileRow } = await admin
-    .from("profiles")
-    .select("onboarding_completed_at")
-    .eq("id", ctx.user.id)
-    .maybeSingle();
-  const reviewStats = await getReviewStatsForContractIds(
-    admin,
-    contracts.map((c) => c.id)
-  );
-  const rowSignals = await getContractListRowSignalsMap(
-    admin,
-    orgId,
-    contracts.map((contract) => contract.id)
-  );
-  const currentPagePendingFields = contracts.reduce(
-    (sum, contract) => sum + (reviewStats[contract.id]?.pending ?? 0),
-    0
-  );
-  const currentPageCriticalGaps = contracts.filter(
-    (contract) => rowSignals[contract.id]?.missingCriticalDates
-  ).length;
-  const currentPageBlockedContracts = contracts.filter((contract) => {
-    const signals = rowSignals[contract.id];
-    return (signals?.openExceptionCount ?? 0) > 0 || (signals?.outstandingEvidenceCount ?? 0) > 0;
-  }).length;
-  const nextContract = contracts[0] ?? null;
-  const nextContractStats = nextContract ? reviewStats[nextContract.id] : null;
-  const nextContractSignals = nextContract ? rowSignals[nextContract.id] : null;
-  const nextOwnerLabel =
-    nextContract?.owner?.full_name ?? nextContract?.owner?.email ?? "Unassigned";
-  const showStartGuide = !profileRow?.onboarding_completed_at;
+  const activeField = model.activeField;
+  const activeContract = model.activeContract;
+  const documentPreview = model.documentPreview;
 
   return (
-    <div className="ui-page-stack">
-      <header className="ui-page-header flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <p className="ui-eyebrow">Field approval</p>
-          <div className="mt-2 flex min-w-0 flex-wrap items-end gap-3">
-            <h1 className="ui-display-title m-0 min-w-0">Review queue</h1>
-            {queue.total > 0 ? (
-              <span className="mb-[0.18em] inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-4 py-2 font-sans text-[13px] font-medium leading-none tracking-normal text-[var(--warning-ink)]">
-                <span className="tabular-nums">{queue.total}&nbsp;</span>
-                <span>{queue.total === 1 ? "needs" : "need"} attention</span>
-              </span>
-            ) : null}
-          </div>
-          <p className="ui-page-lead mt-3">
-            {reviewCopy?.headerLead ??
-              "Contracts in pending review or with pending extracted fields, ordered so larger backlogs and higher-risk cleanup surface first."}
-          </p>
+    <div className="ui-page-stack mx-auto max-w-7xl">
+      <DashboardPageHeader
+        icon={<ClipboardPen className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow={FIELD_REVIEW_EYEBROW}
+        title={FIELD_REVIEW_TITLE}
+        actions={
+          <Link
+            href="/contracts"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
+            All contracts
+            <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+          </Link>
+        }
+      />
+
+      {model.warnings.length > 0 ? (
+        <div className="ui-alert-warning" role="status">
+          {model.warnings[0]}
         </div>
-        <Link href="/contracts" className="ui-btn-secondary shrink-0 px-5 py-2.5">
-          All contracts
-        </Link>
-      </header>
+      ) : null}
 
-      {queue.total === 0 ? (
-        <EmptyState
-          eyebrow="Review clear"
-          title="Nothing is waiting in review"
-          copy="When contracts need field approval, they appear here with the next contract ready to open. Use the contracts list to inspect portfolio state or upload the next contract to keep first-value flow moving."
-          action={
-            <>
-              <Link href="/contracts" className="ui-btn-primary px-6">
-                Browse contracts
+      {!activeField || !activeContract ? (
+        <section className="ui-card-raised rounded-2xl border p-5 sm:p-6 lg:p-7">
+          <EmptyState
+            eyebrow="Review clear"
+            title={FIELD_REVIEW_EMPTY_STATE}
+            copy="When AI-suggested important fields are waiting on human approval, they appear here with source evidence and review actions."
+            action={
+              <Link href="/contracts" className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]">
+                Open contracts
               </Link>
-              <Link href="/contracts/new" className="ui-btn-secondary px-6">
-                Upload contract
-              </Link>
-            </>
-          }
-        />
+            }
+          />
+        </section>
       ) : (
-        <div className="space-y-6">
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-8">
-            <OperationalSummaryCard
-              eyebrow="Backlog"
-              headline="Contracts waiting"
-              tone="attention"
-              icon={ClipboardPen}
-              primaryValue={queue.total}
-              primaryUnit="contracts in queue"
-              action={{ href: reviewContractHref(contracts[0].id, queue.page), label: "Continue next review" }}
-              variant="compact"
-              className="xl:col-span-2"
-            />
-            <OperationalSummaryCard
-              eyebrow="Current page"
-              headline="Pending fields"
-              tone={currentPagePendingFields > 0 ? "attention" : "healthy"}
-              icon={PlayCircle}
-              primaryValue={currentPagePendingFields}
-              primaryUnit="still awaiting review"
-              action={{ href: reviewContractHref(contracts[0].id, queue.page), label: "Start queue" }}
-              variant="compact"
-              className="xl:col-span-2"
-            />
-            <OperationalSummaryCard
-              eyebrow="Critical dates"
-              headline="Missing approved dates"
-              tone={currentPageCriticalGaps > 0 ? "risk" : "healthy"}
-              icon={AlertTriangle}
-              primaryValue={currentPageCriticalGaps}
-              primaryUnit="contracts on this page"
-              action={{ href: "/contracts?missing_data=critical_dates", label: "Review date gaps" }}
-              variant="compact"
-              className="xl:col-span-2"
-            />
-            <OperationalSummaryCard
-              eyebrow="Blockers"
-              headline="Exceptions or evidence"
-              tone={currentPageBlockedContracts > 0 ? "attention" : "healthy"}
-              icon={ShieldAlert}
-              primaryValue={currentPageBlockedContracts}
-              primaryUnit="contracts need extra follow-up"
-              action={{ href: "/contracts/exceptions?status=open", label: "Triage blockers" }}
-              variant="compact"
-              className="xl:col-span-2"
-            />
-          </section>
+        <section className="ui-card-raised overflow-hidden rounded-2xl border" aria-label="Field review workspace">
+          <div className="grid gap-0 border-b border-[var(--border-subtle)] md:grid-cols-4">
+            <div className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Review progress</p>
+              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+                {model.progress.activeFieldPosition}/{model.progress.activeContractPendingFields}
+              </p>
+            </div>
+            <div className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Backlog</p>
+              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+                {model.progress.fieldsWaiting}
+              </p>
+            </div>
+            <div className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Contract</p>
+              <p className="mt-2 truncate text-[14px] font-semibold text-[var(--text-primary)]">
+                {activeContract.title}
+              </p>
+              <p className="mt-1 truncate text-[12px] text-[var(--text-secondary)]">
+                {activeContract.counterparty ?? "No counterparty"} — {activeContract.ownerLabel}
+              </p>
+            </div>
+            <div className="px-4 py-4 sm:px-5">
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Source files</p>
+              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+                {activeContract.files.length}
+              </p>
+            </div>
+          </div>
 
-          {nextContract && showStartGuide ? (
-            <ReviewQueueStartGuide nextContractHref={reviewContractHref(nextContract.id, queue.page)}>
-                  <div className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                      Contract
-                    </p>
-                    <p className="mt-1 text-[14px] font-semibold text-[var(--text-primary)]">
-                      {nextContract.title}
-                    </p>
-                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                      {nextContract.counterparty || "No counterparty"} · {nextOwnerLabel}
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                      Review backlog
-                    </p>
-                    <p className="mt-1 text-[14px] font-semibold text-[var(--text-primary)]">
-                      {(nextContractStats?.pending ?? 0) > 0
-                        ? `${nextContractStats?.pending ?? 0} pending field${(nextContractStats?.pending ?? 0) === 1 ? "" : "s"}`
-                        : "Pending review state only"}
-                    </p>
-                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                      {nextContractStats?.approved ?? 0} approved of {nextContractStats?.total ?? 0} total extracted fields
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                      Critical dates
-                    </p>
-                    <p className="mt-1 text-[14px] font-semibold text-[var(--text-primary)]">
-                      {nextContractSignals?.missingCriticalDates
-                        ? "Approve end, renewal, or notice date first"
-                        : nextContractSignals?.nextHorizonDate
-                          ? `Next horizon ${nextContractSignals.nextHorizonDate}`
-                          : "No approved date yet"}
-                    </p>
-                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                      {nextContractSignals?.missingCriticalDates
-                        ? "Reminders and renewal state should stay blocked until key dates are approved."
-                        : "Approved key dates are already available for downstream workflow."}
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                      Blockers
-                    </p>
-                    <p className="mt-1 text-[14px] font-semibold text-[var(--text-primary)]">
-                      {(nextContractSignals?.openExceptionCount ?? 0) > 0 ||
-                      (nextContractSignals?.outstandingEvidenceCount ?? 0) > 0
-                        ? `${nextContractSignals?.openExceptionCount ?? 0} exception${(nextContractSignals?.openExceptionCount ?? 0) === 1 ? "" : "s"} · ${nextContractSignals?.outstandingEvidenceCount ?? 0} evidence gap${(nextContractSignals?.outstandingEvidenceCount ?? 0) === 1 ? "" : "s"}`
-                        : "No extra blockers on this contract"}
-                    </p>
-                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                      Review can proceed faster when linked exceptions and evidence gaps stay visible.
-                    </p>
-                  </div>
-            </ReviewQueueStartGuide>
-          ) : null}
-
-          <section className="grid gap-4 xl:grid-cols-2">
-            {contracts.slice(0, 4).map((contract) => {
-              const stats = reviewStats[contract.id];
-              const signals = rowSignals[contract.id];
-              const ownerLabel =
-                contract.owner?.full_name ?? contract.owner?.email ?? "Unassigned";
-              const cardMeta = [
-                signals?.missingCriticalDates ? "Critical dates still unapproved" : null,
-                (signals?.openExceptionCount ?? 0) > 0
-                  ? `${signals?.openExceptionCount} open exception${signals?.openExceptionCount === 1 ? "" : "s"}`
-                  : null,
-                (signals?.outstandingEvidenceCount ?? 0) > 0
-                  ? `${signals?.outstandingEvidenceCount} evidence gap${signals?.outstandingEvidenceCount === 1 ? "" : "s"}`
-                  : null,
-              ]
-                .filter(Boolean)
-                .join(" · ");
-              return (
-                <QueueItemCard
-                  key={contract.id}
-                  href={reviewContractHref(contract.id, queue.page)}
-                  objectType="Review"
-                  title={contract.title}
-                  statusLabel={
-                    (stats?.pending ?? 0) > 0
-                      ? `${stats?.pending ?? 0} pending`
-                      : "Pending review"
-                  }
-                  statusTone={(stats?.pending ?? 0) > 0 ? "warning" : "in_review"}
-                  owner={ownerLabel}
-                  due={signals?.nextHorizonDate ?? undefined}
-                  meta={cardMeta || undefined}
-                  continuityContractId={contract.id}
-                  continuityOmit={["contract"]}
-                  nextAction={{
-                    label: "Continue review",
-                    href: reviewContractHref(contract.id, queue.page),
-                  }}
-                />
-              );
-            })}
-          </section>
-
-          <section className="ui-card overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4">
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="ui-label-caps">Table view</p>
-                  <h2 className="ui-section-title mt-1 text-base">Secondary queue scan</h2>
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]">
+            <div className="space-y-6 px-4 py-5 sm:px-5 lg:px-6">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="ui-caps-3 text-[var(--text-tertiary)]">Field name</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-normal text-[var(--text-primary)]">
+                    {activeField.fieldLabel}
+                  </h2>
                 </div>
-                <p className="text-[12px] text-[var(--text-secondary)]">
-                  Keep using the table when you need to compare many contracts at once.
-                </p>
+                <Link href={activeContract.href} className="ui-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 text-[12.5px]">
+                  Open contract
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                </Link>
+              </div>
+
+              <dl className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-3">
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Suggested value</dt>
+                  <dd className="mt-2 break-words text-[15px] font-semibold text-[var(--text-primary)]">
+                    {displayValue(activeField.suggestedValue)}
+                  </dd>
+                </div>
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-3">
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Current approved value</dt>
+                  <dd className="mt-2 break-words text-[15px] font-semibold text-[var(--text-primary)]">
+                    {activeField.currentApprovedValue ?? "None"}
+                  </dd>
+                </div>
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-3">
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Confidence indicator</dt>
+                  <dd className="mt-2 font-mono text-[15px] font-semibold tabular-nums text-[var(--text-primary)]">
+                    {activeField.confidenceLabel}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="border-t border-[var(--border-subtle)] pt-5">
+                <FieldReviewWorkspaceActions
+                  fieldId={activeField.id}
+                  fieldLabel={activeField.fieldLabel}
+                  suggestedValue={activeField.suggestedValue}
+                  canEdit={ctx.role !== "viewer"}
+                  needsCitation={activeField.needsCitation}
+                  nextHref={model.nextHref}
+                  skipHref={model.skipHref}
+                />
               </div>
             </div>
-            <ContractTable
-              contracts={contracts}
-              reviewStats={reviewStats}
-              rowSignals={rowSignals}
-              showContinuityLinks
-              footer={
-                <ContractPagination
-                  total={queue.total}
-                  page={queue.page}
-                  pageSize={CONTRACTS_PAGE_SIZE}
-                  basePath="/contracts/review"
-                  queryParams={{}}
-                />
-              }
-            />
-          </section>
-        </div>
+
+            <aside className="border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] lg:border-l lg:border-t-0">
+              <div className="space-y-5 px-4 py-5 sm:px-5 lg:px-6">
+                <section aria-label="Source snippet">
+                  <p className="ui-caps-3 text-[var(--text-tertiary)]">Source snippet</p>
+                  {activeField.sourceSnippet ? (
+                    <blockquote className="ui-source-quote mt-2 max-h-44 overflow-y-auto rounded-r-lg text-[13px] leading-relaxed">
+                      <span className="italic text-[var(--text-secondary)]">
+                        &ldquo;{activeField.sourceSnippet}&rdquo;
+                      </span>
+                    </blockquote>
+                  ) : (
+                    <p className="mt-2 rounded-xl border border-[var(--border-subtle)] px-3 py-3 text-[13px] text-[var(--text-secondary)]">
+                      No source snippet is attached to this suggestion.
+                    </p>
+                  )}
+                </section>
+
+                <section aria-label="Document preview">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-[var(--accent)]" aria-hidden />
+                    <p className="ui-caps-3 text-[var(--text-tertiary)]">Document preview</p>
+                  </div>
+                  <div className="mt-2 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_68%,transparent)] px-3 py-3">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                      {documentPreview?.title ?? "Document preview unavailable"}
+                    </p>
+                    <p className="mt-2 max-h-48 overflow-y-auto text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                      {documentPreview?.excerpt ?? "No source text is available for this contract."}
+                    </p>
+                  </div>
+                  {documentPreview?.sourceFileNames.length ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {documentPreview.sourceFileNames.map((name) => (
+                        <span key={name} className="ui-chip max-w-full truncate">
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </section>
+              </div>
+            </aside>
+          </div>
+
+          <div className="border-t border-[var(--border-subtle)] px-4 py-4 sm:px-5 lg:px-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <p className="ui-caps-3 text-[var(--text-tertiary)]">Queue</p>
+                <span className="ui-chip">
+                  <span className="font-mono tabular-nums">{model.queue.length}</span>
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {model.queue.slice(0, 5).map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className={`ui-btn-secondary inline-flex items-center gap-2 px-3 py-2 text-[12.5px] ${
+                      item.id === activeContract.id ? "ring-1 ring-[var(--focus-ring)]" : ""
+                    }`}
+                  >
+                    <span className="max-w-[13rem] truncate">{item.title}</span>
+                    <span className="text-[var(--text-tertiary)]">
+                      <span className="font-mono tabular-nums">{item.pendingFields}</span> pending
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       )}
+
+      <div className="sr-only" aria-hidden>
+        {FIELD_REVIEW_REQUIRED_CONTENT.join(", ")}
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import {
   isV5NavChildVisible,
   isV5NavItemVisible,
 } from "@/lib/navigation";
-import type { ProductSurfaceContext } from "@/lib/product-surface/context";
+import type { ProductSurfaceContext } from "@/lib/product-surface/context-core";
 import { isRefinementCoreUtilityPath } from "@/lib/product-surface/core-utility-paths";
 import {
   minWorkspaceModeForReportsHash,
@@ -155,7 +155,12 @@ export function isNavItemVisibleForSurface(item: NavItem, input: NavSurfaceInput
 
   const href = item.href.split("?")[0] ?? item.href;
 
+  if (input.mode === "core" && item.section && item.section !== "primary") {
+    return false;
+  }
+
   if (href === "/more") {
+    if (input.mode === "core") return false;
     return !utilityHiddenSet(input).has("more_tools");
   }
 
@@ -241,10 +246,12 @@ export function filterNavBadgesForSurface(
   const reviewItem = { href: "/contracts/review" } as NavItem;
   if (!isNavItemVisibleForSurface(reviewItem, input)) delete out.reviewQueue;
 
-  const approvalsVisible = isNavChildVisibleForSurface({ href: "/contracts/approvals" }, input);
+  const approvalsVisible =
+    input.mode !== "core" && isNavChildVisibleForSurface({ href: "/contracts/approvals" }, input);
   if (!approvalsVisible) delete out.approvals;
 
-  const obligationsVisible = isNavChildVisibleForSurface({ href: "/contracts/obligations" }, input);
+  const obligationsVisible =
+    input.mode !== "core" && isNavChildVisibleForSurface({ href: "/contracts/obligations" }, input);
   if (!obligationsVisible) delete out.obligations;
 
   const watchVisible =

@@ -40,6 +40,12 @@ vi.mock("@/lib/v6/telemetry", () => ({
   incrementV6QualityCounter: vi.fn(async () => {}),
 }));
 
+const enforceIdempotency = vi.hoisted(() => vi.fn<() => Promise<Response | null>>(async () => null));
+
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
 const mockedFlags = vi.mocked(isFeatureEnabled);
 
 function mockLinkSelect(data: Record<string, unknown> | null) {
@@ -70,6 +76,7 @@ describe("POST /api/external-actions/[token]/submit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     rateLimitCheck.mockResolvedValue({ ok: true });
+    enforceIdempotency.mockResolvedValue(null);
     appendExternalWorkflowStep.mockResolvedValue({ data: null, error: null });
   });
 
@@ -159,7 +166,72 @@ describe("POST /api/external-actions/[token]/submit", () => {
     const body = await res.json();
 
     expect(res.status).toBe(410);
-    expect(body).toEqual({ error: "External action link expired" });
+    expect(body).toMatchObject({
+      error: "External action link expired",
+      code: "external_action_expired",
+      diagnostic_id: "external_action_submit_expired",
+    });
+  });
+
+  it("returns 410 when external action link is revoked", async () => {
+    mockedFlags.mockReturnValue(true);
+    const future = new Date(Date.now() + 86400000).toISOString();
+    mockLinkSelect({
+      id: "l-revoked",
+      organization_id: "o1",
+      status: "revoked",
+      revoked_at: new Date().toISOString(),
+      expires_at: future,
+      one_time: true,
+      action_type: "submit_evidence",
+      scope_json: {},
+      passcode_hash: null,
+      decision_workspace_id: null,
+      requires_reauth: false,
+    });
+
+    const { POST } = await import("@/app/api/external-actions/[token]/submit/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "x" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(410);
+    expect(body).toMatchObject({
+      error: "External action link revoked",
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_submit_revoked",
+    });
+  });
+
+  it("returns duplicate response when idempotency blocks submit replay", async () => {
+    mockedFlags.mockReturnValue(true);
+    enforceIdempotency.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "Duplicate request blocked by idempotency key" }), {
+        status: 409,
+        headers: { "content-type": "application/json" },
+      })
+    );
+    const { POST } = await import("@/app/api/external-actions/[token]/submit/route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "submit-dupe-key" },
+        body: JSON.stringify({ message: "hello" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Duplicate request blocked by idempotency key",
+    });
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 409 when a concurrent submit already consumed the link", async () => {

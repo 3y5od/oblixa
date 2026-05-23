@@ -28,22 +28,11 @@ export const EXTRACTION_CHUNK_CHUNK_SIZE = 48_000;
 
 /** Overlap between consecutive chunks so fields spanning boundaries are not lost. */
 export const EXTRACTION_CHUNK_OVERLAP = 2_000;
-
-const DEFAULT_EXTRACTION_CHUNK_CONCURRENCY = 3;
-
-/**
- * Max concurrent OpenAI chunk requests (long contracts).
- * Override with env `EXTRACTION_CHUNK_CONCURRENCY` (integer 1–8); invalid values use default.
- */
-export function getExtractionChunkConcurrency(): number {
-  const raw = process.env.EXTRACTION_CHUNK_CONCURRENCY?.trim();
-  if (!raw) return DEFAULT_EXTRACTION_CHUNK_CONCURRENCY;
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isFinite(n) || n < 1) {
-    return DEFAULT_EXTRACTION_CHUNK_CONCURRENCY;
-  }
-  return Math.min(8, Math.floor(n));
-}
+export const EXTRACTION_MAX_TEXT_CHARS = 720_000;
+export const EXTRACTION_MAX_CHUNKS = 16;
+export const OPENAI_EXTRACTION_MAX_RETRY_ATTEMPTS = 4;
+export const OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS = 3;
+export const EXTRACTION_MODEL_OUTPUT_MAX_CHARS = 20_000;
 
 /** True when a processing job is old enough to treat as abandoned and allow retry. */
 export function isExtractionProcessingStale(

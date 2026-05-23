@@ -1,8 +1,7 @@
-import { buildProductSurfaceContext, type ProductSurfaceContext } from "@/lib/product-surface/context";
+import { buildProductSurfaceContext, type ProductSurfaceContext } from "@/lib/product-surface/context-core";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { featureFamilyForPath } from "@/lib/product-surface/feature-registry";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import { getFeatureFlags } from "@/lib/feature-flags";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
 import { v8GovernedPageRootPrefixes } from "@/lib/product-surface/v8-governed-prefixes";
@@ -91,11 +90,4 @@ export function productSurfaceContextFromNavSurface(
 export function isHrefEligibleForNavSurface(surface: NavSurfaceInput, href: string): boolean {
   const ctx = productSurfaceContextFromNavSurface(surface);
   return isHrefEligibleForProductSurface(ctx, href);
-}
-
-/** Server convenience: flags from env (same as API guard). */
-export function isHrefEligibleForNavSurfaceWithEnvFlags(surface: NavSurfaceInput, href: string): boolean {
-  const ctx = productSurfaceContextFromNavSurface(surface);
-  const withFlags = { ...ctx, featureFlags: getFeatureFlags() };
-  return isHrefEligibleForProductSurface(withFlags, href);
 }

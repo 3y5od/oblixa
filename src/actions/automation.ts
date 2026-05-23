@@ -3,7 +3,7 @@
 import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { isUuid } from "@/lib/security/validation";
+import { isUuid, parsePositiveIntParam, validateBoundedString } from "@/lib/security/validation";
 import { runTaskAutomationRulesForOrg as runTaskAutomationRulesForOrgEngine } from "@/lib/tasks/run-task-automation-rules-for-org";
 
 /** Outbound Slack/email from this module should pass `isNotificationAllowed` (workspace mode tiers in `notification-product-tier.ts`). */
@@ -20,6 +20,11 @@ type TriggerType =
 
 const MAX_RULE_NAME_LEN = 240;
 const MAX_CONFIG_JSON_SIZE = 10000;
+const MAX_AUTOMATION_FIELD_LEN = 160;
+const MAX_AUTOMATION_TASK_TITLE_LEN = 240;
+const MAX_AUTOMATION_TASK_DETAILS_LEN = 2000;
+const MAX_AUTOMATION_DAY_WINDOW = 3650;
+const MAX_AUTOMATION_STALL_HOURS = 8760;
 
 const TRIGGERS: TriggerType[] = [
   "field_missing",
@@ -44,8 +49,12 @@ export async function createTaskAutomationRule(input: {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
   if (!TRIGGERS.includes(input.triggerType)) return { error: "Invalid trigger type" };
-  if (!input.name.trim()) return { error: "Name is required" };
-  if (input.name.length > MAX_RULE_NAME_LEN) return { error: "Rule name is too long" };
+  const nameValidation = validateBoundedString(input.name, { maxLength: MAX_RULE_NAME_LEN });
+  if (!nameValidation.ok) {
+    if (nameValidation.error === "string_too_long") return { error: "Rule name is too long" };
+    if (nameValidation.error === "unsafe_characters") return { error: "Rule name contains unsupported characters" };
+    return { error: "Name is required" };
+  }
   if (JSON.stringify(input.configJson).length > MAX_CONFIG_JSON_SIZE) return { error: "Rule configuration is too large" };
 
   const membership = await getOrEnsureDeterministicMembership(admin, user);
@@ -55,7 +64,7 @@ export async function createTaskAutomationRule(input: {
 
   const { error } = await admin.from("task_automation_rules").insert({
     organization_id: membership.organization_id,
-    name: input.name.trim(),
+    name: nameValidation.value,
     trigger_type: input.triggerType,
     config_json: input.configJson ?? {},
     active: true,
@@ -66,23 +75,88 @@ export async function createTaskAutomationRule(input: {
 }
 
 export async function createTaskAutomationRuleForm(formData: FormData) {
-  const name = String(formData.get("name") ?? "");
+  const nameValidation = validateBoundedString(formData.get("name") ?? "", { maxLength: MAX_RULE_NAME_LEN });
   const triggerType = String(formData.get("triggerType") ?? "");
-  const requiredField = String(formData.get("requiredField") ?? "").trim();
-  const fieldName = String(formData.get("fieldName") ?? "").trim();
-  const windowDays = Number(String(formData.get("windowDays") ?? "").trim() || "0");
-  const lookbackDays = Number(String(formData.get("lookbackDays") ?? "").trim() || "2");
-  const teamKey = String(formData.get("teamKey") ?? "").trim();
-  const dueInDays = Number(String(formData.get("dueInDays") ?? "").trim() || "0");
-  const stallHours = Number(String(formData.get("stallHours") ?? "").trim() || "24");
-  const minCompleteness = Number(String(formData.get("minCompleteness") ?? "").trim() || "80");
-  const taskTitle = String(formData.get("taskTitle") ?? "").trim();
-  const taskDetails = String(formData.get("taskDetails") ?? "").trim();
-  const webhookEventType = String(formData.get("webhookEventType") ?? "").trim();
-  const actionType = String(formData.get("actionType") ?? "create_task").trim();
-  const reportMode = String(formData.get("reportMode") ?? "exceptions").trim();
+  const requiredFieldValidation = validateBoundedString(formData.get("requiredField") ?? "", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+    allowEmpty: true,
+  });
+  const fieldNameValidation = validateBoundedString(formData.get("fieldName") ?? "", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+    allowEmpty: true,
+  });
+  const teamKeyValidation = validateBoundedString(formData.get("teamKey") ?? "", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+    allowEmpty: true,
+  });
+  const taskTitleValidation = validateBoundedString(formData.get("taskTitle") ?? "", {
+    maxLength: MAX_AUTOMATION_TASK_TITLE_LEN,
+    allowEmpty: true,
+  });
+  const taskDetailsValidation = validateBoundedString(formData.get("taskDetails") ?? "", {
+    maxLength: MAX_AUTOMATION_TASK_DETAILS_LEN,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  const webhookEventTypeValidation = validateBoundedString(formData.get("webhookEventType") ?? "", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+    allowEmpty: true,
+  });
+  const actionTypeValidation = validateBoundedString(formData.get("actionType") ?? "create_task", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+  });
+  const reportModeValidation = validateBoundedString(formData.get("reportMode") ?? "exceptions", {
+    maxLength: MAX_AUTOMATION_FIELD_LEN,
+  });
+  if (
+    !nameValidation.ok ||
+    !requiredFieldValidation.ok ||
+    !fieldNameValidation.ok ||
+    !teamKeyValidation.ok ||
+    !taskTitleValidation.ok ||
+    !taskDetailsValidation.ok ||
+    !webhookEventTypeValidation.ok ||
+    !actionTypeValidation.ok ||
+    !reportModeValidation.ok
+  ) {
+    return;
+  }
+  const windowDays = parsePositiveIntParam(String(formData.get("windowDays") ?? "").trim(), {
+    defaultValue: 0,
+    min: 0,
+    max: MAX_AUTOMATION_DAY_WINDOW,
+  });
+  const lookbackDays = parsePositiveIntParam(String(formData.get("lookbackDays") ?? "").trim(), {
+    defaultValue: 2,
+    min: 0,
+    max: MAX_AUTOMATION_DAY_WINDOW,
+  });
+  const dueInDays = parsePositiveIntParam(String(formData.get("dueInDays") ?? "").trim(), {
+    defaultValue: 0,
+    min: 0,
+    max: MAX_AUTOMATION_DAY_WINDOW,
+  });
+  const stallHours = parsePositiveIntParam(String(formData.get("stallHours") ?? "").trim(), {
+    defaultValue: 24,
+    min: 0,
+    max: MAX_AUTOMATION_STALL_HOURS,
+  });
+  const minCompleteness = parsePositiveIntParam(String(formData.get("minCompleteness") ?? "").trim(), {
+    defaultValue: 80,
+    min: 0,
+    max: 100,
+  });
+  const name = nameValidation.value;
+  const requiredField = requiredFieldValidation.value;
+  const fieldName = fieldNameValidation.value;
+  const teamKey = teamKeyValidation.value;
+  const taskTitle = taskTitleValidation.value;
+  const taskDetails = taskDetailsValidation.value;
+  const webhookEventType = webhookEventTypeValidation.value;
+  const actionType = actionTypeValidation.value;
+  const reportMode = reportModeValidation.value;
   if (!TRIGGERS.includes(triggerType as TriggerType)) {
-    console.error("[automation] createTaskAutomationRuleForm: invalid triggerType", triggerType);
+    console.error("[automation] createTaskAutomationRuleForm: invalid triggerType");
     return;
   }
   const res = await createTaskAutomationRule({
@@ -91,12 +165,12 @@ export async function createTaskAutomationRuleForm(formData: FormData) {
     configJson: {
       requiredField: requiredField || null,
       fieldName: fieldName || null,
-      windowDays: Number.isFinite(windowDays) ? windowDays : 0,
-      lookbackDays: Number.isFinite(lookbackDays) ? lookbackDays : 2,
+      windowDays,
+      lookbackDays,
       teamKey: teamKey || null,
-      dueInDays: Number.isFinite(dueInDays) ? dueInDays : 0,
-      stallHours: Number.isFinite(stallHours) ? stallHours : 24,
-      minCompleteness: Number.isFinite(minCompleteness) ? minCompleteness : 80,
+      dueInDays,
+      stallHours,
+      minCompleteness,
       taskTitle: taskTitle || "Follow-up required",
       taskDetails: taskDetails || "",
       webhookEventType: webhookEventType || null,

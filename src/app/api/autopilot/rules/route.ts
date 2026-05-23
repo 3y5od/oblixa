@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
+import { jsonProblem } from "@/lib/http/problem";
+import { BODY_LIMIT_MEDIUM_JSON, parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
@@ -9,6 +10,10 @@ import { createAutopilotRule, listAutopilotRules } from "@/lib/v6/autopilot";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { enforceIdempotency } from "@/lib/idempotency";
+
+const ROUTE = "/api/autopilot/rules";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6Autopilot");
@@ -32,7 +37,14 @@ export async function GET() {
   );
 
   const { data, error } = await listAutopilotRules(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "autopilot_rules_list_failed",
+      diagnostic_id: "autopilot_rules_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ rules: data ?? [] });
 }
 
@@ -53,24 +65,60 @@ export async function POST(request: Request) {
   const modeBlock = await requireAssuranceWorkspaceForAutopilotApi(ctx.admin, ctx.orgId);
   if (modeBlock) return modeBlock;
 
-  const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
-    readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(raw ?? {}, {})
+  const duplicate = await enforceIdempotency(request, {
+    scope: "autopilot.rules.create",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/autopilot/rules",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const parsedBody = await parseJsonBodyWithLimit(
+    request,
+    (raw) => readJsonBody<{ name?: string; actionType?: string; requiresApproval?: boolean }>(raw ?? {}, {}),
+    BODY_LIMIT_MEDIUM_JSON
   );
   if (!parsedBody.ok) return parsedBody.response;
   const body = parsedBody.data;
 
   const name = toSafeString(body.name);
   const actionType = toSafeString(body.actionType) || "request_evidence_refresh";
-  if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+  if (!name) {
+    return jsonProblem(400, {
+      error: "name is required",
+      code: "name_required",
+      diagnostic_id: "autopilot_rule_name_required",
+      route: ROUTE,
+    });
+  }
   const validActionTypes = ["request_evidence_refresh", "flag_for_review", "auto_resolve", "notify_stakeholder", "escalate"];
-  if (!validActionTypes.includes(actionType)) return NextResponse.json({ error: "Invalid actionType" }, { status: 400 });
+  if (!validActionTypes.includes(actionType)) {
+    return jsonProblem(400, {
+      error: "Invalid actionType",
+      code: "invalid_action_type",
+      diagnostic_id: "autopilot_rule_action_type_invalid",
+      route: ROUTE,
+    });
+  }
 
   const result = await createAutopilotRule(ctx.admin, ctx.orgId, ctx.userId, {
     name,
     actionType,
     requiresApproval: body.requiresApproval,
   });
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    return jsonProblem(400, {
+      error: result.error.message,
+      code: "autopilot_rule_create_failed",
+      diagnostic_id: "autopilot_rule_create_failed",
+      route: ROUTE,
+    });
+  }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_autopilot_rule_create_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);

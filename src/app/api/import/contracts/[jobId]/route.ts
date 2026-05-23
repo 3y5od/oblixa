@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -19,9 +20,14 @@ import { executeV10IdempotentMutation, getV10ExpectedVersionFromRequest, getV10I
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/v10-job-visibility";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const IMPORT_JOB_ROWS_LIMIT = 300;
+const ROUTE = "/api/import/contracts/[jobId]";
+
+export const maxDuration = 60;
 
 type ImportRetryMutationResponse = V10MutationResponse & {
   success?: boolean;
@@ -53,16 +59,22 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
-  const { jobId } = await params;
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_missing",
+      diagnostic_id: "import_contracts_job_organization_missing",
+      route: ROUTE,
+    });
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -75,15 +87,17 @@ export async function GET(
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`import-contracts-job:${user.id}:${ip}`, RATE_LIMITS.importContractsJob);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { ...PRIVATE_NO_STORE_HEADERS, "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { jobId } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ jobId }, ["jobId"], "/api/import/contracts/[jobId]");
+
+  if (routeParamRejection) return routeParamRejection;
   const [{ data: job, error: jobError }, { data: rows, error: rowsError }, { data: v10Visibility }] = await Promise.all([
     admin
       .from("contract_import_jobs")
@@ -110,18 +124,22 @@ export async function GET(
       .maybeSingle(),
   ]);
   if (jobError) {
-    return NextResponse.json(
-      { error: "Could not load import job", diagnostic_id: "v10_import_job_load_failed" },
-      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return jsonProblem(500, {
+      error: "Could not load import job",
+      code: "import_job_load_failed",
+      diagnostic_id: "v10_import_job_load_failed",
+      route: ROUTE,
+    });
   }
   if (rowsError) {
-    return NextResponse.json(
-      { error: "Could not load import job rows", diagnostic_id: "v10_import_job_rows_load_failed" },
-      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return jsonProblem(500, {
+      error: "Could not load import job rows",
+      code: "import_job_rows_load_failed",
+      diagnostic_id: "v10_import_job_rows_load_failed",
+      route: ROUTE,
+    });
   }
-  if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!job) return jsonNotFound(ROUTE);
 
   const visibleRows = rows ?? [];
   const totalRows = typeof job.total_rows === "number" ? job.total_rows : visibleRows.length;
@@ -159,16 +177,22 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
-  const { jobId } = await params;
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_missing",
+      diagnostic_id: "import_contracts_retry_organization_missing",
+      route: ROUTE,
+    });
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -178,12 +202,22 @@ export async function POST(
   });
   if (modeGate) return modeGate;
 
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { jobId } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ jobId }, ["jobId"], "/api/import/contracts/[jobId]");
+
+  if (routeParamRejection) return routeParamRejection;
   const idempotencyKey = getV10IdempotencyKeyFromRequest(request);
   if (!idempotencyKey || !validateV10IdempotencyKey(idempotencyKey)) {
-    return NextResponse.json(
-      { error: "A valid x-idempotency-key header is required for this V10 import retry.", diagnostic_id: "v10_import_retry_idempotency_key_invalid" },
-      { status: 400, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return jsonProblem(400, {
+      error: "A valid x-idempotency-key header is required for this V10 import retry.",
+      code: "invalid_idempotency_key",
+      diagnostic_id: "v10_import_retry_idempotency_key_invalid",
+      route: ROUTE,
+    });
   }
 
   const { response: retryMutation, replayed } = await executeV10IdempotentMutation<ImportRetryMutationResponse>(
@@ -329,12 +363,17 @@ export async function POST(
   );
 
   if (retryMutation.outcome !== "success") {
-    return NextResponse.json(
-      { error: retryMutation.user_visible_message, replayed, v10: retryMutation },
+    const retryInit = buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonProblem(
+      statusForV10ImportRetryOutcome(retryMutation.outcome),
       {
-        ...buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS }),
-        status: statusForV10ImportRetryOutcome(retryMutation.outcome),
-      }
+        error: retryMutation.user_visible_message,
+        code: String(retryMutation.outcome),
+        diagnostic_id: retryMutation.diagnostic_id ?? "v10_import_retry_failed",
+        route: ROUTE,
+        details: { replayed, v10: retryMutation },
+      },
+      { headers: retryInit.headers }
     );
   }
 

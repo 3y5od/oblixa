@@ -27,6 +27,20 @@ describe("feature flags", () => {
     expect(is2("v6AssuranceCore")).toBe(false);
   });
 
+  it("fails closed for invalid explicit and bypass-shaped flag values", async () => {
+    process.env.ENABLE_V6_ASSURANCE_CORE = "enabled";
+    process.env.ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION = "bypass";
+    const { isFeatureEnabled } = await import("@/lib/feature-flags");
+    expect(isFeatureEnabled("v6AssuranceCore")).toBe(false);
+    expect(isFeatureEnabled("v6AutopilotAllowExecution")).toBe(false);
+  });
+
+  it("accepts only explicit safe true values when an env flag is set", async () => {
+    process.env.ENABLE_V6_ASSURANCE_CORE = "yes";
+    const { isFeatureEnabled } = await import("@/lib/feature-flags");
+    expect(isFeatureEnabled("v6AssuranceCore")).toBe(true);
+  });
+
   it("getFeatureFlags returns every key", async () => {
     const { getFeatureFlags } = await import("@/lib/feature-flags");
     const all = getFeatureFlags();

@@ -1,14 +1,25 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { createClient } from "@/lib/supabase/server";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
+import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+
+const ROUTE = "/api/maintenance/campaigns/[id]/run";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -16,9 +27,44 @@ export async function POST(
     apiPath: "/api/maintenance/campaigns/[id]/run",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/maintenance/campaigns/[id]/run");
+
+  if (routeParamRejection) return routeParamRejection;
+  const supabase = await createClient();
+  if (!(await hasSensitiveActionProof(supabase, ctx.userId))) {
+    void recordSecurityAuditEvent(ctx.admin, {
+      organizationId: ctx.orgId,
+      actorUserId: ctx.userId,
+      action: "security.maintenance_destructive_action_blocked",
+      targetType: "maintenance_campaign",
+      targetId: id,
+      outcome: "forbidden",
+      safeMetadata: {
+        reason: "sensitive_action_proof_required",
+        route: ROUTE,
+        maintenance_action: "run_maintenance_campaign",
+      },
+    }).catch(() => undefined);
+    return jsonProblem(403, {
+      error: "Step-up required",
+      code: "step_up_required",
+      diagnostic_id: "maintenance_campaign_run_step_up_required",
+      route: ROUTE,
+    });
   }
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "POST",
+  }).catch(() => undefined);
 
   const { data: campaign } = await ctx.admin
     .from("maintenance_campaigns")
@@ -26,7 +72,7 @@ export async function POST(
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!campaign) return jsonNotFound(ROUTE);
 
   await ctx.admin
     .from("maintenance_campaigns")

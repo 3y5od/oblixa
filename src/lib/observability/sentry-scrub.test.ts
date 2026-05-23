@@ -158,4 +158,55 @@ describe("scrubSentryEvent", () => {
     expect(crumbs?.[0]?.message).not.toContain("@corp.test");
     expect(JSON.stringify(crumbs?.[0]?.data)).not.toContain("@corp.test");
   });
+
+  it("redacts signed URLs, bearer secrets, OAuth codes, and raw text in deep payloads", () => {
+    const out = scrubSentryEvent({
+      message: "provider failed customer_name=AcmeCorp file_name=contract.pdf",
+      request: {
+        headers: { authorization: "Bearer abcdefghijk123456789" },
+        url: "https://app.test/callback?code=oauthsecret123456&tab=done",
+      },
+      exception: {
+        values: [
+          {
+            type: "Error",
+            value: "OpenAI failed with OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGH for external@example.com",
+          },
+        ],
+      },
+      extra: {
+        signed_url: "https://storage.test/a?signature=private123456",
+        raw_document_text: "private clause",
+        safe: "actor user_1 org org_1 target contract_1 action retry result failed request req_1",
+      },
+      contexts: {
+        provider: { access_token: "token123456789", phase: "refresh" },
+      },
+    });
+    const text = JSON.stringify(out);
+    expect(text).not.toContain("abcdefghijk");
+    expect(text).not.toContain("oauthsecret123456");
+    expect(text).not.toContain("private clause");
+    expect(text).not.toContain("token123456789");
+    expect(text).not.toContain("AcmeCorp");
+    expect(text).not.toContain("contract.pdf");
+    expect(text).not.toContain("sk-proj-");
+    expect(text).not.toContain("external@example.com");
+    expect(text).toContain("req_1");
+  });
+
+  it("redacts signed URL values from non-sensitive request headers", () => {
+    const out = scrubSentryEvent({
+      request: {
+        headers: {
+          Referer: "https://app.test/export?token=private123456&tab=done",
+          "X-Request-Id": "req_1",
+        },
+      },
+    });
+    const headers = (out as { request?: { headers?: Record<string, string> } }).request?.headers ?? {};
+    expect(headers.Referer).toContain("token=[redacted]");
+    expect(headers.Referer).not.toContain("private123456");
+    expect(headers["X-Request-Id"]).toBe("req_1");
+  });
 });

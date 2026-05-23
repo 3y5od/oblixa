@@ -36,6 +36,10 @@ import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { filterNavBadgesForSurface } from "@/lib/product-surface/nav-visibility";
 import { shellTestIds } from "@/lib/qa/test-ids";
 import {
+  readSidebarCollapsedPreference,
+  writeSidebarCollapsedPreference,
+} from "@/lib/security/client-storage";
+import {
   buildSidebarModel,
   type SidebarBadgeModel,
   type SidebarItemModel,
@@ -43,7 +47,6 @@ import {
   type SidebarSectionModel,
 } from "./sidebar-model";
 
-const COLLAPSED_PREF_KEY = "oblixa.sidebar.collapsed";
 const COLLAPSED_PREF_EVENT = "oblixa:sidebar-collapsed-change";
 const DESKTOP_SIDEBAR_BODY_ID = "desktop-sidebar-body";
 
@@ -81,10 +84,16 @@ function fallbackNavSurface(role: WorkspaceRole, flags: Record<FeatureFlagKey, b
 }
 
 function badgeToneClass(tone: SidebarBadgeModel["tone"]): string {
-  if (tone === "reviewQueue") return "bg-amber-300/20 text-amber-100";
-  if (tone === "approvals") return "bg-orange-300/20 text-orange-100";
-  if (tone === "obligations") return "bg-rose-300/20 text-rose-100";
-  return "bg-white/[0.16] text-[color:color-mix(in_oklab,var(--sidebar-fg)_90%,transparent)]";
+  if (tone === "reviewQueue") {
+    return "border border-amber-400/30 bg-amber-300/15 text-amber-100";
+  }
+  if (tone === "approvals") {
+    return "border border-orange-400/30 bg-orange-300/15 text-orange-100";
+  }
+  if (tone === "obligations") {
+    return "border border-rose-400/30 bg-rose-300/15 text-rose-100";
+  }
+  return "border border-white/10 bg-white/[0.08] text-[color:color-mix(in_oklab,var(--sidebar-fg)_90%,transparent)]";
 }
 
 function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; collapsed: boolean }) {
@@ -128,7 +137,7 @@ function SidebarNavLink({
   const tooltipId = `sidebar-tooltip-${item.href.replace(/[^a-z0-9]+/gi, "-")}`;
   const tooltipVisible = collapsed && tooltipHref === item.href;
   const childClass = child
-    ? `${Icon ? "ui-sidebar-sublink-align-icon" : "ui-sidebar-sublink-align-dot"} text-[12px] ${
+    ? `ui-sidebar-sublink-indent text-[12.5px] ${
         item.active ? "ui-sidebar-sublink-active" : "ui-sidebar-link-idle opacity-90"
       }`
     : item.active
@@ -151,9 +160,19 @@ function SidebarNavLink({
       data-sidebar-href={item.href}
     >
       {Icon ? (
-        <Icon size={18} strokeWidth={1.65} className="shrink-0 opacity-90" aria-hidden />
-      ) : (
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${item.active ? "bg-white" : "bg-white/35"}`} />
+        <Icon size={18} strokeWidth={1.85} className="shrink-0 opacity-90" aria-hidden />
+      ) : child ? null : (
+        /* Top-level row without icon → render an empty-ring marker, not a
+           filled gray dot. The empty ring communicates "indeterminate /
+           leaf" rather than implying a status signal. */
+        <span
+          aria-hidden
+          className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+            item.active
+              ? "bg-white"
+              : "border border-white/35 bg-transparent"
+          }`}
+        />
       )}
       {collapsed && <SidebarBadge badge={item.badge} collapsed />}
       {!collapsed && <span className="min-w-0 flex-1 truncate">{item.name}</span>}
@@ -177,27 +196,35 @@ function SidebarSection({
   onNavigate,
   tooltipHref,
   setTooltipHref,
+  first,
 }: {
   section: SidebarSectionModel;
   collapsed: boolean;
   onNavigate: () => void;
   tooltipHref: string | null;
   setTooltipHref: (href: string | null) => void;
+  first: boolean;
 }) {
   if (section.items.length === 0) return null;
+  const hideHeadingVisually = collapsed || first;
   return (
-    <section className={section.variant === "rail" ? "mt-2" : "mt-4 border-t border-[var(--sidebar-section-border)] pt-3"}>
+    <section className={section.variant === "rail" ? "mt-2" : first ? "mt-0 pt-0" : "mt-3 border-t border-[var(--sidebar-section-border)] pt-2.5"}>
       <h2
         id={`${section.id}-heading`}
         className={
-          collapsed
+          hideHeadingVisually
             ? "sr-only"
-            : "px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--sidebar-heading)]"
+            : "ui-caps-1 px-3 text-[10px]"
+        }
+        style={
+          hideHeadingVisually
+            ? undefined
+            : { color: "var(--sidebar-heading)" }
         }
       >
         {section.label}
       </h2>
-      <nav aria-labelledby={`${section.id}-heading`} className={collapsed ? "space-y-1.5" : "mt-2 space-y-1.5"}>
+      <nav aria-labelledby={`${section.id}-heading`} className={collapsed ? "space-y-1.5" : hideHeadingVisually ? "space-y-1.5" : "mt-2 space-y-1.5"}>
         {section.items.map((item) => (
           <div key={item.href} className="space-y-0.5">
             <SidebarNavLink
@@ -242,19 +269,19 @@ function SidebarHeader({
   closeButtonRef: RefObject<HTMLButtonElement | null>;
 }) {
   return (
-    <div className="flex h-[4.25rem] shrink-0 items-center justify-between border-b border-[var(--sidebar-section-border)] px-3">
+    <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--sidebar-section-border)] px-3">
       {!collapsed && (
-        <div className="flex min-w-0 items-center gap-3 pl-1">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[0.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] text-white shadow-[0_8px_18px_rgba(0,0,0,0.14)]">
+        <Link
+          href="/dashboard"
+          className="group flex min-w-0 items-center gap-3 rounded-md pl-0.5 pr-2 py-1 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+        >
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,rgba(255,255,255,0.10))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,rgba(255,255,255,0.04))] text-[var(--accent-strong)] shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
             <Orbit size={18} strokeWidth={1.85} aria-hidden />
           </span>
-          <div className="min-w-0">
-            <Link href="/dashboard" className="block truncate text-[15px] font-semibold tracking-tight text-white">
-              Oblixa
-            </Link>
-            <p className="truncate text-[10px] uppercase tracking-[0.18em] text-white/52">Contract operations OS</p>
-          </div>
-        </div>
+          <span className="block min-w-0 truncate text-[15px] font-bold tracking-tight text-white">
+            Oblixa
+          </span>
+        </Link>
       )}
       {mobile ? (
         <button
@@ -273,12 +300,13 @@ function SidebarHeader({
           type="button"
           onClick={onToggleCollapsed}
           data-testid={shellTestIds.sidebarCollapseToggle}
-          className={`ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)] ${collapsed ? "mx-auto" : ""}`}
+          className={`inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--sidebar-muted)] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)] ${collapsed ? "mx-auto" : ""}`}
           aria-controls={DESKTOP_SIDEBAR_BODY_ID}
           aria-expanded={!collapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar (⌘\\)" : "Collapse sidebar (⌘\\)"}
         >
-          {collapsed ? <PanelLeftOpen size={18} aria-hidden /> : <PanelLeftClose size={18} aria-hidden />}
+          {collapsed ? <PanelLeftOpen size={16} strokeWidth={1.85} aria-hidden /> : <PanelLeftClose size={16} strokeWidth={1.85} aria-hidden />}
         </button>
       )}
     </div>
@@ -287,15 +315,15 @@ function SidebarHeader({
 
 function SidebarFooter({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className="border-t border-[var(--sidebar-section-border)] p-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+    <div className="border-t border-[var(--sidebar-section-border)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
       <form action={signOut}>
         <button
           type="submit"
           data-testid={shellTestIds.sidebarSignOut}
-          className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2.5 text-[13px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          className="group flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2 text-[12.5px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_18%,transparent)] hover:text-[color:color-mix(in_oklab,var(--danger-ink)_80%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
           aria-label={collapsed ? "Sign out" : undefined}
         >
-          <LogOut size={18} strokeWidth={1.65} className="shrink-0 opacity-95" aria-hidden />
+          <LogOut size={16} strokeWidth={1.85} className="shrink-0" aria-hidden />
           {!collapsed && <span>Sign out</span>}
         </button>
       </form>
@@ -310,7 +338,7 @@ function MobileNavigationTrigger({ buttonRef, onOpen }: { buttonRef: RefObject<H
       type="button"
       onClick={onOpen}
       data-testid={shellTestIds.sidebarMobileOpen}
-      className="fixed left-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 inline-flex min-h-10 min-w-10 items-center justify-center rounded-[0.8rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] backdrop-blur transition-transform duration-[var(--ui-duration)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="fixed left-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[color:var(--surface-tint)] p-2 text-[var(--text-secondary)] shadow-[var(--shadow-1)] backdrop-blur transition-transform duration-[var(--ui-duration)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       aria-label="Open navigation"
     >
       <Grid2x2 size={18} aria-hidden />
@@ -358,12 +386,7 @@ function focusableElements(root: HTMLElement): HTMLElement[] {
 }
 
 function getStoredCollapsedPreference(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(COLLAPSED_PREF_KEY) === "1";
-  } catch {
-    return false;
-  }
+  return readSidebarCollapsedPreference();
 }
 
 function subscribeCollapsedPreference(callback: () => void): () => void {
@@ -407,7 +430,7 @@ export function Sidebar(props: {
   const toggleCollapsed = useCallback(() => {
     const next = !collapsed;
     try {
-      window.localStorage.setItem(COLLAPSED_PREF_KEY, next ? "1" : "0");
+      writeSidebarCollapsedPreference(next);
       window.dispatchEvent(new Event(COLLAPSED_PREF_EVENT));
     } catch {
       // Ignore storage errors.
@@ -543,6 +566,8 @@ export function Sidebar(props: {
 
   const renderBody = (mobile = false) => {
     const bodyCollapsed = mobile ? false : model.collapsed;
+    const footerInScrollBody = !mobile && !bodyCollapsed;
+    const bodyClassName = "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-3";
     return (
       <>
         <SidebarHeader
@@ -553,19 +578,9 @@ export function Sidebar(props: {
           onCloseMobile={closeMobileDrawer}
           closeButtonRef={mobileCloseButtonRef}
         />
-        <div id={mobile ? undefined : DESKTOP_SIDEBAR_BODY_ID} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-3">
-          {mobile && showToolsLink ? (
-            <Link
-              href="/more"
-              prefetch={false}
-              onClick={closeMobileDrawer}
-              className="mb-3 block rounded-[0.8rem] border border-white/[0.14] bg-white/[0.06] px-3 py-2 text-[12px] font-semibold text-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
-            >
-              Browse tools
-            </Link>
-          ) : null}
+        <div id={mobile ? undefined : DESKTOP_SIDEBAR_BODY_ID} className={bodyClassName}>
           <div data-testid={shellTestIds.primaryNav} className={bodyCollapsed ? "space-y-2" : "space-y-1"}>
-            {model.sections.map((section) => (
+            {model.sections.map((section, index) => (
               <SidebarSection
                 key={section.id}
                 section={section}
@@ -573,11 +588,13 @@ export function Sidebar(props: {
                 onNavigate={mobile ? closeMobileDrawer : noopNavigate}
                 tooltipHref={tooltipHref}
                 setTooltipHref={setTooltipHref}
+                first={index === 0}
               />
             ))}
           </div>
+          {footerInScrollBody ? <SidebarFooter collapsed={bodyCollapsed} /> : null}
         </div>
-        <SidebarFooter collapsed={bodyCollapsed} />
+        {footerInScrollBody ? null : <SidebarFooter collapsed={bodyCollapsed} />}
       </>
     );
   };
@@ -595,7 +612,7 @@ export function Sidebar(props: {
       <aside
         aria-label="Workspace"
         data-testid={shellTestIds.sidebarDesktop}
-        className={`hidden min-h-0 flex-col border-r border-[var(--sidebar-border)] bg-[linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_94%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] motion-reduce:transition-none lg:flex ${
+        className={`sticky top-0 hidden h-dvh max-h-dvh min-h-0 shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_94%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] motion-reduce:transition-none lg:flex ${
           model.collapsed ? "w-[4.75rem]" : "w-[18.5rem]"
         }`}
       >

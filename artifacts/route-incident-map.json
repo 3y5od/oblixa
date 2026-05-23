@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-07T01:33:53.954Z",
+  "generatedAt": "2026-05-15T23:12:38.559Z",
   "rows": [
     {
       "route": "/",
@@ -106,6 +106,13 @@
       "owner": "engineering",
       "riskTier": "P2",
       "diagnosticPrefix": "root"
+    },
+    {
+      "route": "/acceptable-use",
+      "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "acceptable_use"
     },
     {
       "route": "/accessibility",
@@ -402,6 +409,13 @@
       "diagnosticPrefix": "api_command_palette_contracts"
     },
     {
+      "route": "/api/contact",
+      "sourcePath": "src/app/api/contact/route.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_contact"
+    },
+    {
       "route": "/api/contracts/recompute-signals",
       "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
       "owner": "operations",
@@ -449,6 +463,13 @@
       "owner": "engineering",
       "riskTier": "P3",
       "diagnosticPrefix": "api_counterparties_key_summary"
+    },
+    {
+      "route": "/api/cron/security/retention-cleanup",
+      "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "owner": "operations",
+      "riskTier": "P0",
+      "diagnosticPrefix": "api_cron_security_retention_cleanup"
     },
     {
       "route": "/api/cron/stripe-webhook-events",
@@ -1312,6 +1333,13 @@
       "diagnosticPrefix": "api_review_boards_runs_id"
     },
     {
+      "route": "/api/security/csp-report",
+      "sourcePath": "src/app/api/security/csp-report/route.ts",
+      "owner": "release",
+      "riskTier": "P1",
+      "diagnosticPrefix": "api_security_csp_report"
+    },
+    {
       "route": "/api/segments",
       "sourcePath": "src/app/api/segments/route.ts",
       "owner": "engineering",
@@ -1562,6 +1590,13 @@
       "owner": "engineering",
       "riskTier": "P2",
       "diagnosticPrefix": "campaigns_compare"
+    },
+    {
+      "route": "/contact",
+      "sourcePath": "src/app/(marketing)/contact/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contact"
     },
     {
       "route": "/contracts",
@@ -2068,11 +2103,32 @@
       "diagnosticPrefix": "onboarding_calibration"
     },
     {
+      "route": "/pricing",
+      "sourcePath": "src/app/(marketing)/pricing/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "pricing"
+    },
+    {
       "route": "/privacy",
       "sourcePath": "src/app/(marketing)/privacy/page.tsx",
       "owner": "engineering",
       "riskTier": "P2",
       "diagnosticPrefix": "privacy"
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "product"
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "product"
     },
     {
       "route": "/relationship-workspaces",
@@ -2152,6 +2208,13 @@
       "diagnosticPrefix": "settings_health"
     },
     {
+      "route": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_health_diagnostics"
+    },
+    {
       "route": "/settings/operations",
       "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
       "owner": "security",
@@ -2164,6 +2227,20 @@
       "owner": "security",
       "riskTier": "P2",
       "diagnosticPrefix": "settings_policy"
+    },
+    {
+      "route": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_policy_diagnostics"
+    },
+    {
+      "route": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
+      "owner": "security",
+      "riskTier": "P2",
+      "diagnosticPrefix": "settings_policy_registry"
     },
     {
       "route": "/settings/product",
@@ -2327,6 +2404,13 @@
       "diagnosticPrefix": "action_applyprogramaction"
     },
     {
+      "route": "action:approvals-action-scope.test",
+      "sourcePath": "src/actions/approvals-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_approvals_action_scope_test"
+    },
+    {
       "route": "action:approvals.test",
       "sourcePath": "src/actions/approvals.test.ts",
       "owner": "engineering",
@@ -2360,6 +2444,13 @@
       "owner": "security",
       "riskTier": "P1",
       "diagnosticPrefix": "action_auth_actions_test"
+    },
+    {
+      "route": "action:automation-action-scope.test",
+      "sourcePath": "src/actions/automation-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_automation_action_scope_test"
     },
     {
       "route": "action:automation.test",
@@ -3356,6 +3447,13 @@
       "diagnosticPrefix": "action_seedrenewalplaybook"
     },
     {
+      "route": "action:server-action-input-safety.test",
+      "sourcePath": "src/actions/server-action-input-safety.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_server_action_input_safety_test"
+    },
+    {
       "route": "action:sessions.test",
       "sourcePath": "src/actions/sessions.test.ts",
       "owner": "engineering",
@@ -3893,6 +3991,13 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_watchlists_action_scope_test"
+    },
+    {
+      "route": "action:workflow-config-action-scope.test",
+      "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_workflow_config_action_scope_test"
     },
     {
       "route": "action:workflow-config-sanitize.test",

@@ -42,13 +42,12 @@ export function BatchApproveButton({
   }
 
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-3 py-3 shadow-[var(--shadow-1)]">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <button
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="ui-btn-secondary w-full px-3 py-2 text-xs disabled:opacity-50 sm:w-auto"
+        className="ui-btn-secondary inline-flex w-full items-center gap-1.5 px-3 py-2 text-xs disabled:opacity-50 sm:w-auto"
       >
         <ListChecks size={16} className="text-[var(--success-ink)]" />
         {isPending ? "Approving…" : "Approve all ready fields"}
@@ -64,7 +63,6 @@ export function BatchApproveButton({
           {message.text}
         </p>
       )}
-      </div>
     </div>
   );
 }

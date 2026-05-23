@@ -62,12 +62,27 @@ describe("hasRoleCapability", () => {
     expect(hasRoleCapability({ role: null, capability: "contracts_edit" })).toBe(false);
   });
 
+  it("unknown roles never grant", () => {
+    expect(
+      hasRoleCapability({
+        role: "super_admin" as never,
+        capability: "settings_manage",
+      })
+    ).toBe(false);
+  });
+
   it("exhaustive baseline matrix matches BASE_CAPABILITIES", () => {
     for (const role of ALL_ROLES) {
       const allowed = new Set(BASE_CAPABILITIES[role] ?? []);
       for (const capability of ALL_CAPS) {
         expect(hasRoleCapability({ role, capability })).toBe(allowed.has(capability));
       }
+    }
+  });
+
+  it("viewer has no baseline mutation capabilities", () => {
+    for (const capability of ALL_CAPS) {
+      expect(hasRoleCapability({ role: "viewer", capability })).toBe(false);
     }
   });
 

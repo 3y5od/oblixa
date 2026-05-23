@@ -246,7 +246,7 @@ export function CalibrationWizard(props: {
           <ul className="mt-6 space-y-2">
             {options[currentField].map((o) => (
               <li key={o.id}>
-                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] px-3.5 py-2.5 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)]">
+                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_86%,white)] px-3.5 py-2.5 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)]">
                   <input
                     type="radio"
                     name={currentField}

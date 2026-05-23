@@ -26,7 +26,7 @@ const REQUIRED_FILE_MARKERS = {
   "src/app/api/external-actions/[token]/workflow-step/route.ts": [
     'const duplicate = await enforceIdempotency(request, {',
     'scope: "external-workflow.internal-step",',
-    'actorKey: `${ctx.orgId}:${ctx.userId}:${token}`,',
+    'actorKey: `${ctx.orgId}:${ctx.userId}:${tokenKey}`,',
   ],
   "src/app/api/external-actions/[token]/workflow-step/route.test.ts": [
     'it("blocks duplicate replay of internal workflow-step with x-idempotency-key", async () => {',
@@ -35,17 +35,33 @@ const REQUIRED_FILE_MARKERS = {
   "src/app/api/external-actions/[token]/participant/workflow-step/route.ts": [
     'const duplicate = await enforceIdempotency(request, {',
     'scope: "external-workflow.participant-step",',
-    'actorKey: token,',
+    'actorKey: tokenKey,',
   ],
   "src/app/api/external-actions/[token]/participant/workflow-step/route.test.ts": [
     'it("blocks duplicate replay of participant workflow-step with x-idempotency-key", async () => {',
     'error: "Duplicate request blocked by idempotency key",',
+  ],
+  "src/app/api/external-actions/[token]/submit/route.ts": [
+    'const duplicate = await enforceIdempotency(request, {',
+    'scope: "external-action.submit",',
+    'actorKey: tokenKey,',
+  ],
+  "src/app/api/stripe/webhook/route.ts": [
+    ".insert({ id: event.id, status: \"processing\" });",
+    'if (claimErr.code === "23505")',
+    "duplicate: true",
   ],
   "src/lib/cron/route-runner.ts": [
     'const duplicate = await enforceIdempotency(request, {',
     'scope: `cron:${options.route}`,',
     'actorKey: "cron",',
     'reason: "duplicate_request",',
+  ],
+  "artifacts/security-route-matrix.json": [
+    '"idempotency_or_job_lock_policy"',
+    '"idempotency_or_duplicate_guard"',
+    '"job_lock_or_claim"',
+    '"terminal_state_guard"',
   ],
 };
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonRateLimited } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -8,7 +9,16 @@ import {
   rateLimitCheck,
 } from "@/lib/rate-limit";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
-import { nowIso, verifyExternalPasscode, verifyExternalSubmitTicket } from "@/lib/v5/api";
+import {
+  externalActionTokenHash,
+  externalActionTokenMatches,
+  externalActionTokenPrefix,
+  externalActionTokenStableKey,
+  isExternalActionTokenSyntax,
+  nowIso,
+  verifyExternalPasscode,
+  verifyExternalSubmitTicket,
+} from "@/lib/v5/api";
 import { validateExternalActionPayload } from "@/lib/v5/external-action-payload";
 import {
   type ExternalActionType,
@@ -21,8 +31,18 @@ import {
 import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { recordPublicTokenMiss } from "@/lib/security/public-token-telemetry";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ROUTE = "/api/external-actions/[token]/submit";
+const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" } as const;
+
+type TokenHashLookup = {
+  eq: (column: string, value: string) => { maybeSingle: () => Promise<{ data: unknown; error: unknown }> };
+};
 
 function routeFailure(input: {
   status: number;
@@ -32,17 +52,13 @@ function routeFailure(input: {
   phase: string;
   details?: Record<string, unknown>;
 }) {
-  return NextResponse.json(
-    {
-      ok: false,
-      error: input.error,
-      code: input.code,
-      diagnostic_id: input.diagnosticId,
-      phase: input.phase,
-      ...(input.details ? { details: input.details } : {}),
-    },
-    { status: input.status }
-  );
+  return jsonProblem(input.status, {
+    error: input.error,
+    code: input.code,
+    diagnostic_id: input.diagnosticId,
+    route: ROUTE,
+    details: { phase: input.phase, ...(input.details ?? {}) },
+  });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
@@ -51,17 +67,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`external-submit:${ip}`, RATE_LIMITS.externalTokenMutate);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
   const { token } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ token }, ["token"], "/api/external-actions/[token]/submit");
+  if (routeParamRejection) return routeParamRejection;
+  const tokenHash = externalActionTokenHash(token);
+  const tokenKey = externalActionTokenStableKey(token);
+  if (!isExternalActionTokenSyntax(token)) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "malformed" });
+    return jsonNotFound(ROUTE);
+  }
+  const tokenRl = await rateLimitCheck(`external-submit:token-hash:${tokenKey}`, RATE_LIMITS.externalTokenMutate);
+  if (!tokenRl.ok) {
+    return jsonRateLimited(tokenRl.retryAfterMs, ROUTE);
+  }
+  const duplicate = await enforceIdempotency(request, {
+    scope: "external-action.submit",
+    actorKey: tokenKey,
+  });
+  if (duplicate) return duplicate;
   const admin = await createAdminClient();
   const _lb_rawPayload = await readJsonBodyLimited(request);
   if (!_lb_rawPayload.ok) return _lb_rawPayload.response;
@@ -70,13 +95,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const submitTicket =
     typeof rawPayload.submitTicket === "string" ? rawPayload.submitTicket : undefined;
 
-  const { data: link, error: linkError } = await admin
+  const tokenPrefix = externalActionTokenPrefix(token);
+  const query = admin
     .from("external_action_links")
     .select(
-      "id, organization_id, status, expires_at, one_time, action_type, scope_json, passcode_hash, decision_workspace_id, requires_reauth"
-    )
-    .eq("token", token)
-    .maybeSingle();
+      "id, organization_id, status, expires_at, revoked_at, one_time, action_type, scope_json, passcode_hash, decision_workspace_id, requires_reauth, token_hash"
+    );
+  const hasHashLookup = typeof (query as { or?: unknown }).or === "function";
+  const result =
+    hasHashLookup
+      ? await query.or(`token_prefix.eq.${tokenPrefix},token_hash.eq.${tokenHash}`).limit(10)
+      : await (query as unknown as TokenHashLookup)
+          .eq("token_hash", tokenHash)
+          .maybeSingle();
+  const candidates = Array.isArray(result.data) ? result.data : result.data ? [result.data] : [];
+  const linkError = result.error as { message?: string } | null;
   if (linkError) {
     console.error("[api/external-actions/submit] link query error:", linkError.message);
     return routeFailure({
@@ -87,27 +120,47 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       phase: "source_query",
     });
   }
-  if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
+  const link = hasHashLookup ? (candidates ?? []).find((row) => externalActionTokenMatches(row, token)) : candidates[0];
+  if (!link) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "not_found" });
+    return jsonNotFound(ROUTE);
+  }
+  if (link.status === "revoked" || link.revoked_at) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "revoked" });
+    return jsonProblem(410, {
+      error: "External action link revoked",
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_submit_revoked",
+      route: ROUTE,
+    });
+  }
 
   if (link.requires_reauth) {
     const ticketCheck = verifyExternalSubmitTicket(token, submitTicket, String(link.id));
     if (!ticketCheck.ok) {
-      return NextResponse.json(
-        {
-          error:
-            ticketCheck.reason === "submit_ticket_required"
-              ? "This link requires a fresh status check before submit. Load the page or call GET status, then try again."
-              : "Invalid or expired submit ticket. Refresh the page to obtain a new ticket.",
-          code: ticketCheck.reason,
-        },
-        { status: 403 }
-      );
+      return jsonProblem(403, {
+        error:
+          ticketCheck.reason === "submit_ticket_required"
+            ? "Submit ticket required. Call GET status before submitting."
+            : "Invalid or expired submit ticket. Refresh the page to obtain a new ticket.",
+        code: ticketCheck.reason,
+        diagnostic_id: `external_action_${ticketCheck.reason}`,
+        route: ROUTE,
+      });
     }
   }
 
   if (!verifyExternalPasscode(passcode, link.passcode_hash ?? null)) {
-    return NextResponse.json({ error: "Invalid or missing passcode" }, { status: 403 });
+    return jsonForbidden(ROUTE);
   }
+
+  void recordApiMutationAuditEvent(admin, {
+    organizationId: String(link.organization_id),
+    actorUserId: null,
+    actorType: "external",
+    route: "/api/external-actions/[token]/submit",
+    method: "POST",
+  }).catch(() => undefined);
 
   if (link.expires_at < nowIso()) {
     const { error: expireError } = await admin
@@ -124,10 +177,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         phase: "persist",
       });
     }
-    return NextResponse.json({ error: "External action link expired" }, { status: 410 });
+    return jsonProblem(410, {
+      error: "External action link expired",
+      code: "external_action_expired",
+      diagnostic_id: "external_action_submit_expired",
+      route: ROUTE,
+    });
   }
   if (link.status === "submitted") {
-    return NextResponse.json({ error: "External action already submitted" }, { status: 409 });
+    return jsonProblem(409, {
+      error: "External action already submitted",
+      code: "external_action_already_submitted",
+      diagnostic_id: "external_action_already_submitted",
+      route: ROUTE,
+    });
   }
 
   const bodyForValidation = { ...rawPayload };
@@ -136,7 +199,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
 
   const at = String(link.action_type);
   if (!isValidExternalActionType(at)) {
-    return NextResponse.json({ error: "Invalid action type on link" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Invalid action type on link",
+      code: "invalid_external_action_type",
+      diagnostic_id: "external_action_submit_type_invalid",
+      route: ROUTE,
+    });
   }
   const validated = validateExternalActionPayload(at as ExternalActionType, bodyForValidation);
   if (!validated.ok) {
@@ -164,7 +232,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         });
       }
     }
-    return NextResponse.json({ error: validated.error }, { status: 400 });
+    return jsonProblem(400, {
+      error: validated.error,
+      code: "validation_failed",
+      diagnostic_id: "external_action_submit_validation_failed",
+      route: ROUTE,
+    });
   }
   const storePayload = validated.normalized;
 
@@ -192,7 +265,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     });
   }
   if (!data) {
-    return NextResponse.json({ error: "External action already submitted" }, { status: 409 });
+    return jsonProblem(409, {
+      error: "External action already submitted",
+      code: "external_action_already_submitted",
+      diagnostic_id: "external_action_already_submitted",
+      route: ROUTE,
+    });
   }
 
   const errors: Array<Record<string, unknown>> = [];
@@ -339,6 +417,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       ...(errors.length > 0 ? { ok: false, partial: true, errors_count: errors.length, errors } : {}),
       submission: data,
     },
-    { status: errors.length > 0 ? 207 : 200 }
+    { status: errors.length > 0 ? 207 : 200, headers: PRIVATE_NO_STORE_HEADERS }
   );
 }

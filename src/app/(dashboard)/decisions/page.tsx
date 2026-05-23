@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { CircleDot, Layers, Split } from "lucide-react";
+import { CircleDot, GitBranch, Layers, Split } from "lucide-react";
 import { CreateDecisionForm } from "@/components/decisions/create-decision-form";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
@@ -52,31 +53,33 @@ export default async function DecisionsPage({
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Records</p>
-          <h1 className="ui-page-title-compact mt-2">Decision Queue</h1>
-          <p className="ui-page-lead mt-2 max-w-2xl">
-            Decision records by type, status, due date, and next action across the governed advanced workspace.
-            {typeFilter || queueActiveOnly ? (
-              <span className="mt-2 block text-xs text-[var(--text-secondary)]">
-                {queueActiveOnly ? <>Showing open and in-review decisions only. </> : null}
-                {typeFilter ? (
-                  <>
-                    Filtered by type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
-                  </>
-                ) : null}
-                <Link href="/decisions" className="ui-link">
-                  Clear filters
-                </Link>
-              </span>
-            ) : null}
-          </p>
-        </div>
-        <ApiJsonLink href="/api/decisions" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-          View JSON
-        </ApiJsonLink>
-      </header>
+      <DashboardPageHeader
+        icon={<GitBranch className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Records"
+        title="Decision queue"
+        lead="Decision records by type, status, due date, and next action across the governed advanced workspace."
+        actions={
+          <ApiJsonLink
+            href="/api/decisions"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
+            View JSON
+          </ApiJsonLink>
+        }
+      />
+      {typeFilter || queueActiveOnly ? (
+        <p className="text-[12.5px] text-[var(--text-secondary)]">
+          {queueActiveOnly ? <>Showing open and in-review decisions only. </> : null}
+          {typeFilter ? (
+            <>
+              Filtered by type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
+            </>
+          ) : null}
+          <Link href="/decisions" className="ui-link">
+            Clear filters
+          </Link>
+        </p>
+      ) : null}
 
       <section className="ui-page-shell space-y-3">
         <div>

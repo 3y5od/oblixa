@@ -167,7 +167,7 @@ describe("POST /api/renewals/[id]/[action]", () => {
     expect(res.status).toBe(404);
   });
 
-  it("returns 404 for unsupported action", async () => {
+  it("returns problem JSON for unsupported action before object lookup", async () => {
     const { POST } = await import("@/app/api/renewals/[id]/[action]/route");
     const res = await POST(
       new Request("http://localhost:3000/api/renewals/chk-1/unknown", {
@@ -177,7 +177,11 @@ describe("POST /api/renewals/[id]/[action]", () => {
       }),
       { params: Promise.resolve({ id: "chk-1", action: "unknown" }) }
     );
-    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      details: { reason: "invalid_route_param_enum", param: "action" },
+    });
+    expect(res.status).toBe(400);
   });
 
   it("generates decision packet", async () => {

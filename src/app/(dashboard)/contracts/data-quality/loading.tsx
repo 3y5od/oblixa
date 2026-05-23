@@ -25,10 +25,10 @@ export default function DataQualityLoading() {
           ))}
         </div>
         <LoadingCard>
-          <div className="ui-skeleton h-72 w-full rounded-[1.25rem]" />
+          <div className="ui-skeleton h-72 w-full rounded-xl" />
         </LoadingCard>
         <LoadingCard>
-          <div className="ui-skeleton h-72 w-full rounded-[1.25rem]" />
+          <div className="ui-skeleton h-72 w-full rounded-xl" />
         </LoadingCard>
       </div>
     </>

@@ -6,70 +6,50 @@ function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
 }
 
-describe("V9 §8 dashboard home — composition + refresh anchors", () => {
-  it("composes upper and lower on the dashboard route", () => {
+describe("dashboard home - Core composition and refresh anchors", () => {
+  it("composes the Core dashboard model and renderer on the dashboard route", () => {
     const page = read("src/app/(dashboard)/dashboard/page.tsx");
-    expect(page).toContain("DashboardUpper");
-    expect(page).toContain("DashboardLower");
+    expect(page).toContain("CoreDashboard");
+    expect(page).toContain("loadCoreDashboardModel");
+    expect(page).not.toContain("DashboardUpper");
+    expect(page).not.toContain("DashboardLower");
   });
 
-  it("gates portfolio / assurance strips behind non-core home + isHomeBlockAllowed (§8 + §5.4)", () => {
-    const page = read("src/app/(dashboard)/dashboard/page.tsx");
-    expect(page).toContain("isCoreHome");
-    expect(page).toContain("showPortfolioIntel");
-    expect(page).toContain("isHomeBlockAllowed");
-  });
-
-  it("keeps window-focus refetch in the dashboard shell for §8.7 stability", () => {
+  it("keeps window-focus refetch in the dashboard shell for route stability", () => {
     const layout = read("src/app/(dashboard)/layout.tsx");
     expect(layout).toContain("RefetchOnWindowFocus");
     expect(layout).toContain("refetch-on-window-focus");
   });
 
-  it("anchors lower home density lanes (tasks, table, eligibility)", () => {
-    const lower = read("src/components/dashboard/dashboard-lower.tsx");
-    expect(lower).toContain("MyTasks");
-    expect(lower).toContain("ContractTable");
-    expect(lower).toContain("isHrefEligibleForProductSurface");
+  it("keeps all six release-state cards visible in fixed model order", () => {
+    const model = read("src/lib/dashboard/core-dashboard-model.ts");
+    const component = read("src/components/dashboard/core-dashboard.tsx");
+    expect(model).toContain("const TOP_CARD_ORDER");
+    expect(model).toContain('"needs_review"');
+    expect(model).toContain('"upcoming_deadlines"');
+    expect(model).toContain('"blocked_work"');
+    expect(model).toContain('"missing_owners"');
+    expect(model).toContain('"open_exceptions"');
+    expect(model).toContain('"evidence_requested"');
+    expect(component).toContain("model.topCards.map");
   });
 
-  it("anchors upper home due-soon horizon shared with business dates", () => {
-    const upper = read("src/components/dashboard/dashboard-upper.tsx");
-    expect(upper).toContain("V9_DUE_SOON_DAYS");
-    expect(upper).toContain("isHrefEligibleForProductSurface");
+  it("keeps the five Core dashboard sections as the only main surface", () => {
+    const model = read("src/lib/dashboard/core-dashboard-model.ts");
+    const component = read("src/components/dashboard/core-dashboard.tsx");
+    expect(model).toContain("DASHBOARD_MAIN_SECTIONS[0]");
+    expect(model).toContain("DASHBOARD_MAIN_SECTIONS[4]");
+    expect(component).toContain("orderedSections.map");
+    expect(component).toContain('getSection(model, "review_queue")');
+    expect(component).toContain('getSection(model, "recent_activity")');
+    expect(component).not.toContain("ContractTable");
   });
 
-  it("keeps all focus lanes visible instead of silently dropping evidence or recent changes", () => {
-    const upper = read("src/components/dashboard/dashboard-upper.tsx");
-    expect(upper).toContain('id: "evidence"');
-    expect(upper).toContain('id: "recent"');
-    expect(upper).not.toContain(".slice(0, 6)");
-  });
-
-  it("feeds pinned saved views for dashboard personalization (§8.5)", () => {
-    const data = read("src/lib/dashboard-data.ts");
-    const upper = read("src/components/dashboard/dashboard-upper.tsx");
-    expect(data).toContain("getPinnedSavedViewsCached");
-    expect(data).toMatch(/saved_views[\s\S]*pinned/);
-    expect(upper).toContain("buildContractsListHref");
-  });
-
-  it("keeps pending approvals card pointed at the approvals queue (§8.2 ↔ §12)", () => {
-    const upper = read("src/components/dashboard/dashboard-upper.tsx");
-    expect(upper).toContain("/contracts/approvals?status=pending");
-    expect(upper).toContain("/work?lens=assigned");
-  });
-
-  it("aligns recent-changes KPI semantics with the contracts list activity destination", () => {
-    const data = read("src/lib/dashboard-data.ts");
-    const upper = read("src/components/dashboard/dashboard-upper.tsx");
-    expect(data).toContain('.from("contracts")');
-    expect(data).toContain('.gte("updated_at", reviewWindowIso)');
-    expect(upper).toContain('href: "/contracts?sort=activity"');
-  });
-
-  it("keeps dashboard evidence gaps tied to the shared required-or-rejected status helper", () => {
-    const data = read("src/lib/dashboard-data.ts");
-    expect(data).toContain("EVIDENCE_GAP_STATUSES");
+  it("uses visible V10 read models for work, evidence, and activity data", () => {
+    const model = read("src/lib/dashboard/core-dashboard-model.ts");
+    expect(model).toContain("applyV10ReadModelVisibility");
+    expect(model).toContain('from("v10_work_items")');
+    expect(model).toContain('from("v10_evidence_request_statuses")');
+    expect(model).toContain('from("v10_contract_activity_events")');
   });
 });

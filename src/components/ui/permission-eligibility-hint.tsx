@@ -25,9 +25,9 @@ export function PermissionEligibilityHint(props: {
   };
   return (
     <div className="ui-permission-hint">
-      <p className="ui-support-copy text-[13px]">{copy[props.variant]}</p>
+      <p className="ui-support-copy text-[12.5px]">{copy[props.variant]}</p>
       {props.actionLabel && props.actionHref ? (
-        <a href={props.actionHref} className="ui-link mt-2 inline-block text-[13px] font-medium">
+        <a href={props.actionHref} className="ui-link mt-2 inline-block text-[12.5px] font-medium">
           {props.actionLabel}
         </a>
       ) : null}

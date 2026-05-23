@@ -14,10 +14,10 @@ export default function ContractNotFound() {
       cardClassName="ui-card-hero"
       actions={
         <>
-          <Link href="/contracts" className="ui-btn-primary inline-flex px-5 py-2.5 text-[13px]">
+          <Link href="/contracts" className="ui-btn-primary inline-flex px-5 py-2.5 text-[12.5px]">
             Back to contracts
           </Link>
-          <Link href="/work" className="ui-btn-secondary inline-flex px-5 py-2.5 text-[13px]">
+          <Link href="/work" className="ui-btn-secondary inline-flex px-5 py-2.5 text-[12.5px]">
             Review Work hub
           </Link>
         </>

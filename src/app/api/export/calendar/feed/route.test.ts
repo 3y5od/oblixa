@@ -36,7 +36,7 @@ describe("GET /api/export/calendar/feed", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("returns 500 when feed lookup fails", async () => {

@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 
 export default function ExternalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="ui-public-minimal-shell flex min-h-screen flex-col">
+    <div className="landing-root relative flex min-h-screen flex-col bg-canvas text-[var(--text-primary)] antialiased">
+      <div aria-hidden className="landing-header-backdrop" />
       <div className="flex-1">{children}</div>
       <AuthLegalFooter />
     </div>

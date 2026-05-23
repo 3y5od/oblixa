@@ -51,6 +51,62 @@ describe("GET /api/external-actions/[token]/status", () => {
     expect(body.error).toBeDefined();
   });
 
+  it("returns 404 when external action token is not found", async () => {
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { GET } = await import("@/app/api/external-actions/[token]/status/route");
+    const res = await GET(new Request("http://localhost/status"), {
+      params: Promise.resolve({ token: "missing-token" }),
+    });
+
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({ code: "not_found" });
+  });
+
+  it("returns 410 when external action token is revoked", async () => {
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: {
+                id: "lid-revoked",
+                action_type: "submit_evidence",
+                status: "revoked",
+                expires_at: new Date(Date.now() + 86400000).toISOString(),
+                revoked_at: new Date().toISOString(),
+                requires_reauth: false,
+                submitted_at: null,
+              },
+              error: null,
+            })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { GET } = await import("@/app/api/external-actions/[token]/status/route");
+    const res = await GET(new Request("http://localhost/status"), {
+      params: Promise.resolve({ token: "revoked-token" }),
+    });
+
+    expect(res.status).toBe(410);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_status_revoked",
+    });
+  });
+
   it("includes submitTicket when requires_reauth and link is open", async () => {
     const { createAdminClient } = await import("@/lib/supabase/server");
     const future = new Date(Date.now() + 86400000).toISOString();
@@ -83,7 +139,7 @@ describe("GET /api/external-actions/[token]/status", () => {
     expect(body.externalAction?.submitTicket).toMatch(/^[A-Za-z0-9_-]+/);
   });
 
-  it("returns externalAction payload shape with workflow fields for compatible clients", async () => {
+  it("returns externalAction payload shape without exposing internal workflow payloads", async () => {
     const { createAdminClient } = await import("@/lib/supabase/server");
     vi.mocked(createAdminClient).mockResolvedValueOnce({
       from: vi.fn(() => ({
@@ -92,12 +148,14 @@ describe("GET /api/external-actions/[token]/status", () => {
             maybeSingle: vi.fn(async () => ({
               data: {
                 id: "lid-2",
+                organization_id: "org-internal",
                 action_type: "submit_evidence",
                 status: "open",
                 expires_at: new Date(Date.now() + 86400000).toISOString(),
                 requires_reauth: false,
                 submitted_at: null,
                 passcode_hash: "hashed-passcode",
+                token_hash: "hashed-url-token",
                 scope_json: {
                   workflow_chain: [{ type: "handoff" }],
                   workflow_deadline_iso: "2030-01-01T00:00:00.000Z",
@@ -122,6 +180,7 @@ describe("GET /api/external-actions/[token]/status", () => {
       externalAction?: {
         requires_passcode?: boolean;
         workflow_chain?: unknown[];
+        workflow_step_count?: number;
         workflow_deadline_iso?: string | null;
         workflow_ack_required?: boolean;
         correction_message?: string | null;
@@ -129,11 +188,17 @@ describe("GET /api/external-actions/[token]/status", () => {
     };
     expect(body.externalAction).toMatchObject({
       requires_passcode: true,
-      workflow_chain: [{ type: "handoff" }],
+      workflow_step_count: 1,
       workflow_deadline_iso: "2030-01-01T00:00:00.000Z",
       workflow_ack_required: true,
       correction_message: "Please attach the signed exhibit",
     });
+    const externalAction = body.externalAction as Record<string, unknown>;
+    expect(externalAction).not.toHaveProperty("organization_id");
+    expect(externalAction).not.toHaveProperty("token_hash");
+    expect(externalAction).not.toHaveProperty("passcode_hash");
+    expect(externalAction).not.toHaveProperty("scope_json");
+    expect(externalAction).not.toHaveProperty("workflow_chain");
   });
 
   it("supports replay-safe duplicate status polls with the same externalAction state", async () => {
@@ -179,7 +244,7 @@ describe("GET /api/external-actions/[token]/status", () => {
         status: "open",
         expired: false,
         requires_passcode: false,
-        workflow_chain: [],
+        workflow_step_count: 0,
       },
     });
     await expect(second.json()).resolves.toMatchObject({
@@ -189,7 +254,7 @@ describe("GET /api/external-actions/[token]/status", () => {
         status: "open",
         expired: false,
         requires_passcode: false,
-        workflow_chain: [],
+        workflow_step_count: 0,
       },
     });
     expect(admin.from).toHaveBeenCalledTimes(2);

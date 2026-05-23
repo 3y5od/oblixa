@@ -15,6 +15,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - name: Trivy filesystem scan (reporting; non-blocking exit)
         uses: aquasecurity/trivy-action@917af200d044c190fe7d6d719cfb0f55f7d2250f

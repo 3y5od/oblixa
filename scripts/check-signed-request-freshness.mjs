@@ -22,11 +22,11 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/app/api/integrations/oauth/callback/route.ts": [
     '.select(',
-    '"id, organization_id, provider, consumed_at, expires_at, redirect_uri, code_verifier, code_challenge_method"',
+    '"id, organization_id, provider, requested_by, consumed_at, expires_at, redirect_uri, code_verifier, code_challenge_method"',
     'if (authState.consumed_at) {',
-    'return NextResponse.json({ error: "State already used" }, { status: 400 });',
+    'code: "state_already_used"',
     'if (new Date(authState.expires_at).getTime() < Date.now()) {',
-    'return NextResponse.json({ error: "State expired" }, { status: 400 });',
+    'code: "state_expired"',
     '.update({ consumed_at: new Date().toISOString() })',
   ],
   "src/app/api/integrations/oauth/callback/route.test.ts": [
@@ -34,11 +34,11 @@ const REQUIRED_FILE_MARKERS = {
     'it("returns 400 when oauth state is expired", async () => {',
   ],
   "src/app/api/export/calendar/feed/[token]/route.ts": [
-    '.select("id, organization_id, active, token, token_hash, expires_at, revoked_at")',
+    '.select("id, organization_id, active, token_hash, expires_at, revoked_at")',
+    'const feedCandidate = (feedRows ?? []).find((row) => !!row.token_hash && secureCompareUtf8(row.token_hash, tokenHash));',
     'const expired = !!row.expires_at && new Date(row.expires_at).getTime() <= Date.now();',
-    'if (expired || !row.active || row.revoked_at) return false;',
-    'const hashMatch = !!row.token_hash && secureCompareUtf8(row.token_hash, tokenHash);',
-    'const legacyMatch = !!row.token && secureCompareUtf8(row.token, token);',
+    'if (!row.active || row.revoked_at) {',
+    'recordPublicTokenMiss({ surface: "calendar_feed"',
   ],
   "src/app/api/export/calendar/feed/[token]/route.test.ts": [
     'it("returns 404 when token is not found", async () => {',
@@ -47,7 +47,7 @@ const REQUIRED_FILE_MARKERS = {
   "src/app/api/external-actions/[token]/submit/route.ts": [
     'if (link.expires_at < nowIso()) {',
     '.update({ status: "expired" })',
-    'return NextResponse.json({ error: "External action link expired" }, { status: 410 });',
+    'code: "external_action_expired",',
     'if (link.status === "submitted") {',
   ],
   "src/app/api/external-actions/[token]/submit/route.test.ts": [

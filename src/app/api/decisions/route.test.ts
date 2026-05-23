@@ -4,6 +4,8 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const enforceIdempotency = vi.fn();
+const recordApiMutationAuditEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -16,6 +18,14 @@ vi.mock("@/lib/v5/feature-guards", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
+vi.mock("@/lib/security/api-mutation-audit", () => ({
+  recordApiMutationAuditEvent,
 }));
 
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
@@ -86,6 +96,8 @@ describe("/api/decisions", () => {
       role: "admin",
     });
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
+    recordApiMutationAuditEvent.mockResolvedValue("audit-1");
   });
 
   it("GET returns 403 when V5 decision foundation is disabled", async () => {
@@ -139,6 +151,43 @@ describe("/api/decisions", () => {
     expect(body.decision.id).toBe("d2");
   });
 
+  it("POST returns duplicate response before creating a decision", async () => {
+    const duplicate = new Response(
+      JSON.stringify({ error: "Duplicate request blocked by idempotency key" }),
+      { status: 409, headers: { "content-type": "application/json" } }
+    );
+    const admin = adminMock({});
+    getApiAuthContext.mockResolvedValueOnce({
+      admin,
+      userId: "user-1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    enforceIdempotency.mockResolvedValueOnce(duplicate);
+
+    const { POST } = await import("@/app/api/decisions/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/decisions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "decision-create-replay-0001",
+        },
+        body: JSON.stringify({ title: "Renewal recommendation" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(expect.any(Request), {
+      scope: "api.decisions",
+      actorKey: "org-1:user-1",
+    });
+    expect(recordApiMutationAuditEvent).not.toHaveBeenCalled();
+    expect(admin.from).not.toHaveBeenCalled();
+  });
+
   it("POST returns 400 for unknown decisionType", async () => {
     const { POST } = await import("@/app/api/decisions/route");
     const res = await POST(
@@ -151,6 +200,21 @@ describe("/api/decisions", () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(String(body.error)).toContain("decisionType");
+  });
+
+  it("POST returns 400 for malformed dueAt", async () => {
+    const { POST } = await import("@/app/api/decisions/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/decisions", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ title: "X", dueAt: "2026-05-01" }),
+      })
+    );
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      diagnostic_id: "decision_due_at_invalid",
+    });
   });
 
   it("POST accepts amendment_request and requiredInputs", async () => {
@@ -169,4 +233,3 @@ describe("/api/decisions", () => {
     expect(res.status).toBe(201);
   });
 });
-

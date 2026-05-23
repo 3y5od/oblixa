@@ -41,6 +41,38 @@ describe("GET /api/integrations/oauth/callback", () => {
     expect(createAdminClient).not.toHaveBeenCalled();
   });
 
+  it("rejects unsafe callback state before database lookup", async () => {
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=valid%0Astate&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "Invalid state",
+      diagnostic_id: "oauth_callback_invalid_state",
+    });
+    expect(createAdminClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized callback code before database lookup", async () => {
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request(
+        `http://localhost:3000/api/integrations/oauth/callback?state=test-state&code=${"a".repeat(2049)}`
+      )
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "Invalid code",
+      diagnostic_id: "oauth_callback_invalid_code",
+    });
+    expect(createAdminClient).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when oauth state row is missing (invalid state)", async () => {
     const authStateQuery = {
       select: vi.fn().mockReturnThis(),
@@ -61,7 +93,7 @@ describe("GET /api/integrations/oauth/callback", () => {
     );
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Invalid state" });
+    expect(body).toMatchObject({ error: "Invalid state" });
   });
 
   it("returns 400 when oauth state already used", async () => {
@@ -96,7 +128,7 @@ describe("GET /api/integrations/oauth/callback", () => {
     const body = await res.json();
 
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "State already used" });
+    expect(body).toMatchObject({ error: "State already used" });
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
@@ -132,7 +164,163 @@ describe("GET /api/integrations/oauth/callback", () => {
     const body = await res.json();
 
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "State expired" });
+    expect(body).toMatchObject({ error: "State expired" });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state provider is unsupported", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "not-supported",
+          consumed_at: null,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "Unsupported provider",
+      diagnostic_id: "oauth_callback_provider_unsupported",
+    });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state redirect_uri is not the callback route", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "slack",
+          consumed_at: null,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/settings/integrations",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "Invalid redirect URI",
+      diagnostic_id: "oauth_callback_redirect_uri_invalid",
+    });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state redirect_uri contains a query string", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "slack",
+          consumed_at: null,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback?next=/settings",
+          code_verifier: "verifier",
+          code_challenge_method: "S256",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test-state&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "Invalid redirect URI",
+      diagnostic_id: "oauth_callback_redirect_uri_invalid",
+    });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when oauth state does not require S256 PKCE", async () => {
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: crypto.randomUUID(),
+          organization_id: crypto.randomUUID(),
+          provider: "slack",
+          consumed_at: null,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+          code_verifier: "verifier",
+          code_challenge_method: "plain",
+        },
+        error: null,
+      }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test-state&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "OAuth state is incomplete",
+      diagnostic_id: "oauth_callback_pkce_method_invalid",
+    });
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
@@ -163,11 +351,9 @@ describe("GET /api/integrations/oauth/callback", () => {
     expect(res.status).toBe(500);
     expect(body).toEqual({ error: "Failed to load oauth state" });
     expect(fullBody).toMatchObject({
-      ok: false,
       error: "Failed to load oauth state",
       code: "data_source_failed",
       diagnostic_id: "oauth_callback_state_load_failed",
-      phase: "source_query",
     });
   });
 
@@ -176,20 +362,24 @@ describe("GET /api/integrations/oauth/callback", () => {
     const authStateQuery = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      maybeSingle: vi.fn().mockResolvedValue({
-        data: {
-          id: authStateId,
-          organization_id: crypto.randomUUID(),
-          provider: "slack",
-          consumed_at: null,
-          expires_at: new Date(Date.now() + 60_000).toISOString(),
-          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
-          code_verifier: "verifier",
-          code_challenge_method: "S256",
-        },
-        error: null,
-      }),
+      maybeSingle: vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: {
+            id: authStateId,
+            organization_id: crypto.randomUUID(),
+            provider: "slack",
+            consumed_at: null,
+            expires_at: new Date(Date.now() + 60_000).toISOString(),
+            redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+            code_verifier: "verifier",
+            code_challenge_method: "S256",
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({ data: { id: authStateId }, error: null }),
       update: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
     };
     safeFetch.mockResolvedValue({
       ok: true,
@@ -227,11 +417,9 @@ describe("GET /api/integrations/oauth/callback", () => {
 
     expect(res.status).toBe(500);
     expect(body).toMatchObject({
-      ok: false,
       error: "Failed to persist integration connection",
       code: "persistence_failed",
       diagnostic_id: "oauth_callback_connection_persist_failed",
-      phase: "persist",
     });
     expect(upsert).toHaveBeenCalledTimes(1);
   });
@@ -241,19 +429,24 @@ describe("GET /api/integrations/oauth/callback", () => {
     const authStateQuery = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      maybeSingle: vi.fn().mockResolvedValue({
-        data: {
-          id: authStateId,
-          organization_id: "org_1",
-          provider: "slack",
-          consumed_at: null,
-          expires_at: new Date(Date.now() + 60_000).toISOString(),
-          redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
-          code_verifier: "verifier",
-          code_challenge_method: "S256",
-        },
-        error: null,
-      }),
+      maybeSingle: vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: {
+            id: authStateId,
+            organization_id: "org_1",
+            provider: "slack",
+            consumed_at: null,
+            expires_at: new Date(Date.now() + 60_000).toISOString(),
+            redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+            code_verifier: "verifier",
+            code_challenge_method: "S256",
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({ data: { id: authStateId }, error: null }),
+      update: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
     };
     safeFetch.mockResolvedValue({ ok: false, status: 502 });
     createAdminClient.mockResolvedValue({
@@ -278,10 +471,8 @@ describe("GET /api/integrations/oauth/callback", () => {
 
     expect(res.status).toBe(502);
     expect(body).toMatchObject({
-      ok: false,
       code: "upstream_failed",
       diagnostic_id: "oauth_callback_token_exchange_failed",
-      phase: "source_query",
     });
   });
 
@@ -305,8 +496,9 @@ describe("GET /api/integrations/oauth/callback", () => {
           },
           error: null,
         })
-        .mockResolvedValueOnce({ data: null, error: null }),
+        .mockResolvedValueOnce({ data: { id: authStateId }, error: null }),
       update: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
     };
     const upsert = vi.fn().mockResolvedValue({ error: null });
     safeFetch.mockResolvedValue({
@@ -367,5 +559,59 @@ describe("GET /api/integrations/oauth/callback", () => {
       }),
       { onConflict: "organization_id,provider", ignoreDuplicates: false }
     );
+  });
+
+  it("returns 400 and skips token exchange when state was consumed concurrently", async () => {
+    const authStateId = crypto.randomUUID();
+    const authStateQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: {
+            id: authStateId,
+            organization_id: "org_1",
+            provider: "slack",
+            consumed_at: null,
+            expires_at: new Date(Date.now() + 60_000).toISOString(),
+            redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",
+            code_verifier: "verifier-123",
+            code_challenge_method: "S256",
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({ data: null, error: null }),
+      update: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return authStateQuery;
+        if (table === "integration_connections") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          };
+        }
+        return {};
+      }),
+    });
+
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/oauth/callback?state=test-state&code=auth_code")
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "State already used",
+      diagnostic_id: "oauth_callback_state_replay",
+    });
+    expect(authStateQuery.update).toHaveBeenCalledWith({ consumed_at: expect.any(String) });
+    expect(authStateQuery.is).toHaveBeenCalledWith("consumed_at", null);
+    expect(safeFetch).not.toHaveBeenCalled();
   });
 });

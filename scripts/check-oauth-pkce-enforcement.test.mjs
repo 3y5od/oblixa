@@ -17,9 +17,9 @@ test("analyzeOAuthPkceEnforcement validates verifier/challenge persistence and c
   write(root, ".github/workflows/ci.yml", "npm run check:oauth-pkce-enforcement\n");
   write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:oauth-pkce-enforcement"\n');
   write(root, "src/app/api/integrations/oauth/start/route.ts", 'const verifier = randomBytes(32).toString("base64url")\nconst challenge = createHash("sha256").update(verifier).digest("base64url")\ncode_verifier: verifier,\ncode_challenge_method: "S256",\nurl.searchParams.set("code_challenge", challenge)\nurl.searchParams.set("code_challenge_method", "S256")\n');
-  write(root, "src/app/api/integrations/oauth/callback/route.ts", 'if (!authState.redirect_uri || !authState.code_verifier){}\nredirect_uri: authState.redirect_uri,\ncode_verifier: authState.code_verifier,\n');
+  write(root, "src/app/api/integrations/oauth/callback/route.ts", 'if (!authState.redirect_uri || !authState.code_verifier){}\nif (authState.code_challenge_method !== "S256"){}\ndiagnostic_id: "oauth_callback_pkce_method_invalid"\nredirect_uri: authState.redirect_uri,\ncode_verifier: authState.code_verifier,\n');
   write(root, "src/app/api/integrations/oauth/start/route.test.ts", 'expect(authorizeUrl.searchParams.get("code_challenge")).toBeTruthy()\nexpect(authorizeUrl.searchParams.get("code_challenge_method")).toBe("S256")\nexpect(row.code_challenge_method).toBe("S256")\n');
-  write(root, "src/app/api/integrations/oauth/callback/route.test.ts", 'redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",\ncode_verifier: "verifier-123",\n');
+  write(root, "src/app/api/integrations/oauth/callback/route.test.ts", 'redirect_uri: "http://localhost:3000/api/integrations/oauth/callback",\ncode_verifier: "verifier-123",\nit("returns 400 when oauth state does not require S256 PKCE", () => {})\n');
 
   const report = analyzeOAuthPkceEnforcement(root);
   assert.equal(report.ok, true);

@@ -60,20 +60,22 @@ describe("Sidebar", () => {
     renderSidebar();
 
     const primary = screen.getByTestId("primary-nav");
-    expect(primary.textContent).toContain("Home");
+    expect(primary.textContent).toContain("Dashboard");
     expect(primary.textContent).not.toContain("Decisions");
     expect(primary.textContent).not.toContain("Campaigns");
   });
 
-  it("marks nested work links active without giving the parent aria-current", () => {
-    setMockPathname("/contracts/tasks");
+  it("marks Work active as a single release-state destination", () => {
+    setMockPathname("/work");
     renderSidebar();
 
     const primary = screen.getByTestId("primary-nav");
     const work = within(primary).getByRole("link", { name: /^work$/i });
-    const tasks = within(primary).getByRole("link", { name: /^tasks$/i });
-    expect(work.getAttribute("aria-current")).toBeNull();
-    expect(tasks.getAttribute("aria-current")).toBe("page");
+    expect(work.getAttribute("aria-current")).toBe("page");
+    expect(within(primary).queryByRole("link", { name: /^tasks$/i })).toBeNull();
+    expect(within(primary).queryByRole("link", { name: /^approvals$/i })).toBeNull();
+    expect(within(primary).queryByRole("link", { name: /^obligations$/i })).toBeNull();
+    expect(within(primary).queryByRole("link", { name: /^exceptions$/i })).toBeNull();
   });
 
   it("shows advanced destinations only when the surface allows them", () => {
@@ -96,11 +98,11 @@ describe("Sidebar", () => {
     expect(within(screen.getByRole("dialog", { name: /navigation drawer/i })).queryByText("Browse tools")).toBeNull();
   });
 
-  it("shows sidebar Tools when layout Tools is available", () => {
+  it("keeps sidebar Tools hidden for Core even when layout Tools is available", () => {
     setMockPathname("/dashboard");
     renderSidebar({ showToolsLink: true });
 
-    expect(screen.getByRole("link", { name: /^tools$/i }).getAttribute("href")).toBe("/more");
+    expect(screen.queryByRole("link", { name: /^tools$/i })).toBeNull();
   });
 
   it("shows expanded badge counts with full accessible labels", () => {
@@ -108,7 +110,7 @@ describe("Sidebar", () => {
     renderSidebar({ navBadges: { reviewQueue: 7 } });
 
     expect(screen.getByText("7")).toBeTruthy();
-    expect(screen.getByTitle("7 review queue items").getAttribute("aria-label")).toBe("7 review queue items");
+    expect(screen.getByTitle("7 field review items need action").getAttribute("aria-label")).toBe("7 field review items need action");
   });
 
   it("keeps badge counts titled but hidden from collapsed link accessible names", async () => {
@@ -116,9 +118,9 @@ describe("Sidebar", () => {
     setMockPathname("/contracts/review");
     renderSidebar({ navBadges: { reviewQueue: 101 } });
 
-    await waitFor(() => expect(screen.getByRole("link", { name: /^review$/i })).toBeTruthy());
-    expect(screen.getByTitle("101 review queue items").getAttribute("aria-hidden")).toBe("true");
-    expect(screen.getByRole("link", { name: /^review$/i }).textContent).not.toContain("99+");
+    await waitFor(() => expect(screen.getByRole("link", { name: /^contracts$/i })).toBeTruthy());
+    expect(screen.getByTitle("101 field review items need action").getAttribute("aria-hidden")).toBe("true");
+    expect(screen.getByRole("link", { name: /^contracts$/i }).textContent).not.toContain("99+");
   });
 
   it("exposes unique nav landmark names and collapse button state", () => {
@@ -130,6 +132,24 @@ describe("Sidebar", () => {
     const toggle = screen.getByTestId("sidebar-collapse-toggle");
     expect(toggle.getAttribute("aria-controls")).toBe("desktop-sidebar-body");
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("keeps the first expanded section heading available without visual noise", () => {
+    setMockPathname("/dashboard");
+    renderSidebar();
+
+    const coreHeading = screen.getByText("Core");
+    expect(coreHeading.className).toContain("sr-only");
+    expect(screen.queryByText("Contract operations OS")).toBeNull();
+  });
+
+  it("keeps expanded sign out adjacent to navigation instead of pinned below a spacer", () => {
+    setMockPathname("/dashboard");
+    renderSidebar();
+
+    const desktopBody = document.getElementById("desktop-sidebar-body");
+    expect(desktopBody).toBeTruthy();
+    expect(desktopBody?.contains(screen.getByRole("button", { name: /^sign out$/i }))).toBe(true);
   });
 
   it("gives collapsed sign-out an accessible name and shows tooltip labels on focus", async () => {
@@ -228,7 +248,7 @@ describe("Sidebar", () => {
     setMockPathname("/onboarding/calibration");
     renderSidebar();
 
-    await waitFor(() => expect(screen.getByRole("link", { name: /^home$/i })).toBeTruthy());
+    await waitFor(() => expect(screen.getByRole("link", { name: /^dashboard$/i })).toBeTruthy());
     expect(window.localStorage.getItem("oblixa.sidebar.collapsed")).toBe("0");
     expect(screen.queryByTestId("sidebar-collapse-toggle")).toBeNull();
   });
@@ -253,7 +273,7 @@ describe("Sidebar", () => {
     setMockPathname("/contracts/review");
     renderSidebar({ role: "admin", navSurface: advancedWatchlistsHiddenSurface, navBadges: {} });
 
-    expect(await screen.findByTitle("2 review queue items")).toBeTruthy();
+    expect(await screen.findByTitle("2 field review items need action")).toBeTruthy();
     expect(screen.queryByTitle("9 watchlist items")).toBeNull();
     expect(screen.queryByRole("link", { name: /^watchlists$/i })).toBeNull();
   });
@@ -263,8 +283,8 @@ describe("Sidebar", () => {
     setMockPathname("/contracts/review");
     renderSidebar({ navBadges: { reviewQueue: 3 } });
 
-    expect(await screen.findByTitle("3 review queue items")).toBeTruthy();
-    await waitFor(() => expect(screen.getByTitle("3 review queue items")).toBeTruthy());
+    expect(await screen.findByTitle("3 field review items need action")).toBeTruthy();
+    await waitFor(() => expect(screen.getByTitle("3 field review items need action")).toBeTruthy());
   });
 
   it("honors query and hash active states in rendered links", () => {

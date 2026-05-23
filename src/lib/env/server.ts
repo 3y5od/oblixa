@@ -39,6 +39,30 @@ export function getStripeServerEnv() {
   };
 }
 
+/** Optional second priceId for monthly billing variant. */
+export function getStripeMonthlyPriceId(): string | null {
+  return getOptionalServerEnv("STRIPE_MONTHLY_PRICE_ID");
+}
+
+/** Optional Stripe coupon ID applied for Founding Customer offer. */
+export function getStripeFoundingCouponId(): string | null {
+  return getOptionalServerEnv("STRIPE_FOUNDING_COUPON_ID");
+}
+
+/** Optional feature flag: enable ACH/us_bank_account at checkout. */
+export function isStripeAchEnabled(): boolean {
+  return getOptionalServerEnv("STRIPE_ENABLE_ACH") === "1";
+}
+
+/** Optional feature flag: enable Stripe Tax + ToS consent collection. */
+export function isStripeTaxEnabled(): boolean {
+  return getOptionalServerEnv("STRIPE_TAX_ENABLED") === "1";
+}
+
+export function isStripeTosCollectionEnabled(): boolean {
+  return getOptionalServerEnv("STRIPE_TOS_COLLECTION_ENABLED") === "1";
+}
+
 export function getOptionalServerEnv(key: string): string | null {
   const raw = process.env[key];
   const value = typeof raw === "string" ? raw.trim() : "";

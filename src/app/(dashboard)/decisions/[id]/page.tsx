@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GitBranch } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { DecisionExecutionContextCard } from "@/components/decisions/decision-execution-context";
 import { DecisionWorkspacePanel } from "@/components/decisions/decision-workspace-panel";
 import { DecisionExternalPanel } from "@/components/decisions/decision-external-panel";
@@ -121,23 +123,28 @@ export default async function DecisionDetailPage({
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="ui-eyebrow">Decision workspace</p>
-          <h1 className="ui-display-title mt-2">{decision.title}</h1>
-          <p className="ui-muted-tight mt-2">
-            Type: {decision.decision_type} · Status: {decision.status}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <ApiJsonLink href={`/api/decisions/${id}`} className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Open JSON
-          </ApiJsonLink>
-          <Link href="/decisions" className="ui-btn-ghost px-4 py-2.5 text-[13px]">
-            Back to queue
-          </Link>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<GitBranch className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Decision workspace"
+        title={decision.title}
+        lead={`Type: ${decision.decision_type} · Status: ${decision.status}`}
+        actions={
+          <>
+            <ApiJsonLink
+              href={`/api/decisions/${id}`}
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              Open JSON
+            </ApiJsonLink>
+            <Link
+              href="/decisions"
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              Back to queue
+            </Link>
+          </>
+        }
+      />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <article className="ui-card p-5">

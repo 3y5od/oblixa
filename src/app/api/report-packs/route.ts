@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
@@ -13,8 +14,10 @@ import {
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const ROUTE = "/api/report-packs";
 
 function jsonV10(response: ReturnType<typeof buildV10MutationResponse>, replayed = false, successStatus = 200) {
   return NextResponse.json(response, {
@@ -37,7 +40,7 @@ function v10MutationStatus(outcome: string, successStatus = 200): number {
 
 export async function GET() {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -45,6 +48,14 @@ export async function GET() {
     apiPath: "/api/report-packs",
   });
   if (modeGate) return modeGate;
+
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
 
   const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
   const mode = parseWorkspaceMode(v6);
@@ -54,7 +65,14 @@ export async function GET() {
     .select("id, name, description, report_type, schedule, active, updated_at")
     .eq("organization_id", ctx.orgId)
     .order("updated_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "report_packs_list_failed",
+      diagnostic_id: "report_packs_list_failed",
+      route: ROUTE,
+    });
+  }
   const rows = (data ?? []).filter((row) =>
     workspaceModeAllowsReportType(mode, String((row as { report_type?: string }).report_type ?? ""))
   );
@@ -73,14 +91,6 @@ export async function POST(request: Request) {
       })
     );
   }
-  const modeGate = await requireApiWorkspaceEligibility({
-    admin: ctx.admin,
-    orgId: ctx.orgId,
-    role: ctx.role,
-    apiPath: "/api/report-packs",
-    v10MutationResponse: true,
-  });
-  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return jsonV10(
       buildV10MutationResponse({
@@ -91,6 +101,14 @@ export async function POST(request: Request) {
       })
     );
   }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/report-packs",
+    v10MutationResponse: true,
+  });
+  if (modeGate) return modeGate;
 
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;

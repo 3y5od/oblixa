@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { nowIso, readJsonBody, toSafeString } from "@/lib/v5/api";
@@ -15,15 +16,21 @@ import {
 } from "@/lib/v5/decision-packet-storage";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ROUTE = "/api/decisions/[id]/packet";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -31,9 +38,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/decisions/[id]/packet",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/decisions/[id]/packet");
+
+  if (routeParamRejection) return routeParamRejection;
+  const duplicate = await enforceIdempotency(request, {
+    scope: "decision.packet.create",
+    actorKey: `${ctx.orgId}:${ctx.userId}:${id}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/decisions/[id]/packet",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -44,7 +66,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   );
   const rawPacketType = toSafeString(body.packetType) || "renewal_packet";
   if (!isValidPacketType(rawPacketType)) {
-    return NextResponse.json({ error: packetTypeValidationError() }, { status: 400 });
+    return jsonProblem(400, {
+      error: packetTypeValidationError(),
+      code: "invalid_packet_type",
+      diagnostic_id: "decision_packet_type_invalid",
+      route: ROUTE,
+    });
   }
   const packetType = rawPacketType;
   const templateId = toSafeString(body.packetTemplateId);
@@ -59,8 +86,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (decErr) return NextResponse.json({ error: decErr.message }, { status: 400 });
-  if (!decision) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (decErr) {
+    return jsonProblem(400, {
+      error: decErr.message,
+      code: "decision_packet_lookup_failed",
+      diagnostic_id: "decision_packet_lookup_failed",
+      route: ROUTE,
+    });
+  }
+  if (!decision) return jsonNotFound(ROUTE);
 
   const contractIds = Array.isArray(decision.linked_contract_ids)
     ? decision.linked_contract_ids.filter(Boolean)
@@ -199,7 +233,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })
     .select("id, packet_type, payload_json, exported_at, created_at")
     .single();
-  if (runErr) return NextResponse.json({ error: runErr.message }, { status: 400 });
+  if (runErr) {
+    return jsonProblem(400, {
+      error: runErr.message,
+      code: "decision_packet_create_failed",
+      diagnostic_id: "decision_packet_create_failed",
+      route: ROUTE,
+    });
+  }
 
   const decisionTitle =
     typeof decision.title === "string" && decision.title.trim()

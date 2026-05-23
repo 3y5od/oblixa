@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { escapeVcardValue, foldIcsTextLine } from "./calendar-text-guard";
+import { escapeIcsTextValue, escapeVcardValue, foldIcsTextLine } from "./calendar-text-guard";
 
 describe("calendar / vCard text guards", () => {
   it("folds long ICS lines with CRLF continuation", () => {
@@ -12,5 +12,10 @@ describe("calendar / vCard text guards", () => {
   it("escapes vCard structural characters", () => {
     expect(escapeVcardValue("a,b;c")).toBe("a\\,b\\;c");
     expect(escapeVcardValue("line\nbreak")).toBe("line\\nbreak");
+  });
+
+  it("escapes ICS structural characters", () => {
+    expect(escapeIcsTextValue("a,b;c\\d")).toBe("a\\,b\\;c\\\\d");
+    expect(escapeIcsTextValue("line\r\nbreak")).toBe("line\\nbreak");
   });
 });

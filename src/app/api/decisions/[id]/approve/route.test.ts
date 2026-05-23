@@ -74,7 +74,11 @@ describe("POST /api/decisions/[id]/approve", () => {
     canManageCapability.mockResolvedValueOnce(false);
     const { POST } = await import("@/app/api/decisions/[id]/approve/route");
     const res = await POST(
-      new Request("http://localhost/api/decisions/dec-1/approve", { method: "POST", body: "{}" }),
+      new Request("http://localhost/api/decisions/dec-1/approve", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      }),
       { params: Promise.resolve({ id: "dec-1" }) }
     );
     expect(res.status).toBe(403);
@@ -102,7 +106,11 @@ describe("POST /api/decisions/[id]/approve", () => {
     });
     const { POST } = await import("@/app/api/decisions/[id]/approve/route");
     const res = await POST(
-      new Request("http://localhost/api/decisions/dec-1/approve", { method: "POST", body: "{}" }),
+      new Request("http://localhost/api/decisions/dec-1/approve", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      }),
       { params: Promise.resolve({ id: "dec-1" }) }
     );
     expect(res.status).toBe(409);
@@ -151,7 +159,7 @@ describe("POST /api/decisions/[id]/approve", () => {
               update: vi.fn(() => ({
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    neq: vi.fn(() => ({
+                    in: vi.fn(() => ({
                       select: vi.fn(() => ({
                         maybeSingle: vi.fn(async () => ({ data: updated, error: null })),
                       })),

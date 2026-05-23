@@ -7,18 +7,21 @@ export default function MoreToolsIndexLoading() {
         Loading tools index. Search, shortcuts, and grouped destinations will appear shortly.
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
-        <header className="ui-page-header">
-          <div className="space-y-3">
-            <div className="ui-skeleton h-4 w-24 rounded" />
-            <div className="ui-skeleton h-10 w-48 max-w-full rounded" />
-            <div className="ui-skeleton h-4 max-w-2xl rounded" />
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+          <div className="flex min-w-0 items-start gap-3.5">
+            <div className="ui-skeleton h-10 w-10 rounded-xl" />
+            <div className="min-w-0 space-y-2">
+              <div className="ui-skeleton h-3 w-24 rounded" />
+              <div className="ui-skeleton h-8 w-48 rounded" />
+              <div className="ui-skeleton h-3 w-80 max-w-full rounded" />
+            </div>
           </div>
-          <div className="mt-4 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="ui-skeleton h-10 w-full flex-1 rounded-lg sm:min-w-[16rem]" />
-            <div className="ui-skeleton h-10 w-full rounded-lg sm:w-52" />
-            <div className="ui-skeleton h-10 w-24 rounded-lg" />
-          </div>
-        </header>
+        </div>
+        <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="ui-skeleton h-9 w-full flex-1 rounded-xl sm:min-w-[16rem]" />
+          <div className="ui-skeleton h-9 w-full rounded-xl sm:w-52" />
+          <div className="ui-skeleton h-9 w-24 rounded-xl" />
+        </div>
 
         <section className="ui-page-shell p-5">
           <div className="ui-skeleton h-3 w-24 rounded" />

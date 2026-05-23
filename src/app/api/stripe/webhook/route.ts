@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { jsonOk, jsonProblem, jsonRateLimited } from "@/lib/http/problem";
 import { getStripeClient } from "@/lib/stripe";
 import {
   RATE_LIMITS,
@@ -11,6 +11,11 @@ import {
   captureServerException,
   captureServerMessage,
 } from "@/lib/observability/sentry";
+import { readTextBodyLimited } from "@/lib/security/read-json-body-limited";
+
+const ROUTE = "/api/stripe/webhook";
+const STRIPE_WEBHOOK_BODY_MAX = 262_144;
+const STRIPE_WEBHOOK_TOLERANCE_SEC = 300;
 
 function stripeDependencyBlocked(input: {
   route: string;
@@ -18,22 +23,18 @@ function stripeDependencyBlocked(input: {
   error: string;
   requiredEnv: string[];
 }) {
-  return NextResponse.json(
-    {
-      ok: false,
-      route: input.route,
-      error: input.error,
-      code: "dependency_blocked",
-      diagnostic_id: input.diagnosticId,
+  return jsonProblem(503, {
+    error: input.error,
+    code: "dependency_blocked",
+    diagnostic_id: input.diagnosticId,
+    route: input.route,
+    details: {
       phase: "dependency_preflight",
-      details: {
-        dependency: "stripe_provider",
-        required_env: input.requiredEnv,
-        degraded_policy: "503 dependency_blocked",
-      },
+      dependency: "stripe_provider",
+      required_env: input.requiredEnv,
+      degraded_policy: "503 dependency_blocked",
     },
-    { status: 503 }
-  );
+  });
 }
 
 function subscriptionPeriodEndIso(sub: Stripe.Subscription): string | null {
@@ -69,32 +70,45 @@ export async function POST(request: Request) {
   }
   const stripe = stripeClient.stripe;
 
-  const body = await request.text();
+  const _lb_body = await readTextBodyLimited(request, STRIPE_WEBHOOK_BODY_MAX);
+  if (!_lb_body.ok) return _lb_body.response;
+  const body = _lb_body.body;
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Missing signature",
+      code: "missing_signature",
+      diagnostic_id: "stripe_webhook_missing_signature",
+      route: ROUTE,
+    });
   }
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret, STRIPE_WEBHOOK_TOLERANCE_SEC);
   } catch (err) {
     console.error("[stripe/webhook] signature verification failed:", err);
     captureServerException(err, { extra: { phase: "constructEvent" } });
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Invalid signature",
+      code: "invalid_signature",
+      diagnostic_id: "stripe_webhook_invalid_signature",
+      route: ROUTE,
+    });
   }
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`stripe-webhook:${ip}`, RATE_LIMITS.stripeWebhook);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
+  }
+  const providerRl = await rateLimitCheck(
+    `stripe-webhook:account:${event.account ?? "platform"}:${event.type}`,
+    RATE_LIMITS.stripeWebhook
+  );
+  if (!providerRl.ok) {
+    return jsonRateLimited(providerRl.retryAfterMs, ROUTE);
   }
 
   let supabase: Awaited<ReturnType<typeof createAdminClient>>;
@@ -104,7 +118,12 @@ export async function POST(request: Request) {
     const message = err instanceof Error ? err.message : "Supabase env misconfigured";
     console.error("[stripe/webhook] configuration error:", message);
     captureServerMessage(message, { level: "error" });
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Server misconfigured",
+      code: "server_misconfigured",
+      diagnostic_id: "stripe_webhook_server_misconfigured",
+      route: ROUTE,
+    });
   }
 
   const { error: claimErr } = await supabase
@@ -113,14 +132,19 @@ export async function POST(request: Request) {
 
   if (claimErr) {
     if (claimErr.code === "23505") {
-      return NextResponse.json({ received: true, duplicate: true });
+      return jsonOk({ received: true, duplicate: true });
     }
     console.error("[stripe/webhook] could not claim event:", claimErr.message);
     captureServerMessage(claimErr.message, {
       level: "error",
       extra: { eventId: event.id },
     });
-    return NextResponse.json({ error: "Could not claim event" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Could not claim event",
+      code: "event_claim_failed",
+      diagnostic_id: "stripe_webhook_event_claim_failed",
+      route: ROUTE,
+    });
   }
 
   let processingFailed = false;
@@ -302,12 +326,22 @@ export async function POST(request: Request) {
       extra: { eventType: event.type, eventId: event.id },
     });
     await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
-    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Webhook processing failed",
+      code: "webhook_processing_failed",
+      diagnostic_id: "stripe_webhook_processing_failed",
+      route: ROUTE,
+    });
   }
 
   if (processingFailed) {
     await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
-    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Webhook processing failed",
+      code: "webhook_processing_failed",
+      diagnostic_id: "stripe_webhook_processing_failed",
+      route: ROUTE,
+    });
   }
 
   const { error: completeErr } = await supabase
@@ -323,5 +357,5 @@ export async function POST(request: Request) {
     });
   }
 
-  return NextResponse.json({ received: true });
+  return jsonOk({ received: true });
 }

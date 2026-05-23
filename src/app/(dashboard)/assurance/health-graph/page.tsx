@@ -150,7 +150,7 @@ export default async function AssuranceHealthGraphPage(props: {
       <ul className="mt-3 max-h-[480px] space-y-2 overflow-y-auto text-sm">
         {nodes.map((row) => (
           <li key={row.id} className="ui-operational-card p-4">
-            <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+            <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
               <span className="text-[var(--text-tertiary)]">{row.node_type}</span> · {row.label ?? row.node_ref_id}
             </p>
             <p className="ui-support-copy mt-1">
@@ -172,7 +172,7 @@ export default async function AssuranceHealthGraphPage(props: {
                 <span className="font-medium tabular-nums text-[var(--warning-ink)]">bottleneck {p.bottleneck_risk}</span>
                 <span className="text-[var(--text-tertiary)]"> · </span>
                 <span className="text-[var(--text-secondary)]">{p.path_label}</span>
-                <p className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+                <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
                   {p.relationship_types.join(" → ")}
                 </p>
               </li>
@@ -193,7 +193,7 @@ export default async function AssuranceHealthGraphPage(props: {
                 <span className="font-medium tabular-nums">bottleneck {p.bottleneck_risk}</span>
                 <span className="text-[var(--text-tertiary)]"> · </span>
                 <span className="text-[var(--text-secondary)]">{p.path_label}</span>
-                <p className="mt-1 text-[10px] text-[var(--text-tertiary)]">{p.relationship_types.join(" → ")}</p>
+                <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">{p.relationship_types.join(" → ")}</p>
               </li>
             ))}
           </ul>
@@ -206,7 +206,7 @@ export default async function AssuranceHealthGraphPage(props: {
       <ul className="mt-2 max-h-80 space-y-2 overflow-y-auto text-sm">
         {topEdges.map((row) => (
           <li key={row.id} className="ui-operational-card p-4">
-            <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{row.relationship_type}</p>
+            <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">{row.relationship_type}</p>
             <p className="ui-support-copy mt-1">
               Propagation {Number(row.propagation_risk).toFixed(1)} ·{" "}
               <span className="text-[var(--text-tertiary)]">
@@ -215,7 +215,7 @@ export default async function AssuranceHealthGraphPage(props: {
               </span>
             </p>
             {row.explainability_json ? (
-              <pre className="ui-soft-details mt-2 max-h-24 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+              <pre className="ui-soft-details mt-2 max-h-24 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                 {JSON.stringify(row.explainability_json, null, 2)}
               </pre>
             ) : null}

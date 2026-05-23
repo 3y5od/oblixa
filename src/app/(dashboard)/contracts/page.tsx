@@ -3,7 +3,6 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import {
   isHrefEligibleForProductSurface,
   loadProductSurfaceContext,
-  resolveWorkflowDestination,
 } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
@@ -11,24 +10,31 @@ import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
 import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
-import {
-  deleteSavedView,
-  setSavedViewMonthlySummary,
-  setSavedViewWeeklyRecipients,
-  setSavedViewWeeklySummary,
-} from "@/actions/saved-views";
+import { deleteSavedView } from "@/actions/saved-views";
 import { ContractsSavedViewCreateForm } from "@/components/contracts/contracts-saved-view-create-form";
 import {
   getContractIdsForDeadlinePreset,
   getContractIdsMatchingFieldSearch,
+  getContractIdsMatchingOwnerOrTagSearch,
   type DeadlinePreset,
   DEADLINE_PRESET_VALUES,
 } from "@/lib/contract-filters";
 import Link from "next/link";
-import { CheckCircle2, Download, Eye, Files } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Eye,
+  Files,
+  SlidersHorizontal,
+  Trash2,
+  Upload,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { UiSelect } from "@/components/ui/ui-select";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import {
   combineContractListIntersectIds,
@@ -38,7 +44,6 @@ import {
 import { getContractListRowSignalsMap } from "@/lib/contract-list-row-signals";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import type { OrgRole } from "@/lib/types";
-import { getExportJobDetail, getExportJobHeadline, getExportJobTone } from "@/lib/export-job-visibility";
 import {
   buildContractsListHref,
   normalizeContractsSearchQuery,
@@ -95,17 +100,16 @@ function parseEvidenceFilter(v: string | undefined): "" | "outstanding" {
   return v === "outstanding" || v === "attention" ? "outstanding" : "";
 }
 
+function parseWorkFilter(v: string | undefined): "" | "open" {
+  return v === "open" ? "open" : "";
+}
+
 function parseHealthFilter(v: string | undefined): "" | "watch" {
   return v === "watch" ? "watch" : "";
 }
 
 const FILTER_PILL_IDLE_CLASS = "ui-filter-pill";
 const FILTER_PILL_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
-const SAVED_VIEW_TOGGLE_IDLE_CLASS = "ui-filter-pill";
-const SAVED_VIEW_TOGGLE_WEEKLY_ACTIVE_CLASS =
-  "ui-filter-pill bg-[var(--success-soft)] text-[var(--success-ink)] hover:brightness-95";
-const SAVED_VIEW_TOGGLE_MONTHLY_ACTIVE_CLASS =
-  "ui-filter-pill bg-[var(--info-soft)] text-[var(--info-ink)] hover:brightness-95";
 
 export default async function ContractsPage(props: {
   searchParams: Promise<{
@@ -115,10 +119,13 @@ export default async function ContractsPage(props: {
     region?: string;
     deadline?: string;
     sort?: string;
+    counterparty?: string;
+    contract_type?: string;
     exceptions?: string;
     review?: string;
     data_quality?: string;
     evidence?: string;
+    work?: string;
     health?: string;
     page?: string;
   }>;
@@ -130,8 +137,6 @@ export default async function ContractsPage(props: {
 
   const { orgId, admin } = ctx;
   const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
-  const contractsDestination = resolveWorkflowDestination(productSurface, "contracts");
-  const contractsCopy = contractsDestination?.visible ? contractsDestination.copy : null;
   const moreActionLinks: { href: string; label: string }[] = [
     { href: "/api/export/calendar/feed", label: "Calendar feed token" },
     { href: "/contracts/intake", label: "Intake" },
@@ -163,26 +168,33 @@ export default async function ContractsPage(props: {
   const reviewFilter = parseReviewFilter(searchParams.review);
   const dataQualityFilter = parseDataQualityFilter(searchParams.data_quality);
   const evidenceFilter = parseEvidenceFilter(searchParams.evidence);
+  const workFilter = parseWorkFilter(searchParams.work);
   const healthFilter = parseHealthFilter(searchParams.health);
   const sortKey = parseContractListSort(searchParams.sort);
 
-  const [deadlineIds, fieldSearchIds, auxIntersect] = await Promise.all([
+  const [deadlineIds, fieldSearchIds, ownerOrTagSearchIds, auxIntersect] = await Promise.all([
     deadline
       ? getContractIdsForDeadlinePreset(admin, orgId, deadline)
       : Promise.resolve<string[] | null>(null),
     sanitizedSearch
       ? getContractIdsMatchingFieldSearch(admin, orgId, sanitizedSearch)
       : Promise.resolve<string[]>([]),
+    sanitizedSearch
+      ? getContractIdsMatchingOwnerOrTagSearch(admin, orgId, sanitizedSearch)
+      : Promise.resolve<string[]>([]),
     resolveAuxiliaryContractListIntersectIds(admin, orgId, {
       exceptions: exceptionsFilter || undefined,
       review: reviewFilter || undefined,
       data_quality: dataQualityFilter || undefined,
       evidence: evidenceFilter || undefined,
+      work: workFilter || undefined,
       health: healthFilter || undefined,
+      viewer: { role: ctx.role, workspaceMode: productSurface.mode },
     }),
   ]);
 
   const intersectIds = combineContractListIntersectIds([deadlineIds, auxIntersect]);
+  const searchMatchIds = [...new Set([...fieldSearchIds, ...ownerOrTagSearchIds])];
 
   const membersPromise = loadOrgMemberProfileRows(admin, orgId, {
     orderByCreatedAt: true,
@@ -200,16 +212,23 @@ export default async function ContractsPage(props: {
     .eq("organization_id", orgId)
     .order("created_at", { ascending: false })
     .limit(3);
+  const filterOptionsPromise = admin
+    .from("contracts")
+    .select("counterparty, contract_type")
+    .eq("organization_id", orgId)
+    .limit(1000);
   const contractsPagePromise = fetchContractsPage(
     admin,
     {
       orgId,
       status: searchParams.status,
       owner: searchParams.owner,
+      counterparty: searchParams.counterparty,
+      contractType: searchParams.contract_type,
       region: searchParams.region,
       intersectIds,
       sanitizedSearch,
-      fieldSearchIds,
+      fieldSearchIds: searchMatchIds,
       sort: sortKey === "created" ? "created" : "activity",
     },
     page
@@ -218,12 +237,14 @@ export default async function ContractsPage(props: {
     membersData,
     { data: savedViewsData },
     { data: exportJobsData },
+    { data: filterOptionsData },
     { contracts: contractsData, total: contractTotal, error: contractsPageError },
     role,
   ] = await Promise.all([
     membersPromise,
     savedViewsPromise,
     exportJobsPromise,
+    filterOptionsPromise,
     contractsPagePromise,
     getOrgMemberRole(admin, ctx.user.id, orgId),
   ]);
@@ -240,6 +261,8 @@ export default async function ContractsPage(props: {
         search: searchParams.search,
         status: searchParams.status,
         owner: searchParams.owner,
+        counterparty: searchParams.counterparty,
+        contract_type: searchParams.contract_type,
         region: searchParams.region,
         deadline: searchParams.deadline,
         sort: searchParams.sort,
@@ -247,6 +270,7 @@ export default async function ContractsPage(props: {
         review: searchParams.review,
         data_quality: searchParams.data_quality,
         evidence: searchParams.evidence,
+        work: searchParams.work,
         health: searchParams.health,
         page: String(listTotalPages),
       })
@@ -286,6 +310,20 @@ export default async function ContractsPage(props: {
       label: orgMemberProfileLabel(m.profiles, "Unknown"),
     };
   });
+  const counterpartyOptions = [
+    ...new Set(
+      (filterOptionsData ?? [])
+        .map((row) => String(row.counterparty ?? "").trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+  const contractTypeOptions = [
+    ...new Set(
+      (filterOptionsData ?? [])
+        .map((row) => String(row.contract_type ?? "").trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b));
 
   const [contracts, reviewStats, rowSignals] = await Promise.all([
     attachOwnerProfiles(admin, orgId, contractsData),
@@ -296,7 +334,8 @@ export default async function ContractsPage(props: {
     getContractListRowSignalsMap(
       admin,
       orgId,
-      contractsData.map((c) => c.id)
+      contractsData.map((c) => c.id),
+      { role: ctx.role, workspaceMode: productSurface.mode }
     ),
   ]);
 
@@ -309,6 +348,8 @@ export default async function ContractsPage(props: {
         search: q.search,
         status: q.status,
         owner: q.owner,
+        counterparty: q.counterparty,
+        contract_type: q.contract_type,
         region: q.region,
         deadline: q.deadline,
         sort: q.sort,
@@ -316,6 +357,7 @@ export default async function ContractsPage(props: {
         review: q.review,
         data_quality: q.data_quality,
         evidence: q.evidence,
+        work: q.work,
       }),
       weeklyActive: weeklyByViewId.get(v.id) ?? false,
       monthlyActive: monthlyByViewId.get(v.id) ?? false,
@@ -339,6 +381,8 @@ export default async function ContractsPage(props: {
   const baseParams = {
     search: searchParams.search,
     owner: searchParams.owner,
+    counterparty: searchParams.counterparty,
+    contract_type: searchParams.contract_type,
     region: searchParams.region,
     deadline: searchParams.deadline,
     sort: searchParams.sort,
@@ -346,6 +390,7 @@ export default async function ContractsPage(props: {
     review: searchParams.review,
     data_quality: searchParams.data_quality,
     evidence: searchParams.evidence,
+    work: searchParams.work,
     health: searchParams.health,
   };
 
@@ -353,11 +398,15 @@ export default async function ContractsPage(props: {
     ...baseParams,
     status: searchParams.status,
     region: searchParams.region,
+    counterparty: searchParams.counterparty,
+    contract_type: searchParams.contract_type,
   };
 
   const filterFingerprint = JSON.stringify({
     status: searchParams.status ?? "",
     owner: searchParams.owner ?? "",
+    counterparty: searchParams.counterparty ?? "",
+    contract_type: searchParams.contract_type ?? "",
     region: searchParams.region ?? "",
     deadline: searchParams.deadline ?? "",
     search: searchParams.search ?? "",
@@ -366,16 +415,36 @@ export default async function ContractsPage(props: {
     review: searchParams.review ?? "",
     data_quality: searchParams.data_quality ?? "",
     evidence: searchParams.evidence ?? "",
+    work: searchParams.work ?? "",
   });
 
   const pagePendingReview = contracts.filter((c) => c.status === "pending_review").length;
   const pageActive = contracts.filter((c) => c.status === "active").length;
   const latestExportJob = exportJobsData?.[0] ?? null;
-  const latestExportTone = latestExportJob ? getExportJobTone(latestExportJob) : "neutral";
+  // v14 — page-level signal counts feed the quick-filter chips above the table
+  // and the operational signals tiles below it.
+  const signalCounts = Object.values(rowSignals).reduce(
+    (acc, sig) => {
+      if (!sig) return acc;
+      if ((sig.openExceptionCount ?? 0) > 0) acc.openExceptions += 1;
+      if (sig.missingCriticalDates) acc.missingDates += 1;
+      if (
+        sig.nextHorizonDays != null &&
+        sig.nextHorizonDays >= 0 &&
+        sig.nextHorizonDays <= 90
+      ) acc.renewingSoon += 1;
+      if ((sig.outstandingEvidenceCount ?? 0) > 0) acc.evidenceDue += 1;
+      if ((sig.openWorkCount ?? 0) > 0) acc.openWork += 1;
+      return acc;
+    },
+    { openExceptions: 0, missingDates: 0, renewingSoon: 0, evidenceDue: 0, openWork: 0 }
+  );
   const activeFilters = [
     searchParams.search ? `Search: ${searchParams.search}` : null,
     activeStatusLabel ? `Status: ${activeStatusLabel}` : null,
     searchParams.owner ? `Owner: filtered` : null,
+    searchParams.counterparty ? `Counterparty: ${searchParams.counterparty}` : null,
+    searchParams.contract_type ? `Type: ${searchParams.contract_type}` : null,
     searchParams.region ? `Region: ${searchParams.region}` : null,
     searchParams.deadline ? `Date: ${searchParams.deadline}` : null,
     searchParams.sort === "created" ? "Sort: created" : null,
@@ -383,492 +452,717 @@ export default async function ContractsPage(props: {
     searchParams.review ? `Review: ${searchParams.review}` : null,
     searchParams.data_quality ? `Data: ${searchParams.data_quality}` : null,
     searchParams.evidence ? `Evidence: ${searchParams.evidence}` : null,
+    searchParams.work ? `Work: ${searchParams.work}` : null,
   ].filter((value): value is string => value != null);
+
+  const activeFilterCount = activeFilters.length;
+  const exportItems: { href: string; label: string }[] = [
+    { href: `/api/export/contracts?orgId=${encodeURIComponent(orgId)}`, label: "Export CSV" },
+    { href: "/api/export/calendar", label: "Export calendar" },
+    ...visibleMoreActionLinks,
+  ];
+  const latestExportSummary = latestExportJob
+    ? `Latest export: ${latestExportJob.exported_rows ?? 0} rows`
+    : null;
+
+  const activeSavedView = savedViews.find((v) => {
+    try {
+      const viewParams = new URL(v.href, "http://x").searchParams;
+      const viewKeys = [
+        "search",
+        "status",
+        "owner",
+        "counterparty",
+        "contract_type",
+        "region",
+        "deadline",
+        "sort",
+        "exceptions",
+        "review",
+        "data_quality",
+        "evidence",
+        "work",
+      ];
+      return viewKeys.every((key) => (viewParams.get(key) ?? "") === ((searchParams as Record<string, string | undefined>)[key] ?? ""));
+    } catch {
+      return false;
+    }
+  });
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div className="min-w-0 flex-1">
-          <h1 className="ui-display-title">Contracts</h1>
-          <p className="ui-page-lead mt-2">
-            {contractsCopy?.headerLead ??
-              "Contract records, queue states, ownership filters, and saved operating views."}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2.5">
-            <div className="ui-metric-chip grid min-w-[8rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
-              <span className="ui-meta leading-none">In scope</span>
-              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{contractTotal}</span>
-            </div>
-            <div className="ui-metric-chip grid min-w-[10.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
-              <span className="ui-meta leading-none">Pending review</span>
-              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{pagePendingReview}</span>
-            </div>
-            <div className="ui-metric-chip grid min-w-[7rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2">
-              <span className="ui-meta leading-none">Active</span>
-              <span className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{pageActive}</span>
-            </div>
-          </div>
-        </div>
-        <div className="ui-page-actions">
-          <Link href="/contracts/new" className="ui-btn-primary px-5 py-2.5">
-            Upload contract
-          </Link>
-          <Link href="/contracts/bulk" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Bulk import
-          </Link>
-          <a
-            href={`/api/export/contracts?orgId=${encodeURIComponent(orgId)}`}
-            className="ui-btn-secondary px-4 py-2.5 text-[13px]"
-          >
-            Export CSV
-          </a>
-          <a href="/api/export/calendar" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-            Export calendar
-          </a>
-          {visibleMoreActionLinks.length > 0 ? (
+      <DashboardPageHeader
+        icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Contract inventory"
+        title="Contracts"
+        lead={
+          contractTotal === 0 ? (
+            "Upload your first signed agreement to start tracking review, dates, owners, work, evidence, and reports."
+          ) : (
+            <span className="inline-flex flex-wrap items-center gap-1.5">
+              <Link
+                href="/contracts?status=pending_review"
+                className="ui-hero-metric-chip ui-hero-metric-chip-tone-warning"
+              >
+                <strong>{pagePendingReview}</strong> Pending
+              </Link>
+              <Link
+                href="/contracts?status=active"
+                className="ui-hero-metric-chip ui-hero-metric-chip-tone-success"
+              >
+                <strong>{pageActive}</strong> Active
+              </Link>
+              <span className="ui-hero-metric-chip">
+                <strong>{contractTotal}</strong> Total
+              </span>
+            </span>
+          )
+        }
+        actions={
+          <>
+            <Link
+              href="/contracts/new"
+              className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+            >
+              <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              Upload contract
+            </Link>
+            <Link
+              href="/contracts/bulk"
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              <Upload className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              Import CSV
+            </Link>
             <details className="relative">
-              <summary className="ui-btn-secondary cursor-pointer list-none px-4 py-2.5 text-[13px] [&::-webkit-details-marker]:hidden">
-                More actions
+              <summary className="ui-btn-ghost inline-flex cursor-pointer list-none items-center gap-1.5 px-3 py-1.5 text-[12.5px] [&::-webkit-details-marker]:hidden">
+                <Download className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                Export
+                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               </summary>
-              <div className="absolute left-0 top-[calc(100%+0.4rem)] z-20 w-64 max-w-[calc(100vw-3rem)] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-surface shadow-[var(--shadow-2)] sm:left-auto sm:right-0">
-                <ul className="divide-y divide-[var(--border-subtle)] text-sm">
-                  {visibleMoreActionLinks.map((row) => (
+              <div className="ui-popover right-0 left-auto w-64 max-w-[calc(100vw-3rem)] p-0">
+                <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] text-[12.5px]">
+                  {exportItems.map((row) => (
                     <li key={row.href}>
-                      <Link href={row.href} className="block px-4 py-2.5 hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]">
+                      <Link
+                        href={row.href}
+                        className="block px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] hover:text-[var(--accent-strong)]"
+                      >
                         {row.label}
                       </Link>
                     </li>
                   ))}
                 </ul>
+                {latestExportSummary ? (
+                  <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[10.5px] uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                    {latestExportSummary}
+                  </p>
+                ) : null}
               </div>
             </details>
-          ) : null}
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <section data-testid={surfaceTestIds.contractsPageSnapshot} className="ui-page-shell space-y-4">
-        <div>
-          <p className="ui-eyebrow">Table</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Page snapshot</h2>
-          <p className="ui-section-lead mt-2">
-            Filtered portfolio volume, review pressure, and live agreements on the current page.
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-8">
-          <OperationalSummaryCard
-            eyebrow="Filtered"
-            headline="In scope"
-            tone="neutral"
-            icon={Files}
-            primaryValue={contractTotal}
-            primaryUnit="on this page"
-            action={{ href: "/contracts", label: "Refresh filters" }}
-            variant="compact"
-            className="lg:col-span-2"
-          />
-          <OperationalSummaryCard
-            eyebrow="Inbox"
-            headline="Pending review"
-            tone={pagePendingReview > 0 ? "attention" : "healthy"}
-            icon={Eye}
-            primaryValue={pagePendingReview}
-            primaryUnit="on this page"
-            action={{ href: "/contracts?status=pending_review", label: "Review pending contracts" }}
-            variant="compact"
-            className="lg:col-span-2"
-          />
-          <OperationalSummaryCard
-            eyebrow="Live"
-            headline="Active"
-            tone="neutral"
-            icon={CheckCircle2}
-            primaryValue={pageActive}
-            primaryUnit="on this page"
-            action={{ href: "/contracts?status=active", label: "Review active" }}
-            variant="compact"
-            className="lg:col-span-2"
-          />
-          <OperationalSummaryCard
-            eyebrow="Exports"
-            headline="Latest export"
-            tone={latestExportTone}
-            icon={Download}
-            primaryValue={latestExportJob ? latestExportJob.exported_rows ?? 0 : null}
-            primaryFallback="None"
-            primaryUnit={
-              latestExportJob ? getExportJobHeadline(latestExportJob).replace(/^Export /, "") : "recent export jobs"
-            }
-            secondaryLine={latestExportJob ? getExportJobDetail(latestExportJob) : "No recent exports in this workspace."}
-            action={{
-              href: latestExportJob ? `/api/export/contracts/${latestExportJob.id}` : `/api/export/contracts?orgId=${encodeURIComponent(orgId)}`,
-              label: latestExportJob ? "View export status" : "Run export",
-              external: !latestExportJob,
-            }}
-            variant="compact"
-            className="lg:col-span-2"
-          />
-        </div>
-      </section>
+      {contractTotal === 0 ? (
+        <section
+          data-testid={surfaceTestIds.contractsPageSnapshot}
+          className="ui-card-raised flex flex-col gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-6"
+        >
+          <div className="min-w-0">
+            <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+              <span className="landing-eyebrow-dot" aria-hidden />
+              Get started
+            </p>
+            <p className="mt-2 text-[14px] font-semibold text-[var(--text-primary)]">
+              No contracts in scope yet
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+              Upload your first signed agreement.
+            </p>
+          </div>
+          <Link
+            href="/contracts/new"
+            className="ui-btn-primary inline-flex shrink-0 items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+          >
+            <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+            Upload contract
+          </Link>
+        </section>
+      ) : null}
 
-      <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
-        <aside className="space-y-6 xl:sticky xl:top-6 xl:h-fit">
-          <div className="ui-page-shell p-4 md:p-5">
-            <div className="mb-4 space-y-1.5">
-              <p className="ui-eyebrow">Filters</p>
-              <h2 className="ui-section-title">Refine the list</h2>
-              <p className="ui-support-copy">Search by contract context, then narrow the visible queue with date, owner, region, and operational flags.</p>
-            </div>
-            <form className="space-y-3.5 md:space-y-4" action="/contracts" method="get">
-              <div>
-                <label htmlFor="contract-search" className="ui-label-caps">
-                  Search
-                </label>
-                <input
-                  id="contract-search"
-                  name="search"
-                  type="search"
-                  placeholder="Title, counterparty, type, dates..."
-                  defaultValue={searchParams.search || ""}
-                  className="ui-input-compact w-full"
-                  autoComplete="off"
-                />
-              </div>
-              <div>
-                <label htmlFor="contract-deadline-filter" className="ui-label-caps">
-                  Date preset
-                </label>
-                <select
-                  id="contract-deadline-filter"
-                  name="deadline"
-                  defaultValue={deadline}
-                  className="ui-input-compact w-full"
-                >
-                  {DEADLINE_OPTIONS.map((o) => (
-                    <option key={o.value || "any"} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="contract-sort" className="ui-label-caps">
-                  Sort
-                </label>
-                <select
-                  id="contract-sort"
-                  name="sort"
-                  defaultValue={searchParams.sort === "created" ? "created" : "activity"}
-                  className="ui-input-compact w-full"
-                >
-                  <option value="activity">Recent activity</option>
-                  <option value="created">Recently created</option>
-                </select>
-              </div>
-              {searchParams.status && (
-                <input type="hidden" name="status" value={searchParams.status} />
-              )}
-              {searchParams.owner && (
-                <input type="hidden" name="owner" value={searchParams.owner} />
-              )}
-              {searchParams.region && (
-                <input type="hidden" name="region" value={searchParams.region} />
-              )}
-              {searchParams.exceptions ? (
-                <input type="hidden" name="exceptions" value={searchParams.exceptions} />
+      {/* v13 toolbar: slim single row — search + date + sort + Filters popover + Saved views popover + Save view.
+          NB: the toolbar wrapper is a <div>; the <form> for SEARCH/DATE/SORT renders with className="contents"
+          so children flex inline with the popover triggers without nesting <form> elements (the popovers
+          contain their own action forms — delete view, create view — which cannot legally nest). */}
+      <section aria-label="Filters" className="space-y-2">
+        <div className="ui-filter-toolbar">
+          <form action="/contracts" method="get" className="contents">
+            <input
+              aria-label="Search contracts by name, counterparty, owner, or tag"
+              id="contract-search"
+              name="search"
+              type="search"
+              placeholder="Search name, counterparty, owner, tag…"
+              defaultValue={searchParams.search || ""}
+              className="ui-input-compact h-9 min-w-0 flex-1 lg:max-w-md"
+              autoComplete="off"
+            />
+            <UiSelect
+              name="deadline"
+              defaultValue={deadline}
+              ariaLabel="Date preset"
+              placeholder="Any date"
+              buttonClassName="h-9 min-w-[10rem] text-[12.5px]"
+              options={DEADLINE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+            />
+            <UiSelect
+              name="sort"
+              defaultValue={searchParams.sort === "created" ? "created" : "activity"}
+              ariaLabel="Sort"
+              buttonClassName="h-9 min-w-[10rem] text-[12.5px]"
+              options={[
+                { value: "activity", label: "Recent activity" },
+                { value: "created", label: "Recently created" },
+              ]}
+            />
+            {searchParams.status ? <input type="hidden" name="status" value={searchParams.status} /> : null}
+            {searchParams.owner ? <input type="hidden" name="owner" value={searchParams.owner} /> : null}
+            {searchParams.counterparty ? <input type="hidden" name="counterparty" value={searchParams.counterparty} /> : null}
+            {searchParams.contract_type ? <input type="hidden" name="contract_type" value={searchParams.contract_type} /> : null}
+            {searchParams.region ? <input type="hidden" name="region" value={searchParams.region} /> : null}
+            {searchParams.exceptions ? <input type="hidden" name="exceptions" value={searchParams.exceptions} /> : null}
+            {searchParams.review ? <input type="hidden" name="review" value={searchParams.review} /> : null}
+            {searchParams.data_quality ? <input type="hidden" name="data_quality" value={searchParams.data_quality} /> : null}
+            {searchParams.evidence ? <input type="hidden" name="evidence" value={searchParams.evidence} /> : null}
+            {searchParams.work ? <input type="hidden" name="work" value={searchParams.work} /> : null}
+            <input type="hidden" name="page" value="1" />
+            <button
+              type="submit"
+              aria-label="Apply search, date, and sort"
+              className="ui-btn-secondary inline-flex h-9 items-center px-3 text-[12.5px] font-semibold"
+              title="Apply (or press Enter)"
+            >
+              Apply
+            </button>
+          </form>
+
+          {/* Filters popover */}
+          <details className="relative">
+            <summary className="ui-toolbar-dropdown" aria-haspopup="dialog">
+              <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              Filters
+              {activeFilterCount > 0 ? (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--accent)_22%,var(--surface-raised))] px-1.5 text-[10.5px] font-bold tabular-nums text-[var(--accent-strong)]">
+                  {activeFilterCount}
+                </span>
               ) : null}
-              {searchParams.review ? (
-                <input type="hidden" name="review" value={searchParams.review} />
-              ) : null}
-              {searchParams.data_quality ? (
-                <input type="hidden" name="data_quality" value={searchParams.data_quality} />
-              ) : null}
-              {searchParams.evidence ? (
-                <input type="hidden" name="evidence" value={searchParams.evidence} />
-              ) : null}
-              <input type="hidden" name="page" value="1" />
-              <button type="submit" className="ui-btn-primary w-full">
-                Apply filters
-              </button>
-            </form>
-
-            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
-              <p className="ui-label-caps mb-2">Status</p>
-              <div className="flex flex-wrap gap-1.5">
-                {statuses.map((s) => (
-                  <Link
-                    key={s.value}
-                    href={buildContractsListHref({
-                      ...baseParams,
-                      status: s.value || undefined,
-                    })}
-                    className={(searchParams.status || "") === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    {s.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
-              <p className="ui-label-caps mb-2">Region</p>
-              <div className="flex flex-wrap gap-1.5">
-                {["", "NA", "EMEA", "APAC", "LATAM"].map((region) => (
-                  <Link
-                    key={region || "all"}
-                    href={buildContractsListHref({
-                      ...baseParams,
-                      status: searchParams.status,
-                      region: region || undefined,
-                    })}
-                    className={(searchParams.region || "") === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    {region || "All"}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {members.length > 1 && (
-              <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
-                <p className="ui-label-caps mb-2">Owner</p>
+              <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+            </summary>
+            <div className="ui-popover left-0 right-auto w-[22rem] max-w-[calc(100vw-3rem)]" role="dialog" aria-label="Filter contracts">
+              <div className="ui-popover-section">
+                <p className="ui-popover-section-heading">Status</p>
                 <div className="flex flex-wrap gap-1.5">
-                  <Link
-                    href={buildContractsListHref({
-                      ...baseParams,
-                      status: searchParams.status,
-                    })}
-                    className={!searchParams.owner ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    All
-                  </Link>
-                  {members.map((m) => (
+                  {statuses.map((s) => (
                     <Link
-                      key={m.id}
-                      href={buildContractsListHref({
-                        ...baseParams,
-                        status: searchParams.status,
-                        owner: m.id,
-                      })}
-                      className={searchParams.owner === m.id ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      key={`status-${s.value}`}
+                      href={buildContractsListHref({ ...baseParams, status: s.value || undefined })}
+                      className={(searchParams.status || "") === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                     >
-                      {m.label}
+                      {s.label}
                     </Link>
                   ))}
                 </div>
               </div>
-            )}
-
-            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3.5 md:mt-5 md:pt-4">
-              <p className="ui-label-caps mb-2">Operational filters</p>
-              <div className="flex flex-wrap gap-1.5">
-                <Link
-                  href={buildContractsListHref({
-                    ...baseParams,
-                    status: searchParams.status,
-                    exceptions: exceptionsFilter === "open" ? undefined : "open",
-                  })}
-                  className={exceptionsFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                >
-                  Open exceptions
-                </Link>
-                <Link
-                  href={buildContractsListHref({
-                    ...baseParams,
-                    status: searchParams.status,
-                    review: reviewFilter === "pending" ? undefined : "pending",
-                  })}
-                  className={reviewFilter === "pending" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                >
-                  Needs review
-                </Link>
-                <Link
-                  href={buildContractsListHref({
-                    ...baseParams,
-                    status: searchParams.status,
-                    data_quality:
-                      dataQualityFilter === "missing_critical" ? undefined : "missing_critical",
-                  })}
-                  className={dataQualityFilter === "missing_critical" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                >
-                  Missing critical dates
-                </Link>
-                <Link
-                  href={buildContractsListHref({
-                    ...baseParams,
-                    status: searchParams.status,
-                    evidence: evidenceFilter === "outstanding" ? undefined : "outstanding",
-                  })}
-                  className={evidenceFilter === "outstanding" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                >
-                  Evidence outstanding
-                </Link>
-                <Link
-                  href={buildContractsListHref({
-                    ...baseParams,
-                    status: searchParams.status,
-                    health: healthFilter === "watch" ? undefined : "watch",
-                  })}
-                  className={healthFilter === "watch" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                >
-                  Health watch
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="ui-page-shell p-4 md:p-5">
-            <div className="mb-4 space-y-1.5">
-              <p className="ui-eyebrow">Saved views</p>
-              <h2 className="ui-section-title">Repeatable queue cuts</h2>
-              <p className="ui-support-copy">Capture the current filter state, then turn on weekly or monthly summaries for the views you revisit.</p>
-            </div>
-            <ContractsSavedViewCreateForm
-              organizationId={orgId}
-              canEdit={canEdit}
-              defaults={{
-                search: searchParams.search || "",
-                status: searchParams.status || "",
-                owner: searchParams.owner || "",
-                region: searchParams.region || "",
-                deadline: searchParams.deadline || "",
-                sort: searchParams.sort || "",
-                exceptions: searchParams.exceptions || "",
-                review: searchParams.review || "",
-                data_quality: searchParams.data_quality || "",
-                evidence: searchParams.evidence || "",
-              }}
-            />
-            {savedViews.length > 0 && (
-              <div className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3.5 md:pt-4">
-                {savedViews.map((view) => (
-                  <div key={view.id} className="ui-soft-details p-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <Link href={view.href} className="truncate text-[12px] font-semibold text-[var(--text-primary)] hover:text-[var(--accent-strong)]">
-                        {view.name}
+              {counterpartyOptions.length > 0 ? (
+                <div className="ui-popover-section">
+                  <p className="ui-popover-section-heading">Counterparty</p>
+                  <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
+                    <Link
+                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty: undefined })}
+                      className={!searchParams.counterparty ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                    >
+                      All
+                    </Link>
+                    {counterpartyOptions.slice(0, 24).map((counterparty) => (
+                      <Link
+                        key={`counterparty-${counterparty}`}
+                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty })}
+                        className={searchParams.counterparty === counterparty ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      >
+                        {counterparty}
                       </Link>
-                      <form action={deleteSavedView.bind(null, view.id) as never}>
-                        <button
-                          type="submit"
-                          aria-label={`Delete saved view ${view.name}`}
-                          className="ui-icon-button min-h-7 min-w-7 rounded-full px-1.5 py-0.5 text-[11px]"
-                        >
-                          x
-                        </button>
-                      </form>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive) as never}>
-                        <button
-                          type="submit"
-                          className={
-                            view.weeklyActive ? SAVED_VIEW_TOGGLE_WEEKLY_ACTIVE_CLASS : SAVED_VIEW_TOGGLE_IDLE_CLASS
-                          }
-                        >
-                          {view.weeklyActive ? "Weekly on" : "Weekly off"}
-                        </button>
-                      </form>
-                      <form action={setSavedViewMonthlySummary.bind(null, view.id, !view.monthlyActive) as never}>
-                        <button
-                          type="submit"
-                          className={
-                            view.monthlyActive ? SAVED_VIEW_TOGGLE_MONTHLY_ACTIVE_CLASS : SAVED_VIEW_TOGGLE_IDLE_CLASS
-                          }
-                        >
-                          {view.monthlyActive ? "Monthly on" : "Monthly off"}
-                        </button>
-                      </form>
-                    </div>
-                    {(view.weeklyActive || view.monthlyActive) && (
-                      <form action={setSavedViewWeeklyRecipients.bind(null, view.id) as never} className="mt-2 flex gap-1.5">
-                        <input
-                          name="recipientsCsv"
-                          defaultValue={view.recipientsCsv}
-                          placeholder="extra@company.com"
-                          className="ui-input-compact h-7 text-[11px]"
-                        />
-                        <button type="submit" className="ui-btn-secondary rounded-full px-2 py-0.5 text-[11px]">
-                          Save
-                        </button>
-                      </form>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-
-        <section className="space-y-3.5 md:space-y-4">
-          <div className="ui-toolbar-strong p-3.5 md:p-4">
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] md:gap-2 md:text-[12px]">
-              <span className="ui-chip">Rows: {contractTotal}</span>
-              <span className="ui-chip">Page {page}</span>
-              {activeStatusLabel ? <span className="ui-chip">Status: {activeStatusLabel}</span> : null}
-              {searchParams.deadline ? <span className="ui-chip">Date: {searchParams.deadline}</span> : null}
-              {activeFilters.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {activeFilters.map((filter) => (
-                    <span key={filter} className="ui-chip">
-                      {filter}
-                    </span>
+                </div>
+              ) : null}
+              {contractTypeOptions.length > 0 ? (
+                <div className="ui-popover-section">
+                  <p className="ui-popover-section-heading">Contract type</p>
+                  <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
+                    <Link
+                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: undefined })}
+                      className={!searchParams.contract_type ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                    >
+                      All
+                    </Link>
+                    {contractTypeOptions.slice(0, 24).map((contractType) => (
+                      <Link
+                        key={`contract-type-${contractType}`}
+                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: contractType })}
+                        className={searchParams.contract_type === contractType ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      >
+                        {contractType}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              <div className="ui-popover-section">
+                <p className="ui-popover-section-heading">Region</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["", "NA", "EMEA", "APAC", "LATAM"].map((region) => (
+                    <Link
+                      key={`region-${region || "all"}`}
+                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, region: region || undefined })}
+                      className={(searchParams.region || "") === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                    >
+                      {region || "All"}
+                    </Link>
                   ))}
                 </div>
-              ) : (
-                <span className="ui-chip">No active filters</span>
-              )}
-              <Link href="/contracts/review" className="ui-link text-[11px] md:ml-auto md:text-[12px]">
-                Continue review queue
-              </Link>
+              </div>
+              <div className="ui-popover-section">
+                <p className="ui-popover-section-heading">Operational</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Link
+                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, exceptions: exceptionsFilter === "open" ? undefined : "open" })}
+                    className={exceptionsFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                  >
+                    Open exceptions
+                  </Link>
+                  <Link
+                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, review: reviewFilter === "pending" ? undefined : "pending" })}
+                    className={reviewFilter === "pending" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                  >
+                    Needs review
+                  </Link>
+                  <Link
+                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, data_quality: dataQualityFilter === "missing_critical" ? undefined : "missing_critical" })}
+                    className={dataQualityFilter === "missing_critical" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                  >
+                    Missing dates
+                  </Link>
+                  <Link
+                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, evidence: evidenceFilter === "outstanding" ? undefined : "outstanding" })}
+                    className={evidenceFilter === "outstanding" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                  >
+                    Evidence due
+                  </Link>
+                  <Link
+                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, work: workFilter === "open" ? undefined : "open" })}
+                    className={workFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                  >
+                    Open work
+                  </Link>
+                </div>
+              </div>
+              {members.length > 1 ? (
+                <div className="ui-popover-section">
+                  <p className="ui-popover-section-heading">Owner</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Link
+                      href={buildContractsListHref({ ...baseParams, status: searchParams.status })}
+                      className={!searchParams.owner ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                    >
+                      All
+                    </Link>
+                    {members.map((m) => (
+                      <Link
+                        key={m.id}
+                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, owner: m.id })}
+                        className={searchParams.owner === m.id ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      >
+                        {m.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {activeFilterCount > 0 ? (
+                <div className="mt-3 flex items-center justify-between border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-2.5">
+                  <Link href="/contracts" className="ui-link text-[12px]">
+                    Clear all filters
+                  </Link>
+                  <span className="text-[11px] text-[var(--text-tertiary)]">{activeFilterCount} active</span>
+                </div>
+              ) : null}
             </div>
-          </div>
-          {contractsPageError ? (
-            <V10RecoverableState
-              state="failed"
-              title="Contracts could not be loaded"
-              reason="The contract list query failed, so this is not being shown as an empty portfolio."
-              accessibleName="Contracts list failed state"
-              nextActionLabel="Retry contracts"
-              nextAction={
-                <Link href="/contracts" className="ui-link">
-                  Retry contracts
-                </Link>
-              }
-            />
-          ) : null}
-          {!contractsPageError ? (
-            <ContractTable
-              contracts={contracts}
-              reviewStats={reviewStats}
-              rowSignals={rowSignals}
-              filterFingerprint={filterFingerprint}
-              emptyState={
-                activeFilters.length > 0 || sanitizedSearch
-                  ? {
-                      title: "No contracts match these filters",
-                      copy: "Clear the filters or search terms to return to the full contract list.",
-                      actionHref: "/contracts",
-                      actionLabel: "Clear filters",
-                    }
-                  : undefined
-              }
-              bulkActions={{
-                canEdit,
-                orgId,
-                members,
-              }}
-              footer={
-                <ContractPagination
-                  total={contractTotal}
-                  page={page}
-                  pageSize={CONTRACTS_PAGE_SIZE}
-                  basePath="/contracts"
-                  queryParams={paginationQuery}
+          </details>
+
+          {/* Saved views popover */}
+          <details className="relative">
+            <summary className="ui-toolbar-dropdown" aria-haspopup="dialog">
+              <Eye className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "Views"}</span>
+              <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+            </summary>
+            <div className="ui-popover left-0 right-auto w-[22rem] max-w-[calc(100vw-3rem)]" role="dialog" aria-label="Saved views">
+              <ul className="space-y-1">
+                <li>
+                  <Link
+                    href="/contracts"
+                    className={`flex items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] ${!activeSavedView ? "bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] text-[var(--accent-strong)]" : "text-[var(--text-secondary)]"}`}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <Eye className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+                      All contracts
+                    </span>
+                  </Link>
+                </li>
+                {savedViews.map((view) => (
+                  <li key={view.id} className="group flex items-center gap-1">
+                    <Link
+                      href={view.href}
+                      className={`flex flex-1 items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] ${activeSavedView?.id === view.id ? "bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] text-[var(--accent-strong)]" : "text-[var(--text-secondary)]"}`}
+                    >
+                      <span className="truncate">{view.name}</span>
+                      <span className="ml-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        {view.weeklyActive ? <span title="Weekly summary on">W</span> : null}
+                        {view.monthlyActive ? <span title="Monthly summary on">M</span> : null}
+                      </span>
+                    </Link>
+                    <form
+                      action={deleteSavedView.bind(null, view.id) as never}
+                    >
+                      <button
+                        type="submit"
+                        aria-label={`Delete saved view ${view.name}`}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_14%,transparent)] hover:text-[var(--danger-ink)]"
+                      >
+                        <Trash2 className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-2.5">
+                <p className="ui-popover-section-heading">Save current view</p>
+                <ContractsSavedViewCreateForm
+                  organizationId={orgId}
+                  canEdit={canEdit}
+                  defaults={{
+                    search: searchParams.search || "",
+                    status: searchParams.status || "",
+                    owner: searchParams.owner || "",
+                    counterparty: searchParams.counterparty || "",
+                    contract_type: searchParams.contract_type || "",
+                    region: searchParams.region || "",
+                    deadline: searchParams.deadline || "",
+                    sort: searchParams.sort || "",
+                    exceptions: searchParams.exceptions || "",
+                    review: searchParams.review || "",
+                    data_quality: searchParams.data_quality || "",
+                    evidence: searchParams.evidence || "",
+                    work: searchParams.work || "",
+                  }}
                 />
-              }
-            />
+              </div>
+            </div>
+          </details>
+        </div>
+
+        {/* Active filter chips — renders only when filters are applied. */}
+        {activeFilterCount > 0 ? (
+          <div
+            role="group"
+            aria-label="Active filters"
+            className="flex flex-wrap items-center gap-1.5 px-1"
+          >
+            {searchParams.search ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, search: undefined, status: searchParams.status })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Search ${searchParams.search}`}
+              >
+                Search: {searchParams.search}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {activeStatusLabel ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: undefined })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Status ${activeStatusLabel}`}
+              >
+                Status: {activeStatusLabel}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.region ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, region: undefined })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Region ${searchParams.region}`}
+              >
+                Region: {searchParams.region}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.owner ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, owner: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Owner"
+              >
+                Owner: {members.find((m) => m.id === searchParams.owner)?.label ?? "Selected"}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.counterparty ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty: undefined })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Counterparty ${searchParams.counterparty}`}
+              >
+                Counterparty: {searchParams.counterparty}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.contract_type ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: undefined })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Contract type ${searchParams.contract_type}`}
+              >
+                Type: {searchParams.contract_type}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.deadline ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, deadline: undefined })}
+                className="ui-active-filter-chip"
+                aria-label={`Remove filter: Date ${searchParams.deadline}`}
+              >
+                Date: {searchParams.deadline.replace(/_/g, " ")}
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.sort === "created" ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, sort: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Sort by recently created"
+              >
+                Sort: created
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.exceptions ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, exceptions: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Open exceptions"
+              >
+                Open exceptions
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.review ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, review: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Needs review"
+              >
+                Needs review
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.data_quality ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, data_quality: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Missing dates"
+              >
+                Missing dates
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.evidence ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, evidence: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Evidence due"
+              >
+                Evidence due
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {searchParams.work ? (
+              <Link
+                href={buildContractsListHref({ ...baseParams, status: searchParams.status, work: undefined })}
+                className="ui-active-filter-chip"
+                aria-label="Remove filter: Open work"
+              >
+                Open work
+                <span className="ui-active-filter-chip-remove" aria-hidden>
+                  <X className="h-3 w-3" strokeWidth={2} />
+                </span>
+              </Link>
+            ) : null}
+            {activeFilterCount >= 2 ? (
+              <Link href="/contracts" className="ui-link ml-1 text-[11px]">
+                Clear all
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+
+      {/* v14/v15 — Quick-filter strip above the table. Renders only when no filters are
+          already applied AND the workspace has at least one contract.
+          v15: eyebrow demoted to caps-3, renamed "Common filters", separated to its own line. */}
+      {activeFilterCount === 0 && contractTotal > 0 ? (
+        <nav aria-label="Common filters" className="space-y-1.5 px-1">
+          <p className="ui-caps-3 inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
+            <span className="landing-eyebrow-dot" aria-hidden />
+            Common filters
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5">
+          {pagePendingReview > 0 ? (
+            <Link
+              href="/contracts?status=pending_review"
+              className="ui-quick-chip ui-quick-chip-tone-warning"
+            >
+              Pending review
+              <span className="ui-quick-chip-count">{pagePendingReview}</span>
+            </Link>
           ) : null}
-        </section>
-      </div>
+          {signalCounts.openExceptions > 0 ? (
+            <Link
+              href="/contracts?exceptions=open"
+              className="ui-quick-chip ui-quick-chip-tone-danger"
+            >
+              Open exceptions
+              <span className="ui-quick-chip-count">{signalCounts.openExceptions}</span>
+            </Link>
+          ) : null}
+          {signalCounts.missingDates > 0 ? (
+            <Link
+              href="/contracts?data_quality=missing_critical"
+              className="ui-quick-chip ui-quick-chip-tone-warning"
+            >
+              Missing dates
+              <span className="ui-quick-chip-count">{signalCounts.missingDates}</span>
+            </Link>
+          ) : null}
+          {signalCounts.evidenceDue > 0 ? (
+            <Link
+              href="/contracts?evidence=outstanding"
+              className="ui-quick-chip ui-quick-chip-tone-warning"
+            >
+              Evidence due
+              <span className="ui-quick-chip-count">{signalCounts.evidenceDue}</span>
+            </Link>
+          ) : null}
+          {signalCounts.openWork > 0 ? (
+            <Link
+              href="/contracts?work=open"
+              className="ui-quick-chip"
+            >
+              Open work
+              <span className="ui-quick-chip-count">{signalCounts.openWork}</span>
+            </Link>
+          ) : null}
+          <Link href="/contracts?deadline=renewal_90" className="ui-quick-chip">
+            Renewing in 90d
+          </Link>
+          {pageActive > 0 ? (
+            <Link
+              href="/contracts?status=active"
+              className="ui-quick-chip ui-quick-chip-tone-success"
+            >
+              Active
+              <span className="ui-quick-chip-count">{pageActive}</span>
+            </Link>
+          ) : null}
+          </div>
+        </nav>
+      ) : null}
+
+      <section>
+        {contractsPageError ? (
+          <V10RecoverableState
+            state="failed"
+            title="Contracts could not be loaded"
+            reason="The contract list query failed, so this is not being shown as an empty contract list."
+            accessibleName="Contracts list failed state"
+            nextActionLabel="Retry contracts"
+            nextAction={
+              <Link href="/contracts" className="ui-link">
+                Retry contracts
+              </Link>
+            }
+          />
+        ) : (
+          <ContractTable
+            contracts={contracts}
+            reviewStats={reviewStats}
+            rowSignals={rowSignals}
+            filterFingerprint={filterFingerprint}
+            emptyState={
+              activeFilters.length > 0 || sanitizedSearch
+                ? {
+                    title: "No contracts match these filters",
+                    copy: "Clear the filters or search terms to return to the full contract list.",
+                    actionHref: "/contracts",
+                    actionLabel: "Clear filters",
+                  }
+                : undefined
+            }
+            bulkActions={{
+              canEdit,
+              orgId,
+              members,
+            }}
+            footer={
+              <ContractPagination
+                total={contractTotal}
+                page={page}
+                pageSize={CONTRACTS_PAGE_SIZE}
+                basePath="/contracts"
+                queryParams={paginationQuery}
+              />
+            }
+          />
+        )}
+      </section>
+
     </div>
   );
 }

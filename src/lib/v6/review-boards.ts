@@ -135,7 +135,8 @@ export async function patchReviewBoard(
     agendaTemplate?: Record<string, unknown> | null;
     active?: boolean;
     cadence?: string;
-  }
+  },
+  expectedVersion?: string | number | null
 ) {
   const updates: Record<string, unknown> = {};
   if (payload.subscriptions !== undefined) {
@@ -154,7 +155,9 @@ export async function patchReviewBoard(
     return { data: null as Record<string, unknown> | null, error: { message: "no_updates" } };
   }
   updates.updated_at = nowIso();
-  return updateRowById(admin, "review_boards", orgId, boardId, updates);
+  return updateRowById(admin, "review_boards", orgId, boardId, updates, {
+    expectedUpdatedAt: expectedVersion,
+  });
 }
 
 export function createReviewBoard(

@@ -31,17 +31,15 @@ const CORE_ADMIN_SURFACE: NavSurfaceInput = {
   searchScope: "match_mode",
 };
 
-/** §7.1 / §8.1 — Core admin, order-independent primary nav names (Programs/Advanced/Assurance hidden by mode). */
+/** §7.1 / §8.1 — Core admin, order-independent primary nav names.
+ *  Programs/Advanced/Assurance and Tools remain hidden by mode. */
 const CORE_ADMIN_PRIMARY_NAV_NAMES_SORTED = [
   "Contracts",
+  "Dashboard",
   "Evidence",
-  "Exceptions",
-  "Home",
   "Renewals",
   "Reports",
-  "Review",
   "Settings",
-  "Tools",
   "Work",
 ].sort();
 
@@ -81,23 +79,21 @@ describe("V7 vocabulary consistency (§22.1 search index vs registry labels)", (
     expect(visible).toEqual(CORE_ADMIN_PRIMARY_NAV_NAMES_SORTED);
   });
 
-  it("maps Work hub navChildren hrefs to expected feature families", () => {
+  it("promotes Evidence to top-level and removes Report packs (v11 spec)", () => {
+    // v11 dashboard spec compliance:
+    // - Evidence promoted to top-level primary nav per spec §In-App Pages.
+    // - Report packs removed entirely from nav per spec §Reports Page
+    //   (not in the 10 Core reports list). Route still exists.
+    const visiblePrimary = NAV_ITEMS.filter(
+      (item) => item.section === "primary" && isNavItemVisibleForSurface(item, CORE_ADMIN_SURFACE)
+    ).map((item) => item.name);
+    expect(visiblePrimary).toContain("Evidence");
+    expect(visiblePrimary).not.toContain("Report packs");
+  });
+
+  it("keeps Work tabs out of public Core navChildren", () => {
     const work = NAV_ITEMS.find((i) => i.name === "Work");
-    expect(work?.navChildren?.length).toBeGreaterThan(0);
-    const expectedFamily: Record<string, FeatureFamilyKey> = {
-      "/contracts/tasks": "work",
-      "/contracts/obligations": "work",
-      "/contracts/approvals": "work",
-      "/contracts/renewals": "renewals",
-      "/contracts/exceptions": "exceptions",
-      "/contracts/evidence-studio": "evidence",
-    };
-    for (const child of work?.navChildren ?? []) {
-      const path = child.href.split("?")[0] ?? child.href;
-      const exp = expectedFamily[path];
-      if (exp) {
-        expect(featureFamilyForPath(path), path).toBe(exp);
-      }
-    }
+    expect(work?.navChildren ?? []).toEqual([]);
+    expect(featureFamilyForPath("/work")).toBe("work");
   });
 });

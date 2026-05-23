@@ -83,13 +83,16 @@ export function patchAutopilotRule(
     allowlist?: string[];
     enabled?: boolean;
     guardrails?: Record<string, unknown>;
-  }
+  },
+  expectedVersion?: string | number | null
 ) {
   const payload: Record<string, unknown> = {};
   if (patch.allowlist) payload.allowlist_json = patch.allowlist;
   if (patch.enabled !== undefined) payload.enabled = patch.enabled;
   if (patch.guardrails) payload.guardrails_json = patch.guardrails;
-  return updateRowById(admin, "autopilot_rules", orgId, ruleId, payload);
+  return updateRowById(admin, "autopilot_rules", orgId, ruleId, payload, {
+    expectedUpdatedAt: expectedVersion,
+  });
 }
 
 export function listAutopilotRuns(admin: AdminClient, orgId: string) {

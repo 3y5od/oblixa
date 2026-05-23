@@ -16,8 +16,21 @@ function toDayNumber(value) {
   return Math.floor(dt.getTime() / 86_400_000);
 }
 
+function parseKeyValueMeta(raw) {
+  const matches = [...raw.matchAll(/\b([A-Za-z][A-Za-z0-9_-]*)=/gu)];
+  const meta = {};
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index];
+    const key = match[1];
+    const valueStart = (match.index ?? 0) + match[0].length;
+    const valueEnd =
+      index + 1 < matches.length ? matches[index + 1].index ?? raw.length : raw.length;
+    meta[key] = raw.slice(valueStart, valueEnd).trim();
+  }
+  return meta;
+}
+
 const allowlist = readFileSync(path.join(ROOT, "scripts", "api-route-test-allowlist.txt"), "utf8").split("\n");
-const metaRe = /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
 let currentMeta = null;
 let allowlistRouteCount = 0;
 let allowlistExpiredCount = 0;
@@ -27,9 +40,24 @@ for (const [idx, line] of allowlist.entries()) {
   const t = line.trim();
   if (!t) continue;
   if (t.startsWith("#")) {
-    const m = t.match(metaRe);
-    if (m) {
-      currentMeta = { owner: m[1], expiry: m[2], reason: m[3] };
+    const metaMatch = t.match(/^#\s*meta:\s*(?<body>.*)$/u);
+    if (metaMatch?.groups?.body) {
+      const meta = parseKeyValueMeta(metaMatch.groups.body);
+      if (!meta.owner || !meta.expiry || !meta.reason) {
+        currentMeta = null;
+        issues.push({
+          file: "scripts/api-route-test-allowlist.txt",
+          line: idx + 1,
+          issue: "invalid_allowlist_meta",
+        });
+        continue;
+      }
+      currentMeta = {
+        owner: meta.owner,
+        expiry: meta.expiry,
+        reason: meta.reason,
+        reviewedOn: meta.reviewedOn ?? meta.reviewDate ?? meta.lastReviewed ?? null,
+      };
       if (!currentMeta.owner.startsWith("@")) {
         issues.push({ file: "scripts/api-route-test-allowlist.txt", line: idx + 1, issue: "owner_must_start_with_at" });
       }

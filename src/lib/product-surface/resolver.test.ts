@@ -70,9 +70,10 @@ describe("resolver", () => {
     expect(isCmdkHrefAllowed("/contracts", coreSurface)).toBe(true);
   });
 
-  it("isCmdkHrefAllowed allows eligible nav-child hrefs", () => {
-    expect(isCmdkHrefAllowed("/contracts/tasks", coreSurface)).toBe(true);
-    expect(isCmdkHrefAllowed("/contracts/approvals", coreSurface)).toBe(true);
+  it("isCmdkHrefAllowed allows release-state Core children and hides old queue lanes", () => {
+    expect(isCmdkHrefAllowed("/contracts/review", coreSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/contracts/tasks", coreSurface)).toBe(false);
+    expect(isCmdkHrefAllowed("/contracts/approvals", coreSurface)).toBe(false);
   });
 
   it("cmdkFilterRecentHrefsForSurface removes hidden modules (§20.3)", () => {
@@ -143,10 +144,17 @@ describe("resolver", () => {
     expect(isCmdkHrefAllowed("/work", surface)).toBe(true);
   });
 
-  it("enforces min role for cmd-K items", () => {
-    expect(isCmdkHrefAllowed("/settings/health", coreSurface)).toBe(false);
+  it("cmd-K keeps routed Settings destinations reachable without sidebar children", () => {
     const adminSurface: NavSurfaceInput = { ...coreSurface, role: "admin" };
-    expect(isCmdkHrefAllowed("/settings/health", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings/billing", coreSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings/operations#notifications", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings/security", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings#profile", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings#workspace-identity", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings#team-access", adminSurface)).toBe(true);
+    expect(isCmdkHrefAllowed("/settings/health", adminSurface)).toBe(false);
+    expect(isCmdkHrefAllowed("/settings/policy", adminSurface)).toBe(false);
+    expect(isCmdkHrefAllowed("/settings/product", adminSurface)).toBe(false);
   });
 
   it("search scope core_only suppresses non-core cmd-K targets", () => {
@@ -163,7 +171,8 @@ describe("resolver", () => {
     expect(isCmdkHrefAllowed("/contracts", assuranceSurface)).toBe(true);
   });
 
-  it("cmd-K utilities path is gated like other utility surfaces", () => {
-    expect(isCmdkHrefAllowed("/more", coreSurface)).toBe(true);
+  it("cmd-K utilities path stays out of public Core navigation", () => {
+    expect(isCmdkHrefAllowed("/more", coreSurface)).toBe(false);
+    expect(isCmdkHrefAllowed("/more", { ...coreSurface, mode: "advanced", seesAdvancedPrimaryNav: true })).toBe(true);
   });
 });

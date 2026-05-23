@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-07T01:33:53.955Z",
+  "generatedAt": "2026-05-15T23:12:38.559Z",
   "rows": [
     {
       "route": "/",
@@ -19,6 +19,24 @@
         "not_found"
       ],
       "inheritedShell": "root"
+    },
+    {
+      "route": "/acceptable-use",
+      "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
     },
     {
       "route": "/accessibility",
@@ -405,6 +423,24 @@
         "not_found"
       ],
       "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contact",
+      "sourcePath": "src/app/(marketing)/contact/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
     },
     {
       "route": "/contracts",
@@ -1208,8 +1244,44 @@
       "inheritedShell": "dashboard"
     },
     {
+      "route": "/pricing",
+      "sourcePath": "src/app/(marketing)/pricing/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
+    },
+    {
       "route": "/privacy",
       "sourcePath": "src/app/(marketing)/privacy/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
       "shellFamily": "marketing",
       "required": [
         "loading",
@@ -1372,6 +1444,29 @@
       "inheritedShell": "dashboard"
     },
     {
+      "route": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
       "route": "/settings/operations",
       "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
       "shellFamily": "dashboard",
@@ -1397,6 +1492,52 @@
     {
       "route": "/settings/policy",
       "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
       "shellFamily": "dashboard",
       "required": [
         "loading",

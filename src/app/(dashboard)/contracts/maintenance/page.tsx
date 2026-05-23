@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Copy, FileQuestion, Timer, UserRoundX, Users } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Copy, FileQuestion, Timer, UserRoundX, Users, Wrench } from "lucide-react";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { CampaignRollbackButton } from "@/components/v4/campaign-maintenance-actions";
 import {
   archiveContractAsDuplicateForm,
@@ -19,6 +21,10 @@ import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-membe
 export default async function MaintenancePage() {
   const ctx = await getAuthContext();
   if (!ctx) return null;
+  // v11 dashboard spec compliance Tier 18.8: /contracts/maintenance is an
+  // admin-utility surface (data corrections, rollbacks, deletions). Gate
+  // for admin role only to prevent Core members from reaching it directly.
+  if (ctx.role !== "admin") redirect("/dashboard");
   const { admin, orgId } = ctx;
 
   const now = new Date();
@@ -183,13 +189,12 @@ export default async function MaintenancePage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <p className="ui-eyebrow">Portfolio hygiene</p>
-        <h1 className="ui-page-title-compact">Maintenance workspace</h1>
-        <p className="ui-page-lead max-w-2xl">
-          Detect stale records, ownerless contracts, duplicate candidates, and orphaned files.
-        </p>
-      </header>
+      <DashboardPageHeader
+        icon={<Wrench className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Portfolio hygiene"
+        title="Maintenance workspace"
+        lead="Detect stale records, ownerless contracts, duplicate candidates, and orphaned files."
+      />
 
       <section className="space-y-3">
         <div>
@@ -258,7 +263,7 @@ export default async function MaintenancePage() {
         <div className="grid gap-4 p-6 md:grid-cols-2">
           <form action={createCampaignAction} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Create campaign</p>
-            <input name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
+            <input aria-label="Q2 owner backfill" name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
             <select name="campaignType" className="ui-input w-full" defaultValue="data_remediation">
               <option value="data_remediation">data remediation</option>
               <option value="owner_reassignment">owner reassignment</option>
@@ -441,7 +446,7 @@ export default async function MaintenancePage() {
           </form>
           <form action={runDateBackfillCampaignForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Date backfill campaign</p>
-            <input name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
+            <input aria-label="Contract type (optional)" name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
             <select name="fieldName" className="ui-input w-full">
               <option value="renewal_date">renewal_date</option>
               <option value="end_date">end_date</option>
@@ -449,7 +454,7 @@ export default async function MaintenancePage() {
               <option value="effective_date">effective_date</option>
               <option value="start_date">start_date</option>
             </select>
-            <input name="fallbackDate" type="date" className="ui-input w-full" />
+            <input aria-label="Fallback date" name="fallbackDate" type="date" className="ui-input w-full" />
             <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
               Run backfill
             </button>
@@ -464,7 +469,7 @@ export default async function MaintenancePage() {
         <div className="grid gap-4 p-6 md:grid-cols-2">
           <form action={logContractChangeEventForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Log change event</p>
-            <input name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
+            <input aria-label="Contract UUID" name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
             <select name="eventType" defaultValue="amendment" className="ui-input w-full">
               <option value="amendment">amendment</option>
               <option value="pricing_update">pricing_update</option>
@@ -483,8 +488,8 @@ export default async function MaintenancePage() {
           </form>
           <form action={processContractChangeEventsForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Create maintenance tasks from queue</p>
-            <input name="maxRows" type="number" min={1} max={100} defaultValue={25} className="ui-input w-full" />
-            <input name="teamKey" defaultValue="ops" className="ui-input w-full" />
+            <input aria-label="Max rows" name="maxRows" type="number" min={1} max={100} defaultValue={25} className="ui-input w-full" />
+            <input aria-label="Team key" name="teamKey" defaultValue="ops" className="ui-input w-full" />
             <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
               Process change queue
             </button>

@@ -31,8 +31,8 @@ function StepIcon({ done }: { done: boolean }) {
   return done ? (
     <Check
       size={16}
-      className="mt-0.5 shrink-0 text-emerald-600"
-      strokeWidth={2}
+      className="mt-0.5 shrink-0 text-[var(--success-ink)]"
+      strokeWidth={1.85}
       aria-hidden
     />
   ) : (
@@ -184,7 +184,7 @@ export function OnboardingBanner({
     review: {
       done: stepReview,
       href: "/contracts/review",
-      actionLabel: stepReview ? "Continue review queue" : "Review extracted fields",
+      actionLabel: stepReview ? "Resume review" : "Review extracted fields",
       detail: stepReview
         ? "Extraction has produced reviewable data for this workspace."
         : stats.hasExtractions && stats.pendingReviewCount > 0
@@ -321,27 +321,29 @@ export function OnboardingBanner({
       role="region"
       aria-label="Getting started checklist"
     >
-      <div className="absolute inset-y-0 left-0 w-1 bg-[var(--accent-strong)]" aria-hidden />
-      <div className="flex flex-col gap-6 px-6 py-6 pl-8 sm:flex-row sm:items-start sm:justify-between">
+      <div className="absolute inset-y-3 left-0 w-0.5 rounded-r-full bg-[var(--accent-strong)]" aria-hidden />
+      <div className="flex flex-col gap-5 px-5 py-5 pl-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="ui-eyebrow text-[var(--accent-strong)]">Onboarding</p>
+          <p className="ui-caps-1 text-[11px] text-[var(--accent-strong)]">Onboarding</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <p className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
+            <p className="text-[1.05rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
               {title}
             </p>
-            <span className="ui-chip">{completedCount}/{totalSteps} complete</span>
+            <span className="inline-flex items-center rounded-md border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--accent)_10%,var(--surface-raised))] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] tabular-nums">
+              {completedCount}/{totalSteps}
+            </span>
           </div>
-          <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">
+          <p className="ui-muted-tight mt-2 max-w-xl text-[12.5px]">
             {summary}
           </p>
           {setupChecklist?.length ? (
-            <p className="ui-muted-tight mt-2 max-w-xl text-[13px]">
+            <p className="ui-muted-tight mt-2 max-w-xl text-[12.5px]">
               <span className="font-medium text-[var(--text-primary)]">Suggested first steps from setup: </span>
               {formatSetupChecklistSummary(setupChecklist)}
             </p>
           ) : null}
           {recoveryRow ? (
-            <div className="ui-alert-warning mt-4 px-4 py-3 text-[13px]">
+            <div className="ui-alert-warning mt-4 px-4 py-3 text-[12.5px]">
               <p className="font-semibold">Recovery available</p>
               <p className="mt-1">{recoveryRow.detail}</p>
             </div>
@@ -352,13 +354,13 @@ export function OnboardingBanner({
                 <StepIcon done={rows[key].done} />
                 <div>
                   {rows[key].el}
-                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{rows[key].detail}</p>
+                  <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">{rows[key].detail}</p>
                 </div>
               </li>
             ))}
           </ul>
           {stepWork ? (
-            <p className="mt-3 text-[12px] text-[var(--text-secondary)]">
+            <p className="mt-3 text-[12.5px] text-[var(--text-secondary)]">
               Execution is now live in the{" "}
               <Link href="/work?lens=assigned" className="ui-link">
                 assigned work lens

@@ -22,6 +22,7 @@ import {
   type BatchItemError,
 } from "@/lib/route-runtime-contract";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
+import { publicTokenHash, publicTokenPrefix } from "@/lib/security/public-token-key";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -497,13 +498,18 @@ export const GET = withCronRoute({
         const recipientTokens = new Map(recipients.map((recipient) => [recipient, randomUUID()]));
         for (const recipientChunk of chunkArray(recipients, RECIPIENT_UPSERT_CHUNK_SIZE)) {
           const { error } = await admin.from("report_run_recipients").upsert(
-            recipientChunk.map((recipient) => ({
-              organization_id: subscription.organization_id,
-              report_run_id: createdReportRunId,
-              recipient_email: recipient,
-              engagement_token: recipientTokens.get(recipient),
-              delivery_status: "pending",
-            })),
+            recipientChunk.map((recipient) => {
+              const engagementToken = recipientTokens.get(recipient);
+              return {
+                organization_id: subscription.organization_id,
+                report_run_id: createdReportRunId,
+                recipient_email: recipient,
+                engagement_token: null,
+                engagement_token_hash: engagementToken ? publicTokenHash(engagementToken) : null,
+                engagement_token_prefix: engagementToken ? publicTokenPrefix(engagementToken) : null,
+                delivery_status: "pending",
+              };
+            }),
             { onConflict: "report_run_id,recipient_email", ignoreDuplicates: false }
           );
           if (error) {

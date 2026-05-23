@@ -1,3 +1,4 @@
 # One path per line (relative to repo root), e.g. public/manifest.json
 # Add entries only after reviewing scope, start_url, and auth bypass risk.
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=security_contact_well_known_file_is_public_by_standard_without_auth_scope compensatingTest=scripts/check-pwa-well-known-allowlist.mjs
 public/.well-known/security.txt

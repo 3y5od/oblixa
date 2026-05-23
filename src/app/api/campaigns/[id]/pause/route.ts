@@ -1,17 +1,26 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+const ROUTE = "/api/campaigns/[id]/pause";
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -19,10 +28,28 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     apiPath: "/api/campaigns/[id]/pause",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.campaigns.id.pause",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/campaigns/[id]/pause",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/campaigns/[id]/pause");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data, error } = await ctx.admin
     .from("portfolio_campaigns")
     .update({ status: "paused" })
@@ -30,8 +57,15 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .eq("id", id)
     .select("id, status, updated_at")
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  if (!data) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "campaign_pause_failed",
+      diagnostic_id: "campaign_pause_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) return jsonNotFound(ROUTE);
 
   await ctx.admin.from("portfolio_campaign_events").insert({
     organization_id: ctx.orgId,

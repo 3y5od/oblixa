@@ -10,6 +10,7 @@ test("findOutboundFetchViolations scans routes and server actions, excluding tes
   fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
   fs.mkdirSync(path.join(root, "src", "app", "api", "demo"), { recursive: true });
   fs.mkdirSync(path.join(root, "src", "actions"), { recursive: true });
+  fs.mkdirSync(path.join(root, "src", "lib", "integrations"), { recursive: true });
   fs.writeFileSync(path.join(root, "scripts", "outbound-fetch-allowlist.txt"), "");
 
   fs.writeFileSync(
@@ -25,6 +26,10 @@ test("findOutboundFetchViolations scans routes and server actions, excluding tes
     '"use server";\nexport async function bad() { return fetch("https://example.com"); }\n'
   );
   fs.writeFileSync(
+    path.join(root, "src", "lib", "integrations", "bad.ts"),
+    'export async function badIntegration() { return fetch("https://example.com"); }\n'
+  );
+  fs.writeFileSync(
     path.join(root, "src", "actions", "bad.test.ts"),
     'import { expect } from "vitest";\nexpect("fetch(").toBe("fetch(");\n'
   );
@@ -33,5 +38,6 @@ test("findOutboundFetchViolations scans routes and server actions, excluding tes
 
   assert.equal(result.routeFilesChecked, 1);
   assert.equal(result.actionFilesChecked, 2);
-  assert.deepEqual(result.violations, ["actions/bad.ts"]);
+  assert.equal(result.integrationFilesChecked, 1);
+  assert.deepEqual(result.violations.sort(), ["actions/bad.ts", "lib/integrations/bad.ts"].sort());
 });

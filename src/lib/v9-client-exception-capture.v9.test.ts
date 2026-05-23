@@ -24,7 +24,7 @@ describe("client error boundaries capture diagnostics (V9 §22.4)", () => {
       const rel = abs.replace(process.cwd() + "/", "");
       const src = readFileSync(abs, "utf8");
       expect(src, rel).toContain("captureClientException");
-      expect(src, rel).toContain("@/lib/observability/sentry");
+      expect(src, rel).toContain("@/lib/observability/sentry-client");
     }
   });
 });

@@ -10,6 +10,7 @@ import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-pac
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { mapDataSourceError } from "@/lib/errors/user-facing";
 import {
   ensureProgramsSurfaceAccess,
   ensureReportPackReportTypeAllowed,
@@ -75,7 +76,7 @@ export async function createProgramAction(formData: FormData) {
     })
     .select("id, name, state")
     .single();
-  if (error) return { error: error.message as string };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/programs");
   return { success: true as const, program: data };
 }
@@ -110,14 +111,14 @@ export async function publishProgramAction(programId: string) {
     .update({ state: "published", current_version_id: latestVersion.id })
     .eq("id", programId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message as string };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   const { error: versionError } = await ctx.admin
     .from("contract_program_versions")
     .update({ state: "published", published_at: new Date().toISOString(), published_by: ctx.userId })
     .eq("id", latestVersion.id)
     .eq("organization_id", ctx.orgId);
-  if (versionError) return { error: versionError.message as string };
+  if (versionError) return { error: mapDataSourceError(versionError.message) };
   revalidatePath("/contracts/programs");
   return { success: true as const };
 }
@@ -169,7 +170,7 @@ export async function applyProgramAction(formData: FormData) {
     .from("contract_program_assignments")
     .upsert(rows, { onConflict: "contract_id,program_id,status", ignoreDuplicates: false })
     .select("id, contract_id");
-  if (error) return { error: error.message as string };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   for (const assignment of assignments ?? []) {
     await applyProgramToContract({
@@ -227,7 +228,7 @@ export async function createExceptionAction(formData: FormData) {
     })
     .select("id, title, status, severity")
     .single();
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   return { success: true as const, exception: data };
 }
 
@@ -265,7 +266,9 @@ export async function createReportPackAction(formData: FormData) {
     })
     .select("id, name, report_type, active")
     .single();
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
+  revalidatePath("/reports");
+  revalidatePath("/contracts/reports");
   return { success: true as const, reportPack: data };
 }
 
@@ -312,7 +315,7 @@ export async function saveProgramVersionDefinitionAction(formData: FormData) {
     changelog: String(formData.get("changelog") ?? "").trim() || null,
     created_by: ctx.userId,
   });
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/programs");
   return { success: true as const };
 }
@@ -359,7 +362,7 @@ export async function updateProgramRoutingAction(formData: FormData) {
     })
     .eq("id", programId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/programs");
   return { success: true as const };
 }
@@ -401,7 +404,7 @@ export async function updateProgramAssignmentOverrideAction(formData: FormData) 
     .update({ override_json: overrideJson })
     .eq("id", assignmentId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/programs");
   revalidatePath("/contracts");
   return { success: true as const };
@@ -439,7 +442,7 @@ export async function submitEvidenceNoteAction(formData: FormData) {
     status: "submitted",
     payload_json: { note },
   });
-  if (subErr) return { error: subErr.message };
+  if (subErr) return { error: mapDataSourceError(subErr.message) };
 
   await ctx.admin
     .from("evidence_requirements")
@@ -523,7 +526,7 @@ export async function createEvidenceTemplateAction(formData: FormData) {
     template_json: templateJson,
     created_by: ctx.userId,
   });
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/evidence-studio");
   return { success: true as const };
 }
@@ -555,8 +558,10 @@ export async function savePolicyRegistryAction(formData: FormData) {
     },
     { onConflict: "organization_id", ignoreDuplicates: false }
   );
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/settings/policy");
+  revalidatePath("/settings/policy/registry");
+  revalidatePath("/settings/policy/diagnostics");
   return { success: true as const };
 }
 
@@ -598,7 +603,7 @@ export async function saveReportPackAnnotationsAction(formData: FormData) {
     .update({ annotations_json: annotations })
     .eq("id", packId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/reports");
   return { success: true as const };
 }
@@ -643,7 +648,7 @@ export async function createReportPackSubscriptionAction(formData: FormData) {
     recipient_emails: emails,
     active: true,
   });
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/reports");
   return { success: true as const };
 }
@@ -681,7 +686,7 @@ export async function updateRenewalCheckpointWorkspaceAction(formData: FormData)
     .update({ workspace_json: workspaceJson })
     .eq("id", checkpointId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/renewals");
   revalidatePath("/contracts");
   return { success: true as const };
@@ -729,7 +734,7 @@ export async function updateRenewalCheckpointRenewalStateAction(formData: FormDa
     .update({ renewal_state: renewalState })
     .eq("id", checkpointId)
     .eq("organization_id", ctx.orgId);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   revalidatePath("/contracts/renewals");
   revalidatePath("/contracts");
   return { success: true as const };
@@ -813,14 +818,14 @@ export async function generateRenewalDecisionPacketAction(formData: FormData) {
     })
     .select("id, status, summary, created_at")
     .single();
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
 
   const { error: cpError } = await ctx.admin
     .from("contract_renewal_checkpoints")
     .update({ decision_packet_id: packet.id, renewal_state: "under_review" })
     .eq("id", checkpoint.id)
     .eq("organization_id", ctx.orgId);
-  if (cpError) return { error: cpError.message as string };
+  if (cpError) return { error: mapDataSourceError(cpError.message) };
 
   await appendCasefileEvent({
     admin: ctx.admin,

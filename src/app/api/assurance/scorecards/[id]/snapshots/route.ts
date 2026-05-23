@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/assurance/scorecards/[id]/snapshots";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -25,8 +29,17 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   );
 
   const scorecardId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: scorecardId }, ["id"], "/api/assurance/scorecards/[id]/snapshots");
+
+  if (routeParamRejection) return routeParamRejection;
   if (!scorecardId) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "id is required",
+      code: "id_required",
+      diagnostic_id: "assurance_scorecard_id_required",
+      route: ROUTE,
+    });
   }
 
   const { data: sc } = await ctx.admin
@@ -36,7 +49,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .eq("id", scorecardId)
     .maybeSingle();
   if (!sc) {
-    return NextResponse.json({ error: "scorecard_not_found" }, { status: 404 });
+    return jsonNotFound(ROUTE);
   }
 
   const { data, error } = await ctx.admin
@@ -47,6 +60,13 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .order("snapshot_at", { ascending: false })
     .limit(80);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "scorecard_snapshots_list_failed",
+      diagnostic_id: "scorecard_snapshots_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ snapshots: data ?? [] });
 }

@@ -36,7 +36,10 @@ export function V5ControlRoomStrip(props: { liveCards?: ControlRoomLiveCard[] })
   return (
     <section className="space-y-3">
       <div>
-        <p className="ui-eyebrow">Monitor</p>
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Monitor
+        </p>
         <h2 className="ui-section-title mt-2 text-xl">Critical signals</h2>
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

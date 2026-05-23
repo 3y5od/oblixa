@@ -10,15 +10,23 @@ const REQUIRED_CI_COMMANDS = ["npm run check:sensitive-cache-controls"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:sensitive-cache-controls"'];
 const REQUIRED_FILE_MARKERS = {
   "next.config.ts": [
+    "buildApiNoStoreHeaders",
+    "buildSecurityHeaders",
+    "const apiNoStoreHeaders = buildApiNoStoreHeaders();",
     'source: "/api/:path*"',
-    '{ key: "Cache-Control", value: "private, no-store" }',
-    '{ key: "Pragma", value: "no-cache" }',
-    '{ key: "Vary", value: "Cookie" }',
+    "headers: apiNoStoreHeaders",
+  ],
+  "src/lib/security/csp-builders.ts": [
+    "export function buildApiNoStoreHeaders()",
+    'value: "private, no-store, max-age=0, must-revalidate"',
+    'key: "Expires", value: "0"',
+    'key: "Surrogate-Control", value: "no-store"',
+    'key: "Vary", value: "Cookie, Authorization"',
   ],
   "src/lib/security/api-guards.ts": [
-    'export const API_PRIVATE_NO_STORE_HEADERS = {',
-    '"Cache-Control": "private, no-store"',
-    'Pragma: "no-cache"',
+    'import { jsonForbidden, jsonUnauthorized, PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";',
+    "export const API_PRIVATE_NO_STORE_HEADERS = PRIVATE_NO_STORE_HEADERS;",
+    "headers: API_PRIVATE_NO_STORE_HEADERS",
   ],
   "src/lib/security/cron-route-gate.ts": [
     'export const CRON_DENY_RESPONSE_HEADERS = {',
@@ -29,9 +37,10 @@ const REQUIRED_FILE_MARKERS = {
     'export const PRIVATE_NO_STORE_HEADERS = {',
     '"Cache-Control": "private, no-store"',
     'Pragma: "no-cache"',
+    'Vary: "Cookie, Authorization"',
   ],
-  "src/lib/security/api-guards.test.ts": ["API_PRIVATE_NO_STORE_HEADERS includes Cache-Control"],
-  "src/lib/http/problem.test.ts": ["adds private no-store headers to problem responses"],
+  "src/lib/security/api-guards.test.ts": ["API_PRIVATE_NO_STORE_HEADERS includes Cache-Control", "API_PRIVATE_NO_STORE_HEADERS.Vary"],
+  "src/lib/http/problem.test.ts": ["adds private no-store headers to problem responses", 'headers.get("Vary")'],
   "src/lib/assurance/next-config-api-headers.contract.test.ts": ["declares private no-store for /api/:path*"],
 };
 

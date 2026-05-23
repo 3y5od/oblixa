@@ -8,6 +8,46 @@ import {
 import { resolveBlockingCalibrationPathForUserClient } from "@/lib/onboarding/calibration-gate";
 import { applyCorrelationHeadersToResponse, resolveCorrelationIds } from "@/lib/observability/request-id";
 import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+import { getSafeRedirectPath } from "@/lib/security/redirect";
+import { hasMethodOverrideAttempt, secFetchSiteAllowsSensitiveMutation } from "@/lib/security/sec-fetch-policy";
+import {
+  createSupabaseTimeoutFetch,
+  SUPABASE_PROXY_FETCH_TIMEOUT_MS,
+} from "@/lib/supabase/fetch";
+
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const SAFE_METHODS = new Set(["GET", "HEAD"]);
+export const proxySupabaseFetch = createSupabaseTimeoutFetch(
+  SUPABASE_PROXY_FETCH_TIMEOUT_MS
+); // security:fetch-allowlist SEC-proxy-supabase-auth-timeout trusted Supabase env URL; timeout-bounded
+
+function isBrowserOriginPolicyExemptApiPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/api/cron/") ||
+    pathname.startsWith("/api/internal/") ||
+    pathname.startsWith("/api/webhooks/") ||
+    pathname.startsWith("/api/external-actions/") ||
+    pathname === "/api/stripe/webhook" ||
+    pathname === "/api/integrations/actions/callback"
+  );
+}
+
+function requiresBrowserOriginPolicy(request: NextRequest, pathname: string): boolean {
+  return pathname.startsWith("/api/") && MUTATING_METHODS.has(request.method) && !isBrowserOriginPolicyExemptApiPath(pathname);
+}
+
+function hasSupabaseAuthCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => /^sb-.+-auth-token(?:\.|$)/.test(cookie.name));
+}
+
+function skipsProxyAuthProvider(request: NextRequest, pathname: string): boolean {
+  if (pathname.startsWith("/api/")) return true;
+  if (isPublicAuthSurfacePath(pathname)) return true;
+  return SAFE_METHODS.has(request.method) && unauthenticatedAccessAllowed(pathname);
+}
 
 /**
  * Edge proxy notes (see debugging sweep catalog):
@@ -30,6 +70,15 @@ function passThroughResponse(
   );
 }
 
+function buildLoginRedirect(request: NextRequest): NextResponse {
+  const url = request.nextUrl.clone();
+  const next = getSafeRedirectPath(request.nextUrl.pathname);
+  url.pathname = "/login";
+  url.search = "";
+  url.searchParams.set("next", next);
+  return NextResponse.redirect(url);
+}
+
 // Marketing surfaces are GET-only for anonymous users; auth mutations stay on server actions with existing limits.
 // Keep branches cheap: avoid extra DB or network work here beyond Supabase session refresh for protected paths.
 // Cookie refresh: mutate the existing NextResponse + request cookies instead of allocating a fresh NextResponse.next
@@ -41,6 +90,44 @@ export async function proxy(request: NextRequest) {
   const correlationIds = resolveCorrelationIds(request);
 
   const supabaseResponse = passThroughResponse(request, pathname, correlationIds);
+
+  if (pathname.startsWith("/api/") && hasMethodOverrideAttempt(request)) {
+    return applyCorrelationHeadersToResponse(
+      NextResponse.json(
+        {
+          error: "Method override is not allowed",
+          code: "method_override_rejected",
+          diagnostic_id: "proxy_method_override_rejected",
+          route: pathname,
+        },
+        { status: 400 }
+      ),
+      correlationIds
+    );
+  }
+
+  if (requiresBrowserOriginPolicy(request, pathname) && !secFetchSiteAllowsSensitiveMutation(request)) {
+    return applyCorrelationHeadersToResponse(
+      NextResponse.json(
+        {
+          error: "Cross-site request rejected",
+          code: "cross_site_request_rejected",
+          diagnostic_id: "proxy_cross_site_rejected",
+          route: pathname,
+        },
+        { status: 403 }
+      ),
+      correlationIds
+    );
+  }
+
+  if (skipsProxyAuthProvider(request, pathname)) {
+    return supabaseResponse;
+  }
+
+  if (!hasSupabaseAuthCookie(request) && !unauthenticatedAccessAllowed(pathname)) {
+    return applyCorrelationHeadersToResponse(buildLoginRedirect(request), correlationIds);
+  }
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -59,6 +146,9 @@ export async function proxy(request: NextRequest) {
           }
         },
       },
+      global: {
+        fetch: proxySupabaseFetch,
+      },
     }
   );
 
@@ -67,9 +157,7 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user && !unauthenticatedAccessAllowed(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return applyCorrelationHeadersToResponse(NextResponse.redirect(url), correlationIds);
+    return applyCorrelationHeadersToResponse(buildLoginRedirect(request), correlationIds);
   }
 
   if (user && request.method === "GET") {

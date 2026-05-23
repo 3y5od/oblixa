@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { requireServiceRoleOrgId } from "@/lib/supabase/org-scoped-admin";
 
 const PAID_UP_STATUSES = new Set(["active", "trialing"]);
 
@@ -24,7 +25,7 @@ export async function orgHasActivePlan(
   const { data } = await admin
     .from("organizations")
     .select("stripe_subscription_id, stripe_subscription_status")
-    .eq("id", orgId)
+    .eq("id", requireServiceRoleOrgId(orgId))
     .single();
 
   if (!data?.stripe_subscription_id) return false;

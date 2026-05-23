@@ -25,8 +25,8 @@ for (const rel of files) {
     if (!/Cache-Control|no-store/.test(text)) {
       issues.push({ file: rel, issue: "missing_cache_control" });
     }
-    if (!/engagement_token/.test(text)) {
-      issues.push({ file: rel, issue: "missing_token_scoped_update" });
+    if (!/engagement_token_hash/.test(text)) {
+      issues.push({ file: rel, issue: "missing_hash_token_scoped_update" });
     }
   }
 }

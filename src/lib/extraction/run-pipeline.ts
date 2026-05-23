@@ -4,6 +4,7 @@ import {
   preprocessContractTextForExtraction,
   substantiveTextCharCount,
 } from "@/lib/extraction/preprocess-text";
+import { prepareModelBoundContractText } from "@/lib/extraction/model-context-redaction";
 import { finishExtractionJob } from "@/lib/extraction-job";
 import {
   mapAiExtractionError,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/extraction/user-messages";
 import { applyGroundingToFields } from "@/lib/extraction/grounding";
 import { extractTextFromPdfViaOpenAi } from "@/lib/extraction/openai-pdf-text";
-import { EXTRACTION_SEARCH_DOCUMENT_CAP } from "@/lib/extraction/constants";
+import { EXTRACTION_MAX_TEXT_CHARS, EXTRACTION_SEARCH_DOCUMENT_CAP } from "@/lib/extraction/constants";
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { withRetry } from "@/lib/extraction/retry";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -19,6 +20,7 @@ import {
   captureServerException,
   captureServerMessage,
 } from "@/lib/observability/sentry";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
@@ -58,6 +60,14 @@ function shouldAllowAiOverwrite(status: string, source: string): boolean {
   return true;
 }
 
+function parserFailureLogDetails(file: { file_name: string | null; file_type: string | null }, err: unknown) {
+  return {
+    fileName: file.file_name ?? "unknown",
+    mime: file.file_type ?? "unknown",
+    errorName: err instanceof Error ? err.name : typeof err,
+  };
+}
+
 /**
  * Runs the full extraction pipeline (storage → text → OpenAI → DB).
  * Called from Route Handler `after()` or `/api/extract/run` — uses service role.
@@ -90,6 +100,7 @@ export async function runExtractionPipeline(params: {
     const { data: contract, error: contractErr } = await admin
       .from("contracts")
       .select("organization_id")
+      .eq("organization_id", organizationId)
       .eq("id", contractId)
       .maybeSingle();
 
@@ -197,7 +208,7 @@ export async function runExtractionPipeline(params: {
           try {
             fileData = await downloadContractFile(admin, file.storage_path);
           } catch (e) {
-            console.error(`Download failed for ${file.file_name}:`, e);
+            console.error("Download failed for uploaded file", parserFailureLogDetails(file, e));
             return {
               marker: file.file_name,
               text: "",
@@ -215,7 +226,7 @@ export async function runExtractionPipeline(params: {
             buffer: file.file_type === "application/pdf" ? buffer : undefined,
           };
         } catch (err) {
-          console.error(`Parse failed for ${file.file_name}:`, err);
+          console.error("Parse failed for uploaded file", parserFailureLogDetails(file, err));
           return {
             marker: file.file_name,
             text: "",
@@ -282,11 +293,26 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
+    if (combinedText.length > EXTRACTION_MAX_TEXT_CHARS) {
+      await fail("Extracted contract text is too large to process safely.");
+      console.info(
+        JSON.stringify({
+          event: "extraction.failed",
+          contractId,
+          userId,
+          durationMs: Date.now() - pipelineStartedAt,
+          reason: "text_too_large",
+        })
+      );
+      return;
+    }
+
     await admin
       .from("contracts")
       .update({
         search_document: combinedText.slice(0, EXTRACTION_SEARCH_DOCUMENT_CAP),
       })
+      .eq("organization_id", organizationId)
       .eq("id", contractId);
 
     let extraction: Awaited<ReturnType<typeof extractFieldsFromText>>;
@@ -295,7 +321,7 @@ export async function runExtractionPipeline(params: {
     } catch (err) {
       const raw =
         err instanceof Error ? err.message : "AI extraction request failed";
-      console.error("OpenAI extraction error:", err);
+      console.error("OpenAI extraction error:", formatUnknownForServerLog(err));
       captureServerException(err, {
         extra: {
           contractId,
@@ -333,8 +359,9 @@ export async function runExtractionPipeline(params: {
       return;
     }
 
+    const modelBoundGroundingText = prepareModelBoundContractText(combinedText);
     const { fields: grounded, droppedCount: groundingDropped } =
-      applyGroundingToFields(combinedText, extraction.fields);
+      applyGroundingToFields(modelBoundGroundingText, extraction.fields);
 
     const { data: existingRows } = await admin
       .from("extracted_fields")
@@ -495,7 +522,7 @@ export async function runExtractionPipeline(params: {
     );
   } catch (err) {
     const raw = err instanceof Error ? err.message : "Extraction failed";
-    console.error("Extraction pipeline error:", err);
+    console.error("Extraction pipeline error:", formatUnknownForServerLog(err));
     console.info(
       JSON.stringify({
         event: "extraction.failed",

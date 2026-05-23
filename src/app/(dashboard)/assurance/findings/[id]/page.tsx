@@ -207,9 +207,9 @@ export default async function AssuranceFindingDetailPage(props: { params: Promis
                   · actor <span className="font-medium text-[var(--text-primary)]">{actor}</span>
                 </span>
               ) : row.actor_user_id ? (
-                <span className="font-mono text-[10px] text-[var(--text-tertiary)]"> · {row.actor_user_id.slice(0, 8)}…</span>
+                <span className="font-mono text-[11px] text-[var(--text-tertiary)]"> · {row.actor_user_id.slice(0, 8)}…</span>
               ) : null}
-              <pre className="ui-soft-details mt-1 p-1.5 text-[10px] text-[var(--text-tertiary)]">{JSON.stringify(row.payload_json, null, 2)}</pre>
+              <pre className="ui-soft-details mt-1 p-1.5 text-[11px] text-[var(--text-tertiary)]">{JSON.stringify(row.payload_json, null, 2)}</pre>
             </li>
           );
         })}

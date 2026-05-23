@@ -14,7 +14,13 @@ const REQUIRED_FILE_MARKERS = {
     "const requestOrigin = getRequestOrigin(request)",
     '`${requestOrigin}/api/integrations/oauth/callback`',
     "if (redirect.origin !== requestOrigin)",
+    'redirect.pathname === "/api/integrations/oauth/callback"',
     'redirectUri must match request origin',
+  ],
+  "src/app/api/integrations/oauth/callback/route.ts": [
+    "const requestOrigin = getRequestOrigin(request)",
+    'redirect.pathname === "/api/integrations/oauth/callback"',
+    'diagnostic_id: "oauth_callback_redirect_uri_invalid"',
   ],
   "src/actions/settings.ts": [
     "const appUrl = await resolveAppBaseUrl()",

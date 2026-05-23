@@ -24,6 +24,11 @@ describe("api-guards", () => {
     const res = await requireSessionApiContext();
     expect(res).toBeInstanceOf(NextResponse);
     expect((res as NextResponse).status).toBe(401);
+    await expect((res as NextResponse).json()).resolves.toMatchObject({
+      code: "unauthorized",
+      diagnostic_id: "route_unauthorized",
+    });
+    expect((res as NextResponse).headers.get("Cache-Control")).toContain("no-store");
   });
 
   it("requireSessionApiContext returns ctx when authenticated", async () => {
@@ -83,7 +88,9 @@ describe("api-guards", () => {
     it("401 when env unset", () => {
       delete process.env.EXTRACTION_WORKER_SECRET;
       const req = new Request("https://x.test/w", { headers: { authorization: "Bearer tok" } });
-      expect(requireBearerSecret(req, "EXTRACTION_WORKER_SECRET")?.status).toBe(401);
+      const res = requireBearerSecret(req, "EXTRACTION_WORKER_SECRET");
+      expect(res?.status).toBe(401);
+      expect(res?.headers.get("Cache-Control")).toContain("no-store");
     });
 
     it("null when token matches", () => {
@@ -115,6 +122,7 @@ describe("api-guards", () => {
     const ctx = { admin: {} as never, userId: "u", orgId: "o", role: "viewer" as const };
     const res = requireRoleAtLeast(ctx, "admin");
     expect(res?.status).toBe(403);
+    expect(res?.headers.get("Cache-Control")).toContain("no-store");
   });
 
   it("requireRoleAtLeast allows admin for admin floor", () => {
@@ -122,7 +130,14 @@ describe("api-guards", () => {
     expect(requireRoleAtLeast(ctx, "admin")).toBeNull();
   });
 
+  it("requireRoleAtLeast denies unsupported roles", () => {
+    const ctx = { admin: {} as never, userId: "u", orgId: "o", role: "super_admin" as never };
+    const res = requireRoleAtLeast(ctx, "viewer");
+    expect(res?.status).toBe(403);
+  });
+
   it("API_PRIVATE_NO_STORE_HEADERS includes Cache-Control", () => {
     expect(API_PRIVATE_NO_STORE_HEADERS["Cache-Control"]).toContain("no-store");
+    expect(API_PRIVATE_NO_STORE_HEADERS.Vary).toContain("Cookie");
   });
 });

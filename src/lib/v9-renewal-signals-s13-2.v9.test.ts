@@ -1,43 +1,61 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  RENEWAL_ACTION_LABELS,
+  RENEWAL_FILTER_LABELS,
+  RENEWAL_ROW_LABELS,
+  RENEWAL_STATUS_LABELS,
+} from "@/lib/renewals/spec-strings";
 
-/**
- * v9 spec §13.2 — each renewal row must surface horizon, owner, stage, blockers,
- * exception involvement, missing evidence, and next recommended action.
- */
-describe("V9 §13.2 renewal row signals (renewals/page.tsx)", () => {
+describe("Renewals release-state row signals", () => {
   const page = readFileSync(
     join(process.cwd(), "src/app/(dashboard)/contracts/renewals/page.tsx"),
     "utf8"
   );
+  const model = readFileSync(join(process.cwd(), "src/lib/renewals/model.ts"), "utf8");
 
-  it("surface exposes horizon (filter + key date + countdown), owner, and contract status", () => {
-    expect(page).toContain("name=\"horizon\"");
-    expect(page).toMatch(/Key date|Countdown/);
-    expect(page).toContain(">Owner<");
-    expect(page).toContain(">Status<");
+  it("uses the exact release-state filters and row labels", () => {
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status"]);
+    expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
+      "Contract",
+      "Counterparty",
+      "Renewal date",
+      "Notice date",
+      "Owner",
+      "Status",
+      "Next action",
+    ]);
+    for (const key of Object.keys(RENEWAL_FILTER_LABELS)) {
+      expect(page).toContain(`RENEWAL_FILTER_LABELS.${key}`);
+    }
+    for (const key of Object.keys(RENEWAL_ROW_LABELS)) {
+      expect(page).toContain(`RENEWAL_ROW_LABELS.${key}`);
+    }
   });
 
-  it("row surfaces checklist / blockers / workspace stage (dependencies + stage)", () => {
-    expect(page).toMatch(/>\s*Checklist\s*</);
-    expect(page).toMatch(/>\s*Blockers\s*</);
-    expect(page).toMatch(/>\s*Workspace\s*</);
-    expect(page).toContain("workspaceStatus");
-    expect(page).toContain("blocker");
+  it("derives only release-state statuses and actions", () => {
+    for (const status of Object.keys(RENEWAL_STATUS_LABELS)) {
+      expect(model).toContain(status);
+    }
+    for (const action of Object.keys(RENEWAL_ACTION_LABELS)) {
+      expect(model).toContain(action);
+    }
+    expect(model).toContain("deriveRenewalStatus");
+    expect(model).toContain("nextActionForStatus");
   });
 
-  it("row surfaces exception involvement and missing evidence counts", () => {
-    expect(page).toContain("openExceptions");
-    expect(page).toContain("open exception");
-    expect(page).toContain("outstandingEvidence");
-    expect(page).toContain("evidence item");
-  });
-
-  it("row surfaces next recommended action via renewal-next-action", () => {
-    expect(page).toContain("getRenewalNextAction");
-    expect(page).toContain("nextActionHref");
-    expect(page).toContain("nextActionLabel");
-    expect(page).toMatch(/>\s*Next action\s*</);
+  it("does not depend on the old horizon ledger signal vocabulary", () => {
+    for (const forbidden of [
+      "workspaceStatus",
+      "outstandingEvidence",
+      "openExceptions",
+      "getRenewalNextAction",
+      "Renewal ledger",
+      "Checklist",
+      "Blockers",
+    ]) {
+      expect(page).not.toContain(forbidden);
+    }
   });
 });

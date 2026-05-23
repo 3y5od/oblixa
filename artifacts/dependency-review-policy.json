@@ -1,5 +1,28 @@
 {
+  "version": 1,
   "failOnSeverity": "high",
-  "comment": "Wire actions/dependency-review-action fail-on-severity when org enables; workflow may stay permissive until policy is adopted.",
-  "dependencyGraphNote": "Private repos need Dependency graph + GitHub Advanced Security for dependency-review API; otherwise use warn-only in workflow or enable org features."
+  "requiredChecks": [
+    "check:dependency-policy",
+    "check:lockfile-integrity-drift",
+    "check:sbom-integrity",
+    "check:license-sbom",
+    "check:install-script-risk",
+    "check:npm-script-integrity",
+    "check:npm-lifecycle",
+    "check:dynamic-import-specifiers",
+    "check:unsafe-deserialization",
+    "check:release-artifact-provenance"
+  ],
+  "requiredArtifacts": [
+    "package-lock.json",
+    "cyclonedx-sbom.json",
+    "artifacts/license-allowlist.json",
+    "artifacts/supply-chain-install-script-allowlist.json",
+    "artifacts/dependency-review-policy.json"
+  ],
+  "dependencyReview": {
+    "mode": "artifact-and-audit",
+    "reason": "Private repository dependency-review APIs may be unavailable locally, so CI preserves SBOM artifacts and npm audit output while policy checks enforce the same review inputs."
+  },
+  "dependencyGraphNote": "When org-level dependency review APIs are enabled, wire actions/dependency-review-action with fail-on-severity=high; until then, this policy requires lockfile, SBOM, license, install-script, and lifecycle checks plus uploaded SBOM artifacts."
 }

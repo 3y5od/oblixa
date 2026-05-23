@@ -88,7 +88,7 @@ export function RelationshipTimelineCard({
             {events.slice(0, 8).map((e) => (
               <li key={e.id} className="ui-soft-details px-2 py-1.5">
                 <p className="font-medium text-[var(--text-primary)]">{e.event_type}</p>
-                <p className="text-[10px] text-[var(--text-tertiary)]">{new Date(e.event_at).toLocaleString()}</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">{new Date(e.event_at).toLocaleString()}</p>
               </li>
             ))}
           </ul>

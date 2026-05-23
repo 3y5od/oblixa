@@ -9,11 +9,16 @@ const REQUIRED_PACKAGE_SCRIPTS = ["check:http-method-policy"];
 const REQUIRED_CI_COMMANDS = ["npm run check:http-method-policy"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:http-method-policy"'];
 const ALLOWED_HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+const MUTATING_HTTP_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
+const SAFE_MUTATING_BODY_POLICIES = ["bounded_or_form_body", "no_body_rejected", "signature_bound_raw_body"];
 const REQUIRED_FILE_MARKERS = {
   "scripts/lib/build-route-universe.mjs": [
-    'const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];',
-    "function methodsFromSource(source) {",
-    "HTTP_METHODS.filter((method) => new RegExp(`export",
+    'export const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];',
+    "export function methodsFromSource(source) {",
+    "const functionExport = new RegExp(",
+    "const constExport = new RegExp(",
+    "return functionExport.test(source) || constExport.test(source);",
+    'if (/rejectUnexpectedBody/.test(source)) return "no_body_rejected";',
     'const methods = kind === "api_route" ? methodsFromSource(source) : ["GET"];',
   ],
   "src/app/api/programs/route.ts": [
@@ -104,6 +109,17 @@ export function analyzeHttpMethodPolicy(root = ROOT) {
       if (!ALLOWED_HTTP_METHODS.includes(method)) {
         issues.push({ issue: "invalid_route_method", route: row.route, sourcePath: row.sourcePath, method });
       }
+    }
+    if (
+      (Array.isArray(row.methods) ? row.methods : []).some((method) => MUTATING_HTTP_METHODS.includes(method)) &&
+      !SAFE_MUTATING_BODY_POLICIES.includes(row.bodyPolicy)
+    ) {
+      issues.push({
+        issue: "unsafe_mutating_route_body_policy",
+        route: row.route,
+        sourcePath: row.sourcePath,
+        bodyPolicy: row.bodyPolicy,
+      });
     }
   }
 

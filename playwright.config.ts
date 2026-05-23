@@ -133,11 +133,15 @@ export default defineConfig({
       : [["list"]],
   projects: buildProjects(),
   webServer: process.env.PLAYWRIGHT_BASE_URL
-    ? undefined
-    : {
+      ? undefined
+      : {
         // Use production runtime instead of dev compilation to avoid flaky
         // navigation aborts while routes compile in parallel.
         command: "npm run start",
+        env: {
+          ...process.env,
+          OBLIXA_TRUST_FORWARDED_IP: process.env.OBLIXA_TRUST_FORWARDED_IP ?? "1",
+        },
         url: "http://127.0.0.1:3000",
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

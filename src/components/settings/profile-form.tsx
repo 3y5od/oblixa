@@ -19,7 +19,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
   const errId = "profile-form-error";
 
   return (
-    <form action={action} className="flex flex-col gap-6" noValidate>
+    <form action={action} className="flex flex-col gap-4" noValidate>
       {state?.error ? (
         <div id={errId} role="alert" className="ui-alert-error text-sm">
           {state.error}
@@ -28,27 +28,28 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
       {state?.success ? (
         <div className="ui-alert-success text-sm">Profile updated.</div>
       ) : null}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="min-w-0">
           <label htmlFor="fullName" className="ui-label">
             Full name
           </label>
-          <p className="ui-support-copy mb-2 mt-1 text-xs">Used across workspace views, mentions, and ownership labels.</p>
           <input
             id="fullName"
             name="fullName"
             type="text"
             defaultValue={fullName || ""}
-            className="ui-input mt-1 w-full min-w-0"
+            className="ui-input w-full min-w-0"
             aria-invalid={state?.error ? true : undefined}
             aria-describedby={state?.error ? errId : undefined}
           />
         </div>
         <div className="min-w-0">
-          <label htmlFor="profile-email-readonly" className="ui-label">
+          <label htmlFor="profile-email-readonly" className="ui-label flex items-baseline gap-2">
             Email
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              Read-only
+            </span>
           </label>
-          <p className="ui-support-copy mb-2 mt-1 text-xs">Workspace login identity. This value is read-only here.</p>
           <input
             id="profile-email-readonly"
             type="email"
@@ -56,11 +57,11 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             value={email}
             autoComplete="email"
             aria-readonly="true"
-            className="ui-input mt-1 w-full min-w-0 cursor-default border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-tertiary)]"
+            className="ui-input w-full min-w-0 cursor-default border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] font-mono text-[12.5px] text-[var(--text-tertiary)]"
           />
         </div>
       </div>
-      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-4">
+      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-3">
         <button
           type="submit"
           disabled={pending}

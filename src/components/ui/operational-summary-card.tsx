@@ -19,6 +19,99 @@ export type OperationalTriageItem = {
   meta?: OperationalBreakdownItem[];
 };
 
+const COUNT_AWARE_LABELS: Record<string, string> = {
+  "Active requests": "Active request",
+  "Active approver slots": "Active approver slot",
+  "Blocked scenarios": "Blocked scenario",
+  "Clarification loops": "Clarification loop",
+  "Completed runs": "Completed run",
+  "Contracts in view": "Contract in view",
+  "Contracts processed": "Contract processed",
+  "Contracts tracked": "Contract tracked",
+  "Contracts waiting": "Contract waiting",
+  "Contracts on key": "Contract on key",
+  "Critical issues": "Critical issue",
+  "Critical exceptions": "Critical exception",
+  "Critical gaps": "Critical gap",
+  "Digest executions": "Digest execution",
+  "Duplicate groups": "Duplicate group",
+  "Email digest runs": "Email digest run",
+  "Eligible contracts": "Eligible contract",
+  "Failed deliveries": "Failed delivery",
+  "Failed runs": "Failed run",
+  "Field comments (sample)": "Field comment (sample)",
+  Forecasts: "Forecast",
+  Interventions: "Intervention",
+  "Missed dates prevented": "Missed date prevented",
+  "Missing approved dates": "Missing approved date",
+  "Open items": "Open item",
+  "Open exceptions": "Open exception",
+  "Open findings": "Open finding",
+  "Open obligations": "Open obligation",
+  "Open tasks": "Open task",
+  "Orphaned files": "Orphaned file",
+  "Outbound backlog": "Outbound backlog item",
+  "Pending fields": "Pending field",
+  "Pending approvals": "Pending approval",
+  Policies: "Policy",
+  "Policy evaluations": "Policy evaluation",
+  "Recorded interventions": "Recorded intervention",
+  "Report packs": "Report pack",
+  "Rows shown": "Row shown",
+  "Saved templates": "Saved template",
+  "Sampled queue": "Sampled queue item",
+  "Stale records": "Stale record",
+  "Status transitions": "Status transition",
+  Subscriptions: "Subscription",
+  Templates: "Template",
+  "Timeline events": "Timeline event",
+  "Tasks completed": "Task completed",
+  "Unread notifications": "Unread notification",
+  "Unresolved gaps": "Unresolved gap",
+  "Upcoming checkpoints": "Upcoming checkpoint",
+  "Watchlisted contracts": "Watchlisted contract",
+  "Weak field signals": "Weak field signal",
+  "Weekly operators": "Weekly operator",
+  "active critical": "active critical",
+  "approved in this slice": "approved in this slice",
+  "awaiting signoff": "awaiting signoff",
+  "awaiting start": "awaiting start",
+  "campaigns running": "campaign running",
+  "completed runs": "completed run",
+  "current approvals": "current approval",
+  "contracts in queue": "contract in queue",
+  "contracts loaded": "contract loaded",
+  "contracts need extra follow-up": "contract needs extra follow-up",
+  "contracts on this page": "contract on this page",
+  "contracts running": "contract running",
+  "contracts with blockers or owner gaps": "contract with blocker or owner gap",
+  "failed in sample": "failed in sample",
+  "in studio": "in studio",
+  "latest samples": "latest sample",
+  "need action": "needs action",
+  "need recovery": "needs recovery",
+  "need unblock plan": "needs unblock plan",
+  "open or in progress": "open or in progress",
+  "paused campaigns": "paused campaign",
+  "recent runs": "recent run",
+  "recent rows": "recent row",
+  "recent sample": "recent sample",
+  "resolved samples": "resolved sample",
+  rows: "row",
+  "saved templates": "saved template",
+  "still need owner": "still needs owner",
+  "still awaiting review": "still awaiting review",
+  "still requested": "still requested",
+  "tracked seats": "tracked seat",
+  "undelivered samples": "undelivered sample",
+  "with at least one item": "with at least one item",
+};
+
+function countAwareLabel(label: string, count: number | null): string {
+  if (count !== 1) return label;
+  return COUNT_AWARE_LABELS[label] ?? label;
+}
+
 /**
  * When to use what:
  * - **OperationalSummaryCard** — Primary KPI tiles (metric + chips + footer action).
@@ -70,7 +163,7 @@ export function OperationalQueueRow(props: {
         {props.eyebrow ? (
           <p className="ui-kicker">{props.eyebrow}</p>
         ) : null}
-        <p className={`font-semibold tracking-tight text-[15px] text-[var(--text-primary)] ${props.eyebrow ? "mt-1.5" : ""}`}>
+        <p className={`font-semibold tracking-tight text-[14px] text-[var(--text-primary)] ${props.eyebrow ? "mt-1.5" : ""}`}>
           {props.title}
         </p>
         {props.hint ? <p className="ui-support-copy mt-1.5">{props.hint}</p> : null}
@@ -119,18 +212,18 @@ export function semanticStatusToOperationalTone(status: SemanticStatus): Operati
   }
 }
 
-function badgeForTone(tone: OperationalTone): { status: SemanticStatus; label: string } {
+function badgeForTone(tone: OperationalTone): { status: SemanticStatus; label: string } | null {
   switch (tone) {
     case "healthy":
       return { status: "healthy", label: "Clear" };
-    case "neutral":
-      return { status: "info", label: "Monitor" };
     case "attention":
       return { status: "warning", label: "Watch" };
     case "risk":
       return { status: "critical", label: "At risk" };
+    // "neutral" intentionally returns null — informational state needs no pill.
+    case "neutral":
     default:
-      return { status: "info", label: "Monitor" };
+      return null;
   }
 }
 
@@ -152,7 +245,7 @@ export function CompressedNormalState(props: {
   return (
     <div
       role="status"
-      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] px-3.5 py-3 text-[13px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
+      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:var(--surface-tint)] px-3.5 py-3 text-[12.5px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
@@ -177,7 +270,7 @@ export function DiagnosticDisclosure(props: {
 }) {
   return (
     <details
-      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] px-3.5 py-3 text-[12px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
+      className={`rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] px-3.5 py-3 text-[12.5px] text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
     >
       <summary className="cursor-pointer list-none font-semibold text-[var(--text-primary)] marker:hidden">
         {props.title ?? "Diagnostics"}
@@ -223,6 +316,18 @@ export function OperationalTriagePanel(props: {
   className?: string;
 }) {
   const activeItems = props.items.filter((item) => item.count !== 0 && item.count !== "0");
+  // When state is clear, collapse to a thin banner. The display-size header
+  // is reserved for cases where there's actual triage work to surface.
+  if (activeItems.length === 0 && props.allClear) {
+    return (
+      <CompressedNormalState
+        title={props.allClear.title}
+        description={props.allClear.description}
+        action={props.allClear.action}
+        className={props.className}
+      />
+    );
+  }
   return (
     <section className={`ui-card p-4 md:p-5 ${props.className ?? ""}`.trim()}>
       <OperationalSectionHeader
@@ -240,7 +345,7 @@ export function OperationalTriagePanel(props: {
                   <div className="min-w-0">
                     <p className="font-semibold text-[var(--text-primary)]">{item.title}</p>
                     {item.description ? (
-                      <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+                      <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                         {item.description}
                       </p>
                     ) : null}
@@ -334,6 +439,9 @@ export function OperationalSummaryCard(props: {
   const badge = badgeForTone(tone);
   const primaryDisplay =
     primaryValue !== null && primaryValue !== undefined ? String(primaryValue) : (primaryFallback ?? "—");
+  const primaryCount = typeof primaryValue === "number" ? primaryValue : null;
+  const headlineDisplay = countAwareLabel(headline, primaryCount);
+  const primaryUnitDisplay = primaryUnit ? countAwareLabel(primaryUnit, primaryCount) : null;
   const compact = variant === "compact";
   const hero = variant === "hero";
   const metricClass = compact
@@ -345,16 +453,17 @@ export function OperationalSummaryCard(props: {
   const iconBox = compact ? "h-10 w-10" : hero ? "h-12 w-12 sm:h-14 sm:w-14" : "h-11 w-11";
   const iconSz = compact ? "h-4 w-4" : hero ? "h-5 w-5 sm:h-6 sm:w-6" : "h-5 w-5";
   const badgeClass = compact
-    ? "shrink-0 whitespace-nowrap text-[10px] sm:text-[11px]"
+    ? "max-w-full whitespace-normal text-[11px] leading-tight sm:text-[11px]"
     : hero
       ? "shrink-0 whitespace-nowrap text-[11px]"
       : "shrink-0 whitespace-nowrap";
   const footerClass = compact
-    ? "mt-3 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3"
+    ? "mt-3 flex shrink-0 flex-col items-start gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3"
     : hero
       ? "mt-4 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-4"
       : "mt-3 flex shrink-0 flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] pt-3";
   const shellClass = hero ? "ui-card-hero" : "ui-summary-card";
+  const headerClass = compact ? "flex flex-col gap-3" : "flex flex-wrap items-start justify-between gap-3";
 
   return (
     <article
@@ -362,17 +471,17 @@ export function OperationalSummaryCard(props: {
       className={`${shellClass} ui-transition-surface flex h-full min-h-0 min-w-0 flex-col ${pad} ${OPERATIONAL_SHELL_BY_TONE[tone]} hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)] ${className}`.trim()}
     >
       <div className="min-h-0 flex-1">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className={headerClass}>
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span
               className={`ui-icon-tile${compact ? "-compact" : ""} shrink-0 ${iconBox} ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`.trim()}
             >
-              <Icon className={iconSz} strokeWidth={1.75} aria-hidden />
+              <Icon className={iconSz} strokeWidth={1.65} aria-hidden />
             </span>
             <div className="min-w-0 flex-1 pr-1">
               <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
                 <p className={hero ? "ui-eyebrow" : "ui-kicker"}>{eyebrow}</p>
-                {showStatusBadge ? (
+                {showStatusBadge && !compact && badge ? (
                   <StatusBadge status={badge.status} className={`sm:hidden ${badgeClass}`.trim()}>
                     {badge.label}
                   </StatusBadge>
@@ -380,14 +489,14 @@ export function OperationalSummaryCard(props: {
               </div>
               <h3
                 className={`mt-1.5 break-words font-semibold tracking-tight text-[var(--text-primary)] ${
-                  compact ? "text-sm leading-snug" : hero ? "text-[1.2rem] leading-[1.15] sm:text-[1.35rem]" : "text-[15px] leading-snug"
+                  compact ? "text-sm leading-snug" : hero ? "text-[1.2rem] leading-[1.15] sm:text-[1.35rem]" : "text-[14px] leading-snug"
                 }`}
               >
-                {headline}
+                {headlineDisplay}
               </h3>
             </div>
           </div>
-          {showStatusBadge ? (
+          {showStatusBadge && !compact && badge ? (
             <StatusBadge status={badge.status} className={`hidden sm:inline-flex ${badgeClass}`.trim()}>
               {badge.label}
             </StatusBadge>
@@ -395,13 +504,12 @@ export function OperationalSummaryCard(props: {
         </div>
         <div className={hero ? "mt-4" : "mt-3"}>
           <p className={metricClass}>{primaryDisplay}</p>
-          {primaryUnit ? (
-            <p className={`mt-1.5 font-medium text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[13px]" : "text-[12px]"}`}>
-              {primaryUnit}
+          {primaryUnitDisplay ? (
+            <p className={`mt-1.5 font-medium text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[12.5px]" : "text-[12.5px]"}`}>
+              {primaryUnitDisplay}
             </p>
-          ) : null}
-          {secondaryLine && (primaryValue === null || primaryValue === undefined) ? (
-            <p className={`mt-1.5 text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[13px]" : "text-[12px]"}`}>
+          ) : secondaryLine ? (
+            <p className={`mt-1.5 text-[var(--text-secondary)] ${compact ? "text-[11px]" : hero ? "text-[12.5px]" : "text-[12.5px]"}`}>
               {secondaryLine}
             </p>
           ) : null}
@@ -417,9 +525,18 @@ export function OperationalSummaryCard(props: {
       </div>
 
       <div className={footerClass}>
+        {showStatusBadge && compact && badge ? (
+          <StatusBadge status={badge.status} className={badgeClass}>
+            {badge.label}
+          </StatusBadge>
+        ) : null}
         {action.href.startsWith("#") ? (
-          <a href={action.href} className="ui-operational-focusable ui-operational-action">
-            <span className="truncate">{action.label}</span>
+          <a
+            href={action.href}
+            aria-label={compact ? action.label : undefined}
+            className="ui-operational-focusable ui-operational-action"
+          >
+            {compact ? null : <span>{action.label}</span>}
             <span aria-hidden>→</span>
           </a>
         ) : (
@@ -427,9 +544,10 @@ export function OperationalSummaryCard(props: {
             href={action.href}
             target={action.external ? "_blank" : undefined}
             rel={action.external ? "noopener noreferrer" : undefined}
+            aria-label={compact ? action.label : undefined}
             className="ui-operational-focusable ui-operational-action"
           >
-            <span className="truncate">{action.label}</span>
+            {compact ? null : <span>{action.label}</span>}
             <span aria-hidden>→</span>
           </Link>
         )}
@@ -472,26 +590,30 @@ export function OperationalSurfaceLinkCard(props: {
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex min-w-0 flex-1 items-start gap-2.5">
             <span className={`${hero ? "ui-icon-tile h-11 w-11 sm:h-12 sm:w-12" : "ui-icon-tile-compact h-9 w-9"} shrink-0 ${OPERATIONAL_ICON_WRAP_BY_TONE[tone]}`.trim()}>
-              <Icon className={hero ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.75} aria-hidden />
+              <Icon className={hero ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.65} aria-hidden />
             </span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
                 <p className={hero ? "ui-eyebrow" : "ui-kicker"}>{props.eyebrow}</p>
-                <StatusBadge status={badge.status} className="shrink-0 whitespace-nowrap sm:hidden">
-                  {badge.label}
-                </StatusBadge>
+                {badge ? (
+                  <StatusBadge status={badge.status} className="shrink-0 whitespace-nowrap sm:hidden">
+                    {badge.label}
+                  </StatusBadge>
+                ) : null}
               </div>
               <p className={`mt-1.5 break-words font-semibold tracking-tight text-[var(--text-primary)] ${hero ? "text-[1.15rem] leading-[1.15] sm:text-[1.3rem]" : "text-sm leading-snug"}`}>
                 {props.title}
               </p>
               {props.hint ? (
-                <p className={`ui-support-copy mt-1.5 ${hero ? "line-clamp-3 text-[13px]" : "line-clamp-2"}`}>{props.hint}</p>
+                <p className={`ui-support-copy mt-1.5 ${hero ? "line-clamp-3 text-[12.5px]" : "line-clamp-2"}`}>{props.hint}</p>
               ) : null}
             </div>
           </div>
-          <StatusBadge status={badge.status} className="hidden shrink-0 whitespace-nowrap sm:inline-flex">
-            {badge.label}
-          </StatusBadge>
+          {badge ? (
+            <StatusBadge status={badge.status} className="hidden shrink-0 whitespace-nowrap sm:inline-flex">
+              {badge.label}
+            </StatusBadge>
+          ) : null}
         </div>
         {props.chips && props.chips.length > 0 ? (
           <div className={`${hero ? "mt-3" : "mt-2"} flex flex-wrap gap-1.5`} role="list">
@@ -501,7 +623,7 @@ export function OperationalSurfaceLinkCard(props: {
           </div>
         ) : null}
       </div>
-      <span className={`ui-operational-action shrink-0 ${hero ? "mt-4 text-[12px]" : "mt-3"}`}>
+      <span className={`ui-operational-action shrink-0 ${hero ? "mt-4 text-[12.5px]" : "mt-3"}`}>
         {cta}
         <span aria-hidden>→</span>
       </span>

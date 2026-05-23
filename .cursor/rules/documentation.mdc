@@ -2,4 +2,4 @@
 alwaysApply: true
 ---
 
-There should be absolutely no dependency on documentation. It may serve as reference.
+There should be absolutely no runtime or implementation dependency on documentation. 

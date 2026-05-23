@@ -48,8 +48,8 @@ function createCrmAdmin({
   renewalScenarios: Array<Record<string, unknown>>;
   openExceptions: Array<Record<string, unknown>>;
 }) {
-  const integrationUpdateEq = vi.fn(async () => ({ error: null }));
-  const contractUpdateEq = vi.fn(async () => ({ error: null }));
+  const integrationUpdateEq = vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) }));
+  const contractUpdateEq = vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) }));
   const auditInsert = vi.fn(async () => ({ error: null }));
   return {
     admin: {

@@ -72,6 +72,31 @@ describe("createSavedView (org scope via membership)", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
+  it("rejects unsafe saved view names before membership lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const { createSavedView } = await import("@/actions/saved-views");
+    const fd = new FormData();
+    fd.set("name", "Scoped\u202Ehidden");
+    fd.set("organizationId", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    const result = await createSavedView(fd, "contracts");
+    expect(result).toEqual({ error: "Name contains unsupported characters" });
+    expect(from).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("rejects unsafe saved view filters before membership lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const { createSavedView } = await import("@/actions/saved-views");
+    const fd = new FormData();
+    fd.set("name", "Scoped");
+    fd.set("organizationId", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    fd.set("search", "normal\u202Ehidden");
+    const result = await createSavedView(fd, "contracts");
+    expect(result).toEqual({ error: "Saved view filters contain unsupported characters" });
+    expect(from).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
   it("upserts saved_views scoped to org when membership exists", async () => {
     getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
     from.mockImplementation((table: string) => {
@@ -104,5 +129,15 @@ describe("createSavedView (org scope via membership)", () => {
       }),
       expect.any(Object)
     );
+  });
+
+  it("rejects unsafe summary recipients before saved view lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const { setSavedViewWeeklyRecipients } = await import("@/actions/saved-views");
+    const fd = new FormData();
+    fd.set("recipientsCsv", "ops@example.com,bad\u202Ehidden@example.com");
+    const result = await setSavedViewWeeklyRecipients("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", fd);
+    expect(result).toEqual({ error: "Invalid recipients" });
+    expect(from).not.toHaveBeenCalled();
   });
 });

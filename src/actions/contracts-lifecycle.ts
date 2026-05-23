@@ -2,17 +2,25 @@ import { redirect } from "next/navigation";
 import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { type ContractStatus, type OrgRole } from "@/lib/types";
 import {
+  requireContractDeleteAccess,
   requireContractWriteAccess as requireWriteAccess,
   verifyOrgMembership,
 } from "@/lib/actions/contracts-access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import {
+  hasUnsafeJsonKey,
+  isJsonShapeWithinLimits,
+  isUuid,
+  parseFixedEnumParam,
+  validateBoundedString,
+} from "@/lib/security/validation";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryIfFirstInOrganization } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import type { AuditAction } from "@/lib/security/audit-actions";
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   draft: ["pending_review"],
@@ -27,15 +35,40 @@ const MAX_SOURCE_SYSTEM_LEN = 80;
 const MAX_EXTERNAL_REF_LEN = 160;
 const MAX_REGION_LEN = 40;
 const MAX_ANNUAL_VALUE = 999999999999.99;
+const MAX_ANNUAL_VALUE_INPUT_LEN = 40;
+const MAX_SOURCE_LABEL_LEN = 160;
+const MAX_REJECTION_REASON_LEN = 1000;
+
+const CONTRACT_INTAKE_STATUSES = [
+  "awaiting_review",
+  "in_clarification",
+  "active",
+  "at_risk",
+  "renewal_prep",
+  "notice_decision",
+  "archived",
+] as const;
+const CONTRACT_HEALTH_STATUSES = ["healthy", "watch", "at_risk", "unknown"] as const;
+const INTAKE_REQUEST_STATUSES = ["new", "triage", "review", "ready", "rejected"] as const;
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+type ContractLifecycleAuditAction = Extract<AuditAction, `contract.${string}` | `intake.${string}`>;
+
+function lifecycleTextError(
+  label: string,
+  validation: { error: "invalid_string" | "string_too_long" | "unsafe_characters" }
+): string {
+  if (validation.error === "string_too_long") return `${label} is too long`;
+  if (validation.error === "unsafe_characters") return `${label} contains unsupported characters`;
+  return `${label} contains unsupported characters`;
+}
 
 async function recordV10LifecycleMutation(
   admin: Admin,
   input: {
     organizationId: string;
     actorUserId: string;
-    action: string;
+    action: ContractLifecycleAuditAction;
     targetType: string;
     targetId: string;
     contractId?: string | null;
@@ -212,28 +245,41 @@ export async function updateContractOperationalState(input: {
   intakeSource?: string | null;
   intakeCompletenessScore?: number | null;
 }) {
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+  const intakeStatus = parseFixedEnumParam(input.intakeStatus, CONTRACT_INTAKE_STATUSES, "awaiting_review");
+  const healthStatus = parseFixedEnumParam(input.healthStatus, CONTRACT_HEALTH_STATUSES, "unknown");
+  if (intakeStatus !== input.intakeStatus) return { error: "Invalid intake status" };
+  if (healthStatus !== input.healthStatus) return { error: "Invalid health status" };
+  const requiredNextStepValidation = validateBoundedString(input.requiredNextStep ?? "", {
+    maxLength: MAX_REQUIRED_NEXT_STEP_LEN,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  if (!requiredNextStepValidation.ok) {
+    return { error: lifecycleTextError("Required next step", requiredNextStepValidation) };
+  }
+  const intakeSourceValidation = validateBoundedString(input.intakeSource ?? "", {
+    maxLength: MAX_SOURCE_SYSTEM_LEN,
+    allowEmpty: true,
+  });
+  if (!intakeSourceValidation.ok) {
+    return { error: lifecycleTextError("Intake source", intakeSourceValidation) };
+  }
+  const intakeOwnerId = input.intakeOwnerId?.trim() || null;
+  if (intakeOwnerId && !isUuid(intakeOwnerId)) return { error: "Invalid intake owner" };
+  const intakeCompletenessScore =
+    typeof input.intakeCompletenessScore === "number" && Number.isFinite(input.intakeCompletenessScore)
+      ? Math.max(0, Math.min(100, Number(input.intakeCompletenessScore)))
+      : null;
+  const requiredNextStep = requiredNextStepValidation.value || null;
+  const intakeSource = intakeSourceValidation.value || null;
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
-
-  const requiredNextStep = input.requiredNextStep?.trim() || null;
-  const intakeOwnerId = input.intakeOwnerId?.trim() || null;
-  const intakeSource = input.intakeSource?.trim() || null;
-  const intakeCompletenessScore =
-    typeof input.intakeCompletenessScore === "number" && Number.isFinite(input.intakeCompletenessScore)
-      ? Math.max(0, Math.min(100, Number(input.intakeCompletenessScore)))
-      : null;
-  if (requiredNextStep && requiredNextStep.length > MAX_REQUIRED_NEXT_STEP_LEN) {
-    return { error: "Required next step is too long" };
-  }
-  if (intakeSource && intakeSource.length > MAX_SOURCE_SYSTEM_LEN) {
-    return { error: "Intake source is too long" };
-  }
-  if (intakeOwnerId && !isUuid(intakeOwnerId)) return { error: "Invalid intake owner" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -257,15 +303,15 @@ export async function updateContractOperationalState(input: {
   const { error } = await admin
     .from("contracts")
     .update({
-      intake_status: input.intakeStatus,
-      health_status: input.healthStatus,
+      intake_status: intakeStatus,
+      health_status: healthStatus,
       required_next_step: requiredNextStep,
       intake_owner_id: intakeOwnerId,
       intake_source: intakeSource,
       intake_completeness_score: intakeCompletenessScore,
       intake_last_scored_at: new Date().toISOString(),
       reviewed_at:
-        input.intakeStatus === "active" || input.intakeStatus === "in_clarification"
+        intakeStatus === "active" || intakeStatus === "in_clarification"
           ? new Date().toISOString()
           : null,
     })
@@ -276,7 +322,7 @@ export async function updateContractOperationalState(input: {
     contract_id: input.contractId,
     organization_id: contract.organization_id,
     from_status: contract.intake_status,
-    to_status: input.intakeStatus,
+    to_status: intakeStatus,
     changed_by: user.id,
     note: requiredNextStep,
   });
@@ -287,8 +333,8 @@ export async function updateContractOperationalState(input: {
     user_id: user.id,
     action: "contract.operational_state_updated",
     details: {
-      intake_status: input.intakeStatus,
-      health_status: input.healthStatus,
+      intake_status: intakeStatus,
+      health_status: healthStatus,
       required_next_step: requiredNextStep,
       intake_owner_id: intakeOwnerId,
       intake_source: intakeSource,
@@ -302,8 +348,8 @@ export async function updateContractOperationalState(input: {
     entityType: "contract",
     entityId: input.contractId,
     payload: {
-      intake_status: input.intakeStatus,
-      health_status: input.healthStatus,
+      intake_status: intakeStatus,
+      health_status: healthStatus,
       required_next_step: requiredNextStep,
       intake_owner_id: intakeOwnerId,
       intake_source: intakeSource,
@@ -318,10 +364,10 @@ export async function updateContractOperationalState(input: {
     targetId: input.contractId,
     contractId: input.contractId,
     beforeStateHash: contract.intake_status,
-    afterStateHash: input.intakeStatus,
+    afterStateHash: intakeStatus,
     safeMetadata: {
-      intake_status: input.intakeStatus,
-      health_status: input.healthStatus,
+      intake_status: intakeStatus,
+      health_status: healthStatus,
       intake_owner_assigned: Boolean(intakeOwnerId),
       intake_completeness_score: intakeCompletenessScore,
     },
@@ -340,30 +386,54 @@ export async function upsertContractIntakeRequest(input: {
   payload?: Record<string, unknown>;
   rejectionReason?: string | null;
 }) {
-  const supabase = await createClient();
-  const admin = await createAdminClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
-  const source = input.source?.trim() || "manual";
-  const sourceLabel = input.sourceLabel?.trim() || null;
-  const requestedStatus = input.status ?? "new";
-  if (!["new", "triage", "review", "ready", "rejected"].includes(requestedStatus)) {
-    return { error: "Invalid intake status" };
+  const sourceValidation = validateBoundedString(input.source?.trim() || "manual", {
+    maxLength: MAX_SOURCE_SYSTEM_LEN,
+  });
+  if (!sourceValidation.ok) return { error: lifecycleTextError("Source", sourceValidation) };
+  const sourceLabelValidation = validateBoundedString(input.sourceLabel ?? "", {
+    maxLength: MAX_SOURCE_LABEL_LEN,
+    allowEmpty: true,
+  });
+  if (!sourceLabelValidation.ok) return { error: lifecycleTextError("Source label", sourceLabelValidation) };
+  const rejectionReasonValidation = validateBoundedString(input.rejectionReason ?? "", {
+    maxLength: MAX_REJECTION_REASON_LEN,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  if (!rejectionReasonValidation.ok) {
+    return { error: lifecycleTextError("Rejection reason", rejectionReasonValidation) };
   }
+  const requestedStatus = input.status ?? "new";
+  const parsedStatus = parseFixedEnumParam(requestedStatus, INTAKE_REQUEST_STATUSES, "new");
+  if (parsedStatus !== requestedStatus) return { error: "Invalid intake status" };
   const assignedTo = input.assignedTo?.trim() || null;
   if (assignedTo && !isUuid(assignedTo)) return { error: "Invalid assignee" };
   const contractId = input.contractId?.trim() || null;
   if (contractId && !isUuid(contractId)) return { error: "Invalid contract" };
+  const payload = input.payload ?? {};
+  if (hasUnsafeJsonKey(payload)) return { error: "Intake payload contains unsupported keys" };
+  if (
+    !isJsonShapeWithinLimits(payload, {
+      maxDepth: 6,
+      maxArrayLength: 50,
+      maxKeys: 100,
+      maxStringLength: 2000,
+      allowJsonWhitespaceControls: true,
+    })
+  ) {
+    return { error: "Intake payload is too large or contains unsupported characters" };
+  }
+  const source = sourceValidation.value;
+  const sourceLabel = sourceLabelValidation.value || null;
+  const rejectionReason = rejectionReasonValidation.value || null;
   const completenessScore =
     typeof input.completenessScore === "number" && Number.isFinite(input.completenessScore)
       ? Math.max(0, Math.min(100, Number(input.completenessScore)))
       : null;
   const hasAssignee = Boolean(assignedTo);
-  const hasPayload = Boolean(input.payload && Object.keys(input.payload).length > 0);
+  const hasPayload = Object.keys(payload).length > 0;
   const status =
-    requestedStatus === "rejected"
+    parsedStatus === "rejected"
       ? "rejected"
       : completenessScore == null
         ? hasPayload
@@ -374,6 +444,13 @@ export async function upsertContractIntakeRequest(input: {
           : completenessScore >= 60
             ? "review"
             : "triage";
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
 
   const membership = await getOrEnsureDeterministicMembership(admin, user);
   if (!membership || !canEditContracts(membership.role as OrgRole)) {
@@ -396,9 +473,9 @@ export async function upsertContractIntakeRequest(input: {
       source,
       source_label: sourceLabel,
       status,
-      payload_json: input.payload ?? {},
+      payload_json: payload,
       completeness_score: completenessScore,
-      rejection_reason: input.rejectionReason?.trim() || null,
+      rejection_reason: rejectionReason,
     })
     .select("id")
     .single();
@@ -471,37 +548,50 @@ export async function updateContractExternalLink(input: {
   annualValue?: string | number | null;
   externalReferenceId?: string | null;
 }) {
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+  const sourceSystemValidation = validateBoundedString(input.sourceSystem ?? "", {
+    maxLength: MAX_SOURCE_SYSTEM_LEN,
+    allowEmpty: true,
+  });
+  if (!sourceSystemValidation.ok) return { error: lifecycleTextError("Source system", sourceSystemValidation) };
+  const regionValidation = validateBoundedString(input.region ?? "", {
+    maxLength: MAX_REGION_LEN,
+    allowEmpty: true,
+  });
+  if (!regionValidation.ok) return { error: lifecycleTextError("Region", regionValidation) };
+  const externalReferenceValidation = validateBoundedString(input.externalReferenceId ?? "", {
+    maxLength: MAX_EXTERNAL_REF_LEN,
+    allowEmpty: true,
+  });
+  if (!externalReferenceValidation.ok) {
+    return { error: lifecycleTextError("External reference", externalReferenceValidation) };
+  }
+  const annualValueRaw =
+    typeof input.annualValue === "number"
+      ? String(input.annualValue)
+      : (input.annualValue?.trim() ?? "");
+  const annualValueValidation = validateBoundedString(annualValueRaw, {
+    maxLength: MAX_ANNUAL_VALUE_INPUT_LEN,
+    allowEmpty: true,
+  });
+  if (!annualValueValidation.ok) return { error: "Annual value must be a valid positive number." };
+  const sourceSystem = sourceSystemValidation.value || null;
+  const region = regionValidation.value || null;
+  const externalReferenceId = externalReferenceValidation.value || null;
+  const annualValue = annualValueValidation.value ? Number(annualValueValidation.value) : null;
+  if (
+    annualValueValidation.value &&
+    (!Number.isFinite(annualValue) || annualValue == null || annualValue < 0 || annualValue > MAX_ANNUAL_VALUE)
+  ) {
+    return { error: "Annual value must be a valid positive number." };
+  }
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
-
-  const sourceSystem = input.sourceSystem?.trim() || null;
-  const region = input.region?.trim() || null;
-  const externalReferenceId = input.externalReferenceId?.trim() || null;
-  const annualValueRaw =
-    typeof input.annualValue === "number"
-      ? String(input.annualValue)
-      : (input.annualValue?.trim() ?? "");
-  const annualValue = annualValueRaw ? Number(annualValueRaw) : null;
-  if (sourceSystem && sourceSystem.length > MAX_SOURCE_SYSTEM_LEN) {
-    return { error: "Source system is too long" };
-  }
-  if (externalReferenceId && externalReferenceId.length > MAX_EXTERNAL_REF_LEN) {
-    return { error: "External reference is too long" };
-  }
-  if (region && region.length > MAX_REGION_LEN) {
-    return { error: "Region is too long" };
-  }
-  if (
-    annualValueRaw &&
-    (!Number.isFinite(annualValue) || annualValue == null || annualValue < 0 || annualValue > MAX_ANNUAL_VALUE)
-  ) {
-    return { error: "Annual value must be a valid positive number." };
-  }
 
   const { data: contract } = await admin
     .from("contracts")
@@ -580,8 +670,8 @@ export async function deleteContract(contractId: string) {
     return { error: "Access denied" };
   }
 
-  const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
-  if (writeErr) return writeErr;
+  const deleteErr = await requireContractDeleteAccess(admin, user.id, contract.organization_id);
+  if (deleteErr) return deleteErr;
 
   const { data: files } = await admin
     .from("contract_files")

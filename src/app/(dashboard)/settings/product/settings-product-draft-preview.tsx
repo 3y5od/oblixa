@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { NAV_ITEMS } from "@/lib/navigation";
-import { buildProductSurfaceContext } from "@/lib/product-surface/context";
+import { buildProductSurfaceContext } from "@/lib/product-surface/context-core";
 import { isNavItemVisibleForSurface, toNavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { notificationTypesBlockedByMode } from "@/lib/notification-product-tier";
 import { NOTIFICATION_TAXONOMY } from "@/lib/notification-taxonomy";
@@ -145,16 +145,16 @@ export function SettingsProductDraftPreview(props: {
   return (
     <section className="ui-card p-6 md:p-8">
       <p className="ui-label-caps">Draft preview (unsaved)</p>
-      <p className="ui-muted-tight mt-2 text-[13px]">
+      <p className="ui-muted-tight mt-2 text-[12.5px]">
         This preview updates as you change the form, before you click save.
       </p>
-      <p className="ui-muted-tight mt-4 text-[13px]">Draft mode and search scope:</p>
+      <p className="ui-muted-tight mt-4 text-[12.5px]">Draft mode and search scope:</p>
       <p className="mt-1 text-sm text-[var(--text-primary)]">
         {preview.mode} mode · {preview.searchScope === "core_only" ? "core-only search scope" : "search follows workspace mode"}
       </p>
-      <p className="ui-muted-tight mt-4 text-[13px]">Visible primary and workspace nav items:</p>
+      <p className="ui-muted-tight mt-4 text-[12.5px]">Visible primary and workspace nav items:</p>
       <p className="mt-1 text-sm text-[var(--text-primary)]">{preview.navLabels.join(", ") || "None"}</p>
-      <p className="ui-muted-tight mt-4 text-[13px]">
+      <p className="ui-muted-tight mt-4 text-[12.5px]">
         Notification types enabled by draft mode + draft email mutes:
       </p>
       <p className="mt-1 text-sm text-[var(--text-primary)]">

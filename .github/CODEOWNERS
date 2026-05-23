@@ -2,14 +2,25 @@
 # Lines starting with # are ignored by CODEOWNERS; uncomment to enforce review assignment.
 
 supabase/migrations/ @YOUR_ORG/backend
+supabase/tests/ @YOUR_ORG/backend
 src/app/api/ @YOUR_ORG/backend
 src/actions/ @YOUR_ORG/backend
 src/lib/auth/ @YOUR_ORG/backend
+src/app/(auth)/ @YOUR_ORG/backend
+src/components/auth/ @YOUR_ORG/backend
+src/lib/env/ @YOUR_ORG/backend
 src/lib/security/ @YOUR_ORG/backend
 src/lib/debugging-sweep/ @YOUR_ORG/backend
 scripts/debugging-sweep/ @YOUR_ORG/backend
 src/proxy.ts @YOUR_ORG/backend
 semgrep/ @YOUR_ORG/backend
+scripts/ @YOUR_ORG/backend
+artifacts/ @YOUR_ORG/backend
+config/ @YOUR_ORG/backend
+.env.example @YOUR_ORG/backend
+.github/CODEOWNERS @YOUR_ORG/backend
+package.json @YOUR_ORG/backend
+package-lock.json @YOUR_ORG/backend
 .github/workflows/ @YOUR_ORG/backend
 config/qa-tier-manifest.json @YOUR_ORG/backend
 config/pr-requirements.json @YOUR_ORG/backend

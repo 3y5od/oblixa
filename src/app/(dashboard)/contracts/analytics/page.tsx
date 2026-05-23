@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  BarChart3,
   CalendarClock,
   CheckSquare,
   Database,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { normalizeAnalyticsScope } from "@/lib/analytics-scope";
 
 function monthKey(dateIso: string): string {
@@ -208,15 +210,12 @@ export default async function ContractAnalyticsPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Trends</p>
-          <h1 className="ui-page-title-compact">Advanced analytics</h1>
-          <p className="ui-page-lead mt-2">
-          Contract velocity, task execution trendlines, and upcoming renewal concentration.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<BarChart3 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Trends"
+        title="Advanced analytics"
+        lead="Contract velocity, task execution trendlines, and upcoming renewal concentration."
+      />
       <section className="ui-page-shell p-4">
         <div className="mb-3 space-y-1">
           <p className="ui-eyebrow">Scope</p>

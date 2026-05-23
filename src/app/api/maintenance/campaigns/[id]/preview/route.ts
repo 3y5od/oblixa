@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/maintenance/campaigns/[id]/preview";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -16,17 +22,19 @@ export async function GET(
     apiPath: "/api/maintenance/campaigns/[id]/preview",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
 
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/maintenance/campaigns/[id]/preview");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: campaign } = await ctx.admin
     .from("maintenance_campaigns")
     .select("id")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!campaign) return jsonNotFound(ROUTE);
 
   const [{ count: pending }, { count: processed }, { count: failed }] = await Promise.all([
     ctx.admin

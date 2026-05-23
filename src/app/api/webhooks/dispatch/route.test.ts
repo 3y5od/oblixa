@@ -7,6 +7,7 @@ const safeFetch = vi.fn();
 const decryptIntegrationToken = vi.fn();
 const encryptIntegrationToken = vi.fn();
 const appendCasefileEvent = vi.fn();
+const enforceIdempotency = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -25,6 +26,10 @@ vi.mock("@/lib/v4/casefile", () => ({
   appendCasefileEvent,
 }));
 
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
 vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: {
     webhooksDispatchCron: { max: 60, windowMs: 60_000 },
@@ -41,6 +46,7 @@ beforeEach(() => {
   decryptIntegrationToken.mockImplementation((value: string) => value);
   encryptIntegrationToken.mockImplementation((value: string) => value);
   appendCasefileEvent.mockResolvedValue(undefined);
+  enforceIdempotency.mockResolvedValue(null);
 });
 
 describe("GET /api/webhooks/dispatch", () => {
@@ -127,7 +133,13 @@ describe("GET /api/webhooks/dispatch", () => {
       event_type: "contract.updated",
       entity_type: "contract",
       entity_id: "ctr_1",
-      payload: { schema_version: "v2", contract_id: "ctr_1" },
+      payload: {
+        schema_version: "v2",
+        contract_id: "ctr_1",
+        access_token: "event-token",
+        private_url: "https://files.test/private.pdf?token=abc&signature=def",
+        nested: { authorization: "Bearer webhook-secret-token" },
+      },
       created_at: "2026-05-04T17:00:00.000Z",
     };
     const subscription = {
@@ -235,7 +247,13 @@ describe("GET /api/webhooks/dispatch", () => {
       entity_id: event.entity_id,
       occurred_at: event.created_at,
       schema_version: "v2",
-      data: event.payload,
+      data: {
+        schema_version: "v2",
+        contract_id: "ctr_1",
+        access_token: "[redacted]",
+        private_url: "[redacted]",
+        nested: { authorization: "[redacted]" },
+      },
     });
     const expectedSignature = createHmac("sha256", "plain-secret").update(expectedPayload).digest("hex");
 
@@ -256,6 +274,9 @@ describe("GET /api/webhooks/dispatch", () => {
         body: expectedPayload,
       })
     );
+    expect(expectedPayload).not.toContain("event-token");
+    expect(expectedPayload).not.toContain("webhook-secret-token");
+    expect(expectedPayload).not.toContain("token=abc");
     const [, init] = safeFetch.mock.calls[0] ?? [];
     const headers = (init?.headers ?? {}) as Record<string, string>;
     expect(headers["x-oblixa-signature"]).toBe(expectedSignature);
@@ -394,7 +415,42 @@ describe("POST /api/webhooks/dispatch", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Unsupported action" });
+    expect(body).toMatchObject({ error: "Unsupported action", code: "unsupported_action" });
+  });
+
+  it("blocks duplicate replay_event requests before resetting delivery state", async () => {
+    process.env.CRON_SECRET = "secret";
+    const duplicate = new Response(
+      JSON.stringify({ error: "Duplicate request blocked by idempotency key" }),
+      { status: 409, headers: { "content-type": "application/json" } }
+    );
+    const from = vi.fn();
+    enforceIdempotency.mockResolvedValueOnce(duplicate);
+    createAdminClient.mockResolvedValue({ from });
+
+    const { POST } = await import("@/app/api/webhooks/dispatch/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/webhooks/dispatch", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer secret",
+          "x-idempotency-key": "webhook-dispatch-replay-0001",
+        },
+        body: JSON.stringify({ action: "replay_event", eventId: "evt_1" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(
+      expect.any(Request),
+      {
+        scope: "api.webhooks.dispatch",
+        actorKey: "cron",
+      }
+    );
+    expect(from).not.toHaveBeenCalled();
   });
 });
-

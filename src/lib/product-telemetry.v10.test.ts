@@ -85,6 +85,17 @@ describe("V10 product telemetry", () => {
     expect(clampProductTelemetryDetails({ href: "/work?lens=failed_jobs&signature=private&mode=core" })).toEqual({
       href: "/work?lens=failed_jobs&mode=core",
     });
+    expect(
+      clampProductTelemetryDetails({
+        failure_class: "provider",
+        message: "Bearer abcdefghijk123456789 and sk_live_1234567890",
+        oauth_code: "secret-code",
+      })
+    ).toEqual({
+      failure_class: "provider",
+      message: "[redacted] and [redacted]",
+      dropped_field_count: 1,
+    });
   });
 
   it("emits objective telemetry with only objective-allowlisted fields", async () => {

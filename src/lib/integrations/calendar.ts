@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { escapeIcsTextValue, foldIcsTextLine } from "@/lib/export/calendar-text-guard";
 
 /** ICS all-day events use UTC calendar parts from stored date strings / timestamps. */
 
@@ -10,6 +11,16 @@ function formatIcsDate(dateLike: string): string {
   return `${year}${month}${day}`;
 }
 
+function safeIcsUid(value: string): string {
+  const safe = value
+    .normalize("NFC")
+    .replace(/[\x00-\x1f\x7f\s;:,\\]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 180);
+  return safe || "event";
+}
+
 function buildEvent(
   uid: string,
   date: string,
@@ -17,15 +28,15 @@ function buildEvent(
   description: string
 ): string {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  const safeSummary = summary.replace(/\n/g, " ").replace(/,/g, "\\,");
-  const safeDescription = description.replace(/\n/g, "\\n").replace(/,/g, "\\,");
+  const safeSummary = escapeIcsTextValue(summary.replace(/\r?\n/g, " "));
+  const safeDescription = escapeIcsTextValue(description);
   return [
     "BEGIN:VEVENT",
-    `UID:${uid}`,
+    `UID:${safeIcsUid(uid)}`,
     `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${formatIcsDate(date)}`,
-    `SUMMARY:${safeSummary}`,
-    `DESCRIPTION:${safeDescription}`,
+    foldIcsTextLine(`SUMMARY:${safeSummary}`),
+    foldIcsTextLine(`DESCRIPTION:${safeDescription}`),
     "END:VEVENT",
   ].join("\r\n");
 }

@@ -108,7 +108,7 @@ export default async function AssuranceScorecardsPage() {
               ) : null}
               {dims && Object.keys(dims).length > 0 ? (
                 <div className="mt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Dimensions</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Dimensions</p>
                   <ul className="mt-1 space-y-0.5 text-xs text-[var(--text-secondary)]">
                     {Object.entries(dims)
                       .slice(0, 12)
@@ -123,7 +123,7 @@ export default async function AssuranceScorecardsPage() {
               ) : null}
               {drivers.length > 0 ? (
                 <div className="mt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Drivers</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Drivers</p>
                   <ul className="mt-1 space-y-1 text-xs text-[var(--text-secondary)]">
                     {drivers.slice(0, 8).map((d, i) => (
                       <li key={i} className="ui-card-quiet px-2 py-1">

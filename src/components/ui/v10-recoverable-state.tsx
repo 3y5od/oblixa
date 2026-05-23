@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Inbox } from "lucide-react";
 import {
   validateV10UiStateContract,
   type V10RecoverableUiState,
@@ -20,7 +20,7 @@ const V10_EMPTY_STATES = new Set<V10RecoverableUiState>(["empty"]);
 const V10_PARTIAL_STATES = new Set<V10RecoverableUiState>(["partial"]);
 
 function shouldShowV10RecoverableDiagnostics() {
-  return process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS === "1";
+  return process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS === "1";
 }
 
 export function V10RecoverableState(props: {
@@ -63,13 +63,14 @@ export function V10RecoverableState(props: {
         : "ui-status-panel-info";
   const densityClass =
     density === "compact"
-      ? "px-3.5 py-3 text-[13px]"
+      ? "px-3.5 py-3 text-[12.5px]"
       : "text-sm";
   const iconClass = isUrgentState
     ? "text-[var(--danger-ink)]"
     : V10_PARTIAL_STATES.has(props.state)
       ? "text-amber-600"
       : "text-[var(--text-tertiary)]";
+  const StateIcon = V10_EMPTY_STATES.has(props.state) ? Inbox : AlertTriangle;
 
   return (
     <section
@@ -89,7 +90,7 @@ export function V10RecoverableState(props: {
       className={`ui-status-panel ${panelTone} ${densityClass} text-[var(--text-secondary)] ${props.className ?? ""}`.trim()}
     >
       <div className="flex items-start gap-3">
-        <AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} aria-hidden />
+        <StateIcon className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`} aria-hidden />
         <div>
           <p className="font-medium text-[var(--text-primary)]">{props.title}</p>
           <p className="mt-1">{props.reason}</p>

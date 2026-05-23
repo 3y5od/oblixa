@@ -3,21 +3,30 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { isUuid } from "@/lib/security/validation";
+import { isReasonableEmail, isUuid, validateBoundedString } from "@/lib/security/validation";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import type { AuditAction } from "@/lib/security/audit-actions";
 
 const MAX_NAME_LEN = 80;
+const MAX_FILTER_VALUE_LEN = 240;
+const MAX_SEARCH_VALUE_LEN = 500;
+const MAX_RECIPIENTS_CSV_LEN = 2000;
+const MAX_SUMMARY_RECIPIENTS = 25;
 const VIEW_TYPES = ["contracts", "tasks", "obligations", "renewals"] as const;
 type SavedViewType = (typeof VIEW_TYPES)[number];
+type SavedViewAuditAction = Extract<AuditAction, `saved_view.${string}`>;
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+type OptionalStringValidation =
+  | { ok: true; value: string | null }
+  | { ok: false; error: "invalid_string" | "string_too_long" | "unsafe_characters" };
 
 async function recordV10SavedViewMutation(
   admin: Admin,
   input: {
     organizationId: string;
     actorUserId: string;
-    action: string;
+    action: SavedViewAuditAction;
     savedViewId: string;
     viewType?: string | null;
     safeMetadata?: Record<string, string | number | boolean | null>;
@@ -42,9 +51,18 @@ async function recordV10SavedViewMutation(
   return auditEventId;
 }
 
-function trimOrNull(v: FormDataEntryValue | null): string | null {
-  const t = String(v ?? "").trim();
-  return t ? t : null;
+function readOptionalSavedViewString(
+  formData: FormData,
+  key: string,
+  options: { maxLength?: number } = {}
+): OptionalStringValidation {
+  const raw = formData.get(key) ?? "";
+  const parsed = validateBoundedString(raw, {
+    maxLength: options.maxLength ?? MAX_FILTER_VALUE_LEN,
+    allowEmpty: true,
+  });
+  if (!parsed.ok) return parsed;
+  return { ok: true, value: parsed.value || null };
 }
 
 function revalidateSavedViewPaths(viewType?: string | null) {
@@ -80,29 +98,78 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const name = trimOrNull(formData.get("name"));
-  const orgId = trimOrNull(formData.get("organizationId"));
-  const status = trimOrNull(formData.get("status"));
-  const search = trimOrNull(formData.get("search"));
-  const owner = trimOrNull(formData.get("owner"));
-  const region = trimOrNull(formData.get("region"));
-  const deadline = trimOrNull(formData.get("deadline"));
-  const sort = trimOrNull(formData.get("sort"));
-  const exceptions = trimOrNull(formData.get("exceptions"));
-  const review = trimOrNull(formData.get("review"));
-  const data_quality = trimOrNull(formData.get("data_quality"));
-  const evidence = trimOrNull(formData.get("evidence"));
-  const mine = trimOrNull(formData.get("mine"));
-  const team = trimOrNull(formData.get("team"));
-  const viewTypeRaw = trimOrNull(formData.get("viewType"));
-  const pinned = trimOrNull(formData.get("pinned")) === "1";
+  const nameValidation = validateBoundedString(formData.get("name") ?? "", {
+    maxLength: MAX_NAME_LEN,
+  });
+  if (!nameValidation.ok) {
+    if (nameValidation.error === "string_too_long") return { error: "Name is too long" };
+    if (nameValidation.error === "unsafe_characters") return { error: "Name contains unsupported characters" };
+    return { error: "Name is required" };
+  }
+  const orgId = String(formData.get("organizationId") ?? "").trim();
+  const filters = {
+    status: readOptionalSavedViewString(formData, "status"),
+    search: readOptionalSavedViewString(formData, "search", { maxLength: MAX_SEARCH_VALUE_LEN }),
+    owner: readOptionalSavedViewString(formData, "owner"),
+    counterparty: readOptionalSavedViewString(formData, "counterparty"),
+    contract_type: readOptionalSavedViewString(formData, "contract_type"),
+    region: readOptionalSavedViewString(formData, "region"),
+    deadline: readOptionalSavedViewString(formData, "deadline"),
+    sort: readOptionalSavedViewString(formData, "sort"),
+    exceptions: readOptionalSavedViewString(formData, "exceptions"),
+    review: readOptionalSavedViewString(formData, "review"),
+    data_quality: readOptionalSavedViewString(formData, "data_quality"),
+    evidence: readOptionalSavedViewString(formData, "evidence"),
+    work: readOptionalSavedViewString(formData, "work"),
+    mine: readOptionalSavedViewString(formData, "mine"),
+    team: readOptionalSavedViewString(formData, "team"),
+    viewType: readOptionalSavedViewString(formData, "viewType"),
+    pinned: readOptionalSavedViewString(formData, "pinned"),
+  };
+  if (
+    !filters.status.ok ||
+    !filters.search.ok ||
+    !filters.owner.ok ||
+    !filters.counterparty.ok ||
+    !filters.contract_type.ok ||
+    !filters.region.ok ||
+    !filters.deadline.ok ||
+    !filters.sort.ok ||
+    !filters.exceptions.ok ||
+    !filters.review.ok ||
+    !filters.data_quality.ok ||
+    !filters.evidence.ok ||
+    !filters.work.ok ||
+    !filters.mine.ok ||
+    !filters.team.ok ||
+    !filters.viewType.ok ||
+    !filters.pinned.ok
+  ) {
+    return { error: "Saved view filters contain unsupported characters" };
+  }
+  const name = nameValidation.value;
+  const status = filters.status.value;
+  const search = filters.search.value;
+  const owner = filters.owner.value;
+  const counterparty = filters.counterparty.value;
+  const contract_type = filters.contract_type.value;
+  const region = filters.region.value;
+  const deadline = filters.deadline.value;
+  const sort = filters.sort.value;
+  const exceptions = filters.exceptions.value;
+  const review = filters.review.value;
+  const data_quality = filters.data_quality.value;
+  const evidence = filters.evidence.value;
+  const work = filters.work.value;
+  const mine = filters.mine.value;
+  const team = filters.team.value;
+  const viewTypeRaw = filters.viewType.value;
+  const pinned = filters.pinned.value === "1";
   const viewType =
     (viewTypeRaw && VIEW_TYPES.includes(viewTypeRaw as SavedViewType)
       ? (viewTypeRaw as SavedViewType)
       : fallbackType) ?? "contracts";
 
-  if (!name) return { error: "Name is required" };
-  if (name.length > MAX_NAME_LEN) return { error: "Name is too long" };
   if (!orgId || !isUuid(orgId)) return { error: "Invalid organization" };
   if (owner && !isUuid(owner)) return { error: "Invalid owner" };
 
@@ -126,6 +193,8 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
           status,
           search,
           owner,
+          counterparty,
+          contract_type,
           region,
           deadline,
           sort,
@@ -133,6 +202,7 @@ export async function createSavedView(formData: FormData, fallbackType?: SavedVi
           review,
           data_quality,
           evidence,
+          work,
           mine,
           team,
           pinned,
@@ -382,11 +452,17 @@ export async function setSavedViewWeeklyRecipients(
   if (!user) return { error: "Not authenticated" };
   if (!isUuid(savedViewId)) return { error: "Invalid saved view" };
 
-  const recipientsCsv = String(formData.get("recipientsCsv") ?? "");
+  const recipientsCsvValidation = validateBoundedString(formData.get("recipientsCsv") ?? "", {
+    maxLength: MAX_RECIPIENTS_CSV_LEN,
+    allowEmpty: true,
+  });
+  if (!recipientsCsvValidation.ok) return { error: "Invalid recipients" };
+  const recipientsCsv = recipientsCsvValidation.value;
   const recipients = recipientsCsv
     .split(",")
     .map((v) => v.trim().toLowerCase())
-    .filter((v) => !!v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+    .filter((v) => !!v && isReasonableEmail(v))
+    .slice(0, MAX_SUMMARY_RECIPIENTS);
 
   const { data: savedView } = await admin
     .from("saved_views")

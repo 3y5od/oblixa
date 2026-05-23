@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash } from "crypto";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
@@ -11,29 +12,17 @@ import {
   rateLimitCheck,
 } from "@/lib/rate-limit";
 import { secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { parseIsoTimestampParam, parsePositiveIntParam } from "@/lib/security/validation";
 import type { WorkspaceRole } from "@/lib/navigation";
 
-function parseIsoDate(input: string): string | null {
-  const trimmed = input.trim();
-  if (!trimmed) return null;
-  const ms = Date.parse(trimmed);
-  if (!Number.isFinite(ms)) return null;
-  return new Date(ms).toISOString();
-}
+const ROUTE = "/api/events";
+const EVENTS_SINCE_MAX_LOOKBACK_DAYS = 366;
 
 export async function GET(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`events:${ip}`, RATE_LIMITS.eventsRead);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
   const admin = await createAdminClient();
   let organizationId: string | null = null;
@@ -60,7 +49,12 @@ export async function GET(request: Request) {
       !hasScope ||
       !secureCompareUtf8(keyRow.key_hash, keyHash)
     ) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+      return jsonProblem(401, {
+        error: "Invalid API key",
+        code: "invalid_api_key",
+        diagnostic_id: "events_invalid_api_key",
+        route: ROUTE,
+      });
     }
     organizationId = keyRow.organization_id;
     await admin
@@ -73,18 +67,28 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return jsonUnauthorized(ROUTE);
     }
     const membership = await getDeterministicMembership(admin, user.id);
     if (!membership) {
-      return NextResponse.json({ error: "No organization found" }, { status: 400 });
+      return jsonProblem(400, {
+        error: "No organization found",
+        code: "organization_missing",
+        diagnostic_id: "events_organization_missing",
+        route: ROUTE,
+      });
     }
     organizationId = membership.organization_id;
     workspaceRole = membership.role;
   }
 
   if (!organizationId) {
-    return NextResponse.json({ error: "No organization found" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "No organization found",
+      code: "organization_missing",
+      diagnostic_id: "events_organization_missing",
+      route: ROUTE,
+    });
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
@@ -95,11 +99,16 @@ export async function GET(request: Request) {
   if (modeGate) return modeGate;
 
   const url = new URL(request.url);
-  const limit = Math.max(1, Math.min(200, Number(url.searchParams.get("limit") ?? "50")));
+  const limit = parsePositiveIntParam(url.searchParams.get("limit"), { defaultValue: 50, max: 200 });
   const since = url.searchParams.get("since");
-  const parsedSince = since ? parseIsoDate(since) : null;
-  if (since && !parsedSince) {
-    return NextResponse.json({ error: "Invalid since parameter" }, { status: 400 });
+  const parsedSince = parseIsoTimestampParam(since, { maxLookbackDays: EVENTS_SINCE_MAX_LOOKBACK_DAYS });
+  if (!parsedSince.ok) {
+    return jsonProblem(400, {
+      error: "Invalid since parameter",
+      code: "invalid_since",
+      diagnostic_id: "events_since_invalid",
+      route: ROUTE,
+    });
   }
 
   let query = admin
@@ -109,14 +118,19 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (parsedSince) {
-    query = query.gte("created_at", parsedSince);
+  if (parsedSince.value) {
+    query = query.gte("created_at", parsedSince.value);
   }
 
   const { data, error } = await query;
   if (error) {
     console.error("[api/events] query error:", error.message);
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "An unexpected error occurred",
+      code: "events_query_failed",
+      diagnostic_id: "events_query_failed",
+      route: ROUTE,
+    });
   }
 
   const v6 = await getV6OrgSettingsJson(admin, organizationId);

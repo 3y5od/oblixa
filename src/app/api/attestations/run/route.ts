@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
+const ROUTE = "/api/attestations/run";
+
 export async function GET() {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -12,9 +18,6 @@ export async function GET() {
     apiPath: "/api/attestations/run",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
 
   const today = new Date().toISOString();
   const { data: dueRequests } = await ctx.admin

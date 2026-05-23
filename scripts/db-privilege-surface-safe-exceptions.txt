@@ -7,6 +7,6 @@ src/lib/cron/route-runner.ts
 # meta: owner=@billing expiry=2027-12-31 reason=retention cleanup deletes old Stripe webhook idempotency rows globally by timestamp rather than tenant scope.
 src/app/api/cron/stripe-webhook-events/route.ts
 
-# meta: owner=@reports expiry=2027-12-31 reason=engagement tracking updates recipients by engagement_token, which is an intentional token-scoped model rather than organization scope.
+# meta: owner=@reports expiry=2027-12-31 reason=engagement tracking updates recipients by engagement_token_hash, which is an intentional token-scoped model rather than organization scope.
 src/app/api/reports/track/click/[token]/route.ts
 src/app/api/reports/track/open/[token]/route.ts

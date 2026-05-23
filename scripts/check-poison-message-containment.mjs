@@ -14,7 +14,7 @@ const REQUIRED_FILE_MARKERS = {
     'const validKinds: string[] = ["reminder_due", "saved_view_summary", "review_board_packet", "slack_workflow"];',
     'sendResult = { error: new Error("invalid_retry_payload_kind") };',
     ': { error: new Error("missing_retry_payload") };',
-    'const terminal = isTerminalDeliveryError(sendResult.error.message);',
+    'const terminal = isTerminalDeliveryError(sanitizedError);',
     'const isFinal = terminal || nextAttempt >= maxAttempts;',
     'status: isFinal ? "failed" : "retrying",',
     'return Math.max(1, Math.min(5, Math.trunc(raw)));',

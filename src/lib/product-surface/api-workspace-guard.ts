@@ -13,6 +13,8 @@ import {
   buildV10MutationJsonResponse,
 } from "@/lib/v10-server-contracts";
 import type { V10MutationOutcome } from "@/lib/v10-release-contract";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { jsonRateLimited } from "@/lib/http/problem";
 
 export function resolveApiWorkspaceEligibilityDeniedStatus(input: {
   denialClass?: Parameters<typeof statusForEligibilityDenial>[0];
@@ -46,6 +48,9 @@ export async function requireApiWorkspaceEligibility(input: {
 }): Promise<NextResponse | Response | null> {
   const mapping = resolveFeatureMappingForApiPath(input.apiPath);
   if (mapping.status === "exempt") return null;
+
+  const rate = await rateLimitCheck(`workspace-api:${input.orgId}:${input.apiPath}`, RATE_LIMITS.workspaceApi);
+  if (!rate.ok) return jsonRateLimited(rate.retryAfterMs, input.apiPath);
 
   if (mapping.status === "unmapped") {
     logProductSurfaceDiagnostic("surface_mapping_missing", {
@@ -119,6 +124,9 @@ export async function requireApiWorkspaceEligibilityV10(input: {
 }): Promise<Response | null> {
   const mapping = resolveFeatureMappingForApiPath(input.apiPath);
   if (mapping.status === "exempt") return null;
+
+  const rate = await rateLimitCheck(`workspace-api:${input.orgId}:${input.apiPath}`, RATE_LIMITS.workspaceApi);
+  if (!rate.ok) return jsonRateLimited(rate.retryAfterMs, input.apiPath);
 
   if (mapping.status === "unmapped") {
     logProductSurfaceDiagnostic("surface_mapping_missing", {

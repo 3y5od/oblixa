@@ -8,21 +8,22 @@ on:
 permissions:
   contents: read
 
-env:
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-  HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
-  REQUIRE_SLO_MONITOR: ${{ vars.REQUIRE_SLO_MONITOR }}
-
 jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - name: Gate required secrets
         id: gate
+        env:
+          REQUIRE_SLO_MONITOR: ${{ vars.REQUIRE_SLO_MONITOR }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
         run: |
           bash scripts/github-actions/secret-gate.sh "SLO Monitor" "REQUIRE_SLO_MONITOR" "NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,HC_SLO_MONITOR_PING"
 
@@ -43,6 +44,8 @@ jobs:
       - name: Healthchecks start
         if: ${{ steps.gate.outputs.run == 'true' }}
         continue-on-error: true
+        env:
+          HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
         run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING/start"
 
       - name: Run SLO monitor
@@ -55,9 +58,13 @@ jobs:
       - name: Healthchecks success
         if: ${{ steps.gate.outputs.run == 'true' && success() }}
         continue-on-error: true
+        env:
+          HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
         run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING"
 
       - name: Healthchecks fail
         if: ${{ steps.gate.outputs.run == 'true' && failure() }}
         continue-on-error: true
+        env:
+          HC_SLO_MONITOR_PING: ${{ secrets.HC_SLO_MONITOR_PING }}
         run: curl -fsS -m 10 "$HC_SLO_MONITOR_PING/fail"

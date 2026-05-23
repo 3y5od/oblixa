@@ -162,6 +162,7 @@ describe("GET /api/cron/v10/read-model-refresh", () => {
   });
 
   it("passes scoped repair options through for one-contract and one-model refreshes", async () => {
+    const recentChangedSince = new Date(Date.now() - 7 * 86_400_000).toISOString();
     refreshV10ReadModelsForOrganization.mockResolvedValue({
       ok: true,
       failures: [],
@@ -170,14 +171,14 @@ describe("GET /api/cron/v10/read-model-refresh", () => {
         model_freshness_state: "fresh",
         selected_model_keys: ["work_items"],
         scoped_contract_id: "contract_123",
-        changed_since: "2026-04-25T00:00:00.000Z",
+        changed_since: recentChangedSince,
       },
     });
     const { GET } = await import("./route");
 
     const response = await GET(
       new Request(
-        "https://oblixa.test/api/cron/v10/read-model-refresh?scope=one_contract&contract_id=contract_123&model_keys=work_items,unknown&changed_since=2026-04-25T00:00:00.000Z&reason=operator_scoped_repair",
+        `https://oblixa.test/api/cron/v10/read-model-refresh?scope=one_contract&contract_id=contract_123&model_keys=work_items,unknown&changed_since=${encodeURIComponent(recentChangedSince)}&reason=operator_scoped_repair`,
         {
           headers: { Authorization: "Bearer cronsecret" },
         }
@@ -190,7 +191,7 @@ describe("GET /api/cron/v10/read-model-refresh", () => {
       refresh_scope: "one_contract",
       selected_model_keys: ["work_items"],
       scoped_contract_id: "contract_123",
-      changed_since: "2026-04-25T00:00:00.000Z",
+      changed_since: recentChangedSince,
     });
     expect(refreshV10ReadModelsForOrganization).toHaveBeenCalledWith(
       expect.anything(),
@@ -200,7 +201,7 @@ describe("GET /api/cron/v10/read-model-refresh", () => {
         refreshScope: "one_contract",
         contractId: "contract_123",
         modelKeys: ["work_items"],
-        changedSince: new Date("2026-04-25T00:00:00.000Z"),
+        changedSince: new Date(recentChangedSince),
       })
     );
     expect(recordV10AuditEvent).toHaveBeenCalledWith(
@@ -209,10 +210,29 @@ describe("GET /api/cron/v10/read-model-refresh", () => {
         safeMetadata: expect.objectContaining({
           selected_model_keys: ["work_items"],
           scoped_contract_id: "contract_123",
-          changed_since: "2026-04-25T00:00:00.000Z",
+          changed_since: recentChangedSince,
         }),
       })
     );
+  });
+
+  it("rejects malformed changed_since timestamps before refreshing read models", async () => {
+    const { GET } = await import("./route");
+
+    const response = await GET(
+      new Request("https://oblixa.test/api/cron/v10/read-model-refresh?changed_since=2026-04-25", {
+        headers: { Authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      ok: false,
+      code: "invalid_changed_since",
+      diagnostic_id: "v10_read_model_refresh_changed_since_invalid",
+    });
+    expect(refreshV10ReadModelsForOrganization).not.toHaveBeenCalled();
   });
 
   it("isolates unhandled organization refresh failures and keeps scanning", async () => {

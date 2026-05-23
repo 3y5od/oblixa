@@ -1,5 +1,7 @@
+import { Users } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { RelationshipKeyJump } from "@/components/relationship/relationship-key-jump";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertAnyV5PageFeature } from "@/lib/v5/feature-guards";
 
@@ -10,17 +12,16 @@ export default async function RelationshipWorkspacesPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Relationship intelligence</p>
-          <h1 className="ui-display-title mt-2">Relationship workspaces</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            Jump to account or counterparty summaries using stable keys aligned with contract rows. Keys are
-            not guessed—populate <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-sm">account_key</code> and{" "}
-            <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-sm">counterparty_key</code> on contracts first.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Users className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Relationship intelligence"
+        title="Relationship workspaces"
+        lead="Jump to account or counterparty summaries using stable keys aligned with contract rows."
+      />
+      <p className="max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+        Keys are not guessed—populate <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[11px]">account_key</code> and{" "}
+        <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[11px]">counterparty_key</code> on contracts first.
+      </p>
       <RelationshipKeyJump />
     </div>
   );

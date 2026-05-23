@@ -24,6 +24,7 @@ export function QueueItemCard({
   meta,
   continuityContractId,
   continuityOmit,
+  continuityLabel,
   actions,
 }: {
   title: string;
@@ -38,6 +39,7 @@ export function QueueItemCard({
   /** When set, shows cross-surface links for this contract (refinement §16.3). */
   continuityContractId?: string;
   continuityOmit?: ContinuityPage[];
+  continuityLabel?: string;
   actions?: ReactNode;
 }) {
   const opTone = semanticStatusToOperationalTone(statusTone);
@@ -54,11 +56,11 @@ export function QueueItemCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <span className="ui-icon-tile-compact h-10 w-10 shrink-0 text-[var(--text-secondary)]">
-            <FileText className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            <FileText className="h-4 w-4" strokeWidth={1.65} aria-hidden />
           </span>
           <div className="min-w-0 pr-1">
             <p className="ui-kicker">{objectType}</p>
-            <h3 className="mt-1.5 break-words text-[15px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
+            <h3 className="mt-1.5 break-words text-[14px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
               {href ? (
                 <Link
                   href={href}
@@ -74,7 +76,8 @@ export function QueueItemCard({
               <ContractContinuityLinks
                 contractId={continuityContractId}
                 omit={continuityOmit}
-                className="mt-1.5 text-[10px] leading-snug text-[var(--text-tertiary)]"
+                label={continuityLabel}
+                className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]"
               />
             ) : null}
           </div>
@@ -96,6 +99,7 @@ export function QueueItemCard({
         <Link
           href={nextAction.href}
           className="ui-operational-action"
+          aria-label={`${nextAction.label} for ${title}`}
         >
           <span className="truncate">{nextAction.label}</span>
           <span aria-hidden>→</span>

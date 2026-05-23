@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { recordAutomationEvent } from "@/lib/v4/automation-audit";
 import { upsertDetectedExceptions } from "@/lib/v4/exceptions";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { enforceIdempotency } from "@/lib/idempotency";
 
-export async function POST() {
+const ROUTE = "/api/exceptions/run-detection";
+
+export async function POST(request?: Request) {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -14,9 +23,22 @@ export async function POST() {
     apiPath: "/api/exceptions/run-detection",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "exceptions.run-detection",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "POST",
+  }).catch(() => undefined);
 
   const now = new Date().toISOString();
 

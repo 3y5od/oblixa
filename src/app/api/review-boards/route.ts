@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -6,6 +7,10 @@ import { requireV6Context } from "@/lib/v6/api-auth";
 import { createReviewBoard, listReviewBoards } from "@/lib/v6/review-boards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/review-boards";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6ReviewBoards");
@@ -27,7 +32,14 @@ export async function GET() {
   );
 
   const { data, error } = await listReviewBoards(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "review_boards_list_failed",
+      diagnostic_id: "review_boards_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ reviewBoards: data ?? [] });
 }
 
@@ -46,14 +58,41 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.review-boards",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/review-boards",
+    method: "POST",
+  }).catch(() => undefined);
+
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;
   const body = readJsonBody<{ name?: string; boardType?: string; cadence?: string }>(_lb_body.body ?? {}, {});
   const name = toSafeString(body.name);
   const boardType = toSafeString(body.boardType) || "weekly_portfolio_health";
-  if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+  if (!name) {
+    return jsonProblem(400, {
+      error: "name is required",
+      code: "name_required",
+      diagnostic_id: "review_board_name_required",
+      route: ROUTE,
+    });
+  }
 
   const result = await createReviewBoard(ctx.admin, ctx.orgId, ctx.userId, { name, boardType, cadence: toSafeString(body.cadence) || undefined });
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    return jsonProblem(400, {
+      error: result.error.message,
+      code: "review_board_create_failed",
+      diagnostic_id: "review_board_create_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ reviewBoard: result.data }, { status: 201 });
 }

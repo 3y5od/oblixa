@@ -74,7 +74,7 @@ export function gateCronRequest(request: Request, init?: { headers?: HeadersInit
   if (!cronSecret) {
     return respondCronMissingEnv({ ...init, request });
   }
-  if (!authorizeCronRequest(request, cronSecret)) {
+  if (!authorizeCronRequest(request, cronSecret, process.env.CRON_SECRET_PREVIOUS, process.env.CRON_SECRET_PREVIOUS_EXPIRES_AT)) {
     return respondCronUnauthorized({ ...init, request });
   }
   return null;

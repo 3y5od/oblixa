@@ -6,27 +6,31 @@ import {
 } from "./review-feedback";
 
 describe("buildFieldReviewStatusMessage (v9)", () => {
-  it("keeps the reminder trust warning while pending fields remain", () => {
+  // v23 aesthetic pass: the trailing technobabble ("reminder or work
+  // state will refresh from the latest approved values" / "before
+  // reminders or downstream work should rely on this contract") was
+  // dropped per §10.7 + §10.14 — after a field action the user wants
+  // the verb + remaining count, not a system explanation. Field label
+  // is now capitalized at sentence-start for proper grammar.
+  it("reports the remaining backlog count after a generic save", () => {
     expect(buildFieldReviewStatusMessage({ pendingCount: 2 })).toBe(
-      "Saved. 2 fields still need review before reminders or downstream work should rely on this contract."
+      "Saved. 2 fields remaining."
     );
   });
 
-  it("calls out backlog reduction and downstream refresh after approval", () => {
+  it("uses verb + remaining count after approval and capitalizes the field prefix", () => {
     expect(
       buildFieldReviewStatusMessage({
         pendingCount: 1,
         action: "approved",
         fieldLabel: "renewal date",
       })
-    ).toBe(
-      "renewal date approved. 1 field remains in review, and reminder or work state will refresh from the latest approved values."
-    );
+    ).toBe("Renewal date approved. 1 field remaining.");
   });
 
   it("switches to a clear-ready message once review is complete", () => {
     expect(buildFieldReviewStatusMessage({ pendingCount: 0 })).toBe(
-      "Saved. Review is clear and the extracted record is ready for downstream workflow."
+      "Saved. Review complete."
     );
   });
 });

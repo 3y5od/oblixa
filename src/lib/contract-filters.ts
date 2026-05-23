@@ -1,5 +1,6 @@
 import { addDays, startOfDay, subDays, isValid, parseISO } from "date-fns";
 import { createAdminClient } from "@/lib/supabase/server";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
 export const DEADLINE_PRESET_VALUES = [
   "",
@@ -201,6 +202,64 @@ export async function getContractIdsMatchingFieldSearch(
   for (const row of data ?? []) {
     ids.add(row.contract_id as string);
   }
+  return [...ids];
+}
+
+function includesSearchTerm(value: string | null | undefined, term: string): boolean {
+  return !!value && value.toLowerCase().includes(term);
+}
+
+function rowTags(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((tag) => String(tag)).filter(Boolean) : [];
+}
+
+export async function getContractIdsMatchingOwnerOrTagSearch(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  orgId: string,
+  sanitizedTerm: string
+): Promise<string[]> {
+  const term = sanitizedTerm.trim().toLowerCase();
+  if (!term) return [];
+
+  const members = await loadOrgMemberProfileRows(admin, orgId, {
+    memberColumns: "user_id",
+    limit: 5000,
+  });
+  const matchingOwnerIds = new Set(
+    members
+      .filter(
+        (member) =>
+          includesSearchTerm(member.profiles?.full_name, term) ||
+          includesSearchTerm(member.profiles?.email, term)
+      )
+      .map((member) => member.user_id)
+  );
+
+  const { data, error } = await admin
+    .from("contracts")
+    .select("id, owner_id, tags")
+    .eq("organization_id", orgId)
+    .limit(5000);
+
+  if (error) {
+    console.error("getContractIdsMatchingOwnerOrTagSearch", error.message);
+    return [];
+  }
+
+  const ids = new Set<string>();
+  for (const row of data ?? []) {
+    const contract = row as { id?: string | null; owner_id?: string | null; tags?: unknown };
+    const id = contract.id;
+    if (!id) continue;
+    if (contract.owner_id && matchingOwnerIds.has(contract.owner_id)) {
+      ids.add(id);
+      continue;
+    }
+    if (rowTags(contract.tags).some((tag) => tag.toLowerCase().includes(term))) {
+      ids.add(id);
+    }
+  }
+
   return [...ids];
 }
 

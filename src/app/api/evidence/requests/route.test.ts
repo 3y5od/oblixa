@@ -75,6 +75,7 @@ describe("POST /api/evidence/requests", () => {
     const response = await POST(
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ requiredNote: "Need SOC 2 evidence" }),
       })
     );
@@ -88,6 +89,29 @@ describe("POST /api/evidence/requests", () => {
     expect(executeV10AuditedMutation).not.toHaveBeenCalled();
   });
 
+  it("returns a v10 validation envelope when dueAt is not a bounded UTC ISO timestamp", async () => {
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("https://oblixa.test/api/evidence/requests", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          contractId: "contract_1",
+          dueAt: "2026-05-01",
+          requiredNote: "Need SOC 2 evidence",
+        }),
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_evidence_request_due_at_invalid",
+    });
+    expect(executeV10AuditedMutation).not.toHaveBeenCalled();
+  });
+
   it("returns v10 envelopes for auth and capability denials", async () => {
     const { POST } = await import("./route");
 
@@ -95,6 +119,7 @@ describe("POST /api/evidence/requests", () => {
     const unauthorized = await POST(
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ contractId: "contract_1", requiredNote: "Need SOC 2 evidence" }),
       })
     );
@@ -108,6 +133,7 @@ describe("POST /api/evidence/requests", () => {
     const forbidden = await POST(
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ contractId: "contract_1", requiredNote: "Need SOC 2 evidence" }),
       })
     );
@@ -119,6 +145,7 @@ describe("POST /api/evidence/requests", () => {
   });
 
   it("uses the canonical create_evidence_request mutation contract", async () => {
+    const dueAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     executeV10AuditedMutation.mockResolvedValue({
       replayed: false,
       response: buildV10MutationResponse({
@@ -135,6 +162,7 @@ describe("POST /api/evidence/requests", () => {
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
         headers: {
+          "content-type": "application/json",
           "x-idempotency-key": "evidence-request-key",
           "if-match": "version_1",
         },
@@ -143,7 +171,7 @@ describe("POST /api/evidence/requests", () => {
           sourceType: "obligation",
           sourceId: "obligation_1",
           responderEmail: "external@example.com",
-          dueAt: "2026-05-01T00:00:00.000Z",
+          dueAt,
           requiredNote: "Need SOC 2 evidence",
           allowedFileTypes: ["pdf"],
         }),
@@ -160,6 +188,9 @@ describe("POST /api/evidence/requests", () => {
         idempotencyKey: "evidence-request-key",
         expectedVersion: "version_1",
         auditAction: "evidence_request.created",
+        payload: expect.objectContaining({
+          due_at: dueAt,
+        }),
       }),
       expect.any(Function)
     );
@@ -179,7 +210,7 @@ describe("POST /api/evidence/requests", () => {
     const response = await POST(
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
-        headers: { "if-match": "older_version" },
+        headers: { "content-type": "application/json", "if-match": "older_version" },
         body: JSON.stringify({
           contractId: "contract_1",
           requiredNote: "Need SOC 2 evidence",
@@ -196,6 +227,7 @@ describe("POST /api/evidence/requests", () => {
   });
 
   it("emits privacy-safe v10 telemetry when the mutation callback creates a request", async () => {
+    const dueAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const admin = {
       from(table: string) {
         if (table === "contracts") {
@@ -218,7 +250,7 @@ describe("POST /api/evidence/requests", () => {
                     id: "evreq_1",
                     contract_id: "contract_1",
                     status: "required",
-                    due_at: "2026-05-01T00:00:00.000Z",
+                    due_at: dueAt,
                   },
                   error: null,
                 }),
@@ -247,10 +279,11 @@ describe("POST /api/evidence/requests", () => {
     const response = await POST(
       new Request("https://oblixa.test/api/evidence/requests", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           contractId: "contract_1",
           responderEmail: "external@example.com",
-          dueAt: "2026-05-01T00:00:00.000Z",
+          dueAt,
           requiredNote: "Need SOC 2 evidence",
           allowedFileTypes: ["pdf", "png"],
         }),

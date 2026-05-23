@@ -1,5 +1,768 @@
 {
-  "version": 1,
-  "tables": [],
-  "notes": "Epic 5 — populate via migration review + codegen; empty means human queue has not classified candidate tables yet."
+  "version": 2,
+  "generated_by": "scripts/check-rls-sanity-tables.mjs",
+  "tenant_table_count": 152,
+  "service_role_bypass": "service_role bypass remains explicit and separate from user-facing authenticated RLS access.",
+  "tables": [
+    {
+      "table": "account_workspaces",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "adaptive_playbook_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "adaptive_playbook_steps",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "adaptive_playbooks",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "approval_policies",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "approval_slas",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "assurance_check_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "assurance_finding_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "assurance_findings",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "assurance_scorecards",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "attestation_requests",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "attestation_responses",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "audit_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "autopilot_rules",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "autopilot_run_logs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "calendar_feeds",
+      "scope": "organization_id",
+      "source": "supabase/migrations/016_v2_remaining_depth.sql"
+    },
+    {
+      "table": "capacity_forecasts",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "capacity_snapshots",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "change_simulation_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "change_simulations",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "contract_approval_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/026_v3_approvals_sla.sql"
+    },
+    {
+      "table": "contract_approvals",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "contract_change_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/033_v3_operational_depth_finalization.sql"
+    },
+    {
+      "table": "contract_data_quality_snapshots",
+      "scope": "organization_id",
+      "source": "supabase/migrations/029_v3_reporting_data_quality.sql"
+    },
+    {
+      "table": "contract_export_jobs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/050_v6_contract_tags.sql"
+    },
+    {
+      "table": "contract_extraction_jobs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/003_post_mvp_reliability.sql"
+    },
+    {
+      "table": "contract_field_comments",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "contract_files",
+      "scope": "contract_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "contract_handoff_checklists",
+      "scope": "organization_id",
+      "source": "supabase/migrations/015_v2_depth_completion.sql"
+    },
+    {
+      "table": "contract_import_job_rows",
+      "scope": "organization_id",
+      "source": "supabase/migrations/016_v2_remaining_depth.sql"
+    },
+    {
+      "table": "contract_import_jobs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/016_v2_remaining_depth.sql"
+    },
+    {
+      "table": "contract_intake_history",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "contract_intake_requests",
+      "scope": "organization_id",
+      "source": "supabase/migrations/028_v3_intake_pipeline.sql"
+    },
+    {
+      "table": "contract_notes",
+      "scope": "organization_id",
+      "source": "supabase/migrations/009_contract_notes.sql"
+    },
+    {
+      "table": "contract_obligation_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/025_v3_obligations_execution.sql"
+    },
+    {
+      "table": "contract_obligations",
+      "scope": "organization_id",
+      "source": "supabase/migrations/010_contract_obligations.sql"
+    },
+    {
+      "table": "contract_program_assignments",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "contract_program_versions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "contract_programs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "contract_renewal_checkpoints",
+      "scope": "organization_id",
+      "source": "supabase/migrations/012_renewal_checkpoints.sql"
+    },
+    {
+      "table": "contract_renewal_scenarios",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "contract_renewal_workspace_notes",
+      "scope": "organization_id",
+      "source": "supabase/migrations/027_v3_renewal_workspace.sql"
+    },
+    {
+      "table": "contract_task_artifacts",
+      "scope": "organization_id",
+      "source": "supabase/migrations/031_v3_remaining_depth.sql"
+    },
+    {
+      "table": "contract_task_checklist_items",
+      "scope": "organization_id",
+      "source": "supabase/migrations/024_v3_tasks_execution.sql"
+    },
+    {
+      "table": "contract_task_comments",
+      "scope": "organization_id",
+      "source": "supabase/migrations/024_v3_tasks_execution.sql"
+    },
+    {
+      "table": "contract_task_dependencies",
+      "scope": "organization_id",
+      "source": "supabase/migrations/024_v3_tasks_execution.sql"
+    },
+    {
+      "table": "contract_task_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/015_v2_depth_completion.sql"
+    },
+    {
+      "table": "contract_tasks",
+      "scope": "organization_id",
+      "source": "supabase/migrations/008_contract_tasks.sql"
+    },
+    {
+      "table": "contract_watchlists",
+      "scope": "organization_id",
+      "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "contracts",
+      "scope": "organization_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "control_policies",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "control_policy_assignments",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "control_policy_versions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "counterparty_workspaces",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_packet_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_packet_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_recommendations",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_workspace_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_workspace_stakeholders",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "decision_workspaces",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "escalation_policies",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "evidence_requirement_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/043_v4_feature_surface_completion.sql"
+    },
+    {
+      "table": "evidence_requirements",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "evidence_submissions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "exception_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "exceptions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "execution_graph_edges",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "external_action_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "external_action_links",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "extracted_fields",
+      "scope": "contract_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "field_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "integration_api_keys",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "integration_connections",
+      "scope": "organization_id",
+      "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "integration_oauth_states",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "internal_notifications",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "maintenance_campaign_rows",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "maintenance_campaigns",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "notification_deliveries",
+      "scope": "organization_id",
+      "source": "supabase/migrations/033_v3_operational_depth_finalization.sql"
+    },
+    {
+      "table": "obligation_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "operational_casefile_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "operational_recommendations",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "org_behavior_metrics",
+      "scope": "organization_id",
+      "source": "supabase/migrations/031_v3_remaining_depth.sql"
+    },
+    {
+      "table": "organization_invites",
+      "scope": "organization_id",
+      "source": "supabase/migrations/004_organization_invites.sql"
+    },
+    {
+      "table": "organization_members",
+      "scope": "organization_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "organization_workflow_settings",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "organizations",
+      "scope": "tenant_root",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "outbound_event_deliveries",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "outbound_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "outcome_intervention_analyses",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "portfolio_campaign_contracts",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "portfolio_campaign_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "portfolio_campaigns",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "portfolio_health_graph_edges",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "portfolio_health_graph_nodes",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "program_evolution_experiments",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "program_evolution_results",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "relationship_timeline_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "relationship_timelines",
+      "scope": "organization_id",
+      "source": "supabase/migrations/044_v5_control_plane_foundation.sql"
+    },
+    {
+      "table": "reminder_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "reminders",
+      "scope": "contract_id",
+      "source": "supabase/migrations/001_initial_schema.sql"
+    },
+    {
+      "table": "renewal_decision_packets",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "renewal_playbook_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/015_v2_depth_completion.sql"
+    },
+    {
+      "table": "report_pack_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "report_pack_subscriptions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/043_v4_feature_surface_completion.sql"
+    },
+    {
+      "table": "report_packs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "report_run_recipients",
+      "scope": "organization_id",
+      "source": "supabase/migrations/029_v3_reporting_data_quality.sql"
+    },
+    {
+      "table": "report_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/029_v3_reporting_data_quality.sql"
+    },
+    {
+      "table": "report_subscriptions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/013_report_subscriptions.sql"
+    },
+    {
+      "table": "review_board_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "review_boards",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "role_command_center_preferences",
+      "scope": "organization_id",
+      "source": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+    },
+    {
+      "table": "saved_views",
+      "scope": "organization_id",
+      "source": "supabase/migrations/011_saved_views.sql"
+    },
+    {
+      "table": "scorecard_snapshots",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "segment_definitions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "segment_memberships",
+      "scope": "organization_id",
+      "source": "supabase/migrations/049_v6_assurance_adaptive_platform.sql"
+    },
+    {
+      "table": "task_automation_rules",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    },
+    {
+      "table": "task_templates",
+      "scope": "organization_id",
+      "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "template_change_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/018_v2_completion_hardening.sql"
+    },
+    {
+      "table": "v10_activation_state",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_advanced_assurance_linked_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_approval_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_audit_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_command_search_index",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_contract_activity_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_contract_health_snapshots",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_denominator_locks",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_evidence_request_statuses",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_exception_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_external_blocker_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_external_evidence_submissions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_field_provenance_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_fixture_manifests",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_fixture_teardown_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_job_run_visibility",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_metric_runs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_mutation_idempotency",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_notification_deliveries",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_obligation_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_promotion_decisions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_read_model_lineage",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_read_model_refresh_jobs",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_read_model_rows",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_release_evidence_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_release_waivers",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_renewal_checkpoint_records",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_renewal_posture_snapshots",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_report_run_visibility",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_runtime_artifacts",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_runtime_coverage_ledger",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_verification_command_results",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "v10_work_items",
+      "scope": "organization_id",
+      "source": "supabase/migrations/057_v10_runtime_contracts.sql"
+    },
+    {
+      "table": "webhook_subscriptions",
+      "scope": "organization_id",
+      "source": "supabase/migrations/014_v2_workflow_expansion.sql"
+    }
+  ]
 }

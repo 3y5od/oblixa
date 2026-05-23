@@ -39,6 +39,8 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -61,12 +63,33 @@ jobs:
             artifacts/qa-ultimate-run.json
             test-results/junit.xml
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
   qa_ultimate_reuse:
     needs: code_maximal_static
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.include_ultimate == true
     uses: ./.github/workflows/reusable-qa-ultimate.yml
-    secrets: inherit
+    secrets:
+      STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      RLS_SMOKE_STRICT: ${{ secrets.RLS_SMOKE_STRICT }}
+      RUN_LIGHTHOUSE_NIGHTLY: ${{ secrets.RUN_LIGHTHOUSE_NIGHTLY }}
+      SYNTHETIC_STRICT: ${{ secrets.SYNTHETIC_STRICT }}
+      SEMGREP_FULL: ${{ secrets.SEMGREP_FULL }}
+      SBOM_DIFF_STRICT: ${{ secrets.SBOM_DIFF_STRICT }}
+      DOMAIN_STRICT: ${{ secrets.DOMAIN_STRICT }}
+      DNSSEC_PRIVACY_STRICT: ${{ secrets.DNSSEC_PRIVACY_STRICT }}
+      CERT_STRICT: ${{ secrets.CERT_STRICT }}
+      READABILITY_STRICT: ${{ secrets.READABILITY_STRICT }}
+      EMAIL_DNS_STRICT: ${{ secrets.EMAIL_DNS_STRICT }}
+      COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+      SLSA_VERIFY_STRICT: ${{ secrets.SLSA_VERIFY_STRICT }}
+      DR_DRILL_STRICT: ${{ secrets.DR_DRILL_STRICT }}
+      SUPPLY_CHAIN_STUB_REPORT: ${{ secrets.SUPPLY_CHAIN_STUB_REPORT }}
+      CARBON_RUNTIME_REPORT: ${{ secrets.CARBON_RUNTIME_REPORT }}
+      K8S_POLICY_STRICT: ${{ secrets.K8S_POLICY_STRICT }}
+      REPORT_GATE_STRICT: ${{ secrets.REPORT_GATE_STRICT }}
+      POSTMERGE_VERIFY_STRICT: ${{ secrets.POSTMERGE_VERIFY_STRICT }}
     with:
       tier: nightly
       ultimate_strict: "0"
@@ -82,6 +105,8 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -110,6 +135,8 @@ jobs:
             test-results/
             blob-report/
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
   staging_optional_matrix:
     needs: code_maximal_static
@@ -122,6 +149,8 @@ jobs:
         leg: [rls, lighthouse, openapi, synthetic_slo]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"

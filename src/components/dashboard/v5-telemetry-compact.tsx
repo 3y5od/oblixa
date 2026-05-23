@@ -18,7 +18,10 @@ export function V5TelemetryCompact(props: {
   return (
     <section className="space-y-2">
       <div className="flex flex-wrap items-end justify-between gap-2">
-        <p className="ui-eyebrow">Success metrics</p>
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Success metrics
+        </p>
         <p className="text-[11px] text-[var(--text-tertiary)]">As of {props.metricsDate}</p>
       </div>
       <div className="flex flex-wrap gap-2" role="list">

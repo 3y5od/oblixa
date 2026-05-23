@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow } from "@/lib/v6/service";
-import { nowIso } from "@/lib/v5/api";
+import { externalActionTokenStorageFields, nowIso } from "@/lib/v5/api";
 import type { PolicyEvaluationResult } from "@/lib/v6/policy-evaluator";
 import { executeAutopilotAction, type AutopilotRuleRow } from "@/lib/v6/autopilot-executors";
 
@@ -217,8 +217,9 @@ export async function routePolicyEnforcement(
         if (execFailed) errors.push({ autopilot_execution_failed: true, output: exec.output });
         actions.push({ kind: "autopilot", id: rule.id, detail: exec.output });
       } else {
+        const token = `pe-${randomUUID()}`;
         const link = await createRow(admin, "external_action_links", orgId, {
-          token: `pe-${randomUUID()}`,
+          ...externalActionTokenStorageFields(token),
           action_type: "evidence_refresh_loop",
           status: "open",
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),

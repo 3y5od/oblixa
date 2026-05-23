@@ -6,6 +6,7 @@ import {
   resolveDefaultOrganizationNameForUser,
 } from "@/lib/supabase/server";
 import { getSafeRedirectPath } from "@/lib/security/redirect";
+import { getTrustedPublicOriginFromRequest } from "@/lib/security/trusted-forwarded";
 import { isUuid } from "@/lib/security/validation";
 import {
   getUserPrimaryOrganizationId,
@@ -15,7 +16,8 @@ import {
 import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getTrustedPublicOriginFromRequest(request);
   const code = searchParams.get("code");
   const next = getSafeRedirectPath(searchParams.get("next"));
 

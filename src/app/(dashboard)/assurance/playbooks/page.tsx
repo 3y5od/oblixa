@@ -83,7 +83,7 @@ export default async function AssurancePlaybooksPage() {
               Playbooks support preview, approval gates, execution, follow-up checks, and outcome assessment. Runs that
               require approval appear below.
             </p>
-            <p className="ui-muted-tight mt-2 text-[12px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               This page loads up to 50 playbooks, up to 20 runs awaiting approval, and 12 recent runs (newest first).
               Use APIs or detail views for full history.
             </p>
@@ -99,7 +99,7 @@ export default async function AssurancePlaybooksPage() {
           <ul className="space-y-2 text-sm">
             {(data ?? []).map((row) => (
               <li key={row.id} className="ui-operational-card p-4">
-                <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
+                <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">{row.name}</p>
                 <p className="ui-support-copy mt-1">
                   {row.playbook_type} · approval {row.approval_mode} · {row.active ? "active" : "inactive"}
                 </p>
@@ -121,7 +121,7 @@ export default async function AssurancePlaybooksPage() {
             const steps = stepsByRun.get(rid) ?? [];
             return (
               <li key={rid} className="ui-operational-card p-4">
-                <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+                <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
                   {playbookName.get(pid) ?? "Playbook"} · {(run as { status: string }).status}
                 </p>
                 <p className="ui-support-copy mt-1">
@@ -163,10 +163,10 @@ export default async function AssurancePlaybooksPage() {
                 typeof (run as { success_assessment_json?: unknown }).success_assessment_json === "object" &&
                 Object.keys((run as { success_assessment_json: object }).success_assessment_json).length > 0 ? (
                   <div className="ui-alert-success mt-3 p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide">
                       Success / assessment (post-run)
                     </p>
-                    <pre className="mt-1 max-h-24 overflow-auto text-[10px] text-[var(--text-secondary)]">
+                    <pre className="mt-1 max-h-24 overflow-auto text-[11px] text-[var(--text-secondary)]">
                       {JSON.stringify((run as { success_assessment_json: unknown }).success_assessment_json, null, 2)}
                     </pre>
                   </div>
@@ -199,7 +199,7 @@ export default async function AssurancePlaybooksPage() {
         <ul className="space-y-3 text-sm">
           {(pendingRuns ?? []).map((run) => (
             <li key={run.id} className="ui-alert-warning p-4">
-              <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Run {String(run.id).slice(0, 8)}…</p>
+              <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">Run {String(run.id).slice(0, 8)}…</p>
               <p className="ui-support-copy mt-1">
                 Playbook {String(run.adaptive_playbook_id).slice(0, 8)}… · {String(run.created_at)}
               </p>

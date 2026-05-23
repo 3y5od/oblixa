@@ -2,8 +2,15 @@
 
 import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { hasOrgCapability } from "@/lib/actions/access";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid, parsePositiveIntParam, validateBoundedString } from "@/lib/security/validation";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
+import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
+import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+
+const MAX_MAINTENANCE_REASON_LEN = 500;
+const MAX_MAINTENANCE_FILTER_LEN = 120;
+const MAX_MAINTENANCE_SUMMARY_LEN = 1000;
+const MAX_MAINTENANCE_TEAM_KEY_LEN = 80;
 
 async function canManageMaintenance(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -19,10 +26,54 @@ async function canManageMaintenance(
   });
 }
 
+async function requireMaintenanceSensitiveActionProof(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    userId: string;
+    organizationId: string;
+    targetType: string;
+    targetId: string;
+    maintenanceAction: string;
+  }
+) {
+  if (await hasSensitiveActionProof(supabase, input.userId)) return null;
+
+  try {
+    void recordSecurityAuditEvent(admin, {
+      organizationId: input.organizationId,
+      actorUserId: input.userId,
+      action: "security.maintenance_destructive_action_blocked",
+      targetType: input.targetType,
+      targetId: input.targetId,
+      outcome: "forbidden",
+      safeMetadata: {
+        reason: "sensitive_action_proof_required",
+        maintenance_action: input.maintenanceAction,
+      },
+    }).catch(() => undefined);
+  } catch {
+    // audit is best-effort
+  }
+
+  return {
+    error: "Confirm your password or complete MFA before running maintenance actions.",
+    needStepUp: true as const,
+  };
+}
+
 export async function archiveContractAsDuplicateForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
-  const reason = String(formData.get("reason") ?? "duplicate candidate").trim();
   if (!isUuid(contractId)) return { error: "Invalid contract" };
+  const reasonValidation = validateBoundedString(formData.get("reason") ?? "duplicate candidate", {
+    maxLength: MAX_MAINTENANCE_REASON_LEN,
+  });
+  if (!reasonValidation.ok) {
+    if (reasonValidation.error === "string_too_long") return { error: "Reason is too long" };
+    if (reasonValidation.error === "unsafe_characters") return { error: "Reason contains unsupported characters" };
+    return { error: "Reason is required" };
+  }
+  const reason = reasonValidation.value;
 
   const supabase = await createClient();
   const admin = await createAdminClient();
@@ -40,6 +91,14 @@ export async function archiveContractAsDuplicateForm(formData: FormData) {
   if (!(await canManageMaintenance(admin, user.id, contract.organization_id))) {
     return { error: "Access denied" };
   }
+  const proofError = await requireMaintenanceSensitiveActionProof(supabase, admin, {
+    userId: user.id,
+    organizationId: contract.organization_id,
+    targetType: "contract",
+    targetId: contractId,
+    maintenanceAction: "archive_contract_as_duplicate",
+  });
+  if (proofError) return proofError;
 
   await admin
     .from("contracts")
@@ -86,6 +145,14 @@ export async function deleteOrphanFileRecordForm(formData: FormData) {
   if (!(await canManageMaintenance(admin, user.id, member.organization_id))) {
     return { error: "Access denied" };
   }
+  const proofError = await requireMaintenanceSensitiveActionProof(supabase, admin, {
+    userId: user.id,
+    organizationId: member.organization_id,
+    targetType: "file",
+    targetId: fileId,
+    maintenanceAction: "delete_orphan_file_record",
+  });
+  if (proofError) return proofError;
 
   const { data: file } = await admin
     .from("contract_files")
@@ -111,12 +178,17 @@ export async function deleteOrphanFileRecordForm(formData: FormData) {
 export async function runDateBackfillCampaignForm(formData: FormData) {
   const fieldName = String(formData.get("fieldName") ?? "").trim();
   const fallbackDate = String(formData.get("fallbackDate") ?? "").trim();
-  const contractType = String(formData.get("contractType") ?? "").trim() || null;
+  const contractTypeValidation = validateBoundedString(formData.get("contractType") ?? "", {
+    maxLength: MAX_MAINTENANCE_FILTER_LEN,
+    allowEmpty: true,
+  });
+  if (!contractTypeValidation.ok) return { error: "Invalid contract type filter" };
+  const contractType = contractTypeValidation.value || null;
   if (!fieldName || !fallbackDate) return { error: "Field name and fallback date are required" };
   if (!["end_date", "renewal_date", "notice_window", "effective_date", "start_date"].includes(fieldName)) {
     return { error: "Invalid field name" };
   }
-  if (Number.isNaN(new Date(`${fallbackDate}T12:00:00`).getTime())) {
+  if (!isIsoDateOnly(fallbackDate)) {
     return { error: "Invalid fallback date" };
   }
   const supabase = await createClient();
@@ -130,6 +202,14 @@ export async function runDateBackfillCampaignForm(formData: FormData) {
   if (!(await canManageMaintenance(admin, user.id, membership.organization_id))) {
     return { error: "Access denied" };
   }
+  const proofError = await requireMaintenanceSensitiveActionProof(supabase, admin, {
+    userId: user.id,
+    organizationId: membership.organization_id,
+    targetType: "organization",
+    targetId: membership.organization_id,
+    maintenanceAction: "run_date_backfill_campaign",
+  });
+  if (proofError) return proofError;
 
   let contractsQuery = admin
     .from("contracts")
@@ -183,6 +263,14 @@ export async function runCorrectionCampaignForm(formData: FormData) {
   if (!(await canManageMaintenance(admin, user.id, membership.organization_id))) {
     return { error: "Access denied" };
   }
+  const proofError = await requireMaintenanceSensitiveActionProof(supabase, admin, {
+    userId: user.id,
+    organizationId: membership.organization_id,
+    targetType: "organization",
+    targetId: membership.organization_id,
+    maintenanceAction: "run_correction_campaign",
+  });
+  if (proofError) return proofError;
 
   let affected = 0;
   if (campaignType === "normalize_counterparty") {
@@ -231,7 +319,16 @@ export async function logContractChangeEventForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
   const eventType = String(formData.get("eventType") ?? "").trim();
   const impactLevel = String(formData.get("impactLevel") ?? "medium").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
+  const summaryValidation = validateBoundedString(formData.get("summary") ?? "", {
+    maxLength: MAX_MAINTENANCE_SUMMARY_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!summaryValidation.ok) {
+    if (summaryValidation.error === "string_too_long") return { error: "Summary is too long" };
+    if (summaryValidation.error === "unsafe_characters") return { error: "Summary contains unsupported characters" };
+    return { error: "Contract ID and summary are required" };
+  }
+  const summary = summaryValidation.value;
   if (!isUuid(contractId) || !summary) return { error: "Contract ID and summary are required" };
   if (!["amendment", "pricing_update", "ownership_change", "other"].includes(eventType)) {
     return { error: "Invalid event type" };
@@ -274,11 +371,13 @@ export async function logContractChangeEventForm(formData: FormData) {
 }
 
 export async function processContractChangeEventsForm(formData: FormData) {
-  const maxRows = Math.min(
-    100,
-    Math.max(1, Number(String(formData.get("maxRows") ?? "").trim() || "25"))
-  );
-  const teamKey = String(formData.get("teamKey") ?? "").trim() || "ops";
+  const maxRowsInput = String(formData.get("maxRows") ?? "").trim();
+  const maxRows = parsePositiveIntParam(maxRowsInput, { defaultValue: 25, max: 100 });
+  const teamKeyValidation = validateBoundedString(formData.get("teamKey") ?? "ops", {
+    maxLength: MAX_MAINTENANCE_TEAM_KEY_LEN,
+  });
+  if (!teamKeyValidation.ok) return { error: "Invalid team key" };
+  const teamKey = teamKeyValidation.value;
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
@@ -290,6 +389,14 @@ export async function processContractChangeEventsForm(formData: FormData) {
   if (!(await canManageMaintenance(admin, user.id, membership.organization_id))) {
     return { error: "Access denied" };
   }
+  const proofError = await requireMaintenanceSensitiveActionProof(supabase, admin, {
+    userId: user.id,
+    organizationId: membership.organization_id,
+    targetType: "organization",
+    targetId: membership.organization_id,
+    maintenanceAction: "process_contract_change_events",
+  });
+  if (proofError) return proofError;
 
   const { data: events } = await admin
     .from("contract_change_events")

@@ -12,4 +12,12 @@ describe("server env contract", () => {
       "[env] Missing required server env var: STRIPE_SECRET_KEY"
     );
   });
+
+  it("throws a clear error when the service-role key is missing", async () => {
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const { getSupabaseServiceRoleKey } = await import("@/lib/env/server");
+    expect(() => getSupabaseServiceRoleKey()).toThrowError(
+      "[env] Missing required server env var: SUPABASE_SERVICE_ROLE_KEY"
+    );
+  });
 });

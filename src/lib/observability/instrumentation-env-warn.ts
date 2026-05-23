@@ -51,6 +51,9 @@ export function listStrictProductionSecretDeficits(
   if (!String(env.CRON_SECRET ?? "").trim()) {
     missing.push("CRON_SECRET");
   }
+  if (!String(env.OBLIXA_STEP_UP_SECRET ?? "").trim()) {
+    missing.push("OBLIXA_STEP_UP_SECRET");
+  }
   if (String(env.STRIPE_SECRET_KEY ?? "").trim() && !String(env.STRIPE_WEBHOOK_SECRET ?? "").trim()) {
     missing.push("STRIPE_WEBHOOK_SECRET");
   }
@@ -91,4 +94,37 @@ export function listSuspiciousNextPublicKeys(env: NodeJS.ProcessEnv = process.en
     }
   }
   return bad;
+}
+
+const SECURITY_SECRET_KEYS = [
+  "CRON_SECRET",
+  "EXTERNAL_ACTION_PASSCODE_PEPPER",
+  "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET",
+  "EXTRACTION_WORKER_SECRET",
+  "OBLIXA_INTERNAL_DIAG_SECRET",
+  "OBLIXA_STEP_UP_SECRET",
+  "INTEGRATION_TOKEN_ENCRYPTION_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+] as const;
+
+function isProductionLikeSecretEnv(env: NodeJS.ProcessEnv): boolean {
+  return env.NODE_ENV === "production" || env.VERCEL === "1" || env.OBLIXA_STRICT_ENV === "1";
+}
+
+function isWeakSecretValue(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (trimmed.length < 32) return true;
+  if (/^(test|secret|password|changeme|change-me|example|local|dev|good|bad|tok|token|x|c)$/i.test(trimmed)) return true;
+  return /^([a-z0-9])\1{15,}$/i.test(trimmed);
+}
+
+export function listWeakProductionSecretFindings(env: NodeJS.ProcessEnv = process.env): string[] {
+  if (!isProductionLikeSecretEnv(env)) return [];
+  const weak: string[] = [];
+  for (const key of SECURITY_SECRET_KEYS) {
+    const value = String(env[key] ?? "");
+    if (isWeakSecretValue(value)) weak.push(key);
+  }
+  return weak;
 }

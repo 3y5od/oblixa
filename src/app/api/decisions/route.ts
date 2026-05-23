@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { parseIsoTimestampParam } from "@/lib/security/validation";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import {
@@ -9,12 +11,28 @@ import {
 } from "@/lib/v5/decision-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/decisions";
+const DECISION_DUE_AT_WINDOW_DAYS = 3660;
+
+function parseDecisionDueAt(value: string | null | undefined): { ok: true; value: string | null } | { ok: false } {
+  const raw = toSafeString(value);
+  if (!raw) return { ok: true, value: null };
+  const parsed = parseIsoTimestampParam(raw, {
+    maxLookbackDays: DECISION_DUE_AT_WINDOW_DAYS,
+    maxFutureSkewMinutes: DECISION_DUE_AT_WINDOW_DAYS * 24 * 60,
+  });
+  if (!parsed.ok) return { ok: false };
+  return { ok: true, value: parsed.value ?? null };
+}
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -33,7 +51,12 @@ export async function GET() {
     .limit(200);
   if (error) {
     console.error("[api/decisions] GET error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "decisions_list_failed",
+      diagnostic_id: "decisions_list_failed",
+      route: ROUTE,
+    });
   }
   return NextResponse.json({ decisions: data ?? [] });
 }
@@ -42,7 +65,10 @@ export async function POST(request: Request) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -50,9 +76,19 @@ export async function POST(request: Request) {
     apiPath: "/api/decisions",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.decisions",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/decisions",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -68,13 +104,34 @@ export async function POST(request: Request) {
   }>(raw, {});
 
   const title = toSafeString(body.title);
-  if (!title) return NextResponse.json({ error: "title is required" }, { status: 400 });
+  if (!title) {
+    return jsonProblem(400, {
+      error: "title is required",
+      code: "title_required",
+      diagnostic_id: "decision_title_required",
+      route: ROUTE,
+    });
+  }
   const rawType = toSafeString(body.decisionType) || "renewal";
   if (!isValidDecisionType(rawType)) {
-    return NextResponse.json({ error: decisionTypeValidationError() }, { status: 400 });
+    return jsonProblem(400, {
+      error: decisionTypeValidationError(),
+      code: "invalid_decision_type",
+      diagnostic_id: "decision_type_invalid",
+      route: ROUTE,
+    });
   }
   const decisionType = rawType;
   const requiredInputs = mergeRequiredInputs({}, body.requiredInputs);
+  const dueAt = parseDecisionDueAt(body.dueAt);
+  if (!dueAt.ok) {
+    return jsonProblem(400, {
+      error: "dueAt must be a bounded UTC ISO timestamp",
+      code: "invalid_due_at",
+      diagnostic_id: "decision_due_at_invalid",
+      route: ROUTE,
+    });
+  }
 
   const { data, error } = await ctx.admin
     .from("decision_workspaces")
@@ -87,7 +144,7 @@ export async function POST(request: Request) {
       linked_account_key: toSafeString(body.linkedAccountKey) || null,
       linked_counterparty_key: toSafeString(body.linkedCounterpartyKey) || null,
       owner_user_id: ctx.userId,
-      due_at: toSafeString(body.dueAt) || null,
+      due_at: dueAt.value,
       required_inputs_json: requiredInputs,
       created_by: ctx.userId,
     })
@@ -95,7 +152,12 @@ export async function POST(request: Request) {
     .single();
   if (error) {
     console.error("[api/decisions] POST error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "decision_create_failed",
+      diagnostic_id: "decision_create_failed",
+      route: ROUTE,
+    });
   }
 
   await ctx.admin.from("decision_workspace_events").insert({
@@ -108,4 +170,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ decision: data }, { status: 201 });
 }
-

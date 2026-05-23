@@ -19,14 +19,18 @@ test("analyzeSecurityHeaders validates header builder and next config wiring", (
   write(
     root,
     "next.config.ts",
-    'import { buildSecurityHeaders } from "@/lib/security/csp-builders";\nconst securityHeaders = buildSecurityHeaders({});\nasync function headers(){ return [{ source: "/api/:path*", headers: [{ key: "Cache-Control", value: "private, no-store" }] }, { source: "/:path*", headers: securityHeaders }]; }\n'
+    'import { buildApiNoStoreHeaders, buildSecurityHeaders } from "@/lib/security/csp-builders";\nconst securityHeaders = buildSecurityHeaders({});\nconst apiNoStoreHeaders = buildApiNoStoreHeaders();\nasync function headers(){ return [{ source: "/api/:path*", headers: apiNoStoreHeaders }, { source: "/:path*", headers: securityHeaders }]; }\n'
   );
   write(
     root,
     "src/lib/security/csp-builders.ts",
     [
       'key: "X-Content-Type-Options"',
+      'key: "X-DNS-Prefetch-Control"',
+      'key: "X-Permitted-Cross-Domain-Policies"',
       'key: "X-Frame-Options"',
+      'key: "Cross-Origin-Opener-Policy"',
+      'key: "Cross-Origin-Resource-Policy"',
       'key: "Referrer-Policy"',
       'key: "Permissions-Policy"',
       'key: "Content-Security-Policy"',
@@ -37,7 +41,7 @@ test("analyzeSecurityHeaders validates header builder and next config wiring", (
   write(
     root,
     "src/lib/security/csp-builders.test.ts",
-    "buildSecurityHeaders adds HSTS only on Vercel by default\nPermissions-Policy disables payment and capture surfaces unless product opts in later\nrequire-trusted-types-for 'script'\n"
+    "buildSecurityHeaders adds HSTS only on Vercel by default\nPermissions-Policy disables payment and capture surfaces unless product opts in later\nrequire-trusted-types-for 'script'\nbuildSecurityHeaders rejects unsafe header values sourced from nonce input\nbuildApiNoStoreHeaders emits CDN-resistant private API cache headers\nscript-src-attr 'none'\nupgrade-insecure-requests\n"
   );
 
   const report = analyzeSecurityHeaders(root);

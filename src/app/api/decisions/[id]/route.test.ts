@@ -4,6 +4,8 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const enforceIdempotency = vi.fn();
+const recordApiMutationAuditEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -16,6 +18,14 @@ vi.mock("@/lib/v5/feature-guards", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
+}));
+
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
+vi.mock("@/lib/security/api-mutation-audit", () => ({
+  recordApiMutationAuditEvent,
 }));
 
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
@@ -108,6 +118,8 @@ describe("/api/decisions/[id]", () => {
       role: "admin",
     });
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
+    recordApiMutationAuditEvent.mockResolvedValue("audit-1");
   });
 
   it("GET returns 403 when V5 decision foundation is disabled", async () => {
@@ -158,6 +170,44 @@ describe("/api/decisions/[id]", () => {
     expect(res.status).toBe(403);
   });
 
+  it("PATCH returns duplicate response before updating a decision", async () => {
+    const duplicate = new Response(
+      JSON.stringify({ error: "Duplicate request blocked by idempotency key" }),
+      { status: 409, headers: { "content-type": "application/json" } }
+    );
+    const admin = { from: vi.fn() };
+    getApiAuthContext.mockResolvedValueOnce({
+      admin,
+      userId: "user-1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    enforceIdempotency.mockResolvedValueOnce(duplicate);
+
+    const { PATCH } = await import("@/app/api/decisions/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/decisions/dec-1", {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "decision-patch-replay-0001",
+        },
+        body: JSON.stringify({ title: "Updated" }),
+      }),
+      { params: Promise.resolve({ id: "dec-1" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(expect.any(Request), {
+      scope: "api.decisions.id",
+      actorKey: "org-1:user-1",
+    });
+    expect(recordApiMutationAuditEvent).not.toHaveBeenCalled();
+    expect(admin.from).not.toHaveBeenCalled();
+  });
+
   it("PATCH returns 400 for invalid decisionType", async () => {
     const { PATCH } = await import("@/app/api/decisions/[id]/route");
     const res = await PATCH(
@@ -170,6 +220,22 @@ describe("/api/decisions/[id]", () => {
     );
     expect(res.status).toBe(400);
   });
+
+  it("PATCH returns 400 for malformed dueAt", async () => {
+    const { PATCH } = await import("@/app/api/decisions/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/decisions/dec-1", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ dueAt: "2026-05-01" }),
+      }),
+      { params: Promise.resolve({ id: "dec-1" }) }
+    );
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      diagnostic_id: "decision_due_at_invalid",
+    });
+  });
 });
 
 describe("/api/decisions/[id] PATCH mutations", () => {
@@ -177,6 +243,8 @@ describe("/api/decisions/[id] PATCH mutations", () => {
     vi.clearAllMocks();
     mockedV5Guard.mockReturnValue(null);
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
+    recordApiMutationAuditEvent.mockResolvedValue("audit-1");
     const updatedRow = {
       id: "dec-1",
       title: "T",
@@ -207,8 +275,10 @@ describe("/api/decisions/[id] PATCH mutations", () => {
               update: vi.fn(() => ({
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    select: vi.fn(() => ({
-                      maybeSingle: vi.fn(async () => ({ data: updatedRow, error: null })),
+                    eq: vi.fn(() => ({
+                      select: vi.fn(() => ({
+                        maybeSingle: vi.fn(async () => ({ data: updatedRow, error: null })),
+                      })),
                     })),
                   })),
                 })),
@@ -232,7 +302,10 @@ describe("/api/decisions/[id] PATCH mutations", () => {
     const res = await PATCH(
       new Request("http://localhost/api/decisions/dec-1", {
         method: "PATCH",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "x-v10-expected-version": "2026-01-01T00:00:00Z",
+        },
         body: JSON.stringify({
           mergeRequiredInputs: true,
           requiredInputs: { newKey: 2 },

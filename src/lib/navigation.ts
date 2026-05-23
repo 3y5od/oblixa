@@ -1,6 +1,6 @@
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 
-/** V9 §4 / §5 — Primary nav stays Core-first; new top-level entries need product-surface + refinement gates. */
+/** Core-first navigation registry; release-state public Core exposes seven primary app surfaces. */
 
 export type WorkspaceRole =
   | "admin"
@@ -41,7 +41,12 @@ export type NavItem = {
    */
   v5FlagsAnyOf?: FeatureFlagKey[];
   /** Information architecture: compact sub-links under a primary item (sidebar only). */
-  navChildren?: { name: string; href: string; v5FlagsAnyOf?: FeatureFlagKey[] }[];
+  navChildren?: {
+    name: string;
+    href: string;
+    v5FlagsAnyOf?: FeatureFlagKey[];
+    badgeKey?: "reviewQueue" | "approvals" | "obligations" | "watchlists";
+  }[];
 };
 
 export type WorkflowArea =
@@ -68,10 +73,8 @@ export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
     hrefs: [
       "/dashboard",
       "/contracts",
-      "/contracts/review",
       "/work",
       "/contracts/renewals",
-      "/contracts/exceptions",
       "/contracts/evidence-studio",
       "/reports",
       "/settings",
@@ -84,7 +87,7 @@ export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    name: "Home",
+    name: "Dashboard",
     href: "/dashboard",
     description: "What needs action, what is due, and what you own.",
     section: "primary",
@@ -98,54 +101,31 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "contracts",
     navChildren: [
       { name: "All contracts", href: "/contracts" },
-      { name: "Review", href: "/contracts/review" },
+      { name: "Review fields", href: "/contracts/review", badgeKey: "reviewQueue" },
     ],
   },
-  {
-    name: "Review",
-    href: "/contracts/review",
-    description: "Extraction and field validation queue.",
-    section: "primary",
-    icon: "review",
-    badgeKey: "reviewQueue",
-  },
   /**
-   * §9.1 hub for execution queues. Renewals, Exceptions, and Evidence also stay §7.1 primary
-   * destinations (§9.2); duplicates here are intentional quick paths under Work.
+   * Release-state Work is one top-level surface. Its tabs live inside /work,
+   * not as public Core sidebar lanes.
    */
   {
     name: "Work",
     href: "/work",
-    description: "Tasks, obligations, approvals, and execution queues.",
+    description: "Contract work across tasks, approvals, obligations, and exceptions.",
     section: "primary",
     icon: "tasks",
-    navChildren: [
-      { name: "Tasks", href: "/contracts/tasks" },
-      { name: "Obligations", href: "/contracts/obligations" },
-      { name: "Approvals", href: "/contracts/approvals" },
-      { name: "Renewals", href: "/contracts/renewals" },
-      { name: "Exceptions", href: "/contracts/exceptions" },
-      { name: "Evidence", href: "/contracts/evidence-studio" },
-    ],
   },
   {
     name: "Renewals",
     href: "/contracts/renewals",
-    description: "Renewal horizon and structured renewal workspaces.",
+    description: "Upcoming renewal and notice dates.",
     section: "primary",
     icon: "renewals",
   },
   {
-    name: "Exceptions",
-    href: "/contracts/exceptions",
-    description: "Open exceptions and policy-risk items.",
-    section: "primary",
-    icon: "exceptions",
-  },
-  {
     name: "Evidence",
     href: "/contracts/evidence-studio",
-    description: "Evidence requests, templates, and export guidance.",
+    description: "Evidence requests, collection, and audit trail.",
     section: "primary",
     icon: "evidence",
   },
@@ -231,26 +211,9 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Reports",
     href: "/reports",
-    description: "Operational and portfolio reports.",
+    description: "Core operational report exports.",
     section: "primary",
     icon: "reports",
-    navChildren: [
-      { name: "Contract report packs", href: "/contracts/reports" },
-      { name: "Portfolio signals", href: "/reports#portfolio-signals" },
-      { name: "Portfolio analytics", href: "/reports#portfolio-analytics" },
-      {
-        name: "Assurance analytics",
-        href: "/reports#assurance-analytics",
-        v5FlagsAnyOf: ["v6AssuranceCore"],
-      },
-      { name: "Campaign drift", href: "/reports#campaign-drift" },
-      { name: "Capacity forecasts", href: "/reports#capacity-forecasts" },
-      {
-        name: "Outcome intelligence",
-        href: "/reports#outcome-intelligence",
-        v5FlagsAnyOf: ["v6OutcomeIntelligence"],
-      },
-    ],
   },
   {
     name: "Tools",
@@ -278,12 +241,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Due obligations, ownership, and evidence status.",
     section: "operations",
     badgeKey: "obligations",
-  },
-  {
-    name: "Report packs",
-    href: "/contracts/reports",
-    description: "Operational report packs and trend insights.",
-    section: "operations",
   },
   {
     name: "Programs",
@@ -342,39 +299,35 @@ export const NAV_ITEMS: NavItem[] = [
     section: "personal",
   },
   {
-    name: "Billing",
-    href: "/settings/billing",
-    description: "Plan, invoices, and subscription health.",
-    section: "workspace",
-    icon: "billing",
-    minRole: "admin",
-  },
-  {
     name: "Settings",
     href: "/settings",
-    description: "Members, workspace product mode, and workflow configuration.",
+    description: "Profile, workspace, team, billing, notifications, security, and export settings.",
     section: "primary",
     icon: "settings",
   },
-  {
-    name: "System health",
-    href: "/settings/health",
-    description: "Delivery retries, cron posture, and operational health.",
-    section: "workspace",
-    minRole: "admin",
-  },
-  {
-    name: "Policy registry & simulation",
-    href: "/settings/policy",
-    description: "Policy registry JSON and governance notes.",
-    section: "workspace",
-    minRole: "admin",
-  },
 ];
 
-export const CONTRACTS_SUBROUTES = NAV_ITEMS.filter(
-  (item) => item.href.startsWith("/contracts/") && item.href !== "/contracts"
-).map((item) => item.href);
+// Routes that remain live but are not surfaced as public Core sidebar lanes.
+// Keep them in the subroutes set so isContractsRoot() still distinguishes
+// them from the contracts inventory root.
+const ADDITIONAL_CONTRACTS_SUBROUTES = [
+  "/contracts/bulk",
+  "/contracts/reports",
+  "/contracts/tasks",
+  "/contracts/exceptions",
+];
+
+export const CONTRACTS_SUBROUTES = Array.from(
+  new Set([
+    ...NAV_ITEMS.flatMap((item) => [
+      item.href,
+      ...(item.navChildren ?? []).map((child) => child.href),
+    ])
+      .map((href) => href.split("?")[0] ?? href)
+      .filter((href) => href.startsWith("/contracts/") && href !== "/contracts"),
+    ...ADDITIONAL_CONTRACTS_SUBROUTES,
+  ])
+);
 
 export function isContractsRoot(pathname: string): boolean {
   if (!pathname.startsWith("/contracts")) return false;
@@ -386,7 +339,7 @@ export function isContractsRoot(pathname: string): boolean {
 
 export function isActivePath(pathname: string, href: string): boolean {
   if (href === "/contracts") return isContractsRoot(pathname);
-  if (href === "/settings") return pathname === "/settings";
+  if (href === "/settings") return pathname === "/settings" || pathname.startsWith("/settings/");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

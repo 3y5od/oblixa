@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  BadgeCheck,
   ClipboardList,
   GitBranch,
   ListOrdered,
@@ -16,6 +17,7 @@ import {
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { assertAnyV6PageFeature } from "@/lib/v6/feature-guards";
@@ -135,15 +137,12 @@ export default async function AssurancePage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Assurance command center</p>
-          <h1 className="ui-page-title-compact mt-2">Continuous assurance</h1>
-          <p className="ui-page-lead mt-2 max-w-2xl">
-            Detect drift, route interventions, and measure operational effect across the governed assurance surface.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<BadgeCheck className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Assurance command center"
+        title="Continuous assurance"
+        lead="Detect drift, route interventions, and measure operational effect across the governed assurance surface."
+      />
       {v6Core && analytics ? (
         <section className="ui-page-shell space-y-4">
           <div>
@@ -189,7 +188,7 @@ export default async function AssurancePage() {
             />
           </div>
           {lastRun ? (
-            <div className="flex flex-wrap gap-2 text-[12px] text-[var(--text-secondary)]">
+            <div className="flex flex-wrap gap-2 text-[12.5px] text-[var(--text-secondary)]">
               <span className="ui-metric-chip inline-flex min-h-8 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-surface/90 px-2.5 py-1 dark:bg-[var(--text-primary)]/25">
                 <span className="font-medium text-[var(--text-tertiary)]">Last check</span>
                 <span className="font-semibold text-[var(--text-primary)]">

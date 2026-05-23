@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { jsonForbidden, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { BODY_LIMIT_LARGE_JSON, readJsonBodyLimited, readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
@@ -17,6 +18,18 @@ import {
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const ROUTE = "/api/import/contracts";
+
+export const maxDuration = 60;
+
+function importProblem(status: number, error: string, code: string, diagnosticId: string) {
+  return jsonProblem(status, {
+    error,
+    code,
+    diagnostic_id: diagnosticId,
+    route: ROUTE,
+  });
+}
 
 function getCsvHeaderColumns(csv: string): string[] {
   const [header = ""] = csv.split(/\r?\n/, 1);
@@ -38,12 +51,14 @@ function csvCell(value: unknown): string {
 
 async function getImportCsvPayload(request: Request, contentType: string): Promise<{ csv: string } | { error: string }> {
   if (contentType.includes("text/csv")) {
-    return { csv: await request.text() };
+    const _lb_text = await readTextBodyLimited(request, MAX_IMPORT_BODY_CHARS);
+    if (!_lb_text.ok) return { error: "Import payload too large." };
+    return { csv: _lb_text.body };
   }
   if (!contentType.includes("application/json")) {
     return { error: "Expected CSV or JSON import body." };
   }
-  const _lb_body = await readJsonBodyLimited(request);
+  const _lb_body = await readJsonBodyLimited(request, BODY_LIMIT_LARGE_JSON);
   if (!_lb_body.ok) {
     return {
       error:
@@ -72,31 +87,25 @@ export async function POST(request: Request) {
     windowMs: 60_000,
   });
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          ...PRIVATE_NO_STORE_HEADERS,
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.includes("text/csv") && !contentType.includes("application/json")) {
-    return NextResponse.json({ error: "Expected CSV or JSON import body." }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+    return importProblem(400, "Expected CSV or JSON import body.", "invalid_content_type", "import_contracts_content_type_invalid");
   }
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!membership) return importProblem(400, "No organization", "organization_missing", "import_contracts_organization_missing");
+  if (!canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -105,20 +114,14 @@ export async function POST(request: Request) {
     v10MutationResponse: true,
   });
   if (modeGate) return modeGate;
-  if (!canEditContracts(membership.role as "admin" | "editor" | "viewer")) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403, headers: PRIVATE_NO_STORE_HEADERS });
-  }
 
   const payload = await getImportCsvPayload(request, contentType);
   if ("error" in payload) {
-    return NextResponse.json({ error: payload.error }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+    return importProblem(400, payload.error, "invalid_import_payload", "import_contracts_payload_invalid");
   }
   const { csv } = payload;
   if (csv.length > MAX_IMPORT_BODY_CHARS) {
-    return NextResponse.json(
-      { error: "Import payload too large. Split file and retry." },
-      { status: 413, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return importProblem(413, "Import payload too large. Split file and retry.", "import_payload_too_large", "import_contracts_payload_too_large");
   }
   const parsedRows = parseCsv(csv);
   const parseErrorRows = parsedRows.filter((row) => !row.title?.trim() || !row.counterparty?.trim()).length;
@@ -149,10 +152,14 @@ export async function POST(request: Request) {
       diagnosticId: "v10_import_validation_failed",
       validationFailures,
     });
-     return NextResponse.json(
-       { error: v10.user_visible_message, v10 },
-       buildV10MutationResponseInit(v10, { headers: PRIVATE_NO_STORE_HEADERS })
-     );
+    const init = buildV10MutationResponseInit(v10, { headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonProblem(400, {
+      error: v10.user_visible_message,
+      code: "validation_failed",
+      diagnostic_id: v10.diagnostic_id ?? "v10_import_validation_failed",
+      route: ROUTE,
+      details: { v10 },
+    }, { headers: init.headers });
   }
   const rows = parsedRows.filter((row) => row.title?.trim() && row.counterparty?.trim());
   const { response: v10Mutation, replayed } = await executeV10IdempotentMutation(
@@ -247,13 +254,14 @@ export async function POST(request: Request) {
   );
 
   if (v10Mutation.outcome !== "success") {
-    return NextResponse.json(
-      {
-        error: v10Mutation.user_visible_message,
-        v10: v10Mutation,
-      },
-       buildV10MutationResponseInit(v10Mutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS })
-    );
+    const init = buildV10MutationResponseInit(v10Mutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonProblem(init.status ?? 400, {
+      error: v10Mutation.user_visible_message,
+      code: String(v10Mutation.outcome),
+      diagnostic_id: v10Mutation.diagnostic_id ?? "v10_import_failed",
+      route: ROUTE,
+      details: { v10: v10Mutation },
+    }, { headers: init.headers });
   }
   await refreshV10ReadModelsForOrganization(admin, membership.organization_id, {
     refreshScope: "one_model",

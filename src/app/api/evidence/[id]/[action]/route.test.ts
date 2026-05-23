@@ -43,7 +43,7 @@ vi.mock("@/lib/v10-read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
-function adminEvidence(submission: { id: string; requirement_id: string } | null) {
+function adminEvidence(submission: { id: string; requirement_id: string; status?: string; updated_at?: string } | null) {
   return {
     from: vi.fn((table: string) => {
       if (table === "evidence_submissions") {
@@ -57,7 +57,16 @@ function adminEvidence(submission: { id: string; requirement_id: string } | null
           })),
           update: vi.fn(() => ({
             eq: vi.fn(() => ({
-              eq: vi.fn(async () => ({ error: null })),
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  select: vi.fn(() => ({
+                    maybeSingle: vi.fn(async () => ({
+                      data: { id: submission?.id ?? "sub-1", status: "reviewed" },
+                      error: null,
+                    })),
+                  })),
+                })),
+              })),
             })),
           })),
         };
@@ -93,7 +102,12 @@ describe("POST /api/evidence/[id]/[action]", () => {
     recordV10AuditEvent.mockResolvedValue("v10-audit-1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
     getApiAuthContext.mockResolvedValue({
-      admin: adminEvidence({ id: "sub-1", requirement_id: "req-1" }),
+      admin: adminEvidence({
+        id: "sub-1",
+        requirement_id: "req-1",
+        status: "submitted",
+        updated_at: "2026-01-02T00:00:00Z",
+      }),
       userId: "user-1",
       orgId: "org-1",
       role: "admin",
@@ -136,13 +150,17 @@ describe("POST /api/evidence/[id]/[action]", () => {
     expect(res.status).toBe(404);
   });
 
-  it("returns 404 for unsupported action", async () => {
+  it("returns problem JSON for unsupported action before object lookup", async () => {
     const { POST } = await import("@/app/api/evidence/[id]/[action]/route");
     const res = await POST(
       new Request("http://localhost:3000/api/evidence/sub-1/void", { method: "POST" }),
       { params: Promise.resolve({ id: "sub-1", action: "void" }) }
     );
-    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      details: { reason: "invalid_route_param_enum", param: "action" },
+    });
+    expect(res.status).toBe(400);
   });
 
   it("approve succeeds", async () => {

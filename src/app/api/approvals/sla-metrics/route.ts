@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import { jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
+const ROUTE = "/api/approvals/sla-metrics";
+
 export async function GET() {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,

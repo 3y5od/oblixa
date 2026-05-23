@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 
 /** Operator kill-switches for incident response (503 + stable JSON). */
 
@@ -28,8 +29,10 @@ export function isKillWebhookDispatch(): boolean {
 }
 
 export function killSwitchJsonResponse(subsystem: string): NextResponse {
-  return NextResponse.json(
-    { error: "Service temporarily unavailable", subsystem },
-    { status: 503, headers: { "Cache-Control": "no-store" } }
-  );
+  return jsonProblem(503, {
+    error: "Service temporarily unavailable",
+    code: "service_temporarily_unavailable",
+    diagnostic_id: "kill_switch_active",
+    details: { subsystem },
+  });
 }

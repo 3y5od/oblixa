@@ -3,6 +3,7 @@ import { Bell, MessageSquareText } from "lucide-react";
 import { markNotificationReadVoid } from "@/actions/field-comments";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { resolveCollaborationInternalNotificationHref } from "@/lib/notification-internal-deeplink";
 import {
   getInAppNotificationCtaLabel,
@@ -63,15 +64,12 @@ export default async function CollaborationPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-[var(--border-subtle)] pb-8">
-        <div>
-          <p className="ui-eyebrow">Cross-team coordination</p>
-          <h1 className="ui-display-title mt-2">Collaboration workspace</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            Field-level comments, mentions, and in-app notifications for handoffs and clarifications.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<MessageSquareText className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Cross-team coordination"
+        title="Collaboration workspace"
+        lead="Field-level comments, mentions, and in-app notifications for handoffs and clarifications."
+      />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <OperationalSummaryCard

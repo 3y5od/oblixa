@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/rate-limit", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/rate-limit")>();
+  return {
+    ...actual,
+    rateLimitCheck: vi.fn(async () => ({ ok: true as const })),
+  };
+});
+
 afterEach(() => {
   vi.unstubAllEnvs();
 });
@@ -44,6 +52,8 @@ describe("GET /api/reminders/send", () => {
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.APP_BASE_URL;
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.VERCEL_URL;
+    delete process.env.OBLIXA_TRUSTED_APP_ORIGINS;
     const { GET } = await import("@/app/api/reminders/send/route");
     const req = new Request("http://localhost:3000/api/reminders/send", {
       headers: { "x-cron-secret": "cronsecret" },
@@ -76,4 +86,3 @@ describe("GET /api/reminders/send", () => {
     });
   });
 });
-

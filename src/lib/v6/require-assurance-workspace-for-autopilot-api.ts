@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import type { AdminClient } from "@/lib/v6/service";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
@@ -22,7 +23,11 @@ export async function requireAssuranceWorkspaceForAutopilotApi(
 ): Promise<NextResponse | null> {
   const v6 = await getV6OrgSettingsJson(admin, orgId);
   if (parseWorkspaceMode(v6) !== "assurance") {
-    return NextResponse.json({ error: MESSAGES[kind] }, { status: 403 });
+    return jsonProblem(403, {
+      error: MESSAGES[kind],
+      code: "workspace_mode_forbidden",
+      diagnostic_id: `autopilot_${kind}_workspace_mode_forbidden`,
+    });
   }
   return null;
 }

@@ -10,7 +10,6 @@ import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { CMDK_EXTRA_NAV_ITEMS } from "@/lib/product-surface/resolver";
 import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
 
-export const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
 export type PaletteItem = NavItem & { resultMeta?: string; resultOrder?: number };
 export type ContractPaletteResult = {
   id: string;
@@ -49,7 +48,23 @@ export function fallbackNavSurface(role: WorkspaceRole, flags: Record<FeatureFla
 }
 
 export function allCommandItems(): PaletteItem[] {
-  return [...NAV_ITEMS, ...CMDK_EXTRA_NAV_ITEMS];
+  const items = [
+    ...NAV_ITEMS,
+    ...NAV_ITEMS.flatMap((parent) =>
+      (parent.navChildren ?? []).filter((child) => child.href !== parent.href).map(
+        (child): PaletteItem => ({
+          name: child.name,
+          href: child.href,
+          description: parent.description,
+          section: parent.section,
+          v5FlagsAnyOf: child.v5FlagsAnyOf,
+          badgeKey: child.badgeKey,
+        })
+      )
+    ),
+    ...CMDK_EXTRA_NAV_ITEMS,
+  ];
+  return [...new Map(items.map((item) => [item.href, item])).values()];
 }
 
 export function paletteHrefKey(href: string): string {

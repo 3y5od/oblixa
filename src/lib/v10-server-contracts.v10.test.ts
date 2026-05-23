@@ -11,6 +11,7 @@ import {
   buildV10IdempotencyRpcClaimArgs,
   executeV10AuditedMutation,
   executeV10StandardMutation,
+  recordV10AuditEvent,
   recordV10AuditEventStrict,
   V10AuditWriteError,
   getV10ClientRequestIdFromRequest,
@@ -927,6 +928,48 @@ describe("V10 server mutation contracts", () => {
     ).rejects.toBeInstanceOf(V10AuditWriteError);
   });
 
+  it("persists client request ids as support-safe audit metadata", async () => {
+    let inserted: Record<string, unknown> | null = null;
+    const admin = {
+      from(table: string) {
+        expect(table).toBe("v10_audit_events");
+        return {
+          insert(row: Record<string, unknown>) {
+            inserted = row;
+            return {
+              select: () => ({
+                maybeSingle: async () => ({ data: { audit_event_id: "audit_1" }, error: null }),
+              }),
+            };
+          },
+        };
+      },
+    };
+
+    await expect(
+      recordV10AuditEvent(admin as never, {
+        organizationId: "org_1",
+        actorUserId: "user_1",
+        action: "work_item.completed",
+        targetType: "work_item",
+        targetId: "task_1",
+        outcome: "success",
+        safeMetadata: { retryable: true },
+        clientRequestId: "req_123",
+      })
+    ).resolves.toBe("audit_1");
+
+    expect(inserted).toMatchObject({
+      organization_id: "org_1",
+      actor_user_id: "user_1",
+      action: "work_item.completed",
+      target_type: "work_item",
+      target_id: "task_1",
+      outcome: "success",
+      safe_metadata: { retryable: true, request_id: "req_123" },
+    });
+  });
+
   it("builds reusable denial envelopes with diagnostics", () => {
     const response = buildV10DeniedMutationResponse({
       outcome: "hidden_module",
@@ -962,6 +1005,7 @@ describe("V10 server mutation contracts", () => {
     expect(
       sanitizeV10AuditMetadata({
         approval_type: "renewal_decision",
+        route: "/callback?token=secret&tab=settings",
         decision_note: "contains private text",
         responder_email: "person@example.com",
         evidence_url: "https://private.example/evidence",
@@ -973,6 +1017,7 @@ describe("V10 server mutation contracts", () => {
       })
     ).toEqual({
       approval_type: "renewal_decision",
+      route: "/callback?tab=settings",
       decision_note_state: "redacted",
       responder_email_state: "redacted",
       evidence_url_state: "redacted",

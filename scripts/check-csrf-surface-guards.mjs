@@ -11,20 +11,32 @@ const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:csrf-surface-guards"'];
 const REQUIRED_FILE_MARKERS = {
   "src/lib/security/read-json-body-limited.ts": [
     "const DEFAULT_MAX = 512 * 1024;",
+    "export const BODY_LIMIT_SMALL_JSON = 32 * 1024;",
+    "export const BODY_LIMIT_MEDIUM_JSON = 256 * 1024;",
+    "export const BODY_LIMIT_LARGE_JSON = 1024 * 1024;",
+    "export const BODY_LIMIT_STRICT_INBOUND = 256 * 1024;",
     'const len = request.headers.get("content-length");',
-    '{ error: "Payload too large" },',
-    'return { ok: true, body: text ? JSON.parse(text) : null };',
+    "return jsonPayloadTooLarge();",
+    'reason: "unsafe_json_key"',
+    'reason: "json_shape_too_large"',
+    "hasUnsafeJsonKey",
+    "isJsonShapeWithinLimits",
+    "allowJsonWhitespaceControls",
+    "export async function readTextBodyLimited(",
     "export async function parseJsonBodyWithLimit<T>(",
   ],
   "src/lib/security/read-json-body-limited.test.ts": [
     'it("rejects oversized body by Content-Length"',
     'it("parses small JSON"',
+    'it("returns safe 400 for invalid JSON"',
+    'it("rejects oversized text body before parsing"',
     'it("maps body through parse"',
   ],
   "scripts/lib/build-route-universe.mjs": [
     "function bodyPolicy(methods, source, cls) {",
     'const mutating = methods.some((method) => ["POST", "PUT", "PATCH", "DELETE"].includes(method));',
-    'if (/readJsonBodyLimited|parseJsonBodyWithLimit|readRequestBodyLimited|formData\\(/.test(source)) return "bounded_or_form_body";',
+    'if (/readJsonBodyLimited|parseJsonBodyWithLimit|readRequestBodyLimited|readTextBodyLimited|formData\\(/.test(source)) return "bounded_or_form_body";',
+    'if (/rejectUnexpectedBody/.test(source)) return "no_body_rejected";',
     'return "body_limit_required";',
   ],
   "src/app/api/programs/route.ts": [
@@ -33,12 +45,57 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/app/api/extract/route.ts": [
     'const ctReject = jsonContentTypeRejection(request);',
-    'const _limBody = await readJsonBodyLimited(request);',
+    'const _limBody = await readJsonBodyLimited(request, BODY_LIMIT_LARGE_JSON);',
     'if (!_limBody.ok) return _limBody.response;',
   ],
   "src/app/api/integrations/oauth/start/route.ts": [
     'const _lb_body = await readJsonBodyLimited(request);',
     'if (!_lb_body.ok) return _lb_body.response;',
+  ],
+  "src/app/api/workspace/v6-settings/route.ts": [
+    "BODY_LIMIT_SMALL_JSON",
+    "readJsonBodyLimited(request, BODY_LIMIT_SMALL_JSON)",
+  ],
+  "src/app/api/command-centers/preferences/route.ts": [
+    "BODY_LIMIT_SMALL_JSON",
+    "readJsonBodyLimited(request, BODY_LIMIT_SMALL_JSON)",
+  ],
+  "src/app/api/autopilot/rules/route.ts": [
+    "BODY_LIMIT_MEDIUM_JSON",
+    "parseJsonBodyWithLimit(",
+  ],
+  "src/app/api/segments/route.ts": [
+    "BODY_LIMIT_MEDIUM_JSON",
+    "parseJsonBodyWithLimit(",
+  ],
+  "src/app/api/import/contracts/route.ts": [
+    "BODY_LIMIT_LARGE_JSON",
+    "readTextBodyLimited(request, MAX_IMPORT_BODY_CHARS)",
+    "readJsonBodyLimited(request, BODY_LIMIT_LARGE_JSON)",
+  ],
+  "src/app/api/extract/run/route.ts": [
+    "BODY_LIMIT_LARGE_JSON",
+    "readJsonBodyLimitedWithRaw(request, BODY_LIMIT_LARGE_JSON)",
+  ],
+  "src/app/api/stripe/webhook/route.ts": [
+    "STRIPE_WEBHOOK_BODY_MAX",
+    "readTextBodyLimited(request, STRIPE_WEBHOOK_BODY_MAX)",
+  ],
+  "src/app/api/tasks/from-slack/route.ts": [
+    "SLACK_INBOUND_BODY_MAX",
+    "readTextBodyLimited(request, SLACK_INBOUND_BODY_MAX)",
+  ],
+  "src/app/api/tasks/from-email/route.ts": [
+    "EMAIL_INBOUND_SIGNED_BODY_MAX",
+    "readTextBodyLimited(request, EMAIL_INBOUND_SIGNED_BODY_MAX)",
+  ],
+  "src/app/api/integrations/actions/callback/route.ts": [
+    "BODY_LIMIT_STRICT_INBOUND",
+    "readJsonBodyLimited(request, BODY_LIMIT_STRICT_INBOUND)",
+  ],
+  "src/app/api/webhooks/dispatch/route.ts": [
+    "BODY_LIMIT_STRICT_INBOUND",
+    "readJsonBodyLimited(request, BODY_LIMIT_STRICT_INBOUND)",
   ],
 };
 const REQUIRED_ROUTE_POLICIES = {
@@ -58,6 +115,7 @@ const REQUIRED_ROUTE_POLICIES = {
     bodyPolicy: "bounded_or_form_body",
   },
 };
+const RAW_REQUEST_BODY_RE = /\brequest\.(?:json|text)\s*\(/;
 
 function fileExists(root, rel) {
   return fs.existsSync(path.join(root, rel));
@@ -95,8 +153,33 @@ function loadRouteUniverseRows(root, issues) {
   }
 }
 
+function walkRoutes(dir, acc = []) {
+  if (!fs.existsSync(dir)) return acc;
+  for (const name of fs.readdirSync(dir)) {
+    const p = path.join(dir, name);
+    const st = fs.statSync(p);
+    if (st.isDirectory()) walkRoutes(p, acc);
+    else if (name === "route.ts") acc.push(p);
+  }
+  return acc;
+}
+
+function findRawRequestBodyIssues(root) {
+  const issues = [];
+  const apiRoot = path.join(root, "src", "app", "api");
+  for (const abs of walkRoutes(apiRoot).sort()) {
+    const rel = path.relative(root, abs).replace(/\\/g, "/");
+    const source = read(root, rel);
+    if (RAW_REQUEST_BODY_RE.test(source)) {
+      issues.push({ issue: "raw_request_body_read", rel });
+    }
+  }
+  return issues;
+}
+
 export function analyzeCsrfSurfaceGuards(root = ROOT) {
   const issues = [];
+  issues.push(...findRawRequestBodyIssues(root));
 
   for (const rel of Object.keys(REQUIRED_FILE_MARKERS)) {
     if (!fileExists(root, rel)) issues.push({ issue: "missing_required_file", rel });

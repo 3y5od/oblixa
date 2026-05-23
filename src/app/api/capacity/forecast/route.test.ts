@@ -76,4 +76,42 @@ describe("GET /api/capacity/forecast", () => {
       renewal_decision: 1,
     });
   });
+
+  it("rejects oversized forecast responses with a safe problem response", async () => {
+    getApiAuthContext.mockResolvedValueOnce({
+      admin: {
+        from: vi.fn(() => ({
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              order: vi.fn(() => ({
+                limit: vi.fn(async () => ({
+                  data: [
+                    {
+                      id: "f-large",
+                      forecast_horizon_days: 30,
+                      forecast_json: { oversized: "x".repeat(70 * 1024) },
+                      model_version: "v1",
+                      generated_at: "2026-01-01T00:00:00Z",
+                      expires_at: "2026-01-02T00:00:00Z",
+                    },
+                  ],
+                  error: null,
+                })),
+              })),
+            })),
+          })),
+        })),
+      },
+      orgId: "org-1",
+    });
+
+    const { GET } = await import("@/app/api/capacity/forecast/route");
+    const res = await GET();
+    expect(res.status).toBe(413);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "response_too_large",
+      diagnostic_id: "api_response_size_limit_exceeded",
+      route: "/api/capacity/forecast",
+    });
+  });
 });

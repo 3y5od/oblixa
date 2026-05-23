@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
-const issues = [];
 
 const requiredFiles = [
   "scripts/check-api-route-tests.mjs",
@@ -39,6 +39,7 @@ const requiredFiles = [
   "scripts/check-email-identity-spoof-guards.mjs",
   "scripts/check-inbound-identity-boundaries.mjs",
   "scripts/check-internal-api-boundaries.mjs",
+  "scripts/check-scheduled-cron-route-wrappers.mjs",
   "scripts/check-realtime-auth-boundaries.mjs",
   "scripts/check-request-framing-guards.mjs",
   "scripts/check-signed-link-nonce-policy.mjs",
@@ -68,6 +69,15 @@ const requiredFiles = [
   "scripts/check-sql-security-migrations-bundle.mjs",
   "scripts/check-evidence-deepening-bundle.mjs",
   "scripts/check-required-security-checkset.mjs",
+  "scripts/check-static-check-determinism.mjs",
+  "scripts/check-checks-integrity-meta.mjs",
+  "scripts/check-documentation-runtime-dependencies.mjs",
+  "scripts/check-generated-artifact-hygiene.mjs",
+  "scripts/check-allowlist-metadata.mjs",
+  "scripts/check-github-workflows-security.mjs",
+  "scripts/check-github-scheduled-workflows-secrets.mjs",
+  "scripts/check-ci-artifact-secret-leakage.mjs",
+  "scripts/check-codeowners-security-paths.mjs",
   "scripts/check-lockfile-integrity-drift.mjs",
   "scripts/check-sbom-integrity.mjs",
   "scripts/check-release-artifact-provenance.mjs",
@@ -81,6 +91,7 @@ const requiredFiles = [
   "scripts/check-idempotency-policy.mjs",
   "scripts/check-job-lock-guards.mjs",
   "scripts/check-timeout-budget-guards.mjs",
+  "scripts/check-pagination-guardrails.mjs",
   "scripts/check-owner-metadata.mjs",
   "scripts/check-hardening-debt-ratchet.mjs",
   "scripts/check-incident-readiness.mjs",
@@ -94,13 +105,6 @@ const requiredFiles = [
   "scripts/report-qa-coverage-tier.mjs",
 ];
 
-for (const rel of requiredFiles) {
-  if (!existsSync(path.join(ROOT, rel))) {
-    issues.push({ type: "missing_required_file", rel });
-  }
-}
-
-const pkg = JSON.parse(readFileSync(path.join(ROOT, "package.json"), "utf8"));
 const requiredScripts = [
   "verify",
   "verify:security",
@@ -141,6 +145,7 @@ const requiredScripts = [
   "check:email-identity-spoof-guards",
   "check:inbound-identity-boundaries",
   "check:internal-api-boundaries",
+  "check:scheduled-cron-route-wrappers",
   "check:realtime-auth-boundaries",
   "check:request-framing-guards",
   "check:signed-link-nonce-policy",
@@ -162,6 +167,15 @@ const requiredScripts = [
   "check:security-env-contract",
   "check:synthetic-slo-env",
   "check:required-security-checkset",
+  "check:static-check-determinism",
+  "check:checks-integrity-meta",
+  "check:documentation-runtime-dependencies",
+  "check:generated-artifact-hygiene",
+  "check:allowlist-metadata",
+  "check:github-workflows-security",
+  "check:github-scheduled-workflows-secrets",
+  "check:ci-artifact-secret-leakage",
+  "check:codeowners-security-paths",
   "check:lockfile-integrity-drift",
   "check:sbom-integrity",
   "check:release-artifact-provenance",
@@ -175,6 +189,7 @@ const requiredScripts = [
   "check:idempotency-policy",
   "check:job-lock-guards",
   "check:timeout-budget-guards",
+  "check:pagination-guardrails",
   "check:owner-metadata",
   "check:hardening-debt-ratchet",
   "check:integration-contract-resilience",
@@ -182,14 +197,8 @@ const requiredScripts = [
   "check:test-skip-governance",
   "check:type-lint-ratchet",
 ];
-for (const script of requiredScripts) {
-  if (!pkg.scripts?.[script]) {
-    issues.push({ type: "missing_required_script", script });
-  }
-}
 
-const ci = readFileSync(path.join(ROOT, ".github/workflows/ci.yml"), "utf8");
-for (const cmd of [
+const requiredCiCommands = [
   "npm run check:api-route-tests",
   "npm run check:api-route-auth-contract",
   "npm run check:api-route-admin-org-scope",
@@ -225,6 +234,7 @@ for (const cmd of [
   "npm run check:email-identity-spoof-guards",
   "npm run check:inbound-identity-boundaries",
   "npm run check:internal-api-boundaries",
+  "npm run check:scheduled-cron-route-wrappers",
   "npm run check:realtime-auth-boundaries",
   "npm run check:request-framing-guards",
   "npm run check:signed-link-nonce-policy",
@@ -245,6 +255,14 @@ for (const cmd of [
   "npm run check:security-env-contract",
   "npm run check:synthetic-slo-env",
   "npm run check:required-security-checkset",
+  "npm run check:checks-integrity-meta",
+  "npm run check:documentation-runtime-dependencies",
+  "npm run check:generated-artifact-hygiene",
+  "npm run check:allowlist-metadata",
+  "npm run check:github-workflows-security",
+  "npm run check:github-scheduled-workflows-secrets",
+  "npm run check:ci-artifact-secret-leakage",
+  "npm run check:codeowners-security-paths",
   "npm run check:lockfile-integrity-drift",
   "npm run check:sbom-integrity",
   "npm run check:release-artifact-provenance",
@@ -258,16 +276,55 @@ for (const cmd of [
   "npm run check:idempotency-policy",
   "npm run check:job-lock-guards",
   "npm run check:timeout-budget-guards",
+  "npm run check:pagination-guardrails",
   "npm run check:owner-metadata",
   "npm run check:integration-contract-resilience",
   "npm run check:concurrency-hotspots-ratchet",
   "npm run check:test-skip-governance",
   "npm run check:type-lint-ratchet",
-]) {
-  if (!ci.includes(cmd)) {
-    issues.push({ type: "ci_missing_command", cmd });
+];
+
+export function analyzeChecksIntegrityMeta(root = ROOT, options = {}) {
+  const found = [];
+  const files = options.requiredFiles ?? requiredFiles;
+  const scripts = options.requiredScripts ?? requiredScripts;
+  const ciCommands = options.ciCommands ?? requiredCiCommands;
+
+  for (const rel of files) {
+    if (!existsSync(path.join(root, rel))) {
+      found.push({ type: "missing_required_file", rel });
+    }
   }
+
+  const packagePath = path.join(root, "package.json");
+  if (!existsSync(packagePath)) {
+    found.push({ type: "missing_required_file", rel: "package.json" });
+  } else {
+    const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
+    for (const script of scripts) {
+      if (!packageJson.scripts?.[script]) {
+        found.push({ type: "missing_required_script", script });
+      }
+    }
+  }
+
+  const workflowPath = path.join(root, ".github", "workflows", "ci.yml");
+  if (!existsSync(workflowPath)) {
+    found.push({ type: "missing_required_file", rel: ".github/workflows/ci.yml" });
+  } else {
+    const workflowText = readFileSync(workflowPath, "utf8");
+    for (const cmd of ciCommands) {
+      if (!workflowText.includes(cmd)) {
+        found.push({ type: "ci_missing_command", cmd });
+      }
+    }
+  }
+
+  return { checkId: "checks-integrity-meta", issueCount: found.length, issues: found };
 }
 
-console.log(JSON.stringify({ issueCount: issues.length, issues }, null, 2));
-if (issues.length > 0) process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = analyzeChecksIntegrityMeta(ROOT);
+  console.log(JSON.stringify(report, null, 2));
+  if (report.issueCount > 0) process.exit(1);
+}

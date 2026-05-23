@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-15T23:12:49.311Z",
+  "volatileKeysIgnored": [
+    "generated",
+    "generatedAt",
+    "generated_at"
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/security-route-matrix.json",
+      "stableSha256": "0139f157ccd00ed0825e3c043d45da45e88dd465687e995c0a7fe9f282959734",
+      "stableBytes": 215481
+    },
+    {
+      "path": "artifacts/security-proxy-matrix.json",
+      "stableSha256": "6f339d13b24bcf14e08b33b9c8467b834b56cff59801ff0a89b5068a8e86f425",
+      "stableBytes": 1136
+    },
+    {
+      "path": "artifacts/security-control-coverage-matrix.rows.json",
+      "stableSha256": "adea8b02d55c5c21586d8b7f2f56601539e94cc7733eaeb220002a1b0524197f",
+      "stableBytes": 120935
+    },
+    {
+      "path": "artifacts/assurance/dashboard.json",
+      "stableSha256": "5fb344ea1ca82ede9982ea0161b62d5e32e59eb587a4d645b0c37b4c35a094f7",
+      "stableBytes": 716
+    },
+    {
+      "path": "artifacts/assurance/scripts-to-epic-map.json",
+      "stableSha256": "e71c9d3ea550970246065cf9728abc947cc1fac212cb9e5255680b6fbc2a1633",
+      "stableBytes": 58228
+    },
+    {
+      "path": "artifacts/assurance/catalog-script-index.json",
+      "stableSha256": "b27ce5c5dc4746961c000502dd86124b2fc61599733e1f96c700392da8b81b63",
+      "stableBytes": 23029
+    },
+    {
+      "path": "artifacts/route-universe.json",
+      "stableSha256": "ad87bc965664dc3ff4f3b2126af0ed38521e9f3e2595af3dfcd8fe452fe1082f",
+      "stableBytes": 956875
+    },
+    {
+      "path": "artifacts/route-functionality-matrix.json",
+      "stableSha256": "31a169e9da09bd2d6b53ee268ab7eb4dbcc6746c2074cebd89935a65086e6313",
+      "stableBytes": 683368
+    },
+    {
+      "path": "artifacts/route-runtime-contract.json",
+      "stableSha256": "6ac3124ad736e965ea600a82a16ac979264af507587f7dfd970f78a3809accce",
+      "stableBytes": 180552
+    },
+    {
+      "path": "artifacts/route-provider-matrix.json",
+      "stableSha256": "d0972d1b94b3cdb5f69b7c6dfc094c60bd2443a47cc9acc4794c3373faaab923",
+      "stableBytes": 123788
+    },
+    {
+      "path": "artifacts/route-db-dependencies.json",
+      "stableSha256": "03eb7577db3ec3eeb4bd26c64179c3d8232a3c20c81c00155cd0bbda7b30ef15",
+      "stableBytes": 146439
+    },
+    {
+      "path": "artifacts/page-route-state-matrix.json",
+      "stableSha256": "ae3981640b9ef97df0627529ca8603a5d129ef401f4c98ffb8f1c7d7afe3a146",
+      "stableBytes": 36205
+    },
+    {
+      "path": "artifacts/route-external-contracts.json",
+      "stableSha256": "e188ce0146516797588a4548877049e2000fbd08a98532ffe28b4b9075cd619c",
+      "stableBytes": 13002
+    },
+    {
+      "path": "artifacts/dependency-review-policy.json",
+      "stableSha256": "cd33964c8e175598d31aaa4d6cd169aec4ddb55a67f6fe0cb210d0980ef2ac00",
+      "stableBytes": 1157
+    },
+    {
+      "path": "artifacts/license-allowlist.json",
+      "stableSha256": "7b6dff8685866bedb81c0d1fb30e0e15841a7bc58de6d78afa251c1749835ba4",
+      "stableBytes": 737
+    },
+    {
+      "path": "artifacts/supply-chain-install-script-allowlist.json",
+      "stableSha256": "de1cbb8034b2e0b718ffb84449a74ad6bfa8b6ff7e12439ba601ad766fcfdb11",
+      "stableBytes": 1766
+    },
+    {
+      "path": "artifacts/sbom-diff-report.json",
+      "stableSha256": "660be92b6cd2c63fc7cb811f37b2c5f8efc8fcc9f8f1f302d9d9811fb4d86901",
+      "stableBytes": 133
+    },
+    {
+      "path": "artifacts/reproducible-build-report.json",
+      "stableSha256": "718a380f1796c35a3a415f745cba835dfb3331ffeb405a34a4ab91ef07dd496e",
+      "stableBytes": 204
+    }
+  ]
+}

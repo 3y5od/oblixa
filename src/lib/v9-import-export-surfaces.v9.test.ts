@@ -12,11 +12,12 @@ describe("V9 §17–§19 import, extraction, and export route surfaces", () => {
 
   it("anchors export contracts API handler", () => {
     const raw = readFileSync(join(process.cwd(), "src/app/api/export/contracts/route.ts"), "utf8");
+    const csv = readFileSync(join(process.cwd(), "src/lib/export/contracts-csv.ts"), "utf8");
     expect(raw.length).toBeGreaterThan(80);
     expect(raw).toMatch(/export async function GET/);
     expect(raw).toMatch(/export async function POST/);
-    expect(raw).toContain("product.v9.export_started");
-    expect(raw).toContain("product.v9.export_completed");
+    expect(`${raw}\n${csv}`).toContain("product.v9.export_started");
+    expect(csv).toContain("product.v9.export_completed");
   });
 
   it("anchors export job-detail API handler for follow-through visibility", () => {

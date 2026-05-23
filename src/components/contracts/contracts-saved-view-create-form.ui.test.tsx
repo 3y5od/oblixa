@@ -12,6 +12,8 @@ const defaults = {
   search: "",
   status: "",
   owner: "",
+  counterparty: "",
+  contract_type: "",
   region: "",
   deadline: "",
   sort: "",
@@ -19,6 +21,7 @@ const defaults = {
   review: "",
   data_quality: "",
   evidence: "",
+  work: "",
 };
 
 describe("ContractsSavedViewCreateForm", () => {
@@ -34,6 +37,6 @@ describe("ContractsSavedViewCreateForm", () => {
       <ContractsSavedViewCreateForm organizationId="org-1" canEdit defaults={defaults} />
     );
     expect(screen.getByLabelText(/save current view/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /save view/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^save$/i })).toBeTruthy();
   });
 });

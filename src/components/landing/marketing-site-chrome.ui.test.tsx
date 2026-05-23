@@ -7,8 +7,9 @@ describe("Marketing site chrome", () => {
   it("renders the header with account actions", () => {
     renderWithProviders(<MarketingSiteHeader />);
     expect(screen.getByRole("navigation", { name: /site/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /legal/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: /sign in/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /get started/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /start free trial/i })).toBeTruthy();
   });
 
   it("renders the footer with legal and account links", () => {
@@ -17,4 +18,3 @@ describe("Marketing site chrome", () => {
     expect(screen.getByRole("navigation", { name: /account/i })).toBeTruthy();
   });
 });
-

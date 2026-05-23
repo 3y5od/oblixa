@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { V9_WORK_HUB_LENS_VALUES } from "./work-hub-lens";
+import { WORK_TAB_ORDER } from "./work/model";
 import { parseContractListSort } from "./contract-list-id-filters";
 import { V9_ACTIVATION_PATH, V9_NOTIFICATION_CLASSES } from "./v9-release-contract";
 
@@ -72,9 +72,17 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
     });
   });
 
-  describe("§12 work hub — five lenses", () => {
-    it("exports five lens values matching spec", () => {
-      expect([...V9_WORK_HUB_LENS_VALUES]).toEqual(["assigned", "due_soon", "overdue", "blocked", "recent"]);
+  describe("§12 Work — release-state tabs", () => {
+    it("exports release-state Work tabs matching spec", () => {
+      expect([...WORK_TAB_ORDER]).toEqual([
+        "all",
+        "my_work",
+        "overdue",
+        "blocked",
+        "approvals",
+        "obligations",
+        "exceptions",
+      ]);
     });
   });
 

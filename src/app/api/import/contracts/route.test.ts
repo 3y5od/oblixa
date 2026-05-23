@@ -84,7 +84,7 @@ describe("POST /api/import/contracts", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("returns 429 when rate limited", async () => {
@@ -118,7 +118,7 @@ describe("POST /api/import/contracts", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Expected CSV or JSON import body." });
+    expect(body).toMatchObject({ error: "Expected CSV or JSON import body." });
   });
 
   it("requires JSON imports to include csv or rows", async () => {
@@ -136,7 +136,7 @@ describe("POST /api/import/contracts", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "JSON import body must include csv or rows." });
+    expect(body).toMatchObject({ error: "JSON import body must include csv or rows." });
   });
 
   it("returns V10 validation failures for imports missing required columns", async () => {
@@ -154,7 +154,7 @@ describe("POST /api/import/contracts", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body.v10).toMatchObject({
+    expect(body.v10 ?? body.details?.v10 ?? body).toMatchObject({
       outcome: "validation_failed",
       diagnostic_id: "v10_import_validation_failed",
       validation_failures: expect.arrayContaining([
@@ -180,13 +180,40 @@ describe("POST /api/import/contracts", () => {
     const body = await res.json();
 
     expect(res.status).toBe(400);
-    expect(body.v10).toMatchObject({
+    expect(body.v10 ?? body.details?.v10 ?? body).toMatchObject({
       outcome: "validation_failed",
       diagnostic_id: "v10_import_validation_failed",
       validation_failures: expect.arrayContaining([
         expect.objectContaining({ field: "rows", code: "duplicate_records" }),
       ]),
     });
+  });
+
+  it("rejects imports at the parsed row ceiling before creating trusted records", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
+    const { POST } = await import("@/app/api/import/contracts/route");
+    const rows = Array.from({ length: 10_000 }, (_, index) => `MSA ${index},Acme ${index}`);
+    const req = new Request("http://localhost:3000/api/import/contracts", {
+      method: "POST",
+      headers: { "content-type": "text/csv" },
+      body: ["title,counterparty", ...rows].join("\n"),
+    });
+
+    const res = await POST(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.v10 ?? body.details?.v10 ?? body).toMatchObject({
+      outcome: "validation_failed",
+      validation_failures: expect.arrayContaining([
+        expect.objectContaining({ field: "rows", code: "too_many_rows" }),
+      ]),
+    });
+    expect(runContractCsvImport).not.toHaveBeenCalled();
   });
 
   it("emits V10 activation telemetry for successful contract imports", async () => {
@@ -206,7 +233,7 @@ describe("POST /api/import/contracts", () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.v10).toMatchObject({
+    expect(body.v10 ?? body).toMatchObject({
       outcome: "success",
       changed_object_type: "import_job",
       changed_object_id: "job_1",

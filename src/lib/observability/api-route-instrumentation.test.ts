@@ -60,8 +60,8 @@ describe("Epic 15 — HTTP semantics helpers", () => {
     expect(rej?.status).toBe(415);
   });
 
-  it("allows missing Content-Type", () => {
+  it("rejects missing Content-Type for JSON bodies", () => {
     const req = new Request("http://localhost/api/x", { method: "POST", body: "{}" });
-    expect(jsonContentTypeRejection(req)).toBeNull();
+    expect(jsonContentTypeRejection(req)?.status).toBe(415);
   });
 });

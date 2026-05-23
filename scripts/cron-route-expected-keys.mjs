@@ -67,4 +67,8 @@ export const CRON_ROUTE_EXPECTED_KEYS = new Map([
     "/api/cron/v10/runtime-artifact-cleanup",
     ["ok", "archived_count", "retention_cutoff"],
   ],
+  [
+    "/api/cron/security/retention-cleanup",
+    ["ok", "policy_count", "retention_cutoff", "cleanup_counts"],
+  ],
 ]);

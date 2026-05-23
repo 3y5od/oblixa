@@ -1,4 +1,25 @@
 {
   "version": 1,
-  "extensions": [".exe", ".dll", ".bat", ".cmd", ".sh", ".deb", ".rpm", ".lnk", ".scr", ".app", ".dmg", ".7z", ".rar", ".cab"]
+  "extensions": [
+    ".7z",
+    ".app",
+    ".bat",
+    ".cab",
+    ".cmd",
+    ".deb",
+    ".dll",
+    ".dmg",
+    ".exe",
+    ".jar",
+    ".js",
+    ".lnk",
+    ".mjs",
+    ".ps1",
+    ".rar",
+    ".rpm",
+    ".scr",
+    ".sh",
+    ".vbs",
+    ".zip"
+  ]
 }

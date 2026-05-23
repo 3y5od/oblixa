@@ -20,6 +20,8 @@ import {
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
 import { runSingleReportPackGeneration } from "@/app/api/cron/v4/report-packs-generate/route";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 type ReportRetryMutationResponse = V10MutationResponse & {
   success?: boolean;
@@ -41,6 +43,8 @@ export async function POST(
   { params }: { params: Promise<{ runId: string }> }
 ) {
   const { runId } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ runId }, ["runId"], "/api/report-runs/[runId]/retry");
+  if (routeParamRejection) return routeParamRejection;
   const supabase = await createClient();
   const {
     data: { user },
@@ -78,6 +82,9 @@ export async function POST(
     v10MutationResponse: true,
   });
   if (modeGate) return modeGate;
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
 
   const idempotencyKey = getV10IdempotencyKeyFromRequest(request);
   if (!idempotencyKey || !validateV10IdempotencyKey(idempotencyKey)) {

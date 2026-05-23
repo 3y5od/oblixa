@@ -1,30 +1,17 @@
 import { headers } from "next/headers";
 import { isSafeExtractionWorkerOrigin } from "@/lib/security/worker-url";
+import {
+  getCanonicalTrustedAppOriginFromEnv,
+  isLocalOrigin,
+  isProductionLikeOriginEnv,
+  resolveTrustedOriginFromHeaders,
+} from "@/lib/security/trusted-origin";
+import { getTrustedPublicOriginFromRequest } from "@/lib/security/trusted-forwarded";
 
-function normalizeOrigin(raw: string): string {
-  return raw.replace(/\/+$/, "");
-}
-
-function isProductionLike(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.NODE_ENV === "production" || String(env.VERCEL_ENV ?? "").trim() === "production";
-}
-
-export function isLocalOrigin(origin: string): boolean {
-  try {
-    const parsed = new URL(origin);
-    return parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
-  } catch {
-    return false;
-  }
-}
+export { isLocalOrigin };
 
 export function getCanonicalAppBaseUrlFromEnv(env: NodeJS.ProcessEnv = process.env): string | null {
-  const raw =
-    env.NEXT_PUBLIC_APP_URL?.trim() || env.APP_BASE_URL?.trim() || env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || "";
-  if (!raw) return isProductionLike(env) ? null : "http://localhost:3000";
-  const origin = normalizeOrigin(raw.startsWith("http") ? raw : `https://${raw}`);
-  if (isProductionLike(env) && isLocalOrigin(origin)) return null;
-  return origin;
+  return getCanonicalTrustedAppOriginFromEnv(env);
 }
 
 /**
@@ -40,7 +27,7 @@ export function getAppBaseUrlFromEnv(): string {
  * custom domains, and local dev without relying on NEXT_PUBLIC_APP_URL.
  */
 export function getRequestOrigin(request: Request): string {
-  return normalizeOrigin(new URL(request.url).origin);
+  return getTrustedPublicOriginFromRequest(request);
 }
 
 /**
@@ -70,22 +57,19 @@ export function resolveExtractionWorkerOrigin(request: Request): string {
 export async function resolveAppBaseUrl(): Promise<string> {
   try {
     const h = await headers();
-    const host = h.get("x-forwarded-host") ?? h.get("host");
-    if (host) {
-      const proto =
-        h.get("x-forwarded-proto") ??
-        (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
-      return `${proto}://${host}`.replace(/\/+$/, "");
-    }
+    const trusted = resolveTrustedOriginFromHeaders(h);
+    if (trusted) return trusted;
   } catch {
     // headers() unavailable outside a request
   }
-  const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) {
-    const origin = vercel.startsWith("http") ? vercel : `https://${vercel}`;
-    return normalizeOrigin(origin);
+  const canonical = getCanonicalAppBaseUrlFromEnv();
+  if (canonical) return canonical;
+  if (isProductionLikeOriginEnv()) {
+    throw new Error(
+      "[app-url] Missing trusted app origin. Set NEXT_PUBLIC_APP_URL, APP_BASE_URL, VERCEL_PROJECT_PRODUCTION_URL, or OBLIXA_TRUSTED_APP_ORIGINS."
+    );
   }
-  return getAppBaseUrlFromEnv();
+  return "http://localhost:3000";
 }
 
 export function getCanonicalServerBaseUrl(): string | null {

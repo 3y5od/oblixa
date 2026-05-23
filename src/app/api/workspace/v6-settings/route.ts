@@ -1,13 +1,23 @@
 import { NextResponse } from "next/server";
-import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { jsonProblem } from "@/lib/http/problem";
+import { BODY_LIMIT_SMALL_JSON, readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { readJsonBody } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { getV6OrgSettingsJson, mergeV6OrgSettingsJson, type V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import {
+  getV6OrgSettingsSnapshot,
+  mergeV6OrgSettingsJson,
+  type V6OrgSettingsJson,
+} from "@/lib/v6/org-settings";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent, recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import { requireExpectedVersionForMutation, staleExpectedVersionResponse } from "@/lib/security/stale-write-guard";
+
+const ROUTE = "/api/workspace/v6-settings";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -23,10 +33,18 @@ export async function GET() {
   });
   if (modeGate) return modeGate;
 
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_workspace_v6_settings_total", 1).catch(() => undefined);
 
-  const settings = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
-  return NextResponse.json({ settings });
+  const snapshot = await getV6OrgSettingsSnapshot(ctx.admin, ctx.orgId);
+  return NextResponse.json({ settings: snapshot.settings, settingsVersion: snapshot.updatedAt });
 }
 
 export async function PATCH(request: Request) {
@@ -43,7 +61,20 @@ export async function PATCH(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  const _lb_body = await readJsonBodyLimited(request);
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.workspace.v6-settings",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/workspace/v6-settings",
+    method: "PATCH",
+  }).catch(() => undefined);
+
+  const _lb_body = await readJsonBodyLimited(request, BODY_LIMIT_SMALL_JSON);
   if (!_lb_body.ok) return _lb_body.response;
   const body = readJsonBody<{
     autopilotAllowExecution?: boolean;
@@ -59,11 +90,43 @@ export async function PATCH(request: Request) {
   }
 
   if (Object.keys(patch).length === 0) {
-    return NextResponse.json({ error: "No valid fields" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "No valid fields",
+      code: "no_valid_fields",
+      diagnostic_id: "workspace_v6_settings_no_valid_fields",
+      route: ROUTE,
+    });
   }
 
-  const { data, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const expectedVersionResult = requireExpectedVersionForMutation(request, {
+    route: ROUTE,
+    diagnosticPrefix: "workspace_v6_settings",
+  });
+  if (!expectedVersionResult.ok) return expectedVersionResult.response;
+
+  const { data, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch, {
+    expectedVersion: expectedVersionResult.expectedVersion,
+  });
+  if (error) {
+    if (error.message === "stale_version") {
+      return staleExpectedVersionResponse({
+        route: ROUTE,
+        diagnosticPrefix: "workspace_v6_settings",
+      });
+    }
+    return jsonProblem(400, {
+      error: error.message,
+      code: "workspace_v6_settings_update_failed",
+      diagnostic_id: "workspace_v6_settings_update_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) {
+    return staleExpectedVersionResponse({
+      route: ROUTE,
+      diagnosticPrefix: "workspace_v6_settings",
+    });
+  }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_patch_workspace_v6_settings_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);

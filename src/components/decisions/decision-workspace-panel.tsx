@@ -283,8 +283,7 @@ export function DecisionWorkspacePanel({
 
         <div className="border-t border-[var(--border-subtle)] pt-4">
           <p className="text-xs font-semibold text-[var(--text-secondary)]">Add stakeholder (user id)</p>
-          <input
-            className="ui-input-compact mt-2 w-full"
+          <input aria-label="UUID of workspace member" className="ui-input-compact mt-2 w-full"
             placeholder="UUID of workspace member"
             value={stakeholderId}
             onChange={(e) => setStakeholderId(e.target.value)}

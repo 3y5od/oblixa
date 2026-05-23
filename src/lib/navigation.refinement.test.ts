@@ -3,20 +3,19 @@
  * Fails if NAV_ITEMS drifts without updating the spec or this test.
  */
 import { describe, expect, it } from "vitest";
-import { NAV_ITEMS, getWorkflowAreaForNavItem } from "@/lib/navigation";
+import { NAV_ITEMS, getWorkflowAreaForNavItem, isContractsRoot } from "@/lib/navigation";
 
 const CORE_PRIMARY_HREFS = [
   "/dashboard",
   "/contracts",
-  "/contracts/review",
   "/work",
   "/contracts/renewals",
-  "/contracts/exceptions",
   "/contracts/evidence-studio",
   "/reports",
   "/settings",
-  "/more",
 ] as const;
+
+const CORE_CHILD_HREFS = ["/contracts/review"] as const;
 
 const ADVANCED_PRIMARY_HREFS = ["/decisions", "/campaigns", "/contracts/programs", "/relationship-workspaces"] as const;
 
@@ -37,8 +36,12 @@ function primaryByHref(href: string) {
   return NAV_ITEMS.find((i) => i.section === "primary" && i.href === href);
 }
 
+function childByHref(href: string) {
+  return NAV_ITEMS.flatMap((item) => item.navChildren ?? []).find((child) => child.href.split("?")[0] === href);
+}
+
 describe("refinement §7 navigation", () => {
-  it("§7.1 includes every Core primary destination (plus Tools as /more)", () => {
+  it("§7.1 includes every release-state Core primary destination", () => {
     for (const href of CORE_PRIMARY_HREFS) {
       const item = primaryByHref(href);
       expect(item, `missing primary nav item for ${href}`).toBeTruthy();
@@ -64,18 +67,34 @@ describe("refinement §7 navigation", () => {
     }
   });
 
-  it("§9.2 Review and Renewals stay primary (not only under Work)", () => {
-    expect(primaryByHref("/contracts/review")).toBeTruthy();
-    expect(primaryByHref("/contracts/renewals")).toBeTruthy();
+  it("§9.2 Review and Renewals stay reachable from primary navigation", () => {
+    expect(childByHref("/contracts/review")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
   });
 
-  it("§9.1 Work hub includes §7.1 first-class destinations (Renewals, Exceptions, Evidence stay primary)", () => {
+  it("§9.1 Work is a single top-level destination with tabs inside the route", () => {
     const work = NAV_ITEMS.find((i) => i.name === "Work");
-    const childHrefs = new Set((work?.navChildren ?? []).map((c) => c.href.split("?")[0]));
-    for (const href of ["/contracts/renewals", "/contracts/exceptions", "/contracts/evidence-studio"] as const) {
-      expect(childHrefs.has(href)).toBe(true);
-      expect(primaryByHref(href)).toBeTruthy();
+    expect(work?.navChildren ?? []).toEqual([]);
+    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/contracts/evidence-studio")).toBeTruthy();
+  });
+
+  it("keeps Settings as a single Core navigation destination", () => {
+    const settings = NAV_ITEMS.find((i) => i.name === "Settings");
+    expect(settings?.navChildren ?? []).toEqual([]);
+  });
+
+  it("keeps consolidated Core destinations reachable as primary child links", () => {
+    for (const href of CORE_CHILD_HREFS) {
+      expect(childByHref(href), `missing primary child link for ${href}`).toBeTruthy();
     }
+  });
+
+  it("treats child routes as contract subroutes instead of the contracts root", () => {
+    expect(isContractsRoot("/contracts/bulk")).toBe(false);
+    expect(isContractsRoot("/contracts/evidence-studio")).toBe(false);
+    expect(isContractsRoot("/contracts/reports")).toBe(false);
+    expect(isContractsRoot("/contracts")).toBe(true);
   });
 
   it("classifies Work as a workflow area, not a monitor surface", () => {

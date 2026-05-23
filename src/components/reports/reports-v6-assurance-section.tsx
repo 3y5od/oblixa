@@ -278,14 +278,14 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
 
             {a.latest_segment_rollup_top.length > 0 ? (
               <Panel className="mt-3 sm:col-span-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                   Latest run — top segments
                 </p>
                 <ul className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
                   {a.latest_segment_rollup_top.map((s) => (
                     <li key={s.key} className="flex justify-between gap-4">
                       <span>
-                        {s.name} <span className="font-mono text-[10px] text-[var(--text-tertiary)]">({s.key})</span>
+                        {s.name} <span className="font-mono text-[11px] text-[var(--text-tertiary)]">({s.key})</span>
                       </span>
                       <span className="tabular-nums font-medium">{s.member_count} members</span>
                     </li>
@@ -295,7 +295,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             ) : null}
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Adoption (30d)
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -310,7 +310,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             </Panel>
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Quality counters (30d rollup)
               </p>
               <p className="mt-1 text-xs text-[var(--text-tertiary)]">
@@ -337,7 +337,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             </Panel>
 
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Finding calibration (30d)
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">
@@ -446,7 +446,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
             />
 
             <Panel className="mt-3 sm:col-span-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Policy pass rate by scope
               </p>
               <p className="mt-1 text-xs text-[var(--text-tertiary)]">Per evaluation unit before averaging.</p>
@@ -474,7 +474,7 @@ export function ReportsV6AssuranceAnalyticsSection(props: {
 
           {Object.keys(a.open_findings_by_type).length > 0 ? (
             <Panel className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 Open findings by type
               </p>
               <div className="mt-2 flex flex-wrap gap-2" role="list">

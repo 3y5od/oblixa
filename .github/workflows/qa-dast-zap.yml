@@ -2,18 +2,60 @@ name: QA DAST ZAP
 
 on:
   workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Optional target URL. Defaults to STAGING_BASE_URL secret."
+        required: false
+        type: string
+      strict:
+        description: "Fail when no target is configured and fail on new high-risk ZAP alerts."
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
 
 jobs:
   zap_baseline:
-    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      STAGING_BASE_URL: ${{ inputs.target_url || secrets.STAGING_BASE_URL }}
+      DAST_TARGET_MODE: local
+      DAST_LOCAL_BASE_URL: http://127.0.0.1:3000
+      OBLIXA_RELEASE_SECURITY_STRICT: ${{ inputs.strict && '1' || '' }}
+      ZAP_STRICT: ${{ inputs.strict && '1' || '' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: ZAP baseline (disabled — enable with STAGING_BASE_URL + ZAP image)
+        with:
+          persist-credentials: false
+
+      - name: Resolve DAST target
+        id: dast_target
+        shell: bash
         run: |
-          echo "See artifacts/zap-baseline.json allowlist."
-          test -f artifacts/zap-baseline.json
+          if [ -n "${STAGING_BASE_URL}" ]; then
+            echo "run_zap=true" >> "$GITHUB_OUTPUT"
+            echo "target=${STAGING_BASE_URL}" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_zap=false" >> "$GITHUB_OUTPUT"
+            cat > zap-report.json <<'JSON'
+          {"alerts":[],"meta":{"mode":"skipped_no_dast_target","reason":"Set STAGING_BASE_URL or workflow_dispatch target_url to run ZAP."}}
+          JSON
+          fi
+
+      - name: Validate release security prerequisites
+        run: npm run check:release-security-required-env
+
+      - name: Run ZAP baseline
+        if: steps.dast_target.outputs.run_zap == 'true'
+        env:
+          ZAP_TARGET_URL: ${{ steps.dast_target.outputs.target }}
+        run: |
+          docker run --rm -v "${PWD}:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t "${ZAP_TARGET_URL}" -J zap-report.json || true
+
+      - name: Compare ZAP baseline
+        env:
+          ZAP_REPORT_PATH: zap-report.json
+        run: npm run check:zap-baseline-compare

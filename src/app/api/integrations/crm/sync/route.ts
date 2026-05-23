@@ -12,7 +12,9 @@ export const maxDuration = 60;
 type PersistAdmin = {
   from: (table: string) => {
     update: (payload: Record<string, unknown>) => {
-      eq: (column: string, value: string) => PromiseLike<{ error: { message: string } | null }>;
+      eq: (column: string, value: string) => {
+        eq: (column: string, value: string) => PromiseLike<{ error: { message: string } | null }>;
+      };
     };
   };
 };
@@ -51,9 +53,13 @@ async function updateConnectionState(
   connectionId: string,
   payload: Record<string, unknown>,
   errors: Array<Record<string, unknown>>,
-  detail: { diagnosticId: string; message: string; organizationId?: string }
+  detail: { diagnosticId: string; message: string; organizationId: string }
 ) {
-  const { error } = await admin.from("integration_connections").update(payload).eq("id", connectionId);
+  const { error } = await admin
+    .from("integration_connections")
+    .update(payload)
+    .eq("id", connectionId)
+    .eq("organization_id", detail.organizationId);
   if (error) {
     appendRouteError(errors, {
       diagnosticId: detail.diagnosticId,
@@ -72,9 +78,13 @@ async function updateContractState(
   contractId: string,
   payload: Record<string, unknown>,
   errors: Array<Record<string, unknown>>,
-  detail: { diagnosticId: string; message: string; organizationId?: string }
+  detail: { diagnosticId: string; message: string; organizationId: string }
 ) {
-  const { error } = await admin.from("contracts").update(payload).eq("id", contractId);
+  const { error } = await admin
+    .from("contracts")
+    .update(payload)
+    .eq("id", contractId)
+    .eq("organization_id", detail.organizationId);
   if (error) {
     appendRouteError(errors, {
       diagnosticId: detail.diagnosticId,

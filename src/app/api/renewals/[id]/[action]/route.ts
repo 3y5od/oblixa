@@ -17,8 +17,10 @@ import {
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const RENEWAL_ACTIONS = ["complete", "reopen", "generate-decision-packet", "recommendation"] as const;
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
   return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
@@ -29,6 +31,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   const { id, action } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id, action }, ["id", "action"], "/api/renewals/[id]/[action]");
+  if (routeParamRejection) return routeParamRejection;
+  const routeActionRejection = rejectInvalidRouteParamEnums(
+    { action },
+    { action: RENEWAL_ACTIONS },
+    "/api/renewals/[id]/[action]"
+  );
+  if (routeActionRejection) return routeActionRejection;
   const ctx = await getApiAuthContext();
   if (!ctx) {
     return jsonV10(

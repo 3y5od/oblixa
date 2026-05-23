@@ -2,12 +2,14 @@ import type { createAdminClient } from "@/lib/supabase/server";
 import { differenceInCalendarDays, isValid } from "date-fns";
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
+import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 import { parseBusinessDateAtNoon } from "@/lib/v9-business-dates";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
 export interface ContractListRowSignals {
   openExceptionCount: number;
+  openWorkCount: number;
   outstandingEvidenceCount: number;
   missingCriticalDates: boolean;
   nextHorizonField: string | null;
@@ -17,6 +19,7 @@ export interface ContractListRowSignals {
 
 const emptySignals = (): ContractListRowSignals => ({
   openExceptionCount: 0,
+  openWorkCount: 0,
   outstandingEvidenceCount: 0,
   missingCriticalDates: false,
   nextHorizonField: null,
@@ -30,13 +33,28 @@ const emptySignals = (): ContractListRowSignals => ({
 export async function getContractListRowSignalsMap(
   admin: Admin,
   orgId: string,
-  contractIds: string[]
+  contractIds: string[],
+  viewer: { role?: string | null; workspaceMode?: string | null } = {}
 ): Promise<Record<string, ContractListRowSignals>> {
   const map: Record<string, ContractListRowSignals> = {};
   for (const id of contractIds) map[id] = emptySignals();
   if (contractIds.length === 0) return map;
 
-  const [{ data: exRows, error: exErr }, { data: evRows, error: evErr }, { data: stRows, error: stErr }] =
+  const visibleWorkQuery = applyV10ReadModelVisibility(
+    admin.from("v10_work_items").select("contract_id"),
+    {
+      organizationId: orgId,
+      role: viewer.role ?? "viewer",
+      workspaceMode: viewer.workspaceMode ?? "core",
+    }
+  );
+
+  const [
+    { data: exRows, error: exErr },
+    { data: evRows, error: evErr },
+    { data: workRows, error: workErr },
+    { data: stRows, error: stErr },
+  ] =
     await Promise.all([
       admin
         .from("exceptions")
@@ -50,11 +68,16 @@ export async function getContractListRowSignalsMap(
         .eq("organization_id", orgId)
         .in("contract_id", contractIds)
         .in("status", [...EVIDENCE_GAP_STATUSES]),
+      visibleWorkQuery
+        .in("contract_id", contractIds)
+        .neq("status", "done")
+        .neq("status", "canceled"),
       admin.from("contracts").select("id, status").eq("organization_id", orgId).in("id", contractIds),
     ]);
 
   if (exErr) console.error("[contract-list-row-signals] exceptions:", exErr.message);
   if (evErr) console.error("[contract-list-row-signals] evidence:", evErr.message);
+  if (workErr) console.error("[contract-list-row-signals] work:", workErr.message);
   if (stErr) console.error("[contract-list-row-signals] contracts:", stErr.message);
 
   for (const r of exRows ?? []) {
@@ -64,6 +87,10 @@ export async function getContractListRowSignalsMap(
   for (const r of evRows ?? []) {
     const cid = r.contract_id as string;
     if (map[cid]) map[cid].outstandingEvidenceCount += 1;
+  }
+  for (const r of workRows ?? []) {
+    const cid = r.contract_id as string;
+    if (map[cid]) map[cid].openWorkCount += 1;
   }
 
   const statusById = new Map((stRows ?? []).map((r) => [r.id as string, r.status as string]));

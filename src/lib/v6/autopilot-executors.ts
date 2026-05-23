@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow } from "@/lib/v6/service";
-import { nowIso } from "@/lib/v5/api";
+import { externalActionTokenStorageFields, nowIso } from "@/lib/v5/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { isOrgAutopilotExecutionAllowed } from "@/lib/v6/org-settings";
 
@@ -90,8 +90,9 @@ export async function executeAutopilotAction(
 
   switch (rule.action_type) {
     case "evidence_refresh_request": {
+      const token = `ap-${randomUUID()}`;
       const link = await createRow(admin, "external_action_links", orgId, {
-        token: `ap-${randomUUID()}`,
+        ...externalActionTokenStorageFields(token),
         action_type: "evidence_refresh_loop",
         status: "open",
         expires_at: daysFromNow(7),
@@ -229,8 +230,9 @@ export async function executeAutopilotAction(
       break;
     }
     case "request_stakeholder_input": {
+      const token = `ap-${randomUUID()}`;
       const link = await createRow(admin, "external_action_links", orgId, {
-        token: `ap-${randomUUID()}`,
+        ...externalActionTokenStorageFields(token),
         action_type: "bounded_request",
         status: "open",
         expires_at: daysFromNow(10),
@@ -242,8 +244,9 @@ export async function executeAutopilotAction(
       break;
     }
     case "send_follow_up_nudge": {
+      const token = `ap-${randomUUID()}`;
       const link = await createRow(admin, "external_action_links", orgId, {
-        token: `ap-${randomUUID()}`,
+        ...externalActionTokenStorageFields(token),
         action_type: "nudge",
         status: "open",
         expires_at: daysFromNow(3),

@@ -1,5 +1,6 @@
-import { NextResponse, after } from "next/server";
-import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { after } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { BODY_LIMIT_LARGE_JSON, readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { resolveExtractionWorkerOrigin } from "@/lib/app-url";
 import { runExtractionPipeline } from "@/lib/extraction/run-pipeline";
@@ -22,23 +23,56 @@ import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
 import { secFetchSiteAllowsSensitiveMutation } from "@/lib/security/sec-fetch-policy";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { isKillExtraction, killSwitchJsonResponse } from "@/lib/security/kill-switches";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { signInternalRequest } from "@/lib/security/internal-hmac";
+import { requireTenantAiProcessingEnabled } from "@/lib/security/ai-tenant-gate";
+
+const ROUTE = "/api/extract";
 
 /** Large PDFs + OpenAI can exceed default serverless limits on some hosts */
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const ip = getClientIpFromRequest(request);
+  const rateKey = user ? `extract:${user.id}:${ip}` : `extract:anon:${ip}`;
+  const rl = await rateLimitCheck(rateKey, RATE_LIMITS.extract);
+  if (!rl.ok) {
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
+  }
+
+  if (!user) {
+    return jsonUnauthorized(ROUTE);
+  }
+
+  const ctReject = jsonContentTypeRejection(request);
+  if (ctReject) {
+    return jsonProblem(ctReject.status, {
+      error: "Unsupported media type",
+      code: "unsupported_media_type",
+      diagnostic_id: "extract_unsupported_media_type",
+      route: ROUTE,
+      details: ctReject.details,
+    });
+  }
+  if (!secFetchSiteAllowsSensitiveMutation(request)) {
+    return jsonProblem(403, {
+      error: "Cross-site request rejected",
+      code: "cross_site_request_rejected",
+      diagnostic_id: "extract_cross_site_rejected",
+      route: ROUTE,
+    });
+  }
+
   if (isKillExtraction()) {
     return killSwitchJsonResponse("extraction");
   }
-  const ctReject = jsonContentTypeRejection(request);
-  if (ctReject) {
-    return NextResponse.json(ctReject.body, { status: ctReject.status });
-  }
-  if (!secFetchSiteAllowsSensitiveMutation(request)) {
-    return NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 });
-  }
 
-  const _limBody = await readJsonBodyLimited(request);
+  const _limBody = await readJsonBodyLimited(request, BODY_LIMIT_LARGE_JSON);
   if (!_limBody.ok) return _limBody.response;
   const body = _limBody.body;
 
@@ -51,66 +85,65 @@ export async function POST(request: Request) {
       : "";
 
   if (!rawId) {
-    return NextResponse.json({ error: "contractId required" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "contractId required",
+      code: "contract_id_required",
+      diagnostic_id: "extract_contract_id_required",
+      route: ROUTE,
+    });
   }
 
   if (!isUuid(rawId)) {
-    return NextResponse.json({ error: "Invalid contractId" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Invalid contractId",
+      code: "invalid_contract_id",
+      diagnostic_id: "extract_contract_id_invalid",
+      route: ROUTE,
+    });
   }
 
   const contractId = rawId;
-
-  const supabase = await createClient();
   const admin = await createAdminClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const ip = getClientIpFromRequest(request);
-  const rateKey = user ? `extract:${user.id}:${ip}` : `extract:anon:${ip}`;
-  const rl = await rateLimitCheck(rateKey, RATE_LIMITS.extract);
-  if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many extraction requests. Try again shortly." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+  const { data: memberships, error: membershipError } = await admin
+    .from("organization_members")
+    .select("organization_id")
+    .eq("user_id", user.id);
+  if (membershipError) {
+    return jsonProblem(500, {
+      error: "Could not verify organization access",
+      code: "organization_access_check_failed",
+      diagnostic_id: "extract_org_access_check_failed",
+      route: ROUTE,
+    });
   }
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const orgIds = [...new Set((memberships ?? []).map((m) => String(m.organization_id)).filter(Boolean))];
+  if (orgIds.length === 0) {
+    return jsonForbidden(ROUTE);
   }
 
   const { data: contract } = await admin
     .from("contracts")
     .select("organization_id")
     .eq("id", contractId)
+    .in("organization_id", orgIds)
     .single();
 
   if (!contract) {
-    return NextResponse.json({ error: "Contract not found" }, { status: 404 });
-  }
-
-  const { data: membership } = await admin
-    .from("organization_members")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("organization_id", contract.organization_id)
-    .limit(1)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    return jsonNotFound(ROUTE);
   }
 
   const role = await getOrgMemberRole(admin, user.id, contract.organization_id);
   if (!role) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    return jsonForbidden(ROUTE);
+  }
+  if (!canEditContracts(role)) {
+    return jsonProblem(403, {
+      error: "Viewers cannot run extraction",
+      code: "insufficient_role",
+      diagnostic_id: "extract_viewer_forbidden",
+      route: ROUTE,
+    });
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
@@ -119,19 +152,34 @@ export async function POST(request: Request) {
     apiPath: "/api/extract",
   });
   if (modeGate) return modeGate;
-  if (!canEditContracts(role)) {
-    return NextResponse.json({ error: "Viewers cannot run extraction" }, { status: 403 });
-  }
   // §4.4 — billing gate for extraction only; unrelated to product surface mode.
   if (
     isPlanEnforcementEnabled() &&
     !(await orgHasActivePlan(admin, contract.organization_id))
   ) {
-    return NextResponse.json(
-      { error: "An active subscription is required" },
-      { status: 402 }
-    );
+    return jsonProblem(402, {
+      error: "An active subscription is required",
+      code: "subscription_required",
+      diagnostic_id: "extract_subscription_required",
+      route: ROUTE,
+    });
   }
+  const aiGate = await requireTenantAiProcessingEnabled(admin, contract.organization_id);
+  if (!aiGate.ok) {
+    return jsonProblem(403, {
+      error: "AI processing is disabled for this organization",
+      code: "tenant_ai_processing_disabled",
+      diagnostic_id: "extract_tenant_ai_disabled",
+      route: ROUTE,
+    });
+  }
+
+  void recordApiMutationAuditEvent(admin, {
+    organizationId: contract.organization_id,
+    actorUserId: user.id,
+    route: ROUTE,
+    method: "POST",
+  }).catch(() => undefined);
 
   const jobStart = await startExtractionJob(
     admin,
@@ -142,7 +190,7 @@ export async function POST(request: Request) {
     // Idempotent: duplicate POSTs (double-click, slow network) race here; the first
     // request already set processing + scheduled work — treat as accepted, not an error.
     if (jobStart.status === 409) {
-      return NextResponse.json(
+      return jsonOk(
         {
           accepted: true,
           async: true,
@@ -151,15 +199,18 @@ export async function POST(request: Request) {
         { status: 202 }
       );
     }
-    return NextResponse.json(
-      { error: jobStart.error },
-      { status: jobStart.status }
-    );
+    return jsonProblem(jobStart.status, {
+      error: jobStart.error,
+      code: "extraction_job_start_failed",
+      diagnostic_id: "extract_job_start_failed",
+      route: ROUTE,
+    });
   }
 
   const orgId = contract.organization_id;
   const uid = user.id;
   const workerSecret = process.env.EXTRACTION_WORKER_SECRET?.trim();
+  const internalHmacSecret = process.env.OBLIXA_INTERNAL_HMAC_SECRET?.trim();
   const workerOrigin = resolveExtractionWorkerOrigin(request);
 
   /** When the worker HTTP call fails without running the pipeline (4xx, gateway, network), run here. Skip on 500 so we do not double-run OpenAI if the worker failed mid-pipeline. */
@@ -188,22 +239,32 @@ export async function POST(request: Request) {
     }
   }
 
-  if (workerSecret) {
+  if (internalHmacSecret || workerSecret) {
     after(async () => {
       try {
+        const workerBody = JSON.stringify({
+          contractId,
+          userId: uid,
+          organizationId: orgId,
+        });
+        const workerHeaders: Record<string, string> = {
+          "Content-Type": "application/json",
+          ...(internalHmacSecret
+            ? signInternalRequest({
+                secret: internalHmacSecret,
+                method: "POST",
+                path: "/api/extract/run",
+                body: workerBody,
+                keyId: "current",
+              })
+            : { Authorization: `Bearer ${workerSecret}` }),
+        };
         const res = await fetchWithRetry(
           `${workerOrigin}/api/extract/run`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${workerSecret}`,
-            },
-            body: JSON.stringify({
-              contractId,
-              userId: uid,
-              organizationId: orgId,
-            }),
+            headers: workerHeaders,
+            body: workerBody,
           },
           { maxAttempts: 4, baseDelayMs: 400 }
         );
@@ -305,7 +366,7 @@ export async function POST(request: Request) {
     });
   }
 
-  return NextResponse.json(
+  return jsonOk(
     {
       accepted: true,
       async: true,

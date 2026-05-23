@@ -17,8 +17,10 @@ import {
 } from "@/lib/v10-server-contracts";
 import { validateV10ApprovalDecision } from "@/lib/v10-approval-exception";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const APPROVAL_ACTIONS = ["approve", "reject", "request-changes", "delegate", "escalate"] as const;
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
   return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
@@ -29,6 +31,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   const { id, action } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id, action }, ["id", "action"], "/api/approvals/[id]/[action]");
+  if (routeParamRejection) return routeParamRejection;
+  const routeActionRejection = rejectInvalidRouteParamEnums(
+    { action },
+    { action: APPROVAL_ACTIONS },
+    "/api/approvals/[id]/[action]"
+  );
+  if (routeActionRejection) return routeActionRejection;
   const ctx = await getApiAuthContext();
   if (!ctx) {
     return jsonV10(
@@ -133,7 +143,7 @@ export async function POST(
             ],
           });
         }
-        const { error } = await ctx.admin
+        const { data: updatedApproval, error } = await ctx.admin
           .from("contract_approvals")
           .update({
             status: nextStatus,
@@ -141,12 +151,22 @@ export async function POST(
             resolved_at: new Date().toISOString(),
           })
           .eq("id", id)
-          .eq("organization_id", ctx.orgId);
+          .eq("organization_id", ctx.orgId)
+          .eq("status", "pending")
+          .select("id, status")
+          .maybeSingle();
         if (error) {
           return buildV10MutationResponse({
             outcome: "server_error",
             message: "Approval could not be updated.",
             diagnosticId: "v10_approval_decision_update_failed",
+          });
+        }
+        if (!updatedApproval) {
+          return buildV10MutationResponse({
+            outcome: "conflict",
+            message: "Approval status changed before this decision was saved.",
+            diagnosticId: "v10_approval_decision_stale_status",
           });
         }
 
@@ -230,6 +250,13 @@ export async function POST(
         payload: { action, delegate_user_id: delegateUserId },
       },
       async () => {
+        if (approval.status !== "pending") {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only pending approvals can be delegated.",
+            diagnosticId: "v10_approval_delegate_not_pending",
+          });
+        }
         if (!delegateUserId || !/^[0-9a-f]{8}-/i.test(delegateUserId)) {
           return buildV10MutationResponse({
             outcome: "validation_failed",
@@ -281,7 +308,7 @@ export async function POST(
             ],
           });
         }
-        const { error } = await ctx.admin
+        const { data: updatedApproval, error } = await ctx.admin
           .from("contract_approvals")
           .update({
             approver_id: delegateUserId,
@@ -289,12 +316,22 @@ export async function POST(
             escalation_at: null,
           })
           .eq("id", id)
-          .eq("organization_id", ctx.orgId);
+          .eq("organization_id", ctx.orgId)
+          .eq("status", "pending")
+          .select("id, status")
+          .maybeSingle();
         if (error) {
           return buildV10MutationResponse({
             outcome: "server_error",
             message: "Approval could not be delegated.",
             diagnosticId: "v10_approval_delegate_update_failed",
+          });
+        }
+        if (!updatedApproval) {
+          return buildV10MutationResponse({
+            outcome: "conflict",
+            message: "Approval status changed before delegation was saved.",
+            diagnosticId: "v10_approval_delegate_stale_status",
           });
         }
 
@@ -370,19 +407,36 @@ export async function POST(
         payload: { action },
       },
       async () => {
-        const { error } = await ctx.admin
+        if (approval.status !== "pending") {
+          return buildV10MutationResponse({
+            outcome: "validation_failed",
+            message: "Only pending approvals can be escalated.",
+            diagnosticId: "v10_approval_escalate_not_pending",
+          });
+        }
+        const { data: updatedApproval, error } = await ctx.admin
           .from("contract_approvals")
           .update({
             escalation_status: "escalated",
             escalated_at: new Date().toISOString(),
           })
           .eq("id", id)
-          .eq("organization_id", ctx.orgId);
+          .eq("organization_id", ctx.orgId)
+          .eq("status", "pending")
+          .select("id, status")
+          .maybeSingle();
         if (error) {
           return buildV10MutationResponse({
             outcome: "server_error",
             message: "Approval could not be escalated.",
             diagnosticId: "v10_approval_escalate_update_failed",
+          });
+        }
+        if (!updatedApproval) {
+          return buildV10MutationResponse({
+            outcome: "conflict",
+            message: "Approval status changed before escalation was saved.",
+            diagnosticId: "v10_approval_escalate_stale_status",
           });
         }
 

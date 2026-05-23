@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { parseFixedEnumParam } from "@/lib/security/validation";
+
+const ROUTE = "/api/exceptions";
+const EXCEPTION_STATUSES = ["", "open", "in_review", "resolved", "dismissed"] as const;
+const EXCEPTION_SEVERITIES = ["", "low", "medium", "high", "critical"] as const;
 
 export async function GET(request: Request) {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -14,8 +20,8 @@ export async function GET(request: Request) {
   if (modeGate) return modeGate;
 
   const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-  const severity = url.searchParams.get("severity");
+  const status = parseFixedEnumParam(url.searchParams.get("status"), EXCEPTION_STATUSES, "");
+  const severity = parseFixedEnumParam(url.searchParams.get("severity"), EXCEPTION_SEVERITIES, "");
 
   let query = ctx.admin
     .from("exceptions")
@@ -29,6 +35,13 @@ export async function GET(request: Request) {
   if (severity) query = query.eq("severity", severity);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "exceptions_list_failed",
+      diagnostic_id: "exceptions_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ exceptions: data ?? [] });
 }

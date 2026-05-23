@@ -36,7 +36,7 @@ function primaryHrefs(): Set<string> {
   );
 }
 
-/** Primary items plus `navChildren` (e.g. Work → Tasks) and operations queue links. */
+/** Primary items plus release-state sidebar children and non-Core operations queue links. */
 function discoverableNavHrefs(): Set<string> {
   const s = new Set<string>();
   for (const i of NAV_ITEMS) {
@@ -49,7 +49,7 @@ function discoverableNavHrefs(): Set<string> {
 }
 
 describe("refinement §2 primary story routes", () => {
-  it("maps default narrative centers to primary or operations nav targets", () => {
+  it("maps release-state Core narrative centers to public nav targets", () => {
     const p = primaryHrefs();
     const nav = discoverableNavHrefs();
     const ops = new Set(
@@ -59,14 +59,10 @@ describe("refinement §2 primary story routes", () => {
     expect(has("/contracts")).toBe(true);
     expect(has("/contracts/review")).toBe(true);
     expect(has("/work")).toBe(true);
-    expect(has("/contracts/tasks")).toBe(true);
-    expect(has("/contracts/obligations")).toBe(true);
-    expect(has("/contracts/approvals")).toBe(true);
     expect(has("/contracts/renewals")).toBe(true);
-    expect(has("/contracts/exceptions")).toBe(true);
     expect(has("/contracts/evidence-studio")).toBe(true);
     expect(has("/reports") || has("/contracts/reports")).toBe(true);
-    expect(has("/contracts/intake")).toBe(true);
+    expect(has("/contracts/tasks")).toBe(false);
     const corePatterns = new Set(
       ROUTE_INVENTORY.filter((e) => e.tier === "core").map((e) => e.pattern.toLowerCase())
     );
@@ -75,15 +71,15 @@ describe("refinement §2 primary story routes", () => {
 });
 
 describe("refinement §7.1 primary nav workspace group order", () => {
-  it("matches product-surface policy Home → Contracts → Review → Work → Renewals → Exceptions → Evidence → Reports → Settings", () => {
+  it("matches v11 dashboard spec compliance: Dashboard → Contracts → Work → Renewals → Evidence → Reports → Settings", () => {
+    // v11 dashboard spec compliance: Renewals + Evidence promoted to top-level
+    // per docs/oblixa-release-state.md §In-App Pages (7 Core nav items).
     const workspace = PRIMARY_NAV_GROUPS.find((g) => g.label === "Workspace");
     expect(workspace?.hrefs).toEqual([
       "/dashboard",
       "/contracts",
-      "/contracts/review",
       "/work",
       "/contracts/renewals",
-      "/contracts/exceptions",
       "/contracts/evidence-studio",
       "/reports",
       "/settings",
@@ -178,6 +174,7 @@ describe("refinement §12.4 / §19 nav badges", () => {
     const out = filterNavBadgesForSurface({ watchlists: 9, reviewQueue: 2, approvals: 1 }, surface);
     expect(out.watchlists).toBeUndefined();
     expect(out.reviewQueue).toBeGreaterThan(0);
+    expect(out.approvals).toBeUndefined();
   });
 });
 

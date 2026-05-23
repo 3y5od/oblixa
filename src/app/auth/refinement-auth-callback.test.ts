@@ -136,4 +136,19 @@ describe("auth callback org provisioning", () => {
     expect(ensureUserOrg).not.toHaveBeenCalled();
     expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=invite_invalid");
   });
+
+  it("uses the trusted canonical origin when the callback request host is untrusted in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://app.example.com");
+    vi.stubEnv("OBLIXA_TRUSTED_APP_ORIGINS", "https://app.example.com");
+    exchangeCodeForSession.mockResolvedValueOnce({ data: { user: null }, error: { message: "bad code" } });
+
+    try {
+      const { GET } = await import("@/app/auth/callback/route");
+      const res = await GET(new Request("https://evil.example/auth/callback?code=abc"));
+      expect(res.headers.get("location")).toBe("https://app.example.com/login?error=auth_callback_error");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { parseCampaignAssignmentJson, resolveCampaignTaskRouting } from "@/lib/v5/campaign-assignment";
 import { CAMPAIGN_TASK_MARKER } from "@/lib/v5/campaign-eligibility";
@@ -9,13 +10,20 @@ import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/campaigns/[id]/start";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -23,31 +31,50 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/campaigns/[id]/start",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
   const duplicate = await enforceIdempotency(request, {
     scope: "campaigns.start",
     actorKey: `${ctx.orgId}:${ctx.userId}`,
   });
   if (duplicate) return duplicate;
 
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/campaigns/[id]/start",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/campaigns/[id]/start");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: campaignMeta } = await ctx.admin
     .from("portfolio_campaigns")
     .select("name, status, assignment_json, v6_effectiveness_json")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!campaignMeta) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!campaignMeta) return jsonNotFound(ROUTE);
   if (!["draft", "previewed"].includes(campaignMeta.status)) {
-    return NextResponse.json(
-      { error: `Cannot start a campaign with status "${campaignMeta.status}"` },
-      { status: 409 }
-    );
+    return jsonProblem(409, {
+      error: `Cannot start a campaign with status "${campaignMeta.status}"`,
+      code: "campaign_start_invalid_status",
+      diagnostic_id: "campaign_start_invalid_status",
+      route: ROUTE,
+    });
   }
   const assignParsed = parseCampaignAssignmentJson(campaignMeta?.assignment_json);
   if (!assignParsed.ok) {
-    return NextResponse.json({ error: assignParsed.error }, { status: 400 });
+    return jsonProblem(400, {
+      error: assignParsed.error,
+      code: "invalid_campaign_assignment",
+      diagnostic_id: "campaign_start_assignment_invalid",
+      route: ROUTE,
+    });
   }
   const assignment = assignParsed.value;
 
@@ -72,8 +99,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("id", id)
     .select("id, status, updated_at")
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  if (!data) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "campaign_start_failed",
+      diagnostic_id: "campaign_start_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) return jsonNotFound(ROUTE);
 
   const { data: pendingRows } = await ctx.admin
     .from("portfolio_campaign_contracts")

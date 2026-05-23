@@ -8,24 +8,21 @@ on:
 permissions:
   contents: read
 
-env:
-  STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
-  CRON_SECRET: ${{ secrets.CRON_SECRET }}
-  HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-  REQUIRE_CRON_CANARY: ${{ vars.REQUIRE_CRON_CANARY }}
-
 jobs:
   canary:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - name: Gate required secrets
         id: gate
+        env:
+          REQUIRE_CRON_CANARY: ${{ vars.REQUIRE_CRON_CANARY }}
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           bash scripts/github-actions/secret-gate.sh "Cron Canary" "REQUIRE_CRON_CANARY" "STAGING_BASE_URL,CRON_SECRET"
 
@@ -46,6 +43,8 @@ jobs:
       - name: Healthchecks start
         if: ${{ steps.gate.outputs.run == 'true' }}
         continue-on-error: true
+        env:
+          HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
         run: |
           if [ -n "$HC_CRON_CANARY_PING" ]; then
             curl -fsS -m 10 "$HC_CRON_CANARY_PING/start"
@@ -57,6 +56,9 @@ jobs:
           COMPREHENSIVE_PASS_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           CRON_CANARY_FAIL_ON_OK_FALSE: "1"
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
           APP_BASE_URL: http://127.0.0.1:3000
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -91,6 +93,8 @@ jobs:
       - name: Healthchecks success
         if: ${{ steps.gate.outputs.run == 'true' && success() }}
         continue-on-error: true
+        env:
+          HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
         run: |
           if [ -n "$HC_CRON_CANARY_PING" ]; then
             curl -fsS -m 10 "$HC_CRON_CANARY_PING"
@@ -99,6 +103,8 @@ jobs:
       - name: Healthchecks fail
         if: ${{ steps.gate.outputs.run == 'true' && failure() }}
         continue-on-error: true
+        env:
+          HC_CRON_CANARY_PING: ${{ secrets.HC_CRON_CANARY_PING }}
         run: |
           if [ -n "$HC_CRON_CANARY_PING" ]; then
             curl -fsS -m 10 "$HC_CRON_CANARY_PING/fail"

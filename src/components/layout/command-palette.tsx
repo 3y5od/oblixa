@@ -29,6 +29,10 @@ import {
 } from "@/lib/product-surface/command-palette-bridge";
 import { shellTestIds } from "@/lib/qa/test-ids";
 import {
+  readCommandPaletteRecentCommands,
+  writeCommandPaletteRecentCommands,
+} from "@/lib/security/client-storage";
+import {
   emitCmdkPaletteOpenedTelemetry,
   emitCmdkResultSelectedTelemetry,
   emitCmdkSearchFailedTelemetry,
@@ -40,7 +44,6 @@ import {
   cmdkJumpMatchesPaletteQuery,
   fallbackNavSurface,
   paletteHrefKey,
-  RECENT_COMMANDS_KEY,
   resultMetaLabel,
   type CommandPaletteRecovery,
   type ContractPaletteResult,
@@ -49,11 +52,7 @@ import {
 import { CommandPaletteRecentDestinations } from "./command-palette-recent-destinations";
 
 function persistRecentCommands(next: string[]) {
-  try {
-    window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next));
-  } catch {
-    // Ignore storage write errors.
-  }
+  writeCommandPaletteRecentCommands(next);
 }
 
 export function CommandPalette(props: {
@@ -103,15 +102,7 @@ export function CommandPalette(props: {
   const [activeIndex, setActiveIndex] = useState(0);
   const [footerVisible, setFooterVisible] = useState(false);
   const [recentHrefs, setRecentHrefs] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = window.localStorage.getItem(RECENT_COMMANDS_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw) as string[];
-      return Array.isArray(parsed) ? parsed.slice(0, 6) : [];
-    } catch {
-      return [];
-    }
+    return readCommandPaletteRecentCommands();
   });
 
   const lastCmdkTelemetryAt = useRef(0);
@@ -462,7 +453,7 @@ export function CommandPalette(props: {
           setOpen(true);
         }}
         data-testid={shellTestIds.commandPaletteTrigger}
-        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-3.5 py-2.5 text-[12px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
+        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-3.5 py-2.5 text-[12.5px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
         aria-label="Open command palette"
@@ -488,7 +479,7 @@ export function CommandPalette(props: {
           />
           <div className="ui-command-modal relative my-auto w-full max-w-3xl">
             <div className="ui-command-search">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] text-[var(--accent-strong)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] text-[var(--accent-strong)]">
                 <Search size={18} aria-hidden />
               </div>
               <input
@@ -502,10 +493,10 @@ export function CommandPalette(props: {
                   if (nextQuery.trim().length < 2) clearRemoteSearchFeedback();
                   setActiveIndex(0);
                 }}
-                className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
+                className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[14px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
                 placeholder="Search pages, queues, reports, tools"
               />
-              <div className="hidden items-center gap-1 justify-self-end text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] sm:flex">
+              <div className="hidden items-center gap-1 justify-self-end text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)] sm:flex">
                 <span className="ui-kbd">⌘</span>
                 <span className="ui-kbd">K</span>
               </div>

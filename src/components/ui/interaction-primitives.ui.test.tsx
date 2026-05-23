@@ -4,6 +4,7 @@ import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { ApiJsonLink } from "./api-json-link";
 import { AsyncActionButton } from "./async-action-button";
 import { ConfirmActionButton } from "./confirm-action-button";
+import { ExternalLink } from "./external-link";
 import { InlineMutationStatus } from "./inline-mutation-status";
 
 describe("interaction primitives", () => {
@@ -29,6 +30,14 @@ describe("interaction primitives", () => {
     const link = screen.getByRole("link", { name: /inspect diagnostics/i });
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toContain("noopener");
+    expect(link.getAttribute("rel")).toContain("noreferrer");
+  });
+
+  it("does not render unsafe external hrefs as links", () => {
+    renderWithProviders(<ExternalLink href="java\nscript:alert(1)">Unsafe target</ExternalLink>);
+
+    expect(screen.queryByRole("link", { name: /unsafe target/i })).toBeNull();
+    expect(screen.getByText("Unsafe target")).toBeTruthy();
   });
 
   it("requires confirmation before running confirmed actions", () => {

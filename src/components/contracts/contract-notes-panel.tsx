@@ -95,13 +95,13 @@ export function ContractNotesPanel({
         <div className="flex items-center justify-between gap-3">
           {canEdit ? (
             <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-              <input name="pinned" type="checkbox" className="h-4 w-4 rounded border-[var(--border-strong)]" />
+              <input aria-label="Pinned" name="pinned" type="checkbox" className="ui-checkbox" />
               Pin this note
             </label>
           ) : (
             <span className="text-xs text-[var(--text-tertiary)]">Pinned notes require editor/admin access.</span>
           )}
-          <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
+          <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
             {isPending ? "Saving..." : "Save note"}
           </button>
         </div>
@@ -121,7 +121,7 @@ export function ContractNotesPanel({
             const isAuthor = note.author_id === currentUserId;
             const canDelete = isAuthor || canEdit;
             return (
-              <li key={note.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
+              <li key={note.id} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="whitespace-pre-wrap text-sm text-[var(--text-primary)]">{note.note}</p>

@@ -10,7 +10,7 @@
 import { randomUUID } from "node:crypto";
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow, updateRowById } from "@/lib/v6/service";
-import { nowIso } from "@/lib/v5/api";
+import { externalActionTokenStorageFields, nowIso } from "@/lib/v5/api";
 
 const WORKFLOW_PLAYBOOK_NAME = "__v6_workflow_intervention_seed__";
 const WORKFLOW_BOARD_NAME_PREFIX = "Weekly portfolio health";
@@ -127,8 +127,9 @@ export async function workflowPolicyBreachRemediation(admin: AdminClient, orgId:
  * §10 Workflow 3: external evidence refresh loop (valid expiry, scoped chain).
  */
 export async function workflowExternalEvidenceRefresh(admin: AdminClient, orgId: string, userId: string) {
+  const token = `v6-${randomUUID()}`;
   const link = await createRow(admin, "external_action_links", orgId, {
-    token: `v6-${randomUUID()}`,
+    ...externalActionTokenStorageFields(token),
     action_type: "evidence_refresh_loop",
     status: "open",
     expires_at: isoDaysFromNow(7),

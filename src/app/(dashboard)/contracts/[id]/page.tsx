@@ -1,6 +1,7 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import type { ReactNode } from "react";
 import { FieldReview } from "@/components/contracts/field-review";
 import { AddFieldForm } from "@/components/contracts/add-field-form";
 import { ExtractButton } from "@/components/contracts/extract-button";
@@ -8,7 +9,26 @@ import { DownloadButton } from "@/components/contracts/download-button";
 import { UploadMoreFiles } from "@/components/contracts/upload-more-files";
 import { OwnerAssignmentForm } from "@/components/contracts/owner-assignment-form";
 import { DeleteContractButton } from "@/components/contracts/delete-contract-button";
-import { FileText, ArrowLeft, User, Calendar, Bell } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Bell,
+  Calendar,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardCheck,
+  FileCheck2,
+  FileText,
+  FolderOpen,
+  ListChecks,
+  NotebookPen,
+  ShieldAlert,
+  User,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
@@ -23,7 +43,7 @@ import { ContractObligationsPanel } from "@/components/contracts/contract-obliga
 import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoints-panel";
 import { ContractEvidenceRequirementsPanel } from "@/components/contracts/contract-evidence-requirements-panel";
 import { addRenewalWorkspaceNoteForm, seedRenewalPlaybook } from "@/actions/renewal-playbook";
-import { canEditContracts } from "@/lib/permissions";
+import { canDeleteContracts, canEditContracts } from "@/lib/permissions";
 import { hasRoleCapability } from "@/lib/access-control";
 import { addFieldCommentForm } from "@/actions/field-comments";
 import { createClarificationTaskForm } from "@/actions/tasks";
@@ -61,6 +81,203 @@ import { isEvidenceGapStatus } from "@/lib/evidence-status";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
+import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+
+type ContractDetailTab =
+  | "overview"
+  | "fields"
+  | "dates"
+  | "work"
+  | "tasks"
+  | "workflow"
+  | "obligations"
+  | "renewals"
+  | "approvals"
+  | "exceptions"
+  | "evidence"
+  | "casefile"
+  | "timeline"
+  | "files"
+  | "reports"
+  | "notes"
+  | "activity"
+  | "audit"
+  | "programs"
+  | "integrations"
+  | "ownership";
+
+function humanizeContractEnumLabel(value: string | null | undefined, fallback = "Not set") {
+  if (!value) return fallback;
+  const explicit: Record<string, string> = {
+    awaiting_review: "Awaiting review",
+    at_risk: "At risk",
+    renewal_prep: "Renewal preparation",
+    no_action_required: "No action required",
+  };
+  return explicit[value] ?? value.replace(/_/g, " ").replace(/^./, (char) => char.toUpperCase());
+}
+
+function humanizeAuditEventLabel(value: string | null | undefined) {
+  if (!value) return "Activity recorded";
+  const normalized = value.toLowerCase().replace(/\./g, " ").replace(/\s+/g, " ").trim();
+  const explicit: Record<string, string> = {
+    "product v9 extraction_succeeded": "Extraction completed",
+    contract_template_pack_applied: "Template pack applied",
+    "contract created": "Contract created",
+    "exception detected · exception · system · casefile": "Exception detected",
+  };
+  return explicit[normalized] ?? humanizeContractEnumLabel(normalized, "Activity recorded");
+}
+
+function criticalDateLabel(fieldName: string) {
+  const labels: Record<string, string> = {
+    effective_date: "Effective date",
+    start_date: "Start date",
+    end_date: "End date",
+    renewal_date: "Renewal date",
+    notice_window: "Notice window",
+    auto_renewal: "Auto renewal",
+  };
+  return labels[fieldName] ?? humanizeContractEnumLabel(fieldName);
+}
+
+const CORE_CONTRACT_DATE_FIELDS = [
+  "effective_date",
+  "start_date",
+  "end_date",
+  "renewal_date",
+  "notice_window",
+] as const;
+
+type CoreSignalTone = "attention" | "danger" | "healthy" | "neutral" | "info";
+
+const coreSignalToneClasses: Record<CoreSignalTone, string> = {
+  attention:
+    "border-[color:color-mix(in_oklab,var(--warning)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_24%,var(--surface-raised))] text-[var(--warning-ink)]",
+  danger:
+    "border-[color:color-mix(in_oklab,var(--danger)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_24%,var(--surface-raised))] text-[var(--danger-ink)]",
+  healthy:
+    "border-[color:color-mix(in_oklab,var(--success)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]",
+  neutral:
+    "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_42%,var(--surface-raised))] text-[var(--text-secondary)]",
+  info:
+    "border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] text-[var(--accent-strong)]",
+};
+
+function coreStatusTone(status: string | null | undefined): CoreSignalTone {
+  if (!status) return "neutral";
+  if (["approved", "active", "complete", "completed", "accepted"].includes(status)) return "healthy";
+  if (["rejected", "failed", "blocked", "open", "in_progress"].includes(status)) return "danger";
+  if (["pending", "pending_review", "awaiting_review"].includes(status)) return "attention";
+  return "neutral";
+}
+
+function CoreCountPill({
+  value,
+  label,
+  tone = "neutral",
+}: {
+  value: number | string;
+  label: string;
+  tone?: CoreSignalTone;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[tone]}`}
+    >
+      <span className="font-mono text-[11px] tabular-nums">{value}</span>
+      {label}
+    </span>
+  );
+}
+
+function CorePanelHeader({
+  icon: Icon,
+  eyebrow,
+  title,
+  count,
+  countLabel,
+  action,
+}: {
+  icon: LucideIcon;
+  eyebrow: string;
+  title: string;
+  count?: string | number;
+  countLabel?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <header className="flex flex-col gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className="ui-icon-tile-compact shrink-0" aria-hidden>
+          <Icon className="h-4 w-4" strokeWidth={1.85} />
+        </span>
+        <div className="min-w-0">
+          <p className="ui-caps-3 text-[var(--text-tertiary)]">{eyebrow}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            <h2 className="text-[1.05rem] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
+              {title}
+            </h2>
+            {count != null ? (
+              <CoreCountPill value={count} label={countLabel ?? "shown"} tone="info" />
+            ) : null}
+          </div>
+        </div>
+      </div>
+      {action ? <div className="flex shrink-0 flex-wrap gap-2">{action}</div> : null}
+    </header>
+  );
+}
+
+function CoreSignalCell({
+  icon: Icon,
+  label,
+  value,
+  tone,
+  href,
+  actionLabel,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: CoreSignalTone;
+  href: string;
+  actionLabel?: string;
+}) {
+  const isHealthyZero = tone === "healthy" && value === 0;
+  const isNumericValue = typeof value === "number";
+  return (
+    <Link
+      href={href}
+      className="group min-w-0 border-t border-[var(--border-subtle)] px-5 py-4 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] lg:border-l lg:border-t-0"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="ui-caps-2 text-[var(--text-tertiary)]">{label}</p>
+          <p
+            className={`mt-2 font-semibold leading-none tabular-nums tracking-tight ${
+              isNumericValue ? "text-[2rem]" : "text-[1.1rem]"
+            } ${
+              isHealthyZero
+                ? "text-[color:color-mix(in_oklab,var(--success-ink)_55%,var(--text-tertiary))]"
+                : "text-[var(--text-primary)]"
+            }`}
+          >
+            {value}
+          </p>
+        </div>
+        <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${coreSignalToneClasses[tone]}`}>
+          <Icon className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+        </span>
+      </div>
+      <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)] opacity-75 transition-opacity group-hover:opacity-100">
+        {actionLabel ?? (isHealthyZero ? "Clear" : "Open")}
+        <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+      </span>
+    </Link>
+  );
+}
 
 export default async function ContractDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -86,34 +303,7 @@ export default async function ContractDetailPage(props: {
     from: fromParam,
     reviewPage: reviewPageParam,
   } = await props.searchParams;
-  const activeTab = (
-    ["overview", "fields", "dates", "tasks", "obligations", "approvals", "exceptions", "evidence", "files", "notes", "audit", "reports"].includes(
-      rawTab ?? ""
-    )
-      ? rawTab
-      : "overview"
-  ) as "overview" | "fields" | "dates" | "tasks" | "obligations" | "approvals" | "exceptions" | "evidence" | "files" | "notes" | "audit" | "reports";
-  const primaryTabGroups = [
-    { value: "overview", label: "Overview", tabs: ["overview"] },
-    { value: "tasks", label: "Work", tabs: ["tasks", "obligations", "approvals", "exceptions"] },
-    { value: "evidence", label: "Evidence", tabs: ["evidence", "files"] },
-    { value: "fields", label: "Record", tabs: ["fields", "dates"] },
-    { value: "audit", label: "History", tabs: ["notes", "audit", "reports"] },
-  ] as const;
-  const allTabLinks = [
-    ["overview", "Overview"],
-    ["fields", "Fields"],
-    ["dates", "Dates"],
-    ["tasks", "Tasks"],
-    ["obligations", "Obligations"],
-    ["approvals", "Approvals"],
-    ["exceptions", "Exceptions"],
-    ["evidence", "Evidence"],
-    ["files", "Files"],
-    ["reports", "Reports"],
-    ["notes", "Notes"],
-    ["audit", "Audit"],
-  ] as const;
+  const requestedTab = rawTab as ContractDetailTab | undefined;
   const ctx = await getAuthContext();
   if (!ctx) {
     return (
@@ -126,16 +316,33 @@ export default async function ContractDetailPage(props: {
 
   const { orgId, admin, role } = ctx;
   const canEdit = canEditContracts(role as OrgRole);
+  const canDelete = canDeleteContracts(role as OrgRole);
   const productSurface = await loadProductSurfaceContext(admin, orgId, role as WorkspaceRole);
+  const isCoreContractDetail = productSurface.mode === "core";
+  const isAdvancedContractDetail = productSurface.mode === "advanced";
+  const isAssuranceContractDetail = productSurface.mode === "assurance";
+  const showContractWorkflowOps = isAdvancedContractDetail;
+  const showContractRenewalWorkspace = isAdvancedContractDetail;
+  const showContractAdvancedRouting = isAdvancedContractDetail;
+  const showContractEvidenceOps = isAssuranceContractDetail;
+  const showContractAuditOps = isAssuranceContractDetail;
+  const showContractRecordControls = true;
+  const showContractFieldCollaboration = isAdvancedContractDetail;
+  const loadCoreContractOps = isCoreContractDetail;
+  const loadContractWorkData = loadCoreContractOps || showContractWorkflowOps;
+  const loadContractActivityData = loadCoreContractOps || showContractAuditOps;
   const showUtilityExecutionSurfaces = evaluateFeatureEligibility(
     productSurface,
     "execution_graph"
-  ).allowed;
+  ).allowed && showContractAdvancedRouting;
   const showRelationshipWorkspaces =
+    showContractAdvancedRouting &&
     isFeatureEnabled("v5RelationshipLayer") &&
     evaluateFeatureEligibility(productSurface, "relationship_workspaces").allowed;
-  const showProgramsSurface = evaluateFeatureEligibility(productSurface, "programs").allowed;
+  const showProgramsSurface =
+    showContractAdvancedRouting && evaluateFeatureEligibility(productSurface, "programs").allowed;
   const showCollaborationSurface =
+    showContractAdvancedRouting &&
     isFeatureEnabled("v5ExternalCollaboration") &&
     isFeatureEnabled("v6AssuranceCore") &&
     evaluateFeatureEligibility(productSurface, "collaboration").allowed;
@@ -170,12 +377,14 @@ export default async function ContractDetailPage(props: {
       .eq("id", id)
       .eq("organization_id", orgId)
       .single(),
-    admin
-      .from("audit_events")
-      .select("id, action, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(20),
+    showContractAuditOps
+      ? admin
+          .from("audit_events")
+          .select("id, action, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [] }),
     admin
       .from("reminders")
       .select("id, reminder_type, reminder_date, sent_at")
@@ -189,13 +398,15 @@ export default async function ContractDetailPage(props: {
       )
       .eq("contract_id", id)
       .maybeSingle(),
-    admin
-      .from("contract_tasks")
-      .select(
-        "id, contract_id, organization_id, created_by, assignee_id, title, details, status, priority, created_via, team_key, blocked_reason, recurrence_interval_days, sla_due_at, due_date, completed_at, created_at, updated_at"
-      )
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false }),
+    loadContractWorkData
+      ? admin
+          .from("contract_tasks")
+          .select(
+            "id, contract_id, organization_id, created_by, assignee_id, title, details, status, priority, created_via, team_key, blocked_reason, recurrence_interval_days, sla_due_at, due_date, completed_at, created_at, updated_at"
+          )
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
     admin
       .from("contract_notes")
       .select(
@@ -204,14 +415,16 @@ export default async function ContractDetailPage(props: {
       .eq("contract_id", id)
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false }),
-    admin
-      .from("contract_obligations")
-      .select(
-        "id, contract_id, organization_id, created_by, owner_id, title, details, obligation_type, cadence, recurrence_type, recurrence_interval_days, next_due_date, escalation_due_at, escalation_status, due_date, status, evidence_notes, evidence_url, completed_at, created_at, updated_at"
-      )
-      .eq("contract_id", id)
-      .order("due_date", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: false }),
+    loadContractWorkData
+      ? admin
+          .from("contract_obligations")
+          .select(
+            "id, contract_id, organization_id, created_by, owner_id, title, details, obligation_type, cadence, recurrence_type, recurrence_interval_days, next_due_date, escalation_due_at, escalation_status, due_date, status, evidence_notes, evidence_url, completed_at, created_at, updated_at"
+          )
+          .eq("contract_id", id)
+          .order("due_date", { ascending: true, nullsFirst: false })
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
     admin
       .from("contract_renewal_checkpoints")
       .select(
@@ -219,13 +432,15 @@ export default async function ContractDetailPage(props: {
       )
       .eq("contract_id", id)
       .order("offset_days", { ascending: false }),
-    admin
-      .from("contract_renewal_scenarios")
-      .select(
-        "id, contract_id, organization_id, scenario, decision_notes, blocker, workspace_status, owner_id, target_decision_date, decision_date, escalation_date, commercial_context, scenario_confidence, last_reviewed_at, decided_by, decided_at, created_at, updated_at"
-      )
-      .eq("contract_id", id)
-      .maybeSingle(),
+    showContractRenewalWorkspace
+      ? admin
+          .from("contract_renewal_scenarios")
+          .select(
+            "id, contract_id, organization_id, scenario, decision_notes, blocker, workspace_status, owner_id, target_decision_date, decision_date, escalation_date, commercial_context, scenario_confidence, last_reviewed_at, decided_by, decided_at, created_at, updated_at"
+          )
+          .eq("contract_id", id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
     admin
       .from("contract_approvals")
       .select(
@@ -233,63 +448,79 @@ export default async function ContractDetailPage(props: {
       )
       .eq("contract_id", id)
       .order("created_at", { ascending: false }),
-    admin
-      .from("contract_field_comments")
-      .select("id, contract_id, organization_id, field_id, author_id, comment, mentions, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(20),
-    admin
-      .from("contract_handoff_checklists")
-      .select("id, to_owner_id, checklist_note, status, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(10),
-    admin
-      .from("contract_task_events")
-      .select("id, task_id, event_type, details, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(100),
-    admin
-      .from("contract_obligation_events")
-      .select("id, obligation_id, event_type, details, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(100),
-    admin
-      .from("contract_approval_events")
-      .select("id, approval_id, event_type, details, created_at")
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(100),
+    showContractFieldCollaboration
+      ? admin
+          .from("contract_field_comments")
+          .select("id, contract_id, organization_id, field_id, author_id, comment, mentions, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [] }),
+    showContractWorkflowOps
+      ? admin
+          .from("contract_handoff_checklists")
+          .select("id, to_owner_id, checklist_note, status, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(10)
+      : Promise.resolve({ data: [] }),
+    loadContractWorkData || showContractAuditOps
+      ? admin
+          .from("contract_task_events")
+          .select("id, task_id, event_type, details, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] }),
+    loadContractWorkData || showContractAuditOps
+      ? admin
+          .from("contract_obligation_events")
+          .select("id, obligation_id, event_type, details, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] }),
+    loadContractWorkData || showContractAuditOps
+      ? admin
+          .from("contract_approval_events")
+          .select("id, approval_id, event_type, details, created_at")
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] }),
     admin
       .from("contract_watchlists")
       .select("id")
       .eq("contract_id", id)
       .eq("user_id", ctx.user.id)
       .maybeSingle(),
-    admin
-      .from("contract_renewal_workspace_notes")
-      .select("id, body, pinned, created_at")
-      .eq("contract_id", id)
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(20),
-    admin
-      .from("operational_casefile_events")
-      .select("id, event_type, entity_type, source, occurred_at, details_json")
-      .eq("organization_id", orgId)
-      .eq("contract_id", id)
-      .order("occurred_at", { ascending: false })
-      .limit(80),
-    admin
-      .from("evidence_requirements")
-      .select("id, title, requirement_type, status, due_at, review_due_at, work_item_type, work_item_id")
-      .eq("contract_id", id)
-      .eq("organization_id", orgId)
-      .order("created_at", { ascending: false })
-      .limit(40),
+    showContractRenewalWorkspace || showContractAuditOps
+      ? admin
+          .from("contract_renewal_workspace_notes")
+          .select("id, body, pinned, created_at")
+          .eq("contract_id", id)
+          .order("pinned", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [] }),
+    showContractAuditOps
+      ? admin
+          .from("operational_casefile_events")
+          .select("id, event_type, entity_type, source, occurred_at, details_json")
+          .eq("organization_id", orgId)
+          .eq("contract_id", id)
+          .order("occurred_at", { ascending: false })
+          .limit(80)
+      : Promise.resolve({ data: [] }),
+    isCoreContractDetail || showContractEvidenceOps
+      ? admin
+          .from("evidence_requirements")
+          .select("id, title, requirement_type, status, due_at, review_due_at, work_item_type, work_item_id")
+          .eq("contract_id", id)
+          .eq("organization_id", orgId)
+          .order("created_at", { ascending: false })
+          .limit(40)
+      : Promise.resolve({ data: [] }),
   ]);
 
   if (!contractData) notFound();
@@ -314,7 +545,7 @@ export default async function ContractDetailPage(props: {
         .single()
     : Promise.resolve({ data: null as OwnerProfileRow | null });
   const reminderDeliveryPromise =
-    reminders.length === 0
+    !showContractAuditOps || reminders.length === 0
       ? Promise.resolve({
           data: [] as Array<{
             status: string | null;
@@ -376,14 +607,16 @@ export default async function ContractDetailPage(props: {
     { data: v10ExceptionRecordsData },
     { data: v10AuditData },
   ] = await Promise.all([
-    admin
-      .from("execution_graph_edges")
-      .select(
-        "id, from_entity_type, from_entity_id, to_entity_type, to_entity_id, relation_type, status"
-      )
-      .eq("organization_id", orgId)
-      .eq("contract_id", id)
-      .limit(200),
+    showUtilityExecutionSurfaces
+      ? admin
+          .from("execution_graph_edges")
+          .select(
+            "id, from_entity_type, from_entity_id, to_entity_type, to_entity_id, relation_type, status"
+          )
+          .eq("organization_id", orgId)
+          .eq("contract_id", id)
+          .limit(200)
+      : Promise.resolve({ data: [] }),
     admin
       .from("exceptions")
       .select("id, title, exception_type, status, updated_at")
@@ -391,19 +624,23 @@ export default async function ContractDetailPage(props: {
       .eq("contract_id", id)
       .order("updated_at", { ascending: false })
       .limit(40),
-    admin
-      .from("contract_change_events")
-      .select("id, event_type, summary, created_at")
-      .eq("organization_id", orgId)
-      .eq("contract_id", id)
-      .order("created_at", { ascending: false })
-      .limit(40),
-    admin
-      .from("contract_program_assignments")
-      .select("id, override_json, program_id, contract_programs(name)")
-      .eq("organization_id", orgId)
-      .eq("contract_id", id)
-      .eq("status", "active"),
+    showContractAuditOps
+      ? admin
+          .from("contract_change_events")
+          .select("id, event_type, summary, created_at")
+          .eq("organization_id", orgId)
+          .eq("contract_id", id)
+          .order("created_at", { ascending: false })
+          .limit(40)
+      : Promise.resolve({ data: [] }),
+    showProgramsSurface
+      ? admin
+          .from("contract_program_assignments")
+          .select("id, override_json, program_id, contract_programs(name)")
+          .eq("organization_id", orgId)
+          .eq("contract_id", id)
+          .eq("status", "active")
+      : Promise.resolve({ data: [] }),
     ownerProfilePromise,
     reminderDeliveryPromise,
     evidenceSubmissionPromise,
@@ -482,15 +719,17 @@ export default async function ContractDetailPage(props: {
     )
       .eq("contract_id", id)
       .limit(12),
-    applyV10ReadModelVisibility(
-      admin
-        .from("v10_contract_activity_events")
-        .select("source_id, action, outcome, occurred_at"),
-      { organizationId: orgId, role, workspaceMode: productSurface.mode }
-    )
-      .eq("contract_id", id)
-      .order("occurred_at", { ascending: false })
-      .limit(5),
+    loadContractActivityData
+      ? applyV10ReadModelVisibility(
+          admin
+            .from("v10_contract_activity_events")
+            .select("source_id, action, outcome, occurred_at"),
+          { organizationId: orgId, role, workspaceMode: productSurface.mode }
+        )
+          .eq("contract_id", id)
+          .order("occurred_at", { ascending: false })
+          .limit(5)
+      : Promise.resolve({ data: [] }),
   ]);
 
   const contract = { ...contractData, owner: ownerProfile as OwnerProfileRow | null };
@@ -502,6 +741,8 @@ export default async function ContractDetailPage(props: {
       label: orgMemberProfileLabel(m.profiles),
     };
   });
+  const showContractOwnerAssignment =
+    canEdit && ownerMembers.length > 0 && (isCoreContractDetail || showContractWorkflowOps);
 
   const upcomingReminders = reminders.filter((r) => !r.sent_at);
   const reminderHistory = reminders.filter((r) => r.sent_at);
@@ -526,28 +767,36 @@ export default async function ContractDetailPage(props: {
     { data: taskArtifactsData },
   ] =
     await Promise.all([
-      admin
-        .from("contract_task_checklist_items")
-        .select("id, task_id, label, is_done, sort_order")
-        .eq("contract_id", id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true }),
-      admin
-        .from("contract_task_comments")
-        .select("id, task_id, body, parent_comment_id, edited_at, deleted_at, created_at")
-        .eq("contract_id", id)
-        .order("created_at", { ascending: false })
-        .limit(200),
-      admin
-        .from("contract_task_dependencies")
-        .select("id, task_id, depends_on_task_id")
-        .eq("contract_id", id),
-      admin
-        .from("contract_task_artifacts")
-        .select("id, task_id, label, url, created_at")
-        .eq("contract_id", id)
-        .order("created_at", { ascending: false })
-        .limit(200),
+      showContractWorkflowOps
+        ? admin
+            .from("contract_task_checklist_items")
+            .select("id, task_id, label, is_done, sort_order")
+            .eq("contract_id", id)
+            .order("sort_order", { ascending: true })
+            .order("created_at", { ascending: true })
+        : Promise.resolve({ data: [] }),
+      showContractWorkflowOps
+        ? admin
+            .from("contract_task_comments")
+            .select("id, task_id, body, parent_comment_id, edited_at, deleted_at, created_at")
+            .eq("contract_id", id)
+            .order("created_at", { ascending: false })
+            .limit(200)
+        : Promise.resolve({ data: [] }),
+      showContractWorkflowOps
+        ? admin
+            .from("contract_task_dependencies")
+            .select("id, task_id, depends_on_task_id")
+            .eq("contract_id", id)
+        : Promise.resolve({ data: [] }),
+      showContractWorkflowOps
+        ? admin
+            .from("contract_task_artifacts")
+            .select("id, task_id, label, url, created_at")
+            .eq("contract_id", id)
+            .order("created_at", { ascending: false })
+            .limit(200)
+        : Promise.resolve({ data: [] }),
     ]);
   const checkpoints = (checkpointsData ?? []) as ContractRenewalCheckpoint[];
   const renewalScenario = (renewalScenarioData ?? null) as ContractRenewalScenario | null;
@@ -607,16 +856,18 @@ export default async function ContractDetailPage(props: {
     ...casefileEventsRaw.map((e) => ({
       id: `cf-${e.id}`,
       kind: "casefile" as const,
-      headline: e.event_type.replace(/\./g, " "),
-      detail: [e.entity_type, e.source].filter(Boolean).join(" · "),
+      headline: humanizeAuditEventLabel(
+        [e.event_type, e.entity_type, e.source, "casefile"].filter(Boolean).join(" · ")
+      ),
+      detail: [e.entity_type, e.source].filter(Boolean).map((value) => humanizeContractEnumLabel(value)).join(" · "),
       occurred_at: e.occurred_at,
     })),
     ...(exceptionsCasefileData ?? []).map(
       (e: { id: string; title: string; exception_type: string; status: string; updated_at: string }) => ({
         id: `ex-${e.id}`,
         kind: "exception" as const,
-        headline: `Exception · ${e.exception_type}`,
-        detail: `${e.title} · ${e.status}`,
+        headline: `Exception · ${humanizeContractEnumLabel(e.exception_type)}`,
+        detail: `${e.title} · ${humanizeContractEnumLabel(e.status)}`,
         occurred_at: e.updated_at,
       })
     ),
@@ -624,7 +875,7 @@ export default async function ContractDetailPage(props: {
       (e: { id: string; event_type: string; summary: string | null; created_at: string }) => ({
         id: `ch-${e.id}`,
         kind: "change" as const,
-        headline: `Change · ${e.event_type}`,
+        headline: `Change · ${humanizeAuditEventLabel(e.event_type)}`,
         detail: e.summary ?? "",
         occurred_at: e.created_at,
       })
@@ -688,6 +939,14 @@ export default async function ContractDetailPage(props: {
   const approvedFieldsCount = (contract.extracted_fields ?? []).filter(
     (f: { status: string }) => f.status === "approved"
   ).length;
+  const approvedFieldNames = new Set(
+    (contract.extracted_fields ?? [])
+      .filter((f: { status: string; field_value?: string | null }) => f.status === "approved" && Boolean(f.field_value?.trim()))
+      .map((f: { field_name: string }) => f.field_name)
+  );
+  const missingCriticalDateLabels = CRITICAL_DATE_FIELDS.filter((fieldName) => !approvedFieldNames.has(fieldName)).map(
+    criticalDateLabel
+  );
   const filesCount = contract.contract_files?.length ?? 0;
   const fieldsCount = contract.extracted_fields?.length ?? 0;
   const reviewQueueContinuity =
@@ -815,9 +1074,71 @@ export default async function ContractDetailPage(props: {
     computed_at: string;
   } | null;
   const v10EvidenceStatuses = v10EvidenceStatusData ?? [];
+  const activeV10EvidenceCount = v10EvidenceStatuses.filter((item) =>
+    !["accepted", "approved", "complete", "completed"].includes(String(item.status))
+  ).length;
   const v10ApprovalRecords = v10ApprovalRecordsData ?? [];
   const v10ExceptionRecords = v10ExceptionRecordsData ?? [];
   const v10AuditEvents = v10AuditData ?? [];
+  const coreWorkRows = [
+    ...v10WorkItems.map((item) => ({
+      id: `v10-${item.source_id}`,
+      title: String(item.title ?? "Work item"),
+      detail: [humanizeContractEnumLabel(String(item.type ?? "")), item.due_state ? humanizeContractEnumLabel(String(item.due_state)) : null]
+        .filter(Boolean)
+        .join(" · "),
+      status: String(item.status ?? "open"),
+      action: item.primary_action ? humanizeContractEnumLabel(String(item.primary_action)) : "Open work",
+      updatedAt: item.updated_at ? String(item.updated_at) : null,
+    })),
+    ...tasks.map((task) => ({
+      id: `task-${task.id}`,
+      title: task.title,
+      detail: [task.assignee_id ? ownerMembers.find((member) => member.userId === task.assignee_id)?.label ?? "Assigned" : "Unassigned", task.due_date ? `Due ${formatBusinessDateAtNoon(task.due_date)}` : null]
+        .filter(Boolean)
+        .join(" · "),
+      status: task.status,
+      action: "Open work",
+      updatedAt: task.updated_at ?? null,
+    })),
+  ];
+  const coreActivityRows = [
+    ...v10AuditEvents.map((event) => ({
+      id: `activity-${String(event.source_id)}-${String(event.occurred_at)}`,
+      title: humanizeAuditEventLabel(String(event.action ?? "")),
+      detail: event.outcome ? humanizeContractEnumLabel(String(event.outcome)) : "Recorded",
+      occurredAt: event.occurred_at ? String(event.occurred_at) : null,
+    })),
+    ...(latestSourceDocumentAt
+      ? [
+          {
+            id: "activity-source-file",
+            title: "Source file attached",
+            detail: `${filesCount} file${filesCount === 1 ? "" : "s"} on record`,
+            occurredAt: latestSourceDocumentAt,
+          },
+        ]
+      : []),
+    ...(latestExtractionTouchAt
+      ? [
+          {
+            id: "activity-extraction",
+            title: "Extraction updated",
+            detail: fieldsCount > 0 ? `${fieldsCount} field${fieldsCount === 1 ? "" : "s"} available` : "No fields yet",
+            occurredAt: latestExtractionTouchAt,
+          },
+        ]
+      : []),
+    ...notes.slice(0, 4).map((note) => ({
+      id: `activity-note-${note.id}`,
+      title: "Note added",
+      detail: note.pinned ? "Pinned note" : "Internal note",
+      occurredAt: note.created_at,
+    })),
+  ]
+    .filter((row) => row.occurredAt)
+    .sort((a, b) => +new Date(b.occurredAt ?? 0) - +new Date(a.occurredAt ?? 0))
+    .slice(0, 12);
   const v10HasAnyTrustSignal = Boolean(
     v10HealthSnapshot ||
       v10Activation ||
@@ -856,21 +1177,23 @@ export default async function ContractDetailPage(props: {
     },
     {
       label: "Next action",
-      value: (v10HealthSnapshot?.next_action ?? v10Activation?.next_action ?? contract.required_next_step ?? "no_action_required").replace(/_/g, " "),
+      value: humanizeContractEnumLabel(
+        v10HealthSnapshot?.next_action ?? v10Activation?.next_action ?? contract.required_next_step ?? "no_action_required"
+      ),
       href: v10WorkItems.length > 0 ? "/work" : `/contracts/${contract.id}`,
       sourceObject: "work_item",
     },
     {
       label: "Health",
       value: v10HealthSnapshot
-        ? `${v10HealthSnapshot.score} · ${v10HealthSnapshot.band.replace(/_/g, " ")}`
+        ? `${v10HealthSnapshot.score} · ${humanizeContractEnumLabel(v10HealthSnapshot.band)}`
         : "Not materialized",
       href: `/contracts/${contract.id}#v10-contract-record-trust-title`,
       sourceObject: "contract",
     },
     {
       label: "Renewal",
-      value: v10RenewalPosture ? v10RenewalPosture.posture.replace(/_/g, " ") : "Not materialized",
+      value: v10RenewalPosture ? humanizeContractEnumLabel(v10RenewalPosture.posture) : "Not materialized",
       href: "/contracts/renewals",
       sourceObject: "renewal_checkpoint",
     },
@@ -908,11 +1231,104 @@ export default async function ContractDetailPage(props: {
     },
     {
       label: "Latest audit",
-      value: v10AuditEvents[0]?.action ? String(v10AuditEvents[0].action).replace(/_/g, " ") : "None",
+      value: humanizeAuditEventLabel(v10AuditEvents[0]?.action ? String(v10AuditEvents[0].action) : null),
       href: `/contracts/${contract.id}#contract-audit-trail`,
       sourceObject: "audit_event",
     },
   ] as const;
+  const visibleV10HeaderCards = v10HeaderCards.filter((card) => {
+    if (!isCoreContractDetail) return true;
+    if (["Latest audit", "Evidence", "Approvals", "Exceptions"].includes(card.label)) {
+      return card.label === "Approvals"
+        ? pendingApprovalsCount > 0
+        : card.label === "Exceptions"
+          ? openExceptionsCount > 0
+          : card.label === "Evidence"
+            ? outstandingEvidenceCount > 0 || activeV10EvidenceCount > 0
+          : false;
+    }
+    return ["Owner", "Next action", "Health", "Critical dates", "Field review"].includes(card.label);
+  });
+  const hasBlockingApprovals = pendingApprovalsCount > 0 || v10ApprovalRecords.some((item) => item.status === "pending");
+  const hasActiveIssues =
+    openExceptionsCount > 0 || v10ExceptionRecords.some((item) => !["resolved", "closed"].includes(String(item.status)));
+  const coreTabLinks: Array<[ContractDetailTab, string]> = [
+    ["overview", "Overview"],
+    ["fields", "Fields"],
+    ["dates", "Dates"],
+    ["work", "Work"],
+    ["approvals", "Approvals"],
+    ["obligations", "Obligations"],
+    ["evidence", "Evidence"],
+    ["files", "Files"],
+    ["notes", "Notes"],
+    ["activity", "Activity"],
+  ];
+  const advancedTabLinks: Array<[ContractDetailTab, string]> = [
+    ["overview", "Overview"],
+    ["workflow", "Workflow"],
+    ["renewals", "Renewals"],
+    ["approvals", "Approvals"],
+    ["programs", "Programs"],
+    ["integrations", "Integrations"],
+    ["ownership", "Ownership"],
+    ["fields", "Fields"],
+    ["dates", "Dates"],
+    ["files", "Files"],
+    ["notes", "Notes"],
+  ];
+  const assuranceTabLinks: Array<[ContractDetailTab, string]> = [
+    ["overview", "Overview"],
+    ["evidence", "Evidence"],
+    ["casefile", "Casefile"],
+    ["timeline", "Timeline"],
+    ["audit", "Audit"],
+    ["reports", "Reports"],
+    ["approvals", "Approvals"],
+    ["files", "Files"],
+    ["notes", "Notes"],
+  ];
+  const allTabLinks = isCoreContractDetail
+    ? coreTabLinks
+    : isAssuranceContractDetail
+      ? assuranceTabLinks
+      : advancedTabLinks;
+  const tabValues = new Set(allTabLinks.map(([value]) => value));
+  const activeTab = requestedTab && tabValues.has(requestedTab) ? requestedTab : "overview";
+  const primaryTabGroups = allTabLinks.slice(0, isCoreContractDetail ? allTabLinks.length : 7).map(([value, label]) => ({
+    value,
+    label,
+    tabs: [value],
+  }));
+  const hasSourceFiles = filesCount > 0;
+  const hasExtractedFields = fieldsCount > 0;
+  const needsOwner = !ownerLabel;
+  const needsCounterparty = !contract.counterparty?.trim();
+  const activeIssueCount = openExceptionsCount || v10ExceptionRecords.length;
+  const blockingApprovalCount =
+    pendingApprovalsCount || v10ApprovalRecords.filter((item) => item.status === "pending").length;
+  const attentionEvidenceCount = outstandingEvidenceCount || activeV10EvidenceCount;
+  const coreAttentionItems = [
+    !hasSourceFiles ? "Signed source file is missing" : null,
+    needsOwner ? "Owner is unassigned" : null,
+    needsCounterparty ? "Counterparty is missing" : null,
+    hasSourceFiles && !hasExtractedFields ? "Extraction has not created review fields yet" : null,
+    hasExtractedFields && missingCriticalDateLabels.length > 0
+      ? `Missing key date${missingCriticalDateLabels.length === 1 ? "" : "s"}: ${missingCriticalDateLabels.join(", ")}`
+      : null,
+    pendingFieldsCount > 0
+      ? `${pendingFieldsCount} pending field${pendingFieldsCount === 1 ? " needs" : "s need"} review`
+      : null,
+    hasActiveIssues
+      ? `${activeIssueCount} active issue${activeIssueCount === 1 ? "" : "s"}`
+      : null,
+    hasBlockingApprovals
+      ? `${blockingApprovalCount} approval${blockingApprovalCount === 1 ? "" : "s"} blocking next action`
+      : null,
+    attentionEvidenceCount > 0
+      ? `${attentionEvidenceCount} evidence gap${attentionEvidenceCount === 1 ? " needs" : "s need"} follow-up`
+      : null,
+  ].filter((item): item is string => Boolean(item));
 
   await emitProductTelemetryIfFirstForOrgUser(admin, {
     organizationId: orgId,
@@ -930,21 +1346,878 @@ export default async function ContractDetailPage(props: {
     },
   });
 
+  const extractedFields = contract.extracted_fields ?? [];
+  const fieldByName = new Map(
+    extractedFields.map((field: { field_name: string }) => [field.field_name, field])
+  );
+  const coreDateRows = CORE_CONTRACT_DATE_FIELDS.map((fieldName) => {
+    const field = fieldByName.get(fieldName) as
+      | { field_name: string; field_value?: string | null; status?: string | null; confidence?: number | null }
+      | undefined;
+    return {
+      key: fieldName,
+      label: criticalDateLabel(fieldName),
+      value: field?.field_value?.trim() || "Missing",
+      status: field?.status ?? "missing",
+      confidence: field?.confidence ?? null,
+    };
+  });
+  const missingCoreDateCount = coreDateRows.filter((row) => row.status !== "approved").length;
+  const activeEvidenceCount = outstandingEvidenceCount || activeV10EvidenceCount;
+  const coreOpenWorkCount =
+    v10WorkItems.length + openExceptionsCount + pendingApprovalsCount + activeEvidenceCount;
+  const shouldPrioritizeSourceDocuments = !hasSourceFiles && activeTab === "overview";
+  const primaryActionHref =
+    !hasSourceFiles
+      ? "#source-documents"
+      : needsOwner
+        ? "#ownership-record"
+        : pendingFieldsCount > 0
+          ? "#extracted-fields"
+          : missingCoreDateCount > 0 && hasExtractedFields
+            ? "#contract-dates"
+            : "#contract-notes";
+  const primaryActionLabel =
+    !hasSourceFiles
+      ? "Attach source file"
+      : needsOwner
+        ? "Assign owner"
+        : pendingFieldsCount > 0
+          ? "Review fields"
+          : missingCoreDateCount > 0 && hasExtractedFields
+            ? "Review dates"
+            : "Add note";
+  const nextActionLabel =
+    !hasSourceFiles
+      ? "Attach signed source file"
+      : !hasExtractedFields
+        ? "Run extraction and start review"
+        : needsOwner || needsCounterparty
+          ? "Complete owner and counterparty"
+          : humanizeContractEnumLabel(
+              v10HealthSnapshot?.next_action ?? v10Activation?.next_action ?? contract.required_next_step ?? null,
+              pendingFieldsCount > 0 ? "Review extracted fields" : "No next action recorded"
+            );
+  const coreReviewSignal = hasExtractedFields
+    ? {
+        value: pendingFieldsCount,
+        tone: pendingFieldsCount > 0 ? ("attention" as const) : ("healthy" as const),
+        href: "#extracted-fields",
+        actionLabel: pendingFieldsCount > 0 ? "Review" : "Open",
+      }
+    : {
+        value: hasSourceFiles ? "Extract" : "No file",
+        tone: hasSourceFiles ? ("attention" as const) : ("neutral" as const),
+        href: hasSourceFiles ? "#extracted-fields" : "#source-documents",
+        actionLabel: hasSourceFiles ? "Run" : "Attach",
+      };
+  const coreDateSignal = hasExtractedFields
+    ? {
+        value: missingCoreDateCount,
+        tone: missingCoreDateCount > 0 ? ("attention" as const) : ("healthy" as const),
+        actionLabel: missingCoreDateCount > 0 ? "Review" : "Open",
+      }
+    : {
+        value: "Blocked",
+        tone: "neutral" as const,
+        actionLabel: "Open",
+      };
+
+  const renderCoreSourceDocumentsSection = () => (
+    <section id="source-documents" className="ui-card scroll-mt-28 overflow-hidden">
+      <CorePanelHeader
+        icon={FolderOpen}
+        eyebrow="Files"
+        title="Source documents"
+        count={filesCount}
+        countLabel="files"
+        action={hasSourceFiles ? <UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="" /> : null}
+      />
+      <div className="px-5 py-5 sm:px-6">
+        {!contract.contract_files?.length ? (
+          <div className="grid gap-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+            <span className="ui-icon-tile-compact" aria-hidden>
+              <AlertTriangle className="h-4 w-4" strokeWidth={1.85} />
+            </span>
+            <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
+              Attach the signed agreement
+            </p>
+            <UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="sm:justify-self-end" />
+          </div>
+        ) : (
+          <ul className="divide-y divide-[var(--border-subtle)]">
+            {contract.contract_files.map(
+              (file: {
+                id: string;
+                file_name: string;
+                file_type: string;
+                file_size: number;
+                storage_path: string;
+                created_at: string;
+              }) => (
+                <li key={file.id} className="flex items-center justify-between gap-4 py-4 first:pt-0">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="ui-icon-tile-compact shrink-0" aria-hidden>
+                      <FileText className="h-4 w-4" strokeWidth={1.85} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
+                        {file.file_name}
+                      </p>
+                      <p className="mt-0.5 text-[12.5px] text-[var(--text-tertiary)]">
+                        {formatFileSize(file.file_size)} — {format(new Date(file.created_at), "MMM d, yyyy")} —{" "}
+                        <span className="font-medium text-[var(--success-ink)]">Stored</span>
+                      </p>
+                    </div>
+                  </div>
+                  <DownloadButton storagePath={file.storage_path} fileName={file.file_name} />
+                </li>
+              )
+            )}
+          </ul>
+        )}
+        {canEdit && contract.contract_files?.length ? (
+          <form action={supersedeContractFileForm} className="mt-5 grid gap-2 border-t border-[var(--border-subtle)] pt-5">
+            <input type="hidden" name="contractId" value={contract.id} />
+            <p className="ui-caps-2 text-[var(--text-tertiary)]">Supersede and re-extract</p>
+            <select name="fileId" className="ui-input text-xs" defaultValue="">
+              <option value="" disabled>
+                Select file to supersede
+              </option>
+              {contract.contract_files.map((file: { id: string; file_name: string }) => (
+                <option key={file.id} value={file.id}>
+                  {file.file_name}
+                </option>
+              ))}
+            </select>
+            <input
+              aria-label="Reason (optional)"
+              name="reason"
+              maxLength={200}
+              placeholder="Reason (optional)"
+              className="ui-input text-xs"
+            />
+            <button type="submit" className="ui-btn-secondary max-w-max px-3 py-2 text-xs">
+              Mark superseded and re-run extraction
+            </button>
+          </form>
+        ) : null}
+      </div>
+    </section>
+  );
+
+  if (isCoreContractDetail) {
+    return (
+      <div className="ui-page-stack mx-auto max-w-7xl" data-contract-detail-core>
+        {creationNotice ? (
+          <div className={creationNotice.tone === "success" ? "ui-alert-success" : "ui-alert-warning"}>
+            <p className="font-semibold">{creationNotice.title}</p>
+            <ul className="mt-2 space-y-1 text-[12.5px] leading-relaxed">
+              {creationNotice.lines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+            <div className="mt-3 flex flex-wrap gap-2 text-[12.5px]">
+              <Link href="#extracted-fields" className="ui-link">
+                Open extracted fields
+              </Link>
+              <Link href="#source-documents" className="ui-link">
+                Check source documents
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-4">
+          <Link
+            href={backHref}
+            className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+            {backLabel}
+          </Link>
+          <DashboardPageHeader
+            icon={<FileText className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+            eyebrow="Signed agreement"
+            title={contract.title}
+            metaStrip={
+              <>
+                <div>
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Owner</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--text-primary)]">{ownerLabel ?? "Unassigned"}</dd>
+                </div>
+                <div>
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Updated</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--text-primary)]">
+                    {format(new Date(contract.updated_at), "MMM d, yyyy")}
+                  </dd>
+                </div>
+              </>
+            }
+            actions={
+              <>
+                <span
+                  className={`ui-badge ${
+                    STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
+                  }`}
+                >
+                  {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
+                </span>
+                <Link href={primaryActionHref} className="ui-btn-primary px-4 py-2 text-[13px]">
+                  {primaryActionLabel}
+                </Link>
+              </>
+            }
+          />
+        </div>
+
+        <section className="ui-card-raised overflow-hidden p-0" aria-label="Contract action summary">
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,0.8fr))]">
+            <div className="px-5 py-5 sm:px-6">
+              <p className="ui-caps-2 text-[var(--accent-strong)]">Next action</p>
+              <h2 className="mt-2 text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">
+                {nextActionLabel}
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <CoreCountPill
+                  value={pendingFieldsCount}
+                  label="pending"
+                  tone={pendingFieldsCount > 0 ? "attention" : "healthy"}
+                />
+                <CoreCountPill
+                  value={hasExtractedFields ? missingCoreDateCount : "blocked"}
+                  label="dates"
+                  tone={hasExtractedFields ? (missingCoreDateCount > 0 ? "attention" : "healthy") : "neutral"}
+                />
+                <CoreCountPill
+                  value={coreOpenWorkCount}
+                  label="open work"
+                  tone={coreOpenWorkCount > 0 ? "danger" : "healthy"}
+                />
+              </div>
+            </div>
+            <CoreSignalCell
+              icon={ClipboardCheck}
+              label="Review"
+              value={coreReviewSignal.value}
+              tone={coreReviewSignal.tone}
+              href={coreReviewSignal.href}
+              actionLabel={coreReviewSignal.actionLabel}
+            />
+            <CoreSignalCell
+              icon={CalendarClock}
+              label="Dates"
+              value={coreDateSignal.value}
+              tone={coreDateSignal.tone}
+              href="#contract-dates"
+              actionLabel={coreDateSignal.actionLabel}
+            />
+            <CoreSignalCell
+              icon={ShieldAlert}
+              label="Issues"
+              value={openExceptionsCount}
+              tone={openExceptionsCount > 0 ? "danger" : "healthy"}
+              href={openExceptionsCount > 0 ? `/contracts/exceptions?status=open&contract=${contract.id}` : `/contracts/${contract.id}`}
+              actionLabel={openExceptionsCount > 0 ? "Open" : "Clear"}
+            />
+            <CoreSignalCell
+              icon={FileCheck2}
+              label="Evidence"
+              value={activeEvidenceCount}
+              tone={activeEvidenceCount > 0 ? "attention" : "healthy"}
+              href={activeEvidenceCount > 0 ? "#contract-evidence" : `/contracts/${contract.id}`}
+              actionLabel={activeEvidenceCount > 0 ? "Open" : "Clear"}
+            />
+          </div>
+        </section>
+
+        <nav
+          aria-label="Contract detail sections"
+          className="flex flex-wrap gap-2 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] py-3"
+        >
+          {coreTabLinks.map(([value, label]) => {
+            const active = activeTab === value;
+            return (
+              <Link
+                key={value}
+                href={`/contracts/${contract.id}?tab=${value}`}
+                className={`rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
+                  active
+                    ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
+                    : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_84%,transparent)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
+          <main className="space-y-6">
+            {shouldPrioritizeSourceDocuments ? renderCoreSourceDocumentsSection() : null}
+
+            {(activeTab === "overview" || activeTab === "fields" || activeTab === "dates") && (
+              <section id="extracted-fields" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={ClipboardCheck}
+                  eyebrow="Review"
+                  title="Extracted fields"
+                  count={fieldsCount}
+                  countLabel="fields"
+                  action={
+                    <>
+                      {pendingFieldsCount > 0 ? (
+                        <Link href="/contracts/review" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                          Review queue
+                        </Link>
+                      ) : null}
+                      {hasSourceFiles && hasExtractedFields ? (
+                        <ExtractButton
+                          contractId={contract.id}
+                          hasFiles={hasSourceFiles}
+                          canEdit={canEdit}
+                          extractionJob={extractionJob}
+                        />
+                      ) : null}
+                      {canEdit && hasExtractedFields ? (
+                        <form action={applyContractTemplatePackForm}>
+                          <input type="hidden" name="contractId" value={contract.id} />
+                          <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                            Apply template pack
+                          </button>
+                        </form>
+                      ) : null}
+                    </>
+                  }
+                />
+                <div className="space-y-5 px-5 py-5 sm:px-6">
+                  <ExtractionJobAlert
+                    job={extractionJob}
+                    fieldsCount={fieldsCount}
+                    pendingFieldsCount={pendingFieldsCount}
+                  />
+                  {reviewQueueContinuity ? (
+                    <div className="border-y border-[color:color-mix(in_oklab,var(--border-subtle)_78%,transparent)] py-4">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <p className="ui-caps-2 text-[var(--text-tertiary)]">Review queue</p>
+                          {reviewQueueContinuity.total > 1 ? (
+                            <span className="ui-chip">
+                              <span className="font-mono tabular-nums">
+                                {reviewQueueContinuity.position}/{reviewQueueContinuity.total}
+                              </span>
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
+                            Open queue
+                          </Link>
+                          {reviewQueueContinuity.nextContractId ? (
+                            <ReviewSaveNextTelemetryLink
+                              href={`/contracts/${reviewQueueContinuity.nextContractId}?tab=overview&from=review&reviewPage=${reviewPage}#extracted-fields`}
+                              className="ui-btn-primary px-3 py-2 text-xs"
+                            >
+                              Continue next
+                            </ReviewSaveNextTelemetryLink>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  <BatchApproveButton
+                    contractId={contract.id}
+                    pendingCount={pendingFieldsCount}
+                    canEdit={canEdit}
+                  />
+                  {hasExtractedFields ? (
+                    <FieldReview fields={extractedFields} canEdit={canEdit} />
+                  ) : (
+                    <div className="grid gap-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                      <span className="ui-icon-tile-compact" aria-hidden>
+                        <ClipboardCheck className="h-4 w-4" strokeWidth={1.85} />
+                      </span>
+                      <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
+                        {hasSourceFiles ? "No extracted fields yet" : "Review starts after a source file is attached"}
+                      </p>
+                      {hasSourceFiles ? (
+                        <ExtractButton
+                          contractId={contract.id}
+                          hasFiles={hasSourceFiles}
+                          canEdit={canEdit}
+                          extractionJob={extractionJob}
+                        />
+                      ) : (
+                        <Link href="#source-documents" className="ui-btn-secondary px-4 py-2 text-[13px] sm:justify-self-end">
+                          Attach source file
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                  <AddFieldForm
+                    contractId={contract.id}
+                    existingFieldNames={extractedFields.map((f: { field_name: string }) => f.field_name)}
+                    canEdit={canEdit}
+                  />
+                </div>
+              </section>
+            )}
+
+            {(activeTab === "overview" || activeTab === "dates") && (
+              <section id="contract-dates" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={CalendarClock}
+                  eyebrow="Dates"
+                  title="Key dates and reminders"
+                  count={hasExtractedFields ? missingCoreDateCount : "blocked"}
+                  countLabel={hasExtractedFields ? "gaps" : "dates"}
+                  action={
+                    <Link
+                      href={hasExtractedFields || hasSourceFiles ? "#extracted-fields" : "#source-documents"}
+                      className="ui-btn-secondary px-4 py-2 text-[13px]"
+                    >
+                      {hasExtractedFields ? "Approve dates" : hasSourceFiles ? "Run extraction" : "Attach source file"}
+                    </Link>
+                  }
+                />
+                {!hasExtractedFields ? (
+                  <div className="px-5 py-5 sm:px-6">
+                    <div className="grid gap-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                      <span className="ui-icon-tile-compact" aria-hidden>
+                        <CalendarClock className="h-4 w-4" strokeWidth={1.85} />
+                      </span>
+                      <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
+                        Date tracking is waiting on extraction
+                      </p>
+                      <Link
+                        href={hasSourceFiles ? "#extracted-fields" : "#source-documents"}
+                        className="ui-btn-secondary px-4 py-2 text-[13px] sm:justify-self-end"
+                      >
+                        {hasSourceFiles ? "Run extraction" : "Attach source file"}
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.72fr)]">
+                    <div className="px-5 py-5 sm:px-6">
+                      <div className="divide-y divide-[var(--border-subtle)]">
+                        {coreDateRows.map((row) => {
+                          const tone = coreStatusTone(row.status);
+                          return (
+                            <div key={row.key} className="grid gap-3 py-3 first:pt-0 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto] sm:items-center">
+                              <div>
+                                <p className="ui-caps-3 text-[var(--text-tertiary)]">{row.label}</p>
+                                <p className="mt-1 font-medium text-[var(--text-primary)]">{row.value}</p>
+                              </div>
+                              <p className="text-[12.5px] text-[var(--text-secondary)]">
+                                {row.confidence == null ? "No model signal" : `${Math.round(row.confidence * 100)}% model signal`}
+                              </p>
+                              <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[tone]}`}>
+                                {row.status === "missing" ? "Missing" : humanizeContractEnumLabel(row.status)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="border-t border-[var(--border-subtle)] px-5 py-5 sm:px-6 lg:border-l lg:border-t-0">
+                      <p className="ui-caps-2 text-[var(--text-tertiary)]">Scheduled reminders</p>
+                      {upcomingReminders.length === 0 ? (
+                        <p className="mt-3 text-[13px] text-[var(--text-secondary)]">
+                          No upcoming reminders are scheduled.
+                        </p>
+                      ) : (
+                        <ul className="mt-3 space-y-2">
+                          {upcomingReminders.map((reminder: { id: string; reminder_type: string; reminder_date: string }) => (
+                            <li key={reminder.id} className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] py-2 first:border-t-0">
+                              <span className="text-[13px] font-medium text-[var(--text-primary)]">
+                                {humanizeContractEnumLabel(reminder.reminder_type)}
+                              </span>
+                              <span className="text-[12px] text-[var(--text-secondary)]">
+                                {formatBusinessDateAtNoon(reminder.reminder_date)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="mt-5 border-t border-[var(--border-subtle)] pt-5">
+                        <RenewalCheckpointsPanel checkpoints={checkpoints} canEdit={canEdit} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {(activeTab === "overview" || activeTab === "files") && !shouldPrioritizeSourceDocuments
+              ? renderCoreSourceDocumentsSection()
+              : null}
+
+            {activeTab === "work" ? (
+              <section id="contract-work" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={ListChecks}
+                  eyebrow="Work"
+                  title="Work, obligations, and exceptions"
+                  count={coreWorkRows.length + openExceptionsCount + obligations.length}
+                  countLabel="items"
+                  action={
+                    <Link href={`/work?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
+                      Create work
+                    </Link>
+                  }
+                />
+                <div className="space-y-5 px-5 py-5 sm:px-6">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {[
+                      ["Tasks", coreWorkRows.length, "Open or blocked work items"],
+                      ["Obligations", obligations.length, "Non-date commitments"],
+                      ["Exceptions", openExceptionsCount, "Open contract exceptions"],
+                    ].map(([label, count, detail]) => (
+                      <div key={String(label)} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_38%,transparent)] p-4">
+                        <p className="ui-caps-3 text-[var(--text-tertiary)]">{label}</p>
+                        <p className="mt-2 text-2xl font-semibold leading-none tabular-nums text-[var(--text-primary)]">
+                          {count}
+                        </p>
+                        <p className="mt-2 text-[12.5px] text-[var(--text-secondary)]">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {coreWorkRows.length === 0 && openExceptionsCount === 0 && obligations.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5">
+                      <p className="font-semibold text-[var(--text-primary)]">No open work is attached to this contract.</p>
+                      <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+                        Create work from a deadline, obligation, exception, or evidence request when follow-up is needed.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)]">
+                      {coreWorkRows.slice(0, 8).map((item) => (
+                        <li key={item.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[var(--text-primary)]">{item.title}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">{item.detail || "Work item"}</p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-3">
+                            <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(item.status)]}`}>
+                              {humanizeContractEnumLabel(item.status)}
+                            </span>
+                            <Link href="/work" className="ui-link text-[12.5px]">
+                              {item.action}
+                            </Link>
+                          </div>
+                        </li>
+                      ))}
+                      {(exceptionsCasefileData ?? []).filter((item) => ["open", "in_progress"].includes(item.status)).slice(0, 4).map((issue: { id: string; title: string; status: string }) => (
+                        <li key={`issue-${issue.id}`} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="font-semibold text-[var(--text-primary)]">{issue.title}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">Exception</p>
+                          </div>
+                          <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(issue.status)]}`}>
+                            {humanizeContractEnumLabel(issue.status)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === "approvals" ? (
+              <section id="renewal-approvals" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={BadgeCheck}
+                  eyebrow="Approvals"
+                  title="Approval decisions"
+                  count={pendingApprovalsCount}
+                  countLabel="pending"
+                  action={
+                    <Link href={`/contracts/approvals?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
+                      Open approval queue
+                    </Link>
+                  }
+                />
+                <div className="px-5 py-5 sm:px-6">
+                  {approvals.length === 0 && v10ApprovalRecords.length === 0 ? (
+                    <p className="text-[13px] text-[var(--text-secondary)]">No approvals are attached to this contract.</p>
+                  ) : (
+                    <ul className="divide-y divide-[var(--border-subtle)]">
+                      {approvals.slice(0, 8).map((approval) => (
+                        <li key={approval.id} className="flex items-center justify-between gap-3 py-3">
+                          <span className="font-medium text-[var(--text-primary)]">
+                            {humanizeContractEnumLabel(approval.approval_type)}
+                          </span>
+                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(approval.status)]}`}>
+                            {humanizeContractEnumLabel(approval.status)}
+                          </span>
+                        </li>
+                      ))}
+                      {approvals.length === 0 ? v10ApprovalRecords.slice(0, 8).map((approval) => (
+                        <li key={String(approval.approval_id)} className="flex items-center justify-between gap-3 py-3">
+                          <span className="font-medium text-[var(--text-primary)]">
+                            {humanizeContractEnumLabel(String(approval.approval_type))}
+                          </span>
+                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(String(approval.status))]}`}>
+                            {humanizeContractEnumLabel(String(approval.status))}
+                          </span>
+                        </li>
+                      )) : null}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === "obligations" ? (
+              <section id="contract-obligations" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={ListChecks}
+                  eyebrow="Obligations"
+                  title="Contract obligations"
+                  count={obligations.length}
+                  countLabel="items"
+                  action={
+                    <Link href={`/contracts/obligations?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
+                      Create obligation
+                    </Link>
+                  }
+                />
+                <div className="px-5 py-5 sm:px-6">
+                  {obligations.length === 0 ? (
+                    <p className="text-[13px] text-[var(--text-secondary)]">No obligations are recorded yet.</p>
+                  ) : (
+                    <ul className="divide-y divide-[var(--border-subtle)]">
+                      {obligations.slice(0, 10).map((obligation) => (
+                        <li key={obligation.id} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="min-w-0">
+                            <p className="font-medium text-[var(--text-primary)]">{obligation.title}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
+                              {[obligation.owner_id ? ownerMembers.find((member) => member.userId === obligation.owner_id)?.label ?? "Assigned" : "Unassigned", obligation.due_date ? `Due ${formatBusinessDateAtNoon(obligation.due_date)}` : obligation.cadence || null]
+                                .filter(Boolean)
+                                .join(" · ") || "No cadence or due date set"}
+                            </p>
+                          </div>
+                          <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(obligation.status)]}`}>
+                            {humanizeContractEnumLabel(obligation.status)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {(activeTab === "overview" || activeTab === "evidence") && (activeEvidenceCount > 0 || evidenceRequirements.length > 0 || activeTab === "evidence") ? (
+              <section id="contract-evidence" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={FileCheck2}
+                  eyebrow="Evidence"
+                  title="Evidence requests"
+                  count={activeEvidenceCount}
+                  countLabel="active"
+                  action={
+                    <Link href={`/contracts/evidence-studio?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
+                      Request evidence
+                    </Link>
+                  }
+                />
+                <div className="px-5 py-5 sm:px-6">
+                  {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).length === 0 ? (
+                    <p className="text-[13px] text-[var(--text-secondary)]">No active evidence request needs follow-up.</p>
+                  ) : (
+                    <ul className="divide-y divide-[var(--border-subtle)]">
+                      {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).slice(0, 6).map((item) => (
+                        <li key={item.id} className="flex items-center justify-between gap-3 py-3">
+                          <span className="font-medium text-[var(--text-primary)]">{item.title}</span>
+                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(item.status)]}`}>
+                            {humanizeContractEnumLabel(item.status)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === "notes" ? (
+              <section id="contract-notes" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader icon={NotebookPen} eyebrow="Notes" title="Notes and handoff context" count={notes.length} countLabel="notes" />
+                <div className="px-5 py-5 sm:px-6">
+                  <ContractNotesPanel
+                    contractId={contract.id}
+                    notes={notes}
+                    currentUserId={ctx.user.id}
+                    memberLabels={ownerMembers}
+                    canEdit={canEdit}
+                  />
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === "activity" ? (
+              <section id="contract-activity" className="ui-card scroll-mt-28 overflow-hidden">
+                <CorePanelHeader icon={FileText} eyebrow="Activity" title="Contract activity" count={coreActivityRows.length} countLabel="events" />
+                <div className="px-5 py-5 sm:px-6">
+                  {coreActivityRows.length === 0 ? (
+                    <p className="text-[13px] text-[var(--text-secondary)]">No activity has been recorded for this contract yet.</p>
+                  ) : (
+                    <ul className="divide-y divide-[var(--border-subtle)]">
+                      {coreActivityRows.map((event) => (
+                        <li key={event.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="font-medium text-[var(--text-primary)]">{event.title}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">{event.detail}</p>
+                          </div>
+                          <span className="text-[12px] text-[var(--text-tertiary)]">
+                            {event.occurredAt ? format(new Date(event.occurredAt), "MMM d, yyyy h:mm a") : "Recorded"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ) : null}
+          </main>
+
+          <aside className="space-y-5 xl:sticky xl:top-24">
+            <section id="ownership-record" className="ui-card scroll-mt-28 overflow-hidden">
+              <CorePanelHeader icon={UserRound} eyebrow="Record" title="Owner and status" />
+              <div className="space-y-4 px-5 py-5">
+                <dl className="space-y-3 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Status</dt>
+                    <dd className="font-medium text-[var(--text-primary)]">
+                      {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS] ?? humanizeContractEnumLabel(contract.status)}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Owner</dt>
+                    <dd className="font-medium text-[var(--text-primary)]">{ownerLabel ?? "Unassigned"}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Counterparty</dt>
+                    <dd className="text-right font-medium text-[var(--text-primary)]">
+                      {contract.counterparty || "Missing"}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Type</dt>
+                    <dd className="text-[var(--text-primary)]">{contract.contract_type || "Not set"}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Created</dt>
+                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.created_at), "MMM d, yyyy")}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Updated</dt>
+                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.updated_at), "MMM d, yyyy")}</dd>
+                  </div>
+                </dl>
+                {showContractOwnerAssignment ? (
+                  <div className="border-t border-[var(--border-subtle)] pt-4">
+                    <OwnerAssignmentForm
+                      contractId={contract.id}
+                      currentOwnerId={contract.owner_id}
+                      currentSecondaryOwnerId={contract.secondary_owner_id ?? null}
+                      members={ownerMembers}
+                    />
+                  </div>
+                ) : null}
+                <div className="border-t border-[var(--border-subtle)] pt-4">
+                  <ContractStatusTransition contractId={contract.id} currentStatus={contract.status} canEdit={canEdit} />
+                </div>
+                {canDelete ? (
+                  <details className="group border-t border-[var(--border-subtle)] pt-4">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[12.5px] font-semibold text-[var(--text-secondary)] marker:hidden [&::-webkit-details-marker]:hidden">
+                      Record controls
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" strokeWidth={1.85} aria-hidden />
+                    </summary>
+                    <div className="pt-3">
+                      <DeleteContractButton
+                        contractId={contract.id}
+                        contractTitle={contract.title}
+                        canDelete={canDelete}
+                      />
+                    </div>
+                  </details>
+                ) : null}
+              </div>
+            </section>
+
+            <section className="ui-card overflow-hidden">
+              <CorePanelHeader icon={ListChecks} eyebrow="Attention" title="Open blockers" count={coreAttentionItems.length} countLabel="items" />
+              <div className="px-5 py-5">
+                {coreAttentionItems.length === 0 ? (
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--success)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]">
+                      <CheckCircle2 className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+                    </span>
+                    <p className="text-[13px] font-medium text-[var(--text-primary)]">No immediate review needed.</p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {coreAttentionItems.map((item) => (
+                      <li
+                        key={item}
+                        className="border-t border-[var(--border-subtle)] pt-3 first:border-t-0 first:pt-0"
+                      >
+                        <p className="text-[13px] font-medium leading-snug text-[var(--text-primary)]">
+                          {item}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+
+            {v10WorkItems.length > 0 ? (
+              <section className="ui-card overflow-hidden">
+                <CorePanelHeader icon={ListChecks} eyebrow="Work" title="Linked work" count={v10WorkItems.length} countLabel="items" />
+                <div className="px-5 py-5">
+                  <ul className="space-y-3">
+                    {v10WorkItems.slice(0, 5).map((item) => (
+                      <li key={`${item.type}:${item.source_id}`} className="border-t border-[var(--border-subtle)] pt-3 first:border-t-0 first:pt-0">
+                        <p className="text-[13px] font-semibold leading-snug text-[var(--text-primary)]">{item.title}</p>
+                        <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                          {humanizeContractEnumLabel(String(item.type))} — {humanizeContractEnumLabel(String(item.status))}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/work" className="ui-link mt-4 inline-flex text-[12.5px]">
+                    Open work
+                  </Link>
+                </div>
+              </section>
+            ) : null}
+          </aside>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-7 md:space-y-8">
       {creationNotice ? (
         <div className={creationNotice.tone === "success" ? "ui-alert-success" : "ui-alert-warning"}>
           <p className="font-semibold">{creationNotice.title}</p>
-          <ul className="mt-2 space-y-1 text-[13px] leading-relaxed">
+          <ul className="mt-2 space-y-1 text-[12.5px] leading-relaxed">
             {creationNotice.lines.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>
-          <div className="mt-3 flex flex-wrap gap-2 text-[13px]">
+          <div className="mt-3 flex flex-wrap gap-3 text-[12.5px]">
             <Link href="#extracted-fields" className="ui-link">
               Open extracted fields
             </Link>
-            <span className="text-[var(--text-tertiary)]">·</span>
             <Link href={`${contract.id ? `/contracts/${contract.id}?tab=overview#source-documents` : "#source-documents"}`} className="ui-link">
               Check source documents
             </Link>
@@ -952,19 +2225,19 @@ export default async function ContractDetailPage(props: {
         </div>
       ) : null}
       <div className="ui-card-hero overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)]/90 bg-[radial-gradient(circle_at_top_right,var(--canvas-glow),transparent_24%),linear-gradient(180deg,color-mix(in_oklab,var(--surface)_92%,white),var(--surface-raised))] px-5 py-6 md:px-10 md:py-8">
+        <div className="border-b border-[var(--border-subtle)]/90 bg-[radial-gradient(circle_at_top_right,var(--canvas-glow),transparent_24%),linear-gradient(180deg,var(--surface-tint),var(--surface-raised))] px-5 py-6 md:px-10 md:py-8">
           <Link
             href={backHref}
-            className="inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
+            className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
           >
-            <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+            <ArrowLeft size={16} strokeWidth={1.85} aria-hidden />
             {backLabel}
           </Link>
           <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
-              <p className="ui-eyebrow">Agreement</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">Agreement</p>
               <div className="mt-2 flex flex-wrap items-center gap-3">
-                <h1 className="ui-display-title max-w-3xl">{contract.title}</h1>
+                <h1 className="max-w-3xl text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">{contract.title}</h1>
                 <span
                   className={`ui-badge shrink-0 ${
                     STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
@@ -974,7 +2247,7 @@ export default async function ContractDetailPage(props: {
                 </span>
               </div>
               {(contract.counterparty || contract.contract_type) && (
-                <p className="mt-3 text-[14px] text-[var(--text-secondary)] md:text-[15px]">
+                <p className="mt-3 text-[14px] text-[var(--text-secondary)] md:text-[14px]">
                   {contract.counterparty && (
                     <span className="font-medium text-[var(--text-primary)]">{contract.counterparty}</span>
                   )}
@@ -989,7 +2262,7 @@ export default async function ContractDetailPage(props: {
               <section className="mt-5 rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] p-4">
                 <p className="ui-eyebrow">Record header</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-                  {v10HeaderCards.map((card) => (
+                  {visibleV10HeaderCards.map((card) => (
                     <Link
                       key={card.label}
                       href={card.href}
@@ -999,7 +2272,7 @@ export default async function ContractDetailPage(props: {
                       data-v10-source-object={card.sourceObject}
                       className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-sm hover:border-[var(--accent)]"
                     >
-                      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                         {card.label}
                       </span>
                       <span className="mt-1 block font-medium text-[var(--text-primary)]">{card.value}</span>
@@ -1007,7 +2280,7 @@ export default async function ContractDetailPage(props: {
                   ))}
                 </div>
               </section>
-              {canEdit && (
+              {canEdit && showContractWorkflowOps && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   {isWatchlisted ? (
                     <form action={removeWatchlistEntry.bind(null, contract.id)}>
@@ -1018,15 +2291,13 @@ export default async function ContractDetailPage(props: {
                   ) : (
                     <form action={upsertWatchlistEntryForm} className="flex flex-wrap items-center gap-2">
                       <input type="hidden" name="contractId" value={contract.id} />
-                      <input
-                        name="teamKey"
+                      <input aria-label="team key" name="teamKey"
                         defaultValue="ops"
                         placeholder="team key"
                         maxLength={80}
                         className="ui-input-compact h-8 w-28 text-xs"
                       />
-                      <input
-                        name="note"
+                      <input aria-label="why watch?" name="note"
                         placeholder="why watch?"
                         maxLength={240}
                         className="ui-input-compact h-8 w-56 text-xs"
@@ -1046,22 +2317,22 @@ export default async function ContractDetailPage(props: {
               return (
                 <div
                   key={item.label}
-                  className="rounded-[1rem] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] px-4 py-3 shadow-[var(--shadow-1)]"
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,var(--surface-raised))] px-4 py-3 shadow-[var(--shadow-1)]"
                 >
                   <div className="flex items-start gap-2">
                     <div className="mt-0.5 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_76%,transparent)] p-2 text-[var(--text-tertiary)]">
                       <Icon size={14} aria-hidden />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                         {item.label}
                       </p>
-                      <p className={`mt-1 text-[13px] leading-relaxed ${accentClassByKey[item.accent]}`}>{item.value}</p>
+                      <p className={`mt-1 text-[12.5px] leading-relaxed ${accentClassByKey[item.accent]}`}>{item.value}</p>
                       {item.footerHref && item.footerLabel ? (
                         <div className="mt-1">
                           <Link
                             href={item.footerHref}
-                            className="text-[12px] font-medium text-[var(--text-link)] underline underline-offset-2"
+                            className="text-[12.5px] font-medium text-[var(--text-link)] underline underline-offset-2"
                           >
                             {item.footerLabel}
                           </Link>
@@ -1080,6 +2351,7 @@ export default async function ContractDetailPage(props: {
             filesCount={filesCount}
             upcomingRemindersCount={upcomingReminders.length}
           />
+          {!isCoreContractDetail ? (
           <section
             aria-labelledby="v10-contract-record-trust-title"
             data-v10-surface="contract_record"
@@ -1126,7 +2398,7 @@ export default async function ContractDetailPage(props: {
                 <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
                   {v10HealthSnapshot ? (
                     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                         Health blockers
                       </p>
                       <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1140,7 +2412,7 @@ export default async function ContractDetailPage(props: {
                     </div>
                   ) : null}
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Activation
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1153,7 +2425,7 @@ export default async function ContractDetailPage(props: {
                     ) : null}
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Work
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1165,7 +2437,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Audit
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1176,7 +2448,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Field provenance
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1189,7 +2461,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Renewal posture
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1200,7 +2472,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Evidence status
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1212,7 +2484,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Approvals
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1224,7 +2496,7 @@ export default async function ContractDetailPage(props: {
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Exceptions
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
@@ -1238,7 +2510,7 @@ export default async function ContractDetailPage(props: {
                 </div>
                 {v10Deductions.length > 0 ? (
                   <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       Health deductions
                     </p>
                     <ul className="mt-2 grid gap-2 md:grid-cols-2">
@@ -1295,7 +2567,7 @@ export default async function ContractDetailPage(props: {
                         href={workHref}
                         className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3 hover:border-[var(--accent)]"
                       >
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                           {String(item.type).replace(/_/g, " ")}
                         </p>
                         <p className="mt-1 font-medium text-[var(--text-primary)]">{item.title}</p>
@@ -1332,11 +2604,12 @@ export default async function ContractDetailPage(props: {
               </div>
             )}
           </section>
+          ) : null}
           {immediateActions.length > 0 ? (
             <div className="mt-6 border-t border-[var(--border-subtle)] pt-6 sm:mt-8 sm:pt-8">
               <div className="flex flex-col gap-2">
                 <p className="ui-eyebrow">Immediate actions</p>
-                <p className="text-[13px] text-[var(--text-secondary)]">
+                <p className="text-[12.5px] text-[var(--text-secondary)]">
                   The highest-signal blockers and next steps on this contract.
                 </p>
               </div>
@@ -1367,10 +2640,10 @@ export default async function ContractDetailPage(props: {
                 <Link
                   key={value}
                   href={`/contracts/${contract.id}?tab=${value}`}
-                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12px] ${
+                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12.5px] ${
                     activeGroup
                       ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
-                      : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
+                      : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,var(--surface-raised))] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
                   }`}
                   aria-current={activeGroup ? "page" : undefined}
                 >
@@ -1380,7 +2653,7 @@ export default async function ContractDetailPage(props: {
             })}
           </div>
           <details className="mt-3">
-            <summary className="cursor-pointer text-[12px] font-semibold text-[var(--text-secondary)]">
+            <summary className="cursor-pointer text-[12.5px] font-semibold text-[var(--text-secondary)]">
               More sections
             </summary>
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -1388,10 +2661,10 @@ export default async function ContractDetailPage(props: {
               <Link
                 key={value}
                 href={`/contracts/${contract.id}?tab=${value}`}
-                className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12px] ${
+                className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors md:text-[12.5px] ${
                   activeTab === value
                     ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
-                    : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,white)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
+                    : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_84%,var(--surface-raised))] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {label}
@@ -1410,7 +2683,7 @@ export default async function ContractDetailPage(props: {
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="min-w-0">
                 <h2 className="ui-section-title text-base">Extracted fields</h2>
-                <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                   Approve source-backed values before reminders, renewals, or downstream workflow rely on this contract.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
@@ -1425,8 +2698,8 @@ export default async function ContractDetailPage(props: {
                   </span>
                 </div>
               </div>
-              <div className="ui-toolbar w-full items-stretch justify-start gap-2 p-2 sm:items-center xl:w-auto xl:justify-end">
-                <Link href="/contracts/review" className="ui-btn-ghost w-full px-3 py-2 text-xs sm:w-auto">
+              <div className="ui-toolbar flex max-w-full flex-col items-stretch gap-1.5 p-2 sm:flex-row sm:flex-nowrap sm:items-center sm:self-start [&_.ui-btn-primary]:px-3 [&_.ui-btn-primary]:text-xs [&_.ui-btn-primary]:sm:px-3">
+                <Link href="/contracts/review" className="ui-btn-secondary w-full whitespace-nowrap px-3 py-2 text-xs sm:w-auto">
                   Review queue
                 </Link>
                 <ExtractButton
@@ -1438,7 +2711,7 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={applyContractTemplatePackForm} className="w-full sm:w-auto">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs sm:w-auto">
+                    <button type="submit" className="ui-btn-secondary w-full whitespace-nowrap px-3 py-2 text-xs sm:w-auto">
                       Apply template pack
                     </button>
                   </form>
@@ -1456,13 +2729,13 @@ export default async function ContractDetailPage(props: {
                 <div className="rounded-2xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--info-soft)_36%,var(--surface))] px-4 py-4 text-sm text-[var(--text-secondary)]">
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-1.5">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                         Review queue
                       </p>
                       <p className="font-semibold text-[var(--text-primary)]">
                         Contract {reviewQueueContinuity.position} of {reviewQueueContinuity.total} still needs attention.
                       </p>
-                      <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                      <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                         {reviewQueueContinuity.currentPendingCount > 0
                           ? `${reviewQueueContinuity.currentPendingCount} field${reviewQueueContinuity.currentPendingCount === 1 ? "" : "s"} on this contract are still pending.`
                           : "The contract is still marked pending review even though no extracted fields are pending."}{" "}
@@ -1514,9 +2787,9 @@ export default async function ContractDetailPage(props: {
             showRelationshipWorkspaces &&
             (Boolean((contract as { account_key?: string | null }).account_key) ||
               Boolean((contract as { counterparty_key?: string | null }).counterparty_key)) && (
-              <div className="ui-card border-emerald-200/50 bg-emerald-50/30 p-5 md:p-6">
+              <div className="ui-card border-[color:color-mix(in_oklab,var(--success)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_20%,var(--surface-raised))] p-5 md:p-6">
                 <h2 className="ui-section-title text-base">Relationship context</h2>
-                <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
                   Use portfolio summaries for keys on this contract.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1544,11 +2817,11 @@ export default async function ContractDetailPage(props: {
           <div id="source-documents" className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-4 py-3.5 md:px-8 md:py-4">
               <h2 className="ui-section-title text-base">Source documents</h2>
-              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Signed files on this agreement.</p>
+              <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Signed files on this agreement.</p>
             </div>
             <div className="px-4 py-4.5 md:px-8 md:py-5">
               {!contract.contract_files?.length ? (
-                <p className="text-[13px] text-[var(--text-tertiary)]">No files uploaded yet.</p>
+                <p className="text-[12.5px] text-[var(--text-tertiary)]">No files uploaded yet.</p>
               ) : (
                 <ul className="divide-y divide-[var(--border-subtle)]">
                   {contract.contract_files.map(
@@ -1572,12 +2845,12 @@ export default async function ContractDetailPage(props: {
                             <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                               {file.file_name}
                             </p>
-                            <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
+                            <p className="mt-0.5 text-[12.5px] text-[var(--text-tertiary)]">
                               {formatFileSize(file.file_size)}
                               <span className="text-[var(--text-tertiary)]"> · </span>
                               {format(new Date(file.created_at), "MMM d, yyyy")}
                               <span className="text-[var(--text-tertiary)]"> · </span>
-                              <span className="font-medium text-emerald-700">Stored</span>
+                              <span className="font-medium text-[var(--success-ink)]">Stored</span>
                             </p>
                           </div>
                         </div>
@@ -1606,8 +2879,7 @@ export default async function ContractDetailPage(props: {
                         </option>
                       ))}
                     </select>
-                    <input
-                      name="reason"
+                    <input aria-label="Reason (optional)" name="reason"
                       maxLength={200}
                       placeholder="Reason (optional)"
                       className="ui-input text-xs"
@@ -1622,11 +2894,92 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "tasks") && (
+          {isCoreContractDetail && activeTab === "approvals" && hasBlockingApprovals && (
+            <div id="renewal-approvals" className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
+                <h2 className="ui-section-title text-base">Approvals</h2>
+                <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Pending approvals that block the next action.</p>
+              </div>
+              <div className="px-4 py-6 md:px-8">
+                <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                  {approvals.filter((a) => a.status === "pending").slice(0, 5).map((a) => (
+                    <li key={a.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                      {humanizeContractEnumLabel(a.approval_type)} · {humanizeContractEnumLabel(a.status)}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/contracts/approvals?status=pending&contract=${contract.id}`}
+                  className="ui-link mt-4 inline-block text-sm"
+                  data-contract-test-label="Open approval queue"
+                >
+                  Review approval queue
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {isCoreContractDetail && activeTab === "exceptions" && hasActiveIssues && (
+            <div className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
+                <h2 className="ui-section-title text-base">Issues</h2>
+                <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Active issues that need review.</p>
+              </div>
+              <div className="px-4 py-6 md:px-8">
+                <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                  {(exceptionsCasefileData ?? []).slice(0, 5).map((issue: { id: string; title: string; status: string }) => (
+                    <li key={issue.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                      {issue.title} · {humanizeContractEnumLabel(issue.status)}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/contracts/exceptions?status=open&contract=${contract.id}`}
+                  className="ui-link mt-4 inline-block text-sm"
+                >
+                  Open exception ledger
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {isCoreContractDetail && activeTab === "overview" && (outstandingEvidenceCount > 0 || activeV10EvidenceCount > 0) && (
+            <div id="contract-evidence" className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
+                <h2 className="ui-section-title text-base">Evidence gaps</h2>
+                <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">
+                  {outstandingEvidenceCount || activeV10EvidenceCount} requirement{(outstandingEvidenceCount || activeV10EvidenceCount) === 1 ? "" : "s"} need submission or correction.
+                </p>
+              </div>
+              <div className="px-4 py-6 md:px-8">
+                {evidenceRequirements.length > 0 ? (
+                  <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                    {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).slice(0, 4).map((item) => (
+                      <li key={item.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                        {item.title} · {humanizeContractEnumLabel(item.status)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Evidence request status is active, but requirement details are still rebuilding.
+                  </p>
+                )}
+                <Link
+                  href={`/contracts/${contract.id}?tab=overview#contract-evidence`}
+                  className="ui-link mt-4 inline-block text-sm"
+                >
+                  Review evidence gaps
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {showContractWorkflowOps && (activeTab === "overview" || activeTab === "tasks" || activeTab === "workflow") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Tasks & follow-up</h2>
-              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Ownership and execution work.</p>
+              <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Ownership and execution work.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractTasksPanel
@@ -1645,11 +2998,11 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "obligations") && (
+          {showContractWorkflowOps && (activeTab === "overview" || activeTab === "obligations" || activeTab === "workflow") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <h2 className="ui-section-title text-base">Obligations</h2>
-              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">Ongoing commitments and evidence.</p>
+              <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Ongoing commitments and evidence.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
               <ContractObligationsPanel
@@ -1664,17 +3017,17 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "dates") && (
+          {(activeTab === "overview" || activeTab === "dates" || activeTab === "renewals") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="ui-section-title text-base">Renewal checklist</h2>
-                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">120/90/60/30 renewal checkpoints.</p>
+                  <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">120/90/60/30 renewal checkpoints.</p>
                 </div>
-                {canEdit && checkpoints.length === 0 && (
+                {canEdit && showContractWorkflowOps && checkpoints.length === 0 && (
                   <form action={seedRenewalPlaybook.bind(null, contract.id) as never}>
-                    <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
+                    <button type="submit" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
                       Seed checklist
                     </button>
                   </form>
@@ -1689,17 +3042,127 @@ export default async function ContractDetailPage(props: {
         </div>
 
         <div className="space-y-7 md:space-y-8">
-          {["overview", "evidence", "files", "reports"].includes(activeTab) && (
+          {isCoreContractDetail ? (
+          <>
+            {/* CoreContractSideRail */}
+            <div className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
+                <h3 className="ui-section-title text-base">Contract status</h3>
+              </div>
+              <div className="space-y-4 p-6 text-sm">
+                <dl className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Current status</dt>
+                    <dd className="font-medium text-[var(--text-primary)]">
+                      {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS] ?? humanizeContractEnumLabel(contract.status)}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Owner</dt>
+                    <dd className="font-medium text-[var(--text-primary)]">{ownerLabel ?? "Unassigned"}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Created</dt>
+                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.created_at), "MMM d, yyyy")}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[var(--text-tertiary)]">Updated</dt>
+                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.updated_at), "MMM d, yyyy")}</dd>
+                  </div>
+                </dl>
+                {showContractOwnerAssignment && (
+                  <OwnerAssignmentForm
+                    contractId={contract.id}
+                    currentOwnerId={contract.owner_id}
+                    currentSecondaryOwnerId={contract.secondary_owner_id ?? null}
+                    members={ownerMembers}
+                  />
+                )}
+                <ContractStatusTransition contractId={contract.id} currentStatus={contract.status} canEdit={canEdit} />
+                <DeleteContractButton
+                  contractId={contract.id}
+                  contractTitle={contract.title}
+                  canDelete={canDelete}
+                />
+              </div>
+            </div>
+
+            <div className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
+                <h3 className="ui-section-title text-base">Needs attention</h3>
+              </div>
+              <div className="p-6">
+                {coreAttentionItems.length === 0 ? (
+                  <p className="text-sm text-[var(--text-tertiary)]">No immediate review needed.</p>
+                ) : (
+                  <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                    {coreAttentionItems.map((item) => (
+                      <li key={item} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
+                <h3 className="ui-section-title text-base">Scheduled reminders</h3>
+              </div>
+              <div className="p-6">
+                {upcomingReminders.length === 0 ? (
+                  <p className="text-sm text-[var(--text-tertiary)]">No upcoming reminders are scheduled.</p>
+                ) : (
+                  <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                    {upcomingReminders.map((r: { id: string; reminder_type: string; reminder_date: string }) => (
+                      <li key={r.id} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                        <span className="font-medium text-[var(--text-primary)]">
+                          {humanizeContractEnumLabel(r.reminder_type)}
+                        </span>{" "}
+                        <span className="text-[var(--text-tertiary)]">{formatBusinessDateAtNoon(r.reminder_date)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="ui-card overflow-hidden">
+              <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
+                <h3 className="ui-section-title text-base">Notes</h3>
+              </div>
+              <div className="p-6">
+                <ContractNotesPanel
+                  contractId={contract.id}
+                  notes={notes}
+                  currentUserId={ctx.user.id}
+                  memberLabels={ownerMembers}
+                  canEdit={canEdit}
+                />
+              </div>
+            </div>
+            {/* EndCoreContractSideRail */}
+          </>
+          ) : (
+          <>
+          {((showContractWorkflowOps && ["overview", "workflow"].includes(activeTab)) ||
+            (showContractAdvancedRouting && ["overview", "programs", "integrations"].includes(activeTab)) ||
+            (showContractEvidenceOps && ["overview", "evidence", "reports"].includes(activeTab))) && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
-              <h3 className="ui-section-title text-base">Workflow status</h3>
+              <h3 className="ui-section-title text-base">
+                {showContractEvidenceOps && !showContractWorkflowOps ? "Operational evidence pack" : "Workflow status"}
+              </h3>
             </div>
             <div className="p-6">
-              <ContractStatusTransition
-                contractId={contract.id}
-                currentStatus={contract.status}
-                canEdit={canEdit}
-              />
+              {showContractWorkflowOps ? (
+              <>
+                <ContractStatusTransition
+                  contractId={contract.id}
+                  currentStatus={contract.status}
+                  canEdit={canEdit}
+                />
               <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">Operational lifecycle</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
@@ -1733,8 +3196,7 @@ export default async function ContractDetailPage(props: {
                       </select>
                       </div>
                     </div>
-                    <input
-                      name="requiredNextStep"
+                    <input aria-label="Required next step" name="requiredNextStep"
                       defaultValue={contract.required_next_step ?? ""}
                       placeholder="Required next step"
                       maxLength={240}
@@ -1746,6 +3208,8 @@ export default async function ContractDetailPage(props: {
                   </form>
                 )}
               </div>
+              </>
+              ) : null}
               {showUtilityExecutionSurfaces ? (
                 <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                   <p className="ui-label-caps">Execution graph</p>
@@ -1765,6 +3229,7 @@ export default async function ContractDetailPage(props: {
                   )}
                 </div>
               ) : null}
+              {showContractEvidenceOps ? (
               <div id="contract-evidence" className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">Operational evidence pack</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
@@ -1791,12 +3256,15 @@ export default async function ContractDetailPage(props: {
                   </div>
                 </div>
               </div>
+              ) : null}
+              {showContractAdvancedRouting ? (
               <ContractExternalCollaborationSummary
                 admin={admin}
                 orgId={orgId}
                 contractId={contract.id}
                 allowed={showCollaborationSurface}
               />
+              ) : null}
               {showProgramsSurface && (programAssignmentsData ?? []).length > 0 ? (
                 <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                   <p className="ui-label-caps">Program assignment overrides</p>
@@ -1845,6 +3313,7 @@ export default async function ContractDetailPage(props: {
                   </ul>
                 </div>
               ) : null}
+              {showContractAdvancedRouting ? (
               <div className="mt-6 border-t border-[var(--border-subtle)] pt-5">
                 <p className="ui-label-caps">CRM / external link</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
@@ -1856,29 +3325,25 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={updateContractExternalLinkForm} className="mt-3 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <input
-                      name="sourceSystem"
+                    <input aria-label="CRM/system name" name="sourceSystem"
                       defaultValue={contract.source_system ?? ""}
                       placeholder="CRM/system name"
                       maxLength={80}
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="externalReferenceId"
+                    <input aria-label="External ID" name="externalReferenceId"
                       defaultValue={contract.external_reference_id ?? ""}
                       placeholder="External ID"
                       maxLength={160}
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="region"
+                    <input aria-label="Region (NA, EMEA, APAC...)" name="region"
                       defaultValue={contract.region ?? ""}
                       placeholder="Region (NA, EMEA, APAC...)"
                       maxLength={40}
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="annualValue"
+                    <input aria-label="Annual value (e.g. 125000)" name="annualValue"
                       defaultValue={
                         contract.annual_value == null ? "" : String(contract.annual_value)
                       }
@@ -1892,11 +3357,12 @@ export default async function ContractDetailPage(props: {
                   </form>
                 )}
               </div>
+              ) : null}
             </div>
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "approvals") && (
+          {showContractRenewalWorkspace && (activeTab === "overview" || activeTab === "approvals" || activeTab === "renewals") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Renewal scenario & approvals</h3>
@@ -1918,8 +3384,7 @@ export default async function ContractDetailPage(props: {
                     <option value="discontinue">discontinue</option>
                     <option value="temporary_extension">temporary extension</option>
                   </select>
-                  <input
-                    name="blocker"
+                  <input aria-label="Blocker (optional)" name="blocker"
                     defaultValue={renewalScenario?.blocker ?? ""}
                     placeholder="Blocker (optional)"
                     className="ui-input text-xs"
@@ -1950,20 +3415,17 @@ export default async function ContractDetailPage(props: {
                     ))}
                   </select>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    <input
-                      name="targetDecisionDate"
+                    <input aria-label="Target decision date" name="targetDecisionDate"
                       type="date"
                       defaultValue={renewalScenario?.target_decision_date ?? ""}
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="escalationDate"
+                    <input aria-label="Escalation date" name="escalationDate"
                       type="date"
                       defaultValue={renewalScenario?.escalation_date ?? ""}
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="scenarioConfidence"
+                    <input aria-label="Confidence %" name="scenarioConfidence"
                       type="number"
                       min={1}
                       max={100}
@@ -1990,7 +3452,7 @@ export default async function ContractDetailPage(props: {
                     <input type="hidden" name="contractId" value={contract.id} />
                     <textarea name="body" placeholder="Add renewal workspace note" className="ui-input min-h-[60px] text-xs" />
                     <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                      <input type="checkbox" name="pinned" value="1" className="h-3.5 w-3.5 rounded border-[var(--border-strong)]" />
+                      <input aria-label="Pinned" type="checkbox" name="pinned" value="1" className="ui-checkbox" />
                       Pin note
                     </label>
                     <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
@@ -2058,11 +3520,10 @@ export default async function ContractDetailPage(props: {
                       <option value="operational">operational</option>
                     </select>
                     <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                      <input type="checkbox" name="exceptionFlag" value="1" className="h-3.5 w-3.5 rounded border-[var(--border-strong)]" />
+                      <input aria-label="Exception flag" type="checkbox" name="exceptionFlag" value="1" className="ui-checkbox" />
                       Mark as exception
                     </label>
-                    <input
-                      name="exceptionReason"
+                    <input aria-label="Exception reason (optional)" name="exceptionReason"
                       placeholder="Exception reason (optional)"
                       className="ui-input text-xs"
                     />
@@ -2085,11 +3546,33 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {activeTab === "overview" && (
-          <div id="ownership-record" className="ui-card overflow-hidden">
+          {showContractAuditOps && (activeTab === "overview" || activeTab === "approvals" || activeTab === "audit") && (
+          <div className="ui-card overflow-hidden">
+            <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
+              <h3 className="ui-section-title text-base">Approval evidence and decision history</h3>
+            </div>
+            <div className="p-6">
+              {approvals.length === 0 ? (
+                <p className="text-sm text-[var(--text-tertiary)]">No approval evidence recorded yet.</p>
+              ) : (
+                <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
+                  {approvals.slice(0, 6).map((approval) => (
+                    <li key={approval.id} className="rounded border border-[var(--border-subtle)] px-3 py-2">
+                      {humanizeContractEnumLabel(approval.approval_type)} · {humanizeContractEnumLabel(approval.status)}
+                      {approval.resolved_at ? ` · Decided ${format(new Date(approval.resolved_at), "MMM d, yyyy")}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+          )}
+
+          {showContractAuditOps && (activeTab === "overview" || activeTab === "audit" || activeTab === "reports") && (
+          <div id="reminder-delivery-history" className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="flex items-center gap-2 ui-section-title text-base">
-                <Bell size={17} className="text-[var(--accent)]" strokeWidth={1.75} aria-hidden />
+                <Bell size={17} className="text-[var(--accent)]" strokeWidth={1.65} aria-hidden />
                 Reminders
               </h3>
             </div>
@@ -2114,7 +3597,7 @@ export default async function ContractDetailPage(props: {
                         const delivery = getReminderDeliveryState(reminderDeliveryMap[r.id] ?? []);
                         const deliveryToneClass =
                           delivery.tone === "healthy"
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                            ? "border-[color:color-mix(in_oklab,var(--success)_32%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]"
                             : delivery.tone === "risk"
                               ? "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]"
                               : delivery.tone === "attention"
@@ -2138,7 +3621,7 @@ export default async function ContractDetailPage(props: {
                                 {delivery.label}
                               </span>
                             </div>
-                            <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{delivery.detail}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">{delivery.detail}</p>
                             {delivery.timestamp ? (
                               <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
                                 Updated {format(new Date(delivery.timestamp), "MMM d, yyyy h:mm a")}
@@ -2171,7 +3654,7 @@ export default async function ContractDetailPage(props: {
                         const delivery = getReminderDeliveryState(reminderDeliveryMap[r.id] ?? []);
                         const deliveryToneClass =
                           delivery.tone === "healthy"
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                            ? "border-[color:color-mix(in_oklab,var(--success)_32%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]"
                             : delivery.tone === "risk"
                               ? "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]"
                               : delivery.tone === "attention"
@@ -2191,11 +3674,11 @@ export default async function ContractDetailPage(props: {
                               </span>
                             </div>
                             {r.sent_at ? (
-                              <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                              <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">
                                 Sent {format(new Date(r.sent_at), "MMM d, yyyy h:mm a")}
                               </p>
                             ) : null}
-                            <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{delivery.detail}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">{delivery.detail}</p>
                           </li>
                         );
                       }
@@ -2208,7 +3691,7 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "exceptions" || activeTab === "audit") && (
+          {showContractAuditOps && (activeTab === "overview" || activeTab === "exceptions" || activeTab === "casefile" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Operational casefile</h3>
@@ -2236,8 +3719,8 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "audit") && (
-          <div className="ui-card overflow-hidden">
+          {showContractRecordControls && (
+          <div id="ownership-record" className="ui-card scroll-mt-6 overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Ownership & record</h3>
             </div>
@@ -2265,7 +3748,7 @@ export default async function ContractDetailPage(props: {
                 </dd>
               </div>
             </dl>
-            {canEdit && ownerMembers.length > 0 && (
+            {showContractOwnerAssignment && (
               <OwnerAssignmentForm
                 contractId={contract.id}
                 currentOwnerId={contract.owner_id}
@@ -2273,7 +3756,7 @@ export default async function ContractDetailPage(props: {
                 members={ownerMembers}
               />
             )}
-            {canEdit && ownerMembers.length > 0 && (
+            {showContractWorkflowOps && canEdit && ownerMembers.length > 0 && (
               <form action={upsertContractHandoffChecklistForm} className="mt-4 space-y-2">
                 <input type="hidden" name="contractId" value={contract.id} />
                 <p className="ui-label-caps">Ownership handoff checklist</p>
@@ -2320,16 +3803,18 @@ export default async function ContractDetailPage(props: {
                 )}
               </form>
             )}
-            <DeleteContractButton
-              contractId={contract.id}
-              contractTitle={contract.title}
-              canEdit={canEdit}
-            />
+            {showContractRecordControls ? (
+              <DeleteContractButton
+                contractId={contract.id}
+                contractTitle={contract.title}
+                canDelete={canDelete}
+              />
+            ) : null}
             </div>
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "audit") && (
+          {showContractAuditOps && (activeTab === "overview" || activeTab === "timeline" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Unified workflow timeline</h3>
@@ -2342,7 +3827,7 @@ export default async function ContractDetailPage(props: {
                   {workflowTimeline.map((entry) => (
                     <li key={entry.id} className="flex items-start justify-between gap-3 text-xs">
                       <span className="text-[var(--text-secondary)]">
-                        <span className="font-semibold">{entry.domain}</span> · {entry.label}
+                        <span className="font-semibold">{humanizeContractEnumLabel(entry.domain)}</span> · {humanizeAuditEventLabel(entry.label)}
                       </span>
                       <span className="shrink-0 text-[var(--text-tertiary)]">
                         {format(new Date(entry.createdAt), "MMM d, h:mm a")}
@@ -2355,7 +3840,7 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "audit") && (
+          {showContractAuditOps && (activeTab === "overview" || activeTab === "audit") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Activity</h3>
@@ -2375,7 +3860,7 @@ export default async function ContractDetailPage(props: {
                       <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--border-strong)]" />
                       <div>
                         <p className="text-sm text-[var(--text-secondary)]">
-                          {event.action.replace(/\./g, " ")}
+                          {humanizeAuditEventLabel(event.action)}
                         </p>
                         <p className="text-xs text-[var(--text-tertiary)]">
                           {format(
@@ -2393,7 +3878,7 @@ export default async function ContractDetailPage(props: {
           </div>
           )}
 
-          {(activeTab === "overview" || activeTab === "notes") && (
+          {((activeTab === "notes") || (!isCoreContractDetail && activeTab === "overview")) && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4">
               <h3 className="ui-section-title text-base">Notes & commentary</h3>
@@ -2406,18 +3891,17 @@ export default async function ContractDetailPage(props: {
                 memberLabels={ownerMembers}
                 canEdit={canEdit}
               />
+              {showContractFieldCollaboration ? (
               <div id="field-comments" className="mt-6 border-t border-[var(--border-subtle)] pt-5 scroll-mt-28">
                 <p className="ui-label-caps">Field comments & mentions</p>
                 {canEdit && (
                   <form action={createClarificationTaskForm as never} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <input
-                      name="fieldId"
+                    <input aria-label="Optional field id" name="fieldId"
                       placeholder="Optional field id"
                       className="ui-input text-xs"
                     />
-                    <input
-                      name="teamKey"
+                    <input aria-label="Team queue key" name="teamKey"
                       defaultValue="ops"
                       placeholder="Team queue key"
                       className="ui-input text-xs"
@@ -2436,8 +3920,7 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={addFieldCommentForm} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <input
-                      name="fieldId"
+                    <input aria-label="Optional field id" name="fieldId"
                       placeholder="Optional field id"
                       className="ui-input text-xs"
                     />
@@ -2462,8 +3945,11 @@ export default async function ContractDetailPage(props: {
                   </ul>
                 )}
               </div>
+              ) : null}
             </div>
           </div>
+          )}
+          </>
           )}
         </div>
       </div>

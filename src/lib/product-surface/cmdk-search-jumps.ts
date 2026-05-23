@@ -41,7 +41,14 @@ function syntheticNavItem(minRole: WorkspaceRole): NavItem {
 }
 
 function workSectionHref(section: "tasks" | "approvals" | "obligations") {
-  return `/work#${section}`;
+  switch (section) {
+    case "tasks":
+      return "/work?type=contract_task";
+    case "approvals":
+      return "/work?tab=approvals";
+    case "obligations":
+      return "/work?tab=obligations";
+  }
 }
 
 function roleAllowsSearchClass(surface: NavSurfaceInput, row: SearchIndexClassDef): boolean {
@@ -59,7 +66,7 @@ function hrefForSearchClass(row: SearchIndexClassDef, queryTrimmed: string): str
     case "approvals":
       return workSectionHref("approvals");
     case "renewals":
-      return "/contracts/renewals?horizon=renewal_90";
+      return "/contracts/renewals?window=90";
     case "exceptions":
       return "/contracts/exceptions?status=open";
     case "evidence":
@@ -100,17 +107,17 @@ function descriptionForSearchClass(row: SearchIndexClassDef, queryTrimmed: strin
         ? `Open the contracts list prefiltered for "${queryTrimmed}".`
         : "Open the contracts list and filter from there.";
     case "tasks":
-      return "Open the Work queue focused on task follow-up.";
+      return "Open Work filtered to task follow-up.";
     case "approvals":
-      return "Open the Work queue focused on approvals waiting on action.";
+      return "Open Work focused on approvals waiting on action.";
     case "obligations":
-      return "Open the Work queue focused on recurring obligations.";
+      return "Open Work focused on recurring obligations.";
     case "renewals":
-      return "Open renewals already scoped to the 90-day horizon.";
+      return "Open renewals scoped to the 90-day window.";
     case "exceptions":
       return "Open active exceptions that still need owner action.";
     case "evidence":
-      return "Open the live evidence request queue.";
+      return "Open Evidence for request and proof tracking.";
     case "reports":
       return "Open reporting and export control-room views.";
     default:
@@ -123,13 +130,13 @@ function metaForSearchClass(row: SearchIndexClassDef, href: string, queryTrimmed
     case "contracts":
       return queryTrimmed ? `Contracts search · ${pathOnly(href)}` : `Contracts list · ${pathOnly(href)}`;
     case "tasks":
-      return "Work queue · tasks lens";
+      return "Work · task filter";
     case "approvals":
-      return "Work queue · approvals lens";
+      return "Work · approvals tab";
     case "obligations":
-      return "Work queue · obligations lens";
+      return "Work · obligations tab";
     case "renewals":
-      return "Renewals queue · 90-day horizon";
+      return "Renewals · 90-day window";
     case "exceptions":
       return "Exceptions queue · open only";
     case "evidence":

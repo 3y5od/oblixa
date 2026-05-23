@@ -29,6 +29,8 @@ describe("v6 feature-guards", () => {
     const res = requireV6ApiFeature("v6AssuranceCore");
     expect(res).not.toBeNull();
     expect(res!.status).toBe(403);
+    expect(res!.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(res!.headers.get("Vary")).toContain("Cookie");
   });
 
   it("requireV6CronFeature returns skipped when disabled", async () => {

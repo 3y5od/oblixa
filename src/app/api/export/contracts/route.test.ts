@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const scheduledAfterCallbacks: Array<() => unknown | Promise<unknown>> = [];
@@ -109,8 +111,7 @@ describe("GET /api/export/contracts", () => {
     );
     const body = await res.json();
     expect(res.status).toBe(429);
-    expect(body.kind).toBe("rate_limited");
-    expect(body.retryAfterSec).toBeGreaterThanOrEqual(1);
+    expect(body).toMatchObject({ code: "rate_limited", details: { retryAfterMs: 5000 } });
     expect(res.headers.get("Retry-After")).toBeTruthy();
   });
 
@@ -124,7 +125,28 @@ describe("GET /api/export/contracts", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
+  });
+
+  it("POST returns 401 without DB work when unauthenticated", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+    });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    const { POST } = await import("@/app/api/export/contracts/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/export/contracts", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "export-unauth-key",
+        },
+        body: JSON.stringify({ orgId: "550e8400-e29b-41d4-a716-446655440001" }),
+      })
+    );
+
+    expect(res.status).toBe(401);
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("keeps GET exports read-only while returning CSV", async () => {
@@ -169,7 +191,7 @@ describe("GET /api/export/contracts", () => {
             update: vi.fn((payload: Record<string, unknown>) => {
               exportJobUpdates.push(payload);
               return {
-                eq: vi.fn().mockResolvedValue({ error: null }),
+                eq: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
               };
             }),
           };
@@ -371,7 +393,7 @@ describe("GET /api/export/contracts", () => {
               };
             }),
             update: vi.fn(() => ({
-              eq: vi.fn().mockResolvedValue({ error: null }),
+              eq: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
             })),
           };
         }
@@ -479,10 +501,20 @@ describe("GET /api/export/contracts", () => {
 
     expect(res.status).toBe(413);
     const body = await res.json();
-    expect(body.partial).toBe(true);
+    expect(body).toMatchObject({ code: "row_budget_exceeded", details: { partial: true } });
     expect(body.error).toContain("core plan row limit of 10000");
     expect(emitProductTelemetryEvent).not.toHaveBeenCalled();
-    expect(recordV10AuditEvent).not.toHaveBeenCalled();
+    expect(recordV10AuditEvent).toHaveBeenCalledTimes(1);
+    expect(recordV10AuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "api.sensitive_read_authorized",
+        actorUserId: "user-1",
+        organizationId: "550e8400-e29b-41d4-a716-446655440001",
+        targetId: "GET /api/export/contracts",
+        targetType: "api_route",
+      })
+    );
   });
 });
 
@@ -555,7 +587,7 @@ describe("POST /api/export/contracts", () => {
             update: vi.fn((payload: Record<string, unknown>) => {
               exportJobUpdates.push(payload);
               return {
-                eq: vi.fn().mockResolvedValue({ error: null }),
+                eq: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
               };
             }),
           };
@@ -631,6 +663,9 @@ describe("POST /api/export/contracts", () => {
   });
 
   it("returns 400 when body is not JSON", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
     const { POST } = await import("@/app/api/export/contracts/route");
     const res = await POST(
       new Request("http://localhost:3000/api/export/contracts", {
@@ -648,6 +683,9 @@ describe("POST /api/export/contracts", () => {
   });
 
   it("returns 400 when filter_json is not an object", async () => {
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
     const { POST } = await import("@/app/api/export/contracts/route");
     const res = await POST(
       new Request("http://localhost:3000/api/export/contracts", {
@@ -682,5 +720,16 @@ describe("POST /api/export/contracts", () => {
       diagnostic_id: "v10_export_idempotency_key_invalid",
     });
   });
-});
 
+  it("authenticates before parsing the POST request body", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/api/export/contracts/route.ts"), "utf8");
+    const postStart = source.indexOf("export async function POST");
+    const authIndex = source.indexOf("supabase.auth.getUser()", postStart);
+    const bodyParseIndex = source.indexOf("readJsonBodyLimited(request)", postStart);
+
+    expect(postStart).toBeGreaterThanOrEqual(0);
+    expect(authIndex).toBeGreaterThanOrEqual(0);
+    expect(bodyParseIndex).toBeGreaterThanOrEqual(0);
+    expect(authIndex).toBeLessThan(bodyParseIndex);
+  });
+});

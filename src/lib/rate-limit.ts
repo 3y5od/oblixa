@@ -3,13 +3,48 @@
  * else in-memory sliding window (single instance / dev).
  */
 
+import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { getTrustedClientIpFromHeaders, getTrustedClientIpFromRequest } from "@/lib/security/trusted-forwarded";
 
 type WindowConfig = { max: number; windowMs: number };
+type RateLimitBackendFailureMode = "fail-closed" | "memory-fallback";
+type RateLimitCheckOptions = {
+  backendFailureMode?: RateLimitBackendFailureMode;
+  timeoutMs?: number;
+};
 
 const buckets = new Map<string, number[]>();
+const RATE_LIMIT_SAFE_KEY_RE = /^[A-Za-z0-9:._/@-]+$/;
+export const RATE_LIMIT_KEY_MAX_LENGTH = 240;
+const RATE_LIMIT_FAIL_CLOSED_RETRY_AFTER_MS = 60_000;
+const RATE_LIMIT_UPSTASH_TIMEOUT_MS = 1_500;
+
+export function hasDistributedRateLimitConfig(env: NodeJS.ProcessEnv = process.env): boolean {
+  return Boolean(env.UPSTASH_REDIS_REST_URL?.trim() && env.UPSTASH_REDIS_REST_TOKEN?.trim());
+}
+
+export function isProductionLikeRateLimitEnv(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.NODE_ENV === "production" || env.VERCEL === "1" || env.VERCEL_ENV === "production";
+}
+
+function shouldFailClosedWithoutDistributedLimiter(env: NodeJS.ProcessEnv = process.env): boolean {
+  return isProductionLikeRateLimitEnv(env) && !hasDistributedRateLimitConfig(env);
+}
+
+export function normalizeRateLimitKey(key: string): string {
+  const rawKey = key.trim();
+  if (rawKey.length > 0 && rawKey.length <= RATE_LIMIT_KEY_MAX_LENGTH && RATE_LIMIT_SAFE_KEY_RE.test(rawKey)) {
+    return rawKey;
+  }
+
+  const digest = createHash("sha256")
+    .update(rawKey.length > 0 ? rawKey : "empty-rate-limit-key")
+    .digest("hex");
+  return `sanitized-rate-limit-key:${digest}`;
+}
 
 function prune(key: string, windowStart: number): number[] {
   const arr = buckets.get(key) ?? [];
@@ -22,23 +57,24 @@ export function rateLimitTake(
   key: string,
   { max, windowMs }: WindowConfig
 ): { ok: true } | { ok: false; retryAfterMs: number } {
+  const normalizedKey = normalizeRateLimitKey(key);
   const now = Date.now();
   const windowStart = now - windowMs;
-  const timestamps = prune(key, windowStart);
+  const timestamps = prune(normalizedKey, windowStart);
   if (timestamps.length >= max) {
     const oldest = Math.min(...timestamps);
     const retryAfterMs = Math.max(0, oldest + windowMs - now);
     return { ok: false, retryAfterMs };
   }
   timestamps.push(now);
-  buckets.set(key, timestamps);
+  buckets.set(normalizedKey, timestamps);
   return { ok: true };
 }
 
 const upstashLimiters = new Map<string, Ratelimit>();
 
 function getUpstashLimiter(max: number, windowMs: number): Ratelimit | null {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  if (!hasDistributedRateLimitConfig()) {
     return null;
   }
   const cacheKey = `${max}:${windowMs}`;
@@ -56,24 +92,55 @@ function getUpstashLimiter(max: number, windowMs: number): Ratelimit | null {
   return lim;
 }
 
+async function withRateLimitTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("rate_limit_backend_timeout")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export async function rateLimitCheck(
   key: string,
-  config: WindowConfig
+  config: WindowConfig,
+  options: RateLimitCheckOptions = {}
 ): Promise<{ ok: true } | { ok: false; retryAfterMs: number }> {
+  const normalizedKey = normalizeRateLimitKey(key);
   const upstash = getUpstashLimiter(config.max, config.windowMs);
   if (!upstash) {
-    return rateLimitTake(key, config);
+    if (shouldFailClosedWithoutDistributedLimiter()) {
+      console.error("[rate-limit] Distributed limiter is required in production; failing closed");
+      return { ok: false, retryAfterMs: Math.max(config.windowMs, RATE_LIMIT_FAIL_CLOSED_RETRY_AFTER_MS) };
+    }
+    return rateLimitTake(normalizedKey, config);
   }
   try {
-    const result = await upstash.limit(key);
+    const result = await withRateLimitTimeout(
+      upstash.limit(normalizedKey),
+      options.timeoutMs ?? RATE_LIMIT_UPSTASH_TIMEOUT_MS
+    );
     if (result.success) {
       return { ok: true };
     }
     const retryAfterMs = Math.max(0, result.reset - Date.now());
     return { ok: false, retryAfterMs };
   } catch (err) {
+    if (options.backendFailureMode === "memory-fallback") {
+      console.error("[rate-limit] Upstash limit() failed; falling back to in-process window", err);
+      return rateLimitTake(normalizedKey, config);
+    }
+    if (isProductionLikeRateLimitEnv()) {
+      console.error("[rate-limit] Upstash limit() failed in production; failing closed", err);
+      return { ok: false, retryAfterMs: Math.max(config.windowMs, RATE_LIMIT_FAIL_CLOSED_RETRY_AFTER_MS) };
+    }
     console.error("[rate-limit] Upstash limit() failed; falling back to in-process window", err);
-    return rateLimitTake(key, config);
+    return rateLimitTake(normalizedKey, config);
   }
 }
 
@@ -110,6 +177,8 @@ export const RATE_LIMITS = {
   reportTrackOpen: { max: 240, windowMs: 60_000 },
   /** Report email click redirect */
   reportTrackClick: { max: 120, windowMs: 60_000 },
+  /** Public marketing contact form — strict per IP to deter spam */
+  marketingContact: { max: 5, windowMs: 60 * 60_000 },
   /** Public external action POST (submit, participant workflow-step) */
   externalTokenMutate: { max: 40, windowMs: 60_000 },
   /** Public external action GET (status poll) */
@@ -150,6 +219,8 @@ export const RATE_LIMITS = {
   onboardingCalibrationExport: { max: 12, windowMs: 60_000 },
   /** Proxy / RLS gate: user-keyed only (no IP throttle for anonymous paths here). */
   onboardingCalibrationGateUser: { max: 120, windowMs: 60_000 },
+  /** Browser CSP violation reports; public write-only telemetry endpoint. */
+  cspReport: { max: 120, windowMs: 60_000 },
   /** Auth callback hot path: high ceiling to bound pathological loops only. */
   onboardingCalibrationGateAdmin: { max: 180, windowMs: 60_000 },
   /** V6 stale calibration cron — same ceiling as v6CronDefault; dedicated key prefix in route. */
@@ -158,24 +229,17 @@ export const RATE_LIMITS = {
   productV9Telemetry: { max: 240, windowMs: 60_000 },
   /** Gated internal debugging sweep diagnostics (bearer + env). */
   internalDebuggingSweep: { max: 30, windowMs: 60_000 },
+  workspaceApi: { max: 240, windowMs: 60_000 },
 } as const;
 
 export function getClientIpFromRequest(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0]?.trim() || "unknown";
-  }
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  return getTrustedClientIpFromRequest(request);
 }
 
 export async function getClientIpFromHeaders(): Promise<string> {
   try {
     const h = await headers();
-    const forwarded = h.get("x-forwarded-for");
-    if (forwarded) {
-      return forwarded.split(",")[0]?.trim() || "unknown";
-    }
-    return h.get("x-real-ip")?.trim() || "unknown";
+    return getTrustedClientIpFromHeaders(h);
   } catch {
     return "unknown";
   }

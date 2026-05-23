@@ -1,21 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { V9_WORK_HUB_LENS_VALUES, WORK_HUB_LENS_VALUES, parseWorkHubLens } from "./work-hub-lens";
+import { normalizeWorkTab, WORK_TAB_ORDER } from "./work/model";
 
-describe("work hub lenses (v9 §12.2)", () => {
-  it("parses lens query with safe default", () => {
-    expect(parseWorkHubLens(undefined)).toBe("assigned");
-    expect(parseWorkHubLens("")).toBe("assigned");
-    expect(parseWorkHubLens("overdue")).toBe("overdue");
-    expect(parseWorkHubLens("not-a-lens")).toBe("assigned");
+describe("Work tab aliases", () => {
+  it("maps legacy lens query with safe default", () => {
+    expect(normalizeWorkTab({ lens: undefined })).toBe("all");
+    expect(normalizeWorkTab({ lens: "" })).toBe("all");
+    expect(normalizeWorkTab({ lens: "assigned" })).toBe("my_work");
+    expect(normalizeWorkTab({ lens: "overdue" })).toBe("overdue");
+    expect(normalizeWorkTab({ lens: "not-a-lens" })).toBe("all");
   });
 
-  it("enumerates five lenses", () => {
-    expect(V9_WORK_HUB_LENS_VALUES).toHaveLength(5);
-  });
-
-  it("accepts each lens value as a /work?lens= query token (§12.2 URL contract)", () => {
-    for (const v of WORK_HUB_LENS_VALUES) {
-      expect(parseWorkHubLens(v)).toBe(v);
-    }
+  it("enumerates the release-state Work tabs", () => {
+    expect(WORK_TAB_ORDER).toEqual([
+      "all",
+      "my_work",
+      "overdue",
+      "blocked",
+      "approvals",
+      "obligations",
+      "exceptions",
+    ]);
   });
 });

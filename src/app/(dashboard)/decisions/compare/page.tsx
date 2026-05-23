@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Split } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
 
 export default async function DecisionsComparePage(props: {
@@ -78,15 +80,12 @@ export default async function DecisionsComparePage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="border-b border-[var(--border-subtle)] pb-8">
-        <div>
-          <p className="ui-eyebrow">Compare view</p>
-          <h1 className="ui-display-title mt-2">Decision compare</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
-            Side-by-side snapshot of type, status, dates, and structured recommendation or disposition payloads.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Split className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Compare view"
+        title="Decision compare"
+        lead="Side-by-side snapshot of type, status, dates, and structured recommendation or disposition payloads."
+      />
 
       <section className="ui-card p-5 md:p-6">
         <p className="ui-eyebrow">Selection</p>
@@ -131,7 +130,7 @@ export default async function DecisionsComparePage(props: {
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border-subtle)] pt-4">
-            <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
+            <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[12.5px]">
               Apply
             </button>
           </div>

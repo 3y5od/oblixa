@@ -17,12 +17,21 @@ describe("validateOutboundHttpUrl", () => {
     expect(validateOutboundHttpUrl("http://0.0.0.0/internal")).toBeNull();
     expect(validateOutboundHttpUrl("http://100.64.10.20/internal")).toBeNull();
     expect(validateOutboundHttpUrl("http://198.18.0.1/internal")).toBeNull();
+    expect(validateOutboundHttpUrl("http://203.0.113.10/internal")).toBeNull();
+    expect(validateOutboundHttpUrl("http://224.0.0.1/internal")).toBeNull();
   });
 
   it("rejects private IPv6 and mapped loopback", () => {
     expect(validateOutboundHttpUrl("http://[::1]/internal")).toBeNull();
     expect(validateOutboundHttpUrl("http://[::]/internal")).toBeNull();
     expect(validateOutboundHttpUrl("http://[::ffff:127.0.0.1]/internal")).toBeNull();
+  });
+
+  it("rejects IPv6 documentation, translation, and link-local variants", () => {
+    expect(validateOutboundHttpUrl("http://[2001:db8::1]/internal")).toBeNull();
+    expect(validateOutboundHttpUrl("http://[fe90::1]/internal")).toBeNull();
+    expect(validateOutboundHttpUrl("http://[64:ff9b::0808:0808]/internal")).toBeNull();
+    expect(validateOutboundHttpUrl("http://[2002:0808:0808::1]/internal")).toBeNull();
   });
 
   it("rejects non-http(s) schemes and malformed input", () => {
@@ -33,5 +42,12 @@ describe("validateOutboundHttpUrl", () => {
 
   it("rejects *.localhost hostnames", () => {
     expect(validateOutboundHttpUrl("http://app.localhost/path")).toBeNull();
+  });
+
+  it("rejects encoded and unusual localhost URL forms", () => {
+    expect(validateOutboundHttpUrl("http://%6cocalhost/path")).toBeNull();
+    expect(validateOutboundHttpUrl("http://0177.0.0.1/path")).toBeNull();
+    expect(validateOutboundHttpUrl("http://0x7f.0.0.1/path")).toBeNull();
+    expect(validateOutboundHttpUrl("http://2130706433/path")).toBeNull();
   });
 });

@@ -1,11 +1,13 @@
 /** @vitest-environment jsdom */
 import { cleanup, render, screen } from "@testing-library/react";
+import { FileText } from "lucide-react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CompressedNormalState,
   DiagnosticDisclosure,
   OperationalQueueRow,
   OperationalSectionHeader,
+  OperationalSummaryCard,
   OperationalTriagePanel,
 } from "./operational-summary-card";
 
@@ -71,5 +73,33 @@ describe("OperationalSummaryCard primitives", () => {
   it("CompressedNormalState renders one compact status", () => {
     render(<CompressedNormalState title="All clear" description="No open exceptions." />);
     expect(screen.getByRole("status").textContent).toContain("All clear");
+  });
+
+  it("OperationalSummaryCard compact variant avoids truncating primary labels and actions", () => {
+    const { container } = render(
+      <OperationalSummaryCard
+        eyebrow="Portfolio"
+        headline="Contracts"
+        tone="neutral"
+        icon={FileText}
+        primaryValue={1}
+        primaryUnit="total records"
+        action={{ href: "/contracts", label: "Browse contracts" }}
+        variant="compact"
+      />
+    );
+    const article = container.querySelector("article");
+    const statusBadges = article?.querySelectorAll(".ui-status-badge");
+    const header = article?.querySelector(".ui-kicker")?.closest(".flex.flex-wrap");
+    const footer = article?.lastElementChild;
+    const action = screen.getByRole("link", { name: /Browse contracts/ });
+    const actionLabel = action.querySelector("span");
+    expect(screen.getByRole("heading", { name: "Contracts" })).toBeTruthy();
+    expect(statusBadges?.length).toBe(1);
+    expect(header?.querySelector(".ui-status-badge")).toBeNull();
+    expect(footer?.querySelector(".ui-status-badge")).toBeTruthy();
+    expect(footer?.className).toContain("flex-col");
+    expect(statusBadges?.[0]?.className).toContain("whitespace-normal");
+    expect(actionLabel?.className).not.toContain("truncate");
   });
 });

@@ -57,7 +57,7 @@ export default async function AssuranceControlPoliciesPage() {
       <ul className="space-y-2 text-sm">
         {(data ?? []).map((row) => (
           <li key={row.id} className="ui-operational-card p-4">
-            <Link href={`/assurance/control-policies/${row.id}`} className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)] hover:underline">
+            <Link href={`/assurance/control-policies/${row.id}`} className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)] hover:underline">
               {row.name}
             </Link>
             <p className="ui-support-copy mt-1">{row.objective}</p>

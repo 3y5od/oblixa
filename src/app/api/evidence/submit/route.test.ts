@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
@@ -29,22 +31,38 @@ describe("POST /api/evidence/submit", () => {
   it("returns 401 when unauthenticated", async () => {
     getApiAuthContext.mockResolvedValueOnce(null);
     const { POST } = await import("@/app/api/evidence/submit/route");
-    const res = await POST(new Request("http://localhost:3000/api/evidence/submit", { method: "POST" }));
+    const res = await POST(
+      new Request("http://localhost:3000/api/evidence/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      })
+    );
     expect(res.status).toBe(401);
     expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 403 when user lacks capability", async () => {
-    getApiAuthContext.mockResolvedValueOnce({ admin: {}, orgId: "org-1", userId: "user-1" });
+    const admin = { from: vi.fn() };
+    getApiAuthContext.mockResolvedValueOnce({ admin, orgId: "org-1", userId: "user-1" });
     canManageCapability.mockResolvedValueOnce(false);
     const { POST } = await import("@/app/api/evidence/submit/route");
-    const res = await POST(new Request("http://localhost:3000/api/evidence/submit", { method: "POST" }));
+    const res = await POST(
+      new Request("http://localhost:3000/api/evidence/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      })
+    );
     expect(res.status).toBe(403);
     expect(res.headers.get("Cache-Control")).toBe("private, no-store");
     expect(await res.json()).toMatchObject({
       outcome: "forbidden",
       diagnostic_id: "v10_evidence_submit_forbidden",
     });
+    expect(requireApiWorkspaceEligibility).not.toHaveBeenCalled();
+    expect(admin.from).not.toHaveBeenCalled();
   });
 
   it("returns 404 when requirement does not belong to org", async () => {
@@ -116,5 +134,28 @@ describe("POST /api/evidence/submit", () => {
       outcome: "external_link_expired",
       diagnostic_id: "v10_external_evidence_submit_expired",
     });
+  });
+
+  it("checks auth before parsing the request body", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/api/evidence/submit/route.ts"), "utf8");
+    const postStart = source.indexOf("export async function POST");
+    const authIndex = source.indexOf("getApiAuthContext()", postStart);
+    const bodyParseIndex = source.indexOf("readJsonBodyLimited(request)", postStart);
+
+    expect(postStart).toBeGreaterThanOrEqual(0);
+    expect(authIndex).toBeGreaterThanOrEqual(0);
+    expect(bodyParseIndex).toBeGreaterThanOrEqual(0);
+    expect(authIndex).toBeLessThan(bodyParseIndex);
+  });
+
+  it("threads V10 idempotency keys into replayable evidence mutations", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/api/evidence/submit/route.ts"), "utf8");
+    const authenticatedMutation = source.indexOf('mutationName: "evidence.submit"');
+    const idempotencyKey = source.indexOf("idempotencyKey: getV10IdempotencyKeyFromRequest(request)", authenticatedMutation);
+    const callback = source.indexOf("async () =>", authenticatedMutation);
+
+    expect(authenticatedMutation).toBeGreaterThanOrEqual(0);
+    expect(idempotencyKey).toBeGreaterThan(authenticatedMutation);
+    expect(callback).toBeGreaterThan(idempotencyKey);
   });
 });

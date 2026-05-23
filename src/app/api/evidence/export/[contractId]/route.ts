@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import {
+  contentDispositionAttachment,
+  sanitizeExportFileName,
+  sanitizeExportFileNameToken,
+} from "@/lib/security/export-filename";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/evidence/export/[contractId]";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ contractId: string }> }
 ) {
-  const { contractId } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -17,13 +26,26 @@ export async function GET(
   });
   if (modeGate) return modeGate;
 
+  const { contractId } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ contractId }, ["contractId"], "/api/evidence/export/[contractId]");
+
+  if (routeParamRejection) return routeParamRejection;
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   const { data: contract } = await ctx.admin
     .from("contracts")
     .select("id, title")
     .eq("id", contractId)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
-  if (!contract) return NextResponse.json({ error: "Contract not found" }, { status: 404 });
+  if (!contract) return jsonNotFound(ROUTE);
 
   const [{ data: requirements }, { data: attestationRequests }] = await Promise.all([
     ctx.admin
@@ -84,12 +106,13 @@ export async function GET(
   };
 
   const body = JSON.stringify(pack, null, 2);
+  const fileName = sanitizeExportFileName(`evidence-pack-${sanitizeExportFileNameToken(contractId)}.json`);
   return new NextResponse(body, {
     status: 200,
     headers: {
       "content-type": "application/json; charset=utf-8",
-      "content-disposition": `attachment; filename="evidence-pack-${contractId}.json"`,
-      "cache-control": "no-store",
+      "content-disposition": contentDispositionAttachment(fileName),
+      "cache-control": "private, no-store",
     },
   });
 }

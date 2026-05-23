@@ -1,70 +1,47 @@
-import { LoadingCard } from "@/components/ui/segment-loading";
-
 export default function ReviewQueueLoading() {
   return (
     <>
       <div className="sr-only" role="status" aria-live="polite">
-        Loading review queue. Field editors and save actions will appear shortly.
+        Loading review fields. Source evidence and field actions will appear shortly.
       </div>
-      <div className="ui-page-stack" aria-hidden aria-busy="true">
-        <header className="ui-page-header flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-3">
-            <div className="ui-skeleton h-4 w-28 rounded" />
-            <div className="ui-skeleton h-9 w-52 max-w-full rounded" />
-            <div className="ui-skeleton h-4 max-w-2xl rounded" />
-          </div>
-          <div className="ui-skeleton h-10 w-32 rounded-lg" />
-        </header>
-
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <LoadingCard key={i} className="p-4">
-              <div className="space-y-3">
-                <div className="ui-skeleton h-4 w-24 rounded" />
-                <div className="ui-skeleton h-7 w-24 rounded" />
-                <div className="ui-skeleton h-4 w-36 rounded" />
-              </div>
-            </LoadingCard>
-          ))}
-        </section>
-
-        <section className="ui-card-hero overflow-hidden">
-          <div className="space-y-5 border-b border-[var(--border-subtle)]/90 px-5 py-6 md:px-8">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-3">
-                <div className="ui-skeleton h-4 w-20 rounded" />
-                <div className="ui-skeleton h-7 w-64 max-w-full rounded" />
-                <div className="ui-skeleton h-4 max-w-3xl rounded" />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <div className="ui-skeleton h-10 w-40 rounded-lg" />
-                <div className="ui-skeleton h-10 w-36 rounded-lg" />
-              </div>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <LoadingCard key={i} className="px-4 py-3">
-                  <div className="space-y-3">
-                    <div className="ui-skeleton h-4 w-20 rounded" />
-                    <div className="ui-skeleton h-6 w-28 rounded" />
-                    <div className="ui-skeleton h-4 w-32 rounded" />
-                  </div>
-                </LoadingCard>
-              ))}
+      <div className="ui-page-stack mx-auto max-w-7xl" aria-hidden aria-busy="true">
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+          <div className="flex min-w-0 items-start gap-3.5">
+            <div className="ui-skeleton h-10 w-10 rounded-xl" />
+            <div className="min-w-0 space-y-2">
+              <div className="ui-skeleton h-3 w-28 rounded" />
+              <div className="ui-skeleton h-8 w-52 rounded" />
+              <div className="ui-skeleton h-3 w-96 max-w-full rounded" />
             </div>
           </div>
-        </section>
+        </div>
 
-        <LoadingCard className="p-0">
-          <div className="ui-surface-tint border-b border-[var(--border-subtle)] px-6 py-4">
-            <div className="ui-skeleton h-5 w-52 rounded" />
+        <div className="ui-card-raised overflow-hidden rounded-2xl border">
+          <div className="grid gap-0 border-b border-[var(--border-subtle)] md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
+                <div className="ui-skeleton h-3 w-28 rounded" />
+                <div className="ui-skeleton mt-3 h-7 w-20 rounded" />
+                <div className="ui-skeleton mt-2 h-3 w-32 rounded" />
+              </div>
+            ))}
           </div>
-          <div className="space-y-4 p-6">
-            <div className="ui-skeleton h-24 w-full rounded-xl" />
-            <div className="ui-skeleton h-32 w-full rounded-xl" />
-            <div className="ui-skeleton h-10 w-40 rounded-lg" />
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]">
+            <div className="space-y-5 px-4 py-5 sm:px-5 lg:px-6">
+              <div className="ui-skeleton h-7 w-56 rounded" />
+              <div className="grid gap-3 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="ui-skeleton h-24 rounded-xl" />
+                ))}
+              </div>
+              <div className="ui-skeleton h-10 w-96 max-w-full rounded-xl" />
+            </div>
+            <div className="border-t border-[var(--border-subtle)] px-4 py-5 sm:px-5 lg:border-l lg:border-t-0 lg:px-6">
+              <div className="ui-skeleton h-28 rounded-xl" />
+              <div className="ui-skeleton mt-5 h-44 rounded-xl" />
+            </div>
           </div>
-        </LoadingCard>
+        </div>
       </div>
     </>
   );

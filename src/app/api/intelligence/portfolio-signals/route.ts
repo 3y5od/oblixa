@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
+import { jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { buildPortfolioSignalSummary } from "@/lib/v5/portfolio-signal-summary";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
+const ROUTE = "/api/intelligence/portfolio-signals";
+
 export async function GET() {
   const disabled = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,

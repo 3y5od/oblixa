@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
+import {
+  contentDispositionAttachment,
+  sanitizeExportFileName,
+  sanitizeExportFileNameToken,
+} from "@/lib/security/export-filename";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { parseFixedEnumParam } from "@/lib/security/validation";
 
 /** Buffered export cap; full dataset via paged `.range` (see collectSupabaseRangePages). Streaming CSV remains future work if memory becomes an issue. */
 const EXPORT_CAMPAIGN_CONTRACTS_MAX_ROWS = 250_000;
+const ROUTE = "/api/campaigns/[id]/export";
+
+export const maxDuration = 60;
 
 type CampaignContractExportRow = {
   contract_id: string;
@@ -27,9 +39,11 @@ function toCsv(rows: Record<string, string | number | null | undefined>[]) {
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -37,12 +51,23 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     apiPath: "/api/campaigns/[id]/export",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/campaigns/[id]/export");
+
+  if (routeParamRejection) return routeParamRejection;
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
 
   const { searchParams } = new URL(request.url);
-  const format = searchParams.get("format") === "csv" ? "csv" : "json";
+  const format = parseFixedEnumParam(searchParams.get("format"), ["json", "csv"] as const, "json");
+  const safeCampaignId = sanitizeExportFileNameToken(id);
 
   const { data: campaign } = await ctx.admin
     .from("portfolio_campaigns")
@@ -50,7 +75,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!campaign) return jsonNotFound(ROUTE);
 
   const { rows, error, truncated } = await collectSupabaseRangePages<CampaignContractExportRow>(
     (from, to) =>
@@ -63,8 +88,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         .range(from, to),
     { pageSize: 1000, maxRows: EXPORT_CAMPAIGN_CONTRACTS_MAX_ROWS }
   );
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "campaign_export_failed",
+      diagnostic_id: "campaign_export_failed",
+      route: ROUTE,
+    });
+  }
   if (format === "csv") {
+    const fileName = sanitizeExportFileName(`campaign-${safeCampaignId}.csv`);
     const csv = toCsv(
       rows.map((r) => ({
         contract_id: String(r.contract_id),
@@ -79,15 +112,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="campaign-${id}.csv"`,
+        "Content-Disposition": contentDispositionAttachment(fileName),
+        "Cache-Control": "private, no-store",
       },
     });
   }
 
-  return NextResponse.json({
-    campaign,
-    contracts: rows,
-    exported_at: new Date().toISOString(),
-    ...(truncated ? { truncated: true as const } : {}),
-  });
+  return NextResponse.json(
+    {
+      campaign,
+      contracts: rows,
+      exported_at: new Date().toISOString(),
+      ...(truncated ? { truncated: true as const } : {}),
+    },
+    { headers: { "Cache-Control": "private, no-store" } }
+  );
 }

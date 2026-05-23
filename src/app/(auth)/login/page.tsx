@@ -1,7 +1,7 @@
 import { AuthForm } from "@/components/auth/auth-form";
 
 export const metadata = {
-  title: "Sign in",
+  title: "Sign in to Oblixa",
 };
 
 export default async function LoginPage({

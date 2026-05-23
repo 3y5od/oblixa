@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/intelligence/recommendations/[id]";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -19,9 +26,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     apiPath: "/api/intelligence/recommendations/[id]",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.intelligence.recommendations.id",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -29,9 +39,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const body = readJsonBody<{ action?: string }>(raw, {});
   const action = toSafeString(body.action).toLowerCase();
   if (action !== "accept" && action !== "dismiss") {
-    return NextResponse.json({ error: "action must be accept or dismiss" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "action must be accept or dismiss",
+      code: "invalid_action",
+      diagnostic_id: "recommendation_action_invalid",
+      route: ROUTE,
+    });
   }
 
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/intelligence/recommendations/[id]");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: prior } = await ctx.admin
     .from("operational_recommendations")
     .select("accepted, dismissed")
@@ -51,8 +71,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .eq("id", id)
     .select("id, accepted, dismissed, recommendation_type, generated_at")
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  if (!data) return NextResponse.json({ error: "Recommendation not found" }, { status: 404 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "recommendation_update_failed",
+      diagnostic_id: "recommendation_update_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) return jsonNotFound(ROUTE);
 
   const alreadyInDesiredState =
     action === "accept" ? prior?.accepted === true : prior?.dismissed === true;

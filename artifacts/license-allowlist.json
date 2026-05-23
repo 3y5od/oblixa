@@ -1,4 +1,11 @@
 {
+  "metadata": {
+    "owner": "supply-chain",
+    "reviewedOn": "2026-05-11",
+    "reason": "Reviewed SPDX license family allowlist enforced against the generated CycloneDX SBOM.",
+    "expiresOn": "2027-12-31",
+    "compensatingTest": "scripts/check-license-sbom.mjs"
+  },
   "families": [
     "0BSD",
     "(MIT AND Zlib)",

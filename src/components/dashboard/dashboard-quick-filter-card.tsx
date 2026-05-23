@@ -19,19 +19,16 @@ export function DashboardQuickFilterCard(props: {
   ];
 
   return (
-    <section className="ui-toolbar px-4 py-3">
-      <div className="ui-segmented flex flex-wrap items-center gap-2">
-        <p className="ui-kicker">Quick filters</p>
-        {options.map((option) => (
-          <Link
-            key={option.id}
-            href={option.href}
-            className={`ui-segmented-item ${quickFilter === option.id ? "ui-segmented-item-active" : ""}`.trim()}
-          >
-            {option.label}
-          </Link>
-        ))}
-      </div>
-    </section>
+    <nav aria-label="Quick filters" className="ui-segmented inline-flex flex-wrap items-center gap-1">
+      {options.map((option) => (
+        <Link
+          key={option.id}
+          href={option.href}
+          className={`ui-segmented-item ${quickFilter === option.id ? "ui-segmented-item-active" : ""}`.trim()}
+        >
+          {option.label}
+        </Link>
+      ))}
+    </nav>
   );
 }

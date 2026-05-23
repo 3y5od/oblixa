@@ -1,6 +1,8 @@
 import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { stripCsvBidiControlCharacters } from "@/lib/csv-formula-safe";
+import { createHash } from "node:crypto";
 import type { createAdminClient } from "@/lib/supabase/server";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
@@ -35,6 +37,11 @@ const CONTRACT_INSERT_BATCH_SIZE = 200;
 const JOB_ROW_INSERT_BATCH_SIZE = 500;
 const AUTO_ATTACH_PROGRAMS_CONCURRENCY = 6;
 export const MAX_IMPORT_BODY_CHARS = 2_000_000;
+export const MAX_IMPORT_CSV_ROWS = 10_000;
+export const MAX_IMPORT_CSV_COLUMNS = 100;
+export const MAX_IMPORT_CSV_CELL_CHARS = 8_192;
+const CSV_FORMULA_PREFIX_RE = /^[\t\r]|^[\s]*[=+\-@]/;
+const IMPORT_RAW_PAYLOAD_TTL_DAYS = 30;
 
 async function resolveWorkspaceOwnerIdsByEmail(
   admin: Admin,
@@ -68,6 +75,18 @@ export function parseCsv(text: string): CsvRow[] {
   let currentField = "";
   let currentRow: string[] = [];
   let inQuotes = false;
+  const pushField = () => {
+    if (currentRow.length < MAX_IMPORT_CSV_COLUMNS) {
+      currentRow.push(normalizeCsvImportCell(currentField));
+    }
+    currentField = "";
+  };
+  const pushRow = () => {
+    if (currentRow.some((cell) => cell.length > 0) && rows.length <= MAX_IMPORT_CSV_ROWS) {
+      rows.push(currentRow);
+    }
+    currentRow = [];
+  };
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     const next = text[i + 1];
@@ -81,26 +100,23 @@ export function parseCsv(text: string): CsvRow[] {
       continue;
     }
     if (ch === "," && !inQuotes) {
-      currentRow.push(currentField.trim());
-      currentField = "";
+      pushField();
       continue;
     }
     if ((ch === "\n" || ch === "\r") && !inQuotes) {
       if (ch === "\r" && next === "\n") i++;
-      currentRow.push(currentField.trim());
-      currentField = "";
-      if (currentRow.some((cell) => cell.length > 0)) rows.push(currentRow);
-      currentRow = [];
+      pushField();
+      pushRow();
       continue;
     }
-    currentField += ch;
+    if (currentField.length < MAX_IMPORT_CSV_CELL_CHARS) currentField += ch;
   }
   if (currentField.length > 0 || currentRow.length > 0) {
-    currentRow.push(currentField.trim());
-    if (currentRow.some((cell) => cell.length > 0)) rows.push(currentRow);
+    pushField();
+    pushRow();
   }
   if (rows.length < 2) return [];
-  const headers = rows[0].map((h) => h.trim().toLowerCase());
+  const headers = rows[0].slice(0, MAX_IMPORT_CSV_COLUMNS).map((h) => h.trim().toLowerCase());
   return rows.slice(1).map((values) => {
     const out: Record<string, string> = {};
     headers.forEach((h, idx) => {
@@ -110,9 +126,19 @@ export function parseCsv(text: string): CsvRow[] {
   });
 }
 
+export function normalizeCsvImportCell(value: string): string {
+  const stripped = stripCsvBidiControlCharacters(value).trim();
+  if (CSV_FORMULA_PREFIX_RE.test(stripped)) return `'${stripped}`;
+  return stripped;
+}
+
 function normalizeRetryRow(raw: unknown): CsvRow | null {
   if (!raw || typeof raw !== "object") return null;
-  const row = raw as Record<string, unknown>;
+  const container = raw as Record<string, unknown>;
+  const row =
+    container.schema_version === 1 && container.retry_fields && typeof container.retry_fields === "object"
+      ? (container.retry_fields as Record<string, unknown>)
+      : container;
   const title = typeof row.title === "string" ? row.title : "";
   if (!title.trim()) return null;
   return {
@@ -124,6 +150,36 @@ function normalizeRetryRow(raw: unknown): CsvRow | null {
     source_system: typeof row.source_system === "string" ? row.source_system : undefined,
     external_reference_id:
       typeof row.external_reference_id === "string" ? row.external_reference_id : undefined,
+  };
+}
+
+function stablePayloadHash(value: unknown): string {
+  return createHash("sha256").update(JSON.stringify(value), "utf8").digest("hex");
+}
+
+function expiresAtAfter(days: number, now = new Date()): string {
+  return new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+export function minimizeImportRawPayload(row: CsvRow, now = new Date()): Record<string, unknown> {
+  const retryFields: CsvRow = {
+    title: normalizeCsvImportCell(row.title ?? ""),
+    counterparty: row.counterparty ? normalizeCsvImportCell(row.counterparty) : undefined,
+    contract_type: row.contract_type ? normalizeCsvImportCell(row.contract_type) : undefined,
+    owner_email: row.owner_email ? normalizeCsvImportCell(row.owner_email).toLowerCase() : undefined,
+    region: row.region ? normalizeCsvImportCell(row.region) : undefined,
+    source_system: row.source_system ? normalizeCsvImportCell(row.source_system) : undefined,
+    external_reference_id: row.external_reference_id ? normalizeCsvImportCell(row.external_reference_id) : undefined,
+  };
+  return {
+    schema_version: 1,
+    payload_hash_sha256: stablePayloadHash(row),
+    retained_for: "retry_normalized_fields",
+    ttl_expires_at: expiresAtAfter(IMPORT_RAW_PAYLOAD_TTL_DAYS, now),
+    raw_payload_minimized: true,
+    retry_fields: Object.fromEntries(
+      Object.entries(retryFields).filter(([, value]) => typeof value === "string" && value.length > 0)
+    ),
   };
 }
 
@@ -142,7 +198,7 @@ async function insertJobRows(
     status: row.status,
     error_message: row.errorMessage,
     contract_id: row.contractId ?? null,
-    raw_payload: row.rawPayload,
+    raw_payload: minimizeImportRawPayload(row.rawPayload),
   }));
   for (const chunk of chunkArray(jobRowsPayload, JOB_ROW_INSERT_BATCH_SIZE)) {
     await admin.from("contract_import_job_rows").insert(chunk);
@@ -297,7 +353,10 @@ export async function runContractCsvImport(params: {
     };
   });
 
-  const validRows = rowResults.filter((row) => row.status === "valid" && row.payload) as ImportRowResult[];
+  const validRows = rowResults.filter(
+    (row): row is ImportRowResult & { payload: Record<string, unknown> } =>
+      row.status === "valid" && row.payload !== null
+  );
   let fatalInsertError: string | null = null;
 
   if (validRows.length > 0) {
@@ -326,11 +385,11 @@ export async function runContractCsvImport(params: {
       }
 
       const insertedWithPayload = chunk.filter(
-        (row): row is ImportRowResult & { contractId: string } =>
+        (row): row is ImportRowResult & { contractId: string; payload: Record<string, unknown> } =>
           typeof row.contractId === "string" && !!row.payload
       );
       await mapWithConcurrency(insertedWithPayload, AUTO_ATTACH_PROGRAMS_CONCURRENCY, async (row) => {
-        const payload = row.payload as Record<string, unknown>;
+        const payload = row.payload;
         await autoAttachProgramsForContract({
           admin,
           contract: {
@@ -374,6 +433,7 @@ export async function runContractCsvImport(params: {
       failure_reason: fatalInsertError,
       completed_at: new Date().toISOString(),
     })
+    .eq("organization_id", membership.organization_id)
     .eq("id", jobId);
 
   if (retryOfJobId) {

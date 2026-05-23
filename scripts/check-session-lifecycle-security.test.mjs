@@ -17,8 +17,8 @@ test("analyzeSessionLifecycleSecurity validates sign-out and session revocation 
   write(root, ".github/workflows/ci.yml", "npm run check:session-lifecycle-security\n");
   write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:session-lifecycle-security"\n');
   write(root, "src/actions/auth.ts", 'action: "security.session_signed_out"\nawait supabase.auth.signOut()\nredirect("/api/auth/post-sign-out")\n');
-  write(root, "src/actions/sessions.ts", 'await supabase.auth.signOut({ scope: "others" })\naction: "security.sessions_revoke_others"\nreturn { success: true as const }\n');
-  write(root, "src/actions/sessions.test.ts", 'revokeOtherSessions audits with organization_id when org present\nexpect(res).toEqual({ success: true })\n');
+  write(root, "src/actions/sessions.ts", 'hasSensitiveActionProof(supabase, user.id)\nbefore revoking other sessions\nneedStepUp: true as const\nawait supabase.auth.signOut({ scope: "others" })\naction: "security.sessions_revoke_others"\noutcome: "forbidden"\nreturn { success: true as const }\n');
+  write(root, "src/actions/sessions.test.ts", 'revokeOtherSessions requires step-up or AAL2 before sign-out\nrevokeOtherSessions audits with organization_id when org present\nexpect(res).toEqual({ success: true })\n');
   write(root, "src/app/api/auth/post-sign-out/route.ts", `NextResponse.redirect(login)\nres.headers.set("Clear-Site-Data", '"cache", "cookies"')\n`);
 
   const report = analyzeSessionLifecycleSecurity(root);

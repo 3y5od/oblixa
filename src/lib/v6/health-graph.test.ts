@@ -22,6 +22,7 @@ function createHealthGraphAdminMock(input?: {
   const reads = new Map(Object.entries(input?.reads ?? {}));
   const nodeUpserts = [...(input?.nodeUpserts ?? [])];
   const edgeUpserts = [...(input?.edgeUpserts ?? [])];
+  const selectedColumns: Record<string, string[]> = {};
   let nodeCounter = 0;
 
   const nextRead = (table: string): ReadResult => {
@@ -33,9 +34,12 @@ function createHealthGraphAdminMock(input?: {
   };
 
   return {
+    selectedColumns,
     from(table: string) {
       return {
-        select() {
+        select(columns?: string) {
+          selectedColumns[table] = selectedColumns[table] ?? [];
+          selectedColumns[table].push(String(columns ?? ""));
           const chain: ReadChain = {
             eq: () => chain,
             in: () => chain,
@@ -174,5 +178,74 @@ describe("rebuildHealthGraphFromPortfolio", () => {
         message: "edge write failed",
       }),
     ]);
+  });
+
+  it("uses contracts.account_key for account-derived graph links", async () => {
+    const admin = createHealthGraphAdminMock({
+      reads: {
+        assurance_scorecards: [
+          {
+            data: [
+              {
+                id: "scorecard-counterparty",
+                scorecard_type: "counterparty",
+                entity_ref_id: "Acme",
+                overall_score: 82,
+              },
+              {
+                id: "scorecard-account",
+                scorecard_type: "account",
+                entity_ref_id: "acct-1",
+                overall_score: 84,
+              },
+            ],
+            error: null,
+          },
+        ],
+        contracts: [
+          { data: [], error: null },
+          {
+            data: [
+              { counterparty: "Acme", account_key: "acct-1" },
+              { counterparty: "Acme", account_key: "acct-1" },
+            ],
+            error: null,
+          },
+          {
+            data: [
+              {
+                id: "contract-1",
+                name: "MSA",
+                counterparty: "Acme",
+                account_key: "acct-1",
+              },
+            ],
+            error: null,
+          },
+        ],
+        assurance_findings: [
+          {
+            data: [
+              {
+                id: "finding-1",
+                title: "Missing evidence",
+                severity: "high",
+                finding_type: "control_gap",
+                linked_entities_json: [{ type: "contract", id: "contract-1" }],
+              },
+            ],
+            error: null,
+          },
+        ],
+      },
+    });
+
+    const result = await rebuildHealthGraphFromPortfolio(admin as never, "org-1");
+
+    expect(result.errors).toEqual([]);
+    expect(admin.selectedColumns.contracts).toContain("counterparty, account_key");
+    expect(admin.selectedColumns.contracts).toContain("id, name, counterparty, account_key");
+    const staleContractAccountColumn = ["linked", "account", "key"].join("_");
+    expect(admin.selectedColumns.contracts.some((columns) => columns.includes(staleContractAccountColumn))).toBe(false);
   });
 });

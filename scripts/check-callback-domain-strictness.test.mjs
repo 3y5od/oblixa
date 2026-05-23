@@ -16,7 +16,8 @@ test("analyzeCallbackDomainStrictness validates same-origin callback constructio
   write(root, "package.json", JSON.stringify({ scripts: { "check:callback-domain-strictness": "x" } }));
   write(root, ".github/workflows/ci.yml", "npm run check:callback-domain-strictness\n");
   write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:callback-domain-strictness"\n');
-  write(root, "src/app/api/integrations/oauth/start/route.ts", 'const authorize = validateOutboundHttpUrl(providerConfig.authorizeUrl)\nconst requestOrigin = getRequestOrigin(request)\n`${requestOrigin}/api/integrations/oauth/callback`\nif (redirect.origin !== requestOrigin){}\nreturn NextResponse.json({ error: "redirectUri must match request origin" }, { status: 400 })\n');
+  write(root, "src/app/api/integrations/oauth/start/route.ts", 'const authorize = validateOutboundHttpUrl(providerConfig.authorizeUrl)\nconst requestOrigin = getRequestOrigin(request)\n`${requestOrigin}/api/integrations/oauth/callback`\nif (redirect.origin !== requestOrigin){}\nredirect.pathname === "/api/integrations/oauth/callback"\nreturn NextResponse.json({ error: "redirectUri must match request origin" }, { status: 400 })\n');
+  write(root, "src/app/api/integrations/oauth/callback/route.ts", 'const requestOrigin = getRequestOrigin(request)\nredirect.pathname === "/api/integrations/oauth/callback"\ndiagnostic_id: "oauth_callback_redirect_uri_invalid"\n');
   write(root, "src/actions/settings.ts", 'const appUrl = await resolveAppBaseUrl()\nconst redirectTo = `${appUrl}/auth/callback`\ninviteUserByEmail(email, { redirectTo })\ninviteUserByEmail(inv.email, { redirectTo })\n');
   write(root, "src/lib/app-url.ts", 'export function getRequestOrigin(request: Request){}\nexport async function resolveAppBaseUrl(): Promise<string>{}\n');
 

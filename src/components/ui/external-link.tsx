@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { sanitizeExternalHref } from "@/lib/security/safe-external-href";
 
 function mergeRel(rel?: string) {
   const parts = new Set(["noreferrer", "noopener"]);
@@ -18,10 +19,19 @@ export function ExternalLink({
   children: ReactNode;
   suffix?: ReactNode;
 }) {
+  const safeHref = sanitizeExternalHref(href);
+  if (!safeHref) {
+    return (
+      <span aria-disabled="true" className={`${className}`.trim() || undefined}>
+        <span>{children}</span>
+      </span>
+    );
+  }
+
   return (
     <a
       {...props}
-      href={href}
+      href={safeHref}
       target="_blank"
       rel={mergeRel(rel)}
       className={`${className}`.trim() || undefined}

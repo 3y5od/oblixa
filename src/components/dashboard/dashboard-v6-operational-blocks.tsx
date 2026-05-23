@@ -93,10 +93,13 @@ export function DashboardV6AssuranceSnapshotSection(props: {
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="ui-eyebrow">Assurance</p>
+          <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+            <span className="landing-eyebrow-dot" aria-hidden />
+            Assurance
+          </p>
           <h2 className="ui-section-title mt-2 text-xl">Portfolio assurance snapshot</h2>
         </div>
-        <p className="text-[12px] font-medium text-[var(--text-tertiary)]">
+        <p className="text-[12.5px] font-medium text-[var(--text-tertiary)]">
           Avg scorecard{" "}
           <span className="font-semibold tabular-nums text-[var(--text-primary)]">
             {v6Snapshot.avgScore !== null ? v6Snapshot.avgScore : "—"}
@@ -216,7 +219,7 @@ export function DashboardV6AssuranceSnapshotSection(props: {
         <p className="mt-2">
           {v6PriorAssuranceRun && v6LastAssuranceRun ? (
             <>
-              Prior {String(v6PriorAssuranceRun.created_at ?? "").slice(0, 10)} → latest{" "}
+              Prior {String(v6PriorAssuranceRun.created_at ?? "").slice(0, 10)} to latest{" "}
               {String(v6LastAssuranceRun.created_at ?? "").slice(0, 10)}
               {v6LastAssuranceRun.risk_delta_json?.confidence_degradation
                 ? " · confidence dropped."
@@ -248,7 +251,10 @@ export function DashboardOutcomeIntelligenceSection(props: {
   return (
     <section className="space-y-4">
       <div>
-        <p className="ui-eyebrow">Outcomes</p>
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Outcomes
+        </p>
         <h2 className="ui-section-title mt-2 text-xl">Intervention effectiveness</h2>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
@@ -331,7 +337,10 @@ export function DashboardAssuranceSignalsSection(props: {
   return (
     <section className="space-y-4">
       <div>
-        <p className="ui-eyebrow">Signals</p>
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Signals
+        </p>
         <h2 className="ui-section-title mt-2 text-xl">Operational signal summary</h2>
       </div>
       <div className="grid gap-3 md:grid-cols-3">

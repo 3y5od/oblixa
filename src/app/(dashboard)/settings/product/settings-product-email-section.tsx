@@ -17,15 +17,15 @@ export function SettingsProductEmailSection({ blockedTypes }: { blockedTypes: st
   return (
     <section className="ui-card p-6 md:p-8">
       <p className="ui-label-caps">Email notification categories</p>
-      <p className="ui-muted-tight mt-2 max-w-2xl text-[13px]">
+      <p className="ui-muted-tight mt-2 max-w-2xl text-[12.5px]">
         Email delivery preferences accept only canonical workspace notification types. Check to <strong>mute</strong>
         a category (adds it to <code className="text-xs">notification_policy_json.email.blocked_types</code>).
       </p>
-      <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
+      <p className="ui-muted-tight mt-3 max-w-2xl text-[12.5px]">
         Review and mute categories by tier so operators only receive delivery types that match the current workspace
         posture and team workflow.
       </p>
-      <p className="ui-muted-tight mt-3 max-w-2xl text-[13px]">
+      <p className="ui-muted-tight mt-3 max-w-2xl text-[12.5px]">
         Currently muted:{" "}
         <span className="font-medium text-[var(--text-primary)]">
           {visibleBlockedTypes.length === 0
@@ -53,11 +53,11 @@ export function SettingsProductEmailSection({ blockedTypes }: { blockedTypes: st
                     name={`mute_email_${entry.notificationType}`}
                     type="checkbox"
                     defaultChecked={emailBlocked.has(entry.notificationType)}
-                    className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+                    className="ui-checkbox mt-1"
                   />
                   <label htmlFor={`mute_email_${entry.notificationType}`} className="text-sm text-[var(--text-primary)]">
                     <span className="block">Mute {notificationPreferenceLabel(entry.notificationType)}</span>
-                    <span className="ui-muted-tight mt-1 block text-[12px]">
+                    <span className="ui-muted-tight mt-1 block text-[12.5px]">
                       {displayLabelForFeature(entry.featureFamily)}
                     </span>
                   </label>
@@ -66,7 +66,7 @@ export function SettingsProductEmailSection({ blockedTypes }: { blockedTypes: st
             </ul>
           </div>
         ))}
-        <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
+        <button type="submit" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
           Save email categories
         </button>
       </form>

@@ -33,6 +33,6 @@ describe("GET /api/attestations/run", () => {
     const { GET } = await import("@/app/api/attestations/run/route");
     const res = await GET();
     expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: "Access denied" });
+    expect(await res.json()).toMatchObject({ error: "Forbidden", code: "forbidden" });
   });
 });

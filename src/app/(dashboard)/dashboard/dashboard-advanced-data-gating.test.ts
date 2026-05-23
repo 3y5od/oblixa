@@ -5,26 +5,30 @@ import { describe, expect, it } from "vitest";
 const DASHBOARD_PAGE = join(process.cwd(), "src/app/(dashboard)/dashboard/page.tsx");
 
 describe("dashboard advanced data gating (source tripwire)", () => {
-  it("keeps portfolio intelligence behind non-core mode checks", () => {
+  // v22 structural refactor: the dashboard route is now Core-only. The
+  // page never fetches Advanced/Assurance data sources, so the prior
+  // inline `isCoreHome` + `showPortfolioIntel` gating was deleted along
+  // with the source fetches it guarded. The tripwire is now an
+  // ABSENCE check: the page must NOT pull advanced data sources at all,
+  // and must delegate Core data loading to the spec-compliant model.
+
+  it("does not fetch portfolio intelligence on the Core dashboard route", () => {
     const raw = readFileSync(DASHBOARD_PAGE, "utf8");
-    expect(raw.includes('const isCoreHome = productSurface.mode === "core";')).toBe(true);
-    expect(
-      raw.includes(
-        'const showPortfolioIntel =\n    !isCoreHome && (productSurface.mode === "advanced" || productSurface.mode === "assurance");'
-      )
-    ).toBe(true);
+    expect(raw).not.toContain("showPortfolioIntel");
+    expect(raw).not.toContain('.from("org_behavior_metrics")');
+    expect(raw).not.toContain('.from("v5_signal_quality")');
+    expect(raw).not.toContain("V5ControlRoomStrip");
+    expect(raw).not.toContain("V5TelemetryCompact");
   });
 
-  it("only fetches compact telemetry after showPortfolioIntel gate", () => {
+  it("delegates data loading to the Core dashboard model (loadCoreDashboardModel)", () => {
     const raw = readFileSync(DASHBOARD_PAGE, "utf8");
-    const needle = '.from("org_behavior_metrics")';
-    const idx = raw.indexOf(needle);
-    expect(idx).toBeGreaterThan(-1);
-    const slice = raw.slice(Math.max(0, idx - 800), idx);
-    expect(
-      slice.includes(
-        "showPortfolioIntel && (intelligenceOn || showControlRoomStrip) && canViewV5Telemetry"
-      )
-    ).toBe(true);
+    expect(raw).toContain("loadCoreDashboardModel");
+    expect(raw).toContain("<CoreDashboard");
+    // Page is a thin wrapper around the Core composition — no inline
+    // Advanced/Assurance section guards remain.
+    expect(raw).not.toContain("DashboardAssuranceSignalsSection");
+    expect(raw).not.toContain("DashboardOutcomeIntelligenceSection");
+    expect(raw).not.toContain("DashboardV6AssuranceSnapshotSection");
   });
 });

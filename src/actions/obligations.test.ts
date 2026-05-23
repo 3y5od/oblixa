@@ -35,4 +35,15 @@ describe("createContractObligation", () => {
     });
     expect(result).toEqual({ error: "Invalid contract" });
   });
+
+  it("rejects invalid ISO due dates before querying contract state", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "user-1" } } });
+    const { createContractObligation } = await import("@/actions/obligations");
+    const result = await createContractObligation({
+      contractId: "11111111-1111-1111-1111-111111111111",
+      title: "Submit insurance cert",
+      dueDate: "2026-02-30",
+    });
+    expect(result).toEqual({ error: "Invalid due date" });
+  });
 });

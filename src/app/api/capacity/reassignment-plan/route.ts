@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+
+const ROUTE = "/api/capacity/reassignment-plan";
 
 export async function POST(request: Request) {
   const disabled = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -17,9 +24,12 @@ export async function POST(request: Request) {
     apiPath: "/api/capacity/reassignment-plan",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.capacity.reassignment-plan",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -33,9 +43,21 @@ export async function POST(request: Request) {
   const teamKey = toSafeString(body.teamKey);
   const currentLoad = Number(body.currentLoad ?? 0);
   const targetLoad = Number(body.targetLoad ?? 0);
-  if (!teamKey) return NextResponse.json({ error: "teamKey is required" }, { status: 400 });
+  if (!teamKey) {
+    return jsonProblem(400, {
+      error: "teamKey is required",
+      code: "team_key_required",
+      diagnostic_id: "capacity_reassignment_plan_team_key_required",
+      route: ROUTE,
+    });
+  }
   if (!Number.isFinite(currentLoad) || !Number.isFinite(targetLoad)) {
-    return NextResponse.json({ error: "currentLoad and targetLoad must be numbers" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "currentLoad and targetLoad must be numbers",
+      code: "invalid_load_values",
+      diagnostic_id: "capacity_reassignment_plan_invalid_load_values",
+      route: ROUTE,
+    });
   }
   const overload = Math.max(0, Math.round(currentLoad - targetLoad));
   const suggestedMoves = overload > 0 ? overload : 0;

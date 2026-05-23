@@ -23,7 +23,7 @@ const REQUIRED_FILE_MARKERS = {
     'it("rejects CRON_SECRET as submit-ticket HMAC key in production", () => {',
   ],
   "src/app/api/external-actions/[token]/status/route.ts": [
-    'import { nowIso, signExternalSubmitTicket } from "@/lib/v5/api";',
+    'signExternalSubmitTicket,',
     'data.requires_reauth && effectiveStatus === "open" && !expired',
     '? signExternalSubmitTicket({ linkId: data.id, urlToken: token })',
     'Call GET status before each submit; include submitTicket from this response in your POST body.',
@@ -32,7 +32,7 @@ const REQUIRED_FILE_MARKERS = {
     'it("includes submitTicket when requires_reauth and link is open", async () => {',
   ],
   "src/app/api/external-actions/[token]/submit/route.ts": [
-    'import { nowIso, verifyExternalPasscode, verifyExternalSubmitTicket } from "@/lib/v5/api";',
+    'verifyExternalSubmitTicket,',
     'const ticketCheck = verifyExternalSubmitTicket(token, submitTicket, String(link.id));',
     'ticketCheck.reason === "submit_ticket_required"',
     ': "Invalid or expired submit ticket. Refresh the page to obtain a new ticket.",',

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Clock3 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { SlaSimulatorClient } from "@/components/v4/sla-simulator-client";
 
 export default async function ApprovalSlaSimulatorPage() {
@@ -8,18 +10,20 @@ export default async function ApprovalSlaSimulatorPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Approvals</p>
-          <h1 className="ui-display-title mt-2">SLA simulator</h1>
-          <p className="ui-page-lead mt-3">
-            Model approval deadlines before you change live SLA policies. Results are indicative only.
-          </p>
-          <Link href="/contracts/approvals" className="ui-link mt-3 inline-block text-sm">
-            ← Back to approvals
+      <DashboardPageHeader
+        icon={<Clock3 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Approvals"
+        title="SLA simulator"
+        lead="Model approval deadlines before you change live SLA policies. Results are indicative only."
+        actions={
+          <Link
+            href="/contracts/approvals"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
+            Back to approvals
           </Link>
-        </div>
-      </header>
+        }
+      />
       <SlaSimulatorClient />
     </div>
   );

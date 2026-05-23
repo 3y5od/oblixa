@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ListOrdered, Users } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalQueueRow, OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 
 export default async function ApprovalWorkloadPage() {
   const ctx = await getAuthContext();
@@ -25,16 +26,20 @@ export default async function ApprovalWorkloadPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Approvals</p>
-          <h1 className="ui-display-title mt-2">Approval workload</h1>
-          <p className="ui-page-lead mt-3">Pending approvals grouped by current approver.</p>
-          <Link href="/contracts/approvals" className="ui-link mt-3 inline-block text-sm">
-            ← Back to approvals
+      <DashboardPageHeader
+        icon={<Users className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Approvals"
+        title="Approval workload"
+        lead="Pending approvals grouped by current approver."
+        actions={
+          <Link
+            href="/contracts/approvals"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
+            Back to approvals
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <section className="ui-page-shell space-y-3">
         <div>

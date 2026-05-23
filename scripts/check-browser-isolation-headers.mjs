@@ -10,7 +10,7 @@ const REQUIRED_CI_COMMANDS = ["npm run check:browser-isolation-headers"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:browser-isolation-headers"'];
 const REQUIRED_FILE_MARKERS = {
   "next.config.ts": [
-    'import { buildSecurityHeaders } from "@/lib/security/csp-builders"',
+    'buildSecurityHeaders, normalizeCoepMode, normalizeTrustedTypesMode',
     "const securityHeaders = buildSecurityHeaders({",
     'source: "/:path*"',
     "headers: securityHeaders",
@@ -18,15 +18,38 @@ const REQUIRED_FILE_MARKERS = {
   "src/lib/security/csp-builders.ts": [
     'key: "Cross-Origin-Opener-Policy", value: "same-origin"',
     'key: "Cross-Origin-Resource-Policy", value: "same-origin"',
-    'key: "X-Frame-Options", value: "SAMEORIGIN"',
+    'key: "Cross-Origin-Embedder-Policy", value: coepMode',
+    'key: "X-Frame-Options", value: "DENY"',
+    "normalizeTrustedTypesMode",
+    "normalizeCoepMode",
+    "trustedTypesMode === \"enforce\"",
+    "script-src-attr 'none'",
+    "upgrade-insecure-requests",
   ],
   "src/lib/security/csp-builders.test.ts": [
     "prod CSP omits unsafe-eval in main policy",
-    "frame-ancestors 'self'",
+    "frame-ancestors 'none'",
+    "report-only CSP carries script attribute and mixed-content protections",
+    "Trusted Types can be enforced on the main CSP with an explicit mode",
+    "COEP compatibility gate supports off, credentialless, and require-corp",
+  ],
+  "src/app/api/security/csp-report/route.ts": [
+    "CSP_REPORT_BODY_LIMIT",
+    "normalizeCspReportBody(parsed)",
+    "rateLimitCheck(`csp-report:${ip}`",
+    "private, no-store",
+    "[security-event:csp-report]",
+  ],
+  "src/app/api/security/csp-report/route.test.ts": [
+    "accepts bounded CSP reports, logs redacted security event, and returns no-store 204",
+    "rejects unsupported content types",
+    "rejects malformed report shapes",
   ],
   "e2e/security-headers-smoke.spec.ts": [
     'cross-origin-opener-policy',
     'cross-origin-resource-policy',
+    "script-src-attr 'none'",
+    "upgrade-insecure-requests",
   ],
 };
 

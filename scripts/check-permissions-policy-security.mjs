@@ -8,28 +8,50 @@ const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:permissions-policy-security"];
 const REQUIRED_CI_COMMANDS = ["npm run check:permissions-policy-security"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:permissions-policy-security"'];
-const REQUIRED_POLICY_TOKENS = [
-  "camera=()",
-  "microphone=()",
-  "geolocation=()",
-  "payment=()",
-  "display-capture=()",
-  "web-share=()",
-  "interest-cohort=()",
-  "usb=()",
-  "bluetooth=()",
-  "serial=()",
-  "hid=()",
+const REQUIRED_POLICY_FEATURES = [
+  "accelerometer",
+  "ambient-light-sensor",
+  "autoplay",
+  "battery",
+  "browsing-topics",
+  "camera",
+  "conversion-measurement",
+  "display-capture",
+  "encrypted-media",
+  "gamepad",
+  "geolocation",
+  "gyroscope",
+  "hid",
+  "interest-cohort",
+  "magnetometer",
+  "microphone",
+  "midi",
+  "payment",
+  "picture-in-picture",
+  "screen-wake-lock",
+  "serial",
+  "speaker-selection",
+  "sync-xhr",
+  "usb",
+  "web-share",
+  "xr-spatial-tracking",
+  "bluetooth",
 ];
 const REQUIRED_FILE_MARKERS = {
-  "next.config.ts": ['import { buildSecurityHeaders } from "@/lib/security/csp-builders"', "headers: securityHeaders"],
-  "src/lib/security/csp-builders.ts": ['key: "Permissions-Policy"'],
+  "next.config.ts": [
+    "buildApiNoStoreHeaders",
+    "buildSecurityHeaders",
+    "headers: securityHeaders",
+  ],
+  "src/lib/security/csp-builders.ts": ['key: "Permissions-Policy"', "DISABLED_PERMISSION_POLICY_FEATURES"],
   "src/lib/security/csp-builders.test.ts": [
     "Permissions-Policy disables payment and capture surfaces unless product opts in later",
     "payment=()",
     "display-capture=()",
+    "browsing-topics=()",
+    "xr-spatial-tracking=()",
   ],
-  "e2e/security-headers-smoke.spec.ts": ["Permissions-Policy present on root (soft)"],
+  "e2e/security-headers-smoke.spec.ts": ["Permissions-Policy present on root (soft)", "browsing-topics=()"],
 };
 
 function read(root, rel) {
@@ -71,8 +93,10 @@ export function analyzePermissionsPolicySecurity(root = ROOT) {
   }
 
   const cspBuilders = read(root, "src/lib/security/csp-builders.ts");
-  for (const token of REQUIRED_POLICY_TOKENS) {
-    if (!cspBuilders.includes(token)) issues.push({ issue: "missing_permissions_policy_token", token });
+  for (const feature of REQUIRED_POLICY_FEATURES) {
+    if (!cspBuilders.includes(`"${feature}"`)) {
+      issues.push({ issue: "missing_permissions_policy_feature", feature });
+    }
   }
 
   return { checkId: "permissions-policy-security", ok: issues.length === 0, issueCount: issues.length, issues };

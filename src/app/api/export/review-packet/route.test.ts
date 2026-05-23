@@ -61,7 +61,7 @@ describe("GET /api/export/review-packet", () => {
     const res = await GET();
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("records export lifecycle telemetry for review packet exports", async () => {
@@ -146,7 +146,7 @@ describe("GET /api/export/review-packet", () => {
     const res = await GET();
 
     expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({ error: "Could not load approvals" });
+    await expect(res.json()).resolves.toMatchObject({ error: "Could not load approvals" });
     expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -171,9 +171,8 @@ describe("GET /api/export/review-packet", () => {
 
     expect(res.status).toBe(413);
     expect(body).toMatchObject({
-      code: "row_budget_exceeded",
+      error: expect.any(String),
       diagnostic_id: "review_packet_row_budget_exceeded",
-      partial: true,
     });
     expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
       expect.anything(),

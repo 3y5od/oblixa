@@ -4,22 +4,25 @@
  * health graph, etc.) stay in `dashboard/page.tsx` and are mode-gated for Core.
  */
 import Link from "next/link";
-import { differenceInDays, isValid } from "date-fns";
 import {
   AlertTriangle,
+  ArrowRight,
   BadgeCheck,
   Bookmark,
   CalendarClock,
   ClipboardCheck,
   ClipboardList,
   FolderClock,
-  Scale,
+  History,
+  LayoutDashboard,
   ShieldAlert,
+  Slash,
+  UploadCloud,
+  UserX,
 } from "lucide-react";
-import { StatsCards } from "@/components/dashboard/stats-cards";
-import { DashboardQuickFilterCard } from "@/components/dashboard/dashboard-quick-filter-card";
 import { DashboardPersonaPresets } from "@/components/dashboard/dashboard-persona-presets";
 import { OperationalSurfaceLinkCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import {
   OnboardingBanner,
   type OnboardingActivationStats,
@@ -29,8 +32,6 @@ import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
   getDashboardAdminClientCached,
-  getDashboardDateFieldsCached,
-  getDashboardMissingCriticalCached,
   getDashboardOrgMetricsCached,
   getDashboardOperationalSignalsCached,
   getDashboardWorkflowSettingsCached,
@@ -43,34 +44,17 @@ import {
   parseOnboardingCalibration,
 } from "@/lib/onboarding/calibration-types";
 import { dashboardOrgRoleCalibrationNudge } from "@/lib/onboarding/calibration-copy";
+import {
+  DASHBOARD_TITLE,
+  DASHBOARD_PRIMARY_CTA,
+  DASHBOARD_SECONDARY_CTA,
+} from "@/lib/dashboard/spec-strings";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import type { ProductSurfaceContext } from "@/lib/product-surface/context";
 import { isHrefEligibleForProductSurface } from "@/lib/product-surface/href-eligibility";
 import { buildContractsListHref } from "@/lib/contracts-search-url";
-
-const COMMAND_LANE_ICONS = [ClipboardList, Scale, ShieldAlert] as const;
-
-function shortcutActionLabel(href: string): string {
-  if (href.includes("/approvals")) return "Review approvals";
-  if (href.includes("/exceptions")) return "Triage exceptions";
-  if (href.includes("/renewals")) return "Review renewals";
-  if (href.includes("/reports")) return "Review reports";
-  if (href.includes("/review")) return "Continue review";
-  if (href.includes("/maintenance")) return "Review maintenance";
-  if (href.startsWith("/work")) return "Review work queue";
-  if (href.includes("/health")) return "Inspect health";
-  if (href.includes("/persona")) return "Configure persona";
-  return "Review destination";
-}
-
-type DashboardDeadlineField = {
-  id: string;
-  field_name: string;
-  field_value: string | null;
-  contracts: { id: string; title: string; organization_id: string };
-};
 
 export async function DashboardUpper(props: {
   orgId: string;
@@ -82,7 +66,7 @@ export async function DashboardUpper(props: {
   workspaceProductMode?: WorkspaceProductMode;
   productSurfaceContext: ProductSurfaceContext;
 }) {
-  const { orgId, userId, role, view, quickFilter, workspaceProductMode, productSurfaceContext } = props;
+  const { orgId, userId, role, view, workspaceProductMode, productSurfaceContext } = props;
   const isCoreHome = workspaceProductMode === "core";
   const isHrefEligible = (href: string) =>
     isHrefEligibleForProductSurface(productSurfaceContext, href);
@@ -92,8 +76,6 @@ export async function DashboardUpper(props: {
   const [
     profileRow,
     metrics,
-    dateFieldsData,
-    missingCritical,
     workflowSettings,
     pinnedSavedViews,
     hasActivePlan,
@@ -101,8 +83,6 @@ export async function DashboardUpper(props: {
   ] = await Promise.all([
     getProfileOnboardingCached(userId),
     getDashboardOrgMetricsCached(orgId),
-    getDashboardDateFieldsCached(orgId),
-    getDashboardMissingCriticalCached(orgId),
     getDashboardWorkflowSettingsCached(orgId),
     getPinnedSavedViewsCached(orgId),
     enforcePlan ? getOrgHasActivePlanCached(orgId) : Promise.resolve(true),
@@ -110,7 +90,7 @@ export async function DashboardUpper(props: {
   ]);
 
   const admin = await getDashboardAdminClientCached();
-  const [v6OrgSettings, recentImportJobsRes, failedExtractionRes] = await Promise.all([
+  const [v6OrgSettings, recentImportJobsRes, failedExtractionRes, orgIdentityRes] = await Promise.all([
     getV6OrgSettingsJson(admin, orgId),
     admin
       .from("contract_import_jobs")
@@ -126,7 +106,15 @@ export async function DashboardUpper(props: {
       .order("completed_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    admin
+      .from("organizations")
+      .select("name, plan_tier")
+      .eq("id", orgId)
+      .maybeSingle(),
   ]);
+  const orgIdentity = (orgIdentityRes.data as { name?: string; plan_tier?: string } | null) ?? null;
+  const workspaceName = orgIdentity?.name?.trim() || "Workspace";
+  // planTier is surfaced via the right-rail Account snapshot panel.
   const onboardingCalibration = parseOnboardingCalibration(v6OrgSettings.onboarding_calibration);
   const calibrationBlocking = isOnboardingBlockingForAdmin({
     role,
@@ -141,36 +129,6 @@ export async function DashboardUpper(props: {
       details: { view },
     });
   }
-
-  const dateFields = dateFieldsData as unknown as DashboardDeadlineField[];
-  const today = new Date();
-  const upcomingActions = dateFields
-    .filter((field) => field.field_value)
-    .map((field) => {
-      const dateValue = new Date(field.field_value as string);
-      if (!isValid(dateValue)) return null;
-      const daysUntil = differenceInDays(dateValue, today);
-      if (Number.isNaN(daysUntil)) return null;
-      return {
-        contract: field.contracts,
-        field: {
-          id: field.id,
-          field_name: field.field_name,
-          field_value: field.field_value,
-        },
-        daysUntil,
-      };
-    })
-    .filter(
-      (a): a is NonNullable<typeof a> =>
-        a != null && a.daysUntil >= 0 && a.daysUntil <= 90
-    )
-    .sort((a, b) => a.daysUntil - b.daysUntil)
-    .slice(0, 10);
-
-  const upcomingDeadlines = upcomingActions.filter(
-    (a) => a.daysUntil <= 30
-  ).length;
 
   const commandSavedViews = pinnedSavedViews as Array<{
     id: string;
@@ -267,19 +225,21 @@ export async function DashboardUpper(props: {
       count: operationalSignals.assignedWork,
       icon: ClipboardList,
       tone: operationalSignals.assignedWork > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Review assigned work",
+      actionLabel: "Open work",
       priority: 4,
     },
     {
+      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
+      // "Upcoming deadlines" per spec §Dashboard Page Top cards.
       id: "due-soon",
-      title: "Due soon",
+      title: "Upcoming deadlines",
       href: "/work?lens=due_soon",
       why: `Items in the next ${V9_DUE_SOON_DAYS} days that need attention before they slip.`,
       count: operationalSignals.dueSoonAssignedWork,
       icon: CalendarClock,
       tone:
         operationalSignals.dueSoonAssignedWork > 0 ? ("risk" as const) : ("healthy" as const),
-      actionLabel: "Review due-soon queue",
+      actionLabel: "Open deadlines",
       priority: 1,
     },
     {
@@ -296,12 +256,12 @@ export async function DashboardUpper(props: {
     {
       id: "renewals",
       title: "Renewals needing attention",
-      href: "/contracts/renewals?horizon=renewal_90",
+      href: "/contracts/renewals?window=90",
       why: "Contracts with renewal dates inside the active window.",
       count: operationalSignals.renewalAttention,
       icon: FolderClock,
       tone: operationalSignals.renewalAttention > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Review renewals",
+      actionLabel: "Open renewals",
       priority: 5,
     },
     {
@@ -312,30 +272,34 @@ export async function DashboardUpper(props: {
       count: operationalSignals.openExceptions,
       icon: AlertTriangle,
       tone: operationalSignals.openExceptions > 0 ? ("risk" as const) : ("healthy" as const),
-      actionLabel: "Triage exceptions",
+      actionLabel: "Open",
       priority: 2,
     },
     {
+      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
+      // "Evidence requested" per spec §Dashboard Page Top cards.
       id: "evidence",
-      title: "Evidence gaps",
+      title: "Evidence requested",
       href: "/contracts?evidence=outstanding",
       why: "Outstanding evidence still holding back obligated work.",
       count: operationalSignals.outstandingEvidence,
       icon: ShieldAlert,
       tone:
         operationalSignals.outstandingEvidence > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Review evidence",
+      actionLabel: "Open evidence",
       priority: 6,
     },
     {
+      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
+      // "Needs review" per spec §Dashboard Page Top cards.
       id: "review",
-      title: "Review backlog",
+      title: "Needs review",
       href: "/contracts/review",
       why: "Field review still pending before the workspace can trust extracted values.",
       count: metrics.pendingReview,
       icon: ClipboardCheck,
       tone: metrics.pendingReview > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Continue review queue",
+      actionLabel: "Review fields",
       priority: 3,
     },
     {
@@ -344,10 +308,50 @@ export async function DashboardUpper(props: {
       href: "/contracts?sort=activity",
       why: "Freshly touched contracts and workflow changes from the last 7 days.",
       count: operationalSignals.recentChanges,
-      icon: Scale,
+      icon: History,
       tone: operationalSignals.recentChanges > 0 ? ("neutral" as const) : ("healthy" as const),
-      actionLabel: "Review recent activity",
+      actionLabel: "See activity",
       priority: 7,
+    },
+    {
+      // v11 dashboard spec compliance Tier 2.3: "Missing owners" spec card
+      // added per spec §Dashboard Page Top cards. Count derived from
+      // (totalContracts - ownerAssignedContracts) since the data layer
+      // surfaces ownerAssignedContracts as a positive counter.
+      id: "missing-owners",
+      title: "Missing owners",
+      href: "/contracts",
+      why: "Contracts without an assigned owner cannot route work or reminders.",
+      count: Math.max(
+        0,
+        metrics.totalContracts - operationalSignals.ownerAssignedContracts
+      ),
+      icon: UserX,
+      tone:
+        metrics.totalContracts > 0 &&
+        metrics.totalContracts - operationalSignals.ownerAssignedContracts > 0
+          ? ("attention" as const)
+          : ("healthy" as const),
+      actionLabel: "Assign owners",
+      priority: 5,
+    },
+    {
+      // v11 dashboard spec compliance Tier 2.3 + Tier 20.4: "Blocked work"
+      // spec card with a stub count=0 fallback. The data layer currently
+      // does NOT surface a dedicated `blockedWork` counter; a real backend
+      // query against work_items WHERE status = 'blocked' is the proper fix
+      // (Tier 20.3). Per Tier 20.4 ("stub-with-zero fallback — Never omit
+      // a card"), the card renders with count 0 + healthy tone until the
+      // backend query lands.
+      id: "blocked-work",
+      title: "Blocked work",
+      href: "/work",
+      why: "Work items currently blocked on dependencies, approvals, or evidence.",
+      count: 0,
+      icon: Slash,
+      tone: "healthy" as const,
+      actionLabel: "Open work",
+      priority: 4,
     },
   ].filter((card) => isHrefEligible(card.href));
   const orderedFocusCards = [...focusCards].sort((a, b) => {
@@ -357,149 +361,16 @@ export async function DashboardUpper(props: {
     if (b.count !== a.count) return b.count - a.count;
     return a.title.localeCompare(b.title);
   });
-  const actionableFocusCards = orderedFocusCards.filter((card) => card.count > 0);
-  const fallbackFocusCards = orderedFocusCards.filter((card) => card.count === 0);
-  const displayFocusCards = [...actionableFocusCards, ...fallbackFocusCards];
+  // v11 dashboard spec compliance Tier 2.5: spec mandates exactly 6 cards
+  // always rendered. We pass all ordered cards through and the render uses
+  // slice(0, 6) to bound the visible set. The actionable/fallback split is
+  // no longer needed since spec wants 6 cards regardless of count state.
+  const displayFocusCards = orderedFocusCards;
 
-  const roleCommandCenterCards: Record<
-    string,
-    Array<{ title: string; href: string; why: string }>
-  > = {
-    ops_manager: [
-      {
-        title: "Open exceptions",
-        href: "/contracts/exceptions?status=open&severity=critical",
-        why: "Exception backlog needs owner and due context.",
-      },
-      {
-        title: "Workflow backlog",
-        href: "/work?lens=overdue",
-        why: "Generated work that is blocked or overdue needs triage.",
-      },
-      {
-        title: "Automation failures",
-        href: "/settings/health",
-        why: "Failed deliveries and sync errors impact execution trust.",
-      },
-    ],
-    legal_reviewer: [
-      {
-        title: "Pending approvals",
-        href: "/contracts/approvals?status=pending",
-        why: "Legal approvals are bottlenecks for downstream work.",
-      },
-      {
-        title: "Policy mismatches",
-        href: "/contracts/exceptions?status=open",
-        why: "Policy exceptions should be resolved explicitly.",
-      },
-      {
-        title: "Requested legal evidence",
-        href: "/work",
-        why: "Evidence gates block obligation completion.",
-      },
-    ],
-    finance_reviewer: [
-      {
-        title: "Renewals with impact",
-        href: "/contracts/renewals",
-        why: "Commercial outcomes require finance recommendation.",
-      },
-      {
-        title: "Approval bottlenecks",
-        href: "/contracts/approvals?status=pending",
-        why: "SLA breaches delay revenue operations.",
-      },
-      {
-        title: "Billing checkpoint exceptions",
-        href: "/contracts/exceptions?status=open",
-        why: "Data quality and missing owners add risk.",
-      },
-    ],
-    manager: [
-      {
-        title: "Team capacity",
-        href: "/contracts/tasks?status=open",
-        why: "Workload and blockers should be visible without manual aggregation.",
-      },
-      {
-        title: "SLA adherence",
-        href: "/contracts/approvals?status=pending",
-        why: "Approval cycle delays surface governance risk.",
-      },
-      {
-        title: "Risk summary",
-        href: "/contracts/reports",
-        why: "Trends should be reviewed in report packs.",
-      },
-    ],
-    admin: [
-      {
-        title: "Execution health",
-        href: "/contracts/reports",
-        why: "Portfolio health should be monitored weekly.",
-      },
-      {
-        title: "Exceptions and escalations",
-        href: "/contracts/exceptions?status=open&severity=critical",
-        why: "Critical issues require explicit ownership.",
-      },
-      {
-        title: "Maintenance campaigns",
-        href: "/contracts/maintenance",
-        why: "Backfill and remediation should be controlled.",
-      },
-    ],
-    editor: [
-      {
-        title: "Assigned work",
-        href: "/work?lens=assigned",
-        why: "Focus on due tasks, approvals, and obligations.",
-      },
-      {
-        title: "Review queue",
-        href: "/contracts/review",
-        why: "Pending review items block downstream execution.",
-      },
-      {
-        title: "Exception ledger",
-        href: "/contracts/exceptions",
-        why: "Resolve blockers to keep workflows moving.",
-      },
-    ],
-    viewer: [
-      {
-        title: "Portfolio snapshot",
-        href: "/contracts/reports",
-        why: "Read-only visibility into workload and risk.",
-      },
-      {
-        title: "Upcoming deadlines",
-        href: "/contracts/obligations?status=open",
-        why: "Track upcoming obligations and checkpoints.",
-      },
-      {
-        title: "Command center views",
-        href: "/dashboard/persona",
-        why: "Role views show what changed recently.",
-      },
-    ],
-  };
-  const commandCenterForRole =
-    roleCommandCenterCards[role] ?? roleCommandCenterCards.viewer;
-  const visibleCommandCenterCards = commandCenterForRole.filter((card) => {
-    if (isCoreHome && card.href.startsWith("/contracts/maintenance")) return false;
-    return isHrefEligible(card.href);
-  });
   const manageSavedViewsHref = isHrefEligible("/contracts/tasks")
     ? "/contracts/tasks"
     : "/contracts";
-  const summaryHighlights = [
-    { label: "Assigned work", value: operationalSignals.assignedWork },
-    { label: "Pending review", value: metrics.pendingReview },
-    { label: "Renewal attention", value: operationalSignals.renewalAttention },
-    { label: "Visible work", value: operationalSignals.visibleWorkItems },
-  ];
+  const hasPinnedCommandViews = commandViewLinks.length > 0;
 
   return (
     <>
@@ -517,174 +388,279 @@ export async function DashboardUpper(props: {
           </p>
           <Link
             href="/settings/billing"
-            className="ui-btn-secondary shrink-0 px-4 py-2 text-[13px]"
+            className="ui-btn-secondary shrink-0 px-4 py-2 text-[12.5px]"
           >
             Billing
           </Link>
         </div>
       )}
 
-      <header className="ui-page-header">
-        <div className="space-y-4">
-          <p className="ui-eyebrow">Mission control</p>
-          <h1 className="ui-display-title mt-2 sm:text-[3.2rem]">Dashboard</h1>
-          <p className="ui-page-lead">
-            Critical queues, risk signals, next actions, and saved operating views for the current workspace.
-          </p>
-          {onboardingCalibration?.last_recommendation &&
-          onboardingCalibration.answers_optional?.org_role &&
-          onboardingCalibration.answers_optional.org_role !== "unspecified" ? (
-            <p className="ui-support-copy max-w-xl">{dashboardOrgRoleCalibrationNudge}</p>
-          ) : null}
-          <div className="flex flex-wrap gap-2.5 pt-1">
-            {summaryHighlights.map((item) => (
-              <div
-                key={item.label}
-                className="ui-metric-chip grid min-w-[9rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2"
-              >
-                <span className="ui-meta leading-none">{item.label}</span>
-                <span className="text-base font-semibold leading-none tabular-nums text-[var(--text-primary)]">
-                  {item.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="ui-page-actions">
-          <div className="ui-toolbar-strong mr-1 hidden gap-3 sm:flex">
-            <div className="ui-segmented">
+      <DashboardPageHeader
+        icon={<LayoutDashboard className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        // v11 visual pass: eyebrow shows the workspace name when known;
+        // suppressed entirely when the workspace has no name. Drops the
+        // generic "DASHBOARD" placeholder that read as SaaS-template chrome.
+        eyebrow={workspaceName}
+        suppressEyebrow={!orgIdentity?.name?.trim()}
+        title={DASHBOARD_TITLE}
+        monogram={
+          orgIdentity?.name?.trim()
+            ? workspaceName.slice(0, 2).toUpperCase()
+            : undefined
+        }
+        // v11 visual pass: LIVE pulse dropped. The user is on their own
+        // workspace — the indicator adds no information and read as a
+        // Vercel-deploy-page tic. Real-time freshness, when it matters,
+        // surfaces via the synced-Xm-ago meta line instead.
+        metaStrip={(() => {
+          const planTier = orgIdentity?.plan_tier?.trim();
+          const total = metrics.totalContracts;
+          const items: Array<{ label: string; value: string }> = [];
+          if (orgIdentity?.name?.trim()) {
+            items.push({ label: "Workspace", value: workspaceName });
+          }
+          if (total > 0) {
+            items.push({
+              label: "Contracts",
+              value: total === 1 ? "1" : String(total),
+            });
+          }
+          if (planTier) {
+            items.push({
+              label: "Plan",
+              value: `${planTier.charAt(0).toUpperCase()}${planTier.slice(1).toLowerCase()}`,
+            });
+          }
+          if (items.length === 0) return null;
+          return items.map((item, idx) => (
+            <span
+              key={item.label}
+              className="inline-flex items-baseline gap-1.5"
+            >
+              {idx > 0 ? (
+                <span
+                  aria-hidden
+                  className="inline-block h-3 w-px self-center bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]"
+                />
+              ) : null}
+              <dt className="ui-caps-3 text-[var(--text-tertiary)]">
+                {item.label}
+              </dt>
+              <dd className="font-medium tabular-nums text-[var(--text-secondary)]">
+                {item.value}
+              </dd>
+            </span>
+          ));
+        })()}
+        // v11 dashboard spec compliance: status-pill lead removed.
+        // Per Tier 1.6 + 1.7, header carries only title + primary/secondary
+        // CTAs; spec top cards (Tier 2: Needs review / Open exceptions /
+        // Blocked work / etc.) surface these counts as discrete cards.
+        lead={null}
+        actions={
+          <>
+            {showPersonaPresets ? (
               <Link
-                href="/dashboard?view=personal"
-                className={`ui-segmented-item ${
-                  view === "personal" ? "ui-segmented-item-active" : ""
-                }`}
+                href="/dashboard/persona"
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
               >
-                Personal
+                Persona studio
               </Link>
-              <Link
-                href="/dashboard?view=team"
-                className={`ui-segmented-item ${
-                  view === "team" ? "ui-segmented-item-active" : ""
-                }`}
-              >
-                Team
-              </Link>
-              <Link
-                href="/dashboard?view=portfolio"
-                className={`ui-segmented-item ${
-                  view === "portfolio" ? "ui-segmented-item-active" : ""
-                }`}
-              >
-                Portfolio
-              </Link>
-            </div>
-          </div>
-          {showPersonaPresets ? (
-            <Link href="/dashboard/persona" className="ui-btn-secondary h-11 px-5">
-              Persona studio
-            </Link>
-          ) : null}
-          <Link href="/contracts/new" className="ui-btn-primary h-11 px-6">
-            Upload contract
-          </Link>
-        </div>
-      </header>
-
-      {/* §8.1 — portfolio metrics before deep action lanes */}
-      <StatsCards
-        totalContracts={metrics.totalContracts}
-        pendingReview={metrics.pendingReview}
-        upcomingDeadlines={upcomingDeadlines}
-        activeContracts={metrics.activeContracts}
-        missingCriticalCount={missingCritical.length}
+            ) : null}
+            {/* v11 release-state pass: state-aware primary CTA. When there
+                are contracts pending review, "Review fields" is the
+                dominant action (per release-state §Contract Detail's
+                state-aware header pattern). "Upload contract" demotes to
+                secondary, "Import CSV" to ghost. When the queue is empty,
+                the spec-default order returns. */}
+            {metrics.pendingReview > 0 ? (
+              <>
+                <Link
+                  href="/contracts/review"
+                  className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+                >
+                  Review fields
+                </Link>
+                <Link
+                  href="/contracts/new"
+                  className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+                >
+                  <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  {DASHBOARD_PRIMARY_CTA}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/contracts/new"
+                  className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+                >
+                  <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  {DASHBOARD_PRIMARY_CTA}
+                </Link>
+                <Link
+                  href="/contracts/intake"
+                  prefetch={false}
+                  className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+                >
+                  {DASHBOARD_SECONDARY_CTA}
+                </Link>
+              </>
+            )}
+          </>
+        }
       />
+      {/* v11 dashboard spec compliance Tier 1.8: PERSONAL / TEAM / PORTFOLIO
+          tab strip removed. Spec §Dashboard Page is singular, not tabbed.
+          The `view` prop is preserved for telemetry and existing callers
+          but no longer surfaces UI segmentation. */}
+      {onboardingCalibration?.last_recommendation &&
+      onboardingCalibration.answers_optional?.org_role &&
+      onboardingCalibration.answers_optional.org_role !== "unspecified" ? (
+        <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)] max-w-xl">
+          {dashboardOrgRoleCalibrationNudge}
+        </p>
+      ) : null}
 
-      <section className="ui-page-shell space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="ui-eyebrow">Operations</p>
-            <h2 className="ui-page-title mt-2 text-[1.8rem]">What needs action now</h2>
-            <p className="ui-section-lead mt-2">
-              Deep links into the queues and records that most directly affect execution trust.
-            </p>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-          {displayFocusCards.map((card, index) => (
-            <OperationalSurfaceLinkCard
+      {/* v11 dashboard spec compliance: SETUP progress widget removed.
+          Setup is the responsibility of /onboarding/calibration per spec
+          §Calibration Page. The dashboard should never render an inline
+          setup wizard. The OnboardingBanner above still handles the
+          first-time guidance when showOnboarding is true. */}
+
+      {/* v11 dashboard spec compliance Tier 3.12: Quick-link chip strip
+          (Open exceptions / Approvals / Renewals / Reports / Work queue)
+          removed. Redundant with sidebar nav (Renewals + Evidence now
+          top-level; sidebar carries all 7 Core nav items). Counts that
+          this strip surfaced are now in the spec top cards (Tier 2). */}
+
+      {/* v13 aesthetic pass — major subtraction:
+          - Dropped the TODAY'S FOCUS active-risk hero banner. It duplicated
+            the KPI grid below it (the 3 ChipCapsules in the banner were the
+            same 3 active cards in the grid).
+          - Dropped the "Work needing action" section h2 + "Open all work"
+            link above the KPI grid. The h2 duplicated the spec's "Work
+            Needing Action" main section in dashboard-lower.
+          - Compressed the 6 KPI cards into a tighter inline render: no
+            corner-ring decoration, no medallion, no footer-link border-t,
+            smaller padding. Each card now ~100px tall (was ~200px).
+          - Spec §Dashboard Page Top cards mandate of 6 visible surfaces is
+            preserved; the visual treatment is just more honest about
+            density.
+          - sr-only dashboard-status-h heading preserves the spec contract
+            for assistive tech. */}
+      <h2 id="dashboard-status-h" className="sr-only">
+        {(() => {
+          const active = displayFocusCards
+            .slice(0, 6)
+            .filter((c) => c.count > 0);
+          if (active.length === 0) return "All clear — nothing needs attention";
+          const total = active.reduce((sum, c) => sum + c.count, 0);
+          return `${total} ${total === 1 ? "item" : "items"} need attention: ${active
+            .map((c) => `${c.count} ${c.title.toLowerCase()}`)
+            .join(", ")}`;
+        })()}
+      </h2>
+
+      <section
+        aria-label="Top cards"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+      >
+        {displayFocusCards.slice(0, 6).map((card) => {
+          const tone: "neutral" | "success" | "warning" | "danger" =
+            card.tone === "risk"
+              ? "danger"
+              : card.tone === "attention"
+                ? "warning"
+                : card.tone === "healthy"
+                  ? "success"
+                  : "neutral";
+          const isZero = card.count === 0;
+          const ink = isZero
+            ? "color-mix(in oklab, var(--success-ink) 55%, var(--text-tertiary))"
+            : tone === "danger"
+              ? "var(--danger-ink)"
+              : tone === "warning"
+                ? "var(--warning-ink)"
+                : "var(--text-primary)";
+          const Icon = card.icon;
+          return (
+            <Link
               key={card.id}
               href={card.href}
-              eyebrow="Focus"
-              title={card.title}
-              hint={card.why}
-              icon={card.icon}
-              tone={card.tone}
-              chips={[{ label: "Count", value: String(card.count) }]}
-              actionLabel={card.actionLabel}
-              variant={index === 0 ? "hero" : "default"}
-              className={index === 0 ? "sm:col-span-2 xl:col-span-3" : "xl:col-span-2"}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="ui-page-shell space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="ui-eyebrow">Shortcuts</p>
-            <h2 className="ui-section-title mt-2 text-[1.25rem]">Action lanes</h2>
-            <p className="ui-section-lead mt-2">
-              Role defaults for {role.replace("_", " ")}.
-            </p>
-          </div>
-          {showPersonaPresets ? (
-            <Link href="/dashboard/persona" className="ui-link text-xs">
-              Persona views
+              aria-label={`${card.title}: ${card.count}. ${card.actionLabel}.`}
+              className="group relative flex flex-col gap-2 overflow-hidden rounded-xl border bg-[var(--surface-raised)] px-3.5 py-3 transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-strong))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+              style={{
+                borderColor: isZero
+                  ? "color-mix(in oklab, var(--success-ink) 14%, var(--border-card))"
+                  : tone !== "neutral"
+                    ? `color-mix(in oklab, ${ink} 18%, var(--border-card))`
+                    : "var(--border-card)",
+                background: isZero
+                  ? "var(--surface-raised)"
+                  : tone !== "neutral"
+                    ? `color-mix(in oklab, ${ink} 3%, var(--surface-raised))`
+                    : "var(--surface-raised)",
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon
+                  className="h-3.5 w-3.5 shrink-0"
+                  strokeWidth={1.85}
+                  aria-hidden
+                  style={{ color: ink }}
+                />
+                <span
+                  className="ui-caps-3 truncate text-[var(--text-tertiary)]"
+                  style={{ color: isZero ? "var(--text-tertiary)" : ink }}
+                >
+                  {card.title}
+                </span>
+              </div>
+              <p
+                className="text-[1.625rem] font-semibold leading-none tabular-nums tracking-[-0.02em]"
+                style={{ color: ink }}
+              >
+                {card.count}
+              </p>
+              <p
+                className="mt-auto inline-flex items-center justify-between gap-1.5 text-[11.5px] font-medium leading-none text-[var(--text-tertiary)]"
+              >
+                <span className="truncate">{card.actionLabel}</span>
+                <ArrowRight
+                  className="h-3 w-3 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                  aria-hidden
+                  style={{ color: isZero ? "var(--text-tertiary)" : "var(--accent-strong)" }}
+                />
+              </p>
             </Link>
-          ) : null}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleCommandCenterCards.map((card, i) => {
-            const Icon = COMMAND_LANE_ICONS[i % COMMAND_LANE_ICONS.length]!;
-            return (
-              <OperationalSurfaceLinkCard
-                key={card.title}
-                href={card.href}
-                eyebrow="Lane"
-                title={card.title}
-                hint={card.why}
-                icon={Icon}
-                tone="neutral"
-                actionLabel={shortcutActionLabel(card.href)}
-              />
-            );
-          })}
-        </div>
+          );
+        })}
       </section>
 
       {showPersonaPresets ? <DashboardPersonaPresets /> : null}
 
-      <DashboardQuickFilterCard view={view} quickFilter={quickFilter} />
-      <section className="ui-page-shell space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="ui-eyebrow">Saved</p>
-            <h2 className="ui-section-title mt-2 text-[1.25rem]">Pinned command views</h2>
-            <p className="ui-section-lead mt-2">
-              Keep recurring queue configurations one click away.
-            </p>
+      {hasPinnedCommandViews ? (
+        <section className="ui-page-shell space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+                <span className="landing-eyebrow-dot" aria-hidden />
+                Saved
+              </p>
+              <h2 className="ui-section-title mt-2 text-[1.25rem]">Pinned command views</h2>
+              <p className="ui-section-lead mt-2">
+                Keep recurring queue configurations one click away.
+              </p>
+            </div>
+            <Link href={manageSavedViewsHref} className="ui-link inline-flex items-center gap-1 text-xs">
+              Manage saved views
+              <span aria-hidden>→</span>
+            </Link>
           </div>
-          <Link href={manageSavedViewsHref} className="ui-link text-xs">
-            Manage saved views
-          </Link>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {commandViewLinks.length === 0 ? (
-            <p className="text-xs text-[var(--text-tertiary)]">
-              No pinned saved views yet. Pin from tasks/obligations/renewals.
-            </p>
-          ) : (
-            commandViewLinks.map((row) => (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {commandViewLinks.map((row) => (
               <OperationalSurfaceLinkCard
                 key={row.id}
                 href={row.href}
@@ -695,10 +671,10 @@ export async function DashboardUpper(props: {
                 chips={[{ label: "Type", value: row.viewType }]}
                 actionLabel="Load saved view"
               />
-            ))
-          )}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

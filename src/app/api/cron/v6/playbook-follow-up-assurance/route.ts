@@ -3,6 +3,7 @@ import { runPlaybookFollowUpAssurancePasses } from "@/lib/v6/cron-jobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export const GET = withV6CronRoute({
   route: "/api/cron/v6/playbook-follow-up-assurance",

@@ -2,7 +2,13 @@
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { isUuid } from "@/lib/security/validation";
+import {
+  isIsoDateOnly,
+  isUuid,
+  parseFixedEnumParam,
+  parsePositiveIntParam,
+  validateBoundedString,
+} from "@/lib/security/validation";
 import type { ApprovalStatus, ApprovalType, RenewalScenario } from "@/lib/types";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { autoTransitionTasksForApproval } from "@/actions/tasks";
@@ -39,35 +45,85 @@ const RENEWAL_SCENARIOS: RenewalScenario[] = [
 
 const MAX_NOTE_LEN = 4000;
 const MAX_EXCEPTION_REASON_LEN = 800;
+const MAX_BLOCKER_LEN = 800;
+
+const APPROVAL_CATEGORIES = ["standard", "policy_exception", "financial", "operational"] as const;
+const RENEWAL_WORKSPACE_STATUSES = ["not_started", "in_progress", "blocked", "decision_pending", "closed"] as const;
+
+type ApprovalCategory = (typeof APPROVAL_CATEGORIES)[number];
+type RenewalWorkspaceStatus = (typeof RENEWAL_WORKSPACE_STATUSES)[number];
+
+function validateOptionalApprovalText(
+  value: unknown,
+  options: { maxLength: number; tooLong: string; unsafe: string }
+): { ok: true; value: string | null } | { ok: false; error: string } {
+  const validation = validateBoundedString(value ?? "", {
+    maxLength: options.maxLength,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  if (!validation.ok) {
+    if (validation.error === "string_too_long") return { ok: false, error: options.tooLong };
+    if (validation.error === "unsafe_characters") return { ok: false, error: options.unsafe };
+    return { ok: false, error: options.unsafe };
+  }
+  return { ok: true, value: validation.value || null };
+}
+
+function parseApprovalFormEnum<T extends string>(raw: FormDataEntryValue | null, allowed: readonly T[]): T | null {
+  if (raw != null && typeof raw !== "string") return null;
+  const value = (raw ?? "").trim();
+  if (!value) return null;
+  const parsed = parseFixedEnumParam(value, allowed, allowed[0]);
+  return parsed === value ? parsed : null;
+}
+
+function parseOptionalScenarioConfidence(raw: string): number | null {
+  if (!raw) return null;
+  if (!/^\d+$/.test(raw)) return null;
+  return parsePositiveIntParam(raw, { defaultValue: 1, min: 1, max: 100 });
+}
 
 export async function requestContractApproval(input: {
   contractId: string;
   approvalType: ApprovalType;
   approverId?: string | null;
   notes?: string | null;
-  category?: "standard" | "policy_exception" | "financial" | "operational";
+  category?: ApprovalCategory;
   exceptionFlag?: boolean;
   exceptionReason?: string | null;
 }) {
+  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
+  if (!APPROVAL_TYPES.includes(input.approvalType)) return { error: "Invalid approval type" };
+
+  const notesValidation = validateOptionalApprovalText(input.notes, {
+    maxLength: MAX_NOTE_LEN,
+    tooLong: "Notes are too long",
+    unsafe: "Notes contain unsupported characters",
+  });
+  if (!notesValidation.ok) return { error: notesValidation.error };
+  const category = input.category ?? "standard";
+  if (!APPROVAL_CATEGORIES.includes(category)) {
+    return { error: "Invalid category" };
+  }
+  const exceptionReasonValidation = validateOptionalApprovalText(input.exceptionReason, {
+    maxLength: MAX_EXCEPTION_REASON_LEN,
+    tooLong: "Exception reason is too long",
+    unsafe: "Exception reason contains unsupported characters",
+  });
+  if (!exceptionReasonValidation.ok) return { error: exceptionReasonValidation.error };
+  let approverId = input.approverId?.trim() || null;
+  if (approverId && !isUuid(approverId)) return { error: "Invalid approver" };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.contractId)) return { error: "Invalid contract" };
-  if (!APPROVAL_TYPES.includes(input.approvalType)) return { error: "Invalid approval type" };
 
-  const notes = input.notes?.trim() || null;
-  if (notes && notes.length > MAX_NOTE_LEN) return { error: "Notes are too long" };
-  const category = input.category ?? "standard";
-  if (!["standard", "policy_exception", "financial", "operational"].includes(category)) {
-    return { error: "Invalid category" };
-  }
-  const exceptionReason = input.exceptionReason?.trim() || null;
-  if (exceptionReason && exceptionReason.length > MAX_EXCEPTION_REASON_LEN) {
-    return { error: "Exception reason is too long" };
-  }
+  const notes = notesValidation.value;
+  const exceptionReason = exceptionReasonValidation.value;
 
   const { data: contract } = await admin
     .from("contracts")
@@ -79,9 +135,6 @@ export async function requestContractApproval(input: {
   if (!(await canManageApprovalsForOrg(admin, contract.organization_id, user.id))) {
     return { error: "You do not have approval permissions." };
   }
-
-  let approverId = input.approverId?.trim() || null;
-  if (approverId && !isUuid(approverId)) return { error: "Invalid approver" };
 
   if (approverId) {
     const { data: approverMembership } = await admin
@@ -263,18 +316,19 @@ export async function requestContractApproval(input: {
 
 export async function requestContractApprovalForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
-  const approvalType = String(formData.get("approvalType") ?? "").trim();
+  const approvalType = parseApprovalFormEnum(formData.get("approvalType"), APPROVAL_TYPES);
   const approverId = String(formData.get("approverId") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
+  const category = parseApprovalFormEnum(formData.get("category"), APPROVAL_CATEGORIES);
   const exceptionFlag = String(formData.get("exceptionFlag") ?? "") === "1";
   const exceptionReason = String(formData.get("exceptionReason") ?? "").trim();
+  if (!approvalType) return;
   const res = await requestContractApproval({
     contractId,
-    approvalType: approvalType as ApprovalType,
+    approvalType,
     approverId: approverId || null,
     notes: notes || null,
-    category: (category as "standard" | "policy_exception" | "financial" | "operational") || undefined,
+    category: category || undefined,
     exceptionFlag,
     exceptionReason: exceptionReason || null,
   });
@@ -288,17 +342,23 @@ export async function updateContractApprovalStatus(input: {
   status: ApprovalStatus;
   notes?: string | null;
 }) {
+  if (!isUuid(input.approvalId)) return { error: "Invalid approval" };
+  if (!APPROVAL_STATUSES.includes(input.status)) return { error: "Invalid status" };
+  const notesValidation = validateOptionalApprovalText(input.notes, {
+    maxLength: MAX_NOTE_LEN,
+    tooLong: "Notes are too long",
+    unsafe: "Notes contain unsupported characters",
+  });
+  if (!notesValidation.ok) return { error: notesValidation.error };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.approvalId)) return { error: "Invalid approval" };
-  if (!APPROVAL_STATUSES.includes(input.status)) return { error: "Invalid status" };
 
-  const notes = input.notes?.trim() || null;
-  if (notes && notes.length > MAX_NOTE_LEN) return { error: "Notes are too long" };
+  const notes = notesValidation.value;
 
   const { data: approval } = await admin
     .from("contract_approvals")
@@ -463,11 +523,12 @@ export async function updateContractApprovalStatus(input: {
 
 export async function updateContractApprovalStatusForm(formData: FormData) {
   const approvalId = String(formData.get("approvalId") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim();
+  const status = parseApprovalFormEnum(formData.get("status"), APPROVAL_STATUSES);
   const notes = String(formData.get("notes") ?? "").trim();
+  if (!status) return;
   const res = await updateContractApprovalStatus({
     approvalId,
-    status: status as ApprovalStatus,
+    status,
     notes: notes || null,
   });
   if (res && "error" in res && res.error) {
@@ -480,19 +541,23 @@ export async function delegateContractApproval(input: {
   delegateToUserId: string;
   reason?: string | null;
 }) {
+  if (!isUuid(input.approvalId) || !isUuid(input.delegateToUserId)) {
+    return { error: "Invalid request" };
+  }
+  const reasonValidation = validateOptionalApprovalText(input.reason, {
+    maxLength: MAX_EXCEPTION_REASON_LEN,
+    tooLong: "Delegation reason is too long",
+    unsafe: "Delegation reason contains unsupported characters",
+  });
+  if (!reasonValidation.ok) return { error: reasonValidation.error };
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.approvalId) || !isUuid(input.delegateToUserId)) {
-    return { error: "Invalid request" };
-  }
-  const reason = input.reason?.trim() || null;
-  if (reason && reason.length > MAX_EXCEPTION_REASON_LEN) {
-    return { error: "Delegation reason is too long" };
-  }
+  const reason = reasonValidation.value;
 
   const { data: approval } = await admin
     .from("contract_approvals")
@@ -604,29 +669,48 @@ export async function upsertRenewalScenario(input: {
   scenario: RenewalScenario;
   decisionNotes?: string | null;
   blocker?: string | null;
-  workspaceStatus?: "not_started" | "in_progress" | "blocked" | "decision_pending" | "closed";
+  workspaceStatus?: RenewalWorkspaceStatus;
   ownerId?: string | null;
   targetDecisionDate?: string | null;
   escalationDate?: string | null;
   commercialContext?: string | null;
   scenarioConfidence?: number | null;
 }) {
-  const supabase = await createClient();
-  const admin = await createAdminClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
   if (!isUuid(input.contractId)) return { error: "Invalid contract" };
   if (!RENEWAL_SCENARIOS.includes(input.scenario)) return { error: "Invalid scenario" };
 
-  const decisionNotes = input.decisionNotes?.trim() || null;
-  const blocker = input.blocker?.trim() || null;
+  const decisionNotesValidation = validateOptionalApprovalText(input.decisionNotes, {
+    maxLength: MAX_NOTE_LEN,
+    tooLong: "Decision notes are too long",
+    unsafe: "Decision notes contain unsupported characters",
+  });
+  if (!decisionNotesValidation.ok) return { error: decisionNotesValidation.error };
+  const blockerValidation = validateOptionalApprovalText(input.blocker, {
+    maxLength: MAX_BLOCKER_LEN,
+    tooLong: "Blocker is too long",
+    unsafe: "Blocker contains unsupported characters",
+  });
+  if (!blockerValidation.ok) return { error: blockerValidation.error };
   const workspaceStatus = input.workspaceStatus ?? "in_progress";
+  if (!RENEWAL_WORKSPACE_STATUSES.includes(workspaceStatus)) {
+    return { error: "Invalid workspace status" };
+  }
   const ownerId = input.ownerId?.trim() || null;
+  if (ownerId && !isUuid(ownerId)) return { error: "Invalid owner" };
   const targetDecisionDate = input.targetDecisionDate?.trim() || null;
   const escalationDate = input.escalationDate?.trim() || null;
-  const commercialContext = input.commercialContext?.trim() || null;
+  if (targetDecisionDate && !isIsoDateOnly(targetDecisionDate)) {
+    return { error: "Invalid target decision date" };
+  }
+  if (escalationDate && !isIsoDateOnly(escalationDate)) {
+    return { error: "Invalid escalation date" };
+  }
+  const commercialContextValidation = validateOptionalApprovalText(input.commercialContext, {
+    maxLength: MAX_NOTE_LEN,
+    tooLong: "Commercial context is too long",
+    unsafe: "Commercial context contains unsupported characters",
+  });
+  if (!commercialContextValidation.ok) return { error: commercialContextValidation.error };
   const scenarioConfidence =
     typeof input.scenarioConfidence === "number" &&
     Number.isFinite(input.scenarioConfidence) &&
@@ -634,21 +718,17 @@ export async function upsertRenewalScenario(input: {
     input.scenarioConfidence <= 100
       ? Math.trunc(input.scenarioConfidence)
       : null;
-  if (decisionNotes && decisionNotes.length > MAX_NOTE_LEN) return { error: "Decision notes are too long" };
-  if (blocker && blocker.length > 800) return { error: "Blocker is too long" };
-  if (!["not_started", "in_progress", "blocked", "decision_pending", "closed"].includes(workspaceStatus)) {
-    return { error: "Invalid workspace status" };
-  }
-  if (ownerId && !isUuid(ownerId)) return { error: "Invalid owner" };
-  if (targetDecisionDate && Number.isNaN(new Date(`${targetDecisionDate}T12:00:00`).getTime())) {
-    return { error: "Invalid target decision date" };
-  }
-  if (escalationDate && Number.isNaN(new Date(`${escalationDate}T12:00:00`).getTime())) {
-    return { error: "Invalid escalation date" };
-  }
-  if (commercialContext && commercialContext.length > MAX_NOTE_LEN) {
-    return { error: "Commercial context is too long" };
-  }
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const decisionNotes = decisionNotesValidation.value;
+  const blocker = blockerValidation.value;
+  const commercialContext = commercialContextValidation.value;
 
   const { data: contract } = await admin
     .from("contracts")
@@ -726,30 +806,28 @@ export async function upsertRenewalScenario(input: {
 
 export async function upsertRenewalScenarioForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
-  const scenario = String(formData.get("scenario") ?? "").trim();
+  const scenario = parseApprovalFormEnum(formData.get("scenario"), RENEWAL_SCENARIOS);
   const blocker = String(formData.get("blocker") ?? "").trim();
   const decisionNotes = String(formData.get("decisionNotes") ?? "").trim();
-  const workspaceStatus = String(formData.get("workspaceStatus") ?? "").trim();
+  const workspaceStatus = parseApprovalFormEnum(formData.get("workspaceStatus"), RENEWAL_WORKSPACE_STATUSES);
   const ownerId = String(formData.get("ownerId") ?? "").trim();
   const targetDecisionDate = String(formData.get("targetDecisionDate") ?? "").trim();
   const escalationDate = String(formData.get("escalationDate") ?? "").trim();
   const commercialContext = String(formData.get("commercialContext") ?? "").trim();
   const scenarioConfidenceRaw = String(formData.get("scenarioConfidence") ?? "").trim();
-  const scenarioConfidence = scenarioConfidenceRaw ? Number(scenarioConfidenceRaw) : null;
+  const scenarioConfidence = parseOptionalScenarioConfidence(scenarioConfidenceRaw);
+  if (!scenario) return;
   const res = await upsertRenewalScenario({
     contractId,
-    scenario: scenario as RenewalScenario,
+    scenario,
     blocker: blocker || null,
     decisionNotes: decisionNotes || null,
-    workspaceStatus:
-      (workspaceStatus as "not_started" | "in_progress" | "blocked" | "decision_pending" | "closed") ||
-      undefined,
+    workspaceStatus: workspaceStatus || undefined,
     ownerId: ownerId || null,
     targetDecisionDate: targetDecisionDate || null,
     escalationDate: escalationDate || null,
     commercialContext: commercialContext || null,
-    scenarioConfidence:
-      scenarioConfidence != null && Number.isFinite(scenarioConfidence) ? scenarioConfidence : null,
+    scenarioConfidence,
   });
   if (res && "error" in res && res.error) {
     console.error("[approvals] upsertRenewalScenarioForm", res.error);

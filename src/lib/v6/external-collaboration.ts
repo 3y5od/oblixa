@@ -1,6 +1,7 @@
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow } from "@/lib/v6/service";
 import { nowIso } from "@/lib/v5/api";
+import { redactForPersistence } from "@/lib/security/persistence-redaction";
 
 /**
  * When an external link is past expiry and still open, record a single assurance finding (Workflow 3 escalation).
@@ -74,7 +75,7 @@ export async function appendExternalWorkflowStep(
       ...chain,
       {
         type: stepType,
-        payload,
+        payload: redactForPersistence(payload),
         at: nowIso(),
       },
     ],
@@ -95,7 +96,7 @@ export async function appendExternalWorkflowStep(
       organization_id: orgId,
       external_action_link_id: linkId,
       event_type: `external.workflow.${stepType}`,
-      payload_json: payload,
+      payload_json: redactForPersistence(payload),
       actor_user_id: actorUserId ?? null,
     });
     if (eventError) {
@@ -167,7 +168,10 @@ export async function mergeExternalResponsePack(
   const scope = (link?.scope_json as Record<string, unknown> | null) ?? {};
   const nextScope = {
     ...scope,
-    response_pack: { ...(typeof scope.response_pack === "object" ? (scope.response_pack as object) : {}), ...pack },
+    response_pack: redactForPersistence({
+      ...(typeof scope.response_pack === "object" ? (scope.response_pack as object) : {}),
+      ...pack,
+    }),
     workflow_version: 2,
   };
 

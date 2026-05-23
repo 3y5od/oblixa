@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
 import { resolveSearchIndexFeatureFamily } from "@/lib/product-surface/feature-registry";
@@ -18,6 +19,7 @@ const PLAN_ORDER: V10Plan[] = [...V10_PLANS];
 const V10_COMMAND_INDEX_CANDIDATE_LIMIT = 24;
 const V10_COMMAND_RESPONSE_LIMIT = 12;
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const ROUTE = "/api/command-palette/contracts";
 
 export type V10CommandSearchRecoveryAction = {
   label: string;
@@ -392,7 +394,7 @@ export function buildV10CommandTelemetryDetails(input: {
 export async function GET(request: Request) {
   const ctx = await getAuthContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonUnauthorized(ROUTE);
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
@@ -441,7 +443,12 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("[command-palette/contracts] query failed:", error.message);
-    return NextResponse.json({ error: "Could not search contracts" }, { status: 500, headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonProblem(500, {
+      error: "Could not search contracts",
+      code: "contract_command_search_failed",
+      diagnostic_id: "contract_command_search_failed",
+      route: ROUTE,
+    });
   }
   if (v10Error) {
     console.error("[command-palette/contracts] v10 index query failed:", v10Error.message);

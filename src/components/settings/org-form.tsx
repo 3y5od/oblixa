@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateOrganization } from "@/actions/settings";
 
 interface OrgFormProps {
@@ -10,6 +10,7 @@ interface OrgFormProps {
 }
 
 export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
+  const [draftName, setDraftName] = useState(name);
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string; success?: boolean } | undefined, formData: FormData) => {
       formData.set("organizationId", organizationId);
@@ -22,13 +23,14 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
     return (
       <div className="min-w-0">
         <label className="ui-label mb-0">Organization name</label>
-        <p className="ui-support-copy mb-2 mt-1 text-xs">This workspace-wide label is managed by admins.</p>
+        <p className="ui-support-copy mb-2 mt-1 text-xs">Only admins can rename this workspace.</p>
         <p className="mt-1 w-full text-sm text-[var(--text-primary)]">{name}</p>
       </div>
     );
   }
 
   const errId = "org-form-error";
+  const isDirty = draftName !== name;
 
   return (
     <form action={action} className="flex flex-col gap-6">
@@ -44,26 +46,26 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
         <label htmlFor="orgName" className="ui-label">
           Organization name
         </label>
-        <p className="ui-support-copy mb-2 mt-1 text-xs">Appears across navigation, invites, exports, and billing context.</p>
         <input
           id="orgName"
           name="name"
           type="text"
           defaultValue={name}
           required
-          className="ui-input mt-1 w-full min-w-0"
+          className="ui-input w-full min-w-0"
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? errId : undefined}
+          onChange={(event) => setDraftName(event.currentTarget.value)}
         />
       </div>
       <div className="flex justify-end border-t border-[var(--border-subtle)] pt-4">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || !isDirty}
           className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
           aria-busy={pending}
         >
-          {pending ? "Saving…" : "Save changes"}
+          {pending ? "Saving…" : "Save name"}
         </button>
       </div>
     </form>

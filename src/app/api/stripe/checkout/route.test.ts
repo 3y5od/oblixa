@@ -8,6 +8,10 @@ const getClientIpFromRequest = vi.hoisted(() => vi.fn(() => "203.0.113.7"));
 const checkoutCreate = vi.hoisted(() => vi.fn());
 const customersCreate = vi.hoisted(() => vi.fn());
 const getStripeClient = vi.hoisted(() => vi.fn());
+const isKillBilling = vi.hoisted(() => vi.fn(() => false));
+const killSwitchJsonResponse = vi.hoisted(() =>
+  vi.fn(() => new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 }))
+);
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -20,13 +24,21 @@ vi.mock("@/lib/rate-limit", async () => {
   return { ...actual, rateLimitCheck, getClientIpFromRequest };
 });
 
-vi.mock("@/lib/stripe", () => ({
-  getStripeClient,
-}));
+vi.mock("@/lib/stripe", async () => {
+  // Re-export real resolvePriceIdForVariant since it has no runtime deps;
+  // mock only getStripeClient.
+  const actual = await vi.importActual<typeof import("@/lib/stripe")>(
+    "@/lib/stripe"
+  );
+  return {
+    ...actual,
+    getStripeClient,
+  };
+});
 
 vi.mock("@/lib/security/kill-switches", () => ({
-  isKillBilling: vi.fn(() => false),
-  killSwitchJsonResponse: vi.fn(() => new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 })),
+  isKillBilling,
+  killSwitchJsonResponse,
 }));
 
 describe("POST /api/stripe/checkout", () => {
@@ -36,6 +48,8 @@ describe("POST /api/stripe/checkout", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_ID = "price_123";
     rateLimitCheck.mockResolvedValue({ ok: true });
+    isKillBilling.mockReturnValue(false);
+    killSwitchJsonResponse.mockReturnValue(new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 }));
     customersCreate.mockResolvedValue({ id: "cus_123" });
     checkoutCreate.mockResolvedValue({ id: "cs_123", url: "https://checkout.stripe.com/session/cs_123" });
     getStripeClient.mockResolvedValue({
@@ -49,6 +63,7 @@ describe("POST /api/stripe/checkout", () => {
   });
 
   it("returns 401 when unauthenticated", async () => {
+    isKillBilling.mockReturnValue(true);
     createClient.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
     });
@@ -60,7 +75,41 @@ describe("POST /api/stripe/checkout", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
+    expect(killSwitchJsonResponse).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 before billing kill switch for non-admin users", async () => {
+    isKillBilling.mockReturnValue(true);
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "viewer@example.com" } } }) },
+    });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "viewer" });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+
+    const { POST } = await import("@/app/api/stripe/checkout/route");
+    const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body).toMatchObject({ error: "Forbidden", code: "forbidden" });
+    expect(killSwitchJsonResponse).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 kill-switch response only after admin auth and rate limit", async () => {
+    isKillBilling.mockReturnValue(true);
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "owner@example.com" } } }) },
+    });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+
+    const { POST } = await import("@/app/api/stripe/checkout/route");
+    const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
+
+    expect(res.status).toBe(503);
+    expect(killSwitchJsonResponse).toHaveBeenCalledWith("billing");
+    expect(getStripeClient).not.toHaveBeenCalled();
   });
 
   it("creates a checkout session with the expected billing payload shape", async () => {
@@ -103,9 +152,21 @@ describe("POST /api/stripe/checkout", () => {
         customer: "cus_existing",
         mode: "subscription",
         line_items: [{ price: "price_123", quantity: 1 }],
-        success_url: "http://localhost:3000/settings/billing?success=true",
-        cancel_url: "http://localhost:3000/settings/billing?canceled=true",
-        metadata: { organization_id: "org_1" },
+        // SPEC: §1.1 success/canceled use "=1" sentinel; §1.22 session_id passthrough
+        success_url:
+          "http://localhost:3000/settings/billing?success=1&session_id={CHECKOUT_SESSION_ID}",
+        cancel_url: "http://localhost:3000/settings/billing?canceled=1",
+        // SPEC: §3.18 metadata includes app_user_id
+        metadata: expect.objectContaining({
+          organization_id: "org_1",
+          app_user_id: "user_1",
+        }),
+        // SPEC: §3.13, §3.14, §3.19
+        allow_promotion_codes: true,
+        billing_address_collection: "required",
+        tax_id_collection: { enabled: true },
+        // SPEC: §3.30 default payment methods
+        payment_method_types: ["card"],
       })
     );
   });
@@ -205,11 +266,8 @@ describe("POST /api/stripe/checkout", () => {
 
     expect(res.status).toBe(503);
     expect(body).toMatchObject({
-      ok: false,
       code: "dependency_blocked",
       diagnostic_id: "stripe_checkout_provider_missing",
-      phase: "dependency_preflight",
     });
   });
 });
-

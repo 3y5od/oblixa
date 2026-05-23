@@ -8,7 +8,20 @@ const RISKY_METHOD_RE = /export\s+async\s+function\s+(POST|PUT|PATCH|DELETE)\b/g
 const IDEMPOTENCY_HINT_RE =
   /idempot|dedup|onConflict|upsert|retry|job_id|request_id|already\s+processed|duplicate|conflict|submit_ticket|\.eq\(["']status["']|submitted_at|processed_at/i;
 const allowlistPath = join(ROOT, "scripts", "concurrency-hotspots-allowlist.txt");
-const metaRe = /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
+
+function parseKeyValueMeta(raw) {
+  const matches = [...raw.matchAll(/\b([A-Za-z][A-Za-z0-9_-]*)=/gu)];
+  const meta = {};
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index];
+    const key = match[1];
+    const valueStart = (match.index ?? 0) + match[0].length;
+    const valueEnd =
+      index + 1 < matches.length ? matches[index + 1].index ?? raw.length : raw.length;
+    meta[key] = raw.slice(valueStart, valueEnd).trim();
+  }
+  return meta;
+}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -33,9 +46,20 @@ function loadAllowlist() {
     const trimmed = line.trim();
     if (!trimmed) continue;
     if (trimmed.startsWith("#")) {
-      const m = trimmed.match(metaRe);
-      if (m) {
-        currentMeta = { owner: m[1], expiry: m[2], reason: m[3].trim() };
+      const match = trimmed.match(/^#\s*meta:\s*(?<body>.*)$/u);
+      if (match?.groups?.body) {
+        const meta = parseKeyValueMeta(match.groups.body);
+        if (!meta.owner || !meta.expiry || !meta.reason) {
+          metadataIssues.push({ line: index + 1, issue: "invalid_allowlist_meta", meta });
+          currentMeta = null;
+          continue;
+        }
+        currentMeta = {
+          owner: meta.owner,
+          expiry: meta.expiry,
+          reason: meta.reason.trim(),
+          reviewedOn: meta.reviewedOn ?? meta.reviewDate ?? meta.lastReviewed ?? null,
+        };
         if (!currentMeta.owner.startsWith("@")) {
           metadataIssues.push({
             line: index + 1,

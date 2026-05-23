@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { getPlaybookRun } from "@/lib/v6/playbooks";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/playbooks/runs/[id]";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6AdaptivePlaybooks");
@@ -26,8 +30,19 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   );
 
   const runId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: runId }, ["id"], "/api/playbooks/runs/[id]");
+
+  if (routeParamRejection) return routeParamRejection;
   const result = await getPlaybookRun(ctx.admin, ctx.orgId, runId);
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) {
+    return jsonProblem(400, {
+      error: result.error.message,
+      code: "playbook_run_lookup_failed",
+      diagnostic_id: "playbook_run_lookup_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({
     run: result.run,
     steps: result.steps,

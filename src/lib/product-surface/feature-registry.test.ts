@@ -49,6 +49,14 @@ describe("product feature registry", () => {
     expect(minWorkspaceModeForReportType("scorecard_summary")).toBe("assurance");
   });
 
+  it("keeps Evidence Studio Core-reachable through the registry", () => {
+    expect(minWorkspaceModeForRegistryPath("/contracts/evidence-studio")).toBe("core");
+    expect(featureFamilyForPath("/contracts/evidence-studio")).toBe("evidence");
+    expect(SEARCH_INDEX_CLASSES.find((row) => row.key === "evidence")?.minWorkspaceMode).toBe(
+      "core"
+    );
+  });
+
   it("workspaceModeAllowsReportType respects mode floor", () => {
     expect(workspaceModeAllowsReportType("core", "weekly_execution_health")).toBe(true);
     expect(workspaceModeAllowsReportType("core", "decision_queue_summary")).toBe(false);

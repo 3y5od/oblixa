@@ -7,13 +7,13 @@ import { Trash2, Loader2 } from "lucide-react";
 interface DeleteContractButtonProps {
   contractId: string;
   contractTitle: string;
-  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export function DeleteContractButton({
   contractId,
   contractTitle,
-  canEdit = true,
+  canDelete = true,
 }: DeleteContractButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -58,7 +58,7 @@ export function DeleteContractButton({
     };
   }, [confirmOpen]);
 
-  if (!canEdit) return null;
+  if (!canDelete) return null;
 
   const label = contractTitle.trim() || "this contract";
 
@@ -138,7 +138,7 @@ export function DeleteContractButton({
                 type="button"
                 disabled={isPending}
                 onClick={performDelete}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45"
+                className="ui-btn-danger-solid"
               >
                 {isPending ? (
                   <>

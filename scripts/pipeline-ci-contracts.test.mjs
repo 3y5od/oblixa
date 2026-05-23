@@ -34,13 +34,31 @@ test("pipeline-verify still depends on ci-verify extras and ci parity", () => {
 test("pipeline-security-comprehensive retains key route, outbound, and server-action checks", () => {
   for (const step of [
     "check:api-route-auth-contract",
+    "check:route-universe",
+    "check:catalog-script-index",
+    "check:assurance-catalog-drift",
+    "check:e2e-generated-drift",
     "check:api-route-admin-org-scope",
     "check:server-action-auth-contract",
     "check:server-action-org-scope",
     "check:server-action-exports",
     "check:outbound-fetch",
     "check:outbound-domain-allowlist",
+    "check:csp-nonce-hash-consistency",
+    "check:xss-client-exposure",
+    "check:dangerously-set-inner-html",
+    "check:postmessage-origins",
+    "check:client-storage-sensitivity",
+    "check:security-report-checksums",
+    "check:next-public-surface",
+    "check:auth-callback-guardrails",
+    "check:sensitive-action-step-up",
+    "check:json-body-limited-adoption",
+    "check:timeout-budget-guards",
+    "check:pagination-guardrails",
+    "check:concurrency-cap-guards",
   ]) {
     assert.equal(SECURITY_COMPREHENSIVE_STEPS.includes(step), true);
   }
+  assert.deepEqual(SECURITY_COMPREHENSIVE_STEPS.slice(-3), ["lint", "typecheck", "test"]);
 });

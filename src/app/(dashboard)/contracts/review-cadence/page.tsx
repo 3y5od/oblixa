@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { AlertTriangle, CalendarDays, Inbox, Stamp } from "lucide-react";
+import { AlertTriangle, CalendarDays, CalendarRange, Inbox, Stamp } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 
 export default async function ReviewCadencePage() {
@@ -75,23 +76,22 @@ export default async function ReviewCadencePage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <p className="ui-eyebrow">Management ritual</p>
-        <h1 className="ui-display-title">Weekly and monthly review mode</h1>
-        <p className="ui-page-lead max-w-2xl">
-          Centralized cadence view for intake movement, unresolved exceptions, near-term renewals, and pending decisions.
-        </p>
-      </header>
+      <DashboardPageHeader
+        icon={<CalendarRange className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Management ritual"
+        title="Weekly and monthly review mode"
+        lead="Centralized cadence view for intake movement, unresolved exceptions, near-term renewals, and pending decisions."
+      />
 
       <div className="ui-toolbar w-full items-stretch gap-3 sm:w-auto sm:items-center">
-        <a href="/api/export/review-packet" className="ui-btn-secondary px-4 py-2 text-[13px]">
+        <a href="/api/export/review-packet" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
           Export review packet
         </a>
-        <Link href="/contracts/analytics" className="ui-btn-secondary px-4 py-2 text-[13px]">
+        <Link href="/contracts/analytics" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
           Review analytics
         </Link>
       </div>
-      <p className="ui-support-copy max-w-2xl text-[13px]">
+      <p className="ui-support-copy max-w-2xl text-[12.5px]">
         The CSV summarizes pending approvals, renewal checkpoints, and data gaps for cadence reviews.
       </p>
 

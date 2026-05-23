@@ -65,4 +65,27 @@ describe("buildOrganizationCalendarIcs", () => {
     const ics = await buildOrganizationCalendarIcs(admin as never, "org-1");
     expect(ics).not.toContain("renewal-decision-scenario-2@oblixa.io");
   });
+
+  it("escapes calendar text and prevents uid line injection", async () => {
+    const admin = createAdminStub({
+      reminders: {
+        data: [
+          {
+            id: "reminder-1\r\nATTENDEE:mailto:evil@example.com",
+            reminder_date: "2026-08-20",
+            reminder_type: "renewal\ncheckpoint",
+            contracts: { id: "contract-1", title: "Acme, Inc;\nRenewal", organization_id: "org-1" },
+          },
+        ],
+      },
+      contract_obligations: { data: [] },
+      contract_renewal_checkpoints: { data: [] },
+      contract_renewal_scenarios: { data: [] },
+    });
+    const ics = await buildOrganizationCalendarIcs(admin as never, "org-1");
+    expect(ics).toContain("UID:reminder-reminder-1-ATTENDEE-mailto-evil@example.com@oblixa.io");
+    expect(ics).not.toContain("\r\nATTENDEE:mailto:evil@example.com");
+    expect(ics).toContain("SUMMARY:renewal checkpoint");
+    expect(ics).toContain("Acme\\, Inc\\;\\nRenewal");
+  });
 });

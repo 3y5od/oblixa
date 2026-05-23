@@ -62,6 +62,11 @@ describe("contract detail summary helpers (V9)", () => {
       actionLabel: "Review fields",
       tone: "attention",
     });
+    expect(items[1]).toMatchObject({
+      href: "/contracts/approvals?status=pending&contract=contract-1",
+      actionLabel: "Open approvals",
+      tone: "attention",
+    });
     expect(items[2]).toMatchObject({
       href: "/contracts/exceptions?status=open&contract=contract-1",
       tone: "risk",

@@ -1,13 +1,32 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
-import { buildSecurityHeaders } from "@/lib/security/csp-builders";
+import { buildApiNoStoreHeaders, buildSecurityHeaders, normalizeCoepMode, normalizeTrustedTypesMode } from "@/lib/security/csp-builders";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
 const isProd = process.env.NODE_ENV === "production";
+const isVercel = Boolean(process.env.VERCEL);
+const selfHostedHsts = process.env.OBLIXA_SELF_HOSTED_HSTS === "1";
+const deploymentStrictEnforcingCsp = isVercel || selfHostedHsts;
+const upgradeInsecureRequests =
+  process.env.OBLIXA_CSP_UPGRADE_INSECURE_REQUESTS === "1" ||
+  (isProd && (isVercel || selfHostedHsts));
+const cspStrictEnforcingStyleSrc =
+  process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "0"
+    ? false
+    : deploymentStrictEnforcingCsp || process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "1";
+const cspStrictEnforcingScriptSrc =
+  process.env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT === "0"
+    ? false
+    : deploymentStrictEnforcingCsp || process.env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT === "1";
+const trustedTypesMode = normalizeTrustedTypesMode(
+  process.env.OBLIXA_TRUSTED_TYPES_MODE ??
+    (process.env.OBLIXA_TRUSTED_TYPES_REPORT_ONLY === "1" ? "report-only" : "off")
+);
+const coepMode = normalizeCoepMode(process.env.OBLIXA_COEP_MODE);
 
 const sentryRelease =
   process.env.SENTRY_RELEASE?.trim() ||
@@ -16,12 +35,17 @@ const sentryRelease =
 
 const securityHeaders = buildSecurityHeaders({
   isProd,
-  isVercel: Boolean(process.env.VERCEL),
-  selfHostedHsts: process.env.OBLIXA_SELF_HOSTED_HSTS === "1",
+  isVercel,
+  selfHostedHsts,
   cspReportOnlyScriptNonce: process.env.OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE?.trim() || undefined,
-  trustedTypesReportOnly: process.env.OBLIXA_TRUSTED_TYPES_REPORT_ONLY === "1",
-  cspStrictEnforcingStyleSrc: process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "1",
+  trustedTypesMode,
+  coepMode,
+  cspStrictEnforcingStyleSrc: cspStrictEnforcingStyleSrc,
+  cspStrictEnforcingScriptSrc: cspStrictEnforcingScriptSrc,
+  cspEnforcingScriptHashes: process.env.OBLIXA_CSP_ENFORCING_SCRIPT_HASHES,
+  upgradeInsecureRequests,
 });
+const apiNoStoreHeaders = buildApiNoStoreHeaders();
 
 const nextConfig: NextConfig = {
   ...(sentryRelease
@@ -48,11 +72,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        headers: [
-          { key: "Cache-Control", value: "private, no-store" },
-          { key: "Pragma", value: "no-cache" },
-          { key: "Vary", value: "Cookie" },
-        ],
+        headers: apiNoStoreHeaders,
       },
       {
         source: "/:path*",

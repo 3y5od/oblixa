@@ -4,13 +4,13 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const outPath = path.join(root, "artifacts", "security-proxy-matrix.json");
 
-function extractStringLiteralsFromArray(ts, varName, { exported = true } = {}) {
+export function extractStringLiteralsFromArray(ts, varName, { exported = true } = {}) {
   const prefix = exported ? "export const" : "const";
   const re = new RegExp(
     `${prefix} ${varName}\\s*=\\s*\\[([\\s\\S]*?)\\]\\s*(?:as const)?`,
@@ -25,9 +25,9 @@ function extractStringLiteralsFromArray(ts, varName, { exported = true } = {}) {
   return [...new Set(out)];
 }
 
-function main() {
-  const policyPath = path.join(root, "src/lib/auth/proxy-path-policy.ts");
-  const marketingPath = path.join(root, "src/lib/marketing/public-paths.ts");
+export function buildSecurityProxyMatrix(rootDir = root) {
+  const policyPath = path.join(rootDir, "src/lib/auth/proxy-path-policy.ts");
+  const marketingPath = path.join(rootDir, "src/lib/marketing/public-paths.ts");
   const policySrc = fs.readFileSync(policyPath, "utf8");
   const marketingSrc = fs.readFileSync(marketingPath, "utf8");
 
@@ -56,7 +56,7 @@ function main() {
     },
   };
 
-  const routeMatrixPath = path.join(root, "artifacts", "security-route-matrix.json");
+  const routeMatrixPath = path.join(rootDir, "artifacts", "security-route-matrix.json");
   let apiPublicGuess = [];
   if (fs.existsSync(routeMatrixPath)) {
     const rows = JSON.parse(fs.readFileSync(routeMatrixPath, "utf8"));
@@ -69,11 +69,11 @@ function main() {
     }
   }
 
-  const doc = {
-    generated_at: new Date().toISOString(),
+  return {
+    version: 1,
     sources: [
-      path.relative(root, policyPath).replace(/\\/g, "/"),
-      path.relative(root, marketingPath).replace(/\\/g, "/"),
+      path.relative(rootDir, policyPath).replace(/\\/g, "/"),
+      path.relative(rootDir, marketingPath).replace(/\\/g, "/"),
     ],
     unauthenticated_rules: unauthenticatedRules,
     marketing_sitemap_paths: sitemapPaths,
@@ -81,10 +81,20 @@ function main() {
     notes:
       "Anonymous users may hit /api/*; each route enforces its own auth. public_guess heuristics are not a substitute for handler review.",
   };
-
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, JSON.stringify(doc, null, 2));
-  console.log(`Wrote ${outPath}`);
 }
 
-main();
+export function writeSecurityProxyMatrix(rootDir = root, outputPath = outPath) {
+  const doc = buildSecurityProxyMatrix(rootDir);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.writeFileSync(outputPath, JSON.stringify(doc, null, 2) + "\n");
+  return { outputPath, doc };
+}
+
+function main() {
+  const result = writeSecurityProxyMatrix(root, outPath);
+  console.log(`Wrote ${result.outputPath}`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

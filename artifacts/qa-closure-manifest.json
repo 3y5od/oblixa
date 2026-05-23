@@ -2166,7 +2166,6 @@
     "supabase/migrations/048_v5_decision_packet_artifact_depth.sql",
     "supabase/migrations/049_v6_assurance_adaptive_platform.sql",
     "supabase/migrations/050_v6_contract_tags.sql",
-    "supabase/migrations/050_v9_status_foundations.sql",
     "supabase/migrations/051_v6_org_settings_json.sql",
     "supabase/migrations/052_v6_analytics_event_indexes.sql",
     "supabase/migrations/053_v6_workspace_product_mode.sql",

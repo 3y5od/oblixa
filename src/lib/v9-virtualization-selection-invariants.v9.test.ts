@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 describe("V9 contract table selection invariants", () => {
   it("persists selection in org-scoped sessionStorage and explains hidden picks", () => {
     const src = readFileSync(join(process.cwd(), "src/components/contracts/contract-table.tsx"), "utf8");
-    expect(src).toContain("oblixa.contract-table.selection");
-    expect(src).toContain("sessionStorage");
+    const storage = readFileSync(join(process.cwd(), "src/lib/security/client-storage.ts"), "utf8");
+    expect(storage).toContain("oblixa.contract-table.selection");
+    expect(storage).toContain("sessionStorage");
+    expect(src).toContain("writeContractTableSelection");
     expect(src).toContain("hiddenSelectedCount");
     expect(src).toContain("filterFingerprint");
   });

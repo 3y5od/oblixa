@@ -7,7 +7,24 @@ import { LiveRegion } from "@/components/ui/live-region";
 import { mutateJson } from "@/lib/http/client-json";
 import { assignNavigableHref } from "@/lib/navigation/client-navigation";
 
-export function SubscribeButton() {
+/**
+ * Checkout button that posts to `/api/stripe/checkout`.
+ *
+ * SPEC: docs/billing-page-maximal-pass.md §1.2 (monthly variant gating),
+ * §3.9 (variant-aware server action), §9.11 (founding-customer variant),
+ * §1.27 (canceled → reactivate uses same flow), §1.28 (incomplete → resume).
+ */
+export function SubscribeButton({
+  label = "Subscribe now",
+  className = "ui-btn-primary disabled:pointer-events-none disabled:opacity-45",
+  variant,
+  founding,
+}: {
+  label?: string;
+  className?: string;
+  variant?: "annual" | "monthly";
+  founding?: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,10 +32,16 @@ export function SubscribeButton() {
     setLoading(true);
     setError(null);
     try {
+      const body: Record<string, unknown> = {};
+      if (variant) body.variant = variant;
+      if (founding) body.founding = true;
       const result = await mutateJson<{
         url?: string;
         error?: string;
-      }>("/api/stripe/checkout", { method: "POST" });
+      }>("/api/stripe/checkout", {
+        method: "POST",
+        body: Object.keys(body).length ? JSON.stringify(body) : undefined,
+      });
       if (!result.ok) {
         setError(result.message || "Could not start checkout");
         return;
@@ -38,16 +61,27 @@ export function SubscribeButton() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-1.5">
       <LiveRegion message={loading ? "Redirecting to billing checkout." : error ?? undefined} politeness={error ? "assertive" : "polite"} />
-      <AsyncActionButton
-        onClick={handleCheckout}
-        pending={loading}
-        pendingLabel="Redirecting…"
-        className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
-      >
-        Subscribe now
-      </AsyncActionButton>
+      {/* §12.10 — noscript form-action fallback. When JS is disabled,
+          the AsyncActionButton renders as a regular button inside this
+          form, which posts to /api/stripe/checkout server-side. */}
+      <form action="/api/stripe/checkout" method="POST">
+        {variant ? (
+          <input type="hidden" name="variant" value={variant} />
+        ) : null}
+        {founding ? (
+          <input type="hidden" name="founding" value="true" />
+        ) : null}
+        <AsyncActionButton
+          onClick={handleCheckout}
+          pending={loading}
+          pendingLabel="Redirecting…"
+          className={className}
+        >
+          {label}
+        </AsyncActionButton>
+      </form>
       <InlineMutationStatus message={error} variant="error" className="text-sm" />
     </div>
   );

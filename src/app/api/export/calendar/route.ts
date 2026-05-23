@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -8,6 +9,23 @@ import { createAdminClient, createClient, getDeterministicMembership } from "@/l
 import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
+import { parseBooleanParam, parseFixedEnumParam } from "@/lib/security/validation";
+
+const ROUTE = "/api/export/calendar";
+const CALENDAR_EXPORT_ROLES = ["", "finance", "manager"] as const;
+
+function invalidBooleanQueryParam(param: string) {
+  return jsonProblem(400, {
+    error: "Boolean query parameters must be true, false, 1, or 0.",
+    code: "invalid_boolean_query",
+    diagnostic_id: "calendar_export_boolean_query_invalid",
+    route: ROUTE,
+    details: { param },
+  });
+}
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -16,12 +34,17 @@ export async function GET(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return jsonUnauthorized(ROUTE);
   }
 
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) {
-    return NextResponse.json({ error: "No organization found" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "No organization found",
+      code: "organization_not_found",
+      diagnostic_id: "calendar_export_organization_not_found",
+      route: ROUTE,
+    });
   }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
@@ -34,26 +57,28 @@ export async function GET(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`export-calendar:${user.id}:${ip}`, RATE_LIMITS.exportCalendar);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
   const url = new URL(request.url);
-  const role = String(url.searchParams.get("role") ?? "").trim().toLowerCase();
-  const includeReminders = url.searchParams.get("includeReminders") !== "0";
-  const includeObligations = url.searchParams.get("includeObligations") !== "0";
-  const includeRenewalCheckpoints = url.searchParams.get("includeRenewalCheckpoints") !== "0";
-  const includeRenewalDecisions = url.searchParams.get("includeRenewalDecisions") !== "0";
+  const role = parseFixedEnumParam(url.searchParams.get("role")?.trim().toLowerCase(), CALENDAR_EXPORT_ROLES, "");
+  const includeReminders = parseBooleanParam(url.searchParams.get("includeReminders"), { defaultValue: true });
+  const includeObligations = parseBooleanParam(url.searchParams.get("includeObligations"), { defaultValue: true });
+  const includeRenewalCheckpoints = parseBooleanParam(url.searchParams.get("includeRenewalCheckpoints"), {
+    defaultValue: true,
+  });
+  const includeRenewalDecisions = parseBooleanParam(url.searchParams.get("includeRenewalDecisions"), {
+    defaultValue: true,
+  });
+  if (!includeReminders.ok) return invalidBooleanQueryParam("includeReminders");
+  if (!includeObligations.ok) return invalidBooleanQueryParam("includeObligations");
+  if (!includeRenewalCheckpoints.ok) return invalidBooleanQueryParam("includeRenewalCheckpoints");
+  if (!includeRenewalDecisions.ok) return invalidBooleanQueryParam("includeRenewalDecisions");
   const roleDefaults = {
-    includeReminders,
-    includeObligations,
-    includeRenewalCheckpoints,
-    includeRenewalDecisions: includeRenewalDecisions || role === "finance" || role === "manager",
+    includeReminders: includeReminders.value,
+    includeObligations: includeObligations.value,
+    includeRenewalCheckpoints: includeRenewalCheckpoints.value,
+    includeRenewalDecisions: includeRenewalDecisions.value || role === "finance" || role === "manager",
   };
 
   await emitProductTelemetryEvent(admin, {
@@ -85,15 +110,32 @@ export async function GET(request: Request) {
         include_renewal_decisions: roleDefaults.includeRenewalDecisions,
       },
     });
+    await recordV10AuditEvent(admin, {
+      organizationId: membership.organization_id,
+      actorUserId: user.id,
+      action: "export.calendar.completed",
+      targetType: "organization",
+      targetId: membership.organization_id,
+      outcome: "success",
+      safeMetadata: {
+        export_type: "calendar_ics",
+        include_reminders: roleDefaults.includeReminders,
+        include_obligations: roleDefaults.includeObligations,
+        include_renewal_checkpoints: roleDefaults.includeRenewalCheckpoints,
+        include_renewal_decisions: roleDefaults.includeRenewalDecisions,
+      },
+    });
+    const fileName = sanitizeExportFileName("oblixa-calendar.ics");
 
     return new NextResponse(body, {
       headers: {
         "Content-Type": "text/calendar; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="oblixa-calendar.ics"',
+        "Cache-Control": "private, no-store",
+        "Content-Disposition": contentDispositionAttachment(fileName),
       },
     });
   } catch (error) {
-    console.error("[export/calendar] could not build calendar export:", error);
+    console.error("[export/calendar] could not build calendar export:", formatUnknownForServerLog(error));
     await emitProductTelemetryEvent(admin, {
       organizationId: membership.organization_id,
       userId: user.id,
@@ -103,9 +145,11 @@ export async function GET(request: Request) {
         reason: "calendar_build_failed",
       },
     });
-    return NextResponse.json(
-      { error: "Could not build calendar export." },
-      { status: 500 }
-    );
+    return jsonProblem(500, {
+      error: "Could not build calendar export.",
+      code: "calendar_export_build_failed",
+      diagnostic_id: "calendar_export_build_failed",
+      route: ROUTE,
+    });
   }
 }

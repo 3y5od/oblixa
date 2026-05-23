@@ -2,7 +2,16 @@ import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import { serializeJsonLdForInlineScript } from "@/lib/security/json-ld-inline-script";
 
 type LegalJsonLdProps = {
-  path: "/privacy" | "/terms" | "/security" | "/accessibility" | "/cookies";
+  path:
+    | "/privacy"
+    | "/terms"
+    | "/security"
+    | "/accessibility"
+    | "/cookies"
+    | "/acceptable-use"
+    | "/product"
+    | "/pricing"
+    | "/contact";
   title: string;
   description: string;
 };

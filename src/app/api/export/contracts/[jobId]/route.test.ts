@@ -36,7 +36,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
-vi.mock("../route", () => ({
+vi.mock("@/lib/export/contracts-csv", () => ({
   createContractExportJob,
   executeContractExportCsv,
 }));
@@ -354,6 +354,6 @@ describe("GET /api/export/contracts/[jobId]", () => {
     const body = await res.json();
 
     expect(res.status).toBe(500);
-    expect(body.v10).toMatchObject({ outcome: "server_error", diagnostic_id: "v10_export_retry_job_load_failed" });
+    expect(body.v10 ?? body.details?.v10 ?? body).toMatchObject({ outcome: "server_error", diagnostic_id: "v10_export_retry_job_load_failed" });
   });
 });

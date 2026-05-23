@@ -1,4 +1,5 @@
 import { after, NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -27,9 +28,14 @@ import { getV10ContractExportRowLimit, resolveV10ReportExportPlan } from "@/lib/
 import { normalizeV10JobStatus, isV10JobRetryable } from "@/lib/v10-job-visibility";
 import { statusForV10JobRetryOutcome } from "@/lib/v10-job-retry";
 import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
-import { createContractExportJob, executeContractExportCsv } from "../route";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
+import { createContractExportJob, executeContractExportCsv } from "@/lib/export/contracts-csv";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const ROUTE = "/api/export/contracts/[jobId]";
 
 type ExportRetryMutationResponse = V10MutationResponse & {
   success?: boolean;
@@ -52,16 +58,22 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
-  const { jobId } = await params;
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_missing",
+      diagnostic_id: "export_contracts_job_organization_missing",
+      route: ROUTE,
+    });
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -70,18 +82,28 @@ export async function GET(
   });
   if (modeGate) return modeGate;
 
+  void recordApiRouteAuditEvent(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`export-contracts-job:${user.id}:${ip}`, RATE_LIMITS.exportContractsJob);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { ...PRIVATE_NO_STORE_HEADERS, "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { jobId } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ jobId }, ["jobId"], "/api/export/contracts/[jobId]");
+
+  if (routeParamRejection) return routeParamRejection;
   const [{ data: job, error: jobError }, { data: v10Visibility }] = await Promise.all([
     admin
       .from("contract_export_jobs")
@@ -102,13 +124,15 @@ export async function GET(
   ]);
 
   if (jobError) {
-    return NextResponse.json(
-      { error: "Could not load export job", diagnostic_id: "v10_export_job_load_failed" },
-      { status: 500, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return jsonProblem(500, {
+      error: "Could not load export job",
+      code: "export_job_load_failed",
+      diagnostic_id: "v10_export_job_load_failed",
+      route: ROUTE,
+    });
   }
 
-  if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!job) return jsonNotFound(ROUTE);
 
   return NextResponse.json(
     {
@@ -130,16 +154,22 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
-  const { jobId } = await params;
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_missing",
+      diagnostic_id: "export_contracts_retry_organization_missing",
+      route: ROUTE,
+    });
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
     orgId: membership.organization_id,
@@ -152,21 +182,25 @@ export async function POST(
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`export-contracts-job:${user.id}:${ip}`, RATE_LIMITS.exportContractsJob);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { ...PRIVATE_NO_STORE_HEADERS, "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { jobId } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ jobId }, ["jobId"], "/api/export/contracts/[jobId]");
+
+  if (routeParamRejection) return routeParamRejection;
   const idempotencyKey = getV10IdempotencyKeyFromRequest(request);
   if (!idempotencyKey || !validateV10IdempotencyKey(idempotencyKey)) {
-    return NextResponse.json(
-      { error: "A valid x-idempotency-key header is required for this V10 export retry.", diagnostic_id: "v10_export_retry_idempotency_key_invalid" },
-      { status: 400, headers: PRIVATE_NO_STORE_HEADERS }
-    );
+    return jsonProblem(400, {
+      error: "A valid x-idempotency-key header is required for this V10 export retry.",
+      code: "invalid_idempotency_key",
+      diagnostic_id: "v10_export_retry_idempotency_key_invalid",
+      route: ROUTE,
+    });
   }
 
   const { response: retryMutation, replayed } = await executeV10IdempotentMutation<ExportRetryMutationResponse>(
@@ -298,7 +332,7 @@ export async function POST(
             exportRowLimit,
           });
         } catch (error) {
-          console.error("[export-retry] async handoff failed:", error);
+          console.error("[export-retry] async handoff failed:", formatUnknownForServerLog(error));
           await backgroundAdmin
             .from("contract_export_jobs")
             .update({
@@ -308,7 +342,8 @@ export async function POST(
               error_message: "Export retry failed unexpectedly.",
               completed_at: new Date().toISOString(),
             })
-            .eq("id", queuedJobId);
+            .eq("id", queuedJobId)
+            .eq("organization_id", membership.organization_id);
           await recordV10AuditEvent(backgroundAdmin, {
             organizationId: membership.organization_id,
             actorUserId: user.id,
@@ -347,12 +382,17 @@ export async function POST(
   );
 
   if (retryMutation.outcome !== "success") {
-    return NextResponse.json(
-      { error: retryMutation.user_visible_message, replayed, v10: retryMutation },
+    const retryInit = buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS });
+    return jsonProblem(
+      statusForV10JobRetryOutcome(retryMutation.outcome),
       {
-        ...buildV10MutationResponseInit(retryMutation, { replayed, headers: PRIVATE_NO_STORE_HEADERS }),
-        status: statusForV10JobRetryOutcome(retryMutation.outcome),
-      }
+        error: retryMutation.user_visible_message,
+        code: String(retryMutation.outcome),
+        diagnostic_id: retryMutation.diagnostic_id ?? "v10_export_retry_failed",
+        route: ROUTE,
+        details: { replayed, v10: retryMutation },
+      },
+      { headers: retryInit.headers }
     );
   }
 

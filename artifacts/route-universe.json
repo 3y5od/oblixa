@@ -1,15 +1,15 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-05-07T01:33:53.953Z",
+  "generatedAt": "2026-05-15T23:12:38.558Z",
   "counts": {
-    "route_state": 38,
+    "route_state": 39,
     "layout": 23,
-    "page": 69,
-    "api_route": 185,
-    "server_action": 243
+    "page": 76,
+    "api_route": 188,
+    "server_action": 247
   },
-  "total": 558,
+  "total": 573,
   "routes": [
     {
       "id": "route_state:/:src/app/(auth)/error.tsx",
@@ -924,6 +924,69 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "page:/acceptable-use:src/app/(marketing)/acceptable-use/page.tsx",
+      "route": "/acceptable-use",
+      "samplePath": "/acceptable-use",
+      "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "openai",
+        "storage"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "page:/accessibility:src/app/(marketing)/accessibility/page.tsx",
       "route": "/accessibility",
       "samplePath": "/accessibility",
@@ -1626,7 +1689,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -2120,7 +2183,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -2506,7 +2569,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -2568,7 +2631,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -2630,7 +2693,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -2888,7 +2951,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3092,7 +3155,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3159,7 +3222,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3227,7 +3290,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3294,7 +3357,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3364,7 +3427,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -3673,6 +3736,72 @@
       "smokeTier": "inventory"
     },
     {
+      "id": "api_route:/api/contact:src/app/api/contact/route.ts",
+      "route": "/api/contact",
+      "samplePath": "/api/contact",
+      "sourcePath": "src/app/api/contact/route.ts",
+      "kind": "api_route",
+      "class": "api",
+      "shellFamily": "api",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "explicit",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "resend",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found"
+        ],
+        "inheritedShell": "api"
+      },
+      "performanceBudget": {
+        "p95Ms": 1500,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "interactive_api"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "api_route:/api/contracts/recompute-signals:src/app/api/contracts/recompute-signals/route.ts",
       "route": "/api/contracts/recompute-signals",
       "samplePath": "/api/contracts/recompute-signals",
@@ -3680,7 +3809,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4014,7 +4145,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -4121,6 +4252,69 @@
       "smokeTier": "inventory"
     },
     {
+      "id": "api_route:/api/cron/security/retention-cleanup:src/app/api/cron/security/retention-cleanup/route.ts",
+      "route": "/api/cron/security/retention-cleanup",
+      "samplePath": "/api/cron/security/retention-cleanup",
+      "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "kind": "api_route",
+      "class": "cron",
+      "shellFamily": "api",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs",
+      "dynamicSegments": [],
+      "authModel": "cron_secret",
+      "rolePolicy": [
+        "cron_secret"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "cron",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": [
+          "cleanup_code_owned_transient_data"
+        ]
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found"
+        ],
+        "inheritedShell": "api"
+      },
+      "performanceBudget": {
+        "p95Ms": 55000,
+        "maxResponseBytes": 256000,
+        "timeoutClass": "batch"
+      },
+      "owner": "operations",
+      "riskTier": "P0",
+      "expectedStatuses": [
+        200,
+        207,
+        401,
+        429,
+        500,
+        503
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "cron-canary"
+    },
+    {
       "id": "api_route:/api/cron/stripe-webhook-events:src/app/api/cron/stripe-webhook-events/route.ts",
       "route": "/api/cron/stripe-webhook-events",
       "samplePath": "/api/cron/stripe-webhook-events",
@@ -4128,7 +4322,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4192,7 +4388,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4253,7 +4451,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4314,7 +4514,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4378,7 +4580,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4443,7 +4647,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4504,7 +4710,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4566,7 +4774,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4630,7 +4840,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4701,7 +4913,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4763,7 +4977,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4824,7 +5040,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4891,7 +5109,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -4952,7 +5172,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5017,7 +5239,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5079,7 +5303,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5141,7 +5367,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5205,7 +5433,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5269,7 +5499,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5335,7 +5567,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5396,7 +5630,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5450,7 +5686,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5505,7 +5743,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5560,7 +5800,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5616,7 +5858,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5672,7 +5916,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5728,7 +5974,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5784,7 +6032,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5843,7 +6093,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5899,7 +6151,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -5953,7 +6207,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -6009,7 +6265,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -6065,7 +6323,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -7441,7 +7701,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -7782,7 +8042,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -8359,9 +8619,8 @@
       "dynamicSegments": [],
       "authModel": "session",
       "rolePolicy": [
-        "editor",
-        "manager",
-        "admin"
+        "admin",
+        "manager"
       ],
       "workspaceModes": [
         "core",
@@ -8375,6 +8634,7 @@
       "orgScopeEvidence": true,
       "providers": [
         "openai",
+        "supabase",
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
@@ -8567,7 +8827,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -8647,6 +8907,7 @@
         "tables": [
           "contract_approvals",
           "contract_tasks",
+          "contracts",
           "evidence_submissions",
           "exceptions",
           "operational_casefile_events"
@@ -8689,7 +8950,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -8753,7 +9016,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -8960,7 +9225,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -8976,7 +9243,7 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
         "supabase",
         "upstash_or_memory_rate_limit",
@@ -9742,7 +10009,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -9808,7 +10075,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -9858,7 +10125,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -9937,7 +10206,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -10054,7 +10323,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -10379,7 +10650,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -10568,7 +10839,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -10957,7 +11228,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -11142,7 +11413,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -11497,7 +11770,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -11548,7 +11821,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -11621,7 +11896,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -11713,8 +11990,9 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "external_or_token",
       "orgScopeRequired": false,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
+        "storage",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -11780,7 +12058,7 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "external_or_token",
       "orgScopeRequired": false,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
         "supabase",
         "upstash_or_memory_rate_limit"
@@ -11970,7 +12248,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -12140,6 +12418,70 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "api_route:/api/security/csp-report:src/app/api/security/csp-report/route.ts",
+      "route": "/api/security/csp-report",
+      "samplePath": "/api/security/csp-report",
+      "sourcePath": "src/app/api/security/csp-report/route.ts",
+      "kind": "api_route",
+      "class": "api",
+      "shellFamily": "api",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "explicit",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "upstash_or_memory_rate_limit"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found"
+        ],
+        "inheritedShell": "api"
+      },
+      "performanceBudget": {
+        "p95Ms": 1500,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "interactive_api"
+      },
+      "owner": "release",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "api_route:/api/segments:src/app/api/segments/route.ts",
       "route": "/api/segments",
       "samplePath": "/api/segments",
@@ -12227,7 +12569,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -12556,7 +12898,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -12624,7 +12966,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "body_limit_required",
+      "bodyPolicy": "no_body_rejected",
       "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -12691,7 +13033,7 @@
         "assurance"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "signature_bound_raw_body",
+      "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "webhook",
       "orgScopeRequired": false,
       "orgScopeEvidence": true,
@@ -12887,7 +13229,9 @@
       "kind": "api_route",
       "class": "cron",
       "shellFamily": "api",
-      "methods": [],
+      "methods": [
+        "GET"
+      ],
       "runtime": "nodejs",
       "dynamicSegments": [],
       "authModel": "cron_secret",
@@ -13023,6 +13367,7 @@
       "class": "cron",
       "shellFamily": "api",
       "methods": [
+        "GET",
         "POST"
       ],
       "runtime": "nodejs",
@@ -14729,6 +15074,66 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "page:/contact:src/app/(marketing)/contact/page.tsx",
+      "route": "/contact",
+      "samplePath": "/contact",
+      "sourcePath": "src/app/(marketing)/contact/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "route_state:/contracts:src/app/(dashboard)/contracts/loading.tsx",
       "route": "/contracts",
       "samplePath": "/contracts",
@@ -14758,9 +15163,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [
-        "supabase"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -16353,9 +16756,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [
-        "supabase"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -16508,9 +16909,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [
-        "supabase"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -16584,7 +16983,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -17210,7 +17608,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -19887,6 +20284,7 @@
       "orgScopeRequired": false,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -20168,6 +20566,68 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "page:/pricing:src/app/(marketing)/pricing/page.tsx",
+      "route": "/pricing",
+      "samplePath": "/pricing",
+      "sourcePath": "src/app/(marketing)/pricing/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "openai"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "page:/privacy:src/app/(marketing)/privacy/page.tsx",
       "route": "/privacy",
       "samplePath": "/privacy",
@@ -20194,6 +20654,128 @@
       "orgScopeEvidence": false,
       "providers": [
         "openai"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "route_state:/product:src/app/(marketing)/product/loading.tsx",
+      "route": "/product",
+      "samplePath": "/product",
+      "sourcePath": "src/app/(marketing)/product/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/product:src/app/(marketing)/product/page.tsx",
+      "route": "/product",
+      "samplePath": "/product",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "calendar"
       ],
       "dbDependencies": {
         "tables": [],
@@ -20517,12 +21099,14 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "openai",
-        "supabase",
-        "webhook_outbox"
+        "supabase"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "report_pack_runs",
+          "report_pack_subscriptions",
+          "report_packs"
+        ],
         "rpcs": [
           "reports_control_room_snapshot"
         ]
@@ -20791,15 +21375,23 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
+        "openai",
+        "stripe",
         "supabase"
       ],
       "dbDependencies": {
         "tables": [
+          "contract_export_jobs",
+          "contract_extraction_jobs",
+          "contract_import_jobs",
+          "contracts",
+          "notification_deliveries",
           "organization_invites",
           "organization_members",
           "organization_workflow_settings",
-          "profiles"
+          "profiles",
+          "reminders",
+          "report_runs"
         ],
         "rpcs": []
       },
@@ -20872,6 +21464,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "openai",
         "stripe",
         "supabase"
@@ -20958,22 +21551,115 @@
       ],
       "dbDependencies": {
         "tables": [
+          "adaptive_playbook_runs",
+          "adaptive_playbooks",
+          "assurance_findings",
           "audit_events",
+          "autopilot_rules",
+          "autopilot_run_logs",
+          "contract_approvals",
           "contract_export_jobs",
           "contract_extraction_jobs",
+          "contract_field_comments",
           "contract_import_jobs",
+          "contract_obligations",
+          "contract_programs",
+          "contract_tasks",
+          "contract_watchlists",
+          "contracts",
+          "control_policies",
+          "evidence_requirements",
+          "exceptions",
+          "maintenance_campaigns",
           "notification_deliveries",
           "organization_workflow_settings",
           "outbound_event_deliveries",
+          "portfolio_health_graph_nodes",
+          "program_evolution_experiments",
           "reminders",
+          "report_packs",
           "report_runs",
-          "v10_external_blocker_records",
-          "v10_job_run_visibility",
-          "v10_mutation_idempotency",
-          "v10_read_model_refresh_jobs",
-          "v10_report_run_visibility",
-          "v10_runtime_artifacts",
-          "v10_runtime_coverage_ledger"
+          "review_board_runs",
+          "review_boards",
+          "scorecard_snapshots",
+          "segment_definitions"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "security",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "page:/settings/health/diagnostics:src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "route": "/settings/health/diagnostics",
+      "samplePath": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "organization_workflow_settings"
         ],
         "rpcs": []
       },
@@ -21126,6 +21812,161 @@
       "dbDependencies": {
         "tables": [
           "contracts",
+          "organization_workflow_settings"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "security",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "page:/settings/policy/diagnostics:src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "route": "/settings/policy/diagnostics",
+      "samplePath": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contracts",
+          "organization_workflow_settings"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "security",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "page:/settings/policy/registry:src/app/(dashboard)/settings/policy/registry/page.tsx",
+      "route": "/settings/policy/registry",
+      "samplePath": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
           "organization_workflow_settings"
         ],
         "rpcs": []
@@ -22510,6 +23351,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -22574,6 +23416,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -22640,6 +23483,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -22729,6 +23573,64 @@
           "report_pack_subscriptions",
           "report_packs"
         ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:approvals-action-scope.test:src/actions/approvals-action-scope.test.ts",
+      "route": "action:approvals-action-scope.test",
+      "samplePath": "action:approvals-action-scope.test",
+      "sourcePath": "src/actions/approvals-action-scope.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "dbDependencies": {
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -23049,6 +23951,63 @@
         "timeoutClass": "default"
       },
       "owner": "security",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:automation-action-scope.test:src/actions/automation-action-scope.test.ts",
+      "route": "action:automation-action-scope.test",
+      "samplePath": "action:automation-action-scope.test",
+      "sourcePath": "src/actions/automation-action-scope.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
       "riskTier": "P1",
       "expectedStatuses": [
         200,
@@ -24593,7 +25552,7 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "session_required_by_default",
+      "authModel": "session",
       "rolePolicy": [
         "admin",
         "manager"
@@ -24602,11 +25561,12 @@
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "structured_action_payload",
+      "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
+        "crm",
         "supabase"
       ],
       "dbDependencies": {
@@ -24844,6 +25804,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -25312,6 +26273,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -25376,6 +26338,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -25437,6 +26400,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -25710,6 +26674,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -25782,6 +26747,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -25854,6 +26820,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -25990,6 +26957,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -26054,6 +27022,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -26192,6 +27161,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -26264,6 +27234,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -26544,6 +27515,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -26727,6 +27699,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -26799,6 +27772,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -27267,6 +28241,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -27660,6 +28635,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -29097,7 +30073,7 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "session_required_by_default",
+      "authModel": "session",
       "rolePolicy": [
         "admin",
         "manager"
@@ -29109,7 +30085,7 @@
       "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": false,
+      "orgScopeEvidence": true,
       "providers": [
         "supabase"
       ],
@@ -31162,6 +32138,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -32055,6 +33032,61 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "server_action:server-action-input-safety.test:src/actions/server-action-input-safety.test.ts",
+      "route": "action:server-action-input-safety.test",
+      "samplePath": "action:server-action-input-safety.test",
+      "sourcePath": "src/actions/server-action-input-safety.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session_required_by_default",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "server_action:sessions.test:src/actions/sessions.test.ts",
       "route": "action:sessions.test",
       "samplePath": "action:sessions.test",
@@ -32199,6 +33231,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -32269,6 +33302,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -32330,6 +33364,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -32391,6 +33426,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -32452,6 +33488,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -33204,6 +34241,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -33402,6 +34440,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -33474,6 +34513,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -33666,6 +34706,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -33738,6 +34779,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -34445,6 +35487,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -35225,6 +36268,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -36620,6 +37664,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -36885,6 +37930,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -37179,12 +38225,70 @@
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "structured_action_payload",
+      "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
       "providers": [
         "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:workflow-config-action-scope.test:src/actions/workflow-config-action-scope.test.ts",
+      "route": "action:workflow-config-action-scope.test",
+      "samplePath": "action:workflow-config-action-scope.test",
+      "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase",
+        "webhook_outbox"
       ],
       "dbDependencies": {
         "tables": [],
@@ -37330,7 +38434,7 @@
     }
   ],
   "externalContracts": {
-    "vercelCronCount": 44,
+    "vercelCronCount": 45,
     "openApiPathCount": 184,
     "hrefDestinationCount": 63
   }

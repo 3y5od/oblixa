@@ -131,7 +131,7 @@ export default async function ControlPolicyDetailPage(props: { params: Promise<{
                 <span className="font-semibold text-[var(--text-primary)]">{d.key}</span>{" "}
                 <span className="text-[var(--text-tertiary)]">({d.change})</span>
                 {d.change === "changed" ? (
-                  <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-1 font-mono text-[10px]">
+                  <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-1 font-mono text-[11px]">
                     {JSON.stringify({ before: d.before, after: d.after }, null, 2)}
                   </pre>
                 ) : null}

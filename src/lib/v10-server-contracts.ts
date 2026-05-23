@@ -10,6 +10,8 @@ import {
   type V10MutationResponse,
 } from "./v10-mutation-envelope";
 import { canonicalizeV10MutationName } from "./v10-mutation-rollout";
+import type { AuditAction } from "@/lib/security/audit-actions";
+import { redactPersistenceString } from "@/lib/security/persistence-redaction";
 import {
   buildV10ReadModelRefreshEventPlan,
   refreshV10ReadModelsForOrganization,
@@ -28,6 +30,7 @@ type V10AuditMetadataValue =
   | V10AuditMetadataValue[]
   | { [key: string]: V10AuditMetadataValue };
 type V10AuditMetadata = Record<string, V10AuditMetadataValue>;
+export type V10AuditWriteMode = "best_effort" | "blocking";
 
 function recoverableErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error ?? "Unknown error");
@@ -52,7 +55,7 @@ export type V10AuditInput = {
   organizationId: string;
   actorUserId: string | null;
   actorType?: "user" | "system" | "external";
-  action: string;
+  action: AuditAction;
   targetType: V10SourceObjectType | string;
   targetId: string;
   contractId?: string | null;
@@ -60,7 +63,9 @@ export type V10AuditInput = {
   beforeStateHash?: string | null;
   afterStateHash?: string | null;
   safeMetadata?: V10AuditMetadata;
+  clientRequestId?: string | null;
   diagnosticId?: string | null;
+  writeMode?: V10AuditWriteMode;
 };
 
 export type V10AuditedMutationTransactionResult<T extends V10MutationResponse> = {
@@ -70,7 +75,7 @@ export type V10AuditedMutationTransactionResult<T extends V10MutationResponse> =
 };
 
 export type V10AuditedMutationInput = V10IdempotentMutationInput & {
-  auditAction: string;
+  auditAction: AuditAction;
 };
 
 export type V10AuditedMutationRollbackInput = {
@@ -180,9 +185,7 @@ export function sanitizeV10AuditMetadata(
   const sanitizeValue = (key: string, value: V10AuditMetadataValue): V10AuditMetadataValue => {
     if (value == null || typeof value === "number" || typeof value === "boolean") return value;
     if (typeof value === "string") {
-      return value.length > MAX_AUDIT_METADATA_STRING_LENGTH
-        ? `${value.slice(0, MAX_AUDIT_METADATA_STRING_LENGTH - 3)}...`
-        : value;
+      return redactPersistenceString(value, MAX_AUDIT_METADATA_STRING_LENGTH);
     }
     if (Array.isArray(value)) {
       return value.slice(0, MAX_AUDIT_METADATA_ARRAY_ITEMS).map((item) => sanitizeValue(key, item));
@@ -211,6 +214,16 @@ export function sanitizeV10AuditMetadata(
 
 export async function recordV10AuditEvent(admin: Admin, input: V10AuditInput): Promise<string | null> {
   try {
+    const safeMetadata = input.clientRequestId
+      ? sanitizeV10AuditMetadata({
+          ...input.safeMetadata,
+          request_id: input.clientRequestId,
+          audit_write_mode: input.writeMode ?? "best_effort",
+        })
+      : sanitizeV10AuditMetadata({
+          ...input.safeMetadata,
+          audit_write_mode: input.writeMode ?? "best_effort",
+        });
     const { data, error } = await admin
       .from("v10_audit_events")
       .insert({
@@ -224,7 +237,7 @@ export async function recordV10AuditEvent(admin: Admin, input: V10AuditInput): P
         outcome: input.outcome,
         before_state_hash: input.beforeStateHash ?? null,
         after_state_hash: input.afterStateHash ?? null,
-        safe_metadata: sanitizeV10AuditMetadata(input.safeMetadata),
+        safe_metadata: safeMetadata,
         diagnostic_id: input.diagnosticId ?? null,
       })
       .select("audit_event_id")
@@ -242,7 +255,7 @@ export async function recordV10AuditEvent(admin: Admin, input: V10AuditInput): P
 }
 
 export async function recordV10AuditEventStrict(admin: Admin, input: V10AuditInput): Promise<string> {
-  const auditEventId = await recordV10AuditEvent(admin, input);
+  const auditEventId = await recordV10AuditEvent(admin, { ...input, writeMode: "blocking" });
   if (!auditEventId) {
     throw new V10AuditWriteError();
   }
@@ -678,6 +691,7 @@ export async function executeV10StandardMutation<T extends V10MutationResponse>(
         beforeStateHash: input.currentVersion == null ? null : String(input.currentVersion),
         afterStateHash: response.new_version == null ? null : String(response.new_version),
         safeMetadata: input.safeMetadata,
+        clientRequestId: input.clientRequestId,
         diagnosticId: response.diagnostic_id,
       });
     } catch (error) {
@@ -919,4 +933,3 @@ export async function executeV10IdempotentResponseMutation(
 
   return { replayed: false, response: restoreResponse(responseSnapshot, { replayed: false }) };
 }
-

@@ -88,9 +88,7 @@ export function workspaceModeRank(mode: WorkspaceProductMode): number {
   return 1;
 }
 
-export function pluralize(count: number, singular: string, plural = `${singular}s`) {
-  return count === 1 ? singular : plural;
-}
+export { pluralize } from "@/lib/text";
 
 export async function countScheduledReportSubscriptionsSuppressedByModeChange(
   admin: ProductSurfaceActionContext["admin"],

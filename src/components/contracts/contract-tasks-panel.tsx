@@ -369,8 +369,7 @@ export function ContractTasksPanel({
         <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
           <div>
             <label className="ui-label-caps">Task title</label>
-            <input
-              name="title"
+            <input aria-label="Follow up on renewal terms" name="title"
               required
               maxLength={240}
               placeholder="Follow up on renewal terms"
@@ -411,14 +410,13 @@ export function ContractTasksPanel({
             </div>
             <div>
               <label className="ui-label-caps">Due date</label>
-              <input name="dueDate" type="date" className="ui-input w-full" />
+              <input aria-label="Due date" name="dueDate" type="date" className="ui-input w-full" />
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label className="ui-label-caps">Team queue</label>
-              <input
-                name="teamKey"
+              <input aria-label="ops / legal / finance" name="teamKey"
                 maxLength={80}
                 placeholder="ops / legal / finance"
                 className="ui-input w-full"
@@ -426,8 +424,7 @@ export function ContractTasksPanel({
             </div>
             <div>
               <label className="ui-label-caps">Recurrence (days)</label>
-              <input
-                name="recurrenceIntervalDays"
+              <input aria-label="e.g. 30" name="recurrenceIntervalDays"
                 type="number"
                 min={1}
                 max={3650}
@@ -437,13 +434,12 @@ export function ContractTasksPanel({
             </div>
             <div>
               <label className="ui-label-caps">SLA due at</label>
-              <input name="slaDueAt" type="datetime-local" className="ui-input w-full" />
+              <input aria-label="Sla due at" name="slaDueAt" type="datetime-local" className="ui-input w-full" />
             </div>
           </div>
           <div>
             <label className="ui-label-caps">Blocked reason (optional)</label>
-            <input
-              name="blockedReason"
+            <input aria-label="Waiting on dependency / external response" name="blockedReason"
               maxLength={400}
               placeholder="Waiting on dependency / external response"
               className="ui-input w-full"
@@ -451,7 +447,7 @@ export function ContractTasksPanel({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs text-[var(--text-tertiary)]">Tasks attach execution work to this contract.</p>
-            <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[13px]">
+            <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
               {isPending ? "Saving..." : "Add task"}
             </button>
           </div>
@@ -533,7 +529,7 @@ export function ContractTasksPanel({
                         {blockedBy.map((label) => (
                           <span
                             key={`b-${task.id}-${label}`}
-                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[10px] text-[var(--warning-ink)]"
+                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] text-[var(--warning-ink)]"
                           >
                             Blocked by {label}
                           </span>
@@ -541,7 +537,7 @@ export function ContractTasksPanel({
                         {unblocks.map((label) => (
                           <span
                             key={`u-${task.id}-${label}`}
-                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[10px] text-sky-900"
+                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[11px] text-sky-900"
                           >
                             {label}
                           </span>
@@ -589,7 +585,7 @@ export function ContractTasksPanel({
                             checked={item.is_done}
                             disabled={isPending || !canEdit}
                             onChange={(e) => onToggleChecklistItem(item.id, e.target.checked)}
-                            className="h-3.5 w-3.5 rounded border-[var(--border-strong)]"
+                            className="ui-checkbox"
                           />
                           <span className={item.is_done ? "text-[var(--text-tertiary)] line-through" : "text-[var(--text-secondary)]"}>
                             {item.label}
@@ -597,12 +593,11 @@ export function ContractTasksPanel({
                           {canEdit && (
                             <>
                               <form action={onUpdateChecklistItem.bind(null, item.id)} className="ml-auto flex items-center gap-1">
-                                <input
-                                  name="label"
+                                <input aria-label="Label" name="label"
                                   defaultValue={item.label}
                                   className="ui-input h-6 w-40 text-[11px]"
                                 />
-                                <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[10px]">
+                                <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[11px]">
                                   Save
                                 </button>
                               </form>
@@ -610,7 +605,7 @@ export function ContractTasksPanel({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => onMoveChecklistItem(item.id, "up")}
-                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[11px]"
                               >
                                 ↑
                               </button>
@@ -618,7 +613,7 @@ export function ContractTasksPanel({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => onMoveChecklistItem(item.id, "down")}
-                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[11px]"
                               >
                                 ↓
                               </button>
@@ -626,7 +621,7 @@ export function ContractTasksPanel({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => onDeleteChecklistItem(item.id)}
-                                className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                                className="ui-btn-secondary px-1.5 py-0.5 text-[11px]"
                               >
                                 Remove
                               </button>
@@ -637,8 +632,7 @@ export function ContractTasksPanel({
                   </ul>
                   {canEdit && (
                     <form action={onAddChecklistItem.bind(null, task.id)} className="flex items-center gap-2">
-                      <input
-                        name="label"
+                      <input aria-label="Add checklist item" name="label"
                         placeholder="Add checklist item"
                         className="ui-input h-7 flex-1 text-[11px]"
                       />
@@ -665,16 +659,15 @@ export function ContractTasksPanel({
                           }`}
                         >
                           <p>{comment.body}</p>
-                          {comment.edited_at && <p className="text-[10px] text-[var(--text-tertiary)]">edited</p>}
+                          {comment.edited_at && <p className="text-[11px] text-[var(--text-tertiary)]">edited</p>}
                           <div className="mt-1 flex items-center gap-1">
                             <form action={onUpdateComment.bind(null, comment.id)} className="flex items-center gap-1">
-                              <input
-                                name="body"
+                              <input aria-label="Edit comment" name="body"
                                 defaultValue={comment.deleted_at ? "" : comment.body}
                                 placeholder="Edit comment"
-                                className="ui-input h-6 w-44 text-[10px]"
+                                className="ui-input h-6 w-44 text-[11px]"
                               />
-                              <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[10px]">
+                              <button type="submit" className="ui-btn-secondary px-1.5 py-0.5 text-[11px]">
                                 Save
                               </button>
                             </form>
@@ -682,7 +675,7 @@ export function ContractTasksPanel({
                               type="button"
                               disabled={isPending}
                               onClick={() => onDeleteComment(comment.id)}
-                              className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                              className="ui-btn-secondary px-1.5 py-0.5 text-[11px]"
                             >
                               Delete
                             </button>
@@ -691,8 +684,7 @@ export function ContractTasksPanel({
                       ))}
                   </ul>
                   <form action={onAddComment.bind(null, task.id)} className="flex items-center gap-2">
-                    <input
-                      name="body"
+                    <input aria-label="Add comment" name="body"
                       placeholder="Add comment"
                       className="ui-input h-7 flex-1 text-[11px]"
                     />
@@ -731,7 +723,7 @@ export function ContractTasksPanel({
                               type="button"
                               disabled={isPending}
                               onClick={() => onDeleteArtifact(artifact.id)}
-                              className="ui-btn-secondary px-1.5 py-0.5 text-[10px]"
+                              className="ui-btn-secondary px-1.5 py-0.5 text-[11px]"
                             >
                               Remove
                             </button>
@@ -741,8 +733,8 @@ export function ContractTasksPanel({
                   </ul>
                   {canEdit && (
                     <form action={onAddArtifact.bind(null, task.id)} className="grid gap-1 sm:grid-cols-3">
-                      <input name="label" placeholder="Artifact label" className="ui-input h-7 text-[11px]" />
-                      <input name="url" placeholder="https://..." className="ui-input h-7 text-[11px] sm:col-span-2" />
+                      <input aria-label="Artifact label" name="label" placeholder="Artifact label" className="ui-input h-7 text-[11px]" />
+                      <input aria-label="https://..." name="url" placeholder="https://..." className="ui-input h-7 text-[11px] sm:col-span-2" />
                       <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px] sm:col-span-3">
                         Add artifact
                       </button>

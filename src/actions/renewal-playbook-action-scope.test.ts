@@ -37,3 +37,24 @@ describe("seedRenewalPlaybook", () => {
     expect(adminFrom).not.toHaveBeenCalled();
   });
 });
+
+describe("addRenewalWorkspaceNote", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+  });
+
+  it("rejects unsafe note text before contract lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const adminFrom = vi.fn();
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockResolvedValue({ from: adminFrom } as never);
+    const { addRenewalWorkspaceNote } = await import("@/actions/renewal-playbook");
+    const result = await addRenewalWorkspaceNote({
+      contractId: "550e8400-e29b-41d4-a716-446655440000",
+      body: "looks normal\u202Ehidden",
+    });
+    expect(result).toEqual({ error: "Note contains unsupported characters" });
+    expect(adminFrom).not.toHaveBeenCalled();
+  });
+});

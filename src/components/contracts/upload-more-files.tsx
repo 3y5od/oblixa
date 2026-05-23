@@ -9,9 +9,10 @@ import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-err
 interface UploadMoreFilesProps {
   contractId: string;
   canEdit?: boolean;
+  className?: string;
 }
 
-export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesProps) {
+export function UploadMoreFiles({ contractId, canEdit = true, className = "mt-3" }: UploadMoreFilesProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +46,7 @@ export function UploadMoreFiles({ contractId, canEdit = true }: UploadMoreFilesP
   }
 
   return (
-    <div className="mt-3 space-y-2">
+    <div className={`${className} space-y-2`.trim()}>
       <button
         onClick={() => inputRef.current?.click()}
         disabled={isPending}

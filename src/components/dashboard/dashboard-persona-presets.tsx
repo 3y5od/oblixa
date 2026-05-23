@@ -7,12 +7,16 @@ export function DashboardPersonaPresets() {
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="ui-eyebrow">Personas</p>
+          <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+            <span className="landing-eyebrow-dot" aria-hidden />
+            Personas
+          </p>
           <h2 className="ui-section-title mt-2 text-xl">Preset views</h2>
-          <p className="ui-muted-tight mt-1 text-[12px]">Role-shaped dashboards for recurring operating cadences.</p>
+          <p className="ui-muted-tight mt-1 text-[12.5px]">Role-shaped dashboards for recurring operating cadences.</p>
         </div>
-        <Link href="/dashboard/persona" className="ui-link text-xs">
+        <Link href="/dashboard/persona" className="ui-link inline-flex items-center gap-1 text-xs">
           Full persona dashboard
+          <span aria-hidden>→</span>
         </Link>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

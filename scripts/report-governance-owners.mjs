@@ -17,14 +17,26 @@ function inc(owner, field) {
 }
 
 const allowlist = readFileSync(path.join(ROOT, "scripts", "api-route-test-allowlist.txt"), "utf8").split("\n");
-const metaRe = /^#\s*meta:\s*owner=([^\s]+)\s+expiry=(\d{4}-\d{2}-\d{2})\s+reason=(.+)$/;
+function parseKeyValueMeta(raw) {
+  const matches = [...raw.matchAll(/\b([A-Za-z][A-Za-z0-9_-]*)=/gu)];
+  const meta = {};
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index];
+    const key = match[1];
+    const valueStart = (match.index ?? 0) + match[0].length;
+    const valueEnd =
+      index + 1 < matches.length ? matches[index + 1].index ?? raw.length : raw.length;
+    meta[key] = raw.slice(valueStart, valueEnd).trim();
+  }
+  return meta;
+}
 let activeOwner = null;
 for (const line of allowlist) {
   const t = line.trim();
   if (!t) continue;
   if (t.startsWith("#")) {
-    const m = t.match(metaRe);
-    if (m) activeOwner = m[1];
+    const match = t.match(/^#\s*meta:\s*(?<body>.*)$/u);
+    if (match?.groups?.body) activeOwner = parseKeyValueMeta(match.groups.body).owner ?? activeOwner;
     continue;
   }
   if (activeOwner) inc(activeOwner, "allowlistEntries");

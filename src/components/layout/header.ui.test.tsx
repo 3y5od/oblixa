@@ -22,20 +22,15 @@ const coreSurface: NavSurfaceInput = {
 };
 
 describe("Header", () => {
-  it("renders context line and tools entrypoint", () => {
+  it("renders context line and keeps Tools hidden in Core", () => {
     setMockPathname("/dashboard");
     renderWithProviders(
-      <Header
-        fullName="Taylor Test"
-        email="taylor@example.com"
-        navSurface={coreSurface}
-        showUtilitiesLink
-      />
+      <Header navSurface={coreSurface} showUtilitiesLink />
     );
 
-    expect(screen.getByText("Home · Execution workspace")).toBeTruthy();
-    expect(screen.getAllByText("Tools").length).toBeGreaterThan(0);
-    expect(screen.getByText("Taylor Test")).toBeTruthy();
+    expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
+    expect(screen.getByText("Workspace")).toBeTruthy();
+    expect(screen.queryByText("Tools")).toBeNull();
   });
 
   it("submits header search through the command palette bridge", async () => {
@@ -46,7 +41,7 @@ describe("Header", () => {
       receivedQuery = ((event as CustomEvent<{ query?: string }>).detail?.query ?? "").trim();
     });
 
-    renderWithProviders(<Header email="user@example.com" navSurface={coreSurface} showUtilitiesLink />);
+    renderWithProviders(<Header navSurface={coreSurface} showUtilitiesLink />);
 
     const input = screen.getByTestId("workspace-header-search");
     await user.type(input, "renewals");
@@ -55,4 +50,3 @@ describe("Header", () => {
     expect(receivedQuery).toBe("renewals");
   });
 });
-

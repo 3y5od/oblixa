@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/decisions/[id]/stakeholders";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -18,9 +26,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/decisions/[id]/stakeholders",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.decisions.id.stakeholders",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/decisions/[id]/stakeholders",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
@@ -32,16 +50,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }>(raw, {});
   const stakeholderUserId = toSafeString(body.stakeholderUserId);
   if (!stakeholderUserId) {
-    return NextResponse.json({ error: "stakeholderUserId is required" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "stakeholderUserId is required",
+      code: "stakeholder_user_id_required",
+      diagnostic_id: "decision_stakeholder_user_id_required",
+      route: ROUTE,
+    });
   }
 
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/decisions/[id]/stakeholders");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: exists } = await ctx.admin
     .from("decision_workspaces")
     .select("id")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!exists) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (!exists) return jsonNotFound(ROUTE);
 
   const { data: memberCheck } = await ctx.admin
     .from("organization_members")
@@ -49,7 +77,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("user_id", stakeholderUserId)
     .maybeSingle();
-  if (!memberCheck) return NextResponse.json({ error: "Stakeholder must be an organization member" }, { status: 400 });
+  if (!memberCheck) {
+    return jsonProblem(400, {
+      error: "Stakeholder must be an organization member",
+      code: "stakeholder_not_org_member",
+      diagnostic_id: "decision_stakeholder_not_org_member",
+      route: ROUTE,
+    });
+  }
 
   const { data, error } = await ctx.admin
     .from("decision_workspace_stakeholders")
@@ -62,7 +97,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })
     .select("id, stakeholder_user_id, stakeholder_role, status, notes, created_at")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "decision_stakeholder_create_failed",
+      diagnostic_id: "decision_stakeholder_create_failed",
+      route: ROUTE,
+    });
+  }
 
   await ctx.admin.from("decision_workspace_events").insert({
     organization_id: ctx.orgId,

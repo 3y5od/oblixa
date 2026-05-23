@@ -1,3 +1,4 @@
 # One path per line (repo-relative). Extend only with security review.
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=json_ld_components_serialize_structured_data_before_inline_rendering compensatingTest=scripts/check-dangerously-set-inner-html.mjs
 src/components/landing/landing-json-ld.tsx
 src/components/landing/legal-page-json-ld.tsx

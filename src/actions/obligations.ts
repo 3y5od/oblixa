@@ -3,13 +3,14 @@
 import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import type { ContractObligationStatus } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryEvent, emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/v10-mutation-envelope";
+import type { AuditAction } from "@/lib/security/audit-actions";
 
 const OBLIGATION_STATUSES: ContractObligationStatus[] = [
   "open",
@@ -34,6 +35,7 @@ const MAX_URL_LEN = 1000;
 const MAX_FILE_PATH_LEN = 1000;
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+type ObligationAuditAction = Extract<AuditAction, `obligation.${string}`>;
 
 function buildObligationActionEnvelope(input: {
   outcome?: V10MutationResponse["outcome"];
@@ -61,7 +63,7 @@ async function recordV10ObligationMutation(
   input: {
     organizationId: string;
     actorUserId: string;
-    action: string;
+    action: ObligationAuditAction;
     obligationId: string;
     contractId: string;
     beforeStateHash?: string | null;
@@ -231,7 +233,7 @@ export async function createContractObligation(input: {
     return { error: "Invalid escalation due date" };
   }
   if (ownerId && !isUuid(ownerId)) return { error: "Invalid owner" };
-  if (dueDate && Number.isNaN(new Date(`${dueDate}T12:00:00`).getTime())) {
+  if (dueDate && !isIsoDateOnly(dueDate)) {
     return { error: "Invalid due date" };
   }
 
@@ -389,7 +391,7 @@ export async function updateContractObligation(input: {
   }
   if (input.dueDate !== undefined) {
     const dueDate = input.dueDate?.trim() || null;
-    if (dueDate && Number.isNaN(new Date(`${dueDate}T12:00:00`).getTime())) {
+    if (dueDate && !isIsoDateOnly(dueDate)) {
       return { error: "Invalid due date" };
     }
     patch.due_date = dueDate;

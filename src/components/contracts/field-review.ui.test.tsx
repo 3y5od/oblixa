@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import "@/test-utils/mock-navigation";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { updateContractField } from "@/actions/contracts";
 import type { ExtractedField } from "@/lib/types";
@@ -10,6 +10,10 @@ import { FieldReview } from "./field-review";
 vi.mock("@/actions/contracts", () => ({
   updateContractField: vi.fn(),
 }));
+
+beforeEach(() => {
+  vi.mocked(updateContractField).mockReset();
+});
 
 const baseField = (overrides: Partial<ExtractedField>): ExtractedField => ({
   id: "f-id",
@@ -59,11 +63,15 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     const notice = screen.getByTestId("critical-date-review-notice");
     expect(notice.textContent).toMatch(/date automation is blocked/i);
     expect(notice.textContent).toMatch(/needs review/i);
-    expect(notice.textContent).toMatch(/missing approved value/i);
+    // v23 aesthetic pass: the "Missing approved value" group was dropped — it
+    // surfaced critical-date keys that weren't extracted, producing labels
+    // with no matching row below (mismatch with the visible field list). The
+    // sole Needs-review group now maps 1:1 to visible pending rows.
+    expect(notice.textContent).not.toMatch(/missing approved value/i);
     expect(notice.textContent).toMatch(/ask an editor/i);
   });
 
-  it("contains long provenance and source evidence inside the fixed review table", () => {
+  it("contains long provenance and source evidence inside responsive review rows", () => {
     const fields: ExtractedField[] = [
       baseField({
         id: "long-copy",
@@ -77,8 +85,11 @@ describe("FieldReview — §11.2 critical date grouping", () => {
 
     const { container } = renderWithProviders(<FieldReview fields={fields} canEdit />);
 
-    expect(container.querySelector("table")?.className).toContain("table-fixed");
-    expect(screen.getByText(/extracted suggestion/i).className).toContain("break-words");
+    expect(container.querySelector("[role='list']")?.getAttribute("aria-label")).toBe(
+      "Extracted contract fields"
+    );
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.getByText(/extracted suggestion/i).className).toContain("leading-snug");
     expect(screen.getByText(/This Agreement renews/i).closest("blockquote")?.className).toContain("overflow-y-auto");
   });
 
@@ -117,8 +128,53 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     renderWithProviders(<FieldReview fields={fields} canEdit />);
 
     expect(screen.getByText(/citation required:/i)).toBeTruthy();
+    expect(screen.getByText(/mark this value unknown/i)).toBeTruthy();
     const approve = screen.getByRole("button", { name: /approve counterparty/i });
     expect((approve as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("labels unresolved field decisions as Mark unknown while reusing the rejected mutation", async () => {
+    vi.mocked(updateContractField).mockResolvedValueOnce({ success: true });
+    const fields: ExtractedField[] = [
+      baseField({
+        id: "unknown-1",
+        field_name: "payment_cadence",
+        field_value: "monthly",
+        status: "pending",
+      }),
+    ];
+
+    renderWithProviders(<FieldReview fields={fields} canEdit />);
+
+    fireEvent.click(screen.getByRole("button", { name: /mark unknown payment cadence/i }));
+
+    await waitFor(() => {
+      expect(updateContractField).toHaveBeenCalledWith("unknown-1", "rejected", undefined);
+      expect(screen.getByText("Marked unknown")).toBeTruthy();
+    });
+  });
+
+  it("skips a field without mutating review state", () => {
+    const fields: ExtractedField[] = [
+      baseField({
+        id: "skip-1",
+        field_name: "counterparty",
+        field_value: "Acme Corp",
+        status: "pending",
+      }),
+      baseField({
+        id: "skip-2",
+        field_name: "renewal_date",
+        field_value: "2027-06-30",
+        status: "pending",
+      }),
+    ];
+
+    renderWithProviders(<FieldReview fields={fields} canEdit />);
+
+    fireEvent.click(screen.getByRole("button", { name: /skip counterparty/i }));
+
+    expect(updateContractField).not.toHaveBeenCalled();
   });
 
   it("maps recoverable review errors to plain-language copy", async () => {

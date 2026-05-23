@@ -26,8 +26,9 @@ const REQUIRED_FILE_MARKERS = {
     'const sent = await sendWorkspaceInviteLinkEmail({ to: email, actionUrl });',
   ],
   "src/lib/email.ts": [
+    'redactOutboundMessageText,',
     'function sanitizeSubject(s: string): string {',
-    'return s.replace(/[\\r\\n]+/g, " ").trim();',
+    'return redactOutboundMessageText(s.replace(/[\\r\\n]+/g, " ").trim(), 240);',
     'from: process.env.EMAIL_FROM || "onboarding@resend.dev",',
     'subject: sanitizeSubject("You\'re invited to an Oblixa workspace"),',
   ],

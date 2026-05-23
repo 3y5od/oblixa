@@ -38,6 +38,8 @@ export type V6OrgSettingsJson = {
   assurance_nav_admin_testing?: boolean;
   /** When false, autopilot will not perform mutating actions for this org (dry-runs still allowed). */
   autopilot_allow_execution?: boolean;
+  /** When true, production provider-backed AI/OCR processing is enabled for this org. */
+  ai_processing_enabled?: boolean;
   /** Optional emails for future review-board digests (stored only until delivery is wired). */
   review_board_notification_emails?: string[];
   /** Suppress outbound_events.event_type values regardless of tier (admin tuning). */
@@ -107,6 +109,11 @@ export function normalizeV6OrgSettingsJson(raw: V6OrgSettingsJson): V6OrgSetting
   } else {
     delete next.autopilot_allow_execution;
   }
+  if (Object.prototype.hasOwnProperty.call(raw, "ai_processing_enabled")) {
+    next.ai_processing_enabled = raw.ai_processing_enabled === true;
+  } else {
+    delete next.ai_processing_enabled;
+  }
   if (Object.prototype.hasOwnProperty.call(raw, "search_scope")) {
     next.search_scope = raw.search_scope === "core_only" ? "core_only" : "match_mode";
   } else {
@@ -158,15 +165,23 @@ export async function getV6OrgSettingsJson(
   admin: AdminClient,
   orgId: string
 ): Promise<V6OrgSettingsJson> {
+  return (await getV6OrgSettingsSnapshot(admin, orgId)).settings;
+}
+
+export async function getV6OrgSettingsSnapshot(
+  admin: AdminClient,
+  orgId: string
+): Promise<{ settings: V6OrgSettingsJson; updatedAt: string | null }> {
   const { data, error } = await admin
     .from("organizations")
-    .select("v6_org_settings_json")
+    .select("v6_org_settings_json, updated_at")
     .eq("id", orgId)
     .maybeSingle();
-  if (error || !data) return {};
+  if (error || !data) return { settings: {}, updatedAt: null };
   const raw = (data as { v6_org_settings_json?: unknown }).v6_org_settings_json;
-  if (!raw || typeof raw !== "object") return {};
-  return normalizeV6OrgSettingsJson(raw as V6OrgSettingsJson);
+  const updatedAt = String((data as { updated_at?: unknown }).updated_at ?? "") || null;
+  if (!raw || typeof raw !== "object") return { settings: {}, updatedAt };
+  return { settings: normalizeV6OrgSettingsJson(raw as V6OrgSettingsJson), updatedAt };
 }
 
 export type V6OrgSettingsMergePatch = Omit<
@@ -184,9 +199,20 @@ export type V6OrgSettingsMergePatch = Omit<
 export async function mergeV6OrgSettingsJson(
   admin: AdminClient,
   orgId: string,
-  patch: V6OrgSettingsMergePatch
+  patch: V6OrgSettingsMergePatch,
+  options?: { expectedVersion?: string | number | null }
 ): Promise<{ data: V6OrgSettingsJson | null; error: { message: string } | null }> {
-  const prev = await getV6OrgSettingsJson(admin, orgId);
+  const snapshot = await getV6OrgSettingsSnapshot(admin, orgId);
+  const prev = snapshot.settings;
+  const expectedVersion = options?.expectedVersion;
+  if (
+    expectedVersion !== undefined &&
+    expectedVersion !== null &&
+    snapshot.updatedAt !== null &&
+    String(snapshot.updatedAt) !== String(expectedVersion)
+  ) {
+    return { data: null, error: { message: "stale_version" } };
+  }
   const {
     advanced_nav_roles: _omitAdvNav,
     assurance_nav_roles: _omitAsmNav,
@@ -280,13 +306,18 @@ export async function mergeV6OrgSettingsJson(
       next.onboarding_calibration = patch.onboarding_calibration;
     }
   }
-  const { data, error } = await admin
+  let query = admin
     .from("organizations")
     .update({ v6_org_settings_json: next })
-    .eq("id", orgId)
-    .select("v6_org_settings_json")
-    .maybeSingle();
+    .eq("id", orgId);
+  if (expectedVersion !== undefined && expectedVersion !== null) {
+    query = query.eq("updated_at", String(expectedVersion));
+  }
+  const { data, error } = await query.select("v6_org_settings_json, updated_at").maybeSingle();
   if (error) return { data: null, error };
+  if (!data && expectedVersion !== undefined && expectedVersion !== null) {
+    return { data: null, error: { message: "stale_version" } };
+  }
   const raw = (data as { v6_org_settings_json?: unknown } | null)?.v6_org_settings_json;
   return {
     data: raw && typeof raw === "object" ? normalizeV6OrgSettingsJson(raw as V6OrgSettingsJson) : next,

@@ -43,7 +43,7 @@ export function EvidenceSubmissionReviewActions({
   return (
     <div className="mt-3 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))]/70 px-3 py-3">
       <p className="ui-label-caps">Reviewer decision</p>
-      <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+      <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
         Approve when the submission is sufficient, or reject with a short correction note so the provider knows what to fix.
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
@@ -91,7 +91,7 @@ export function EvidenceSubmissionReviewActions({
       ) : null}
       {message ? (
         <p
-          className={`mt-2 text-[12px] ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
+          className={`mt-2 text-[12.5px] ${messageTone === "success" ? "ui-alert-success" : "ui-alert-error"}`}
           role={messageRole}
           aria-live={messageRole === "status" ? "polite" : "assertive"}
         >

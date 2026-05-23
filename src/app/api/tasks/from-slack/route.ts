@@ -2,8 +2,8 @@
  * Inbound automation: call from a Slack slash command or workflow step (HTTP) with Bearer
  * INBOUND_AUTOMATION_TOKEN. Body: organizationId, contractId, title, optional details, assigneeId, dueDate.
  */
-import { NextResponse } from "next/server";
-import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { readJsonBodyLimited, readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
@@ -11,6 +11,7 @@ import { isInboundAutomationAuthorized } from "@/lib/security/inbound-automation
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import { verifySlackSigningSecret } from "@/lib/security/slack-signing";
 import { isKillInboundAutomation, killSwitchJsonResponse } from "@/lib/security/kill-switches";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 
 type SlackTaskPayload = {
   organizationId: string;
@@ -26,6 +27,26 @@ type SlackTaskPayload = {
 
 const EXTERNAL_MESSAGE_ID_RE = /^[a-zA-Z0-9._:@\-]{1,200}$/;
 const TEAM_KEY_RE = /^[a-z0-9_-]{1,50}$/;
+const ROUTE = "/api/tasks/from-slack";
+const SLACK_INBOUND_BODY_MAX = 262_144;
+
+function validationError(error: string, diagnosticId: string, status = 400) {
+  return jsonProblem(status, {
+    error,
+    code: "validation_failed",
+    diagnostic_id: diagnosticId,
+    route: ROUTE,
+  });
+}
+
+function persistenceError(error: string, diagnosticId: string) {
+  return jsonProblem(400, {
+    error,
+    code: "persistence_failed",
+    diagnostic_id: diagnosticId,
+    route: ROUTE,
+  });
+}
 
 function isAuthorized(request: Request): boolean {
   return isInboundAutomationAuthorized(request, "slack");
@@ -35,30 +56,21 @@ export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`tasks-slack:${ip}`, RATE_LIMITS.tasksFromSlackInbound);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
+  }
+  if (!isAuthorized(request)) {
+    return jsonUnauthorized(ROUTE);
   }
   if (isKillInboundAutomation()) {
     return killSwitchJsonResponse("inbound_automation");
-  }
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const slackSecret = process.env.SLACK_SIGNING_SECRET?.trim();
   let body: SlackTaskPayload | null = null;
   if (slackSecret) {
-    const raw = await request.text();
-    if (raw.length > 262_144) {
-      return NextResponse.json({ error: "Body too large" }, { status: 413 });
-    }
+    const _lb_raw = await readTextBodyLimited(request, SLACK_INBOUND_BODY_MAX);
+    if (!_lb_raw.ok) return validationError("Body too large", "slack_inbound_body_too_large", 413);
+    const raw = _lb_raw.body;
     const sig = verifySlackSigningSecret({
       signingSecret: slackSecret,
       rawBody: raw,
@@ -66,13 +78,18 @@ export async function POST(request: Request) {
       slackTimestampHeader: request.headers.get("X-Slack-Request-Timestamp"),
     });
     if (!sig.ok) {
-      return NextResponse.json({ error: "Invalid Slack signature" }, { status: 401 });
+      return jsonProblem(401, {
+        error: "Invalid Slack signature",
+        code: "invalid_signature",
+        diagnostic_id: "slack_inbound_signature_invalid",
+        route: ROUTE,
+      });
     }
     try {
       const parsed: unknown = JSON.parse(raw);
       body = parsed && typeof parsed === "object" ? (parsed as SlackTaskPayload) : null;
     } catch {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+      return validationError("Invalid JSON body", "slack_inbound_invalid_json_body");
     }
   } else {
     const _lb_body = await readJsonBodyLimited(request);
@@ -80,15 +97,18 @@ export async function POST(request: Request) {
     body = (_lb_body.body ?? null) as SlackTaskPayload | null;
   }
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return validationError("Invalid JSON body", "slack_inbound_invalid_json_body");
   }
   if (!body.organizationId || !body.contractId || !body.title?.trim()) {
-    return NextResponse.json({ error: "organizationId, contractId, and title are required." }, { status: 400 });
+    return validationError(
+      "organizationId, contractId, and title are required.",
+      "slack_inbound_required_fields_missing"
+    );
   }
   if (!isUuid(body.organizationId) || !isUuid(body.contractId)) {
-    return NextResponse.json(
-      { error: "organizationId and contractId must be valid UUIDs" },
-      { status: 400 }
+    return validationError(
+      "organizationId and contractId must be valid UUIDs",
+      "slack_inbound_ids_invalid"
     );
   }
   const orgRate = await rateLimitCheck(
@@ -96,41 +116,33 @@ export async function POST(request: Request) {
     RATE_LIMITS.tasksFromSlackInbound
   );
   if (!orgRate.ok) {
-    return NextResponse.json(
-      { error: "Too many requests for this organization" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(orgRate.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(orgRate.retryAfterMs, ROUTE);
   }
   const orgBlocked = inboundOrgNotAllowedResponse(body.organizationId);
   if (orgBlocked) return orgBlocked;
   if (body.assigneeId && !isUuid(body.assigneeId)) {
-    return NextResponse.json({ error: "assigneeId must be a valid UUID" }, { status: 400 });
+    return validationError("assigneeId must be a valid UUID", "slack_inbound_assignee_id_invalid");
   }
   if (body.dueDate && !isIsoDateOnly(body.dueDate)) {
-    return NextResponse.json({ error: "dueDate must be ISO date (YYYY-MM-DD)" }, { status: 400 });
+    return validationError("dueDate must be ISO date (YYYY-MM-DD)", "slack_inbound_due_date_invalid");
   }
   if (body.title.trim().length > 240) {
-    return NextResponse.json({ error: "title must be 240 characters or fewer" }, { status: 400 });
+    return validationError("title must be 240 characters or fewer", "slack_inbound_title_too_long");
   }
   if (body.details && body.details.length > 10_000) {
-    return NextResponse.json({ error: "details must be 10000 characters or fewer" }, { status: 400 });
+    return validationError("details must be 10000 characters or fewer", "slack_inbound_details_too_long");
   }
   if (body.externalMessageId && !EXTERNAL_MESSAGE_ID_RE.test(body.externalMessageId.trim())) {
-    return NextResponse.json(
-      { error: "externalMessageId contains invalid characters or is too long" },
-      { status: 400 }
+    return validationError(
+      "externalMessageId contains invalid characters or is too long",
+      "slack_inbound_external_message_id_invalid"
     );
   }
   if (body.teamKey && !TEAM_KEY_RE.test(body.teamKey.trim())) {
-    return NextResponse.json({ error: "teamKey contains invalid characters or is too long" }, { status: 400 });
+    return validationError("teamKey contains invalid characters or is too long", "slack_inbound_team_key_invalid");
   }
   if (body.priority && !["low", "medium", "high"].includes(body.priority)) {
-    return NextResponse.json({ error: "priority must be one of low, medium, high" }, { status: 400 });
+    return validationError("priority must be one of low, medium, high", "slack_inbound_priority_invalid");
   }
 
   const admin = await createAdminClient();
@@ -141,8 +153,15 @@ export async function POST(request: Request) {
     .eq("organization_id", body.organizationId)
     .maybeSingle();
   if (!contract) {
-    return NextResponse.json({ error: "Contract not found in organization" }, { status: 400 });
+    return validationError("Contract not found in organization", "slack_inbound_contract_not_found");
   }
+  void recordApiMutationAuditEvent(admin, {
+    organizationId: body.organizationId,
+    actorUserId: null,
+    actorType: "system",
+    route: "/api/tasks/from-slack",
+    method: "POST",
+  }).catch(() => undefined);
   if (body.assigneeId) {
     const { data: assigneeMember } = await admin
       .from("organization_members")
@@ -151,10 +170,17 @@ export async function POST(request: Request) {
       .eq("user_id", body.assigneeId)
       .maybeSingle();
     if (!assigneeMember) {
-      return NextResponse.json({ error: "assigneeId must belong to the organization" }, { status: 400 });
+      return validationError("assigneeId must belong to the organization", "slack_inbound_assignee_not_member");
     }
   }
   if (body.externalMessageId?.trim()) {
+    const replayRate = await rateLimitCheck(
+      `tasks-slack:event:${body.organizationId}:${body.externalMessageId.trim()}`,
+      RATE_LIMITS.tasksFromSlackInbound
+    );
+    if (!replayRate.ok) {
+      return jsonRateLimited(replayRate.retryAfterMs, ROUTE);
+    }
     const existing = await admin
       .from("contract_tasks")
       .select("id")
@@ -165,7 +191,7 @@ export async function POST(request: Request) {
       .limit(1)
       .maybeSingle();
     if (existing.data) {
-      return NextResponse.json({ success: true, deduped: true, taskId: existing.data.id });
+      return jsonOk({ success: true, deduped: true, taskId: existing.data.id });
     }
   }
   const { data: task, error } = await admin
@@ -187,7 +213,7 @@ export async function POST(request: Request) {
     })
     .select("id")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return persistenceError(error.message, "slack_inbound_task_create_failed");
 
   await admin.from("contract_task_events").insert({
     organization_id: body.organizationId,
@@ -198,5 +224,5 @@ export async function POST(request: Request) {
     details: { created_via: "integration", source: "slack", external_message_id: body.externalMessageId ?? null },
   });
 
-  return NextResponse.json({ success: true, taskId: task.id });
+  return jsonOk({ success: true, taskId: task.id });
 }

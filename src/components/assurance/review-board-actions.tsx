@@ -39,14 +39,13 @@ export function ReviewBoardCreateForm() {
   return (
     <form onSubmit={(e) => void onSubmit(e)} className="mt-3 space-y-2 rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
       <p className="text-xs font-semibold text-[var(--text-secondary)]">Create board</p>
-      <input
-        className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
+      <input aria-label="Board name" className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm"
         placeholder="Board name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <select className="w-full rounded border border-[var(--border-subtle)] px-2 py-1 text-sm" value={boardType} onChange={(e) => setBoardType(e.target.value)}>
+      <select className="ui-input-compact w-full" value={boardType} onChange={(e) => setBoardType(e.target.value)}>
         <option value="weekly_portfolio_health">Weekly portfolio health</option>
         <option value="monthly_control_effectiveness">Monthly control effectiveness</option>
         <option value="renewal_readiness">Renewal readiness</option>
@@ -289,7 +288,7 @@ export function ReviewBoardPatchPanel({
       </p>
       <label className="block">
         <span className="text-[11px] font-medium text-[var(--text-secondary)]">Subscriptions JSON (array)</span>
-        <span className="mt-0.5 block text-[10px] text-[var(--text-tertiary)]">
+        <span className="mt-0.5 block text-[11px] text-[var(--text-tertiary)]">
           Email:{" "}
           <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-0.5">{`{"email":"ops@example.com","channel":"email"}`}</code>
           {" · "}
@@ -304,12 +303,12 @@ export function ReviewBoardPatchPanel({
       </label>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-1 text-[11px]">
-          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
+          <input type="checkbox" className="ui-checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
           Active
         </label>
         <label className="flex items-center gap-1 text-[11px]">
           Cadence
-          <select className="rounded border border-[var(--border-subtle)] px-1 py-0.5" value={cadence} onChange={(e) => setCadence(e.target.value)}>
+          <select className="ui-input-compact" value={cadence} onChange={(e) => setCadence(e.target.value)}>
             <option value="weekly">weekly</option>
             <option value="biweekly">biweekly</option>
             <option value="monthly">monthly</option>

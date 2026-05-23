@@ -43,7 +43,7 @@ export function SettingsProductCalibrationSummary({
           <summary className="cursor-pointer text-sm font-medium text-[var(--text-primary)]">
             Calibration history ({history.length})
           </summary>
-          <ul className="ui-muted-tight mt-3 space-y-2 text-[12px] text-[var(--text-secondary)]">
+          <ul className="ui-muted-tight mt-3 space-y-2 text-[12.5px] text-[var(--text-secondary)]">
             {history.map((h, i) => (
               <li key={`${h.at}-${i}`} className="border-b border-[var(--border-subtle)] pb-2 last:border-0 last:pb-0">
                 <span className="font-medium text-[var(--text-primary)]">
@@ -73,7 +73,7 @@ export function SettingsProductCalibrationSummary({
           <summary className="cursor-pointer text-sm font-medium text-[var(--text-primary)]">
             Last applied configuration
           </summary>
-          <dl className="ui-muted-tight mt-3 space-y-2 text-[12px] text-[var(--text-secondary)]">
+          <dl className="ui-muted-tight mt-3 space-y-2 text-[12.5px] text-[var(--text-secondary)]">
             <div>
               <dt className="font-medium text-[var(--text-primary)]">Workspace mode</dt>
               <dd>{modeLabels[applied.applied_workspace_mode]}</dd>
@@ -130,7 +130,7 @@ export function SettingsProductCalibrationSummary({
           <summary className="cursor-pointer text-sm font-medium text-[var(--text-primary)]">
             Last generated recommendation (read-only)
           </summary>
-          <dl className="ui-muted-tight mt-3 space-y-2 text-[12px] text-[var(--text-secondary)]">
+          <dl className="ui-muted-tight mt-3 space-y-2 text-[12.5px] text-[var(--text-secondary)]">
             <div>
               <dt className="font-medium text-[var(--text-primary)]">Recommended mode</dt>
               <dd>{modeLabels[rec.recommended_workspace_mode]}</dd>

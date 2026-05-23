@@ -1,749 +1,647 @@
 "use client";
 
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import Link from "next/link";
 import {
-  createTaskAutomationRuleForm,
-  toggleTaskAutomationRuleForm,
-} from "@/actions/automation";
+  ArrowLeft,
+  Bell,
+  ChevronRight,
+  Loader2,
+  Mail,
+  UserRound,
+} from "lucide-react";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
+import { LiveRegion } from "@/components/ui/live-region";
+import { upsertNotificationSettingsForm } from "@/actions/notifications";
 import {
-  createApprovalPolicyForm,
-  createFieldTemplateForm,
-  createIntegrationApiKeyFromOperationsForm,
-  revokeIntegrationApiKeyForm,
-  createReminderTemplateForm,
-  createRenewalPlaybookTemplateForm,
-  createTaskTemplateForm,
-  createWebhookSubscriptionForm,
-  setIntegrationTokenForm,
-  toggleApprovalPolicyForm,
-  toggleRenewalPlaybookTemplateForm,
-  toggleWebhookSubscriptionForm,
-  updateIntegrationApiKeyPolicyForm,
-  upsertWorkflowSettingsForm,
-  upsertIntegrationConnectionForm,
-  applyPolicyPackForm,
-} from "@/actions/workflow-config";
-import { createObligationTemplateForm } from "@/actions/obligations";
+  SETTINGS_NOTIFICATIONS_STRINGS,
+  type NotificationCategoryKey,
+} from "@/lib/settings/spec-strings";
 import type { OperationsSettingsPayload } from "./load-operations-settings-data";
 
-function safeRolePolicyJsonDefault(role_policy_json: unknown): string {
-  try {
-    const base =
-      role_policy_json && typeof role_policy_json === "object" && !Array.isArray(role_policy_json)
-        ? role_policy_json
-        : {};
-    return JSON.stringify(base, null, 2);
-  } catch {
-    return "{}";
-  }
+// V3 polish (carries V1/V2). Key changes from baseline workflow-
+// config surface: this view is now notifications-only; all sub-card
+// caps eyebrows dropped (page-header SETTINGS dot is the only caps
+// decoration); per-row icon medallions removed; START/END caps labels
+// sr-only; helper toggle prose dropped; Discard button + Cmd+S +
+// spinner + beforeunload; per-user strip becomes a clickable Link
+// with UserRound medallion; single outer fieldset cascades disabled-
+// state; input semantics tightened (T12).
+
+type PolicyChannel = {
+  enabled?: unknown;
+  quiet_hours_start_utc?: unknown;
+  quiet_hours_end_utc?: unknown;
+  blocked_types?: unknown;
+};
+
+type NotificationPolicy = {
+  email?: PolicyChannel;
+  slack?: PolicyChannel;
+};
+
+function asPolicy(value: unknown): NotificationPolicy {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return value as NotificationPolicy;
+}
+
+function blockedTypes(channel: PolicyChannel | undefined): Set<string> {
+  if (!Array.isArray(channel?.blocked_types)) return new Set();
+  return new Set(channel.blocked_types.map((value) => String(value)));
+}
+
+function hourValue(value: unknown, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(23, Math.max(0, Math.trunc(parsed)));
+}
+
+function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
+  if (a.size !== b.size) return false;
+  for (const value of a) if (!b.has(value)) return false;
+  return true;
+}
+
+function CardMedallion({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
+    >
+      {children}
+    </span>
+  );
 }
 
 export function OperationsSettingsView({
-  newlyIssuedApiKey,
   data,
+  canEdit = true,
 }: {
-  newlyIssuedApiKey: string | null;
   data: OperationsSettingsPayload;
+  canEdit?: boolean;
 }) {
-  const {
-    rules,
-    playbooks,
-    templates,
-    webhooks,
-    fieldTemplates,
-    reminderTemplates,
-    taskTemplates,
-    integrations,
-    workflowSettings,
-    approvalPolicies,
-    memberOptions,
-    apiKeys,
-  } = data;
+  const workflowSettings = data.workflowSettings;
+  const policy = asPolicy(workflowSettings?.notification_policy_json);
+  const initialEmailBlocked = useMemo(
+    () => blockedTypes(policy.email),
+    [policy.email]
+  );
+  const initialEmailEnabled = policy.email?.enabled !== false;
+  const initialQuietStart = hourValue(policy.email?.quiet_hours_start_utc, 0);
+  const initialQuietEnd = hourValue(policy.email?.quiet_hours_end_utc, 0);
+  const initialSelectedCategories = useMemo(() => {
+    const enabled = new Set<NotificationCategoryKey>();
+    for (const cat of SETTINGS_NOTIFICATIONS_STRINGS.categories) {
+      if (!initialEmailBlocked.has(cat.key)) enabled.add(cat.key);
+    }
+    return enabled;
+  }, [initialEmailBlocked]);
 
-  const notificationPolicy =
-    (workflowSettings?.notification_policy_json as Record<string, unknown> | null) ?? {};
-  const emailPolicy = (notificationPolicy.email as Record<string, unknown> | undefined) ?? {};
-  const slackPolicy = (notificationPolicy.slack as Record<string, unknown> | undefined) ?? {};
-  const emailBlockedTypes = Array.isArray(emailPolicy.blocked_types)
-    ? (emailPolicy.blocked_types as unknown[]).map((value) => String(value))
-    : [];
-  const slackBlockedTypes = Array.isArray(slackPolicy.blocked_types)
-    ? (slackPolicy.blocked_types as unknown[]).map((value) => String(value))
-    : [];
+  const [emailEnabled, setEmailEnabled] = useState(initialEmailEnabled);
+  const [selectedCategories, setSelectedCategories] = useState<
+    Set<NotificationCategoryKey>
+  >(() => new Set(initialSelectedCategories));
+  const [quietStart, setQuietStart] = useState(initialQuietStart);
+  const [quietEnd, setQuietEnd] = useState(initialQuietEnd);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState<string | undefined>(undefined);
+  const [pending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const [idempotencyKey] = useState(() =>
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+
+  const emailRemindersId = useId();
+  const quietStartId = useId();
+  const quietEndId = useId();
+  const quietCaptionId = useId();
+  const reminderDefaultsTitleId = "notifications-content-title";
+
+  // V3 T18.1 — derived state via useMemo.
+  const isDirty = useMemo(
+    () =>
+      emailEnabled !== initialEmailEnabled ||
+      quietStart !== initialQuietStart ||
+      quietEnd !== initialQuietEnd ||
+      !setsEqual(selectedCategories, initialSelectedCategories),
+    [
+      emailEnabled,
+      quietStart,
+      quietEnd,
+      selectedCategories,
+      initialEmailEnabled,
+      initialQuietStart,
+      initialQuietEnd,
+      initialSelectedCategories,
+    ]
+  );
+
+  // V3 T16.8 — when start === end (default 0/0), reminders send any
+  // time. T16.6 — when start > end, overnight quiet range; server
+  // dispatcher uses modular comparison. No UI special-case required.
+  const quietHoursNoOp = quietStart === quietEnd;
+
+  // V3 T18.1 — category counts excluding weekly_digest.
+  const reminderCategoryKeys = useMemo(
+    () =>
+      SETTINGS_NOTIFICATIONS_STRINGS.categories
+        .filter((c) => c.key !== "weekly_digest")
+        .map((c) => c.key as NotificationCategoryKey),
+    []
+  );
+  const enabledReminderCount = useMemo(
+    () => reminderCategoryKeys.filter((k) => selectedCategories.has(k)).length,
+    [reminderCategoryKeys, selectedCategories]
+  );
+  const totalReminderCount = reminderCategoryKeys.length;
+  // V3 T0.3 — chip only renders when partial.
+  const showCountChip = enabledReminderCount < totalReminderCount;
+
+  // V3 T22.5 — count transition announcement (skips initial mount).
+  const prevCountRef = useRef(enabledReminderCount);
+  useEffect(() => {
+    if (prevCountRef.current === enabledReminderCount) return;
+    prevCountRef.current = enabledReminderCount;
+    if (enabledReminderCount === totalReminderCount) {
+      setAnnouncement("All reminder categories enabled");
+    } else {
+      setAnnouncement(
+        `${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`
+      );
+    }
+  }, [enabledReminderCount, totalReminderCount]);
+
+  // V3 T22.x — clear transient announcements after 4s.
+  useEffect(() => {
+    if (!announcement) return;
+    const t = setTimeout(() => setAnnouncement(undefined), 4000);
+    return () => clearTimeout(t);
+  }, [announcement]);
+
+  // V3 T4.3 — ⌘S / Ctrl+S keyboard shortcut.
+  useEffect(() => {
+    if (!canEdit) return;
+    const handler = (e: KeyboardEvent) => {
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        e.key === "s" &&
+        isDirty &&
+        !pending
+      ) {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isDirty, pending, canEdit]);
+
+  // V3 T4.8 — beforeunload guard when isDirty.
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // V3 T4.4 — auto-clear saved-state confirmation after 3s.
+  useEffect(() => {
+    if (!message || error) return;
+    const t = setTimeout(() => setMessage(null), 3000);
+    return () => clearTimeout(t);
+  }, [message, error]);
+
+  // V3 T18.3 — useCallback for stable handler identity.
+  const toggleCategory = useCallback((key: NotificationCategoryKey) => {
+    setSelectedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  // V3 T22.3 — channel toggle announcement.
+  const handleEmailToggle = useCallback((checked: boolean) => {
+    setEmailEnabled(checked);
+    setAnnouncement(
+      checked
+        ? SETTINGS_NOTIFICATIONS_STRINGS.channelOnAnnouncement
+        : SETTINGS_NOTIFICATIONS_STRINGS.channelOffAnnouncement
+    );
+  }, []);
+
+  // V3 T4.2 — handleDiscard resets to initial values.
+  const handleDiscard = useCallback(() => {
+    setEmailEnabled(initialEmailEnabled);
+    setQuietStart(initialQuietStart);
+    setQuietEnd(initialQuietEnd);
+    setSelectedCategories(new Set(initialSelectedCategories));
+    setMessage(null);
+    setError(null);
+    setAnnouncement(SETTINGS_NOTIFICATIONS_STRINGS.discardAnnouncement);
+  }, [
+    initialEmailEnabled,
+    initialQuietStart,
+    initialQuietEnd,
+    initialSelectedCategories,
+  ]);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const r = await upsertNotificationSettingsForm(formData);
+      if ("error" in r) {
+        setError(r.error);
+        setAnnouncement(
+          SETTINGS_NOTIFICATIONS_STRINGS.saveErrorAnnouncement
+        );
+        return;
+      }
+      setMessage(SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement);
+      setAnnouncement(
+        SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement
+      );
+    });
+  }
+
+  const categories = SETTINGS_NOTIFICATIONS_STRINGS.categories;
+  const reminderCategories = categories.filter(
+    (c) => c.key !== "weekly_digest"
+  );
+  const digestCategory = categories.find((c) => c.key === "weekly_digest");
+
+  const liveMsg =
+    announcement ??
+    (pending ? "Saving preferences…" : error ?? undefined);
+
+  const formDisabled = !canEdit;
 
   return (
-    <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Operations</p>
-          <h1 className="ui-display-title mt-2">Workflow configuration</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            Configure task rules, renewal checklist templates, obligation templates, and outbound webhooks.
-          </p>
-        </div>
-      </header>
+    <div className="ui-page-stack mx-auto max-w-4xl gap-4">
+      <Link
+        href={`#${reminderDefaultsTitleId}`}
+        className="ui-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-[var(--surface-raised)] focus:px-3 focus:py-2 focus:text-[var(--text-primary)]"
+      >
+        Skip to notification settings
+      </Link>
 
-      <section className="ui-page-shell overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Task automation rules</h2>
-          <p className="ui-support-copy mt-1">Use automation rules as the top-level trigger architecture for follow-up work, notifications, and report generation.</p>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createTaskAutomationRuleForm} className="grid gap-3 md:grid-cols-2">
-            <input name="name" required placeholder="Missing notice window follow-up" className="ui-input" />
-            <select name="triggerType" defaultValue="field_missing" className="ui-input">
-              <option value="field_missing">field_missing</option>
-              <option value="field_changed">field_changed</option>
-              <option value="date_window">date_window</option>
-              <option value="ownership_change">ownership_change</option>
-              <option value="renewal_window">renewal_window</option>
-              <option value="approval_stall">approval_stall</option>
-              <option value="risk_threshold">risk_threshold</option>
-              <option value="data_quality_gap">data_quality_gap</option>
-            </select>
-            <input name="requiredField" placeholder="notice_window" className="ui-input" />
-            <input name="fieldName" placeholder="renewal_date / end_date" className="ui-input" />
-            <input name="windowDays" type="number" min={0} defaultValue={30} className="ui-input" />
-            <input name="lookbackDays" type="number" min={1} defaultValue={2} className="ui-input" />
-            <input name="teamKey" placeholder="ops" className="ui-input" />
-            <input name="dueInDays" type="number" min={0} defaultValue={3} className="ui-input" />
-            <input
-              name="stallHours"
-              type="number"
-              min={1}
-              defaultValue={24}
-              placeholder="approval stall hours"
-              className="ui-input"
-            />
-            <input
-              name="minCompleteness"
-              type="number"
-              min={0}
-              max={100}
-              defaultValue={80}
-              placeholder="min completeness score"
-              className="ui-input"
-            />
-            <input name="taskTitle" placeholder="Fill missing notice window" className="ui-input" />
-            <input
-              name="webhookEventType"
-              placeholder="optional webhook event type"
-              className="ui-input"
-            />
-            <select name="actionType" defaultValue="create_task" className="ui-input">
-              <option value="create_task">create_task</option>
-              <option value="notify_only">notify_only</option>
-              <option value="trigger_report">trigger_report</option>
-            </select>
-            <select name="reportMode" defaultValue="exceptions" className="ui-input">
-              <option value="exceptions">exceptions</option>
-              <option value="management">management</option>
-              <option value="saved_view">saved_view</option>
-            </select>
-            <textarea
-              name="taskDetails"
-              placeholder="Prompt owner to confirm clause and update field."
-              className="ui-input md:col-span-2 min-h-[70px]"
-            />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Create rule
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(rules ?? []).map((rule) => (
-              <li key={rule.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
-                <span>
-                  {rule.name} · {rule.trigger_type}
-                </span>
-                <form action={toggleTaskAutomationRuleForm.bind(null, rule.id, !rule.active)}>
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    {rule.active ? "Disable" : "Enable"}
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <Link
+        href="/settings"
+        className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px] billing-no-print"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+        {SETTINGS_NOTIFICATIONS_STRINGS.backLabel}
+      </Link>
 
-      <section className="ui-page-shell overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Policy packs</h2>
-          <p className="ui-support-copy mt-1">Apply grouped operational presets before tuning the lower-level templates and cadence settings below.</p>
-        </div>
-        <div className="space-y-4 p-6">
-          <p className="text-sm text-[var(--text-tertiary)]">
-            Apply a preset package of workflow thresholds and required field coverage.
-          </p>
-          <form action={applyPolicyPackForm as never} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select name="policyPack" defaultValue="balanced" className="ui-input max-w-xs">
-              <option value="balanced">Balanced operations</option>
-              <option value="compliance">Compliance-heavy</option>
-              <option value="revenue">Revenue-first</option>
-            </select>
-            <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-              Apply policy pack
-            </button>
-          </form>
-        </div>
-      </section>
+      <DashboardPageHeader
+        icon={<Bell className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow={SETTINGS_NOTIFICATIONS_STRINGS.eyebrow}
+        title={SETTINGS_NOTIFICATIONS_STRINGS.title}
+        lead={SETTINGS_NOTIFICATIONS_STRINGS.lead}
+      />
 
-      <section className="ui-page-shell overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Workflow cadence settings</h2>
-          <p className="ui-support-copy mt-1">These settings define workspace-wide timing, freshness thresholds, and notification posture for downstream workflows.</p>
-        </div>
-        <div className="space-y-4 p-6">
-          <div className="ui-soft-details px-4 py-3 text-sm text-[var(--text-secondary)]">
-            <p className="font-semibold text-[var(--text-primary)]">Current reminder and notification posture</p>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-              Email: {emailPolicy.enabled === false ? "muted" : "enabled"}
-              {emailBlockedTypes.length > 0 ? ` · blocked types ${emailBlockedTypes.join(", ")}` : ""}
-              {" · "}
-              Slack: {slackPolicy.enabled === false ? "muted" : "enabled"}
-              {slackBlockedTypes.length > 0 ? ` · blocked types ${slackBlockedTypes.join(", ")}` : ""}
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-              Use{" "}
-              <Link href="/settings/health" className="ui-link">
-                Health
-              </Link>{" "}
-              to see delivery failures and retry posture after these settings change.
-            </p>
-          </div>
-          <form action={upsertWorkflowSettingsForm as never} className="grid gap-3 md:grid-cols-2">
-            <input
-              name="weeklyIntakeLookbackDays"
-              type="number"
-              min={1}
-              max={30}
-              defaultValue={workflowSettings?.weekly_intake_lookback_days ?? 7}
-              className="ui-input"
-            />
-            <input
-              name="renewalHorizonDays"
-              type="number"
-              min={30}
-              max={365}
-              defaultValue={workflowSettings?.renewal_horizon_days ?? 90}
-              className="ui-input"
-            />
-            <input
-              name="staleContractDays"
-              type="number"
-              min={30}
-              max={365}
-              defaultValue={workflowSettings?.stale_contract_days ?? 120}
-              className="ui-input"
-            />
-            <input
-              name="staleOwnershipDays"
-              type="number"
-              min={14}
-              max={365}
-              defaultValue={workflowSettings?.stale_ownership_days ?? 90}
-              className="ui-input"
-            />
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <input
-                type="checkbox"
-                name="emailEnabled"
-                value="1"
-                defaultChecked={
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)?.enabled !==
-                  false
-                }
-              />
-              Email notifications enabled
-            </label>
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <input
-                type="checkbox"
-                name="slackEnabled"
-                value="1"
-                defaultChecked={
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)?.enabled !==
-                  false
-                }
-              />
-              Slack notifications enabled
-            </label>
-            <input
-              name="emailQuietStartUtc"
-              type="number"
-              min={0}
-              max={23}
-              defaultValue={
-                Number(
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)
-                    ?.quiet_hours_start_utc ?? 0
-                )
-              }
-              className="ui-input"
-            />
-            <input
-              name="emailQuietEndUtc"
-              type="number"
-              min={0}
-              max={23}
-              defaultValue={
-                Number(
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as Record<string, unknown> | undefined)
-                    ?.quiet_hours_end_utc ?? 0
-                )
-              }
-              className="ui-input"
-            />
-            <input
-              name="slackQuietStartUtc"
-              type="number"
-              min={0}
-              max={23}
-              defaultValue={
-                Number(
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)
-                    ?.quiet_hours_start_utc ?? 0
-                )
-              }
-              className="ui-input"
-            />
-            <input
-              name="slackQuietEndUtc"
-              type="number"
-              min={0}
-              max={23}
-              defaultValue={
-                Number(
-                  ((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as Record<string, unknown> | undefined)
-                    ?.quiet_hours_end_utc ?? 0
-                )
-              }
-              className="ui-input"
-            />
-            <input
-              name="emailBlockedTypes"
-              placeholder="email blocked types (comma-separated)"
-              defaultValue={(
-                (((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.email as
-                  | Record<string, unknown>
-                  | undefined)?.blocked_types as string[] | undefined) ?? []
-              ).join(", ")}
-              className="ui-input md:col-span-2"
-            />
-            <input
-              name="slackBlockedTypes"
-              placeholder="slack blocked types (comma-separated)"
-              defaultValue={(
-                (((workflowSettings?.notification_policy_json as Record<string, unknown> | null)?.slack as
-                  | Record<string, unknown>
-                  | undefined)?.blocked_types as string[] | undefined) ?? []
-              ).join(", ")}
-              className="ui-input md:col-span-2"
-            />
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] md:col-span-2">
-              <input
-                type="checkbox"
-                name="dashboardTrackingEnabled"
-                value="1"
-                defaultChecked={workflowSettings?.dashboard_tracking_enabled !== false}
-              />
-              Enable dashboard usage tracking
-            </label>
-            <textarea
-              name="rolePolicyJson"
-              placeholder='{"ops_manager":{"approvals_manage":false},"legal_reviewer":{"approvals_manage":true}}'
-              defaultValue={safeRolePolicyJsonDefault(workflowSettings?.role_policy_json)}
-              className="ui-input min-h-[90px] md:col-span-2"
-            />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Save workflow settings
-            </button>
-          </form>
-        </div>
-      </section>
+      <LiveRegion
+        message={liveMsg}
+        politeness={error ? "assertive" : "polite"}
+      />
 
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Field templates</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createFieldTemplateForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
-            <input name="fieldName" required placeholder="payment_cadence" className="ui-input" />
-            <input name="defaultValue" placeholder="net_30" className="ui-input" />
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <input type="checkbox" name="required" value="1" className="h-4 w-4 rounded border-[var(--border-strong)]" />
-              Required field
-            </label>
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add field template
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(fieldTemplates ?? []).map((t) => (
-              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
-                {t.field_name} · {t.contract_type || "default"} · {t.required ? "required" : "optional"}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {!canEdit ? (
+        <p className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-4 py-2.5 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+          {SETTINGS_NOTIFICATIONS_STRINGS.nonAdminBanner}
+        </p>
+      ) : null}
 
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Approval policies</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createApprovalPolicyForm as never} className="grid gap-3 md:grid-cols-2">
-            <select name="approvalType" defaultValue="renewal_decision" className="ui-input">
-              <option value="renewal_decision">renewal_decision</option>
-              <option value="notice_action">notice_action</option>
-              <option value="commercial_exception">commercial_exception</option>
-              <option value="ownership_handoff">ownership_handoff</option>
-            </select>
-            <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
-            <input name="minAnnualValue" type="number" min={0} placeholder="100000" className="ui-input" />
-            <select name="requiredApproverId" className="ui-input">
-              <option value="">No forced approver</option>
-              {memberOptions.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add approval policy
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(approvalPolicies ?? []).map((row) => (
-              <li
-                key={row.id}
-                className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm"
-              >
-                <span>
-                  {row.approval_type}
-                  {row.contract_type ? ` · ${row.contract_type}` : " · any type"}
-                  {row.min_annual_value != null ? ` · >=$${Number(row.min_annual_value).toLocaleString()}` : ""}
-                </span>
-                <form action={toggleApprovalPolicyForm.bind(null, row.id, !row.active) as never}>
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    {row.active ? "Disable" : "Enable"}
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Reminder templates</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createReminderTemplateForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
-            <input name="fieldName" required placeholder="renewal_date" className="ui-input" />
-            <input name="reminderType" required placeholder="renewal_30d" className="ui-input" />
-            <input name="offsetDays" type="number" min={0} defaultValue={30} className="ui-input" />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add reminder template
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(reminderTemplates ?? []).map((t) => (
-              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
-                {t.field_name} · {t.offset_days}d · {t.reminder_type}
-                {t.contract_type ? ` · ${t.contract_type}` : " · default"}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Task templates</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createTaskTemplateForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
-            <input name="teamKey" placeholder="ops" className="ui-input" />
-            <input name="title" required placeholder="Prepare renewal strategy memo" className="ui-input" />
-            <input name="dueOffsetDays" type="number" min={0} defaultValue={7} className="ui-input" />
-            <select name="priority" defaultValue="medium" className="ui-input">
-              <option value="low">low</option>
-              <option value="medium">medium</option>
-              <option value="high">high</option>
-            </select>
-            <textarea name="details" className="ui-input min-h-[70px] md:col-span-2" placeholder="Expected deliverable and owner guidance." />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add task template
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(taskTemplates ?? []).map((t) => (
-              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
-                {t.title} · {t.priority} · due+{t.due_offset_days}d
-                {t.team_key ? ` · ${t.team_key}` : ""}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Renewal checklist templates</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createRenewalPlaybookTemplateForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="taskKey" required placeholder="r045_exec_alignment" className="ui-input" />
-            <input name="label" required placeholder="Align leadership decision and owner" className="ui-input" />
-            <input name="offsetDays" type="number" min={0} required placeholder="45" className="ui-input" />
-            <input name="contractType" placeholder="MSA (optional)" className="ui-input" />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add checklist step
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(playbooks ?? []).map((row) => (
-              <li key={row.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
-                <span>
-                  {row.offset_days}d · {row.label}
-                  {row.contract_type ? ` · ${row.contract_type}` : " · default"}
-                </span>
-                <form action={toggleRenewalPlaybookTemplateForm.bind(null, row.id, !row.active) as never}>
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    {row.active ? "Disable" : "Enable"}
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Integration connections</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <div className="ui-soft-details p-4 text-sm text-[var(--text-secondary)]">
-            <p className="font-semibold text-[var(--text-primary)]">Inbound automation (Slack and email)</p>
-            <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
-              Your hosting provider sets a secret token in the server environment as{" "}
-              <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[10px]">INBOUND_AUTOMATION_TOKEN</code>. HTTP clients send{" "}
-              <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1 text-[10px]">Authorization: Bearer &lt;token&gt;</code> to:
-            </p>
-            <ul className="mt-2 list-inside list-disc text-xs text-[var(--text-secondary)]">
-              <li>
-                <code className="text-[10px]">POST /api/tasks/from-slack</code> — JSON body with{" "}
-                <code className="text-[10px]">organizationId</code>, <code className="text-[10px]">contractId</code>,{" "}
-                <code className="text-[10px]">title</code>, optional <code className="text-[10px]">details</code>,{" "}
-                <code className="text-[10px]">assigneeId</code>, <code className="text-[10px]">dueDate</code> (from a Slack
-                workflow or slash command).
-              </li>
-              <li>
-                <code className="text-[10px]">POST /api/tasks/from-email</code> — same shape for trusted email intake
-                bridges.
-              </li>
-            </ul>
-            <p className="mt-2 text-xs text-[var(--text-tertiary)]">
-              Outbound Slack alerts from automation include a <strong>Review in Oblixa</strong> link when a{" "}
-              <code className="text-[10px]">contract_id</code> is present in the event metadata. Set{" "}
-              <code className="text-[10px]">NEXT_PUBLIC_APP_URL</code> in production so links resolve to your real domain.
-            </p>
-          </div>
-          <form action={upsertIntegrationConnectionForm as never} className="grid gap-3 md:grid-cols-2">
-            <select name="provider" defaultValue="google_calendar" className="ui-input">
-              <option value="google_calendar">google_calendar</option>
-              <option value="outlook_calendar">outlook_calendar</option>
-              <option value="slack">slack</option>
-              <option value="email">email</option>
-              <option value="crm">crm</option>
-            </select>
-            <select name="status" defaultValue="connected" className="ui-input">
-              <option value="not_connected">not_connected</option>
-              <option value="connected">connected</option>
-              <option value="error">error</option>
-            </select>
-            <input
-              name="configJson"
-              placeholder='{"channel":"#oblixa-alerts"}'
-              className="ui-input md:col-span-2"
-            />
-            <input name="lastError" placeholder="Error details (optional)" className="ui-input md:col-span-2" />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Save integration state
-            </button>
-          </form>
-          <form action={setIntegrationTokenForm as never} className="grid gap-3 border-t border-[var(--border-subtle)] pt-4 md:grid-cols-2">
-            <select name="provider" defaultValue="google_calendar" className="ui-input">
-              <option value="google_calendar">google_calendar</option>
-              <option value="outlook_calendar">outlook_calendar</option>
-              <option value="slack">slack</option>
-              <option value="email">email</option>
-              <option value="crm">crm</option>
-            </select>
-            <input name="connectedAccount" placeholder="account@vendor.com" className="ui-input" />
-            <input name="accessToken" placeholder="access token" className="ui-input md:col-span-2" />
-            <input name="refreshToken" placeholder="refresh token (optional)" className="ui-input md:col-span-2" />
-            <input name="tokenExpiresAt" placeholder="2026-12-31T00:00:00Z" className="ui-input md:col-span-2" />
-            <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px] md:col-span-2">
-              Save integration token lifecycle
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(integrations ?? []).map((row) => (
-              <li key={row.id} className="ui-support-panel px-3 py-2 text-sm">
-                {row.provider} · {row.status}
-                {row.last_synced_at ? ` · synced ${new Date(row.last_synced_at).toLocaleDateString()}` : ""}
-                {row.last_error ? ` · ${row.last_error}` : ""}
-              </li>
-            ))}
-          </ul>
-          <div className="border-t border-[var(--border-subtle)] pt-4">
-            <p className="ui-label-caps">Integration API keys</p>
-            {newlyIssuedApiKey && (
-              <div className="ui-alert-warning mt-2 px-3 py-2 text-xs">
-                <p className="font-semibold">Copy this API key now. It will not be shown again.</p>
-                <p className="mt-1 break-all font-mono">{newlyIssuedApiKey}</p>
-              </div>
-            )}
-            <form
-              action={createIntegrationApiKeyFromOperationsForm}
-              className="mt-2 grid gap-2 md:grid-cols-[minmax(14rem,1fr)_minmax(12rem,1fr)_auto]"
+      <section id="notifications" className="ui-card scroll-mt-6 p-0">
+        <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5 sm:px-6">
+          <div className="flex min-w-0 items-start gap-3">
+            <CardMedallion>
+              <Mail className="h-4 w-4" strokeWidth={1.85} />
+            </CardMedallion>
+            <h2
+              id={reminderDefaultsTitleId}
+              className="min-w-0 text-[15.5px] font-semibold leading-tight tracking-tight text-[var(--text-primary)] sm:text-[1.125rem]"
             >
-              <input name="label" required placeholder="Events consumer key" className="ui-input min-w-[16rem]" />
-              <input name="scopes" defaultValue="events:read" placeholder="events:read" className="ui-input" />
-              <input name="expiresAt" type="datetime-local" className="ui-input" />
-              <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                Create API key
-              </button>
-            </form>
-            <ul className="mt-3 space-y-2 text-xs text-[var(--text-secondary)]">
-              {(apiKeys ?? []).map((key) => (
-                <li key={key.id} className="ui-support-panel px-3 py-2">
-                  <p className="font-semibold text-[var(--text-primary)]">
-                    {key.label} · {key.key_prefix} · {key.active ? "active" : "inactive"}
-                  </p>
-                  <p className="mt-1 text-[var(--text-secondary)]">
-                    Scopes: {(key.scopes ?? []).join(", ") || "events:read"}
-                    {key.expires_at
-                      ? ` · expires ${new Date(key.expires_at).toLocaleString()}`
-                      : " · no expiry"}
-                    {key.last_used_at
-                      ? ` · last used ${new Date(key.last_used_at).toLocaleDateString()}`
-                      : ""}
-                  </p>
-                  {key.revoked_at && (
-                    <p className="mt-1 text-[var(--danger-ink)]">
-                      Revoked {new Date(key.revoked_at).toLocaleString()}
-                      {key.revoked_reason ? ` · ${key.revoked_reason}` : ""}
-                    </p>
-                  )}
-                  {!key.revoked_at && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <form action={updateIntegrationApiKeyPolicyForm as never} className="flex flex-wrap items-center gap-2">
-                        <input type="hidden" name="keyId" value={key.id} />
-                        <input
-                          name="scopes"
-                          defaultValue={(key.scopes ?? ["events:read"]).join(",")}
-                          className="ui-input h-8 min-w-[10rem] text-[11px]"
-                        />
-                        <input
-                          name="expiresAt"
-                          type="datetime-local"
-                          defaultValue={key.expires_at ? new Date(key.expires_at).toISOString().slice(0, 16) : ""}
-                          className="ui-input h-8 text-[11px]"
-                        />
-                        <label className="inline-flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
-                          <input type="checkbox" name="active" value="1" defaultChecked={key.active} />
-                          active
-                        </label>
-                        <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
-                          Save policy
-                        </button>
-                      </form>
-                      <form action={revokeIntegrationApiKeyForm as never} className="flex items-center gap-1.5">
-                        <input type="hidden" name="keyId" value={key.id} />
-                        <input
-                          name="reason"
-                          placeholder="revoke reason"
-                          className="ui-input h-8 min-w-[10rem] text-[11px]"
-                        />
-                        <button type="submit" className="ui-btn-danger px-2 py-1 text-[11px]">
-                          Revoke
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+              {SETTINGS_NOTIFICATIONS_STRINGS.sections.emailReminders}
+            </h2>
           </div>
+          <span className="shrink-0">
+            <StatusBadge
+              status={emailEnabled ? "healthy" : "disabled"}
+              aria-label={
+                emailEnabled
+                  ? "Email channel: on"
+                  : "Email channel: off"
+              }
+            >
+              <span aria-hidden>
+                {emailEnabled
+                  ? SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOn
+                  : SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOff}
+              </span>
+            </StatusBadge>
+          </span>
+        </header>
+
+        <div className="px-5 py-5 sm:px-6">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            noValidate
+            className="space-y-5 billing-no-print"
+          >
+            <input
+              type="hidden"
+              name="idempotency_key"
+              value={idempotencyKey}
+            />
+
+            <InlineMutationStatus
+              message={error ?? message}
+              variant={error ? "error" : "success"}
+              className="text-sm"
+            />
+
+            <div>
+              <label
+                htmlFor={emailRemindersId}
+                className="flex min-h-[44px] cursor-pointer items-center gap-3"
+              >
+                <input
+                  id={emailRemindersId}
+                  type="checkbox"
+                  className="ui-checkbox"
+                  name="emailEnabled"
+                  value="1"
+                  checked={emailEnabled}
+                  disabled={formDisabled}
+                  onChange={(ev) => handleEmailToggle(ev.target.checked)}
+                />
+                <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+                  {SETTINGS_NOTIFICATIONS_STRINGS.emailRemindersToggleLabel}
+                </span>
+              </label>
+            </div>
+
+            {!emailEnabled ? (
+              <p
+                role="note"
+                className="rounded-md border border-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,var(--surface-raised))] px-3 py-2 text-[12.5px] leading-relaxed text-[var(--warning-ink)]"
+              >
+                {SETTINGS_NOTIFICATIONS_STRINGS.channelOffBanner}
+              </p>
+            ) : null}
+
+            <fieldset
+              disabled={!emailEnabled || formDisabled}
+              className="min-w-0 space-y-6"
+            >
+              <legend className="sr-only">Reminder settings</legend>
+
+              <div>
+                <p className="ui-label" id={`${quietStartId}-legend`}>
+                  {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursLegend}
+                </p>
+                <div
+                  className="mt-2 flex flex-wrap items-center gap-3"
+                  role="group"
+                  aria-labelledby={`${quietStartId}-legend`}
+                >
+                  <input
+                    id={quietStartId}
+                    type="number"
+                    name="emailQuietStartUtc"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    min={0}
+                    max={23}
+                    step={1}
+                    pattern="\d{1,2}"
+                    placeholder="0–23"
+                    aria-label="Quiet hours start (0-23 UTC)"
+                    aria-describedby={quietCaptionId}
+                    value={quietStart}
+                    onChange={(ev) =>
+                      setQuietStart(hourValue(ev.target.value, 0))
+                    }
+                    onBlur={(ev) =>
+                      setQuietStart(hourValue(ev.target.value, 0))
+                    }
+                    className="ui-input w-20 tabular-nums sm:w-24"
+                  />
+                  <span
+                    aria-hidden
+                    className="text-[var(--text-tertiary)]"
+                  >
+                    →
+                  </span>
+                  <input
+                    id={quietEndId}
+                    type="number"
+                    name="emailQuietEndUtc"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    min={0}
+                    max={23}
+                    step={1}
+                    pattern="\d{1,2}"
+                    placeholder="0–23"
+                    aria-label="Quiet hours end (0-23 UTC)"
+                    aria-describedby={quietCaptionId}
+                    value={quietEnd}
+                    onChange={(ev) => setQuietEnd(hourValue(ev.target.value, 0))}
+                    onBlur={(ev) => setQuietEnd(hourValue(ev.target.value, 0))}
+                    className="ui-input w-20 tabular-nums sm:w-24"
+                  />
+                </div>
+                {quietHoursNoOp ? (
+                  <p
+                    id={quietCaptionId}
+                    className="ui-caps-3 mt-2 text-[var(--text-tertiary)]"
+                  >
+                    {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursNoneCaption}
+                  </p>
+                ) : (
+                  <span id={quietCaptionId} className="sr-only">
+                    {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursLegend}
+                  </span>
+                )}
+              </div>
+
+              <div
+                role="group"
+                aria-label={
+                  SETTINGS_NOTIFICATIONS_STRINGS.categoriesLegendSrOnly
+                }
+              >
+                {showCountChip ? (
+                  <p
+                    className="ui-caps-3 text-[var(--text-tertiary)]"
+                    aria-label={`${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`}
+                  >
+                    <span aria-hidden className="tabular-nums">
+                      {enabledReminderCount}/{totalReminderCount} enabled
+                    </span>
+                  </p>
+                ) : null}
+
+                <ul
+                  className={`${
+                    showCountChip ? "mt-3" : ""
+                  } divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]`}
+                >
+                  {reminderCategories.map((category) => {
+                    const checkboxId = `notif-${category.key}`;
+                    const checked = selectedCategories.has(
+                      category.key as NotificationCategoryKey
+                    );
+                    return (
+                      <li key={category.key} className="py-3.5">
+                        <label
+                          htmlFor={checkboxId}
+                          className="flex min-h-[44px] cursor-pointer items-start gap-3"
+                        >
+                          <input
+                            id={checkboxId}
+                            type="checkbox"
+                            className="ui-checkbox mt-0.5"
+                            name="notificationCategories"
+                            value={category.key}
+                            checked={checked}
+                            onChange={() =>
+                              toggleCategory(
+                                category.key as NotificationCategoryKey
+                              )
+                            }
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-[13.5px] font-semibold text-[var(--text-primary)]">
+                              {category.label}
+                            </span>
+                            <span className="mt-0.5 block text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                              {category.description}
+                            </span>
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  })}
+
+                  {digestCategory ? (
+                    <li
+                      key={digestCategory.key}
+                      className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] py-3.5 pt-4"
+                    >
+                      <label
+                        htmlFor={`notif-${digestCategory.key}`}
+                        className="flex min-h-[44px] cursor-pointer items-start gap-3"
+                      >
+                        <input
+                          id={`notif-${digestCategory.key}`}
+                          type="checkbox"
+                          className="ui-checkbox mt-0.5"
+                          name="notificationCategories"
+                          value={digestCategory.key}
+                          checked={selectedCategories.has(
+                            digestCategory.key as NotificationCategoryKey
+                          )}
+                          onChange={() =>
+                            toggleCategory(
+                              digestCategory.key as NotificationCategoryKey
+                            )
+                          }
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-[13.5px] font-semibold text-[var(--text-primary)]">
+                            {digestCategory.label}
+                          </span>
+                          <span className="mt-0.5 block text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                            {digestCategory.description}
+                          </span>
+                        </span>
+                      </label>
+                    </li>
+                  ) : null}
+                </ul>
+              </div>
+            </fieldset>
+
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+              {isDirty && canEdit ? (
+                <button
+                  type="button"
+                  onClick={handleDiscard}
+                  className="ui-btn-ghost inline-flex items-center justify-center gap-1 rounded-full px-4 py-2 text-sm"
+                  aria-label={SETTINGS_NOTIFICATIONS_STRINGS.discardAnnouncement}
+                >
+                  {SETTINGS_NOTIFICATIONS_STRINGS.discardLabel}
+                </button>
+              ) : null}
+              <button
+                type="submit"
+                title={canEdit ? "Save (⌘S)" : undefined}
+                className="ui-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm billing-no-print disabled:cursor-not-allowed disabled:opacity-50"
+                aria-disabled={pending || !isDirty || formDisabled}
+                disabled={!isDirty || formDisabled}
+              >
+                {pending ? (
+                  <>
+                    <Loader2
+                      className="h-4 w-4 motion-safe:animate-spin"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                    <span>Saving…</span>
+                  </>
+                ) : (
+                  SETTINGS_NOTIFICATIONS_STRINGS.saveLabel
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Obligation templates</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createObligationTemplateForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="contractType" required placeholder="MSA" className="ui-input" />
-            <input name="title" required placeholder="Quarterly usage report" className="ui-input" />
-            <input name="obligationType" placeholder="reporting" className="ui-input" />
-            <input name="cadence" placeholder="quarterly" className="ui-input" />
-            <input name="dueOffsetDays" type="number" min={0} placeholder="30" className="ui-input" />
-            <textarea name="details" placeholder="Evidence and delivery requirements." className="ui-input md:col-span-2 min-h-[70px]" />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add template
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(templates ?? []).map((t) => (
-              <li key={t.id} className="ui-support-panel px-3 py-2 text-sm">
-                {t.contract_type} · {t.title} · {t.obligation_type}
-                {t.cadence ? ` · ${t.cadence}` : ""}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="ui-surface-tint px-6 py-4">
-          <h2 className="ui-section-title text-base">Webhook subscriptions</h2>
-        </div>
-        <div className="space-y-4 p-6">
-          <form action={createWebhookSubscriptionForm as never} className="grid gap-3 md:grid-cols-2">
-            <input name="url" required placeholder="https://your-system.example/webhooks" className="ui-input md:col-span-2" />
-            <input name="secret" required placeholder="webhook signing secret" className="ui-input" />
-            <input name="events" placeholder="contract.created,reminder.due" className="ui-input" />
-            <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px] md:col-span-2">
-              Add webhook
-            </button>
-          </form>
-          <ul className="space-y-2">
-            {(webhooks ?? []).map((wh) => (
-              <li key={wh.id} className="ui-support-panel flex items-center justify-between px-3 py-2 text-sm">
-                <span className="truncate pr-3">{wh.url}</span>
-                <form action={toggleWebhookSubscriptionForm.bind(null, wh.id, !wh.active) as never}>
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    {wh.active ? "Disable" : "Enable"}
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-          <Link href="/settings" className="ui-link text-sm">
-            Back to settings
-          </Link>
-        </div>
-      </section>
+      <Link
+        href="/settings/account#notifications"
+        aria-label={SETTINGS_NOTIFICATIONS_STRINGS.sections.personalPreferences}
+        className="group flex min-h-[56px] flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-2.5 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+      >
+        <span
+          aria-hidden
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)]"
+        >
+          <UserRound className="h-3.5 w-3.5" strokeWidth={1.85} />
+        </span>
+        <span className="text-[13.5px] font-medium text-[var(--text-primary)]">
+          {SETTINGS_NOTIFICATIONS_STRINGS.perUserCta}
+        </span>
+        <ChevronRight
+          className="ml-auto h-4 w-4 text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+          strokeWidth={2}
+          aria-hidden
+        />
+      </Link>
     </div>
   );
 }

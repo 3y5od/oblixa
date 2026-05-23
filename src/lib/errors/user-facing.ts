@@ -1,6 +1,18 @@
 /**
  * Map database / Supabase errors to safe, user-readable strings.
  */
+const AUTH_SERVICE_UNAVAILABLE_MESSAGE =
+  "Authentication is temporarily unavailable. Try again in a few minutes.";
+
+type AuthErrorInput =
+  | string
+  | {
+      message?: unknown;
+      status?: unknown;
+      name?: unknown;
+      code?: unknown;
+    };
+
 export function mapDataSourceError(message: string): string {
   const lower = message.toLowerCase();
   if (
@@ -42,8 +54,37 @@ function looksLikeTechnicalDump(raw: string): boolean {
 }
 
 /** Supabase Auth errors — keep safe messages, soften harsh internals */
-export function mapAuthError(message: string): string {
+export function mapAuthError(error: AuthErrorInput): string {
+  const message = typeof error === "string"
+    ? error
+    : typeof error.message === "string"
+      ? error.message
+      : String(error.message ?? "");
+  const status = typeof error === "object" && error && typeof error.status === "number"
+    ? error.status
+    : undefined;
+  const name = typeof error === "object" && error && typeof error.name === "string"
+    ? error.name
+    : "";
+  const code = typeof error === "object" && error && typeof error.code === "string"
+    ? error.code
+    : "";
   const lower = message.toLowerCase();
+  if (
+    (typeof status === "number" && status >= 500) ||
+    message.trim() === "{}" ||
+    name.toLowerCase().includes("retryable") ||
+    code.toLowerCase().includes("retryable") ||
+    lower.includes("fetch failed") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("aborted") ||
+    lower.includes("service temporarily unavailable") ||
+    /\b5(?:02|03|04|20|21|22|23|24|30)\b/.test(lower)
+  ) {
+    return AUTH_SERVICE_UNAVAILABLE_MESSAGE;
+  }
   if (lower.includes("invalid login credentials")) {
     return "Invalid email or password.";
   }

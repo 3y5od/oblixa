@@ -60,10 +60,10 @@ describe("getCmdkSearchJumpItems", () => {
 
   it("routes core queue jumps to the exact actionable destinations", () => {
     const items = getCmdkSearchJumpItems(surface({}), "");
-    expect(items.find((i) => i.id === "search-jump:tasks")?.href).toBe("/work#tasks");
-    expect(items.find((i) => i.id === "search-jump:tasks")?.meta).toBe("Work queue · tasks lens");
-    expect(items.find((i) => i.id === "search-jump:approvals")?.href).toBe("/work#approvals");
-    expect(items.find((i) => i.id === "search-jump:obligations")?.href).toBe("/work#obligations");
+    expect(items.find((i) => i.id === "search-jump:tasks")?.href).toBe("/work?type=contract_task");
+    expect(items.find((i) => i.id === "search-jump:tasks")?.meta).toBe("Work · task filter");
+    expect(items.find((i) => i.id === "search-jump:approvals")?.href).toBe("/work?tab=approvals");
+    expect(items.find((i) => i.id === "search-jump:obligations")?.href).toBe("/work?tab=obligations");
     expect(items.find((i) => i.id === "search-jump:exceptions")?.href).toBe(
       "/contracts/exceptions?status=open"
     );
@@ -71,7 +71,7 @@ describe("getCmdkSearchJumpItems", () => {
       "/contracts/evidence-studio#live-request-queue"
     );
     expect(items.find((i) => i.id === "search-jump:renewals")?.href).toBe(
-      "/contracts/renewals?horizon=renewal_90"
+      "/contracts/renewals?window=90"
     );
   });
 

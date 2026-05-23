@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { AlertCircle } from "lucide-react";
+import { AlertOctagon } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function RootError({
   error,
@@ -24,12 +24,13 @@ export default function RootError({
 
   return (
     <RouteStatePanel
-      eyebrow="Error"
+      eyebrow="System notice"
       title="This page could not load"
       copy="Try again now. If the problem keeps happening, return to the dashboard or home page before reopening this workflow."
       digest={error.digest}
-      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.75} />}
+      icon={<AlertOctagon className="h-6 w-6" strokeWidth={1.65} />}
       shellClassName="bg-canvas"
+      cardClassName="ui-hero-shell max-w-xl"
       actions={
         <>
           <button type="button" onClick={() => unstable_retry()} className="ui-btn-primary px-5 py-2.5">

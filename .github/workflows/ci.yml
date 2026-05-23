@@ -12,20 +12,7 @@ concurrency:
 permissions:
   contents: read
 
-# Repo Actions secrets injected into every job env (individual jobs still gate on presence where needed).
-# Machine-readable matrix: artifacts/ci-secret-job-matrix.json
-env:
-  E2E_ONBOARDING_FULL: ${{ secrets.E2E_ONBOARDING_FULL }}
-  STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
-  CRON_SECRET: ${{ secrets.CRON_SECRET }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-  COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
-  COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
-  HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
-  REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
-  REQUIRE_RUNTIME_COMPREHENSIVE: ${{ vars.REQUIRE_RUNTIME_COMPREHENSIVE }}
+# Keep repository secrets scoped to the smallest job or step that needs them.
 
 jobs:
   # Split so static analysis + unit tests overlap with build + E2E (wall-clock win on CI).
@@ -36,6 +23,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
@@ -57,12 +46,17 @@ jobs:
       - name: SBOM diff / VEX stub gate
         run: npm run check:sbom-diff
 
+      - name: Supply-chain static enforcement contracts
+        run: npm run check:dependency-policy && npm run check:npm-script-integrity && npm run check:npm-lifecycle && npm run check:install-script-risk && npm run check:executable-masquerade-guards && npm run check:dynamic-import-specifiers && npm run check:test-fixture-secrets && npm run check:ci-artifact-secret-leakage && npm run check:codeowners-security-paths
+
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: cyclonedx-sbom
           path: cyclonedx-sbom.json
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
       - name: Dependency risk summary (telemetry)
         if: ${{ always() }}
@@ -81,7 +75,10 @@ jobs:
         run: npm run check:api-runtime-smoke-registry
 
       - name: Strict route contract gates
-        run: npm run check:route-functionality && npm run check:openapi-spec-contract && npm run check:api-problem-json && npm run check:middleware-vercel-metadata
+        run: npm run check:route-functionality && npm run check:openapi-spec-contract && npm run check:api-problem-json && npm run check:auth-error-consistency && npm run check:middleware-vercel-metadata
+
+      - name: API CORS policy
+        run: npm run check:api-cors-policy
 
       - name: Maximal assurance scaffolding (plan snapshot, epics, waivers, catalog index)
         run: npm run check:maximal-assurance-scaffolding
@@ -110,6 +107,9 @@ jobs:
       - name: Library createAdminClient allowlist
         run: npm run check:server-lib-admin
 
+      - name: Role capability inventory
+        run: npm run check:role-capability-inventory
+
       - name: Tracked secrets and coverage hygiene
         run: npm run check:tracked-secrets-hygiene
 
@@ -137,6 +137,12 @@ jobs:
       - name: Session lifecycle security contract
         run: npm run check:session-lifecycle-security
 
+      - name: Auth callback guardrails
+        run: npm run check:auth-callback-guardrails
+
+      - name: Sensitive action step-up contract
+        run: npm run check:sensitive-action-step-up
+
       - name: Open redirect guard contract
         run: npm run check:open-redirect-guards
 
@@ -145,6 +151,9 @@ jobs:
 
       - name: Trusted host handling contract
         run: npm run check:trusted-host-handling
+
+      - name: Forwarded header safety contract
+        run: npm run check:forwarded-header-safety
 
       - name: OAuth state integrity contract
         run: npm run check:oauth-state-integrity
@@ -158,11 +167,20 @@ jobs:
       - name: Origin / referrer enforcement contract
         run: npm run check:origin-referrer-enforcement
 
+      - name: Sensitive URL propagation contract
+        run: npm run check:sensitive-url-propagation
+
       - name: CSRF surface guard contract
         run: npm run check:csrf-surface-guards
 
+      - name: Input validation policy contract
+        run: npm run check:json-body-limited-adoption && npm run check:input-validation-policy
+
       - name: HTTP method policy contract
         run: npm run check:http-method-policy
+
+      - name: Method override abuse contract
+        run: npm run check:method-override-abuse
 
       - name: Storage path safety contract
         run: npm run check:storage-path-safety
@@ -172,6 +190,15 @@ jobs:
 
       - name: Upload security guard contract
         run: npm run check:upload-security-guards
+
+      - name: Parser risk controls
+        run: npm run check:parser-risk-controls
+
+      - name: Decompression bomb guards
+        run: npm run check:decompression-bomb-guards
+
+      - name: Export security guard contract
+        run: npm run check:export-security-guards
 
       - name: Account recovery abuse guard contract
         run: npm run check:account-recovery-abuse-guards
@@ -184,6 +211,9 @@ jobs:
 
       - name: Inbound identity boundary contract
         run: npm run check:inbound-identity-boundaries
+
+      - name: Webhook inbound policy contract
+        run: npm run check:webhook-inbound-policy
 
       - name: Internal API boundary contract
         run: npm run check:internal-api-boundaries
@@ -203,6 +233,12 @@ jobs:
       - name: Signed request freshness contract
         run: npm run check:signed-request-freshness
 
+      - name: Public token policy contract
+        run: npm run check:public-token-policy
+
+      - name: Public token negative coverage contract
+        run: npm run check:public-token-negative-tests
+
       - name: Duplicate execution policy contract
         run: npm run check:duplicate-execution-policy
 
@@ -218,11 +254,23 @@ jobs:
       - name: Notification payload scrub contract
         run: npm run check:notification-payload-scrub-contract
 
+      - name: Logging telemetry redaction contract
+        run: npm run check:logging-telemetry-redaction
+
+      - name: Persistence redaction contract
+        run: npm run check:persistence-redaction
+
+      - name: AI boundary contract
+        run: npm run check:ai-boundary-contract
+
       - name: Security headers contract
-        run: npm run check:security-headers
+        run: npm run check:security-headers && npm run check:csp-nonce-hash-consistency
 
       - name: Security audit event contract
         run: npm run check:security-event-contract
+
+      - name: Audit event coverage contract
+        run: npm run check:audit-event-coverage
 
       - name: Sensitive cache-control contract
         run: npm run check:sensitive-cache-controls
@@ -236,11 +284,17 @@ jobs:
       - name: NEXT_PUBLIC surface hygiene
         run: npm run check:next-public-surface
 
+      - name: Client bundle secret leakage
+        run: npm run check:client-bundle-secret-leakage
+
       - name: Unsafe deserialization import grep
         run: npm run check:unsafe-deserialization
 
       - name: dangerouslySetInnerHTML allowlist
         run: npm run check:dangerously-set-inner-html
+
+      - name: XSS and client exposure contract
+        run: npm run check:xss-client-exposure && npm run check:client-storage-sensitivity
 
       - name: Supply-chain external waiver registry
         run: npm run check:supply-chain-waivers
@@ -275,28 +329,61 @@ jobs:
         run: npm run check:refinement-acceptance-commands
 
       - name: Migration prefix guard
-        run: npm run check:migrations
+        run: npm run check:migrations:strict
 
       - name: API route auth contract
         run: npm run check:api-route-auth-contract
 
+      - name: API route guard normalization
+        run: npm run check:api-route-guard-normalization
+
       - name: API route auth inventory path index
         run: npm run check:api-route-auth-route-index
 
+      - name: Generated security artifact drift gates
+        run: npm run check:route-universe && npm run check:catalog-script-index && npm run check:assurance-epics-registry && npm run check:assurance-catalog-drift && npm run check:e2e-generated-drift
+
       - name: Security route matrix, proxy matrix, program checks, SEC coverage gate
-        run: npm run report:security-route-matrix && npm run report:security-proxy-matrix && npm run build:security-control-coverage-matrix && npm run check:autonomous-security-program && npm run check:security-control-coverage && npm run check:security-fetch-sinks:strict
+        run: npm run check:security-route-matrix && npm run report:security-proxy-matrix && npm run build:security-control-coverage-matrix && npm run check:security-report-checksums && npm run check:generated-artifact-hygiene && npm run check:autonomous-security-program && npm run check:security-control-coverage && npm run check:security-fetch-sinks:strict
 
       - name: API route admin org-scope contract
         run: npm run check:api-route-admin-org-scope
 
+      - name: API tenant isolation contract
+        run: npm run check:api-tenant-isolation
+
+      - name: RLS tenant table sanity contract
+        run: npm run check:rls-sanity-tables && npm run check:tenant-table-schema-constraints
+
+      - name: RLS policy drift contract
+        run: npm run check:rls-policy-drift
+
+      - name: SQL definer/invoker inventory
+        run: npm run check:sql-definer-invoker-inventory
+
+      - name: SQL definer and invoker security contract
+        run: npm run check:sql-security-migrations-bundle
+
+      - name: RLS smoke runner
+        run: npm run test:rls-smoke
+
       - name: Server action exports (no sync exports in use server)
         run: npm run check:server-action-exports
+
+      - name: Server actions inventory
+        run: npm run check:server-actions-inventory
 
       - name: Server action auth contract
         run: npm run check:server-action-auth-contract
 
       - name: Server action org-scope contract
         run: npm run check:server-action-org-scope
+
+      - name: Deterministic org resolution guard
+        run: npm run check:deterministic-org-resolution
+
+      - name: Server action negative-test inventory
+        run: npm run check:server-action-negative-tests
 
       - name: API route test coverage (explicit guardrail)
         run: npm run check:api-route-tests
@@ -328,6 +415,12 @@ jobs:
       - name: Check integrity meta-governance
         run: npm run check:checks-integrity-meta
 
+      - name: Documentation runtime dependency guard
+        run: npm run check:documentation-runtime-dependencies
+
+      - name: Allowlist metadata governance
+        run: npm run check:allowlist-metadata
+
       - name: Branch-protection drift check
         run: npm run check:branch-protection-drift
 
@@ -336,6 +429,15 @@ jobs:
 
       - name: Security env contract
         run: npm run check:security-env-contract
+
+      - name: Release security required env
+        run: npm run check:release-security-required-env
+
+      - name: Security fallback paths
+        run: npm run check:security-fallback-paths
+
+      - name: Secrets env token quality contract
+        run: npm run check:secrets-env-token-quality
 
       - name: Required security checkset
         run: npm run check:required-security-checkset
@@ -364,14 +466,32 @@ jobs:
       - name: Rate-limit distribution safety
         run: npm run check:rate-limit-distribution-safety
 
+      - name: Rate-limit key cardinality
+        run: npm run check:rate-limit-key-cardinality
+
       - name: Idempotency policy
         run: npm run check:idempotency-policy
 
       - name: Job lock guards
         run: npm run check:job-lock-guards
 
+      - name: Mutation and stale-write guards
+        run: npm run check:mutation-race-safety && npm run check:stale-write-guards && npm run check:terminal-state-guards
+
       - name: Timeout budget guards
-        run: npm run check:timeout-budget-guards
+        run: npm run check:timeout-budget-guards && npm run check:pagination-guardrails && npm run check:response-size-guards
+
+      - name: Circuit breaker and stream payload guards
+        run: npm run check:circuit-breaker-policy && npm run check:stream-payload-sensitivity
+
+      - name: Retention policy contract
+        run: npm run check:retention-policy
+
+      - name: Privacy inventory contract
+        run: npm run check:privacy-inventory
+
+      - name: Concurrency cap guards
+        run: npm run check:concurrency-cap-guards
 
       - name: Governance owner summary (telemetry)
         run: npm run report:governance-owners
@@ -387,6 +507,9 @@ jobs:
 
       - name: Cron route auth coverage (explicit guardrail)
         run: npm run check:cron-route-auth
+
+      - name: Scheduled cron route wrapper coverage
+        run: npm run check:scheduled-cron-route-wrappers
 
       - name: Vercel cron paths vs canary map parity
         run: npm run check:vercel-cron-canary-parity
@@ -475,6 +598,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
@@ -500,6 +625,8 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -529,15 +656,17 @@ jobs:
     env:
       PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
       PLAYWRIGHT_JSON_REPORT: test-results/playwright-report.json
-      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
-      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - name: Gate E2E (authenticated credentials)
         id: gate_e2e
         env:
           REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: |
           bash scripts/github-actions/secret-gate.sh "quality_build_e2e" "REQUIRE_CI_E2E_AUTH" "E2E_TEST_EMAIL,E2E_TEST_PASSWORD"
 
@@ -586,6 +715,8 @@ jobs:
           name: autonomous-perf-run
           path: artifacts/autonomous-perf-run.json
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
       - name: Install Playwright Chromium
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
@@ -593,18 +724,30 @@ jobs:
 
       - name: Playwright smoke
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:smoke
 
       - name: Playwright V10 release smoke
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:v10
 
       - name: Playwright accessibility lanes
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:a11y
 
       - name: Playwright visual baselines (public/external)
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:visual
 
       - name: Playwright stability telemetry
@@ -639,6 +782,8 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -678,6 +823,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -685,7 +832,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Governance checks
-        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity && npm run check:gitleaks-allowlist
+        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:static-check-determinism && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity && npm run check:gitleaks-allowlist
       - name: Workflow and command integrity
         run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction && npm run check:tier-coverage:strict && npm run check:workflow-tier-coverage:strict
 
@@ -696,6 +843,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -721,8 +870,6 @@ jobs:
     timeout-minutes: 40
     env:
       PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
-      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
-      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
       E2E_ONBOARDING_BLOCKING: "1"
       E2E_ONBOARDING_A11Y: "1"
       E2E_ONBOARDING_EXPORT: "1"
@@ -730,18 +877,19 @@ jobs:
     steps:
       - name: Gate onboarding full run
         id: gate_onboarding
+        env:
+          REQUIRE_CI_ONBOARDING_FULL: ${{ vars.REQUIRE_CI_ONBOARDING_FULL }}
+          E2E_ONBOARDING_FULL: ${{ secrets.E2E_ONBOARDING_FULL }}
         run: |
-          if [ -n "$E2E_ONBOARDING_FULL" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          fi
+          bash scripts/github-actions/secret-gate.sh "quality_e2e_onboarding_full flag" "REQUIRE_CI_ONBOARDING_FULL" "E2E_ONBOARDING_FULL"
 
       - name: Skip onboarding full run (flag disabled)
         if: ${{ steps.gate_onboarding.outputs.run != 'true' }}
         run: echo "Skipping onboarding full run because E2E_ONBOARDING_FULL is not set."
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
         if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
 
       - name: Gate onboarding authenticated credentials
@@ -749,6 +897,8 @@ jobs:
         if: ${{ steps.gate_onboarding.outputs.run == 'true' }}
         env:
           REQUIRE_CI_E2E_AUTH: ${{ vars.REQUIRE_CI_E2E_AUTH }}
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: |
           bash scripts/github-actions/secret-gate.sh "quality_e2e_onboarding_full" "REQUIRE_CI_E2E_AUTH" "E2E_TEST_EMAIL,E2E_TEST_PASSWORD"
 
@@ -785,10 +935,16 @@ jobs:
 
       - name: Onboarding deep E2E (multi-browser)
         if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:onboarding-deep
 
       - name: Multi-browser public smoke
         if: ${{ steps.gate_onboarding.outputs.run == 'true' && steps.gate_onboarding_auth.outputs.run == 'true' }}
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:multi-browser
 
   # Opt-in: set `if: true` (or gate on `vars`) to run four-way autodiscovered `check:*` shards (complements quality_static_*).
@@ -805,6 +961,8 @@ jobs:
         shard_index: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -820,6 +978,7 @@ jobs:
   # Single gate for branch protection / downstream jobs (parallel work happens in quality_*).
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [quality_static_security, quality_static_surface, quality_static_governance, quality_static_codehealth, quality_unit, quality_security]
     steps:
       - name: All checks passed
@@ -833,11 +992,20 @@ jobs:
     needs: quality
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - name: Gate runtime comprehensive pass
         id: gate_runtime
         env:
           REQUIRE_RUNTIME_COMPREHENSIVE: ${{ vars.REQUIRE_RUNTIME_COMPREHENSIVE }}
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          COMPREHENSIVE_PASS_EMAIL: ${{ secrets.COMPREHENSIVE_PASS_EMAIL }}
+          COMPREHENSIVE_PASS_PASSWORD: ${{ secrets.COMPREHENSIVE_PASS_PASSWORD }}
         run: |
           bash scripts/github-actions/secret-gate.sh "runtime_comprehensive_pass" "REQUIRE_RUNTIME_COMPREHENSIVE" "STAGING_BASE_URL,CRON_SECRET,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,COMPREHENSIVE_PASS_EMAIL,COMPREHENSIVE_PASS_PASSWORD"
 
@@ -862,6 +1030,8 @@ jobs:
 
       - name: Healthchecks start
         if: ${{ steps.gate_runtime.outputs.run == 'true' }}
+        env:
+          HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
         run: |
           if [ -n "$HC_RUNTIME_COMPREHENSIVE_PING" ]; then
             curl -fsS -m 10 "$HC_RUNTIME_COMPREHENSIVE_PING/start"
@@ -915,6 +1085,8 @@ jobs:
 
       - name: Healthchecks success
         if: ${{ steps.gate_runtime.outputs.run == 'true' && success() }}
+        env:
+          HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
         run: |
           if [ -n "$HC_RUNTIME_COMPREHENSIVE_PING" ]; then
             curl -fsS -m 10 "$HC_RUNTIME_COMPREHENSIVE_PING"
@@ -922,6 +1094,8 @@ jobs:
 
       - name: Healthchecks fail
         if: ${{ steps.gate_runtime.outputs.run == 'true' && failure() }}
+        env:
+          HC_RUNTIME_COMPREHENSIVE_PING: ${{ secrets.HC_RUNTIME_COMPREHENSIVE_PING }}
         run: |
           if [ -n "$HC_RUNTIME_COMPREHENSIVE_PING" ]; then
             curl -fsS -m 10 "$HC_RUNTIME_COMPREHENSIVE_PING/fail"

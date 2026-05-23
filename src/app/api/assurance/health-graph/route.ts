@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { listHealthGraph } from "@/lib/v6/assurance";
 import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/v6/health-graph-paths";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/assurance/health-graph";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -21,12 +25,27 @@ export async function GET() {
   });
   if (modeGate) return modeGate;
 
+  void recordApiRouteAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_health_graph_total", 1).catch(
     () => undefined
   );
 
   const { nodes, edges, error } = await listHealthGraph(ctx.admin, ctx.orgId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "health_graph_list_failed",
+      diagnostic_id: "health_graph_list_failed",
+      route: ROUTE,
+    });
+  }
   type NodeRow = { id: string; node_type: string; node_ref_id: string; label?: string | null };
   type EdgeRow = {
     id: string;

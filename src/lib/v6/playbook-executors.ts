@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { AdminClient } from "@/lib/v6/service";
 import { createRow } from "@/lib/v6/service";
-import { nowIso } from "@/lib/v5/api";
+import { externalActionTokenStorageFields, nowIso } from "@/lib/v5/api";
 
 export type PlaybookExecutionContext = {
   sourceFindingId?: string | null;
@@ -89,8 +89,9 @@ export async function executePlaybookSideEffects(
       break;
     }
     case "request_evidence_refresh": {
+      const token = `pb-${randomUUID()}`;
       const link = await createRow(admin, "external_action_links", orgId, {
-        token: `pb-${randomUUID()}`,
+        ...externalActionTokenStorageFields(token),
         action_type: "evidence_refresh_loop",
         status: "open",
         expires_at: daysFromNow(7),
@@ -180,8 +181,9 @@ export async function executePlaybookSideEffects(
       break;
     }
     case "send_bounded_external_request": {
+      const token = `pb-${randomUUID()}`;
       const link = await createRow(admin, "external_action_links", orgId, {
-        token: `pb-${randomUUID()}`,
+        ...externalActionTokenStorageFields(token),
         action_type: "bounded_request",
         status: "open",
         expires_at: daysFromNow(Number(executionTemplate.expires_days) || 14),

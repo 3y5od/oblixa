@@ -19,7 +19,7 @@ export default function ContractsAnalyticsLoading() {
           ))}
         </div>
         <LoadingCard>
-          <div className="ui-skeleton h-80 w-full rounded-[1.25rem]" />
+          <div className="ui-skeleton h-80 w-full rounded-xl" />
         </LoadingCard>
       </div>
     </>

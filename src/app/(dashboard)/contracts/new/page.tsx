@@ -1,5 +1,13 @@
 import Link from "next/link";
+import {
+  CalendarClock,
+  ClipboardCheck,
+  FileCheck2,
+  FilePlus2,
+  UploadCloud,
+} from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UploadForm } from "@/components/contracts/upload-form";
 import { RecentUploads, type RecentFileRow } from "@/components/contracts/recent-uploads";
 import { canEditContracts } from "@/lib/permissions";
@@ -52,71 +60,87 @@ export default async function NewContractPage() {
       contract_title: c.title,
     };
   });
+  // v23 aesthetic pass: dropped per-step description prose (§10.7 +
+  // §10.4) — the numbered step label is enough; the multi-sentence
+  // explainer added noise without information.
+  const nextSteps = [
+    { label: "Review extracted fields", icon: ClipboardCheck },
+    { label: "Assign ownership", icon: FileCheck2 },
+    { label: "Track dates and follow-up", icon: CalendarClock },
+  ];
 
   return (
-    <div className="ui-page-stack mx-auto max-w-6xl">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">New record</p>
-          <h1 className="ui-display-title mt-2">Upload contract</h1>
-          <p className="ui-muted-tight mt-3 max-w-2xl">
-            Start a new operational record with files and core metadata. After saving, run AI extraction from
-            the contract detail page and move into review.
-          </p>
-        </div>
-        <div className="ui-page-actions">
-          <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
+    <div className="ui-page-stack mx-auto max-w-7xl">
+      <DashboardPageHeader
+        icon={<FilePlus2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="New record"
+        title="Upload contract"
+        // v23: dropped the long page lead. The h1 + eyebrow + the form
+        // chrome below carry sufficient context; the prose sentence
+        // duplicated the form's section h2 + lead and pushed the form
+        // ~80px down the page (§10.4 + §10.7).
+        lead={null}
+        actions={
+          <Link
+            href="/contracts"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
             Back to contracts
           </Link>
-        </div>
-      </header>
+        }
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_minmax(0,0.9fr)]">
-        <section className="space-y-6">
-          <div className="ui-card-hero p-6 sm:p-8">
-            <p className="ui-eyebrow">Input workflow</p>
-            <h2 className="mt-3 text-[1.55rem] font-semibold tracking-tight text-[var(--text-primary)]">
-              Create a reliable operational record from the start
-            </h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {[
-                "Upload signed PDFs or DOCX files",
-                "Capture counterparty and type metadata",
-                "Run extraction and review from the detail view",
-              ].map((item, index) => (
-                <div key={item} className="ui-card-quiet p-4">
-                  <p className="ui-kicker">Step {index + 1}</p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="ui-card p-6 md:p-8">
-            <UploadForm
-              organizationId={ctx.orgId}
-              disabled={!!disabledReason}
-              disabledReason={disabledReason}
-            />
-            {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
-              <p className="mt-4 text-center text-sm">
-                <Link href="/settings/billing" className="ui-link">
-                  Go to Billing
-                </Link>
-              </p>
-            )}
-          </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <section className="min-w-0">
+          <UploadForm
+            organizationId={ctx.orgId}
+            disabled={!!disabledReason}
+            disabledReason={disabledReason}
+          />
+          {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
+            <p className="mt-4 text-center text-sm">
+              <Link href="/settings/billing" className="ui-link">
+                Go to Billing
+              </Link>
+            </p>
+          )}
         </section>
 
-        <aside className="space-y-6">
-          <div className="ui-card p-5">
-            <p className="ui-eyebrow">From email</p>
-            <h2 className="ui-section-title mt-2 text-xl">Bring in signed files deliberately</h2>
-            <p className="ui-muted-tight mt-2">
-              Save PDF or DOCX attachments locally, then upload here. No inbox integration in this version, which
-              keeps the trust loop explicit and review-friendly.
-            </p>
-          </div>
+        <aside className="space-y-4 lg:sticky lg:top-24">
+          <section className="ui-card p-5">
+            <p className="ui-eyebrow">Next steps</p>
+            <h2 className="ui-section-title mt-2 text-[1.05rem]">After creation</h2>
+            <ol className="mt-4 space-y-2.5">
+              {nextSteps.map((step, index) => {
+                const StepIcon = step.icon;
+                return (
+                  <li key={step.label} className="flex items-center gap-3">
+                    <span className="ui-icon-tile-compact shrink-0" aria-hidden>
+                      <StepIcon className="h-4 w-4" strokeWidth={1.85} />
+                    </span>
+                    <p className="min-w-0 text-[13px] font-medium text-[var(--text-primary)]">
+                      <span className="mr-1.5 tabular-nums text-[var(--text-tertiary)]">
+                        {index + 1}
+                      </span>
+                      {step.label}
+                    </p>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+
+          <section className="ui-card p-5">
+            <p className="ui-eyebrow">Bulk import</p>
+            <h2 className="ui-section-title mt-2 text-[1.05rem]">Migrate a spreadsheet</h2>
+            <Link
+              href="/contracts/bulk"
+              className="ui-btn-ghost mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              Import CSV
+            </Link>
+          </section>
 
           <RecentUploads files={recentFiles} />
         </aside>

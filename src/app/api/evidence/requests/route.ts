@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
+import { parseIsoTimestampParam } from "@/lib/security/validation";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/v10-mutation-envelope";
@@ -15,6 +16,7 @@ import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const MAX_REQUIRED_NOTE_LENGTH = 500;
 const MAX_ALLOWED_FILE_TYPES = 10;
+const EVIDENCE_REQUEST_DUE_AT_WINDOW_DAYS = 366;
 
 function v10MutationStatus(outcome: string, successStatus = 200): number {
   if (outcome === "success") return successStatus;
@@ -58,14 +60,6 @@ export async function POST(request: Request) {
       nextDestinationHref: "/login",
     });
   }
-  const modeGate = await requireApiWorkspaceEligibility({
-    admin: ctx.admin,
-    orgId: ctx.orgId,
-    role: ctx.role,
-    apiPath: "/api/evidence/requests",
-    v10MutationResponse: true,
-  });
-  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return v10ErrorResponse({
       outcome: "forbidden",
@@ -74,6 +68,14 @@ export async function POST(request: Request) {
       nextDestinationHref: "/contracts",
     });
   }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/evidence/requests",
+    v10MutationResponse: true,
+  });
+  if (modeGate) return modeGate;
 
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
   const sourceType = String(body.sourceType ?? "contract").trim() || "contract";
   const sourceId = String(body.sourceId ?? contractId).trim() || contractId;
   const responderEmail = String(body.responderEmail ?? "").trim();
-  const dueAt = String(body.dueAt ?? "").trim() || null;
+  const dueAtRaw = String(body.dueAt ?? "").trim() || null;
   const requiredNote = String(body.requiredNote ?? "").trim();
   const allowedFileTypes = normalizeAllowedFileTypes(body.allowedFileTypes);
 
@@ -126,21 +128,30 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(response, buildV10MutationResponseInit(response, { headers: PRIVATE_NO_STORE_HEADERS }));
   }
-  if (dueAt && Number.isNaN(Date.parse(dueAt))) {
-    const response = buildV10MutationResponse({
-      outcome: "validation_failed",
-      message: "dueAt must be a valid date.",
-      diagnosticId: "v10_evidence_request_due_at_invalid",
-      validationFailures: [
-        {
-          field: "dueAt",
-          code: "invalid_date",
-          user_visible_message: "Use a valid due date.",
-          self_fixable: true,
-        },
-      ],
+  let dueAt: string | null = null;
+  if (dueAtRaw) {
+    const parsedDueAt = parseIsoTimestampParam(dueAtRaw, {
+      maxLookbackDays: EVIDENCE_REQUEST_DUE_AT_WINDOW_DAYS,
+      maxFutureSkewMinutes: EVIDENCE_REQUEST_DUE_AT_WINDOW_DAYS * 24 * 60,
     });
-    return NextResponse.json(response, buildV10MutationResponseInit(response, { headers: PRIVATE_NO_STORE_HEADERS }));
+    if (parsedDueAt.ok) {
+      dueAt = parsedDueAt.value ?? null;
+    } else {
+      const response = buildV10MutationResponse({
+        outcome: "validation_failed",
+        message: "dueAt must be a valid UTC ISO timestamp within the allowed date window.",
+        diagnosticId: "v10_evidence_request_due_at_invalid",
+        validationFailures: [
+          {
+            field: "dueAt",
+            code: "invalid_date",
+            user_visible_message: "Use a valid due date.",
+            self_fixable: true,
+          },
+        ],
+      });
+      return NextResponse.json(response, buildV10MutationResponseInit(response, { headers: PRIVATE_NO_STORE_HEADERS }));
+    }
   }
 
   const { data: contract } = await ctx.admin
@@ -188,14 +199,20 @@ export async function POST(request: Request) {
         .insert({
           organization_id: ctx.orgId,
           contract_id: contractId,
+          work_item_type: sourceType,
+          work_item_id: sourceId,
+          requirement_type: "document",
           title: requiredNote,
           status: "required",
           reviewer_id: ctx.userId,
           due_at: dueAt,
+          review_due_at: dueAt,
           required: true,
           config_json: {
             source_type: sourceType,
             source_id: sourceId,
+            required_note: true,
+            requirement_title_state: requiredNote ? "provided" : "not_provided",
             responder_email_state: responderEmail ? "provided" : "not_provided",
             allowed_file_types: allowedFileTypes,
           },

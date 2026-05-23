@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "metadataDefaults": {
+    "reviewedOn": "2026-05-11",
+    "compensatingTest": "scripts/check-install-script-risk.mjs"
+  },
+  "entries": [
+    {
+      "path": "node_modules/@sentry/cli",
+      "name": "@sentry/cli",
+      "version": "2.58.5",
+      "owner": "security",
+      "reason": "Sentry CLI package declares an install script for its platform binary; usage is reviewed through Sentry release tooling and lockfile pinning.",
+      "expiresOn": "2027-05-10"
+    },
+    {
+      "path": "node_modules/fsevents",
+      "name": "fsevents",
+      "version": "2.3.3",
+      "owner": "platform",
+      "reason": "Optional macOS filesystem watcher dependency pulled transitively by build tooling; platform-scoped optional install script is reviewed.",
+      "expiresOn": "2027-05-10"
+    },
+    {
+      "path": "node_modules/playwright/node_modules/fsevents",
+      "name": "fsevents",
+      "version": "2.3.2",
+      "owner": "qa",
+      "reason": "Optional macOS filesystem watcher dependency under Playwright; platform-scoped optional install script is reviewed.",
+      "expiresOn": "2027-05-10"
+    },
+    {
+      "path": "node_modules/sharp",
+      "name": "sharp",
+      "version": "0.34.5",
+      "owner": "platform",
+      "reason": "Sharp declares an install script for native image binaries; package is optional and reviewed through parser/media dependency policy.",
+      "expiresOn": "2027-05-10"
+    },
+    {
+      "path": "node_modules/unrs-resolver",
+      "name": "unrs-resolver",
+      "version": "1.11.1",
+      "owner": "frontend-platform",
+      "reason": "Resolver dependency declares native postinstall behavior for package resolution performance; dev dependency path is reviewed.",
+      "expiresOn": "2027-05-10"
+    }
+  ]
+}

@@ -4,28 +4,27 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { format, formatDistanceToNowStrict, isValid } from "date-fns";
-import {
-  AlertTriangle,
-  CalendarClock,
-  ChevronRight,
-  CircleUserRound,
-  Clock3,
-  FileText,
-  FileWarning,
-} from "lucide-react";
+import { isValid } from "date-fns";
 import type { Contract } from "@/lib/types";
 import type { ContractReviewStats } from "@/lib/contract-review-stats";
 import type { ContractListRowSignals } from "@/lib/contract-list-row-signals";
 import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
 import { V10EmptyStateTelemetryLink } from "@/components/ui/v10-empty-state-telemetry-link";
 import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { ActionChip } from "@/components/ui/action-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
+import { UiAvatar } from "@/components/ui/ui-avatar";
+import { UiSelect } from "@/components/ui/ui-select";
+import { TimeChip } from "@/components/ui/time-chip";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import { bulkAssignContractOwners } from "@/actions/contracts";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
-import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import {
+  clearContractTableSelection,
+  readContractTableSelection,
+  writeContractTableSelection,
+} from "@/lib/security/client-storage";
 
 interface ContractTableProps {
   contracts: Contract[];
@@ -62,12 +61,13 @@ export function ContractTable({
   bulkActions,
 }: ContractTableProps) {
   const router = useRouter();
-  const storageKey = bulkActions ? `oblixa.contract-table.selection:${bulkActions.orgId}` : null;
-  const [selectionLoaded, setSelectionLoaded] = useState(!storageKey);
+  const storageScope = bulkActions?.orgId ?? null;
+  const [selectionLoaded, setSelectionLoaded] = useState(!storageScope);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [isBulkAssignPending, startBulkAssignTransition] = useTransition();
   const selectAllRef = useRef<HTMLInputElement>(null);
+  const hydratedStorageScopeRef = useRef<string | null>(null);
 
   const selectedList = useMemo(() => [...selected], [selected]);
   const visibleSelectedCount = useMemo(
@@ -78,34 +78,31 @@ export function ContractTable({
   const allVisibleSelected = contracts.length > 0 && visibleSelectedCount === contracts.length;
 
   useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
-    try {
-      const raw = window.sessionStorage.getItem(storageKey);
-      if (raw) {
-        const parsed = JSON.parse(raw) as string[];
-        setSelected(new Set(Array.isArray(parsed) ? parsed : []));
-      } else {
-        setSelected(new Set());
-      }
-    } catch {
-      setSelected(new Set());
-    } finally {
+    if (!storageScope) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const initialHydration = hydratedStorageScopeRef.current === null;
+      const storedSelection = new Set(readContractTableSelection(storageScope));
+      setSelected((current) =>
+        initialHydration && current.size > 0 ? current : storedSelection
+      );
+      hydratedStorageScopeRef.current = storageScope;
       setSelectionLoaded(true);
-    }
-  }, [storageKey]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [storageScope]);
 
   useEffect(() => {
-    if (!storageKey || !selectionLoaded || typeof window === "undefined") return;
-    try {
-      if (selected.size === 0) {
-        window.sessionStorage.removeItem(storageKey);
-      } else {
-        window.sessionStorage.setItem(storageKey, JSON.stringify([...selected]));
-      }
-    } catch {
-      // Ignore storage failures; selection still works in-memory.
+    if (!storageScope || !selectionLoaded) return;
+    if (selected.size === 0) {
+      clearContractTableSelection(storageScope);
+      return;
     }
-  }, [selected, selectionLoaded, storageKey]);
+    writeContractTableSelection(storageScope, [...selected]);
+  }, [selected, selectionLoaded, storageScope]);
 
   useEffect(() => {
     if (!selectAllRef.current) return;
@@ -196,6 +193,14 @@ export function ContractTable({
           selectedList.join(",")
         )}`
       : null;
+  const selectedContractIdsParam =
+    selectedList.length > 0 ? encodeURIComponent(selectedList.join(",")) : null;
+  const requestReviewHref = selectedContractIdsParam
+    ? `/contracts/review?contractIds=${selectedContractIdsParam}`
+    : null;
+  const archiveHref = selectedContractIdsParam
+    ? `/contracts/maintenance?action=archive&contractIds=${selectedContractIdsParam}`
+    : null;
 
   const horizonLabel = (field: string | null) => {
     switch (field) {
@@ -209,106 +214,105 @@ export function ContractTable({
         return "Date";
     }
   };
-  const nextActionForContract = (
-    contract: Contract,
-    sig: ContractListRowSignals | undefined,
-    stats: ContractReviewStats | undefined
-  ): { label: string; href: string; detail: string } => {
-    if (stats && stats.pending > 0) {
-      return {
-        label: "Continue field review",
-        href: `/contracts/${contract.id}#extracted-fields`,
-        detail: `${stats.pending} pending field${stats.pending === 1 ? "" : "s"}`,
-      };
+
+  const ownerDisplay = (contract: Contract): { display: string; tooltip?: string } | null => {
+    const ownerName = contract.owner?.full_name?.trim();
+    const ownerEmail = contract.owner?.email?.trim();
+    if (ownerName && ownerName.toLowerCase() !== "name") {
+      return { display: ownerName, tooltip: ownerEmail };
     }
-    if (sig?.missingCriticalDates) {
-      return {
-        label: "Review approved dates",
-        href: `/contracts/${contract.id}#dates`,
-        detail: "Critical dates are missing",
-      };
+    if (ownerEmail && ownerEmail.toLowerCase() !== "name") {
+      const local = ownerEmail.split("@")[0];
+      return { display: local || ownerEmail, tooltip: ownerEmail };
     }
-    if ((sig?.openExceptionCount ?? 0) > 0) {
+    return null;
+  };
+
+  const reviewState = (contractId: string) => {
+    const stats = reviewStats?.[contractId];
+    if (!stats || stats.total <= 0) return null;
+    if (stats.pending > 0) {
       return {
-        label: "Resolve exceptions",
-        href: `/contracts/exceptions?status=open&contract=${contract.id}`,
-        detail: `${sig?.openExceptionCount ?? 0} open exception${sig?.openExceptionCount === 1 ? "" : "s"}`,
-      };
-    }
-    if ((sig?.outstandingEvidenceCount ?? 0) > 0) {
-      return {
-        label: "Review evidence",
-        href: `/contracts/${contract.id}?tab=overview#contract-evidence`,
-        detail: `${sig?.outstandingEvidenceCount ?? 0} evidence request${sig?.outstandingEvidenceCount === 1 ? "" : "s"}`,
-      };
-    }
-    if (!contract.owner_id) {
-      return {
-        label: "Assign owner",
-        href: `/contracts/${contract.id}#ownership-record`,
-        detail: "Ownership missing",
-      };
-    }
-    if (sig?.nextHorizonDays != null && sig.nextHorizonDays <= 14) {
-      return {
-        label: "Review deadline",
-        href: `/contracts/${contract.id}`,
-        detail:
-          sig.nextHorizonDays < 0
-            ? `${horizonLabel(sig.nextHorizonField)} overdue`
-            : sig.nextHorizonDays === 0
-              ? `${horizonLabel(sig.nextHorizonField)} due today`
-              : `${horizonLabel(sig.nextHorizonField)} in ${sig.nextHorizonDays}d`,
+        label: `${stats.pending} pending`,
+        status: "in_review" as const,
+        href: `/contracts/${contractId}#extracted-fields`,
       };
     }
     return {
-      label: "Review contract",
-      href: `/contracts/${contract.id}`,
-      detail: "No active exception",
+      label: `${stats.approved}/${stats.total} reviewed`,
+      status: "healthy" as const,
+      href: `/contracts/${contractId}#extracted-fields`,
     };
   };
+  // v22 aesthetic pass: refine grid chrome — softer outer border, cleaner
+  // hairline gutters between cells, slight bump in cell padding. Keeps
+  // the canonical "table-inside-card" feel but reads more refined.
+  const signalGridClass =
+    "mt-4 grid overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] bg-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)] md:grid-cols-2 xl:grid-cols-4";
+  const signalCellClass =
+    "min-w-0 bg-[var(--surface-raised)] px-4 py-3.5";
+  const signalLabelClass = "ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]";
+  const signalValueClass =
+    "mt-2 flex min-w-0 flex-wrap items-center gap-2 text-[12.5px] leading-snug text-[var(--text-secondary)]";
 
   return (
-    <div className="ui-table-shell">
-      {bulkActions && selectionLoaded && selectedList.length > 0 ? (
+    <div className="space-y-3">
+      {bulkActions && selectedList.length > 0 ? (
         <div
-          className="ui-status-panel ui-status-panel-info flex flex-col gap-3 rounded-none border-x-0 border-t-0 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          className="ui-table-shell flex flex-col gap-3 border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6"
           role="status"
           aria-live="polite"
         >
-          <div className="space-y-1">
-            <p className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
+          <div className="flex flex-col gap-1">
+            <p className="inline-flex items-center gap-2 text-[12.5px] font-semibold tracking-tight text-[var(--text-primary)]">
+              <span
+                aria-hidden
+                className="inline-flex h-1.5 w-1.5 rounded-full"
+                style={{ background: "var(--accent)" }}
+              />
               {selectedList.length} selected
-              {hiddenSelectedCount > 0 ? ` · ${hiddenSelectedCount} outside this page` : ""}
             </p>
             {hiddenSelectedCount > 0 ? (
-              <p className="text-[12px] text-[var(--text-secondary)]">
-                Bulk actions keep the same selected contract ids across pages and filters.
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                {hiddenSelectedCount} outside this page · Persists across filters
               </p>
             ) : filterFingerprint ? (
-              <p className="text-[12px] text-[var(--text-secondary)]">
-                Selecting more pages adds to this same contract set.
-              </p>
-            ) : null}
-            {exportHref ? (
-              <p className="text-[11px] text-[var(--text-tertiary)]">
-                CSV export includes only the selected ids (server caps at 200 per request). Confirm the downloaded row
-                count matches this selection before relying on it outside Oblixa.
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                Selection persists across pages
               </p>
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {exportHref ? (
-              <a href={exportHref} className="ui-btn-secondary px-3 py-1.5 text-[12px]">
-                Export selected CSV
+              <a
+                href={exportHref}
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              >
+                Export CSV
+              </a>
+            ) : null}
+            {requestReviewHref ? (
+              <a
+                href={requestReviewHref}
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              >
+                Request review
+              </a>
+            ) : null}
+            {archiveHref ? (
+              <a
+                href={archiveHref}
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              >
+                Archive
               </a>
             ) : null}
             <button
               type="button"
-              className="ui-btn-secondary px-3 py-1.5 text-[12px]"
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
               onClick={() => setSelected(new Set())}
             >
-              Clear selection
+              Clear
             </button>
             {bulkActions.canEdit && bulkActions.members.length > 0 ? (
               <form
@@ -331,35 +335,25 @@ export function ContractTable({
                 }}
               >
                 <input type="hidden" name="contractIds" value={selectedList.join(",")} />
-                <label className="sr-only" htmlFor="bulk-owner-select">
-                  Assign owner
-                </label>
-                <select
-                  id="bulk-owner-select"
+                <UiSelect
                   name="newOwnerId"
                   required
-                  className="ui-input-compact h-8 max-w-[14rem] text-[12px]"
-                  defaultValue=""
+                  ariaLabel="Assign owner"
+                  placeholder="Assign to…"
                   disabled={isBulkAssignPending}
-                >
-                  <option value="" disabled>
-                    Assign to…
-                  </option>
-                  {bulkActions.members.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
+                  className="min-w-[10rem] max-w-[16rem]"
+                  buttonClassName="h-8 text-[12.5px]"
+                  options={bulkActions.members.map((m) => ({ value: m.id, label: m.label }))}
+                />
                 <button
                   type="submit"
-                  className="ui-btn-primary px-3 py-1.5 text-[12px]"
+                  className="ui-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
                   disabled={isBulkAssignPending}
                 >
-                  {isBulkAssignPending ? "Assigning..." : "Apply"}
+                  {isBulkAssignPending ? "Assigning…" : "Apply"}
                 </button>
                 {bulkError ? (
-                  <span className="text-[12px] font-medium text-[var(--danger-ink)]" role="alert">
+                  <span className="text-[12.5px] font-medium text-[var(--danger-ink)]" role="alert">
                     {bulkError}
                   </span>
                 ) : null}
@@ -368,237 +362,254 @@ export function ContractTable({
           </div>
         </div>
       ) : null}
-      <div className="overflow-x-auto">
-        <table
-          data-testid={surfaceTestIds.contractsTable}
-          aria-label="Contracts in this workspace"
-          className="min-w-full border-collapse text-[13px]"
-        >
-          <thead className="sticky top-0 z-[1] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] backdrop-blur">
-            <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)]">
-              {bulkActions ? (
-                <th className="ui-table-header w-10 whitespace-nowrap px-2 py-2.5 first:pl-4 lg:pl-6">
-                  <input
-                    ref={selectAllRef}
-                    type="checkbox"
-                    className="h-4 w-4 accent-[var(--accent)]"
-                    aria-label="Select all contracts on this page"
-                    checked={allVisibleSelected}
-                    onChange={toggleAllVisible}
-                  />
-                </th>
-              ) : null}
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5 first:pl-6 lg:pl-8">
-                Contract
-              </th>
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Next action</th>
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Counterparty</th>
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Status</th>
-              {reviewStats && <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Review</th>}
-              {rowSignals ? <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Horizon</th> : null}
-              {rowSignals ? <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Signals</th> : null}
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5 text-center">Owner</th>
-              <th className="ui-table-header whitespace-nowrap px-5 py-2.5">Updated</th>
-              <th className="relative whitespace-nowrap px-5 py-2.5 pr-6 lg:pr-8">
-                <span className="sr-only">Open</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {contracts.map((contract) => {
-              const stats = reviewStats?.[contract.id];
-              const sig = rowSignals?.[contract.id];
-              const nextAction = nextActionForContract(contract, sig, stats);
-              const updatedDate = new Date(contract.updated_at);
-              const updatedLabel = isValid(updatedDate)
-                ? formatDistanceToNowStrict(updatedDate, { addSuffix: true })
-                : "Unknown";
-              return (
-                <tr
-                  key={contract.id}
-                  className="ui-table-row odd:bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] even:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] last:border-0"
-                >
-                  {bulkActions ? (
-                    <td className="whitespace-nowrap px-2 py-3.5 first:pl-4 lg:pl-6">
+      {bulkActions ? (
+        <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
+          <label className="inline-flex min-w-0 items-center gap-3 text-[12.5px] font-semibold text-[var(--text-secondary)]">
+            <input
+              ref={selectAllRef}
+              type="checkbox"
+              className="ui-checkbox"
+              aria-label="Select all contracts on this page"
+              checked={allVisibleSelected}
+              onChange={toggleAllVisible}
+            />
+            <span>Select all on page</span>
+          </label>
+          <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
+            {contracts.length} contract{contracts.length === 1 ? "" : "s"} shown
+          </span>
+        </div>
+      ) : null}
+      <div
+        data-testid={surfaceTestIds.contractsTable}
+        role="list"
+        aria-label="Contracts in this workspace"
+        className="space-y-3 text-[12.5px]"
+      >
+        {contracts.map((contract) => {
+          const stats = reviewStats?.[contract.id];
+          const sig = rowSignals?.[contract.id];
+          const updatedDate = new Date(contract.updated_at);
+          const owner = ownerDisplay(contract);
+          const review = reviewState(contract.id);
+          const nextDateTone =
+            sig?.nextHorizonDays == null
+              ? undefined
+              : sig.nextHorizonDays < 0
+                ? "danger"
+                : sig.nextHorizonDays <= 14
+                  ? "warning"
+                  : undefined;
+          const nextImportantLabel =
+            sig?.nextHorizonDate && sig.nextHorizonDays != null
+              ? sig.nextHorizonDays < 0
+                ? `${horizonLabel(sig.nextHorizonField)} overdue ${Math.abs(sig.nextHorizonDays)}d`
+                : sig.nextHorizonDays === 0
+                  ? `${horizonLabel(sig.nextHorizonField)} due today`
+                  : `${horizonLabel(sig.nextHorizonField)} in ${sig.nextHorizonDays}d`
+              : null;
+          return (
+            <article
+              key={contract.id}
+              role="listitem"
+              className="ui-table-shell ui-table-row overflow-hidden p-0 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_10%,transparent)]"
+            >
+              <div className="px-4 py-4 sm:px-5">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    {bulkActions ? (
                       <input
                         type="checkbox"
-                        className="h-4 w-4 accent-[var(--accent)]"
+                        className="ui-checkbox mt-1"
                         aria-label={`Select ${contract.title}`}
                         checked={selected.has(contract.id)}
                         onChange={() => toggle(contract.id)}
                       />
-                    </td>
-                  ) : null}
-                  <td className="whitespace-nowrap px-5 py-4 first:pl-6 lg:pl-8">
-                    <div className="flex min-w-[18rem] items-start gap-3">
-                      <span className="ui-icon-tile-compact shrink-0 text-[var(--text-tertiary)]">
-                        <FileText className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-                      </span>
-                      <div className="min-w-0">
-                        <Link
-                          href={`/contracts/${contract.id}`}
-                          dir="auto"
-                          className="block max-w-[24rem] min-w-0 truncate text-[14px] font-semibold tracking-tight text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)] [unicode-bidi:isolate]"
-                          title={contract.title}
-                        >
-                          {contract.title}
-                        </Link>
-                        {contract.contract_type && (
-                          <p className="ui-meta mt-1 leading-none">
-                            {contract.contract_type}
-                          </p>
-                        )}
-                        {showContinuityLinks ? (
-                          <div className="mt-2">
-                            <ContractContinuityLinks contractId={contract.id} />
-                          </div>
-                        ) : null}
-                      </div>
+                    ) : null}
+                    {/* v22 aesthetic pass: dropped two redundant elements
+                        per §10.4 (eliminate redundancy):
+                        - The "Contract" caps eyebrow above the title — the
+                          row IS the contract; the label is self-evident.
+                        - The Counterparty/type/Updated sub-line — these
+                          three values are already shown as discrete cells
+                          in the signal grid below (COUNTERPARTY +
+                          LAST UPDATED), so the inline prose duplicated the
+                          structured cells and violated §10.7 (small plain
+                          text under a title). Title now stands clean
+                          above the signal grid. */}
+                    <div className="min-w-0">
+                      <Link
+                        href={`/contracts/${contract.id}`}
+                        dir="auto"
+                        className="block min-w-0 truncate text-[17px] font-semibold leading-[1.25] tracking-tight text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)] [unicode-bidi:isolate]"
+                        title={contract.title}
+                      >
+                        {contract.title}
+                      </Link>
                     </div>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 align-middle">
-                    <Link
-                      href={nextAction.href}
-                      className="inline-flex min-w-[10rem] flex-col rounded-[1rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_78%,white)] px-3 py-2 text-[12px] shadow-[var(--shadow-1)] transition-colors hover:border-[var(--accent)]"
-                    >
-                      <span className="font-semibold text-[var(--text-primary)]">{nextAction.label}</span>
-                      <span className="mt-1 text-[11px] text-[var(--text-tertiary)]">{nextAction.detail}</span>
-                    </Link>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4">
-                    <span className="inline-flex min-h-8 items-center rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_74%,transparent)] px-3 text-[12px] font-semibold text-[var(--text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
-                      {contract.counterparty || "—"}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-center align-middle">
-                    <StatusBadge status={STATUS_SEMANTICS[contract.status] ?? STATUS_SEMANTICS.draft}>
-                      {STATUS_LABELS[contract.status] || contract.status}
-                    </StatusBadge>
-                  </td>
-                  {reviewStats && (
-                    <td className="whitespace-nowrap px-5 py-4 text-center align-middle text-[13px]">
-                      {stats && stats.total > 0 ? (
-                        <div className="inline-flex min-w-[7.5rem] flex-col gap-1.5 rounded-[1rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_72%,transparent)] px-3 py-2 shadow-[var(--shadow-1)]">
-                          <span
-                            className={
-                              stats.pending > 0
-                                ? "text-[12px] font-semibold leading-none text-[var(--warning-ink)]"
-                                : "text-[12px] font-semibold leading-none text-[var(--success-ink)]"
-                            }
-                          >
-                            {stats.pending > 0 ? `${stats.pending} pending` : "Complete"}
-                          </span>
-                          <span className="text-[11px] leading-none text-[var(--text-tertiary)]">
+                  </div>
+                  <Link
+                    href={`/contracts/${contract.id}`}
+                    aria-label={`${contract.title} — open contract details`}
+                    className="ui-btn-secondary inline-flex shrink-0 items-center justify-center gap-1.5 px-3 py-1.5 text-[12.5px] font-semibold"
+                  >
+                    Open contract
+                  </Link>
+                </div>
+
+                {showContinuityLinks ? (
+                  <div className="mt-3">
+                    <ContractContinuityLinks contractId={contract.id} omit={["contract", "work"]} />
+                  </div>
+                ) : null}
+
+                <dl className={signalGridClass} aria-label={`Contract signals for ${contract.title}`}>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Counterparty</dt>
+                    <dd className={signalValueClass}>
+                      <span className="truncate font-semibold text-[var(--text-primary)]">
+                        {contract.counterparty || "Not set"}
+                      </span>
+                      {contract.contract_type ? (
+                        <span className="text-[var(--text-tertiary)]">{contract.contract_type}</span>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Status</dt>
+                    <dd className={signalValueClass}>
+                      <StatusBadge status={STATUS_SEMANTICS[contract.status] ?? STATUS_SEMANTICS.draft}>
+                        {STATUS_LABELS[contract.status] || contract.status}
+                      </StatusBadge>
+                      {sig?.openExceptionCount && sig.openExceptionCount > 0 ? (
+                        <Link
+                          href={`/contracts/exceptions?status=open&contract=${contract.id}`}
+                          className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--danger-ink)] hover:text-[var(--accent-strong)]"
+                        >
+                          {sig.openExceptionCount} exception{sig.openExceptionCount === 1 ? "" : "s"}
+                        </Link>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Review state</dt>
+                    <dd className="mt-2 min-w-0 text-[12.5px] text-[var(--text-secondary)]">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        {review ? (
+                          <Link href={review.href} aria-label="Continue field review">
+                            <StatusBadge status={review.status}>{review.label}</StatusBadge>
+                          </Link>
+                        ) : (
+                          <span className="text-[var(--text-tertiary)]">No fields</span>
+                        )}
+                        {stats && stats.total > 0 ? (
+                          <span className="text-[12px] text-[var(--text-tertiary)]">
                             {stats.approved}/{stats.total} fields
                           </span>
-                        </div>
-                      ) : (
-                        <span className="text-[var(--text-tertiary)]">—</span>
-                      )}
-                    </td>
-                  )}
-                  {rowSignals && sig ? (
-                    <td className="whitespace-nowrap px-5 py-4 text-center align-middle text-[12px]">
-                      {sig.nextHorizonDate && sig.nextHorizonDays != null ? (
-                        <div className="inline-flex min-w-[8.5rem] flex-col gap-1.5 rounded-[1rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_72%,transparent)] px-3 py-2 shadow-[var(--shadow-1)]">
-                          <span
-                            className={
-                              sig.nextHorizonDays < 0
-                                ? "text-[12px] font-semibold leading-none text-[var(--danger-ink)]"
-                                : sig.nextHorizonDays <= 14
-                                  ? "text-[12px] font-semibold leading-none text-[var(--warning-ink)]"
-                                  : "text-[12px] font-semibold leading-none text-[var(--text-primary)]"
-                            }
-                          >
-                            {sig.nextHorizonDays < 0
-                              ? `${horizonLabel(sig.nextHorizonField)} overdue by ${Math.abs(sig.nextHorizonDays)}d`
-                              : sig.nextHorizonDays === 0
-                                ? `${horizonLabel(sig.nextHorizonField)} due today`
-                                : `${horizonLabel(sig.nextHorizonField)} in ${sig.nextHorizonDays}d`}
-                          </span>
-                          <span className="text-[11px] leading-none text-[var(--text-tertiary)]">
-                            {formatBusinessDateAtNoon(sig.nextHorizonDate)}
-                          </span>
-                        </div>
-                      ) : sig.missingCriticalDates ? (
-                        <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning-soft)_66%,transparent)] bg-[color:color-mix(in_oklab,var(--warning-soft)_62%,transparent)] px-3 text-[12px] font-semibold leading-none text-[var(--warning-ink)]">
-                          <CalendarClock className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
-                          No approved dates
-                        </span>
-                      ) : (
-                        <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_70%,transparent)] px-3 text-[12px] font-medium leading-none text-[var(--text-tertiary)]">
-                          <Clock3 className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
-                          No dated trigger
-                        </span>
-                      )}
-                    </td>
-                  ) : null}
-                  {rowSignals && sig ? (
-                    <td className="max-w-[11rem] whitespace-normal px-5 py-4 text-center align-middle text-[12px]">
-                      <div className="flex flex-wrap items-center justify-center gap-1.5">
-                        {sig.openExceptionCount > 0 ? (
-                          <Link
-                            href={`/contracts/exceptions?status=open&contract=${contract.id}`}
-                            className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning-soft)_60%,transparent)] bg-[var(--warning-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--warning-ink)] transition-colors hover:border-[var(--warning-ink)]"
-                          >
-                            <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
-                            {sig.openExceptionCount} exception{sig.openExceptionCount === 1 ? "" : "s"}
-                          </Link>
-                        ) : null}
-                        {sig.outstandingEvidenceCount > 0 ? (
-                          <span className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--info-soft)_62%,transparent)] bg-[var(--info-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--info-ink)]">
-                            <FileWarning className="h-3 w-3 shrink-0" aria-hidden />
-                            {sig.outstandingEvidenceCount} evidence request{sig.outstandingEvidenceCount === 1 ? "" : "s"}
-                          </span>
-                        ) : null}
-                        {sig.missingCriticalDates ? (
-                          <Link
-                            href={`/contracts/${contract.id}#dates`}
-                            className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning-soft)_56%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--warning-ink)] transition-colors hover:border-[var(--warning-ink)] hover:bg-[var(--warning-soft)]"
-                          >
-                            <CalendarClock className="h-3 w-3 shrink-0" strokeWidth={1.75} aria-hidden />
-                            Dates gap
-                          </Link>
-                        ) : null}
-                        {sig.openExceptionCount === 0 &&
-                        sig.outstandingEvidenceCount === 0 &&
-                        !sig.missingCriticalDates ? (
-                          <span className="text-[var(--text-tertiary)]" aria-label="No active row signals" />
                         ) : null}
                       </div>
-                    </td>
-                  ) : null}
-                  <td className="whitespace-nowrap px-5 py-4 text-center align-middle">
-                    <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_68%,transparent)] px-3 text-[12px] font-medium text-[var(--text-secondary)]">
-                      <CircleUserRound className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.75} aria-hidden />
-                      {contract.owner?.full_name || contract.owner?.email || "—"}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-[13px] tabular-nums text-[var(--text-tertiary)]">
-                    <div className="flex flex-col gap-0.5">
-                      <span>{format(new Date(contract.updated_at), "MMM d, yyyy")}</span>
-                      <span
-                        className="text-[11px] text-[var(--text-tertiary)]"
-                        suppressHydrationWarning
-                      >
-                        {updatedLabel}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 pr-6 text-right lg:pr-8">
-                    <Link
-                      href={`/contracts/${contract.id}`}
-                      className="inline-flex rounded-[0.9rem] border border-transparent p-2 text-[var(--text-tertiary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)] hover:text-[var(--text-primary)]"
-                      aria-label={`Inspect ${contract.title}`}
-                    >
-                      <ChevronRight size={18} strokeWidth={1.75} aria-hidden />
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      {stats && stats.total > 0 ? (
+                        <span
+                          className="ui-progress-mini mt-2 !h-1.5 !w-full max-w-[12rem]"
+                          role="progressbar"
+                          aria-valuenow={stats.approved}
+                          aria-valuemin={0}
+                          aria-valuemax={stats.total}
+                          aria-label={`${stats.approved} of ${stats.total} fields reviewed`}
+                        >
+                          <span
+                            aria-hidden
+                            className={`ui-progress-mini-fill${stats.pending > 0 ? " ui-progress-mini-fill-warning" : ""}`}
+                            style={{ width: `${Math.round((stats.approved / stats.total) * 100)}%` }}
+                          />
+                        </span>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Next important date</dt>
+                    <dd className={signalValueClass}>
+                      {sig?.nextHorizonDate ? (
+                        <>
+                          <span className="truncate font-semibold text-[var(--text-primary)]">{nextImportantLabel}</span>
+                          <TimeChip date={sig.nextHorizonDate} format="calendar" tone={nextDateTone} />
+                        </>
+                      ) : sig?.missingCriticalDates ? (
+                        <Link
+                          href={`/contracts/${contract.id}#dates`}
+                          className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_32%,var(--surface-raised))] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--warning-ink)] transition-colors hover:border-[var(--warning-ink)]"
+                        >
+                          Dates gap
+                        </Link>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">No date set</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Owner</dt>
+                    <dd className={signalValueClass}>
+                      {!owner ? (
+                        <Link
+                          href={`/contracts/${contract.id}#ownership-record`}
+                          className="font-medium text-[var(--warning-ink)] hover:text-[var(--accent-strong)]"
+                        >
+                          Assign owner
+                        </Link>
+                      ) : (
+                        <span className="inline-flex min-w-0 items-center gap-2" title={owner.tooltip}>
+                          <UiAvatar name={contract.owner?.full_name} email={contract.owner?.email} size="xs" />
+                          <span className="truncate font-semibold text-[var(--text-primary)]">{owner.display}</span>
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Open work</dt>
+                    <dd className={signalValueClass}>
+                      {(sig?.openWorkCount ?? 0) > 0 ? (
+                        <Link
+                          href={`/work?contract=${contract.id}`}
+                          className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] transition-colors hover:border-[var(--accent-strong)]"
+                        >
+                          {sig?.openWorkCount} open
+                        </Link>
+                      ) : sig?.outstandingEvidenceCount && sig.outstandingEvidenceCount > 0 ? (
+                        <Link
+                          href={`/contracts/evidence-studio?contract=${contract.id}`}
+                          className="font-medium text-[var(--warning-ink)] hover:text-[var(--accent-strong)]"
+                        >
+                          {sig.outstandingEvidenceCount} evidence request{sig.outstandingEvidenceCount === 1 ? "" : "s"}
+                        </Link>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">None</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Last updated</dt>
+                    <dd className={signalValueClass} suppressHydrationWarning>
+                      {isValid(updatedDate) ? <TimeChip date={updatedDate} /> : "Unknown"}
+                    </dd>
+                  </div>
+                  <div className={signalCellClass}>
+                    <dt className={signalLabelClass}>Actions</dt>
+                    {/* v22: small-plain-text accent links replaced with
+                        canonical <ActionChip> primitives (§2.6). Each
+                        verb now reads as a discrete pill with arrow,
+                        consistent with the rest of the app's action
+                        affordances. */}
+                    <dd className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
+                      <ActionChip verb="Add reminder" href={`/contracts/${contract.id}#dates`} />
+                      <ActionChip verb="Assign owner" href={`/contracts/${contract.id}#ownership-record`} />
+                      <ActionChip verb="Create work" href={`/contracts/${contract.id}#contract-tasks`} />
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </article>
+          );
+        })}
       </div>
       {footer}
     </div>

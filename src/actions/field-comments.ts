@@ -3,7 +3,7 @@
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { getOrgMemberRole } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import { isUuid, validateBoundedString } from "@/lib/security/validation";
 import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 
@@ -54,9 +54,16 @@ export async function addFieldComment(input: {
   if (!isUuid(input.contractId)) return { error: "Invalid contract" };
   if (input.fieldId && !isUuid(input.fieldId)) return { error: "Invalid field" };
 
-  const comment = input.comment.trim();
-  if (!comment) return { error: "Comment cannot be empty." };
-  if (comment.length > MAX_COMMENT_LEN) return { error: "Comment is too long." };
+  const commentValidation = validateBoundedString(input.comment, {
+    maxLength: MAX_COMMENT_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!commentValidation.ok) {
+    if (commentValidation.error === "string_too_long") return { error: "Comment is too long." };
+    if (commentValidation.error === "unsafe_characters") return { error: "Comment contains unsupported characters." };
+    return { error: "Comment cannot be empty." };
+  }
+  const comment = commentValidation.value;
 
   const { data: contract } = await admin
     .from("contracts")

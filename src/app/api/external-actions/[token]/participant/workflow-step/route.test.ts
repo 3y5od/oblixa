@@ -111,6 +111,120 @@ describe("POST /api/external-actions/[token]/participant/workflow-step", () => {
     expect(mockedAppend).not.toHaveBeenCalled();
   });
 
+  it("returns 404 when participant workflow token is not found", async () => {
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "participant_note", passcode: "p" }),
+      }),
+      { params: Promise.resolve({ token: "missing-token" }) }
+    );
+
+    expect(res.status).toBe(404);
+    expect(mockedAppend).not.toHaveBeenCalled();
+  });
+
+  it("returns 410 when participant workflow token is revoked", async () => {
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: {
+                id: "link-revoked",
+                organization_id: "o1",
+                status: "revoked",
+                expires_at: null,
+                revoked_at: new Date().toISOString(),
+                passcode_hash: null,
+                scope_json: {},
+              },
+              error: null,
+            })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "participant_note", passcode: "p" }),
+      }),
+      { params: Promise.resolve({ token: "revoked-token" }) }
+    );
+
+    expect(res.status).toBe(410);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_participant_revoked",
+    });
+    expect(mockedAppend).not.toHaveBeenCalled();
+  });
+
+  it("returns 410 when participant workflow token is expired", async () => {
+    mockedFlags.mockImplementation(
+      (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
+    );
+    createAdminClient.mockResolvedValueOnce({
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: {
+                id: "link-expired",
+                organization_id: "o1",
+                status: "open",
+                expires_at: new Date(Date.now() - 60_000).toISOString(),
+                revoked_at: null,
+                passcode_hash: null,
+                scope_json: {},
+              },
+              error: null,
+            })),
+          })),
+        })),
+      })),
+    } as never);
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/t/participant/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "participant_note", passcode: "p" }),
+      }),
+      { params: Promise.resolve({ token: "expired-token" }) }
+    );
+
+    expect(res.status).toBe(410);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "external_action_expired",
+      diagnostic_id: "external_action_participant_expired",
+    });
+    expect(mockedAppend).not.toHaveBeenCalled();
+  });
+
   it("returns 201 when passcode validates and append succeeds", async () => {
     mockedFlags.mockImplementation(
       (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
@@ -147,7 +261,7 @@ describe("POST /api/external-actions/[token]/participant/workflow-step", () => {
       (key) => key === "v5ExternalCollaboration" || key === "v6AssuranceCore"
     );
     rateLimitCheck.mockImplementation(async (key: string) => {
-      if (key.startsWith("idem:external-workflow.participant-step:tok:")) {
+      if (key.startsWith("idem:external-workflow.participant-step:")) {
         if (idempotencySeen) return { ok: false, retryAfterMs: 6000 };
         idempotencySeen = true;
       }

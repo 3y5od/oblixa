@@ -2,12 +2,7 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
-  ClipboardList,
   DollarSign,
-  ListChecks,
-  Stamp,
-  Target,
-  UserCircle,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -16,22 +11,72 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import {
+  CompressedNormalState,
   OperationalQueueRow,
-  OperationalSectionHeader,
   OperationalSummaryCard,
+  SeverityMetricStrip,
 } from "@/components/ui/operational-summary-card";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 
-const PERSONAS = [
-  { id: "ops", label: "Ops lead" },
-  { id: "finance", label: "Finance" },
-  { id: "legal", label: "Legal reviewer" },
-  { id: "account_owner", label: "Account owner" },
-  { id: "reviewer", label: "Contract coordinator" },
-  { id: "manager", label: "Founder / manager" },
-] as const;
+const PERSONA_CONFIG = {
+  ops: {
+    label: "Ops lead",
+    purpose: "Work blocked or high-priority tasks before routine follow-up.",
+    queueTitle: "Ops work queue",
+    queueDescription: "Blocked work, due work, and high-priority tasks are listed first.",
+    emptyMessage: "No blocked or high-priority Ops work is visible for your current workspace and role.",
+  },
+  finance: {
+    label: "Finance",
+    purpose: "Clear renewal blockers and financial exposure that needs a decision.",
+    queueTitle: "Renewal blocker queue",
+    queueDescription: "Blocked renewals and blocker-bearing decisions are listed first.",
+    emptyMessage: "No blocked renewal decisions are visible for your current workspace and role.",
+  },
+  legal: {
+    label: "Legal reviewer",
+    purpose: "Review pending approvals before downstream work stalls.",
+    queueTitle: "Legal approval queue",
+    queueDescription: "Pending sign-offs are ordered by urgency and due date.",
+    emptyMessage: "No pending legal approvals are visible for your current workspace and role.",
+  },
+  account_owner: {
+    label: "Account owner",
+    purpose: "Follow up on assigned tasks and obligations that need your attention.",
+    queueTitle: "Assigned work queue",
+    queueDescription: "Your blocked, overdue, due, and high-priority work is listed first.",
+    emptyMessage: "No assigned tasks or obligations are visible for your current workspace and role.",
+  },
+  reviewer: {
+    label: "Contract coordinator",
+    purpose: "Coordinate open contract work that needs triage or follow-up.",
+    queueTitle: "Coordination queue",
+    queueDescription: "Blocked and high-priority coordination work is listed first.",
+    emptyMessage: "No coordination work is visible for your current workspace and role.",
+  },
+  manager: {
+    label: "Founder / manager",
+    purpose: "Review blockers, approvals, and ownership gaps that need escalation.",
+    queueTitle: "Manager escalation queue",
+    queueDescription: "Renewal blockers and pending approvals are combined by urgency.",
+    emptyMessage: "No approvals, blockers, or ownership gaps are visible for your current workspace and role.",
+  },
+} as const;
 
-type PersonaId = (typeof PERSONAS)[number]["id"];
+type PersonaId = keyof typeof PERSONA_CONFIG;
+
+const PERSONAS = Object.entries(PERSONA_CONFIG).map(([id, config]) => ({
+  id: id as PersonaId,
+  label: config.label,
+}));
+
+type PersonaViewConfig = {
+  label: string;
+  purpose: string;
+  queueTitle: string;
+  queueDescription: string;
+  emptyMessage: string;
+};
 
 const PERSONA_PRESETS: Array<{
   id: string;
@@ -70,20 +115,93 @@ const PERSONA_PRESETS: Array<{
   },
 ];
 
+const ALL_CLEAR_ACTION_LABELS: Record<(typeof PERSONA_PRESETS)[number]["id"], string> = {
+  "ops-daily": "Browse Ops Daily",
+  "legal-approvals": "Review legal approvals",
+  "finance-renewals": "Inspect renewal blockers",
+  "manager-overview": "Review escalations",
+};
+
+type ContractRelation = { id?: string; title?: string; organization_id?: string } | null;
+
+type PersonaQueueItem = {
+  id: string;
+  href: string;
+  title: string;
+  contractTitle?: string;
+  ownerLabel?: string;
+  dueLabel?: string;
+  reason: string;
+  actionLabel: string;
+  urgency: "blocked" | "overdue" | "due_today" | "high" | "normal";
+  dueDate?: string;
+};
+
+const urgencyRank = {
+  blocked: 0,
+  overdue: 1,
+  due_today: 2,
+  high: 3,
+  normal: 4,
+} as const;
+
+function relationContract(rel: unknown): ContractRelation {
+  return (Array.isArray(rel) ? rel[0] : rel) as ContractRelation;
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dueLabel(value: string | null | undefined) {
+  return value ? `Due ${String(value).slice(0, 10)}` : undefined;
+}
+
+function readableStatus(value: string | null | undefined) {
+  return String(value ?? "open").replaceAll("_", " ");
+}
+
+function urgencyFrom(status?: string | null, due?: string | null, priority?: string | null): PersonaQueueItem["urgency"] {
+  const dueKey = due ? String(due).slice(0, 10) : "";
+  const today = todayKey();
+  if (status === "blocked") return "blocked";
+  if (dueKey && dueKey < today) return "overdue";
+  if (dueKey && dueKey === today) return "due_today";
+  if (priority === "high") return "high";
+  return "normal";
+}
+
+function sortQueueItems(items: PersonaQueueItem[]) {
+  return [...items].sort((a, b) => {
+    const rankDiff = urgencyRank[a.urgency] - urgencyRank[b.urgency];
+    if (rankDiff !== 0) return rankDiff;
+    const aDue = a.dueDate ?? "9999-12-31";
+    const bDue = b.dueDate ?? "9999-12-31";
+    if (aDue !== bDue) return aDue.localeCompare(bDue);
+    return a.title.localeCompare(b.title);
+  });
+}
+
+function rowTone(urgency: PersonaQueueItem["urgency"]): OperationalTone {
+  if (urgency === "blocked" || urgency === "overdue") return "risk";
+  if (urgency === "due_today" || urgency === "high") return "attention";
+  return "neutral";
+}
+
 export default async function PersonaDashboardPage(props: {
   searchParams: Promise<{ persona?: string }>;
 }) {
   if (!isFeatureEnabled("v3PersonaDashboards")) {
     return (
       <div className="ui-card-hero px-6 py-8">
-        <p className="ui-eyebrow">Feature flag</p>
-        <h1 className="ui-display-title mt-2">Persona dashboard is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-[var(--text-secondary)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">Feature flag</p>
+        <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">Persona dashboard is disabled</h1>
+        <p className="mt-3 max-w-xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
           This surface is off when <code className="text-xs">ENABLE_V3_PERSONA_DASHBOARDS</code> is set to false, 0, no,
           or off on the server. Unset it to restore the default (on).
         </p>
         <div className="mt-5">
-          <Link href="/dashboard" className="ui-btn-secondary px-4 py-2 text-[13px]">
+          <Link href="/dashboard" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
             Back to dashboard
           </Link>
         </div>
@@ -136,73 +254,111 @@ export default async function PersonaDashboardPage(props: {
   const contracts = contractsRes.data ?? [];
   const tasks = tasksRes.data ?? [];
   const obligations = obligationsRes.data ?? [];
-  const pendingApprovals = approvalsRes.data?.length ?? 0;
+  const approvals = approvalsRes.data ?? [];
+  const renewalScenarios = renewalScenariosRes.data ?? [];
+  const config: PersonaViewConfig = PERSONA_CONFIG[persona];
+  const pendingApprovals = approvals.length;
   const atRisk = contracts.filter((c) => c.health_status === "at_risk").length;
   const exposure = contracts.reduce((sum, c) => sum + Number(c.annual_value ?? 0), 0);
-  const pendingApprovalRows = (approvalsRes.data ?? []).slice(0, 6).flatMap((row) => {
-    const rel = row.contracts as unknown;
-    const contract = (Array.isArray(rel) ? rel[0] : rel) as
-      | { id?: string; title?: string; organization_id?: string }
-      | null;
+  const pendingApprovalRows = approvals.flatMap((row) => {
+    const contract = relationContract(row.contracts);
     if (!contract?.id) return [];
     return [
       {
         id: row.id,
         href: `/contracts/${contract.id}`,
-        label: contract.title ?? "Contract",
-        meta: row.due_at ? `Due ${String(row.due_at).slice(0, 10)}` : "No due date",
+        title: contract.title ?? "Approval needed",
+        contractTitle: contract.title,
+        dueLabel: dueLabel(row.due_at),
+        dueDate: row.due_at ? String(row.due_at).slice(0, 10) : undefined,
+        reason: row.due_at ? "Pending approval with due date" : "Pending approval",
+        actionLabel: persona === "manager" ? "Review escalation" : "Review approval",
+        urgency: urgencyFrom(undefined, row.due_at),
       },
     ];
   });
   const highPriorityTasks = tasks
     .filter((t) => t.priority === "high" || t.status === "blocked")
-    .slice(0, 6)
     .flatMap((row) => {
-      const rel = row.contracts as unknown;
-      const contract = (Array.isArray(rel) ? rel[0] : rel) as
-        | { id?: string; title?: string; organization_id?: string }
-        | null;
+      const contract = relationContract(row.contracts);
       if (!contract?.id) return [];
+      const urgency = urgencyFrom(row.status, row.due_date, row.priority);
       return [
         {
           id: row.id,
           href: `/contracts/${contract.id}`,
-          label: row.title,
-          meta: `${row.status} · ${row.priority}${row.due_date ? ` · due ${row.due_date}` : ""}`,
+          title: row.title,
+          contractTitle: contract.title,
+          ownerLabel: row.assignee_id === user.id ? "Assigned to you" : undefined,
+          dueLabel: dueLabel(row.due_date),
+          dueDate: row.due_date ? String(row.due_date).slice(0, 10) : undefined,
+          reason: urgency === "blocked" ? "Blocked task" : urgency === "overdue" ? "Overdue task" : urgency === "due_today" ? "Due today" : "High-priority task",
+          actionLabel: urgency === "blocked" ? "Resolve blocker" : urgency === "normal" ? "Review task" : "Triage task",
+          urgency,
         },
       ];
     });
-  const renewalRisks = (renewalScenariosRes.data ?? [])
+  const accountOwnerTasks = highPriorityTasks.filter((row) => row.ownerLabel === "Assigned to you");
+  const renewalRisks = renewalScenarios
     .filter((r) => r.workspace_status === "blocked" || !!r.blocker)
-    .slice(0, 6)
     .flatMap((row) => {
-      const rel = row.contracts as unknown;
-      const contract = (Array.isArray(rel) ? rel[0] : rel) as
-        | { id?: string; title?: string; organization_id?: string }
-        | null;
+      const contract = relationContract(row.contracts);
       if (!contract?.id) return [];
+      const urgency = urgencyFrom(row.workspace_status, row.target_decision_date);
       return [
         {
           id: row.id,
           href: `/contracts/${contract.id}`,
-          label: contract.title ?? "Contract",
-          meta: row.blocker ? `Blocker: ${row.blocker}` : `Status: ${row.workspace_status}`,
+          title: contract.title ?? "Renewal decision",
+          contractTitle: contract.title,
+          dueLabel: dueLabel(row.target_decision_date),
+          dueDate: row.target_decision_date ? String(row.target_decision_date).slice(0, 10) : undefined,
+          reason: row.blocker ? `Blocker: ${row.blocker}` : `${readableStatus(row.workspace_status)} renewal`,
+          actionLabel: urgency === "blocked" ? "Clear blocker" : "Review renewal",
+          urgency,
+        },
+      ];
+    });
+  const ownerObligations = obligations
+    .filter((o) => o.owner_id === user.id)
+    .flatMap((row) => {
+      const contract = relationContract(row.contracts);
+      if (!contract?.id) return [];
+      const urgency = urgencyFrom(row.status, row.due_date);
+      return [
+        {
+          id: row.id,
+          href: `/contracts/${contract.id}`,
+          title: row.title,
+          contractTitle: contract.title,
+          ownerLabel: "Owned by you",
+          dueLabel: dueLabel(row.due_date),
+          dueDate: row.due_date ? String(row.due_date).slice(0, 10) : undefined,
+          reason: urgency === "overdue" ? "Overdue obligation" : urgency === "due_today" ? "Obligation due today" : "Open obligation",
+          actionLabel: "Review obligation",
+          urgency,
         },
       ];
     });
   const personaQueue =
     persona === "legal"
-      ? pendingApprovalRows
+      ? sortQueueItems(pendingApprovalRows).slice(0, 6)
       : persona === "finance"
-        ? renewalRisks
+        ? sortQueueItems(renewalRisks).slice(0, 6)
         : persona === "manager"
-          ? [...renewalRisks, ...pendingApprovalRows].slice(0, 8)
-          : highPriorityTasks;
+          ? sortQueueItems([...renewalRisks, ...pendingApprovalRows]).slice(0, 8)
+          : persona === "account_owner"
+            ? sortQueueItems([...accountOwnerTasks, ...ownerObligations]).slice(0, 6)
+            : sortQueueItems(highPriorityTasks).slice(0, 6);
 
   const myOpenTasksCount = tasks.filter((t) => t.assignee_id === user.id).length;
-  const myBlockedTasksCount = tasks.filter((t) => t.assignee_id === user.id && t.status === "blocked").length;
   const myOpenObligationsCount = obligations.filter((o) => o.owner_id === user.id).length;
   const highPriorityOpenTasksCount = tasks.filter((t) => t.priority === "high" && t.status !== "done").length;
+  const blockedCount = personaQueue.filter((row) => row.urgency === "blocked").length;
+  const overdueCount = personaQueue.filter((row) => row.urgency === "overdue").length;
+  const dueTodayCount = personaQueue.filter((row) => row.urgency === "due_today").length;
+  const highCount = personaQueue.filter((row) => row.urgency === "high").length;
+  const renewalBlockersCount = renewalRisks.length;
 
   type PersonaMetric = {
     key: string;
@@ -216,190 +372,51 @@ export default async function PersonaDashboardPage(props: {
     action: { href: string; label: string };
   };
 
-  let personaMetrics: PersonaMetric[] = [];
-  if (persona === "finance") {
-    personaMetrics = [
-      {
-        key: "exposure",
-        eyebrow: "Portfolio",
-        headline: "Annual contract value",
-        tone: "neutral",
-        icon: DollarSign,
-        primaryValue: `$${exposure.toLocaleString()}`,
-        primaryUnit: "rolled up from contracts",
-        action: { href: "/contracts", label: "Browse contracts" },
-      },
-      {
-        key: "at-risk",
-        eyebrow: "Health",
-        headline: "Contracts at risk",
-        tone: atRisk > 0 ? "attention" : "healthy",
-        icon: AlertTriangle,
-        primaryValue: atRisk,
-        action: { href: "/contracts", label: "Review at-risk" },
-      },
-      {
-        key: "approvals",
-        eyebrow: "Sign-off",
-        headline: "Pending approvals",
-        tone: pendingApprovals > 0 ? "attention" : "healthy",
-        icon: Stamp,
-        primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "Review approvals" },
-      },
-    ];
-  } else if (persona === "legal") {
-    personaMetrics = [
-      {
-        key: "approvals",
-        eyebrow: "Sign-off",
-        headline: "Pending approvals",
-        tone: pendingApprovals > 0 ? "attention" : "healthy",
-        icon: Stamp,
-        primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "Review approvals" },
-      },
-      {
-        key: "obligations",
-        eyebrow: "Commitments",
-        headline: "Open obligations",
-        tone: obligations.length > 0 ? "neutral" : "healthy",
-        icon: ListChecks,
-        primaryValue: obligations.length,
-        action: { href: "/contracts/obligations", label: "Review obligations" },
-      },
-      {
-        key: "at-risk",
-        eyebrow: "Health",
-        headline: "At-risk contracts",
-        tone: atRisk > 0 ? "attention" : "healthy",
-        icon: AlertTriangle,
-        primaryValue: atRisk,
-        action: { href: "/contracts", label: "Browse contracts" },
-      },
-    ];
-  } else if (persona === "account_owner") {
-    personaMetrics = [
-      {
-        key: "my-tasks",
-        eyebrow: "You",
-        headline: "Open tasks",
-        tone: myOpenTasksCount > 0 ? "attention" : "healthy",
-        icon: ClipboardList,
-        primaryValue: myOpenTasksCount,
-        action: { href: "/contracts/tasks", label: "Review tasks" },
-      },
-      {
-        key: "blocked",
-        eyebrow: "You",
-        headline: "Blocked tasks",
-        tone: myBlockedTasksCount > 0 ? "risk" : "healthy",
-        icon: Target,
-        primaryValue: myBlockedTasksCount,
-        action: { href: "/contracts/tasks", label: "Unblock work" },
-      },
-      {
-        key: "my-obligations",
-        eyebrow: "You",
-        headline: "Open obligations",
-        tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
-        icon: ListChecks,
-        primaryValue: myOpenObligationsCount,
-        action: { href: "/contracts/obligations", label: "Review obligations" },
-      },
-    ];
-  } else if (persona === "reviewer") {
-    personaMetrics = [
-      {
-        key: "hi-pri",
-        eyebrow: "Triage",
-        headline: "High-priority tasks",
-        tone: highPriorityOpenTasksCount > 0 ? "attention" : "healthy",
-        icon: ClipboardList,
-        primaryValue: highPriorityOpenTasksCount,
-        action: { href: "/contracts/tasks", label: "Review tasks" },
-      },
-      {
-        key: "approvals",
-        eyebrow: "Sign-off",
-        headline: "Pending approvals",
-        tone: pendingApprovals > 0 ? "attention" : "healthy",
-        icon: Stamp,
-        primaryValue: pendingApprovals,
-        action: { href: "/contracts/approvals", label: "Review approvals" },
-      },
-      {
-        key: "at-risk",
-        eyebrow: "Health",
-        headline: "At-risk contracts",
-        tone: atRisk > 0 ? "attention" : "healthy",
-        icon: AlertTriangle,
-        primaryValue: atRisk,
-        action: { href: "/contracts", label: "Browse contracts" },
-      },
-    ];
-  } else if (persona === "manager") {
-    personaMetrics = [
-      {
-        key: "exposure",
-        eyebrow: "Portfolio",
-        headline: "Annual contract value",
-        tone: "neutral",
-        icon: DollarSign,
-        primaryValue: `$${exposure.toLocaleString()}`,
-        primaryUnit: "rolled up from contracts",
-        action: { href: "/contracts", label: "Browse contracts" },
-      },
-      {
-        key: "at-risk",
-        eyebrow: "Health",
-        headline: "At-risk contracts",
-        tone: atRisk > 0 ? "attention" : "healthy",
-        icon: AlertTriangle,
-        primaryValue: atRisk,
-        action: { href: "/contracts", label: "Review at-risk" },
-      },
-      {
-        key: "obligations",
-        eyebrow: "Commitments",
-        headline: "Open obligations",
-        tone: obligations.length > 0 ? "neutral" : "healthy",
-        icon: ListChecks,
-        primaryValue: obligations.length,
-        action: { href: "/contracts/obligations", label: "Review obligations" },
-      },
-    ];
-  } else {
-    personaMetrics = [
-      {
-        key: "open-tasks",
-        eyebrow: "Team",
-        headline: "Open tasks",
-        tone: tasks.length > 0 ? "neutral" : "healthy",
-        icon: ClipboardList,
-        primaryValue: tasks.length,
-        action: { href: "/contracts/tasks", label: "Review tasks" },
-      },
-      {
-        key: "my-open",
-        eyebrow: "You",
-        headline: "My open tasks",
-        tone: myOpenTasksCount > 0 ? "attention" : "healthy",
-        icon: UserCircle,
-        primaryValue: myOpenTasksCount,
-        action: { href: "/work", label: "Review work queue" },
-      },
-      {
-        key: "my-obligations",
-        eyebrow: "You",
-        headline: "My open obligations",
-        tone: myOpenObligationsCount > 0 ? "neutral" : "healthy",
-        icon: ListChecks,
-        primaryValue: myOpenObligationsCount,
-        action: { href: "/contracts/obligations", label: "Review obligations" },
-      },
-    ];
-  }
+  const actionableChips = [
+    { label: "Blocked", value: blockedCount, tone: "risk" as OperationalTone },
+    { label: "Overdue", value: overdueCount, tone: "risk" as OperationalTone },
+    { label: "Due today", value: dueTodayCount, tone: "attention" as OperationalTone },
+    { label: "High priority", value: highCount, tone: "attention" as OperationalTone },
+    ...(persona === "legal" || persona === "manager" || persona === "reviewer"
+      ? [{ label: "Pending approvals", value: pendingApprovals, tone: "attention" as OperationalTone }]
+      : []),
+    ...(persona === "finance" || persona === "manager"
+      ? [{ label: "Renewal blockers", value: renewalBlockersCount, tone: "risk" as OperationalTone }]
+      : []),
+    ...(persona === "account_owner" || persona === "ops"
+      ? [
+          { label: "My tasks", value: myOpenTasksCount, tone: "attention" as OperationalTone },
+          { label: "My obligations", value: myOpenObligationsCount, tone: "neutral" as OperationalTone },
+        ]
+      : []),
+    ...(persona === "reviewer" ? [{ label: "High-priority tasks", value: highPriorityOpenTasksCount, tone: "attention" as OperationalTone }] : []),
+  ].filter((chip) => chip.value > 0);
+
+  let personaMetrics: PersonaMetric[] = [
+    {
+      key: "exposure",
+      eyebrow: "Portfolio",
+      headline: "Annual contract value",
+      tone: "neutral" as OperationalTone,
+      icon: DollarSign,
+      primaryValue: `$${exposure.toLocaleString()}`,
+      primaryUnit: "rolled up from contracts",
+      action: { href: "/contracts", label: "Browse contracts" },
+    },
+    {
+      key: "at-risk",
+      eyebrow: "Health",
+      headline: "At-risk contracts",
+      tone: "attention" as OperationalTone,
+      icon: AlertTriangle,
+      primaryValue: atRisk,
+      action: { href: "/contracts", label: "Review at-risk" },
+    },
+  ].filter((m) => {
+    if (persona !== "finance" && persona !== "manager" && persona !== "legal" && persona !== "reviewer") return false;
+    if (m.key === "exposure") return productSurface.mode !== "core" && exposure > 0 && (persona === "finance" || persona === "manager");
+    return productSurface.mode !== "core" && atRisk > 0;
+  });
 
   /** Appendix N / §8.3 — Core keeps execution signals; portfolio/health rollups need Advanced+. */
   if (productSurface.mode === "core") {
@@ -407,118 +424,133 @@ export default async function PersonaDashboardPage(props: {
     personaMetrics = personaMetrics.filter((m) => !intelligenceKeys.has(m.key));
   }
 
-  const queueDescription =
-    persona === "legal"
-      ? "Surface pending sign-offs before downstream work stalls."
-      : persona === "finance"
-        ? "Prioritize blocked renewals and approaching decision dates."
-        : persona === "manager"
-          ? productSurface.mode === "core"
-            ? "Track approvals and obligations in one lane."
-            : "Track portfolio risk and unresolved approvals in one lane."
-          : "Focus on high-priority and blocked execution items.";
+  const showAllClear = personaQueue.length === 0 && actionableChips.length === 0;
+  const secondaryNavAction = PERSONA_PRESETS.find((preset) => preset.persona !== persona);
 
   return (
-    <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <p className="ui-eyebrow">Role-based views</p>
-        <h1 className="ui-display-title mt-2">Persona dashboard</h1>
-        <p className="ui-page-lead mt-3 max-w-2xl">
-          A focused view tuned for different operating roles.
-        </p>
-      </header>
-      <form action="/dashboard/persona" method="get" className="ui-toolbar items-end gap-3">
-        <div>
-          <label htmlFor="persona" className="ui-label-caps">
-            Persona
-          </label>
-          <select id="persona" name="persona" defaultValue={persona} className="ui-input min-w-[14rem]">
-            {PERSONAS.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="ui-btn-primary px-5 py-2.5 text-[13px]">
-          Switch view
-        </button>
-      </form>
-      <section className="ui-page-shell">
-        <p className="ui-eyebrow">Shortcuts</p>
-        <h2 className="ui-section-title mt-1 text-xl">Preset command views</h2>
-        <p className="ui-muted-tight mt-1 text-[13px]">
-          Quick role presets for recurring operating cadences.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {PERSONA_PRESETS.map((preset) => (
-            <Link
-              key={preset.id}
-              href={preset.href}
-              className={`ui-card-quiet px-4 py-3 text-sm transition-colors ${
-                preset.persona === persona
-                  ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)] shadow-[var(--shadow-1)]"
-                  : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
-              }`}
-            >
-              <p className="font-semibold">{preset.label}</p>
-              <p className={`mt-1 text-xs ${preset.persona === persona ? "text-white/80" : "text-[var(--text-tertiary)]"}`}>
-                {preset.description}
-              </p>
+    <div className="ui-page-stack gap-3">
+      <header className="ui-page-shell px-4 py-3.5 sm:px-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 max-w-3xl">
+            <p className="ui-eyebrow">Persona</p>
+            <h1 className="ui-section-title mt-1 text-2xl sm:text-3xl">{config.label}</h1>
+            <p className="ui-muted-tight mt-1.5 max-w-2xl text-sm">{config.purpose}</p>
+            <Link className="ui-link mt-2 inline-flex text-xs" href="/dashboard">
+              Back to default dashboard
             </Link>
-          ))}
+          </div>
+          <form action="/dashboard/persona" method="get" className="ui-toolbar items-end gap-2">
+            <div className="min-w-0">
+              <label htmlFor="persona" className="ui-label-caps">
+                Persona
+              </label>
+              <select id="persona" name="persona" defaultValue={persona} className="ui-input min-w-[14rem] max-w-full">
+                {PERSONAS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className="ui-btn-secondary px-4 py-2.5 text-[12.5px]">
+              Apply persona
+            </button>
+          </form>
         </div>
-      </section>
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Signals</p>
-          <h2 className="ui-section-title mt-2 text-xl">Persona metrics</h2>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {personaMetrics.map((m) => (
-            <OperationalSummaryCard
-              key={m.key}
-              eyebrow={m.eyebrow}
-              headline={m.headline}
-              tone={m.tone}
-              icon={m.icon}
-              primaryValue={m.primaryValue}
-              primaryUnit={m.primaryUnit}
-              breakdown={m.breakdown ?? []}
-              action={m.action}
-              variant="compact"
-            />
-          ))}
+      </header>
+      <section className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-3 sm:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="shrink-0">
+            <h2 className="ui-section-title text-base">Work views</h2>
+          </div>
+          <nav aria-label="Work views" className="flex min-w-0 flex-wrap gap-2">
+            {PERSONA_PRESETS.map((preset) => {
+              const active = preset.persona === persona;
+              return (
+                <Link
+                  key={preset.id}
+                  href={preset.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`ui-operational-focusable rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
+                    active
+                      ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)] shadow-[var(--shadow-1)]"
+                      : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
+                  }`}
+                >
+                  {preset.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </section>
       <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4">
-          <OperationalSectionHeader eyebrow="Queue" title="Persona action queue" description={queueDescription} />
+        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3 sm:px-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="ui-eyebrow">Work queue</p>
+              <h2 className="ui-section-title mt-1 text-xl">{config.queueTitle}</h2>
+              <p className="ui-muted-tight mt-1 text-[12.5px]">{config.queueDescription}</p>
+            </div>
+            {actionableChips.length > 0 ? <SeverityMetricStrip items={actionableChips.map((chip) => ({ ...chip, value: String(chip.value) }))} /> : null}
+          </div>
         </div>
-        <ul className="divide-y divide-[var(--border-subtle)] p-3">
-          {personaQueue.length === 0 ? (
-            <li className="px-2 py-4 text-sm text-[var(--text-secondary)]">No queue items in this persona view.</li>
+        <div className="p-3">
+          {showAllClear ? (
+            <CompressedNormalState
+              title={config.emptyMessage}
+              description="Switch work views to inspect another queue."
+              action={
+                secondaryNavAction
+                  ? { href: secondaryNavAction.href, label: ALL_CLEAR_ACTION_LABELS[secondaryNavAction.id] }
+                  : undefined
+              }
+            />
           ) : (
-            personaQueue.map((row) => (
-              <li key={row.id} className="py-2">
-                <OperationalQueueRow
-                  href={row.href}
-                  eyebrow="Next"
-                  title={row.label}
-                  hint={row.meta}
-                  actionLabel="Review item"
-                  tone="neutral"
-                />
-              </li>
-            ))
+            <ul className="divide-y divide-[var(--border-subtle)]">
+              {personaQueue.map((row) => {
+                const metadata = [row.contractTitle, row.ownerLabel, row.dueLabel].filter(Boolean).join(" · ");
+                return (
+                  <li key={row.id} className="py-2">
+                    <OperationalQueueRow
+                      href={row.href}
+                      eyebrow={row.reason}
+                      title={row.title}
+                      hint={metadata}
+                      actionLabel={row.actionLabel}
+                      tone={rowTone(row.urgency)}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </ul>
+        </div>
       </section>
-      <div className="text-sm text-[var(--text-secondary)]">
-        <Link className="ui-link" href="/dashboard">
-          Back to default dashboard
-        </Link>
-      </div>
+      {personaMetrics.length > 0 ? (
+        <section className="space-y-3">
+          <div>
+            <p className="ui-eyebrow">Summary</p>
+            <h2 className="ui-section-title mt-1 text-lg">Advanced portfolio summary</h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {personaMetrics.map((m) => (
+              <OperationalSummaryCard
+                key={m.key}
+                eyebrow={m.eyebrow}
+                headline={m.headline}
+                tone={m.tone}
+                icon={m.icon}
+                primaryValue={m.primaryValue}
+                primaryUnit={m.primaryUnit}
+                breakdown={m.breakdown ?? []}
+                action={m.action}
+                variant="compact"
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

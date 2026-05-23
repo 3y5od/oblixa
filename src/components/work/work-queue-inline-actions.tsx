@@ -7,6 +7,7 @@ import { updateContractTaskStatus } from "@/actions/tasks";
 import { updateContractApprovalStatus } from "@/actions/approvals";
 import { updateContractObligation } from "@/actions/obligations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { pluralizeWithCount as pluralize } from "@/lib/text";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
 
 type WorkQueueInlineActionsProps =
@@ -47,10 +48,6 @@ function actionButtonClass(tone: ActionButton["tone"]) {
   return tone === "primary"
     ? "ui-btn-primary px-2.5 py-1 text-[11px] disabled:opacity-60"
     : "ui-btn-secondary px-2.5 py-1 text-[11px] disabled:opacity-60";
-}
-
-function pluralize(count: number, singular: string, plural = `${singular}s`) {
-  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 function combineMessages(parts: Array<string | null | undefined>) {

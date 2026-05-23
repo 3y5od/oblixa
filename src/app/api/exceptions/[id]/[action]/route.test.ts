@@ -170,6 +170,24 @@ describe("POST /api/exceptions/[id]/[action]", () => {
     expect(res.status).toBe(400);
   });
 
+  it("assign returns 400 when dueDate is not a valid ISO date", async () => {
+    const { POST } = await import("@/app/api/exceptions/[id]/[action]/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/exceptions/ex-1/assign", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ownerId: "owner-1", dueDate: "2026-02-30" }),
+      }),
+      { params: Promise.resolve({ id: "ex-1", action: "assign" }) }
+    );
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      outcome: "validation_failed",
+      diagnostic_id: "v10_exception_due_date_invalid",
+    });
+    expect(recordV10AuditEvent).not.toHaveBeenCalled();
+  });
+
   it("assign succeeds", async () => {
     const { POST } = await import("@/app/api/exceptions/[id]/[action]/route");
     const res = await POST(
@@ -247,7 +265,7 @@ describe("POST /api/exceptions/[id]/[action]", () => {
     );
   });
 
-  it("returns 404 for unsupported action", async () => {
+  it("returns problem JSON for unsupported action before object lookup", async () => {
     const { POST } = await import("@/app/api/exceptions/[id]/[action]/route");
     const res = await POST(
       new Request("http://localhost:3000/api/exceptions/ex-1/unknown", {
@@ -257,6 +275,10 @@ describe("POST /api/exceptions/[id]/[action]", () => {
       }),
       { params: Promise.resolve({ id: "ex-1", action: "unknown" }) }
     );
-    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      details: { reason: "invalid_route_param_enum", param: "action" },
+    });
+    expect(res.status).toBe(400);
   });
 });

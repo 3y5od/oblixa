@@ -1,17 +1,18 @@
 import Link from "next/link";
-import { Database, ListFilter, Table2 } from "lucide-react";
+import { Database, Gauge, ListFilter, Table2 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 
 export default async function ContractDataQualityPage() {
   if (!isFeatureEnabled("v3ReportingHistory")) {
     return (
       <div className="ui-card px-6 py-8">
-        <p className="ui-eyebrow">Feature flag</p>
-        <h1 className="ui-display-title mt-2">Data quality is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-[var(--text-tertiary)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">Feature flag</p>
+        <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">Data quality is disabled</h1>
+        <p className="mt-3 max-w-xl text-[12.5px] leading-relaxed text-[var(--text-tertiary)]">
           Data quality is tied to the same toggle as reporting history. It is off when{" "}
           <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> is explicitly false, 0, no, or off.
         </p>
@@ -58,15 +59,12 @@ export default async function ContractDataQualityPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Quality</p>
-          <h1 className="ui-display-title mt-2">Data quality and lineage</h1>
-          <p className="ui-muted-tight mt-2 max-w-2xl text-[15px]">
-            Track completeness gaps and inspect field-level source confidence to target cleanup work.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Gauge className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Quality"
+        title="Data quality and lineage"
+        lead="Track completeness gaps and inspect field-level source confidence to target cleanup work."
+      />
 
       <section className="space-y-3">
         <div>

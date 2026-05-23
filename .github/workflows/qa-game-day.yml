@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -26,3 +28,5 @@ jobs:
         with:
           name: game-day-evidence
           path: game-day-evidence.json
+          retention-days: 14
+          include-hidden-files: false

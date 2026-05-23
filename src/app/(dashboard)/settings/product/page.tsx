@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { SlidersHorizontal } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
 import {
   resetWorkspaceProductSurfaceDefaultsForm,
@@ -83,20 +85,18 @@ export default async function WorkspaceProductSettingsPage() {
 
   return (
     <div className="ui-page-stack mx-auto max-w-2xl">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Workspace</p>
-          <h1 className="ui-display-title mt-2">Product experience</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            Control how much of the platform appears in navigation and the home dashboard for this
-            workspace.
-          </p>
-        </div>
+      <DashboardPageHeader
+        icon={<SlidersHorizontal className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Internal settings"
+        title="Product experience"
+        lead="Private workspace controls for product-mode and module visibility compatibility."
+      />
+      <div>
         <details className="mt-4 max-w-2xl rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">
             What each mode changes
           </summary>
-          <div className="ui-muted-tight mt-3 space-y-3 text-[13px] text-[var(--text-secondary)]">
+          <div className="ui-muted-tight mt-3 space-y-3 text-[12.5px] text-[var(--text-secondary)]">
             <p>
               <strong>Advanced</strong> adds primary navigation and contextual entry for programs,
               decisions, campaigns, and relationships; home may show portfolio-style strips when not
@@ -134,7 +134,7 @@ export default async function WorkspaceProductSettingsPage() {
         <Link href="/settings" className="ui-link mt-4 inline-block text-sm">
           Back to settings
         </Link>
-      </header>
+      </div>
 
       <section className="ui-page-shell bg-surface p-6 md:p-8">
         <p className="ui-label-caps">Workspace setup questionnaire</p>
@@ -178,7 +178,7 @@ export default async function WorkspaceProductSettingsPage() {
             Run calibration again
           </button>
         </form>
-        <p className="ui-support-copy mt-2 text-[12px]">
+        <p className="ui-support-copy mt-2 text-[12.5px]">
           Opens the setup flow without blocking navigation. Workspace mode and module visibility below
           remain the source of truth until you apply a new recommendation.
         </p>
@@ -229,11 +229,11 @@ export default async function WorkspaceProductSettingsPage() {
               <option value="advanced">Advanced — programs, decisions, campaigns, relationships</option>
               <option value="assurance">Assurance — full adaptive and assurance surfaces</option>
             </select>
-            <p className="ui-muted-tight mt-2 text-[13px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               New workspaces default to Core. Assurance mode is required for mutating autopilot
               execution.
             </p>
-            <p className="ui-muted-tight mt-2 text-[13px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               Workspace mode controls navigation and product experience, not billing. If a downgrade
               would hide active scheduled report subscriptions, confirm that suppression below before
               saving.
@@ -242,7 +242,7 @@ export default async function WorkspaceProductSettingsPage() {
 
           <div>
             <p className="ui-label-caps">Hide advanced modules</p>
-            <p className="ui-muted-tight mt-1 text-[13px]">
+            <p className="ui-muted-tight mt-1 text-[12.5px]">
               When the workspace is Advanced or Assurance, uncheck modules you do not want in primary
               navigation.
             </p>
@@ -254,7 +254,7 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_${key}`}
                     type="checkbox"
                     defaultChecked={hidden.has(key)}
-                    className="h-4 w-4 rounded border-[var(--border-strong)]"
+                    className="ui-checkbox"
                   />
                   <label htmlFor={`hide_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
@@ -271,7 +271,7 @@ export default async function WorkspaceProductSettingsPage() {
                 name="customize_advanced_nav_roles"
                 type="checkbox"
                 defaultChecked={advancedNavCustom}
-                className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+                className="ui-checkbox mt-0.5"
               />
               <div>
                 <label
@@ -280,7 +280,7 @@ export default async function WorkspaceProductSettingsPage() {
                 >
                   Customize which roles see advanced primary navigation
                 </label>
-                <p className="ui-muted-tight mt-1 text-[13px]">
+                <p className="ui-muted-tight mt-1 text-[12.5px]">
                   When Advanced or Assurance mode is on, checked roles below appear in the sidebar for Decisions,
                   Campaigns, Programs, and Relationships. Leave unchecked to use the default (managers, editors,
                   ops, and admins).
@@ -295,7 +295,7 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`adv_nav_${role}`}
                     type="checkbox"
                     defaultChecked={!advancedNavCustom || advancedNavSet.has(role)}
-                    className="h-4 w-4 rounded border-[var(--border-strong)]"
+                    className="ui-checkbox"
                   />
                   <label htmlFor={`adv_nav_${role}`} className="text-sm text-[var(--text-primary)]">
                     {label}
@@ -303,7 +303,7 @@ export default async function WorkspaceProductSettingsPage() {
                 </li>
               ))}
             </ul>
-            <p className="ui-muted-tight mt-2 text-[12px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               If customization is enabled but no roles are checked, advanced primary items are hidden for everyone
               except workspace admins (support bypass).
             </p>
@@ -317,7 +317,7 @@ export default async function WorkspaceProductSettingsPage() {
                   name="customize_assurance_nav_roles"
                   type="checkbox"
                   defaultChecked={assuranceNavCustom}
-                  className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+                  className="ui-checkbox mt-0.5"
                 />
                 <div>
                   <label
@@ -326,7 +326,7 @@ export default async function WorkspaceProductSettingsPage() {
                   >
                     Customize which roles see the Assurance navigation section
                   </label>
-                  <p className="ui-muted-tight mt-1 text-[13px]">
+                  <p className="ui-muted-tight mt-1 text-[12.5px]">
                     When enabled, checked roles see Findings, Control policies, Scorecards, and the rest of the
                     Assurance subtree. Leave unchecked to use the default (admins, ops managers, and managers).
                   </p>
@@ -340,7 +340,7 @@ export default async function WorkspaceProductSettingsPage() {
                       name={`asm_nav_${role}`}
                       type="checkbox"
                       defaultChecked={!assuranceNavCustom || assuranceNavSet.has(role)}
-                      className="h-4 w-4 rounded border-[var(--border-strong)]"
+                      className="ui-checkbox"
                     />
                     <label htmlFor={`asm_nav_${role}`} className="text-sm text-[var(--text-primary)]">
                       {label}
@@ -348,7 +348,7 @@ export default async function WorkspaceProductSettingsPage() {
                   </li>
                 ))}
               </ul>
-              <p className="ui-muted-tight mt-2 text-[12px]">
+              <p className="ui-muted-tight mt-2 text-[12.5px]">
                 If customization is enabled but no roles are checked, Assurance nav is limited to workspace admins.
               </p>
             </div>
@@ -356,7 +356,7 @@ export default async function WorkspaceProductSettingsPage() {
 
           <div>
             <p className="ui-label-caps">Hide tool modules</p>
-            <p className="ui-muted-tight mt-1 text-[13px]">
+            <p className="ui-muted-tight mt-1 text-[12.5px]">
               Hide tool entry points from contextual nav and the tools index.
             </p>
             <ul className="mt-3 space-y-2">
@@ -367,7 +367,7 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_utility_${key}`}
                     type="checkbox"
                     defaultChecked={utilityHidden.has(key)}
-                    className="h-4 w-4 rounded border-[var(--border-strong)]"
+                    className="ui-checkbox"
                   />
                   <label htmlFor={`hide_utility_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
@@ -380,7 +380,7 @@ export default async function WorkspaceProductSettingsPage() {
           {mode === "assurance" ? (
             <div>
               <p className="ui-label-caps">Hide assurance modules</p>
-              <p className="ui-muted-tight mt-1 text-[13px]">
+              <p className="ui-muted-tight mt-1 text-[12.5px]">
                 Keep the Assurance section available while hiding specific assurance module families.
               </p>
               <ul className="mt-3 space-y-2">
@@ -391,7 +391,7 @@ export default async function WorkspaceProductSettingsPage() {
                       name={`hide_assurance_${key}`}
                       type="checkbox"
                       defaultChecked={assuranceHidden.has(key)}
-                      className="h-4 w-4 rounded border-[var(--border-strong)]"
+                      className="ui-checkbox"
                     />
                     <label htmlFor={`hide_assurance_${key}`} className="text-sm text-[var(--text-primary)]">
                       Hide {label}
@@ -415,7 +415,7 @@ export default async function WorkspaceProductSettingsPage() {
               <option value="match_mode">Match workspace mode visibility</option>
               <option value="core_only">Core-only discoverability</option>
             </select>
-            <p className="ui-muted-tight mt-2 text-[13px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               Applies to global discoverability surfaces such as command palette recents and future
               global search indexing.
             </p>
@@ -425,15 +425,14 @@ export default async function WorkspaceProductSettingsPage() {
             <label htmlFor="default_landing_path" className="ui-label-caps">
               Default landing path (optional)
             </label>
-            <input
-              id="default_landing_path"
+            <input aria-label="/dashboard" id="default_landing_path"
               name="default_landing_path"
               type="text"
               defaultValue={v6.default_landing_path ?? ""}
               placeholder="/dashboard"
               className="ui-input mt-2 w-full max-w-md font-mono text-sm"
             />
-            <p className="ui-muted-tight mt-2 text-[13px]">
+            <p className="ui-muted-tight mt-2 text-[12.5px]">
               Must start with <code className="text-xs">/</code>, match the workspace mode (Core cannot use Advanced
               or Assurance routes or command-palette shortcuts as the org default), and stay open-redirect safe. Leave
               blank to keep the default.
@@ -446,13 +445,13 @@ export default async function WorkspaceProductSettingsPage() {
               name="assurance_nav_admin_testing"
               type="checkbox"
               defaultChecked={v6.assurance_nav_admin_testing === true}
-              className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+              className="ui-checkbox mt-0.5"
             />
             <div>
               <label htmlFor="assurance_nav_admin_testing" className="text-sm font-medium text-[var(--text-primary)]">
                 Admin testing: show Assurance navigation outside Assurance mode
               </label>
-              <p className="ui-muted-tight mt-1 text-[13px]">
+              <p className="ui-muted-tight mt-1 text-[12.5px]">
                 For support only. Routes still require Assurance mode unless you are an admin.
               </p>
             </div>
@@ -464,13 +463,13 @@ export default async function WorkspaceProductSettingsPage() {
               name="autopilot_allow_execution"
               type="checkbox"
               defaultChecked={v6.autopilot_allow_execution === true}
-              className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+              className="ui-checkbox mt-0.5"
             />
             <div>
               <label htmlFor="autopilot_allow_execution" className="text-sm font-medium text-[var(--text-primary)]">
                 Allow mutating autopilot execution (Assurance workspaces only)
               </label>
-              <p className="ui-muted-tight mt-1 text-[13px]">
+              <p className="ui-muted-tight mt-1 text-[12.5px]">
                 When off, autopilot stays in dry-run style paths. Requires Assurance mode to take
                 effect.
               </p>
@@ -479,7 +478,7 @@ export default async function WorkspaceProductSettingsPage() {
 
           <div>
             <p className="ui-label-caps">Home dashboard blocks</p>
-            <p className="ui-muted-tight mt-1 text-[13px]">
+            <p className="ui-muted-tight mt-1 text-[12.5px]">
               Hide optional portfolio or assurance strips above the main dashboard (execution metrics always stay).
             </p>
             <ul className="mt-3 space-y-2">
@@ -496,7 +495,7 @@ export default async function WorkspaceProductSettingsPage() {
                     name={`hide_home_${key}`}
                     type="checkbox"
                     defaultChecked={homeHidden.has(key)}
-                    className="h-4 w-4 rounded border-[var(--border-strong)]"
+                    className="ui-checkbox"
                   />
                   <label htmlFor={`hide_home_${key}`} className="text-sm text-[var(--text-primary)]">
                     Hide {label}
@@ -512,7 +511,7 @@ export default async function WorkspaceProductSettingsPage() {
                 id="confirm_scheduled_report_downgrade"
                 name="confirm_scheduled_report_downgrade"
                 type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+                className="ui-checkbox mt-0.5"
               />
               <div>
                 <label
@@ -521,7 +520,7 @@ export default async function WorkspaceProductSettingsPage() {
                 >
                   Confirm scheduled report suppression on downgrade
                 </label>
-                <p className="ui-muted-tight mt-1 text-[13px]">
+                <p className="ui-muted-tight mt-1 text-[12.5px]">
                   Required only when this change would hide active scheduled report subscriptions.
                   Matching subscriptions are deactivated and recorded in audit when the downgrade is
                   applied.
@@ -530,12 +529,12 @@ export default async function WorkspaceProductSettingsPage() {
             </div>
           </div>
 
-          <button type="submit" className="ui-btn-primary px-4 py-2 text-[13px]">
+          <button type="submit" className="ui-btn-primary px-4 py-2 text-[12.5px]">
             Save product settings
           </button>
         </form>
         <form action={resetWorkspaceProductSurfaceDefaultsForm as never} className="mt-4">
-          <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
+          <button type="submit" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
             Reset to workspace defaults
           </button>
         </form>

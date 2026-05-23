@@ -94,7 +94,26 @@ permissions:
 jobs:
   qa_static:
     uses: ./.github/workflows/reusable-qa-ultimate.yml
-    secrets: inherit
+    secrets:
+      STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      RLS_SMOKE_STRICT: ${{ secrets.RLS_SMOKE_STRICT }}
+      RUN_LIGHTHOUSE_NIGHTLY: ${{ secrets.RUN_LIGHTHOUSE_NIGHTLY }}
+      SYNTHETIC_STRICT: ${{ secrets.SYNTHETIC_STRICT }}
+      SEMGREP_FULL: ${{ secrets.SEMGREP_FULL }}
+      SBOM_DIFF_STRICT: ${{ secrets.SBOM_DIFF_STRICT }}
+      DOMAIN_STRICT: ${{ secrets.DOMAIN_STRICT }}
+      DNSSEC_PRIVACY_STRICT: ${{ secrets.DNSSEC_PRIVACY_STRICT }}
+      CERT_STRICT: ${{ secrets.CERT_STRICT }}
+      READABILITY_STRICT: ${{ secrets.READABILITY_STRICT }}
+      EMAIL_DNS_STRICT: ${{ secrets.EMAIL_DNS_STRICT }}
+      COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+      SLSA_VERIFY_STRICT: ${{ secrets.SLSA_VERIFY_STRICT }}
+      DR_DRILL_STRICT: ${{ secrets.DR_DRILL_STRICT }}
+      SUPPLY_CHAIN_STUB_REPORT: ${{ secrets.SUPPLY_CHAIN_STUB_REPORT }}
+      CARBON_RUNTIME_REPORT: ${{ secrets.CARBON_RUNTIME_REPORT }}
+      K8S_POLICY_STRICT: ${{ secrets.K8S_POLICY_STRICT }}
+      REPORT_GATE_STRICT: ${{ secrets.REPORT_GATE_STRICT }}
+      POSTMERGE_VERIFY_STRICT: ${{ secrets.POSTMERGE_VERIFY_STRICT }}
     with:
       tier: ${{ github.event.inputs.ultimate_tier || 'nightly' }}
       ultimate_strict: ${{ github.event.inputs.ultimate_strict || '0' }}
@@ -109,6 +128,8 @@ jobs:
         batch_index: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -127,6 +148,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -141,6 +164,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -154,6 +179,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -168,6 +195,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -186,6 +215,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -208,6 +239,8 @@ jobs:
         shard_index: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -230,11 +263,15 @@ jobs:
         with:
           name: playwright-junit-${{ matrix.shard_index }}
           path: test-results/junit-*.xml
+          retention-days: 14
+          include-hidden-files: false
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: playwright-blob-${{ matrix.shard_index }}
           path: blob-report/
+          retention-days: 14
+          include-hidden-files: false
 
   playwright_merge:
     needs: playwright_shard
@@ -243,6 +280,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -264,6 +303,8 @@ jobs:
         with:
           name: playwright-report-merged
           path: playwright-report/
+          retention-days: 14
+          include-hidden-files: false
 
   junit_merge:
     needs: playwright_shard
@@ -272,6 +313,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -292,6 +335,8 @@ jobs:
           name: junit-merged
           path: test-results/junit-merged.xml
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
   lighthouse_optional:
     needs: qa_static
@@ -300,6 +345,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -316,6 +363,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -333,6 +382,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -347,6 +398,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - run: docker compose -f docker-compose.chaos.yml up -d
       - run: sleep 6 && curl -fsS http://127.0.0.1:13999/
 
@@ -357,6 +410,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -376,6 +431,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -395,6 +452,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -411,6 +470,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -429,6 +490,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -448,6 +511,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -462,6 +527,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.12"
@@ -488,6 +555,8 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -512,6 +581,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -530,6 +601,8 @@ jobs:
       REPRODUCIBLE_BUILD_STRICT: "1"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -546,6 +619,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"
@@ -571,6 +646,8 @@ jobs:
             artifacts/assurance/api-runtime-smoke-last-run.json
             artifacts/assurance/api-runtime-smoke-junit.xml
           if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: false
 
   merge_queue_canary_note:
     needs: qa_static
@@ -579,6 +656,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - name: Merge-queue canary parity
         run: node scripts/check-merge-queue-canary-parity.mjs
 
@@ -589,6 +668,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: ".nvmrc"

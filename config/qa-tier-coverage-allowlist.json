@@ -1,6 +1,13 @@
 {
   "version": 1,
   "note": "Scripts not explicit in qa-tier-manifest; batch/autodiscover.",
+  "metadata": {
+    "owner": "qa-platform",
+    "reviewedOn": "2026-05-11",
+    "reason": "Scripts are covered by batch discovery or dedicated pipeline tiers rather than listed directly in qa-tier-manifest.",
+    "expiresOn": "2027-12-31",
+    "compensatingTest": "scripts/check-tier-coverage.mjs"
+  },
   "scripts": [
     "check:account-recovery-abuse-guards",
     "check:adr-required-paths-lint",
@@ -195,7 +202,6 @@
     "check:qa-maximal-twelfth-expansion-closure",
     "check:qa-route-coverage-tsv",
     "check:qa-waiver-registry",
-    "check:query-cost-policy",
     "check:queue-message-authenticity",
     "check:queue-surface",
     "check:rate-limit-distribution-safety",

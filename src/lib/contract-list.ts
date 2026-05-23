@@ -15,6 +15,8 @@ export interface ContractListFilterInput {
   orgId: string;
   status?: string;
   owner?: string;
+  counterparty?: string;
+  contractType?: string;
   region?: string;
   /**
    * Narrow to these contract ids (AND with all other filters).
@@ -39,7 +41,12 @@ export type ContractsPageResult = {
 };
 
 function canUseContractsPageSnapshot(filters: ContractListFilterInput): boolean {
-  return filters.intersectIds === null && filters.fieldSearchIds.length === 0;
+  return (
+    filters.intersectIds === null &&
+    filters.fieldSearchIds.length === 0 &&
+    !filters.counterparty &&
+    !filters.contractType
+  );
 }
 
 function parseContractsPageSnapshot(data: unknown): { contracts: Contract[]; total: number } | null {
@@ -110,6 +117,12 @@ export async function fetchContractsPage(
   }
   if (filters.owner) {
     q = q.eq("owner_id", filters.owner);
+  }
+  if (filters.counterparty) {
+    q = q.eq("counterparty", filters.counterparty);
+  }
+  if (filters.contractType) {
+    q = q.eq("contract_type", filters.contractType);
   }
   if (filters.region) {
     q = q.eq("region", filters.region);

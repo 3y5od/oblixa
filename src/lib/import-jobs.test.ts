@@ -13,7 +13,15 @@ vi.mock("@/lib/v4/program-auto-attach", () => ({ autoAttachProgramsForContract }
 vi.mock("@/lib/product-telemetry", () => ({ emitProductTelemetryEvent }));
 vi.mock("@/lib/extraction/concurrency", () => ({ mapWithConcurrency }));
 
-import { runContractCsvImport } from "@/lib/import-jobs";
+import {
+  MAX_IMPORT_BODY_CHARS,
+  MAX_IMPORT_CSV_CELL_CHARS,
+  MAX_IMPORT_CSV_ROWS,
+  minimizeImportRawPayload,
+  normalizeCsvImportCell,
+  parseCsv,
+  runContractCsvImport,
+} from "@/lib/import-jobs";
 
 function makeAdmin(ownerMembers: Array<{ user_id: string; profiles: { email: string | null } }> = []) {
   const eqLog: Array<{ table: string; col: string; val: string }> = [];
@@ -56,7 +64,13 @@ function makeAdmin(ownerMembers: Array<{ user_id: string; profiles: { email: str
           insert: vi.fn(() => ({
             select: vi.fn(() => ({ single: vi.fn(async () => ({ data: { id: "job-1" }, error: null })) })),
           })),
-          update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
+          update: vi.fn(() => {
+            const chain = {
+              eq: vi.fn(() => chain),
+              then: (resolve: (value: { error: null }) => unknown) => Promise.resolve({ error: null }).then(resolve),
+            };
+            return chain;
+          }),
         };
       }
       if (table === "contracts") return { insert: contractInsert };
@@ -112,7 +126,75 @@ describe("runContractCsvImport owner assignment", () => {
         owner_email: "missing@acme.test",
         status: "error",
         error_message: "Owner email not found in workspace",
+        raw_payload: expect.objectContaining({
+          raw_payload_minimized: true,
+          retained_for: "retry_normalized_fields",
+          payload_hash_sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+          retry_fields: expect.objectContaining({
+            title: "MSA",
+            counterparty: "Acme",
+            owner_email: "missing@acme.test",
+          }),
+        }),
       }),
     ]);
+  });
+});
+
+describe("parseCsv malformed CSV boundaries", () => {
+  it("keeps malformed quoted CSV bounded and non-throwing", () => {
+    const rows = parseCsv('title,counterparty\n"unterminated,Acme\nSecond,Vendor');
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.length).toBeLessThanOrEqual(2);
+  });
+
+  it("neutralizes formulas and strips bidi controls in imported cells", () => {
+    expect(normalizeCsvImportCell("=IMPORTXML(\"https://evil.test\")")).toBe("'=IMPORTXML(\"https://evil.test\")");
+    expect(normalizeCsvImportCell(" \u202e+cmd")).toBe("'+cmd");
+    expect(parseCsv("title,counterparty\n\u202e=cmd,Vendor \u2066LLC\u2069")).toEqual([
+      { title: "'=cmd", counterparty: "Vendor LLC" },
+    ]);
+  });
+
+  it("caps parsed CSV rows and cells before trusted import processing", () => {
+    const oversizedCell = "A".repeat(MAX_IMPORT_CSV_CELL_CHARS + 256);
+    const csv = [
+      "title,counterparty",
+      `${oversizedCell},Vendor`,
+      ...Array.from({ length: MAX_IMPORT_CSV_ROWS + 250 }, (_, index) => `MSA ${index},Acme`),
+    ].join("\n");
+    const rows = parseCsv(csv);
+    expect(rows).toHaveLength(MAX_IMPORT_CSV_ROWS);
+    expect(rows[0]?.title).toHaveLength(MAX_IMPORT_CSV_CELL_CHARS);
+  });
+
+  it("documents the import parser body ceiling", () => {
+    expect(MAX_IMPORT_BODY_CHARS).toBe(2_000_000);
+  });
+
+  it("stores retry-safe minimized import payloads with TTL metadata", () => {
+    const payload = minimizeImportRawPayload(
+      {
+        title: "\u202e=MSA",
+        counterparty: "Acme",
+        owner_email: "OWNER@ACME.TEST",
+        external_reference_id: "ext-1",
+      },
+      new Date("2026-01-01T00:00:00.000Z")
+    );
+
+    expect(payload).toMatchObject({
+      schema_version: 1,
+      raw_payload_minimized: true,
+      retained_for: "retry_normalized_fields",
+      ttl_expires_at: "2026-01-31T00:00:00.000Z",
+      payload_hash_sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      retry_fields: {
+        title: "'=MSA",
+        counterparty: "Acme",
+        owner_email: "owner@acme.test",
+        external_reference_id: "ext-1",
+      },
+    });
   });
 });

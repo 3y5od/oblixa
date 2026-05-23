@@ -19,4 +19,10 @@ describe("feature flag kill switch", () => {
     const { isFeatureEnabled } = await import("./feature-flags");
     expect(isFeatureEnabled("v3TasksEngine")).toBe(true);
   });
+
+  it("treats typoed explicit env values as disabled", async () => {
+    vi.stubEnv("ENABLE_V3_TASKS_ENGINE", "enabled");
+    const { isFeatureEnabled } = await import("./feature-flags");
+    expect(isFeatureEnabled("v3TasksEngine")).toBe(false);
+  });
 });

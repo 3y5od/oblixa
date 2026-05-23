@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-07T01:33:53.954Z",
+  "generatedAt": "2026-05-15T23:12:38.559Z",
   "rows": [
     {
       "route": "/",
@@ -103,6 +103,15 @@
       "sourcePath": "src/app/page.tsx",
       "providers": [],
       "fallbackRequired": false
+    },
+    {
+      "route": "/acceptable-use",
+      "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
+      "providers": [
+        "openai",
+        "storage"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/accessibility",
@@ -410,6 +419,16 @@
       "fallbackRequired": true
     },
     {
+      "route": "/api/contact",
+      "sourcePath": "src/app/api/contact/route.ts",
+      "providers": [
+        "resend",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/api/contracts/recompute-signals",
       "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
       "providers": [
@@ -455,6 +474,15 @@
       "sourcePath": "src/app/api/counterparties/[key]/summary/route.ts",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/security/retention-cleanup",
+      "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -1012,6 +1040,7 @@
       "sourcePath": "src/app/api/extract/run/route.ts",
       "providers": [
         "openai",
+        "supabase",
         "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
@@ -1433,6 +1462,7 @@
       "route": "/api/reports/track/click/[token]",
       "sourcePath": "src/app/api/reports/track/click/[token]/route.ts",
       "providers": [
+        "storage",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -1476,6 +1506,14 @@
       "sourcePath": "src/app/api/review-boards/runs/[id]/route.ts",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/security/csp-report",
+      "sourcePath": "src/app/api/security/csp-report/route.ts",
+      "providers": [
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -1777,12 +1815,16 @@
       "fallbackRequired": true
     },
     {
+      "route": "/contact",
+      "sourcePath": "src/app/(marketing)/contact/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "/contracts",
       "sourcePath": "src/app/(dashboard)/contracts/loading.tsx",
-      "providers": [
-        "supabase"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/contracts",
@@ -1935,10 +1977,8 @@
     {
       "route": "/contracts/evidence-studio",
       "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
-      "providers": [
-        "supabase"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/contracts/evidence-studio",
@@ -1951,16 +1991,13 @@
     {
       "route": "/contracts/exceptions",
       "sourcePath": "src/app/(dashboard)/contracts/exceptions/loading.tsx",
-      "providers": [
-        "supabase"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/contracts/exceptions",
       "sourcePath": "src/app/(dashboard)/contracts/exceptions/page.tsx",
       "providers": [
-        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2021,7 +2058,6 @@
       "route": "/contracts/obligations",
       "sourcePath": "src/app/(dashboard)/contracts/obligations/page.tsx",
       "providers": [
-        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2288,6 +2324,7 @@
       "route": "/more",
       "sourcePath": "src/app/(dashboard)/more/page.tsx",
       "providers": [
+        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2321,10 +2358,32 @@
       "fallbackRequired": true
     },
     {
+      "route": "/pricing",
+      "sourcePath": "src/app/(marketing)/pricing/page.tsx",
+      "providers": [
+        "openai"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/privacy",
       "sourcePath": "src/app/(marketing)/privacy/page.tsx",
       "providers": [
         "openai"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
+      "providers": [
+        "calendar"
       ],
       "fallbackRequired": true
     },
@@ -2360,9 +2419,7 @@
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/page.tsx",
       "providers": [
-        "openai",
-        "supabase",
-        "webhook_outbox"
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -2390,7 +2447,8 @@
       "route": "/settings",
       "sourcePath": "src/app/(dashboard)/settings/page.tsx",
       "providers": [
-        "calendar",
+        "openai",
+        "stripe",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2399,6 +2457,7 @@
       "route": "/settings/billing",
       "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
       "providers": [
+        "calendar",
         "openai",
         "stripe",
         "supabase"
@@ -2417,6 +2476,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/settings/operations",
       "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
       "providers": [
@@ -2427,6 +2494,22 @@
     {
       "route": "/settings/policy",
       "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
       "providers": [
         "supabase"
       ],
@@ -2599,6 +2682,7 @@
       "route": "action:applyObligationTemplatesToContract",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2607,6 +2691,7 @@
       "route": "action:applyObligationTemplatesToContractForm",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2617,6 +2702,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -2625,6 +2711,15 @@
     {
       "route": "action:applyProgramAction",
       "sourcePath": "src/actions/v4.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:approvals-action-scope.test",
+      "sourcePath": "src/actions/approvals-action-scope.test.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -2670,6 +2765,14 @@
       "providers": [
         "supabase",
         "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:automation-action-scope.test",
+      "sourcePath": "src/actions/automation-action-scope.test.ts",
+      "providers": [
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -2892,6 +2995,7 @@
       "route": "action:contracts-action-scope.test",
       "sourcePath": "src/actions/contracts-action-scope.test.ts",
       "providers": [
+        "crm",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2926,6 +3030,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -2986,6 +3091,7 @@
       "route": "action:createContractObligation",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2994,6 +3100,7 @@
       "route": "action:createContractsSavedView",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3002,6 +3109,7 @@
       "route": "action:createContractsSavedViewWithFeedback",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3038,6 +3146,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3049,6 +3158,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3060,6 +3170,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3077,6 +3188,7 @@
       "route": "action:createObligationTemplate",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3085,6 +3197,7 @@
       "route": "action:createObligationTemplateForm",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3104,6 +3217,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3115,6 +3229,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3150,6 +3265,7 @@
       "route": "action:createSavedView",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3178,6 +3294,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3189,6 +3306,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3254,6 +3372,7 @@
       "route": "action:deleteContractObligation",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3303,6 +3422,7 @@
       "route": "action:deleteSavedView",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3790,6 +3910,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3916,6 +4037,12 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:server-action-input-safety.test",
+      "sourcePath": "src/actions/server-action-input-safety.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "action:sessions.test",
       "sourcePath": "src/actions/sessions.test.ts",
       "providers": [
@@ -3937,6 +4064,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3946,6 +4074,7 @@
       "route": "action:setSavedViewMonthlySummary",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3954,6 +4083,7 @@
       "route": "action:setSavedViewPinned",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3962,6 +4092,7 @@
       "route": "action:setSavedViewWeeklyRecipients",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3970,6 +4101,7 @@
       "route": "action:setSavedViewWeeklySummary",
       "sourcePath": "src/actions/saved-views.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -4084,6 +4216,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4111,6 +4244,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4122,6 +4256,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4151,6 +4286,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4162,6 +4298,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4263,6 +4400,7 @@
       "route": "action:updateContractObligation",
       "sourcePath": "src/actions/obligations.ts",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -4374,6 +4512,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4567,6 +4706,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4604,6 +4744,7 @@
       "providers": [
         "calendar",
         "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4643,6 +4784,15 @@
       "sourcePath": "src/actions/watchlists-action-scope.test.ts",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:workflow-config-action-scope.test",
+      "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
       ],
       "fallbackRequired": true
     },

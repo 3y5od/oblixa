@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import {
@@ -6,13 +7,31 @@ import {
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import {
+  externalActionTokenHash,
+  externalActionTokenMatches,
+  externalActionTokenPrefix,
+  externalActionTokenStableKey,
+  isExternalActionTokenSyntax,
+  readJsonBody,
+  toSafeString,
+} from "@/lib/v5/api";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { appendExternalWorkflowStep, setExternalWorkflowAckDeadline } from "@/lib/v6/external-collaboration";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { recordPublicTokenMiss } from "@/lib/security/public-token-telemetry";
+
+const ROUTE = "/api/external-actions/[token]/workflow-step";
+const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" } as const;
+
+type TokenHashLookup = {
+  eq: (column: string, value: string) => { maybeSingle: () => Promise<{ data: unknown; error: unknown }> };
+};
 
 function routeFailure(input: {
   status: number;
@@ -21,16 +40,13 @@ function routeFailure(input: {
   diagnosticId: string;
   phase: string;
 }) {
-  return NextResponse.json(
-    {
-      ok: false,
-      error: input.error,
-      code: input.code,
-      diagnostic_id: input.diagnosticId,
-      phase: input.phase,
-    },
-    { status: input.status }
-  );
+  return jsonProblem(input.status, {
+    error: input.error,
+    code: input.code,
+    diagnostic_id: input.diagnosticId,
+    route: ROUTE,
+    details: { phase: input.phase },
+  });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
@@ -40,19 +56,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`external-workflow-internal:${ip}`, RATE_LIMITS.externalWorkflowStepInternal);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))),
-        },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -61,21 +69,45 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   });
   if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    return jsonForbidden(ROUTE);
   }
 
   const token = toSafeString((await params).token);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ token }, ["token"], "/api/external-actions/[token]/workflow-step");
+
+  if (routeParamRejection) return routeParamRejection;
+  const tokenHash = externalActionTokenHash(token);
+  const tokenKey = externalActionTokenStableKey(token);
+  if (!isExternalActionTokenSyntax(token)) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "malformed" });
+    return jsonNotFound(ROUTE);
+  }
   const duplicate = await enforceIdempotency(request, {
     scope: "external-workflow.internal-step",
-    actorKey: `${ctx.orgId}:${ctx.userId}:${token}`,
+    actorKey: `${ctx.orgId}:${ctx.userId}:${tokenKey}`,
   });
   if (duplicate) return duplicate;
-  const { data: link, error } = await ctx.admin
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/external-actions/[token]/workflow-step",
+    method: "POST",
+  }).catch(() => undefined);
+  const tokenPrefix = externalActionTokenPrefix(token);
+  const query = ctx.admin
     .from("external_action_links")
-    .select("id, organization_id")
-    .eq("organization_id", ctx.orgId)
-    .eq("token", token)
-    .maybeSingle();
+    .select("id, organization_id, status, expires_at, revoked_at, token_hash")
+    .eq("organization_id", ctx.orgId);
+  const hasHashLookup = typeof (query as { or?: unknown }).or === "function";
+  const lookupResult =
+    hasHashLookup
+      ? await query.or(`token_prefix.eq.${tokenPrefix},token_hash.eq.${tokenHash}`).limit(10)
+      : await (query as unknown as TokenHashLookup)
+          .eq("token_hash", tokenHash)
+          .maybeSingle();
+  const candidates = Array.isArray(lookupResult.data) ? lookupResult.data : lookupResult.data ? [lookupResult.data] : [];
+  const error = lookupResult.error;
 
   if (error) {
     return routeFailure({
@@ -86,7 +118,29 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       phase: "source_query",
     });
   }
-  if (!link) return NextResponse.json({ error: "External action not found" }, { status: 404 });
+  const link = hasHashLookup ? (candidates ?? []).find((row) => externalActionTokenMatches(row, token)) : candidates[0];
+  if (!link) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "not_found" });
+    return jsonNotFound(ROUTE);
+  }
+  if (link.status === "revoked" || link.revoked_at) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "revoked" });
+    return jsonProblem(410, {
+      error: "External action link revoked",
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_workflow_revoked",
+      route: ROUTE,
+    });
+  }
+  if (link.expires_at && link.expires_at < new Date().toISOString()) {
+    recordPublicTokenMiss({ surface: "external_action", route: ROUTE, tokenKey, ip, reason: "expired" });
+    return jsonProblem(410, {
+      error: "External action link expired",
+      code: "external_action_expired",
+      diagnostic_id: "external_action_workflow_expired",
+      route: ROUTE,
+    });
+  }
 
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
     readJsonBody<{
@@ -157,6 +211,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       ...(errors.length > 0 ? { ok: false, partial: true, errors_count: errors.length, errors } : {}),
       externalAction: result.data,
     },
-    { status: errors.length > 0 ? 207 : 201 }
+    { status: errors.length > 0 ? 207 : 201, headers: PRIVATE_NO_STORE_HEADERS }
   );
 }

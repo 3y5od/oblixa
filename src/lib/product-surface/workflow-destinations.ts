@@ -157,7 +157,7 @@ const MODE_RANK: Record<WorkspaceProductMode, number> = {
 };
 
 const CORE_COPY = {
-  home: ["Home", "What needs attention now.", "Home", "What needs attention now."],
+  home: ["Dashboard", "What needs attention now.", "Dashboard", "What needs attention now."],
   contracts: ["Contracts", "Find, upload, and manage contracts.", "Contracts", "Find, upload, and manage contracts."],
   review: ["Review", "Review extracted fields before work depends on them.", "Review", "Open review"],
   work: ["Work", "Tasks, approvals, obligations, and blockers assigned to you.", "Work", "Open assigned work."],
@@ -169,7 +169,12 @@ const CORE_COPY = {
   evidence: ["Evidence", "Evidence requests and submitted proof.", "Evidence", "Open evidence."],
   reports: ["Reports", "Standard reports and exports.", "Reports", "Open reports."],
   contract_report_packs: ["Report packs", "Standard contract report packs and export history.", "Report packs", "Open report packs."],
-  settings: ["Settings", "Members and workspace basics.", "Settings", "Open settings."],
+  settings: [
+    "Settings",
+    "Manage workspace, team, billing, notifications, security, and export settings.",
+    "Settings",
+    "Open settings.",
+  ],
 } as const;
 
 function copy(label: string, description: string, ctaLabel?: string): WorkflowDestinationCopy {
@@ -322,7 +327,7 @@ export const WORKFLOW_DESTINATIONS = [
     featureFamily: "evidence",
     workflowArea: "workflows",
     minWorkspaceMode: "core",
-    placementsByMode: placements(["primary", "nav_child", "cmdk", "dashboard_card"]),
+    placementsByMode: placements(["nav_child", "cmdk", "contextual"], ["cmdk", "contextual", "tools_only"]),
     copyByMode: copies(
       coreCopy("evidence"),
       copy("Evidence", "Coordinate evidence across programs and counterparties.", "Open evidence"),
@@ -360,8 +365,8 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["primary", "cmdk"]),
     copyByMode: copies(
       coreCopy("settings"),
-      copy("Settings", "Workspace mode, workflow configuration, integrations, and portfolio settings.", "Open settings"),
-      copy("Settings", "Controls, delivery health, policies, automation boundaries, and workspace settings.", "Open settings")
+      copy("Settings", "Workspace, team, billing, notifications, security, and export settings.", "Open settings"),
+      copy("Settings", "Workspace, team, billing, notifications, security, and export settings.", "Open settings")
     ),
   },
   {
@@ -736,22 +741,25 @@ export const WORKFLOW_DESTINATIONS = [
     minWorkspaceMode: "core",
     placementsByMode: placements(["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"]),
     copyByMode: copies(
-      copy("Security", "MFA, sessions, step-up, and data export.", "Open security"),
+      copy("Security", "MFA, sessions, team roles, and security resources.", "Open security"),
       copy("Security", "Authenticator enrollment and session controls.", "Open security"),
       copy("Security", "MFA policy, session hygiene, and DSR export hooks.", "Open security")
     ),
   },
+  // Hidden Settings routes remain directly reachable for internal/private
+  // compatibility, but public Core navigation, directory, and cmd-K use the
+  // release-state Settings destinations instead.
   {
     key: "system_health",
     href: "/settings/health",
     featureFamily: "settings",
     workflowArea: "workspace",
     minWorkspaceMode: "core",
-    placementsByMode: placements(["admin_contextual", "more_card"], ["admin_contextual", "more_card"], ["admin_contextual", "more_card"]),
+    placementsByMode: placements(["hidden"], ["admin_contextual", "more_card"], ["admin_contextual", "more_card"]),
     copyByMode: copies(
       copy("System health", "Delivery, imports, exports, and extraction reliability.", "Open health"),
       copy("System health", "Workflow reliability, integrations, reports, and portfolio operations.", "Open health"),
-      copy("System health", "Control-plane delivery, review packets, automation, and reporting reliability.", "Open health")
+      copy("System health", "Workflow reliability, assurance operations, automation, and reporting status.", "Open health")
     ),
   },
   {
@@ -761,7 +769,7 @@ export const WORKFLOW_DESTINATIONS = [
     workflowArea: "workspace",
     minWorkspaceMode: "core",
     placementsByMode: placements(["admin_contextual", "cmdk"]),
-    copyByMode: copies(copy("Operations settings", "Workflow configuration and notification policy.", "Open operations settings")),
+    copyByMode: copies(copy("Notifications", "Reminder defaults for renewal, review, work, evidence, and digest email.", "Edit notifications")),
   },
   {
     key: "product_settings",
@@ -769,7 +777,7 @@ export const WORKFLOW_DESTINATIONS = [
     featureFamily: "settings",
     workflowArea: "workspace",
     minWorkspaceMode: "core",
-    placementsByMode: placements(["admin_contextual", "cmdk"]),
+    placementsByMode: placements(["hidden"], ["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"]),
     copyByMode: copies(copy("Product experience", "Workspace mode and destination visibility.", "Open product experience")),
   },
   {
@@ -778,11 +786,11 @@ export const WORKFLOW_DESTINATIONS = [
     featureFamily: "settings",
     workflowArea: "workspace",
     minWorkspaceMode: "core",
-    placementsByMode: placements(["admin_contextual", "cmdk"]),
+    placementsByMode: placements(["hidden"], ["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"]),
     copyByMode: copies(
-      copy("Policy settings", "Workspace policy settings.", "Open policy settings"),
-      copy("Policy settings", "Policy simulation and governance settings.", "Open policy settings"),
-      copy("Policy settings", "Control policy simulation and governance settings.", "Open policy settings")
+      copy("Workflow policies", "Rules for approvals, reminders, evidence, and reviews.", "Configure workflow policies"),
+      copy("Workflow policies", "Policy controls with contract-level impact preview.", "Configure workflow policies"),
+      copy("Workflow policies", "Policy controls for workflow and assurance behavior.", "Configure workflow policies")
     ),
   },
   {
@@ -1012,4 +1020,3 @@ export function assertNoForbiddenCoreWorkflowDestinationTerms(): string[] {
   }
   return failures;
 }
-

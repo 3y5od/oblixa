@@ -4,7 +4,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { getContractAccessContext } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import { isUuid, validateBoundedString } from "@/lib/security/validation";
 
 const MAX_NOTE_LEN = 5000;
 
@@ -46,9 +46,16 @@ export async function createContractNote(input: {
   if (!user) return { error: "Not authenticated" };
   if (!isUuid(input.contractId)) return { error: "Invalid contract" };
 
-  const note = input.note.trim();
-  if (!note) return { error: "Note cannot be empty" };
-  if (note.length > MAX_NOTE_LEN) return { error: "Note is too long" };
+  const noteValidation = validateBoundedString(input.note, {
+    maxLength: MAX_NOTE_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!noteValidation.ok) {
+    if (noteValidation.error === "string_too_long") return { error: "Note is too long" };
+    if (noteValidation.error === "unsafe_characters") return { error: "Note contains unsupported characters" };
+    return { error: "Note cannot be empty" };
+  }
+  const note = noteValidation.value;
 
   const ctx = await getUserContextForContract(admin, user.id, input.contractId);
   if (!ctx) return { error: "Access denied" };

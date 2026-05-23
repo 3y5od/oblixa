@@ -27,8 +27,11 @@ import {
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { isIsoDateOnly } from "@/lib/security/validation";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const EXCEPTION_ACTIONS = ["assign", "resolve", "reopen"] as const;
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
   return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
@@ -54,6 +57,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   const { id, action } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id, action }, ["id", "action"], "/api/exceptions/[id]/[action]");
+  if (routeParamRejection) return routeParamRejection;
+  const routeActionRejection = rejectInvalidRouteParamEnums(
+    { action },
+    { action: EXCEPTION_ACTIONS },
+    "/api/exceptions/[id]/[action]"
+  );
+  if (routeActionRejection) return routeActionRejection;
   const ctx = await getApiAuthContext();
   if (!ctx) {
     return jsonV10(
@@ -108,7 +119,8 @@ export async function POST(
     rootCause?: string;
     dueDate?: string;
   };
-  if (body.dueDate && isNaN(new Date(body.dueDate).getTime())) {
+  const dueDate = String(body.dueDate ?? "").trim() || null;
+  if (dueDate && !isIsoDateOnly(dueDate)) {
     return jsonV10(
       buildV10MutationResponse({
         outcome: "validation_failed",
@@ -140,7 +152,7 @@ export async function POST(
         idempotencyKey: getV10IdempotencyKeyFromRequest(request),
         expectedVersion: getV10ExpectedVersionFromRequest(request),
         currentVersion: row.updated_at ?? row.status,
-        payload: { action, owner_id: ownerId, due_date: body.dueDate ?? null },
+        payload: { action, owner_id: ownerId, due_date: dueDate },
       },
       async () => {
         if (!["open", "in_progress"].includes(String(row.status ?? "open"))) {
@@ -188,7 +200,7 @@ export async function POST(
         }
         const { error } = await ctx.admin
           .from("exceptions")
-          .update({ owner_id: ownerId, due_date: body.dueDate || null, status: "in_progress" })
+          .update({ owner_id: ownerId, due_date: dueDate, status: "in_progress" })
           .eq("id", id)
           .eq("organization_id", ctx.orgId);
         if (error) {
@@ -203,7 +215,7 @@ export async function POST(
           exception_id: id,
           event_type: "assigned",
           actor_user_id: ctx.userId,
-          details: { owner_id: ownerId, due_date: body.dueDate ?? null },
+          details: { owner_id: ownerId, due_date: dueDate },
         });
         if (row.contract_id) {
           await appendCasefileEvent({
@@ -214,7 +226,7 @@ export async function POST(
             entityType: "exception",
             entityId: id,
             actorUserId: ctx.userId,
-            details: { owner_id: ownerId, due_date: body.dueDate ?? null },
+            details: { owner_id: ownerId, due_date: dueDate },
           });
         }
         if (isFeatureEnabled("v6AssuranceCore")) {
@@ -230,7 +242,7 @@ export async function POST(
           outcome: "success",
           beforeStateHash: String(row.status ?? "open"),
           afterStateHash: "in_progress",
-          safeMetadata: { owner_assigned: true, due_date_state: body.dueDate ? "provided" : "not_provided" },
+          safeMetadata: { owner_assigned: true, due_date_state: dueDate ? "provided" : "not_provided" },
         });
         await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
           refreshScope: row.contract_id ? "one_contract" : "one_model",

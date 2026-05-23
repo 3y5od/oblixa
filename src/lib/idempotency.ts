@@ -9,14 +9,15 @@ export {
 
 const IDEMPOTENCY_KEY_RE = /^[A-Za-z0-9:_\-]{8,200}$/;
 
-function readIdempotencyHeader(request: Request): string | null {
+function readIdempotencyHeader(request: Request | null | undefined): string | null {
+  if (!request) return null;
   const raw = request.headers.get("x-idempotency-key")?.trim() ?? "";
   if (!raw) return null;
   if (!IDEMPOTENCY_KEY_RE.test(raw)) return "__invalid__";
   return raw;
 }
 
-export async function enforceIdempotency(request: Request, input: { scope: string; actorKey: string }) {
+export async function enforceIdempotency(request: Request | null | undefined, input: { scope: string; actorKey: string }) {
   const key = readIdempotencyHeader(request);
   if (!key) return null;
   if (key === "__invalid__") {

@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
+const ROUTE = "/api/renewals/portfolio-signals";
+
 export async function GET() {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -18,7 +21,14 @@ export async function GET() {
     .select("id, status, due_date, renewal_state")
     .eq("organization_id", ctx.orgId)
     .limit(2000);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "renewal_portfolio_signals_load_failed",
+      diagnostic_id: "renewal_portfolio_signals_load_failed",
+      route: ROUTE,
+    });
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   const totals = {

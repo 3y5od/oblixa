@@ -25,7 +25,7 @@ type CampaignRow = {
 };
 type OwnerContractRow = { owner_id: string };
 type TeamTaskRow = { team_key?: string | null };
-type CounterpartyAccountRow = { counterparty?: string | null; linked_account_key?: string | null };
+type CounterpartyAccountRow = { counterparty?: string | null; account_key?: string | null };
 type DecisionRow = { id: string; title?: string | null; status?: string | null; decision_type?: string | null };
 type ExceptionRow = { id: string; title?: string | null; exception_type?: string | null; severity?: string | null };
 type EvidenceRequirementRow = { contract_id?: string | null };
@@ -40,7 +40,7 @@ type ContractMetaRow = {
   id: string;
   name?: string | null;
   counterparty?: string | null;
-  linked_account_key?: string | null;
+  account_key?: string | null;
 };
 
 type HealthGraphResult = {
@@ -409,10 +409,10 @@ export async function rebuildHealthGraphFromPortfolio(
     fetchPage: (from, to) =>
       admin
         .from("contracts")
-        .select("counterparty, linked_account_key")
+        .select("counterparty, account_key")
         .eq("organization_id", orgId)
         .not("counterparty", "is", null)
-        .not("linked_account_key", "is", null)
+        .not("account_key", "is", null)
         .order("counterparty", { ascending: true })
         .range(from, to),
     errors,
@@ -426,7 +426,7 @@ export async function rebuildHealthGraphFromPortfolio(
   const pairCounts = new Map<string, number>();
   for (const row of counterpartyAccountRows) {
     const counterparty = String(row.counterparty ?? "").trim();
-    const accountKey = String(row.linked_account_key ?? "").trim();
+    const accountKey = String(row.account_key ?? "").trim();
     if (!counterparty || !accountKey) continue;
     const key = `${counterparty}|||${accountKey}`;
     pairCounts.set(key, (pairCounts.get(key) ?? 0) + 1);
@@ -732,7 +732,7 @@ export async function rebuildHealthGraphFromPortfolio(
   for (const contractIdChunk of chunkArray([...contractIdsFromFindings], ID_CHUNK_SIZE)) {
     const contractsResult = await admin
       .from("contracts")
-      .select("id, name, counterparty, linked_account_key")
+      .select("id, name, counterparty, account_key")
       .eq("organization_id", orgId)
       .in("id", contractIdChunk);
     if (contractsResult.error) {
@@ -745,7 +745,7 @@ export async function rebuildHealthGraphFromPortfolio(
       contractMeta.set(contract.id, {
         name: contract.name ?? null,
         counterparty: contract.counterparty ?? null,
-        accountKey: contract.linked_account_key ?? null,
+        accountKey: contract.account_key ?? null,
       });
     }
   }

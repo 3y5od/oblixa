@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function OnboardingError({
   error,
@@ -28,7 +28,7 @@ export default function OnboardingError({
       title="Onboarding could not load"
       copy="Try again now. If the problem keeps happening, return to the dashboard and reopen onboarding from there."
       digest={error.digest}
-      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.75} />}
+      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.65} />}
       cardClassName="ui-card"
       actions={
         <>

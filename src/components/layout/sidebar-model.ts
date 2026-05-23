@@ -148,33 +148,59 @@ export function sidebarPrefetch(href: string): boolean | undefined {
 }
 
 function badgeLabel(badgeKey: NonNullable<NavItem["badgeKey"]>, value: number): string {
-  const noun =
-    badgeKey === "reviewQueue"
-      ? "review queue items"
-      : badgeKey === "approvals"
-        ? "pending approvals"
-        : badgeKey === "obligations"
-          ? "open obligations"
-          : "watchlist items";
-  return `${value} ${noun}`;
+  if (badgeKey === "reviewQueue") {
+    return `${value} field review ${value === 1 ? "item" : "items"} ${value === 1 ? "needs" : "need"} action`;
+  }
+  if (badgeKey === "approvals") {
+    return `${value} pending ${value === 1 ? "approval" : "approvals"} ${value === 1 ? "needs" : "need"} action`;
+  }
+  if (badgeKey === "obligations") {
+    return `${value} ${value === 1 ? "obligation" : "obligations"} ${value === 1 ? "needs" : "need"} attention`;
+  }
+  return `${value} watchlist ${value === 1 ? "item" : "items"} ${value === 1 ? "needs" : "need"} attention`;
 }
 
-function badgeForItem(item: NavItem, navBadges: SidebarNavBadges): SidebarBadgeModel | undefined {
-  if (!item.badgeKey || !Object.prototype.hasOwnProperty.call(navBadges, item.badgeKey)) return undefined;
-  const value = Math.max(0, Math.trunc(Number(navBadges[item.badgeKey] ?? 0)));
+function badgeForKey(
+  badgeKey: NonNullable<NavItem["badgeKey"]> | undefined,
+  navBadges: SidebarNavBadges
+): SidebarBadgeModel | undefined {
+  if (!badgeKey || !Object.prototype.hasOwnProperty.call(navBadges, badgeKey)) return undefined;
+  const value = Math.max(0, Math.trunc(Number(navBadges[badgeKey] ?? 0)));
   if (!Number.isFinite(value) || value <= 0) return undefined;
   return {
     value,
     displayValue: value > 99 ? "99+" : String(value),
-    label: badgeLabel(item.badgeKey, value),
-    tone: item.badgeKey,
+    label: badgeLabel(badgeKey, value),
+    tone: badgeKey,
+    showDotOnlyWhenCollapsed: true,
+  };
+}
+
+function badgeForItem(item: NavItem, navBadges: SidebarNavBadges): SidebarBadgeModel | undefined {
+  return badgeForKey(item.badgeKey, navBadges);
+}
+
+function aggregateChildBadges(
+  parent: NavItem,
+  childBadges: SidebarBadgeModel[]
+): SidebarBadgeModel | undefined {
+  if (childBadges.length === 0) return undefined;
+  if (childBadges.length === 1) return childBadges[0];
+  const value = childBadges.reduce((total, badge) => total + badge.value, 0);
+  return {
+    value,
+    displayValue: value > 99 ? "99+" : String(value),
+    label: `${value} ${parent.name.toLowerCase()} ${value === 1 ? "item needs" : "items need"} action`,
+    tone: childBadges[0]?.tone ?? "approvals",
     showDotOnlyWhenCollapsed: true,
   };
 }
 
 function visibleNavItems(input: SidebarModelInput): NavItem[] {
   return NAV_ITEMS.filter((item) => {
-    if (parseSidebarHref(item.href).pathname === "/more") return input.showToolsLink;
+    if (parseSidebarHref(item.href).pathname === "/more") {
+      return input.surface.mode !== "core" && input.showToolsLink;
+    }
     return isNavItemVisibleForSurface(item, input.surface);
   });
 }
@@ -201,10 +227,14 @@ function toSidebarItem(
   const visibleChildren = (item.navChildren ?? []).filter((child) =>
     isNavChildVisibleForSurface(child, input.surface)
   );
+  const childBadges = visibleChildren
+    .map((child) => badgeForKey(child.badgeKey, input.navBadges))
+    .filter((badge): badge is SidebarBadgeModel => badge !== undefined);
   const activeChildHref = mostSpecificActiveChild(visibleChildren, current);
   const target = parseSidebarHref(item.href);
   const exactActive = isSidebarHrefExactActive(current, target);
   const active = isSidebarHrefVisuallyActive(current, target) || activeChildHref != null;
+  const ownBadge = badgeForItem(item, input.navBadges);
   return {
     name: item.name,
     href: item.href,
@@ -222,14 +252,14 @@ function toSidebarItem(
         children: [],
         active: child.href === activeChildHref,
         exactActive: childExact && !duplicatePrimary,
-        badge: undefined,
+        badge: badgeForKey(child.badgeKey, input.navBadges),
         prefetch: sidebarPrefetch(child.href),
         collapsedLabel: child.name,
       } satisfies SidebarItemModel;
     }),
     exactActive,
     active,
-    badge: badgeForItem(item, input.navBadges),
+    badge: input.forcedCollapsed ? ownBadge ?? aggregateChildBadges(item, childBadges) : ownBadge,
     prefetch: sidebarPrefetch(item.href),
     collapsedLabel: item.name,
   };
@@ -240,7 +270,7 @@ function sectionId(label: string, variant: SidebarSectionModel["variant"]): stri
 }
 
 function localPrimaryLabel(label: string): string {
-  return label === "Workspace" ? "Primary" : label;
+  return label === "Workspace" ? "Core" : label;
 }
 
 function orderPrimaryItems(primary: NavItem[]): NavItem[] {
@@ -266,8 +296,19 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
   const personal = visible.filter((item) => item.section === "personal");
   const workspace = visible.filter((item) => item.section === "workspace");
   const visiblePrimaryHrefs = new Set(primary.map((item) => item.href));
+  const visiblePrimaryChildHrefs = new Set(
+    primary.flatMap((item) =>
+      (item.navChildren ?? [])
+        .filter((child) => isNavChildVisibleForSurface(child, input.surface))
+        .map((child) => child.href)
+    )
+  );
   const exactPrimaryHref = primary.find((item) => isSidebarHrefExactActive(current, parseSidebarHref(item.href)))?.href ?? null;
   const toItem = (item: NavItem) => toSidebarItem(item, input, current, visiblePrimaryHrefs, exactPrimaryHref);
+  const nonDuplicatedOperations =
+    input.surface.mode === "core"
+      ? []
+      : operations.filter((item) => !visiblePrimaryChildHrefs.has(item.href));
 
   if (input.forcedCollapsed) {
     return {
@@ -285,8 +326,8 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
           ? [
               {
                 id: "sidebar-rail-workspace",
-                label: "Workspace tools",
-                ariaLabel: "Workspace tools rail navigation",
+                label: "Workspace",
+                ariaLabel: "Workspace rail navigation",
                 items: workspace.map(toItem),
                 variant: "rail" as const,
                 visibleWhenCollapsed: true,
@@ -312,9 +353,9 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
     });
   }
 
-  if (operations.length > 0) {
-    const visibleOperations = operations.slice(0, 6).map(toItem);
-    if (operations.length > 6 && input.showToolsLink) {
+  if (nonDuplicatedOperations.length > 0) {
+    const visibleOperations = nonDuplicatedOperations.slice(0, 6).map(toItem);
+    if (nonDuplicatedOperations.length > 6 && input.showToolsLink) {
       visibleOperations.push({
         name: "Browse all queues",
         href: "/more?section=workflows",
@@ -337,7 +378,7 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
     });
   }
 
-  if (personal.length > 0) {
+  if (personal.length > 1 || (personal.length > 0 && input.surface.mode !== "core")) {
     sections.push({
       id: "sidebar-secondary-my-views",
       label: "My views",
@@ -351,8 +392,8 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
   if (workspace.length > 0) {
     sections.push({
       id: "sidebar-workspace-tools",
-      label: "Workspace tools",
-      ariaLabel: "Workspace tools navigation",
+      label: "Workspace",
+      ariaLabel: "Workspace navigation",
       items: workspace.map(toItem),
       variant: "workspace",
       visibleWhenCollapsed: false,

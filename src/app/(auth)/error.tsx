@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function AuthError({
   error,
@@ -28,7 +28,7 @@ export default function AuthError({
       title="Something went wrong"
       copy="Try again, or return to the sign-in page if the problem continues."
       digest={error.digest}
-      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.75} />}
+      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.65} />}
       shellClassName="bg-canvas"
       actions={
         <>

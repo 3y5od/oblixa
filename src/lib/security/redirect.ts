@@ -1,3 +1,5 @@
+import { stripSensitiveUrlParams } from "@/lib/security/sensitive-url";
+
 /**
  * Prevent open redirects after auth: only same-origin relative paths, no scheme or "//".
  */
@@ -12,5 +14,9 @@ export function getSafeRedirectPath(raw: string | null, maxLen = 512): string {
   if (/[\x00-\x1f\x7f\\]/.test(s) || s.includes("@") || s.includes("<")) {
     return fallback;
   }
-  return s;
+  try {
+    return stripSensitiveUrlParams(s);
+  } catch {
+    return fallback;
+  }
 }

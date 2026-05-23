@@ -3,5 +3,5 @@
 # Every route must be preceded by metadata.
 #
 # Example:
-# meta: owner=@api-runtime expiry=2026-12-31 reason=route uses external idempotency guarantees
+# meta: reviewedOn=2026-05-11 owner=@api-runtime expiry=2026-12-31 reason=route uses external idempotency guarantees
 # /api/example/route.ts

@@ -21,6 +21,13 @@ describe("getSafeRedirectPath", () => {
     expect(getSafeRedirectPath("/settings/profile")).toBe("/settings/profile");
   });
 
+  it("strips sensitive query parameters from browser-visible redirects", () => {
+    expect(getSafeRedirectPath("/contracts?token=raw-secret&page=2&signature=sig#row")).toBe("/contracts?page=2#row");
+    expect(getSafeRedirectPath("/reports?private_url=https%3A%2F%2Fexample.test%2Fsigned&filter=open")).toBe(
+      "/reports?filter=open"
+    );
+  });
+
   it("returns fallback for empty, null, or overlong input", () => {
     expect(getSafeRedirectPath(null)).toBe("/dashboard");
     expect(getSafeRedirectPath("   ")).toBe("/dashboard");

@@ -156,10 +156,55 @@ describe("POST /api/external-actions/[token]/workflow-step", () => {
     );
   });
 
+  it("rejects revoked public-token links before appending workflow steps", async () => {
+    const admin = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({
+                data: {
+                  id: "link-revoked",
+                  organization_id: "o1",
+                  status: "open",
+                  revoked_at: "2026-01-01T00:00:00.000Z",
+                },
+                error: null,
+              })),
+            })),
+          })),
+        })),
+      })),
+    };
+    getApiAuthContext.mockResolvedValueOnce({
+      userId: "u1",
+      orgId: "o1",
+      role: "admin",
+      admin,
+    });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/external-actions/tok/workflow-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepType: "handoff" }),
+      }),
+      { params: Promise.resolve({ token: "tok" }) }
+    );
+
+    expect(res.status).toBe(410);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "external_action_revoked",
+      diagnostic_id: "external_action_workflow_revoked",
+    });
+    expect(mockedAppendExternalWorkflowStep).not.toHaveBeenCalled();
+  });
+
   it("blocks duplicate replay of internal workflow-step with x-idempotency-key", async () => {
     let idempotencySeen = false;
     rateLimitCheck.mockImplementation(async (key: string) => {
-      if (key.startsWith("idem:external-workflow.internal-step:o1:u1:tok:")) {
+      if (key.startsWith("idem:external-workflow.internal-step:o1:u1:")) {
         if (idempotencySeen) return { ok: false, retryAfterMs: 6000 };
         idempotencySeen = true;
       }

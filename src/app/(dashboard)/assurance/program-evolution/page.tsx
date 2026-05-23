@@ -129,7 +129,7 @@ export default async function ProgramEvolutionPage() {
                     {res.health_impact_json &&
                     typeof res.health_impact_json === "object" &&
                     Object.keys(res.health_impact_json as object).length > 0 ? (
-                      <pre className="mt-1 max-h-20 overflow-auto font-mono text-[10px] text-[var(--text-tertiary)]">
+                      <pre className="mt-1 max-h-20 overflow-auto font-mono text-[11px] text-[var(--text-tertiary)]">
                         {JSON.stringify(res.health_impact_json, null, 2)}
                       </pre>
                     ) : null}
@@ -139,16 +139,16 @@ export default async function ProgramEvolutionPage() {
             ) : null}
             {row.simulation_summary_json && Object.keys(row.simulation_summary_json as object).length > 0 ? (
               <div className="mt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Simulation summary</p>
-                <pre className="ui-soft-details mt-1 max-h-36 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Simulation summary</p>
+                <pre className="ui-soft-details mt-1 max-h-36 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.simulation_summary_json, null, 2)}
                 </pre>
               </div>
             ) : null}
             {row.rollout_plan_json && Object.keys(row.rollout_plan_json as object).length > 0 ? (
               <div className="mt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Rollout plan</p>
-                <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Rollout plan</p>
+                <pre className="ui-alert-warning mt-1 max-h-24 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                   {JSON.stringify(row.rollout_plan_json, null, 2)}
                 </pre>
               </div>

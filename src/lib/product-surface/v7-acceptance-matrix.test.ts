@@ -30,14 +30,14 @@ describe("v7 acceptance matrix", () => {
       (item) => item.section === "primary" && isNavItemVisibleForSurface(item, CORE_ADMIN_SURFACE)
     ).map((item) => item.name);
 
+    // v11 dashboard spec compliance: Renewals + Evidence are now top-level
+    // primary nav per docs/oblixa-release-state.md §In-App Pages.
     expect(visiblePrimary).toEqual(
       expect.arrayContaining([
-        "Home",
+        "Dashboard",
         "Contracts",
-        "Review",
         "Work",
         "Renewals",
-        "Exceptions",
         "Evidence",
         "Reports",
         "Settings",
@@ -46,6 +46,17 @@ describe("v7 acceptance matrix", () => {
     expect(visiblePrimary).not.toContain("Decisions");
     expect(visiblePrimary).not.toContain("Campaigns");
     expect(visiblePrimary).not.toContain("Assurance");
+    expect(visiblePrimary).not.toContain("Report packs");
+  });
+
+  it("keeps restored Core workflows reachable as top-level primary nav", () => {
+    // v11 dashboard spec compliance: Evidence + Renewals are top-level
+    // primary nav per spec §In-App Pages. Reports remains top-level.
+    // Tier 5.6: Report packs child link removed from nav (route still
+    // exists at /contracts/reports but is no longer surfaced).
+    expect(NAV_ITEMS.find((i) => i.href === "/contracts/evidence-studio")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/reports")).toBeTruthy();
   });
 
   it("keeps deep-link mismatch guard policy wired for 404 path handling", () => {

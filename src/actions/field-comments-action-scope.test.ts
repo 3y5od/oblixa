@@ -42,4 +42,18 @@ describe("addFieldComment", () => {
     });
     expect(res).toEqual({ error: "Invalid field" });
   });
+
+  it("rejects unsafe comment text before contract lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const adminFrom = vi.fn();
+    const { createAdminClient } = await import("@/lib/supabase/server");
+    vi.mocked(createAdminClient).mockResolvedValue({ from: adminFrom } as never);
+    const { addFieldComment } = await import("@/actions/field-comments");
+    const res = await addFieldComment({
+      contractId: "550e8400-e29b-41d4-a716-446655440000",
+      comment: "safe text\u202Ehidden",
+    });
+    expect(res).toEqual({ error: "Comment contains unsupported characters." });
+    expect(adminFrom).not.toHaveBeenCalled();
+  });
 });

@@ -8,14 +8,14 @@ export default function ReportsHistoryLoading() {
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
         <LoadingCard>
-          <div className="ui-skeleton h-20 w-full rounded-[1.25rem]" />
+          <div className="ui-skeleton h-20 w-full rounded-xl" />
         </LoadingCard>
         <div className="grid gap-6 lg:grid-cols-2">
           <LoadingCard>
-            <div className="ui-skeleton h-96 w-full rounded-[1.25rem]" />
+            <div className="ui-skeleton h-96 w-full rounded-xl" />
           </LoadingCard>
           <LoadingCard>
-            <div className="ui-skeleton h-96 w-full rounded-[1.25rem]" />
+            <div className="ui-skeleton h-96 w-full rounded-xl" />
           </LoadingCard>
         </div>
       </div>

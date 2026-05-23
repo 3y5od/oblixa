@@ -115,7 +115,7 @@ export function buildContractImmediateActions(input: {
       : null,
     input.pendingApprovalsCount > 0
       ? {
-          href: "#renewal-approvals",
+          href: `/contracts/approvals?status=pending&contract=${input.contractId}`,
           eyebrow: "Approvals",
           title: "Approvals are still blocking downstream action",
           hint: `${input.pendingApprovalsCount} approval request${input.pendingApprovalsCount === 1 ? "" : "s"} remain pending on this contract.`,

@@ -1,5 +1,11 @@
-# meta: owner=security-team expiry=2027-01-01 reason=Intentional post-sign-out redirect endpoint
+# meta: reviewedOn=2026-05-11 owner=security-team expiry=2027-01-01 reason=Intentional post-sign-out redirect endpoint compensatingTest=scripts/check-api-route-auth-contract.mjs
 auth/post-sign-out/route.ts
 
-# meta: owner=security-team expiry=2027-01-01 reason=Intentional public health probe endpoint
+# meta: reviewedOn=2026-05-11 owner=security-team expiry=2027-01-01 reason=Intentional public health probe endpoint compensatingTest=scripts/check-api-route-auth-contract.mjs
 health/route.ts
+
+# meta: reviewedOn=2026-05-11 owner=security-team expiry=2027-01-01 reason=Intentional browser CSP report ingestion endpoint with body limits rate limits and redacted logging compensatingTest=src/app/api/security/csp-report/route.test.ts
+security/csp-report/route.ts
+
+# meta: reviewedOn=2026-05-15 owner=security-team expiry=2027-05-15 reason=Intentional public marketing contact form with bounded JSON rate limiting honeypot dedupe guard and redacted fallback logging compensatingTest=src/app/api/contact/route.test.ts
+contact/route.ts

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { isIsoDateOnly } from "@/lib/security/validation";
 
 async function appendTaskEvent(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -118,10 +119,7 @@ export async function autoTransitionTasksForField(input: {
     .eq("linked_field_id", fieldId)
     .in("status", ["open", "in_progress", "blocked"]);
   if (!tasks || tasks.length === 0) return;
-  const dueDate =
-    fieldDateValue && !Number.isNaN(new Date(`${fieldDateValue}T12:00:00`).getTime())
-      ? fieldDateValue.slice(0, 10)
-      : null;
+  const dueDate = fieldDateValue && isIsoDateOnly(fieldDateValue.slice(0, 10)) ? fieldDateValue.slice(0, 10) : null;
 
   for (const task of tasks) {
     if (fieldStatus === "rejected") {

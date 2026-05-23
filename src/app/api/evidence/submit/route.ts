@@ -73,7 +73,7 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
   const tokenHash = createHash("sha256").update(externalToken, "utf8").digest("hex");
   const { data: requirement } = await admin
     .from("evidence_requirements")
-    .select("id, organization_id, contract_id, reviewer_id, config_json")
+    .select("id, organization_id, contract_id, reviewer_id, status, config_json")
     .eq("id", requirementId)
     .maybeSingle();
   const config = (requirement?.config_json && typeof requirement.config_json === "object" ? requirement.config_json : {}) as Record<string, unknown>;
@@ -140,6 +140,15 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
       })
     );
   }
+  if (!["required", "rejected", "overdue"].includes(String(requirement.status ?? ""))) {
+    return jsonV10(
+      buildV10MutationResponse({
+        outcome: "conflict",
+        message: "This evidence request is not accepting submissions.",
+        diagnosticId: "v10_external_evidence_submit_not_open",
+      })
+    );
+  }
   const mutation = await executeV10AuditedMutation(
     admin,
     {
@@ -155,6 +164,26 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
       auditAction: "evidence_request.submitted",
     },
     async () => {
+      const { data: claimedRequirement, error: claimError } = await admin
+        .from("evidence_requirements")
+        .update({ status: "submitted" })
+        .eq("id", requirementId)
+        .eq("organization_id", requirement.organization_id)
+        .in("status", ["required", "rejected", "overdue"])
+        .select("id, status")
+        .maybeSingle();
+      if (claimError || !claimedRequirement) {
+        return {
+          response: buildV10MutationResponse({
+            outcome: claimError ? "server_error" : "conflict",
+            message: claimError ? "Evidence request could not be claimed." : "Evidence request status changed before submit.",
+            diagnosticId: claimError
+              ? "v10_external_evidence_submit_claim_failed"
+              : "v10_external_evidence_submit_stale_status",
+          }) as ReturnType<typeof buildV10MutationResponse> & { submission?: unknown },
+          auditEventId: null,
+        };
+      }
       const { data: submission, error } = await admin
         .from("evidence_submissions")
         .insert({
@@ -168,6 +197,12 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
         .select("id, requirement_id, status, submitted_at")
         .single();
       if (error) {
+        await admin
+          .from("evidence_requirements")
+          .update({ status: requirement.status })
+          .eq("id", requirementId)
+          .eq("organization_id", requirement.organization_id)
+          .eq("status", "submitted");
         return {
           response: buildV10MutationResponse({
             outcome: "validation_failed",
@@ -185,11 +220,6 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
           auditEventId: null,
         };
       }
-      await admin
-        .from("evidence_requirements")
-        .update({ status: "submitted" })
-        .eq("id", requirementId)
-        .eq("organization_id", requirement.organization_id);
       const auditEventId = await recordV10AuditEvent(admin, {
         organizationId: String(requirement.organization_id),
         actorUserId: null,
@@ -259,11 +289,11 @@ export async function POST(request: Request) {
     return NextResponse.json(response, { ...init, headers });
   }
 
+  const ctx = await getApiAuthContext();
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;
   const body = (_lb_body.body ?? {}) as EvidenceSubmitBody;
   const externalToken = request.headers.get("x-v10-external-evidence-token")?.trim() || asString(body.externalToken);
-  const ctx = await getApiAuthContext();
   if (!ctx) {
     if (externalToken) return submitExternalEvidence(request, body, externalToken);
     return jsonV10(
@@ -275,14 +305,6 @@ export async function POST(request: Request) {
       })
     );
   }
-  const modeGate = await requireApiWorkspaceEligibility({
-    admin: ctx.admin,
-    orgId: ctx.orgId,
-    role: ctx.role,
-    apiPath: "/api/evidence/submit",
-    v10MutationResponse: true,
-  });
-  if (modeGate) return modeGate;
   if (!(await canManageCapability(ctx, "contracts_edit"))) {
     return jsonV10(
       buildV10MutationResponse({
@@ -293,6 +315,14 @@ export async function POST(request: Request) {
       })
     );
   }
+  const modeGate = await requireApiWorkspaceEligibility({
+    admin: ctx.admin,
+    orgId: ctx.orgId,
+    role: ctx.role,
+    apiPath: "/api/evidence/submit",
+    v10MutationResponse: true,
+  });
+  if (modeGate) return modeGate;
 
   if (JSON.stringify(body).length > 50000) {
     return jsonV10(
@@ -332,7 +362,7 @@ export async function POST(request: Request) {
 
   const { data: requirement } = await ctx.admin
     .from("evidence_requirements")
-    .select("id, organization_id, contract_id")
+    .select("id, organization_id, contract_id, status")
     .eq("id", requirementId)
     .eq("organization_id", ctx.orgId)
     .maybeSingle();
@@ -342,6 +372,15 @@ export async function POST(request: Request) {
         outcome: "not_found",
         message: "Requirement not found.",
         diagnosticId: "v10_evidence_submit_requirement_not_found",
+      })
+    );
+  }
+  if (!["required", "rejected", "overdue"].includes(String(requirement.status ?? ""))) {
+    return jsonV10(
+      buildV10MutationResponse({
+        outcome: "conflict",
+        message: "This evidence request is not accepting submissions.",
+        diagnosticId: "v10_evidence_submit_not_open",
       })
     );
   }
@@ -359,6 +398,24 @@ export async function POST(request: Request) {
       auditAction: "evidence_request.submitted",
     },
     async () => {
+      const { data: claimedRequirement, error: claimError } = await ctx.admin
+        .from("evidence_requirements")
+        .update({ status: "submitted" })
+        .eq("id", requirementId)
+        .eq("organization_id", ctx.orgId)
+        .in("status", ["required", "rejected", "overdue"])
+        .select("id, status")
+        .maybeSingle();
+      if (claimError || !claimedRequirement) {
+        return {
+          response: buildV10MutationResponse({
+            outcome: claimError ? "server_error" : "conflict",
+            message: claimError ? "Evidence request could not be claimed." : "Evidence request status changed before submit.",
+            diagnosticId: claimError ? "v10_evidence_submit_claim_failed" : "v10_evidence_submit_stale_status",
+          }) as ReturnType<typeof buildV10MutationResponse> & { submission?: unknown },
+          auditEventId: null,
+        };
+      }
       const { data: submission, error } = await ctx.admin
         .from("evidence_submissions")
         .insert({
@@ -372,6 +429,12 @@ export async function POST(request: Request) {
         .select("id, requirement_id, status, submitted_at")
         .single();
       if (error) {
+        await ctx.admin
+          .from("evidence_requirements")
+          .update({ status: requirement.status })
+          .eq("id", requirementId)
+          .eq("organization_id", ctx.orgId)
+          .eq("status", "submitted");
         return {
           response: buildV10MutationResponse({
             outcome: "validation_failed",
@@ -389,12 +452,6 @@ export async function POST(request: Request) {
           auditEventId: null,
         };
       }
-
-      await ctx.admin
-        .from("evidence_requirements")
-        .update({ status: "submitted" })
-        .eq("id", requirementId)
-        .eq("organization_id", ctx.orgId);
 
       if (isFeatureEnabled("v6AssuranceCore")) {
         await incrementV6QualityCounter(ctx.admin, ctx.orgId, "evidence_submit_incremental_assurance_hook_total", 1).catch(

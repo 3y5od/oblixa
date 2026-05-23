@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
@@ -8,6 +9,10 @@ import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
 import { createControlPolicy, listControlPolicies } from "@/lib/v6/control-policies";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/control-policies";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6ControlPolicies");
@@ -30,7 +35,12 @@ export async function GET() {
   const { data, error } = await listControlPolicies(ctx.admin, ctx.orgId);
   if (error) {
     console.error("[api/control-policies] GET error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "control_policies_list_failed",
+      diagnostic_id: "control_policies_list_failed",
+      route: ROUTE,
+    });
   }
   return NextResponse.json({ policies: data ?? [] });
 }
@@ -49,6 +59,19 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.control-policies",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/control-policies",
+    method: "POST",
+  }).catch(() => undefined);
+
   const parsedBody = await parseJsonBodyWithLimit(request, (raw) =>
     readJsonBody<{ name?: string; objective?: string; enforcementMode?: string; scope?: Record<string, unknown> }>(
       raw ?? {},
@@ -61,7 +84,12 @@ export async function POST(request: Request) {
   const name = toSafeString(body.name);
   const objective = toSafeString(body.objective);
   if (!name || !objective) {
-    return NextResponse.json({ error: "name and objective are required" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "name and objective are required",
+      code: "name_objective_required",
+      diagnostic_id: "control_policy_name_objective_required",
+      route: ROUTE,
+    });
   }
 
   const result = await createControlPolicy(ctx.admin, ctx.orgId, ctx.userId, {
@@ -73,7 +101,12 @@ export async function POST(request: Request) {
 
   if (result.error) {
     console.error("[api/control-policies] POST error:", result.error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "control_policy_create_failed",
+      diagnostic_id: "control_policy_create_failed",
+      route: ROUTE,
+    });
   }
   await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_control_policies_create_total", 1).catch(
     () => undefined

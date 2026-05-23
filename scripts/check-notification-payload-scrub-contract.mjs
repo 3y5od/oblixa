@@ -10,22 +10,29 @@ const REQUIRED_CI_COMMANDS = ["npm run check:notification-payload-scrub-contract
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:notification-payload-scrub-contract"'];
 const REQUIRED_FILE_MARKERS = {
   "src/lib/notification-delivery.ts": [
-    'function sanitizeRetryPayload(payload: RetryPayload | undefined | null): RetryPayload | null {',
-    'sourceSnippet: payload.sourceSnippet ? limitString(payload.sourceSnippet, 2000) : null,',
+    'scrubOutboundMetadata,',
+    'redactOutboundMessageText,',
+    'function sanitizeRetryPayload(',
+    'sourceSnippet: payload.sourceSnippet ? scrubLimitedText(payload.sourceSnippet, 2000) : null,',
+    'webhookUrl: redactWebhookUrl ? "[redacted]" : scrubLimitedText(payload.webhookUrl, 1024),',
     'if (encoded.length <= MAX_METADATA_BYTES) return out;',
     'return { metadata_truncated: true };',
+    'last_error: `${terminal ? "[terminal] " : ""}${sanitizedError}`.slice(0, 500),',
+    'const metadata = sanitizeMetadata(input.metadata ?? {});',
     'retry_payload: retryPayload,',
   ],
   "src/lib/notification-delivery.test.ts": [
     'it("fails poison messages without retry payload when max attempts reached"',
     'it("sanitizes stored metadata and retry payload sizes"',
+    'it("redacts sensitive metadata, retry payload text, and stored Slack webhook URLs"',
     'expect(metadata.metadata_truncated).toBe(true);',
     'expect(String(retryPayload.sourceSnippet).length).toBeLessThanOrEqual(2000);',
+    'expect(retryPayload.webhookUrl).toBe("[redacted]");',
   ],
   "src/lib/observability/sentry-scrub.ts": [
     'function scrubCalibrationPayloads<T>(event: T): T {',
     'nextExtra[key] = "[redacted]";',
-    'if (SENSITIVE_HEADER_KEYS.has(key.toLowerCase())) {',
+    'redactSensitiveHeaders(headers)',
     'out = scrubSentryDeepExtras(out);',
     'out = scrubSentryBreadcrumbs(out);',
   ],

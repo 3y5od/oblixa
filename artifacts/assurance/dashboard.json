@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "generatedAt": "2026-05-05T23:51:07.056Z",
+  "generatedAt": "2026-05-11T21:46:11.749Z",
   "components": {
     "coverageCompleteness": {
       "score": 80.64,
@@ -15,7 +15,7 @@
         "vitestLineCoverage": 0
       },
       "artifactVersion": 2,
-      "generatedAt": "2026-05-05T23:51:07.056Z"
+      "generatedAt": "2026-05-11T21:46:11.748Z"
     },
     "semgrepBlocking": {
       "openErrors": null,

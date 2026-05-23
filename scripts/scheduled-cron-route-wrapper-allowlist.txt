@@ -1,2 +1,2 @@
 # Explicit legacy backlog until remaining scheduled routes migrate to withCronRoute / withV6CronRoute.
-# meta: owner=@cron expiry=2026-08-31 reason=legacy scheduled routes still use manual shells outside Slice A wrapper hardening
+# meta: reviewedOn=2026-05-11 owner=@cron expiry=2026-08-31 reason=legacy scheduled routes still use manual shells outside Slice A wrapper hardening

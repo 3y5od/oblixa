@@ -1,3 +1,19 @@
+const DEFAULT_EXTRACTION_CHUNK_CONCURRENCY = 3;
+
+/**
+ * Max concurrent OpenAI chunk requests (long contracts).
+ * Override with env `EXTRACTION_CHUNK_CONCURRENCY` (integer 1-8); invalid values use default.
+ */
+export function getExtractionChunkConcurrency(): number {
+  const raw = process.env.EXTRACTION_CHUNK_CONCURRENCY?.trim();
+  if (!raw) return DEFAULT_EXTRACTION_CHUNK_CONCURRENCY;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) {
+    return DEFAULT_EXTRACTION_CHUNK_CONCURRENCY;
+  }
+  return Math.min(8, Math.floor(n));
+}
+
 /**
  * Run async work over items with at most `concurrency` in flight (pool).
  * Preserves result order (index-aligned with `items`).

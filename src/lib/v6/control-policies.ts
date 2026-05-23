@@ -294,12 +294,15 @@ export async function patchControlPolicySettings(
   admin: AdminClient,
   orgId: string,
   policyId: string,
-  patch: { remediationPlaybookId?: string | null }
+  patch: { remediationPlaybookId?: string | null },
+  expectedVersion?: string | number | null
 ) {
   const row: Record<string, unknown> = { updated_at: nowIso() };
   if ("remediationPlaybookId" in patch) {
     const v = patch.remediationPlaybookId;
     row.remediation_playbook_id = v === "" || v === undefined ? null : v;
   }
-  return updateRowById(admin, "control_policies", orgId, policyId, row);
+  return updateRowById(admin, "control_policies", orgId, policyId, row, {
+    expectedUpdatedAt: expectedVersion,
+  });
 }

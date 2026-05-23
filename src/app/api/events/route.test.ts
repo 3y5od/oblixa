@@ -51,7 +51,7 @@ describe("GET /api/events", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("returns 401 for invalid API keys", async () => {
@@ -76,7 +76,7 @@ describe("GET /api/events", () => {
     const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Invalid API key" });
+    expect(body).toMatchObject({ error: "Invalid API key" });
   });
 
   it("returns filtered events for valid API keys", async () => {
@@ -147,5 +147,56 @@ describe("GET /api/events", () => {
     expect(requireApiWorkspaceEligibility).toHaveBeenCalled();
     expect(filterAuditEventsForWorkspaceMode).toHaveBeenCalled();
   });
-});
 
+  it("rejects malformed since query parameters before querying events", async () => {
+    const apiKeyQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: "key_1",
+          organization_id: "org_1",
+          active: true,
+          key_hash: createHash("sha256").update("aaaaaaaaaaaazzzz").digest("hex"),
+          key_prefix: "aaaaaaaaaaaa",
+          scopes: ["events:read"],
+          expires_at: null,
+          revoked_at: null,
+        },
+      }),
+      update: vi.fn().mockReturnThis(),
+    };
+    const auditEventsQuery = {
+      select: vi.fn().mockReturnThis(),
+    };
+    createClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+      },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_api_keys") return apiKeyQuery;
+        if (table === "audit_events") return auditEventsQuery;
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          maybeSingle: vi.fn().mockResolvedValue({ data: {} }),
+          update: vi.fn().mockReturnThis(),
+        };
+      }),
+    });
+
+    const { GET } = await import("@/app/api/events/route");
+    const req = new Request("http://localhost:3000/api/events?since=2026-05-01", {
+      headers: { "x-api-key": "aaaaaaaaaaaazzzz" },
+    });
+    const res = await GET(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({ code: "invalid_since", diagnostic_id: "events_since_invalid" });
+    expect(auditEventsQuery.select).not.toHaveBeenCalled();
+  });
+});

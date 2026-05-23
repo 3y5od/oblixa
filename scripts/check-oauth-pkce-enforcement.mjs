@@ -19,6 +19,8 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/app/api/integrations/oauth/callback/route.ts": [
     'if (!authState.redirect_uri || !authState.code_verifier)',
+    'if (authState.code_challenge_method !== "S256")',
+    'diagnostic_id: "oauth_callback_pkce_method_invalid"',
     'code_verifier: authState.code_verifier',
     'redirect_uri: authState.redirect_uri',
   ],
@@ -31,6 +33,7 @@ const REQUIRED_FILE_MARKERS = {
     'code_verifier: "verifier-123"',
     'redirect_uri: "http://localhost:3000/api/integrations/oauth/callback"',
     'code_verifier: "verifier-123",',
+    'it("returns 400 when oauth state does not require S256 PKCE"',
   ],
 };
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-07T01:33:53.954Z",
+  "generatedAt": "2026-05-15T23:12:38.559Z",
   "rows": [
     {
       "route": "/accounts/[key]",
@@ -316,6 +316,16 @@
       "rpcs": [],
       "orgScopeRequired": true,
       "orgScopeEvidence": true
+    },
+    {
+      "route": "/api/cron/security/retention-cleanup",
+      "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "tables": [],
+      "rpcs": [
+        "cleanup_code_owned_transient_data"
+      ],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false
     },
     {
       "route": "/api/cron/stripe-webhook-events",
@@ -928,6 +938,7 @@
       "tables": [
         "contract_approvals",
         "contract_tasks",
+        "contracts",
         "evidence_submissions",
         "exceptions",
         "operational_casefile_events"
@@ -991,7 +1002,7 @@
       ],
       "rpcs": [],
       "orgScopeRequired": true,
-      "orgScopeEvidence": false
+      "orgScopeEvidence": true
     },
     {
       "route": "/api/integrations/slack/renewal-summary",
@@ -1303,7 +1314,7 @@
       ],
       "rpcs": [],
       "orgScopeRequired": false,
-      "orgScopeEvidence": false
+      "orgScopeEvidence": true
     },
     {
       "route": "/api/reports/track/open/[token]",
@@ -1313,7 +1324,7 @@
       ],
       "rpcs": [],
       "orgScopeRequired": false,
-      "orgScopeEvidence": false
+      "orgScopeEvidence": true
     },
     {
       "route": "/api/review-boards/runs/[id]",
@@ -2054,7 +2065,11 @@
     {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/page.tsx",
-      "tables": [],
+      "tables": [
+        "report_pack_runs",
+        "report_pack_subscriptions",
+        "report_packs"
+      ],
       "rpcs": [
         "reports_control_room_snapshot"
       ],
@@ -2065,10 +2080,17 @@
       "route": "/settings",
       "sourcePath": "src/app/(dashboard)/settings/page.tsx",
       "tables": [
+        "contract_export_jobs",
+        "contract_extraction_jobs",
+        "contract_import_jobs",
+        "contracts",
+        "notification_deliveries",
         "organization_invites",
         "organization_members",
         "organization_workflow_settings",
-        "profiles"
+        "profiles",
+        "reminders",
+        "report_runs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -2088,22 +2110,48 @@
       "route": "/settings/health",
       "sourcePath": "src/app/(dashboard)/settings/health/page.tsx",
       "tables": [
+        "adaptive_playbook_runs",
+        "adaptive_playbooks",
+        "assurance_findings",
         "audit_events",
+        "autopilot_rules",
+        "autopilot_run_logs",
+        "contract_approvals",
         "contract_export_jobs",
         "contract_extraction_jobs",
+        "contract_field_comments",
         "contract_import_jobs",
+        "contract_obligations",
+        "contract_programs",
+        "contract_tasks",
+        "contract_watchlists",
+        "contracts",
+        "control_policies",
+        "evidence_requirements",
+        "exceptions",
+        "maintenance_campaigns",
         "notification_deliveries",
         "organization_workflow_settings",
         "outbound_event_deliveries",
+        "portfolio_health_graph_nodes",
+        "program_evolution_experiments",
         "reminders",
+        "report_packs",
         "report_runs",
-        "v10_external_blocker_records",
-        "v10_job_run_visibility",
-        "v10_mutation_idempotency",
-        "v10_read_model_refresh_jobs",
-        "v10_report_run_visibility",
-        "v10_runtime_artifacts",
-        "v10_runtime_coverage_ledger"
+        "review_board_runs",
+        "review_boards",
+        "scorecard_snapshots",
+        "segment_definitions"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "tables": [
+        "organization_workflow_settings"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -2114,6 +2162,27 @@
       "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
       "tables": [
         "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "tables": [
+        "contracts",
+        "organization_workflow_settings"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
+      "tables": [
         "organization_workflow_settings"
       ],
       "rpcs": [],

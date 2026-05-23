@@ -53,10 +53,10 @@ export {
 export {
   featureFamilyForHref,
   isHrefEligibleForNavSurface,
-  isHrefEligibleForNavSurfaceWithEnvFlags,
   isHrefEligibleForProductSurface,
   productSurfaceContextFromNavSurface,
 } from "@/lib/product-surface/href-eligibility";
+export { isHrefEligibleForNavSurfaceWithEnvFlags } from "@/lib/product-surface/href-eligibility-server";
 export { getCmdkSearchJumpItems, type CmdkSearchJumpItem } from "@/lib/product-surface/cmdk-search-jumps";
 export {
   COMMAND_PALETTE_OPEN_EVENT,
@@ -118,10 +118,10 @@ export {
   cmdkFilterRecentHrefsForSurface,
   isCmdkHrefAllowed,
   isHomeBlockAllowed,
-  isNotificationCategoryAllowed,
   isRouteAllowedForWorkspacePath,
   type HomeSectionId,
 } from "@/lib/product-surface/resolver";
+export { isNotificationCategoryAllowed } from "@/lib/product-surface/resolver-server";
 export {
   CORE_FORBIDDEN_WORKFLOW_DESTINATION_TERMS,
   MORE_JUMP_DESTINATION_KEYS,

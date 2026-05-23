@@ -39,6 +39,24 @@ function walkActionFiles(actionsRoot) {
   return walk(actionsRoot, (abs) => isSourceFile(abs));
 }
 
+function walkIntegrationFiles(srcRoot) {
+  const integrationRoots = [
+    path.join(srcRoot, "lib", "integration"),
+    path.join(srcRoot, "lib", "integrations"),
+    path.join(srcRoot, "lib", "email.ts"),
+    path.join(srcRoot, "lib", "notification-delivery.ts"),
+    path.join(srcRoot, "lib", "observability"),
+  ];
+  const files = [];
+  for (const root of integrationRoots) {
+    if (!fs.existsSync(root)) continue;
+    const st = fs.statSync(root);
+    if (st.isDirectory()) walk(root, (abs) => isSourceFile(abs), files);
+    else if (isSourceFile(root)) files.push(root);
+  }
+  return files;
+}
+
 function loadAllowlist(allowlistPath) {
   if (!fs.existsSync(allowlistPath)) return new Set();
   const routes = new Set();
@@ -67,11 +85,13 @@ function fileUsesSafeFetch(raw) {
 export function findOutboundFetchViolations(root = DEFAULT_ROOT) {
   const apiRoot = path.join(root, "src", "app", "api");
   const actionsRoot = path.join(root, "src", "actions");
+  const srcRoot = path.join(root, "src");
   const allowlistPath = path.join(root, "scripts", "outbound-fetch-allowlist.txt");
   const allowlisted = loadAllowlist(allowlistPath);
   const routeFiles = walkRoutes(apiRoot);
   const actionFiles = walkActionFiles(actionsRoot);
-  const files = [...routeFiles, ...actionFiles];
+  const integrationFiles = walkIntegrationFiles(srcRoot);
+  const files = [...new Set([...routeFiles, ...actionFiles, ...integrationFiles])];
   const violations = [];
 
   for (const abs of files) {
@@ -86,6 +106,7 @@ export function findOutboundFetchViolations(root = DEFAULT_ROOT) {
   return {
     routeFilesChecked: routeFiles.length,
     actionFilesChecked: actionFiles.length,
+    integrationFilesChecked: integrationFiles.length,
     violations,
   };
 }
@@ -102,6 +123,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       hint: "Import safeFetch from @/lib/security/safe-fetch or add path relative to src/ in scripts/outbound-fetch-allowlist.txt with # meta: owner=... expiry=... reason=...",
       routeFilesChecked: result.routeFilesChecked,
       actionFilesChecked: result.actionFilesChecked,
+      integrationFilesChecked: result.integrationFilesChecked,
     };
     console.error(JSON.stringify(body, null, 2));
     if (!reportOnly) process.exit(1);
@@ -113,6 +135,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
           ok: true,
           routesChecked: result.routeFilesChecked,
           actionFilesChecked: result.actionFilesChecked,
+          integrationFilesChecked: result.integrationFilesChecked,
         },
         null,
         2

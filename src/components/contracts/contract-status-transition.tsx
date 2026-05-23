@@ -18,13 +18,13 @@ const transitions: Record<ContractStatus, { label: string; target: ContractStatu
 
 const buttonStyles: Record<string, string> = {
   active:
-    "border border-emerald-200/80 bg-emerald-50 text-emerald-900 hover:border-emerald-300 hover:bg-emerald-100/70",
+    "border border-[color:color-mix(in_oklab,var(--success)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_30%,var(--surface))] text-[var(--success-ink)] hover:border-[var(--success)] hover:bg-[color:color-mix(in_oklab,var(--success-soft)_70%,var(--surface))] hover:shadow-[var(--shadow-1)]",
   pending_review:
-    "border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)] hover:border-[var(--warning)] hover:bg-[color:color-mix(in_oklab,var(--warning)_16%,var(--surface))]",
+    "border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)] hover:border-[var(--warning)] hover:bg-[color:color-mix(in_oklab,var(--warning)_28%,var(--surface))] hover:shadow-[var(--shadow-1)]",
   expired:
-    "border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-primary)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_65%,var(--canvas))]",
+    "border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-primary)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_85%,var(--canvas))] hover:shadow-[var(--shadow-1)]",
   terminated:
-    "border border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)] hover:border-[var(--danger)] hover:bg-[color:color-mix(in_oklab,var(--danger)_14%,var(--surface))]",
+    "border border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)] hover:border-[var(--danger)] hover:bg-[color:color-mix(in_oklab,var(--danger)_24%,var(--surface))] hover:shadow-[var(--shadow-1)]",
 };
 
 interface ContractStatusTransitionProps {
@@ -71,7 +71,7 @@ export function ContractStatusTransition({
           disabled={isPending}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
             buttonStyles[target] ||
-            "border border-[var(--border-subtle)] bg-surface text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
+            "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
           }`}
         >
           {isPending ? "Updating..." : label}

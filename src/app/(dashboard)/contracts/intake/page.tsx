@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRightLeft, CheckCircle2, Inbox, ListOrdered } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { upsertContractIntakeRequestForm } from "@/actions/contracts";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
@@ -68,15 +69,12 @@ export default async function IntakeQueuePage() {
 
   return (
     <div className="space-y-8">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Intake workflow</p>
-          <h1 className="ui-display-title">Intake queue</h1>
-          <p className="ui-page-lead mt-2">
-            Track received contracts from review to operationally active with required next steps.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<ArrowRightLeft className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Intake workflow"
+        title="Intake queue"
+        lead="Track received contracts from review to operationally active with required next steps."
+      />
 
       <section className="space-y-3">
         <div>
@@ -194,8 +192,7 @@ export default async function IntakeQueuePage() {
                           <option value="ready">ready</option>
                           <option value="rejected">rejected</option>
                         </select>
-                        <input
-                          name="completenessScore"
+                        <input aria-label="score" name="completenessScore"
                           type="number"
                           min={0}
                           max={100}

@@ -1,10 +1,9 @@
 import {
   CalendarDays,
-  CheckCircle2,
   Eye,
-  FileText,
   TriangleAlert,
 } from "lucide-react";
+import Link from "next/link";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
@@ -13,27 +12,17 @@ interface StatsCardsProps {
   totalContracts: number;
   pendingReview: number;
   upcomingDeadlines: number;
-  activeContracts: number;
   missingCriticalCount: number;
 }
 
 const metricsConfig = [
-  {
-    headline: "Contracts",
-    eyebrow: "Portfolio",
-    valueKey: "totalContracts" as const,
-    primaryUnit: "total records",
-    href: "/contracts" as const,
-    actionLabel: "Browse contracts",
-    icon: FileText,
-  },
   {
     headline: "Review",
     eyebrow: "Inbox",
     valueKey: "pendingReview" as const,
     primaryUnit: "pending review",
     href: "/contracts?status=pending_review" as const,
-    actionLabel: "Continue review queue",
+    actionLabel: "Resume review",
     icon: Eye,
   },
   {
@@ -44,15 +33,6 @@ const metricsConfig = [
     href: "/contracts/review-cadence" as const,
     actionLabel: "Review deadlines",
     icon: CalendarDays,
-  },
-  {
-    headline: "Active",
-    eyebrow: "Live",
-    valueKey: "activeContracts" as const,
-    primaryUnit: "active agreements",
-    href: "/contracts?status=active" as const,
-    actionLabel: "Review active",
-    icon: CheckCircle2,
   },
   {
     headline: "Data gaps",
@@ -72,7 +52,6 @@ function toneFor(
   if (key === "upcomingDeadlines" && value > 0) return "risk";
   if (key === "pendingReview" && value > 0) return "attention";
   if (key === "missingCriticalCount" && value > 0) return "risk";
-  if (key === "totalContracts" || key === "activeContracts") return "neutral";
   return "healthy";
 }
 
@@ -80,31 +59,76 @@ export function StatsCards({
   totalContracts,
   pendingReview,
   upcomingDeadlines,
-  activeContracts,
   missingCriticalCount,
 }: StatsCardsProps) {
   const values = {
-    totalContracts,
     pendingReview,
     upcomingDeadlines,
-    activeContracts,
     missingCriticalCount,
   };
+  const activeSignalCards = metricsConfig.filter((metric) => {
+    const value = values[metric.valueKey];
+    return value > 0;
+  });
+
+  if (totalContracts === 0) {
+    return (
+      <section className="ui-page-shell">
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Contracts
+        </p>
+        <h2 className="text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">Start with a contract</h2>
+        <p className="ui-section-lead mt-2 max-w-3xl">
+          Dashboard metrics appear after the workspace has contracts, review work, deadlines, or data-quality signals.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/contracts/new" className="ui-btn-primary px-4 py-2 text-xs">
+            Upload contract
+          </Link>
+          <Link href="/contracts" className="ui-btn-secondary px-4 py-2 text-xs">
+            Browse contracts
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  if (activeSignalCards.length === 0) {
+    return (
+      <section className="ui-page-shell">
+        <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Contracts
+        </p>
+        <h2 className="ui-section-title mt-1">No review, deadline, or data-quality signals need attention.</h2>
+        <p className="ui-support-copy mt-2">
+          {totalContracts} contract{totalContracts === 1 ? "" : "s"} visible in this workspace.
+        </p>
+        <Link href="/contracts" className="ui-link mt-3 inline-block text-xs">
+          Browse contracts
+        </Link>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="ui-eyebrow">Portfolio</p>
-          <h2 className="ui-page-title mt-2 text-[1.85rem]">Contract metrics</h2>
-          <p className="ui-page-lead mt-2">Portfolio volume, review pressure, deadline horizon, and data risk at a glance.</p>
+          <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+          <span className="landing-eyebrow-dot" aria-hidden />
+          Contracts
+        </p>
+          <h2 className="text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">Signals to watch</h2>
+          <p className="ui-page-lead mt-2">Only active review, deadline, and data-quality signals are expanded here.</p>
         </div>
       </div>
       <div
         data-testid={surfaceTestIds.dashboardStats}
-        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 2xl:grid-cols-10"
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {metricsConfig.map((m) => {
+        {activeSignalCards.map((m) => {
           const value = values[m.valueKey];
           const tone = toneFor(m.valueKey, value);
           const actionHref = m.href;
@@ -112,7 +136,6 @@ export function StatsCards({
             <OperationalSummaryCard
               key={m.headline}
               variant="compact"
-              className="lg:col-span-1 2xl:col-span-2"
               eyebrow={m.eyebrow}
               headline={m.headline}
               tone={tone}

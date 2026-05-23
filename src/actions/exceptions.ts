@@ -8,7 +8,7 @@ import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { emitVisibleMutationErrorTelemetry } from "@/lib/product-telemetry";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import type { OrgRole } from "@/lib/types";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
@@ -169,7 +169,7 @@ export async function assignException(input: {
   const ownerId = input.ownerId.trim();
   const dueDate = input.dueDate?.trim() || null;
   if (!ownerId || !isUuid(ownerId)) return { error: "Select a valid owner." };
-  if (dueDate && Number.isNaN(new Date(`${dueDate}T12:00:00`).getTime())) {
+  if (dueDate && !isIsoDateOnly(dueDate)) {
     return { error: "Enter a valid due date." };
   }
   if (!(await ensureOwnerMember(ctx.admin, ctx.exception.organization_id, ownerId))) {

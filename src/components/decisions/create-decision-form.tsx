@@ -97,7 +97,7 @@ export function CreateDecisionForm() {
           disabled={busy}
         />
       </label>
-      <AsyncActionButton type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]" pending={busy} pendingLabel="Creating…">
+      <AsyncActionButton type="submit" className="ui-btn-secondary px-4 py-2 text-[12.5px]" pending={busy} pendingLabel="Creating…">
         Create workspace
       </AsyncActionButton>
     </form>

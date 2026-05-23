@@ -11,7 +11,7 @@ const { NodeCryptoProvider } = require(
 describe("Stripe webhook signature contract", () => {
   it("constructEvent accepts a valid signed payload", () => {
     const secret = "whsec_" + "a".repeat(32);
-    const stripe = new Stripe("sk_test_placeholder", { typescript: true, apiVersion: "2025-02-24.acacia" });
+    const stripe = new Stripe("sk_test_placeholder", { typescript: true, apiVersion: "2026-04-22.dahlia" });
     const payload = JSON.stringify({
       id: "evt_contract_test",
       object: "event",
@@ -33,7 +33,7 @@ describe("Stripe webhook signature contract", () => {
 
   it("constructEvent rejects tampered payload", () => {
     const secret = "whsec_" + "b".repeat(32);
-    const stripe = new Stripe("sk_test_placeholder", { typescript: true, apiVersion: "2025-02-24.acacia" });
+    const stripe = new Stripe("sk_test_placeholder", { typescript: true, apiVersion: "2026-04-22.dahlia" });
     const payload = JSON.stringify({ id: "evt_tamper", object: "event", type: "ping", data: {} });
     const ts = Math.floor(Date.now() / 1000);
     const header = stripe.webhooks.generateTestHeaderString({

@@ -1,5 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase/server";
-import { redactEmailLikeSubstrings } from "@/lib/observability/log-redaction";
+import { redactSensitiveLogString } from "@/lib/observability/log-redaction";
+import { redactPersistenceString } from "@/lib/security/persistence-redaction";
 import { createV10ObjectiveTelemetryPayload } from "@/lib/v10-objective-telemetry";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
@@ -108,7 +109,7 @@ export const V10_TELEMETRY_EVENT_EVIDENCE_EXCEPTIONS: Partial<Record<ProductTele
 export const PRODUCT_TELEMETRY_DETAILS_MAX_JSON_BYTES = 6000;
 const V10_TELEMETRY_SAFE_URL_PARAMS = new Set(["tab", "lens", "state", "mode", "result"]);
 const V10_TELEMETRY_FORBIDDEN_DETAIL_KEY_RE =
-  /(^|_)(email|phone|address|token|secret|password|note|comment|raw_contract_text|contract_text|signed_url|private_url|file_url|file_name)(_|$)/i;
+  /(^|_)(email|phone|address|token|secret|password|note|comment|raw_contract_text|contract_text|signed_url|private_url|file_url|file_name|oauth_code|authorization|api_key|webhook_secret)(_|$)/i;
 
 export function sanitizeV10TelemetryUrl(value: string): string {
   const trimmed = value.trim();
@@ -142,8 +143,7 @@ export function clampProductTelemetryDetails(
     if (v === undefined) continue;
     if (typeof v === "string") {
       const urlSafe = sanitizeV10TelemetryUrl(v);
-      const clipped = urlSafe.length > 800 ? `${urlSafe.slice(0, 797)}…` : urlSafe;
-      out[k] = redactEmailLikeSubstrings(clipped, 800);
+      out[k] = redactPersistenceString(redactSensitiveLogString(urlSafe, 800), 800);
     } else {
       out[k] = v;
     }

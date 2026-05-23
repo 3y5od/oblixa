@@ -152,7 +152,7 @@ function StructuredWorkspaceForm({
     <div className="mt-3 space-y-4 border-t border-[var(--border-subtle)] pt-3">
       <p className="text-[11px] font-medium text-[var(--text-secondary)]">Renewal workspace (structured)</p>
       <div className="space-y-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Stakeholder checklist</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Stakeholder checklist</p>
         {ws.stakeholder_checklist.map((row, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2 rounded border border-[var(--border-subtle)] px-2 py-1.5">
             <input
@@ -168,14 +168,14 @@ function StructuredWorkspaceForm({
               aria-label={`Stakeholder item ${i + 1}`}
             />
             <label className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
-              <input type="checkbox" checked={row.done} onChange={(e) => setChecklist(i, { done: e.target.checked })} />
+              <input type="checkbox" className="ui-checkbox" checked={row.done} onChange={(e) => setChecklist(i, { done: e.target.checked })} />
               Done
             </label>
           </div>
         ))}
       </div>
       <div className="space-y-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Scenario comparison</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Scenario comparison</p>
         {ws.scenario_comparison.map((row, i) => (
           <div key={i} className="grid gap-1 sm:grid-cols-2">
             <input
@@ -194,7 +194,7 @@ function StructuredWorkspaceForm({
         ))}
       </div>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Commercial notes</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Commercial notes</p>
         <textarea
           className="ui-input mt-1 min-h-[60px] w-full text-[11px]"
           value={ws.commercial_notes}
@@ -202,7 +202,7 @@ function StructuredWorkspaceForm({
         />
       </div>
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Meeting agenda</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">Meeting agenda</p>
         {ws.meeting_agenda.map((line, i) => (
           <input
             key={i}
@@ -221,7 +221,7 @@ function StructuredWorkspaceForm({
       >
         Save workspace
       </button>
-      <details className="text-[10px] text-[var(--text-tertiary)]">
+      <details className="text-[11px] text-[var(--text-tertiary)]">
         <summary className="cursor-pointer text-[var(--text-secondary)]">Advanced JSON</summary>
         <pre className="mt-1 max-h-32 overflow-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 font-mono">{JSON.stringify(ws, null, 2)}</pre>
       </details>
@@ -335,8 +335,7 @@ export function RenewalCheckpointsPanel({
               <form action={generateRenewalDecisionPacketFormAction} className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3">
                 <input type="hidden" name="checkpointId" value={cp.id} />
                 <p className="text-[11px] font-medium text-[var(--text-secondary)]">Decision packet</p>
-                <input
-                  name="packetSummary"
+                <input aria-label="Optional summary for the packet" name="packetSummary"
                   placeholder="Optional summary for the packet"
                   className="ui-input w-full max-w-md text-[11px]"
                 />

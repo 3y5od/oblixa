@@ -68,6 +68,21 @@ describe("mapAuthError", () => {
     );
   });
 
+  it("maps transient auth provider failures to a clear retry message", () => {
+    expect(mapAuthError("{}")).toBe(
+      "Authentication is temporarily unavailable. Try again in a few minutes."
+    );
+    expect(mapAuthError("fetch failed")).toBe(
+      "Authentication is temporarily unavailable. Try again in a few minutes."
+    );
+    expect(mapAuthError("upstream returned 522")).toBe(
+      "Authentication is temporarily unavailable. Try again in a few minutes."
+    );
+    expect(mapAuthError({ message: "service unavailable", status: 522, name: "AuthRetryableFetchError" })).toBe(
+      "Authentication is temporarily unavailable. Try again in a few minutes."
+    );
+  });
+
   it("routes password-related errors through mapDataSourceError", () => {
     expect(mapAuthError("Password should be at least 8 characters")).toBe(
       mapDataSourceError("Password should be at least 8 characters")

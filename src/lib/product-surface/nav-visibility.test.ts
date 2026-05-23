@@ -125,8 +125,10 @@ describe("§13.4 — flags on, Core mode", () => {
     };
     const decisions = NAV_ITEMS.find((i) => i.href === "/decisions");
     const campaigns = NAV_ITEMS.find((i) => i.href === "/campaigns");
+    const tools = NAV_ITEMS.find((i) => i.href === "/more");
     expect(decisions && isNavItemVisibleForSurface(decisions, s)).toBe(false);
     expect(campaigns && isNavItemVisibleForSurface(campaigns, s)).toBe(false);
+    expect(tools && isNavItemVisibleForSurface(tools, s)).toBe(false);
   });
 });
 
@@ -143,9 +145,11 @@ describe("filterNavBadgesForSurface (§15.3)", () => {
       utilityModulesHidden: [],
       searchScope: "match_mode",
     };
-    const out = filterNavBadgesForSurface({ watchlists: 9, reviewQueue: 2 }, s);
+    const out = filterNavBadgesForSurface({ watchlists: 9, reviewQueue: 2, approvals: 3, obligations: 4 }, s);
     expect(out.watchlists).toBeUndefined();
     expect(out.reviewQueue).toBe(2);
+    expect(out.approvals).toBeUndefined();
+    expect(out.obligations).toBeUndefined();
   });
 });
 

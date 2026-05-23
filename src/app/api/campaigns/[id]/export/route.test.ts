@@ -62,7 +62,7 @@ function exportAdminMock() {
                             status: "pending",
                             segment_key: "s1",
                             assigned_team: "ops",
-                            status_reason: "queued",
+                            status_reason: "=SUM(1,1)",
                             updated_at: "2026-01-01T00:00:00Z",
                           },
                         ],
@@ -127,9 +127,26 @@ describe("GET /api/campaigns/[id]/export", () => {
     );
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toContain("text/csv");
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    const disposition = res.headers.get("Content-Disposition") ?? "";
+    expect(disposition).toBe(`attachment; filename="campaign-c1.csv"; filename*=UTF-8''campaign-c1.csv`);
+    expect(disposition).not.toMatch(/[\r\n]/);
     const text = await res.text();
     expect(text).toContain("contract_id");
     expect(text).toContain("ct-1");
     expect(text).toContain("pending");
+    expect(text).toContain("'=SUM(1,1)");
+  });
+
+  it("rejects unsafe route params before export", async () => {
+    const { GET } = await import("@/app/api/campaigns/[id]/export/route");
+    const res = await GET(new Request("http://localhost/api/campaigns/c1/export?format=csv"), {
+      params: Promise.resolve({ id: "c1\r\nX-Bad: yes" }),
+    });
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "invalid_request",
+      details: { reason: "invalid_route_param", param: "id" },
+    });
   });
 });

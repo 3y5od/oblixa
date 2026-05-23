@@ -83,7 +83,7 @@ export default async function AssuranceSegmentsPage() {
               )}
             </p>
             {row.active ? <SegmentRecomputeButton segmentId={String(row.id)} /> : null}
-            <pre className="mt-2 max-h-32 overflow-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 text-[10px] text-[var(--text-secondary)]">
+            <pre className="mt-2 max-h-32 overflow-auto rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] p-2 text-[11px] text-[var(--text-secondary)]">
               {JSON.stringify(row.criteria_json ?? {}, null, 2)}
             </pre>
           </li>

@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { getClientIpFromRequest, rateLimitCheck, RATE_LIMITS } from "@/lib/rate-limit";
-import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+import { recordSecurityAuditEvent, recordSecurityAuditEventStrict } from "@/lib/security/audit-write";
+import {
+  contentDispositionAttachment,
+  sanitizeExportFileName,
+  sanitizeExportFileNameToken,
+} from "@/lib/security/export-filename";
+import {
+  buildPrivacySafeUserExportPayload,
+  isLegalHoldProfile,
+} from "@/lib/security/privacy-inventory";
+
+const ROUTE = "/api/me/export";
 
 /**
  * Minimal authenticated self-service export (DSR-oriented JSON bundle).
@@ -9,7 +21,7 @@ import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
  */
 export async function GET(request: Request) {
   if (process.env.OBLIXA_DSR_SELF_EXPORT === "0") {
-    return NextResponse.json({ error: "Self-service export is disabled" }, { status: 403 });
+    return jsonForbidden(ROUTE);
   }
 
   const supabase = await createClient();
@@ -17,25 +29,24 @@ export async function GET(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return jsonUnauthorized(ROUTE);
   }
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`dsr-export:${user.id}:${ip}`, RATE_LIMITS.dsrSelfExport);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
   const admin = await createAdminClient();
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) {
-    return NextResponse.json({ error: "No organization membership" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "No organization membership",
+      code: "organization_membership_missing",
+      diagnostic_id: "self_export_membership_missing",
+      route: ROUTE,
+    });
   }
 
   const [{ data: profile }, { data: org }] = await Promise.all([
@@ -47,7 +58,7 @@ export async function GET(request: Request) {
       .maybeSingle(),
   ]);
 
-  if (profile && (profile as { legal_hold?: boolean }).legal_hold === true) {
+  if (isLegalHoldProfile(profile)) {
     void recordSecurityAuditEvent(admin, {
       organizationId: membership.organization_id,
       actorUserId: user.id,
@@ -57,34 +68,48 @@ export async function GET(request: Request) {
       outcome: "forbidden",
       safeMetadata: {},
     });
-    return NextResponse.json({ error: "Export is blocked by an active legal hold" }, { status: 403 });
+    return jsonProblem(403, {
+      error: "Export is blocked by an active legal hold",
+      code: "legal_hold",
+      diagnostic_id: "self_export_legal_hold",
+      route: ROUTE,
+    });
   }
 
   const exportedAt = new Date().toISOString();
-  const payload = {
-    exported_at: exportedAt,
-    schema_version: 1,
+  const payload = buildPrivacySafeUserExportPayload({
+    exportedAt,
     user: { id: user.id, email: user.email },
-    profile: profile ?? null,
-    organization: org ?? null,
-    membership: { organization_id: membership.organization_id, role: membership.role },
-  };
-
-  void recordSecurityAuditEvent(admin, {
-    organizationId: membership.organization_id,
-    actorUserId: user.id,
-    action: "security.dsr_self_export_downloaded",
-    targetType: "user",
-    targetId: user.id,
-    outcome: "success",
-    safeMetadata: {},
+    profile,
+    organization: org,
+    membership,
   });
+
+  try {
+    await recordSecurityAuditEventStrict(admin, {
+      organizationId: membership.organization_id,
+      actorUserId: user.id,
+      action: "security.dsr_self_export_downloaded",
+      targetType: "user",
+      targetId: user.id,
+      outcome: "success",
+      safeMetadata: {},
+    });
+  } catch {
+    return jsonProblem(500, {
+      error: "Export audit could not be recorded",
+      code: "audit_write_failed",
+      diagnostic_id: "self_export_audit_write_failed",
+      route: ROUTE,
+    });
+  }
+  const fileName = sanitizeExportFileName(`oblixa-self-export-${sanitizeExportFileNameToken(user.id)}.json`);
 
   return NextResponse.json(payload, {
     status: 200,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="oblixa-self-export-${user.id}.json"`,
+      "Content-Disposition": contentDispositionAttachment(fileName),
       "Cache-Control": "private, no-store",
     },
   });

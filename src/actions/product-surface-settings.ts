@@ -20,6 +20,7 @@ import {
   ALL_ASSURANCE_NAV_MODULE_KEYS,
 } from "@/lib/product-surface/workspace-module-keys";
 import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { mapDataSourceError } from "@/lib/errors/user-facing";
 import {
   countScheduledReportSubscriptionsSuppressedByModeChange,
   EMAIL_NOTIFICATION_POLICY_TYPES,
@@ -170,7 +171,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) {
     console.error("[product-surface-settings]", error.message);
-    return { error: error.message };
+    return { error: mapDataSourceError(error.message) };
   }
 
   const nextModeFinal = parseWorkspaceMode(merged ?? prevV6);
@@ -343,7 +344,7 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
   });
   if (v10ModuleReservation) return v10ModuleReservation;
   const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
-  if (error) return { error: error.message };
+  if (error) return { error: mapDataSourceError(error.message) };
   await safeApplyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -469,7 +470,7 @@ async function updateProductEmailNotificationCategoriesFormUnsafe(formData: Form
 
   if (error) {
     console.error("[product-surface-settings] notification categories", error.message);
-    return { error: error.message };
+    return { error: mapDataSourceError(error.message) };
   }
 
   const legacyAuditError = await safeInsertLegacyAuditEvent(

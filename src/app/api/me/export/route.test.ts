@@ -15,6 +15,6 @@ describe("GET /api/me/export", () => {
     const res = await GET(new Request("http://127.0.0.1/api/me/export"));
     expect(res.status).toBe(403);
     const body = await res.json();
-    expect(body).toMatchObject({ error: "Self-service export is disabled" });
+    expect(body).toMatchObject({ error: "Forbidden", code: "forbidden" });
   });
 });

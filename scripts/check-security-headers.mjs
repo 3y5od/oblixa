@@ -10,7 +10,11 @@ const REQUIRED_CI_COMMANDS = ["npm run check:security-headers"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:security-headers"'];
 const REQUIRED_HEADER_KEYS = [
   "X-Content-Type-Options",
+  "X-DNS-Prefetch-Control",
+  "X-Permitted-Cross-Domain-Policies",
   "X-Frame-Options",
+  "Cross-Origin-Opener-Policy",
+  "Cross-Origin-Resource-Policy",
   "Referrer-Policy",
   "Permissions-Policy",
   "Content-Security-Policy",
@@ -18,17 +22,23 @@ const REQUIRED_HEADER_KEYS = [
   "Strict-Transport-Security",
 ];
 const NEXT_CONFIG_MARKERS = [
-  'import { buildSecurityHeaders } from "@/lib/security/csp-builders"',
+  "buildApiNoStoreHeaders",
+  "buildSecurityHeaders",
   "const securityHeaders = buildSecurityHeaders({",
+  "const apiNoStoreHeaders = buildApiNoStoreHeaders();",
   'source: "/api/:path*"',
+  "headers: apiNoStoreHeaders",
   'source: "/:path*"',
   "headers: securityHeaders",
-  '{ key: "Cache-Control", value: "private, no-store" }',
 ];
 const CSP_TEST_MARKERS = [
   "buildSecurityHeaders adds HSTS only on Vercel by default",
   "Permissions-Policy disables payment and capture surfaces unless product opts in later",
   'require-trusted-types-for \'script\'',
+  "buildSecurityHeaders rejects unsafe header values sourced from nonce input",
+  "buildApiNoStoreHeaders emits CDN-resistant private API cache headers",
+  "script-src-attr 'none'",
+  "upgrade-insecure-requests",
 ];
 
 function read(root, rel) {

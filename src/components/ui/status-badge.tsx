@@ -27,14 +27,18 @@ export function StatusBadge({
   status,
   children,
   className = "",
+  pulse = false,
 }: {
   status: SemanticStatus;
   children: ReactNode;
   className?: string;
+  /** When true, render a subtle slow attention pulse — used for stale states. */
+  pulse?: boolean;
 }) {
   return (
-    <span className={`ui-status-badge gap-1.5 align-middle ${STATUS_CLASS_MAP[status]} ${className}`.trim()}>
-      <span className="h-1.5 w-1.5 rounded-full bg-current/75" aria-hidden />
+    <span
+      className={`ui-status-badge align-middle ${STATUS_CLASS_MAP[status]} ${pulse ? "ui-status-badge-pulse" : ""} ${className}`.trim()}
+    >
       {children}
     </span>
   );

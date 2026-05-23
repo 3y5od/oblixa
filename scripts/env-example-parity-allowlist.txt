@@ -1,4 +1,5 @@
 # process.env keys allowed without a line in .env.example (infra / runtime injection).
+# meta: reviewedOn=2026-05-11 owner=@platform expiry=2027-12-31 reason=runtime_and_ci_injected_environment_keys_are_documented_by_provider_contracts compensatingTest=scripts/check-env-example-parity.mjs
 NODE_ENV
 CI
 VERCEL

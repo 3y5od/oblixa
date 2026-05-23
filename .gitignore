@@ -53,6 +53,7 @@ yarn-error.log*
 # Environment (never commit secrets)
 .env*
 !.env.example
+!.env.local.example
 
 # TLS / keys
 *.pem

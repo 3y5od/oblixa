@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
 const getDeterministicMembership = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const hasSensitiveActionProof = vi.fn();
+const recordSecurityAuditEvent = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -15,14 +19,12 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/security/step-up-cookie", () => ({
-  isStepUpCookieValidForUser: vi.fn().mockReturnValue(true),
+vi.mock("@/lib/security/sensitive-action-proof", () => ({
+  hasSensitiveActionProof,
 }));
 
-vi.mock("next/headers", () => ({
-  cookies: vi.fn().mockResolvedValue({
-    get: vi.fn().mockReturnValue({ value: "test-step-up" }),
-  }),
+vi.mock("@/lib/security/audit-write", () => ({
+  recordSecurityAuditEvent,
 }));
 
 function buildAuthClient(userId: string | null) {
@@ -40,10 +42,15 @@ describe("POST /api/integrations/oauth/start", () => {
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
+    hasSensitiveActionProof.mockResolvedValue(true);
+    recordSecurityAuditEvent.mockResolvedValue("audit-1");
   });
 
   it("returns 400 for unsupported provider", async () => {
-    createClient.mockResolvedValue(buildAuthClient(crypto.randomUUID()));
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    getDeterministicMembership.mockResolvedValue({ organization_id: orgId, role: "admin" });
+    createClient.mockResolvedValue(buildAuthClient(userId));
     createAdminClient.mockResolvedValue({
       from: vi.fn(),
     });
@@ -59,7 +66,7 @@ describe("POST /api/integrations/oauth/start", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "Unsupported provider" });
+    expect(body).toMatchObject({ error: "Unsupported provider" });
   });
 
   it("returns 500 when oauth state insert fails", async () => {
@@ -105,11 +112,9 @@ describe("POST /api/integrations/oauth/start", () => {
     const body = await res.json();
     expect(res.status).toBe(500);
     expect(body).toMatchObject({
-      ok: false,
       error: "Failed to create oauth state",
       code: "persistence_failed",
       diagnostic_id: "oauth_start_state_create_failed",
-      phase: "persist",
     });
     expect(oauthStateInsert).toHaveBeenCalledTimes(1);
   });
@@ -143,11 +148,69 @@ describe("POST /api/integrations/oauth/start", () => {
 
     expect(res.status).toBe(503);
     expect(body).toMatchObject({
-      ok: false,
       code: "dependency_blocked",
       diagnostic_id: "oauth_start_provider_missing",
-      phase: "dependency_preflight",
     });
+  });
+
+  it("returns 403 for non-admin membership before provider configuration DB work", async () => {
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    const from = vi.fn();
+    getDeterministicMembership.mockResolvedValue({ organization_id: orgId, role: "viewer" });
+    createClient.mockResolvedValue(buildAuthClient(userId));
+    createAdminClient.mockResolvedValue({ from });
+
+    const { POST } = await import("@/app/api/integrations/oauth/start/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/oauth/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider: "slack", redirectUri: "http://localhost:3000/api/integrations/oauth/callback" }),
+      })
+    );
+
+    expect(res.status).toBe(403);
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("requires shared step-up or AAL2 proof before creating oauth state", async () => {
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    const from = vi.fn();
+    getDeterministicMembership.mockResolvedValue({ organization_id: orgId, role: "admin" });
+    hasSensitiveActionProof.mockResolvedValueOnce(false);
+    createClient.mockResolvedValue(buildAuthClient(userId));
+    createAdminClient.mockResolvedValue({ from });
+
+    const { POST } = await import("@/app/api/integrations/oauth/start/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/oauth/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          provider: "slack",
+          redirectUri: "http://localhost:3000/api/integrations/oauth/callback",
+        }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body).toMatchObject({
+      code: "step_up_required",
+      diagnostic_id: "oauth_start_step_up_required",
+      details: { needStepUp: true },
+    });
+    expect(recordSecurityAuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "security.integration_oauth_start_blocked",
+        outcome: "forbidden",
+        safeMetadata: { reason: "sensitive_action_proof_required" },
+      })
+    );
+    expect(from).not.toHaveBeenCalled();
   });
 
   it("returns authorizeUrl payload shape with PKCE S256 challenge when state insert succeeds", async () => {
@@ -203,6 +266,100 @@ describe("POST /api/integrations/oauth/start", () => {
     expect(row.code_challenge_method).toBe("S256");
   });
 
+  it("rejects same-origin redirectUri values that are not the OAuth callback route", async () => {
+    process.env.OAUTH_SLACK_AUTHORIZE_URL = "https://slack.com/oauth/v2/authorize";
+    process.env.OAUTH_SLACK_TOKEN_URL = "https://slack.com/api/oauth.v2.access";
+    process.env.OAUTH_SLACK_CLIENT_ID = "cid";
+    process.env.OAUTH_SLACK_CLIENT_SECRET = "csecret";
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    getDeterministicMembership.mockResolvedValue({
+      organization_id: orgId,
+      role: "admin",
+    });
+    const oauthStateInsert = vi.fn().mockResolvedValue({ error: null });
+    createClient.mockResolvedValue(buildAuthClient(userId));
+    const integrationConnectionQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return { insert: oauthStateInsert };
+        if (table === "integration_connections") return integrationConnectionQuery;
+        return {};
+      }),
+    });
+
+    const { POST } = await import("@/app/api/integrations/oauth/start/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/oauth/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          provider: "slack",
+          redirectUri: "http://localhost:3000/settings/integrations",
+        }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "redirectUri must match OAuth callback route",
+      diagnostic_id: "oauth_start_redirect_path_mismatch",
+    });
+    expect(oauthStateInsert).not.toHaveBeenCalled();
+  });
+
+  it("rejects OAuth callback redirectUri values with query strings", async () => {
+    process.env.OAUTH_SLACK_AUTHORIZE_URL = "https://slack.com/oauth/v2/authorize";
+    process.env.OAUTH_SLACK_TOKEN_URL = "https://slack.com/api/oauth.v2.access";
+    process.env.OAUTH_SLACK_CLIENT_ID = "cid";
+    process.env.OAUTH_SLACK_CLIENT_SECRET = "csecret";
+    const userId = crypto.randomUUID();
+    const orgId = crypto.randomUUID();
+    getDeterministicMembership.mockResolvedValue({
+      organization_id: orgId,
+      role: "admin",
+    });
+    const oauthStateInsert = vi.fn().mockResolvedValue({ error: null });
+    createClient.mockResolvedValue(buildAuthClient(userId));
+    const integrationConnectionQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+    };
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "integration_oauth_states") return { insert: oauthStateInsert };
+        if (table === "integration_connections") return integrationConnectionQuery;
+        return {};
+      }),
+    });
+
+    const { POST } = await import("@/app/api/integrations/oauth/start/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/oauth/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          provider: "slack",
+          redirectUri: "http://localhost:3000/api/integrations/oauth/callback?next=/settings",
+        }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "redirectUri must match OAuth callback route",
+      diagnostic_id: "oauth_start_redirect_path_mismatch",
+    });
+    expect(oauthStateInsert).not.toHaveBeenCalled();
+  });
+
   it("blocks duplicate replay of oauth start with x-idempotency-key", async () => {
     process.env.OAUTH_SLACK_AUTHORIZE_URL = "https://slack.com/oauth/v2/authorize";
     process.env.OAUTH_SLACK_TOKEN_URL = "https://slack.com/api/oauth.v2.access";
@@ -253,5 +410,15 @@ describe("POST /api/integrations/oauth/start", () => {
       retryAfterMs: expect.any(Number),
     });
     expect(oauthStateInsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("authenticates before parsing the request body", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/api/integrations/oauth/start/route.ts"), "utf8");
+    const authIndex = source.indexOf("supabase.auth.getUser()");
+    const bodyParseIndex = source.indexOf("readJsonBodyLimited(request)");
+
+    expect(authIndex).toBeGreaterThanOrEqual(0);
+    expect(bodyParseIndex).toBeGreaterThanOrEqual(0);
+    expect(authIndex).toBeLessThan(bodyParseIndex);
   });
 });

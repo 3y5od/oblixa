@@ -32,6 +32,10 @@ describe("robots()", () => {
     expect(Array.isArray(out.rules)).toBe(true);
     const rule0 = (out.rules as { disallow: string[] }[])[0];
     expect(rule0?.disallow).toContain("/api/");
+    expect(out.rules).toContainEqual({ userAgent: "GPTBot", disallow: "/" });
+    expect(out.rules).toContainEqual({ userAgent: "OAI-SearchBot", disallow: "/" });
+    expect(out.rules).toContainEqual({ userAgent: "Google-Extended", disallow: "/" });
+    expect(out.rules).toContainEqual({ userAgent: "PerplexityBot", disallow: "/" });
     expect(out.sitemap).toBe("https://app.example.com/sitemap.xml");
   });
 });

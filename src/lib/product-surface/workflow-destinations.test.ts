@@ -66,7 +66,7 @@ describe("workflow destination content", () => {
 
   it("limits More jump destinations by mode and module visibility", () => {
     const coreKeys = listMoreJumpDestinations(surface({ mode: "core" })).map((d) => d.key);
-    expect(coreKeys).toEqual(["system_health"]);
+    expect(coreKeys).toEqual([]);
 
     const advancedKeys = listMoreJumpDestinations(surface({ mode: "advanced" })).map((d) => d.key);
     expect(advancedKeys).toContain("programs");
@@ -104,6 +104,16 @@ describe("workflow destination content", () => {
     expect(cmdk.every((d) => d.copy.label && d.copy.description)).toBe(true);
   });
 
+  it("keeps Evidence available to Core child, command, and contextual placements", () => {
+    const core = surface({ mode: "core" });
+    for (const placement of ["nav_child", "cmdk", "contextual"] as const) {
+      const keys = listWorkflowDestinationsForSurface(core, {
+        placements: [placement],
+      }).map((d) => d.key);
+      expect(keys, placement).toContain("evidence");
+    }
+  });
+
   it("normalizes stale href labels through destination lookup", () => {
     expect(workflowDestinationForHref("/contracts/renewals?source=dashboard")?.key).toBe("renewals");
     expect(workflowDestinationForHref("/reports#outcome-intelligence")?.key).toBe(
@@ -123,4 +133,3 @@ describe("workflow destination content", () => {
     expect(first.every((d) => d.label && d.description && d.placements.length > 0)).toBe(true);
   });
 });
-

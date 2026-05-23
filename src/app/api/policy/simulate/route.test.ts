@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
+const enforceIdempotency = vi.fn();
+const recordApiMutationAuditEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -11,6 +13,14 @@ vi.mock("@/lib/v4/api-auth", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
+}));
+
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
+vi.mock("@/lib/security/api-mutation-audit", () => ({
+  recordApiMutationAuditEvent,
 }));
 
 vi.mock("@/lib/missing-critical-fields", () => ({
@@ -52,6 +62,8 @@ describe("POST /api/policy/simulate", () => {
       role: "admin",
     });
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
+    recordApiMutationAuditEvent.mockResolvedValue("v10-audit-1");
   });
 
   it("returns 401 when unauthenticated", async () => {
@@ -126,5 +138,42 @@ describe("POST /api/policy/simulate", () => {
       contract_title: "Acme",
     });
     expect(Array.isArray(body.warnings)).toBe(true);
+  });
+
+  it("returns duplicate response before reading simulation body", async () => {
+    const duplicate = new Response(
+      JSON.stringify({ error: "Duplicate request blocked by idempotency key" }),
+      { status: 409, headers: { "content-type": "application/json" } }
+    );
+    const admin = adminForPolicy(true);
+    enforceIdempotency.mockResolvedValueOnce(duplicate);
+    getApiAuthContext.mockResolvedValueOnce({
+      admin,
+      userId: "user-1",
+      orgId: "org-1",
+      role: "admin",
+    });
+
+    const { POST } = await import("@/app/api/policy/simulate/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/policy/simulate", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-idempotency-key": "policy-simulate-replay-0001" },
+        body: JSON.stringify({ contractId: "c1" }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(
+      expect.any(Request),
+      {
+        scope: "api.policy.simulate",
+        actorKey: "org-1:user-1",
+      }
+    );
+    expect(recordApiMutationAuditEvent).not.toHaveBeenCalled();
+    expect(admin.from).not.toHaveBeenCalled();
   });
 });

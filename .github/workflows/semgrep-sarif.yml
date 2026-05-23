@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -49,6 +51,8 @@ jobs:
           name: semgrep-sarif
           path: semgrep.sarif
           if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: false
 
       # Requires GitHub Code Scanning enabled on the repository; do not fail the workflow otherwise.
       - name: Upload SARIF to Code Scanning

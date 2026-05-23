@@ -253,8 +253,41 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
     ]
   },
   {
+    "route": "/settings/health/diagnostics",
+    "visitPath": "/settings/health/diagnostics",
+    "fixtureId": null,
+    "routeFamily": "settings",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y"
+    ]
+  },
+  {
     "route": "/settings/policy",
     "visitPath": "/settings/policy",
+    "fixtureId": null,
+    "routeFamily": "settings",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y"
+    ]
+  },
+  {
+    "route": "/settings/policy/diagnostics",
+    "visitPath": "/settings/policy/diagnostics",
+    "fixtureId": null,
+    "routeFamily": "settings",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y"
+    ]
+  },
+  {
+    "route": "/settings/policy/registry",
+    "visitPath": "/settings/policy/registry",
     "fixtureId": null,
     "routeFamily": "settings",
     "workspaceModeTier": "core",

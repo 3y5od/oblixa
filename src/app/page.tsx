@@ -5,22 +5,24 @@ import { LandingPage } from "@/components/landing/landing-page";
 /** Public landing ISR — aligns with (marketing) segment revalidate. */
 export const revalidate = 86400;
 
-const title = "Oblixa — Contract execution for post-signature teams";
+const title = "Oblixa — Track renewals, obligations, and owners from signed contracts";
 const description =
-  "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.";
+  "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.";
 const ogDescription =
-  "Contract execution platform for post-signature operations. Upload, review, execute, and prove outcomes.";
+  "Replace your contract tracking spreadsheet with a workspace for renewals, owners, obligations, evidence, and reports.";
 
 export const metadata: Metadata = {
   title,
   description,
   alternates: { canonical: "/" },
   keywords: [
-    "contract execution",
-    "renewals",
-    "contract operations",
-    "obligations",
-    "post-signature",
+    "contract tracking",
+    "contract spreadsheet",
+    "renewal tracking",
+    "contract renewals",
+    "obligation tracking",
+    "evidence tracking",
+    "contract reports",
   ],
   openGraph: {
     title,

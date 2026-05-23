@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -14,13 +14,19 @@ import {
 import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/decisions/[id]/close";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5DecisionFoundation");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "renewals_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -28,15 +34,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/decisions/[id]/close",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "renewals_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/decisions/[id]/close",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
   const raw = _limitedBody.body ?? {};
   const body = readJsonBody<{ finalDisposition?: Record<string, unknown>; postActions?: unknown[] }>(raw, {});
 
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/decisions/[id]/close");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: prior } = await ctx.admin
     .from("decision_workspaces")
     .select(
@@ -45,7 +60,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!prior) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (!prior) return jsonNotFound(ROUTE);
 
   const wasClosed = prior.status === "closed";
 
@@ -56,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       .eq("organization_id", ctx.orgId)
       .eq("id", id)
       .maybeSingle();
-    return NextResponse.json({ decision: existingData, postActionResult: null });
+    return jsonOk({ decision: existingData, postActionResult: null });
   }
 
   const bodyPost = Array.isArray(body.postActions) ? body.postActions : [];
@@ -77,10 +92,34 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
+    .neq("status", "closed")
     .select("id, status, final_disposition_json, post_decision_actions_json, updated_at")
     .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  if (!data) return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "decision_close_failed",
+      diagnostic_id: "decision_close_failed",
+      route: ROUTE,
+    });
+  }
+  if (!data) {
+    const { data: existingData } = await ctx.admin
+      .from("decision_workspaces")
+      .select("id, status, final_disposition_json, post_decision_actions_json, updated_at")
+      .eq("organization_id", ctx.orgId)
+      .eq("id", id)
+      .maybeSingle();
+    if (existingData?.status === "closed") {
+      return jsonOk({ decision: existingData, postActionResult: null });
+    }
+    return jsonProblem(409, {
+      error: "Decision status changed before close",
+      code: "decision_close_stale_status",
+      diagnostic_id: "decision_close_stale_status",
+      route: ROUTE,
+    });
+  }
 
   await ctx.admin.from("decision_workspace_events").insert({
     organization_id: ctx.orgId,
@@ -145,6 +184,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   }
 
-  return NextResponse.json({ decision: data, postActionResult });
+  return jsonOk({ decision: data, postActionResult });
 }
-

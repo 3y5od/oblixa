@@ -1,2 +1,2 @@
 # Outbound raw fetch() allowlist (prefer safeFetch). Format: path relative to src/
-# meta: owner=@security expiry=2099-12-31 reason=legacy_review
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2099-12-31 reason=legacy_review

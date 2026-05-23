@@ -6,6 +6,12 @@ import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
 import { PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";
 import { enforceIdempotency } from "@/lib/idempotency";
 import {
+  acquireCronSingleFlightLock,
+  buildCronSingleFlightLockKey,
+  releaseCronSingleFlightLock,
+  type CronSingleFlightLock,
+} from "@/lib/cron/single-flight-lock";
+import {
   safeErrorClass,
   safeErrorMessage,
   type RouteFailurePhase,
@@ -44,6 +50,8 @@ export type CronRouteRunnerOptions = {
   healthcheckRoute?: string;
   rateLimitKey: string | ((request: Request) => Promise<string> | string);
   rateLimit?: RateLimitConfig;
+  singleFlightKey?: string | ((request: Request) => Promise<string> | string) | false;
+  singleFlightTtlMs?: number;
   responseHeaders?: HeadersInit;
   preflight?: (request: Request) => Promise<NextResponse | null> | NextResponse | null;
   dependencyPreflight?: (
@@ -111,6 +119,17 @@ function applyResponseHeaders(response: NextResponse, headers?: HeadersInit): Ne
   return response;
 }
 
+async function resolveSingleFlightKey(request: Request, options: CronRouteRunnerOptions): Promise<string | null> {
+  if (options.singleFlightKey === false) return null;
+  if (typeof options.singleFlightKey === "function") {
+    return options.singleFlightKey(request);
+  }
+  if (typeof options.singleFlightKey === "string") {
+    return options.singleFlightKey;
+  }
+  return buildCronSingleFlightLockKey(options.route);
+}
+
 export async function runCronRoute(request: Request, options: CronRouteRunnerOptions): Promise<NextResponse> {
   const startedAtMs = Date.now();
   const deny = gateCronRequest(request, { headers: options.responseHeaders });
@@ -155,104 +174,140 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
     return applyResponseHeaders(NextResponse.json(payload, { status: 429 }), options.responseHeaders);
   }
 
-  const preflight = options.preflight ? await options.preflight(request) : null;
-  const dependencyPreflight = options.dependencyPreflight ? await options.dependencyPreflight(request) : null;
-  if (dependencyPreflight) {
-    const payload = {
-      ok: false,
-      route: options.route,
-      error: dependencyPreflight.error,
-      code: dependencyPreflight.code ?? "dependency_blocked",
-      diagnostic_id: dependencyPreflight.diagnostic_id,
-      phase: dependencyPreflight.phase ?? "dependency_preflight",
-      durationMs: Date.now() - startedAtMs,
-      ...(dependencyPreflight.details ? { details: dependencyPreflight.details } : {}),
-    };
-    pingIfEnabled(options, {
-      ...payload,
-      status: dependencyPreflight.status ?? 503,
-      reason: dependencyPreflight.code ?? "dependency_blocked",
+  const singleFlightKey = await resolveSingleFlightKey(request, options);
+  let singleFlightLock: CronSingleFlightLock | null = null;
+  if (singleFlightKey) {
+    const lockResult = await acquireCronSingleFlightLock({
+      key: singleFlightKey,
+      ttlMs: options.singleFlightTtlMs,
     });
-    return applyResponseHeaders(
-      NextResponse.json(payload, { status: dependencyPreflight.status ?? 503 }),
-      options.responseHeaders
-    );
-  }
-  if (preflight) {
-    const skipTelemetry = await getSkipTelemetryFromResponse(preflight);
-    applyResponseHeaders(preflight, options.responseHeaders);
-    pingIfEnabled(options, {
-      ok: preflight.status < 400,
-      status: preflight.status,
-      reason:
-        skipTelemetry.skipped === true
-          ? "skipped"
-          : preflight.status < 400
-            ? "preflight"
-            : "preflight_blocked",
-      durationMs: Date.now() - startedAtMs,
-      ...skipTelemetry,
-    });
-    return preflight;
-  }
-
-  let admin: AdminClient;
-  try {
-    admin = options.adminFactory ? await options.adminFactory() : await createAdminClient();
-  } catch (error) {
-    const payload = {
-      ok: false,
-      route: options.route,
-      code: "admin_client_unavailable",
-      diagnostic_id: "cron_admin_client_unavailable",
-      phase: "preflight",
-      error_class: safeErrorClass(error),
-      ...(safeErrorMessage(error) ? { error_message: safeErrorMessage(error) } : {}),
-      durationMs: Date.now() - startedAtMs,
-    };
-    pingIfEnabled(options, { ...payload, status: 503, reason: "admin_client_unavailable" });
-    return applyResponseHeaders(NextResponse.json(payload, { status: 503 }), options.responseHeaders);
+    if (!lockResult.acquired) {
+      const payload = {
+        ok: false,
+        route: options.route,
+        error: "Cron job is already running",
+        code: "job_already_running",
+        diagnostic_id: "cron_job_already_running",
+        retryAfterMs: lockResult.retryAfterMs,
+        durationMs: Date.now() - startedAtMs,
+        skipped: true,
+        reason: "job_already_running",
+        lock_backend: lockResult.backend,
+      };
+      pingIfEnabled(options, { ...payload, status: 409 });
+      const response = NextResponse.json(payload, {
+        status: 409,
+        headers: { "Retry-After": String(Math.max(1, Math.ceil(lockResult.retryAfterMs / 1000))) },
+      });
+      return applyResponseHeaders(response, options.responseHeaders);
+    }
+    singleFlightLock = lockResult.lock;
   }
 
   try {
-    const result = normalizeHandlerResult(await options.handler({ request, startedAtMs, admin }));
-    const partial = Boolean(result.partial);
-    const errorsCount = Number(result.errorsCount ?? result.body.errors_count ?? 0);
-    const ok = result.ok ?? (!partial && errorsCount === 0 && result.body.ok !== false);
-    const status = statusFor(ok, partial, result.status);
-    const body = {
-      ok,
-      route: options.route,
-      durationMs: Date.now() - startedAtMs,
-      ...(partial ? { partial: true } : {}),
-      ...(Number.isFinite(errorsCount) ? { errors_count: errorsCount } : {}),
-      ...(result.phase ? { phase: result.phase } : {}),
-      ...result.body,
-    };
-    const skipTelemetry = getSkipTelemetryFromBody(body);
-    pingIfEnabled(options, {
-      ok,
-      status,
-      reason: result.pingReason ?? (skipTelemetry.skipped ? "skipped" : partial ? "partial" : ok ? "ok" : "failed"),
-      durationMs: body.durationMs,
-      errors_count: body.errors_count,
-      ...skipTelemetry,
-    });
-    return applyResponseHeaders(NextResponse.json(body, { status }), options.responseHeaders);
-  } catch (error) {
-    const payload = {
-      ok: false,
-      route: options.route,
-      code: "unhandled_cron_error",
-      diagnostic_id: "cron_unhandled_error",
-      phase: "handler",
-      error_class: safeErrorClass(error),
-      ...(safeErrorMessage(error) ? { error_message: safeErrorMessage(error) } : {}),
-      durationMs: Date.now() - startedAtMs,
-      errors_count: 1,
-    };
-    pingIfEnabled(options, { ...payload, status: 500, reason: "unhandled_cron_error" });
-    return applyResponseHeaders(NextResponse.json(payload, { status: 500 }), options.responseHeaders);
+    const preflight = options.preflight ? await options.preflight(request) : null;
+    const dependencyPreflight = options.dependencyPreflight ? await options.dependencyPreflight(request) : null;
+    if (dependencyPreflight) {
+      const payload = {
+        ok: false,
+        route: options.route,
+        error: dependencyPreflight.error,
+        code: dependencyPreflight.code ?? "dependency_blocked",
+        diagnostic_id: dependencyPreflight.diagnostic_id,
+        phase: dependencyPreflight.phase ?? "dependency_preflight",
+        durationMs: Date.now() - startedAtMs,
+        ...(dependencyPreflight.details ? { details: dependencyPreflight.details } : {}),
+      };
+      pingIfEnabled(options, {
+        ...payload,
+        status: dependencyPreflight.status ?? 503,
+        reason: dependencyPreflight.code ?? "dependency_blocked",
+      });
+      return applyResponseHeaders(
+        NextResponse.json(payload, { status: dependencyPreflight.status ?? 503 }),
+        options.responseHeaders
+      );
+    }
+    if (preflight) {
+      const skipTelemetry = await getSkipTelemetryFromResponse(preflight);
+      applyResponseHeaders(preflight, options.responseHeaders);
+      pingIfEnabled(options, {
+        ok: preflight.status < 400,
+        status: preflight.status,
+        reason:
+          skipTelemetry.skipped === true
+            ? "skipped"
+            : preflight.status < 400
+              ? "preflight"
+              : "preflight_blocked",
+        durationMs: Date.now() - startedAtMs,
+        ...skipTelemetry,
+      });
+      return preflight;
+    }
+
+    let admin: AdminClient;
+    try {
+      admin = options.adminFactory ? await options.adminFactory() : await createAdminClient();
+    } catch (error) {
+      const payload = {
+        ok: false,
+        route: options.route,
+        code: "admin_client_unavailable",
+        diagnostic_id: "cron_admin_client_unavailable",
+        phase: "preflight",
+        error_class: safeErrorClass(error),
+        ...(safeErrorMessage(error) ? { error_message: safeErrorMessage(error) } : {}),
+        durationMs: Date.now() - startedAtMs,
+      };
+      pingIfEnabled(options, { ...payload, status: 503, reason: "admin_client_unavailable" });
+      return applyResponseHeaders(NextResponse.json(payload, { status: 503 }), options.responseHeaders);
+    }
+
+    try {
+      const result = normalizeHandlerResult(await options.handler({ request, startedAtMs, admin }));
+      const partial = Boolean(result.partial);
+      const errorsCount = Number(result.errorsCount ?? result.body.errors_count ?? 0);
+      const ok = result.ok ?? (!partial && errorsCount === 0 && result.body.ok !== false);
+      const status = statusFor(ok, partial, result.status);
+      const body = {
+        ok,
+        route: options.route,
+        durationMs: Date.now() - startedAtMs,
+        ...(partial ? { partial: true } : {}),
+        ...(Number.isFinite(errorsCount) ? { errors_count: errorsCount } : {}),
+        ...(result.phase ? { phase: result.phase } : {}),
+        ...result.body,
+      };
+      const skipTelemetry = getSkipTelemetryFromBody(body);
+      pingIfEnabled(options, {
+        ok,
+        status,
+        reason: result.pingReason ?? (skipTelemetry.skipped ? "skipped" : partial ? "partial" : ok ? "ok" : "failed"),
+        durationMs: body.durationMs,
+        errors_count: body.errors_count,
+        ...skipTelemetry,
+      });
+      return applyResponseHeaders(NextResponse.json(body, { status }), options.responseHeaders);
+    } catch (error) {
+      const payload = {
+        ok: false,
+        route: options.route,
+        code: "unhandled_cron_error",
+        diagnostic_id: "cron_unhandled_error",
+        phase: "handler",
+        error_class: safeErrorClass(error),
+        ...(safeErrorMessage(error) ? { error_message: safeErrorMessage(error) } : {}),
+        durationMs: Date.now() - startedAtMs,
+        errors_count: 1,
+      };
+      pingIfEnabled(options, { ...payload, status: 500, reason: "unhandled_cron_error" });
+      return applyResponseHeaders(NextResponse.json(payload, { status: 500 }), options.responseHeaders);
+    }
+  } finally {
+    if (singleFlightLock) {
+      await releaseCronSingleFlightLock(singleFlightLock);
+    }
   }
 }
 

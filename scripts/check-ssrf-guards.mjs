@@ -32,23 +32,48 @@ const REQUIRED_SECURITY_PIPELINE_STEPS = [
 ];
 const SAFE_FETCH_MARKERS = [
   "export async function safeFetch",
+  "SAFE_FETCH_MAX_TIMEOUT_MS",
+  "normalizeSafeFetchTimeoutMs",
+  "stripIpv6Brackets",
   "export function isBlockedOutboundIpv4",
   "export function isBlockedOutboundIp",
-  "dns.lookup(url.hostname",
+  "export function createPinnedDnsLookupForSafeFetch",
+  "new Agent({",
+  "fetchInit.dispatcher = dispatcher",
+  "dns.lookup(hostname",
+  "2001:db8::",
+  "fe80::",
   "allowLocalhostInDev",
+  'redirect: "manual"',
+  "safeFetch: redirect following is disabled",
+  "safeFetch: redirect response blocked",
 ];
 const SAFE_FETCH_TEST_MARKERS = [
   "blocks loopback and private IPv4",
+  "blocks IPv6 documentation, compatibility, and translation ranges",
   "allows localhost only in non-production dev when explicitly requested",
+  "rejects DNS resolution to blocked IPs before fetch",
+  "rejects bracketed IPv6 loopback before DNS resolution",
+  "rejects DNS resolution to blocked IPv6 ranges before fetch",
+  "pins DNS result for dispatcher lookup to prevent rebinding",
+  "forces manual redirects and rejects explicit redirect following",
+  "rejects redirect responses with Location headers",
+  "aborts outbound calls after the configured timeout",
 ];
 const URL_POLICY_MARKERS = [
   "export function validateOutboundHttpUrl",
   'host === "localhost"',
   "isPrivateIpLiteral",
+  "a >= 224",
+  "ipv6MatchesPrefix",
+  "2001:db8::",
+  "fe80::",
 ];
 const URL_POLICY_TEST_MARKERS = [
   "rejects localhost and private IPv4 literals",
+  "rejects IPv6 documentation, translation, and link-local variants",
   "rejects non-http(s) schemes and malformed input",
+  "rejects encoded and unusual localhost URL forms",
 ];
 
 function read(root, rel) {

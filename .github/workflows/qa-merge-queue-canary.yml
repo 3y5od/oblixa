@@ -13,9 +13,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
       - run: |
           echo '{"jobs":["CI / quality_static","CI / quality_unit"]}' > expected-checks.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: expected-checks
           path: expected-checks.json
+          retention-days: 14
+          include-hidden-files: false

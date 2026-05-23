@@ -1,2 +1,2 @@
 # Outbound safeFetch trusted-source exceptions. Format: path relative to src/
-# meta: owner=@security expiry=2099-12-31 reason=reviewed_exception
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2099-12-31 reason=reviewed_exception

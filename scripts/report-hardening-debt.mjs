@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { analyzeAllowlistMetadata } from "./check-allowlist-metadata.mjs";
 
 const ROOT = process.cwd();
 
@@ -19,6 +20,7 @@ const rateLimit = runJson("check-api-route-rate-limit-coverage.mjs", ["--report"
 const owner = runJson("check-owner-metadata.mjs", ["--report"]);
 const integration = runJson("report-integration-contract-surface.mjs");
 const concurrency = runJson("report-concurrency-hotspots.mjs");
+const allowlists = analyzeAllowlistMetadata(ROOT, { maxIssues: 20 });
 const exemptions = JSON.parse(
   readFileSync(path.join(ROOT, "src/lib/product-surface/v8-test-exemptions.json"), "utf8")
 );
@@ -29,7 +31,16 @@ const report = {
   skipProblemCount: skip.problemCount,
   allowlistedApiRoutes: apiMeta.allowlistedCount ?? api.allowlistedCount ?? 0,
   uncoveredApiRoutes: apiMeta.uncoveredCount ?? api.uncoveredCount ?? 0,
-  allowlistMetadataIssues: apiMeta.allowlistMetadataIssueCount ?? api.allowlistMetadataIssueCount ?? 0,
+  apiAllowlistMetadataIssues: apiMeta.allowlistMetadataIssueCount ?? api.allowlistMetadataIssueCount ?? 0,
+  allowlistFileCount: allowlists.allowlistFileCount,
+  allowlistEntryCount: allowlists.entryCount,
+  allowlistMetadataIssues: allowlists.metadataIssueCount,
+  allowlistReviewMetadataIssues: allowlists.reviewMetadataIssueCount,
+  allowlistBroadPatternIssues: allowlists.broadPatternIssueCount,
+  allowlistHighRiskBypassIssues: allowlists.highRiskBypassIssueCount,
+  allowlistExpiredEntries: allowlists.expiredEntryCount,
+  allowlistStaleEntries: allowlists.staleEntryCount,
+  allowlistCountsByFile: allowlists.countsByFile,
   rateLimitViolations: rateLimit.violationCount,
   v8ExemptionRows: Array.isArray(exemptions) ? exemptions.length : 0,
   ownerMetadataIssues: owner.issueCount,

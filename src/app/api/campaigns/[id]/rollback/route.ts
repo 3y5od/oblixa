@@ -1,19 +1,28 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { CAMPAIGN_TASK_MARKER } from "@/lib/v5/campaign-eligibility";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/campaigns/[id]/rollback";
 
 /**
  * Best-effort rollback: pause campaign, clear program-assignment campaign tags,
  * remove seeded campaign tasks (marker in details), record audit event.
  */
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -21,19 +30,72 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     apiPath: "/api/campaigns/[id]/rollback",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.campaigns.id.rollback",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/campaigns/[id]/rollback",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
+
+  const { id } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/campaigns/[id]/rollback");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: campaign } = await ctx.admin
     .from("portfolio_campaigns")
     .select("id, status, rolled_back_at")
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  if (!campaign) return jsonNotFound(ROUTE);
   if (campaign.rolled_back_at) {
-    return NextResponse.json({ error: "Campaign was already rolled back" }, { status: 409 });
+    return jsonProblem(409, {
+      error: "Campaign was already rolled back",
+      code: "campaign_already_rolled_back",
+      diagnostic_id: "campaign_already_rolled_back",
+      route: ROUTE,
+    });
+  }
+
+  const rolledAt = new Date().toISOString();
+  const { data: updated, error } = await ctx.admin
+    .from("portfolio_campaigns")
+    .update({
+      status: "paused",
+      rolled_back_at: rolledAt,
+      rollback_safe: false,
+    })
+    .eq("organization_id", ctx.orgId)
+    .eq("id", id)
+    .is("rolled_back_at", null)
+    .select("id, status, rolled_back_at, updated_at")
+    .maybeSingle();
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "campaign_rollback_failed",
+      diagnostic_id: "campaign_rollback_failed",
+      route: ROUTE,
+    });
+  }
+  if (!updated) {
+    return jsonProblem(409, {
+      error: "Campaign was already rolled back",
+      code: "campaign_already_rolled_back",
+      diagnostic_id: "campaign_already_rolled_back",
+      route: ROUTE,
+    });
   }
 
   const marker = CAMPAIGN_TASK_MARKER(id);
@@ -62,20 +124,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .eq("organization_id", ctx.orgId)
     .eq("campaign_id", id)
     .in("status", ["in_progress"]);
-
-  const rolledAt = new Date().toISOString();
-  const { data: updated, error } = await ctx.admin
-    .from("portfolio_campaigns")
-    .update({
-      status: "paused",
-      rolled_back_at: rolledAt,
-      rollback_safe: false,
-    })
-    .eq("organization_id", ctx.orgId)
-    .eq("id", id)
-    .select("id, status, rolled_back_at, updated_at")
-    .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
   await ctx.admin.from("portfolio_campaign_events").insert({
     organization_id: ctx.orgId,

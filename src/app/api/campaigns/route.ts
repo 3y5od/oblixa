@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { readJsonBody, toSafeString } from "@/lib/v5/api";
@@ -10,12 +11,16 @@ import {
 } from "@/lib/v5/campaign-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/campaigns";
 
 export async function GET() {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -32,7 +37,12 @@ export async function GET() {
     .limit(200);
   if (error) {
     console.error("[api/campaigns] GET error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "campaigns_list_failed",
+      diagnostic_id: "campaigns_list_failed",
+      route: ROUTE,
+    });
   }
   return NextResponse.json({ campaigns: data ?? [] });
 }
@@ -41,7 +51,10 @@ export async function POST(request: Request) {
   const disabled = requireV5ApiFeature("v5PortfolioCampaigns");
   if (disabled) return disabled;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -49,9 +62,19 @@ export async function POST(request: Request) {
     apiPath: "/api/campaigns",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.campaigns",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/campaigns",
+    method: "POST",
+  }).catch(() => undefined);
   const _limitedBody = await readJsonBodyLimited(request);
   if (!_limitedBody.ok) return _limitedBody.response;
   const raw = _limitedBody.body ?? {};
@@ -64,15 +87,32 @@ export async function POST(request: Request) {
     seedFromEligibility?: boolean;
   }>(raw, {});
   const name = toSafeString(body.name);
-  if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+  if (!name) {
+    return jsonProblem(400, {
+      error: "name is required",
+      code: "name_required",
+      diagnostic_id: "campaign_name_required",
+      route: ROUTE,
+    });
+  }
   const rawCt = toSafeString(body.campaignType) || "policy_rollout";
   if (!isValidCampaignType(rawCt)) {
-    return NextResponse.json({ error: campaignTypeValidationError() }, { status: 400 });
+    return jsonProblem(400, {
+      error: campaignTypeValidationError(),
+      code: "invalid_campaign_type",
+      diagnostic_id: "campaign_type_invalid",
+      route: ROUTE,
+    });
   }
 
   const assignParsed = parseCampaignAssignmentJson(body.assignment);
   if (!assignParsed.ok) {
-    return NextResponse.json({ error: assignParsed.error }, { status: 400 });
+    return jsonProblem(400, {
+      error: assignParsed.error,
+      code: "invalid_campaign_assignment",
+      diagnostic_id: "campaign_assignment_invalid",
+      route: ROUTE,
+    });
   }
 
   const { data, error } = await ctx.admin
@@ -91,7 +131,12 @@ export async function POST(request: Request) {
     .single();
   if (error) {
     console.error("[api/campaigns] POST error:", error.message);
-    return NextResponse.json({ error: "Failed to process request" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Failed to process request",
+      code: "campaign_create_failed",
+      diagnostic_id: "campaign_create_failed",
+      route: ROUTE,
+    });
   }
 
   const contractIds = Array.isArray(body.contractIds) ? body.contractIds : [];

@@ -45,13 +45,13 @@ export function ContractPagination({
   const showFirstLast = totalPages > 2;
 
   const linkClass =
-    "ui-btn-secondary rounded-[1rem] px-3 py-2 text-[13px]";
+    "ui-btn-secondary rounded-lg px-3 py-2 text-[12.5px]";
   const disabledClass =
-    "rounded-[1rem] border border-transparent px-3 py-2 text-[13px] text-[var(--text-tertiary)]";
+    "rounded-lg border border-transparent px-3 py-2 text-[12.5px] text-[var(--text-tertiary)]";
 
   return (
     <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
-      <p className="text-[13px] text-[var(--text-secondary)]">
+      <p className="text-[12.5px] text-[var(--text-secondary)]">
         <span className="font-semibold tabular-nums text-[var(--text-primary)]">
           {from}–{to}
         </span>
@@ -77,7 +77,7 @@ export function ContractPagination({
         ) : (
           <span className={disabledClass}>Previous</span>
         )}
-        <span className="rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] px-3 py-1 text-[13px] font-medium tabular-nums text-[var(--text-secondary)] shadow-[var(--shadow-1)]">
+        <span className="rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] px-3 py-1 text-[12.5px] font-medium tabular-nums text-[var(--text-secondary)] shadow-[var(--shadow-1)]">
           {safePage} / {totalPages}
         </span>
         {next != null ? (

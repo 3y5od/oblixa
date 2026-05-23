@@ -3,20 +3,44 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/reports/page.tsx");
+const SPEC = join(process.cwd(), "src/lib/reports/spec-strings.ts");
 
-describe("reports control room reliability messaging (V9)", () => {
-  it("surfaces recent report run posture and links to health diagnostics on the core reports page", () => {
+describe("reports release-state compliance", () => {
+  it("renders the Core Reports export surface and removes report-pack framing", () => {
     const raw = readFileSync(PAGE, "utf8");
-    expect(raw).toContain("reports_control_room_snapshot");
-    expect(raw).toContain("buildReportsControlRoomSummary");
-    expect(raw).toContain("Report delivery posture");
-    expect(raw).toContain("Latest export follow-through");
+    const spec = readFileSync(SPEC, "utf8");
+    expect(raw).toContain("loadReportsPageModel");
+    expect(raw).toContain("REPORTS_PAGE_TITLE");
+    expect(raw).toContain("REPORTS_EMPTY_STATE");
+    expect(raw).toContain("REPORT_CONTENT_LABELS");
+    for (const label of [
+      "Upcoming renewals",
+      "Notice deadlines",
+      "Missing owners",
+      "Missing key fields",
+      "Open obligations",
+      "Overdue work",
+      "Exceptions by owner",
+      "Evidence requests",
+      "Contract inventory",
+      "Review completeness",
+    ]) {
+      expect(spec).toContain(label);
+    }
     expect(raw).toContain('href="/settings/health"');
-    expect(raw).toContain("Open report history");
-    expect(raw).toContain("Report generation in progress");
-    expect(raw).toContain("Report generation failed");
-    expect(raw).toContain('data-v9-anchor="export-follow-through-state"');
-    expect(raw).toContain('data-v9-anchor="report-generation-in-progress"');
-    expect(raw).toContain('data-v9-anchor="report-generation-failed"');
+    for (const forbidden of [
+      "Operational reports",
+      "Workspace reports",
+      "Configure your first report pack",
+      "Create report pack",
+      "Saved report packs",
+      "Sample output",
+      "Delivery diagnostics",
+      "ReportsAdvancedContent",
+      "SamplePreviewCard",
+      "landing-corner-ring",
+    ]) {
+      expect(raw).not.toContain(forbidden);
+    }
   });
 });

@@ -8,6 +8,21 @@ import { createContract } from "@/actions/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
+
+const CONTRACT_TYPE_OPTIONS: UiSelectOption[] = [
+  { value: "MSA", label: "Master Service Agreement" },
+  { value: "SOW", label: "Statement of Work" },
+  { value: "NDA", label: "Non-Disclosure Agreement" },
+  { value: "SaaS", label: "SaaS Agreement" },
+  { value: "Employment", label: "Employment Agreement" },
+  { value: "Other", label: "Other" },
+];
+import {
+  clearUploadMetadataDraft,
+  readUploadMetadataDraft,
+  writeUploadMetadataDraft,
+} from "@/lib/security/client-storage";
 
 interface UploadFormProps {
   organizationId: string;
@@ -47,10 +62,6 @@ const emptyMetadata: MetadataDraft = {
   externalReferenceId: "",
 };
 
-function uploadDraftStorageKey(organizationId: string) {
-  return `oblixa.uploadDraft.v1:${organizationId}`;
-}
-
 export function UploadForm({
   organizationId,
   disabled,
@@ -89,13 +100,8 @@ export function UploadForm({
     if (typeof window === "undefined") return;
     // Defer all updates off the effect body to satisfy react-hooks/set-state-in-effect.
     queueMicrotask(() => {
-      try {
-        const raw = sessionStorage.getItem(uploadDraftStorageKey(organizationId));
-        if (!raw) {
-          setHydratedFromStorage(true);
-          return;
-        }
-        const parsed = JSON.parse(raw) as Partial<MetadataDraft>;
+      const parsed = readUploadMetadataDraft(organizationId);
+      if (parsed) {
         setMetadata((prev) => ({
           ...prev,
           title: typeof parsed.title === "string" ? parsed.title : prev.title,
@@ -107,8 +113,6 @@ export function UploadForm({
           externalReferenceId:
             typeof parsed.externalReferenceId === "string" ? parsed.externalReferenceId : prev.externalReferenceId,
         }));
-      } catch {
-        // ignore corrupt draft
       }
       setHydratedFromStorage(true);
     });
@@ -118,10 +122,10 @@ export function UploadForm({
     if (!hydratedFromStorage || typeof window === "undefined") return;
     const handle = window.setTimeout(() => {
       if (!hasMeaningfulDraft) {
-        sessionStorage.removeItem(uploadDraftStorageKey(organizationId));
+        clearUploadMetadataDraft(organizationId);
         return;
       }
-      sessionStorage.setItem(uploadDraftStorageKey(organizationId), JSON.stringify(metadata));
+      writeUploadMetadataDraft(organizationId, metadata);
     }, 450);
     return () => window.clearTimeout(handle);
   }, [hasMeaningfulDraft, hydratedFromStorage, metadata, organizationId]);
@@ -236,11 +240,7 @@ export function UploadForm({
         return;
       }
 
-      try {
-        sessionStorage.removeItem(uploadDraftStorageKey(organizationId));
-      } catch {
-        // ignore
-      }
+      clearUploadMetadataDraft(organizationId);
 
       const summaryParts = [
         `${result.uploadSummary.uploadedFiles} file${result.uploadSummary.uploadedFiles === 1 ? "" : "s"} uploaded`,
@@ -267,7 +267,7 @@ export function UploadForm({
     });
   }
 
-  const submitLabel = files.length > 0 ? "Create contract and start intake" : "Create contract without files";
+  const submitLabel = files.length > 0 ? "Create contract and upload files" : "Create contract";
   const pendingNotice =
     isPending && files.length > 0
       ? "Creating the contract record and confirming which source files stored successfully. If any file fails, you will land on the detail page with recovery steps."
@@ -282,330 +282,343 @@ export function UploadForm({
         e.preventDefault();
         handleSubmit();
       }}
-      className="space-y-6"
+      className="ui-card overflow-hidden p-0"
     >
-      {disabled && disabledReason && (
-        <div className="ui-alert-warning" role="alert">
-          {disabledReason}
+      {/* v23 aesthetic pass: dropped the section lead prose. The h2 +
+          counters carry sufficient context; the multi-sentence lead
+          duplicated the page header and pushed the form down (§10.4 +
+          §10.7). Counters retained as the canonical right-aligned chip
+          cluster per §7.4. */}
+      <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-5 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="ui-eyebrow">Contract intake</p>
+            <h2 className="ui-section-title mt-1.5 text-[1.35rem]">Create the operational record</h2>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <span className="ui-chip">
+              {files.length} file{files.length === 1 ? "" : "s"}
+            </span>
+            <span className="ui-chip">{formatFileSize(totalFileBytes)} selected</span>
+          </div>
         </div>
-      )}
-      {error && (
-        <div className="ui-alert-error" role="alert">
-          {error}
-        </div>
-      )}
-      {uploadOutcome && !error && (
-        <div className="ui-alert-success flex items-start gap-2" role="status" aria-live="polite">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-          <span>{uploadOutcome}</span>
-        </div>
-      )}
-      {fileNotice && !error && (
-        <div className="ui-alert-warning" role="status" aria-live="polite">
-          {fileNotice}
-        </div>
-      )}
-      {pendingNotice && !error && (
-        <div className="ui-soft-details px-4 py-3 text-[13px] text-[var(--text-secondary)]" role="status" aria-live="polite">
-          {pendingNotice}
-        </div>
-      )}
-      {hydratedFromStorage && hasMeaningfulDraft && !error && (
-        <div className="ui-status-panel ui-status-panel-info px-4 py-2 text-[12px]" role="status">
-          Your contract details are saved in this browser until you create the contract or clear the form.
-        </div>
-      )}
-
-      <div className="ui-toolbar justify-between gap-3">
-        <div>
-          <p className="ui-muted-tight text-[13px]">
-            PDF and DOCX up to 20 MB per file. We create the contract first, then confirm which source files stored successfully.
-          </p>
-          <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
-            Next: upload source documents, run extraction, then approve key operational dates.
-          </p>
-        </div>
-        <span className="ui-chip">First value path</span>
       </div>
 
-      <section className="space-y-4">
-        <div>
+      <div className="space-y-3 px-5 py-4 sm:px-6">
+        {disabled && disabledReason && (
+          <div className="ui-alert-warning" role="alert">
+            {disabledReason}
+          </div>
+        )}
+        {error && (
+          <div className="ui-alert-error" role="alert">
+            {error}
+          </div>
+        )}
+        {uploadOutcome && !error && (
+          <div className="ui-alert-success flex items-start gap-2" role="status" aria-live="polite">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <span>{uploadOutcome}</span>
+          </div>
+        )}
+        {fileNotice && !error && (
+          <div className="ui-alert-warning" role="status" aria-live="polite">
+            {fileNotice}
+          </div>
+        )}
+        {pendingNotice && !error && (
+          <div
+            className="ui-soft-details px-4 py-3 text-[12.5px] text-[var(--text-secondary)]"
+            role="status"
+            aria-live="polite"
+          >
+            {pendingNotice}
+          </div>
+        )}
+        {hydratedFromStorage && hasMeaningfulDraft && !error && (
+          <div className="ui-status-panel ui-status-panel-info px-4 py-2 text-[12.5px]" role="status">
+            Your contract details are saved in this browser until you create the contract or clear the form.
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-0 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.78fr)]">
+        {/* v23 aesthetic pass: dropped the "Record metadata / Required
+            identity first" eyebrow + h3 + lead block — and same on the
+            right column. The columns are visually separated by the
+            border-r; the field labels carry their own context. Three
+            prose paragraphs replaced with zero (§10.4 + §10.7 + §10.14). */}
+        <section className="space-y-5 px-5 py-5 sm:px-6 lg:border-r lg:border-[color:color-mix(in_oklab,var(--border-subtle)_78%,transparent)]">
           <p className="ui-eyebrow">Record metadata</p>
-          <h2 className="ui-section-title mt-2 text-xl">Give the contract a durable identity</h2>
-        </div>
 
-        <div>
-          <label htmlFor="title" className="ui-label">
-            Contract title
-          </label>
-          <input
-            id="title"
-            name="title"
-            type="text"
-            required
-            value={metadata.title}
-            onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
-            placeholder="e.g., Acme Corp MSA 2025"
-            className="ui-input mt-1 w-full"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="counterparty" className="ui-label">
-              Counterparty
+          <div>
+            <label htmlFor="title" className="ui-label">
+              Contract title
             </label>
             <input
-              id="counterparty"
-              name="counterparty"
+              id="title"
+              name="title"
               type="text"
-              value={metadata.counterparty}
-              onChange={(e) => setMetadata((m) => ({ ...m, counterparty: e.target.value }))}
-              placeholder="e.g., Acme Corp"
-              className="ui-input mt-1 w-full min-w-0"
+              required
+              value={metadata.title}
+              onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
+              placeholder="e.g., Acme Corp MSA 2025"
+              className="ui-input mt-1 w-full"
             />
           </div>
-          <div className="min-w-0">
-            <label htmlFor="contractType" className="ui-label">
-              Contract type
-            </label>
-            <select
-              id="contractType"
-              name="contractType"
-              value={metadata.contractType}
-              onChange={(e) => setMetadata((m) => ({ ...m, contractType: e.target.value }))}
-              className="ui-input mt-1 w-full min-w-0"
-            >
-              <option value="">Select type</option>
-              <option value="MSA">Master Service Agreement</option>
-              <option value="SOW">Statement of Work</option>
-              <option value="NDA">Non-Disclosure Agreement</option>
-              <option value="SaaS">SaaS Agreement</option>
-              <option value="Employment">Employment Agreement</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="region" className="ui-label">
-              Region
-            </label>
-            <input
-              id="region"
-              name="region"
-              type="text"
-              value={metadata.region}
-              onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
-              placeholder="e.g., North America"
-              className="ui-input mt-1 w-full min-w-0"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="counterparty" className="ui-label">
+                Counterparty
+              </label>
+              <input
+                id="counterparty"
+                name="counterparty"
+                type="text"
+                value={metadata.counterparty}
+                onChange={(e) => setMetadata((m) => ({ ...m, counterparty: e.target.value }))}
+                placeholder="e.g., Acme Corp"
+                className="ui-input mt-1 w-full min-w-0"
+              />
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="contractType" className="ui-label">
+                Contract type
+              </label>
+              <UiSelect
+                className="mt-1 block w-full"
+                buttonClassName="w-full"
+                name="contractType"
+                value={metadata.contractType}
+                onChange={(value) => setMetadata((m) => ({ ...m, contractType: value }))}
+                options={CONTRACT_TYPE_OPTIONS}
+                placeholder="Select type"
+                ariaLabel="Contract type"
+              />
+            </div>
           </div>
-          <div className="min-w-0">
-            <label htmlFor="annualValue" className="ui-label">
-              Annual value
-            </label>
-            <input
-              id="annualValue"
-              name="annualValue"
-              type="number"
-              min="0"
-              step="0.01"
-              inputMode="decimal"
-              value={metadata.annualValue}
-              onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
-              placeholder="e.g., 250000"
-              className="ui-input mt-1 w-full min-w-0"
-            />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="sourceSystem" className="ui-label">
-              Source system
-            </label>
-            <input
-              id="sourceSystem"
-              name="sourceSystem"
-              type="text"
-              value={metadata.sourceSystem}
-              onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
-              placeholder="e.g., Salesforce, shared drive"
-              className="ui-input mt-1 w-full min-w-0"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="region" className="ui-label">
+                Region
+              </label>
+              <input
+                id="region"
+                name="region"
+                type="text"
+                value={metadata.region}
+                onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
+                placeholder="e.g., North America"
+                className="ui-input mt-1 w-full min-w-0"
+              />
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="annualValue" className="ui-label">
+                Annual value
+              </label>
+              <input
+                id="annualValue"
+                name="annualValue"
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                value={metadata.annualValue}
+                onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
+                placeholder="e.g., 250000"
+                className="ui-input mt-1 w-full min-w-0"
+              />
+            </div>
           </div>
-          <div className="min-w-0">
-            <label htmlFor="externalReferenceId" className="ui-label">
-              External reference
-            </label>
-            <input
-              id="externalReferenceId"
-              name="externalReferenceId"
-              type="text"
-              value={metadata.externalReferenceId}
-              onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
-              placeholder="e.g., CLM-2048"
-              className="ui-input mt-1 w-full min-w-0"
-            />
-          </div>
-        </div>
-      </section>
 
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Files</p>
-          <h2 className="ui-section-title mt-2 text-xl">Upload the signed source documents</h2>
-        </div>
-        <span id="files-label" className="ui-label">
-          Contract files (PDF or DOCX)
-        </span>
-        <div className="ui-soft-details px-4 py-3 text-[12px] text-[var(--text-secondary)]">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span>
-              <strong className="text-[var(--text-primary)]">Queued files:</strong> {files.length}
-            </span>
-            <span>
-              <strong className="text-[var(--text-primary)]">Total selected size:</strong> {formatFileSize(totalFileBytes)}
-            </span>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="sourceSystem" className="ui-label">
+                Source system
+              </label>
+              <input
+                id="sourceSystem"
+                name="sourceSystem"
+                type="text"
+                value={metadata.sourceSystem}
+                onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
+                placeholder="e.g., Salesforce, shared drive"
+                className="ui-input mt-1 w-full min-w-0"
+              />
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="externalReferenceId" className="ui-label">
+                External reference
+              </label>
+              <input
+                id="externalReferenceId"
+                name="externalReferenceId"
+                type="text"
+                value={metadata.externalReferenceId}
+                onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
+                placeholder="e.g., CLM-2048"
+                className="ui-input mt-1 w-full min-w-0"
+              />
+            </div>
           </div>
+
+          {/* v23: "Next: extraction creates reviewable fields..." note
+              dropped — inferential prose that didn't change behavior. */}
+        </section>
+
+        <section className="space-y-4 bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-5 py-5 sm:px-6">
+          <p className="ui-eyebrow">Source documents</p>
+
+          {/* v23: dropped the always-on "Queued files: X / Total size: X"
+              counter row — the form header chips already show file count
+              and selected size. Kept only the contextual selectionNotice
+              (rendered as discrete chips, not strong+colon prose) for
+              fresh-add feedback ("X accepted, Y duplicate"). */}
           {selectionNotice && (
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span>
-                <strong className="text-[var(--text-primary)]">Ready in this selection:</strong> {selectionNotice.accepted}
-              </span>
-              {selectionNotice.duplicate > 0 && (
-                <span>
-                  <strong className="text-[var(--text-primary)]">Duplicates ignored:</strong> {selectionNotice.duplicate}
-                </span>
-              )}
-              {selectionNotice.skippedType > 0 && (
-                <span>
-                  <strong className="text-[var(--text-primary)]">Unsupported:</strong> {selectionNotice.skippedType}
-                </span>
-              )}
-              {selectionNotice.skippedSize > 0 && (
-                <span>
-                  <strong className="text-[var(--text-primary)]">Over size limit:</strong> {selectionNotice.skippedSize}
-                </span>
-              )}
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span className="ui-chip">{selectionNotice.accepted} accepted</span>
+              {selectionNotice.duplicate > 0 ? (
+                <span className="ui-chip">{selectionNotice.duplicate} duplicate</span>
+              ) : null}
+              {selectionNotice.skippedType > 0 ? (
+                <span className="ui-chip">{selectionNotice.skippedType} unsupported</span>
+              ) : null}
+              {selectionNotice.skippedSize > 0 ? (
+                <span className="ui-chip">{selectionNotice.skippedSize} over size limit</span>
+              ) : null}
             </div>
           )}
-          <p className="mt-1">
-            We will keep your contract record even if a source file needs to be re-attached later.
-          </p>
-        </div>
-        <div
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          aria-labelledby="files-label"
-          aria-disabled={disabled}
-          onKeyDown={(e) => {
-            if (disabled) return;
-            if (e.key === "Enter" || e.key === " ") {
+
+          <span id="files-label" className="sr-only">
+            Contract files (PDF or DOCX)
+          </span>
+          <div
+            role="button"
+            tabIndex={disabled ? -1 : 0}
+            aria-labelledby="files-label"
+            aria-disabled={disabled}
+            onKeyDown={(e) => {
+              if (disabled) return;
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            className={`group flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed px-5 py-7 transition-[border-color,background-color,box-shadow,transform] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] ${
+              disabled
+                ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] opacity-50"
+                : isDragOver
+                  ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_56%,transparent)] shadow-[var(--shadow-glow)]"
+                  : "cursor-pointer border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-1)]"
+            }`}
+            onClick={() => !disabled && fileInputRef.current?.click()}
+            onDragEnter={(e) => {
               e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          className={`group mt-1 flex min-h-[220px] items-center justify-center rounded-[calc(var(--radius-3xl)-0.125rem)] border border-dashed px-5 py-8 transition-[border-color,background-color,box-shadow,transform] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] sm:min-h-[240px] sm:px-6 sm:py-10 ${
-            disabled
-              ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] opacity-50"
-              : isDragOver
-                ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_56%,transparent)] shadow-[var(--shadow-glow)]"
-                : "cursor-pointer border-[var(--border-subtle)] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--surface)_90%,white),color-mix(in_oklab,var(--surface-muted)_54%,transparent))] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-1)]"
-          }`}
-          onClick={() => !disabled && fileInputRef.current?.click()}
-          onDragEnter={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!disabled) setIsDragOver(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              e.stopPropagation();
+              if (!disabled) setIsDragOver(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setIsDragOver(false);
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setIsDragOver(false);
-            }
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDragOver(false);
-            if (!disabled) handleFiles(e.dataTransfer.files);
-          }}
-        >
-          <div className="text-center">
-            <div className="ui-icon-tile mx-auto h-14 w-14 transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.02]">
-              <Upload className="h-6 w-6 text-[var(--accent-strong)]" strokeWidth={1.75} aria-hidden />
+              if (!disabled) handleFiles(e.dataTransfer.files);
+            }}
+          >
+            <div className="text-center">
+              <div className="ui-icon-tile mx-auto h-12 w-12 transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.02]">
+                <Upload className="h-5 w-5 text-[var(--accent-strong)]" strokeWidth={1.65} aria-hidden />
+              </div>
+              <p className="mt-3 text-[14px] font-semibold text-[var(--text-primary)]">
+                Drop files or click to browse
+              </p>
+              <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">PDF or DOCX, max 20 MB each</p>
             </div>
-            <p className="mt-4 text-[15px] font-semibold text-[var(--text-primary)]">
-              Drop files or click to browse
-            </p>
-            <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">PDF or DOCX · max 20 MB each</p>
           </div>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="hidden"
-          onChange={(e) => {
-            handleFiles(e.target.files);
-            e.target.value = "";
-          }}
-        />
+          <input
+            ref={fileInputRef}
+            id="source-files-input"
+            type="file"
+            multiple
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            className="hidden"
+            onChange={(e) => {
+              handleFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
 
-        {files.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {files.map((file, i) => (
-              <li
-                key={`${file.name}-${i}`}
-                className="ui-support-panel flex items-center justify-between px-4 py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText size={16} className="text-[var(--text-tertiary)]" />
-                  <span className="text-sm text-[var(--text-primary)]">{file.name}</span>
-                  <span className="text-xs text-[var(--text-tertiary)]">
-                    ({formatFileSize(file.size)})
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeFile(i)}
-                  className="ui-icon-button min-h-8 min-w-8 border-transparent bg-transparent p-1.5 shadow-none"
-                  aria-label={`Remove ${file.name} from list`}
+          {files.length > 0 ? (
+            <ul className="space-y-2">
+              {files.map((file, i) => (
+                <li
+                  key={`${file.name}-${i}`}
+                  className="ui-support-panel flex items-center justify-between gap-3 px-4 py-3"
                 >
-                  <X size={16} aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <div className="flex min-w-0 items-center gap-2">
+                    <FileText size={16} className="shrink-0 text-[var(--text-tertiary)]" />
+                    <span className="truncate text-sm text-[var(--text-primary)]">{file.name}</span>
+                    <span className="shrink-0 text-xs text-[var(--text-tertiary)]">
+                      ({formatFileSize(file.size)})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    className="ui-icon-button min-h-8 min-w-8 border-transparent bg-transparent p-1.5 shadow-none"
+                    aria-label={`Remove ${file.name} from list`}
+                  >
+                    <X size={16} aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            // v23 aesthetic pass: prose warning ("No files selected. You
+            // can create the record, but extraction and source-backed
+            // review stay blocked...") collapsed to a single-line caps
+            // chip per §10.7. The chip carries the warning tone visually;
+            // the multi-sentence prose is gone.
+            <div
+              className="inline-flex items-center gap-1.5 self-start rounded-md border px-2 py-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] leading-none"
+              style={{
+                borderColor: "color-mix(in oklab, var(--warning-ink) 26%, var(--border-subtle))",
+                background: "color-mix(in oklab, var(--warning-soft) 12%, var(--surface))",
+                color: "var(--warning-ink)",
+              }}
+            >
+              <AlertTriangle className="h-3 w-3" strokeWidth={2.2} aria-hidden />
+              No source attached — extraction blocked
+            </div>
+          )}
+        </section>
+      </div>
 
-        {files.length === 0 && (
-          <div className="ui-soft-details flex items-start gap-2 border-dashed px-4 py-3 text-[12px] text-[var(--text-secondary)]">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]" aria-hidden />
-            <span>
-              You can create the contract without files, but extraction and source-backed review will stay blocked until at least one signed document is attached.
-            </span>
-          </div>
-        )}
-      </section>
-
-      <div className="flex flex-wrap justify-end gap-3 border-t border-[var(--border-subtle)] pt-6">
-        <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[13px]">
+      {/* v23: sticky footer prose dropped. The buttons themselves
+          ("Create contract" + "Cancel") are unambiguous; the conditional
+          two-sentence explainer ("The detail page opens after creation"
+          / "No source file is queued...") was inferential noise per
+          §10.7. Buttons now right-aligned in a clean action row. */}
+      <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_94%,transparent)] px-5 py-4 backdrop-blur sm:px-6">
+        <Link href="/contracts" className="ui-btn-secondary px-5 py-2.5 text-[12.5px]">
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending || disabled}
-          className="ui-btn-primary px-5 py-2.5 text-[13px] disabled:opacity-50"
+          className="ui-btn-primary px-5 py-2.5 text-[12.5px] disabled:opacity-50"
         >
           {isPending ? "Creating contract…" : submitLabel}
         </button>

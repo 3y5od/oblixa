@@ -56,7 +56,13 @@ describe("V10 performance budget contract", () => {
     expect(commandPalette).toMatch(/window\.setTimeout\([\s\S]*, 160\);/);
     expect(coreGating).toContain('productSurface.mode === "assurance"');
     expect(coreGating).toContain('.from("assurance_findings")');
-    expect(advancedGating).toContain('const isCoreHome = productSurface.mode === "core";');
-    expect(advancedGating).toContain("showPortfolioIntel");
+    // v22 structural refactor: the dashboard route is now Core-only and
+    // delegates loading to `loadCoreDashboardModel`. The prior inline
+    // `isCoreHome` / `showPortfolioIntel` gating proofs were removed
+    // along with the source fetches they guarded — the new proof is an
+    // ABSENCE check: the test file must assert the page does NOT pull
+    // Advanced data sources, and DOES delegate to the Core model.
+    expect(advancedGating).toContain('expect(raw).not.toContain("showPortfolioIntel")');
+    expect(advancedGating).toContain('loadCoreDashboardModel');
   });
 });

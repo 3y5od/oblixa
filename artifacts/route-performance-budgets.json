@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-07T01:33:53.954Z",
+  "generatedAt": "2026-05-15T23:12:38.559Z",
   "rows": [
     {
       "route": "/",
@@ -117,6 +117,14 @@
     {
       "route": "/",
       "sourcePath": "src/app/page.tsx",
+      "class": "public_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
+      "route": "/acceptable-use",
+      "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
       "class": "public_page",
       "p95Ms": 3000,
       "maxResponseBytes": 512000,
@@ -459,6 +467,14 @@
       "timeoutClass": "interactive_api"
     },
     {
+      "route": "/api/contact",
+      "sourcePath": "src/app/api/contact/route.ts",
+      "class": "api",
+      "p95Ms": 1500,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "interactive_api"
+    },
+    {
       "route": "/api/contracts/recompute-signals",
       "sourcePath": "src/app/api/contracts/recompute-signals/route.ts",
       "class": "cron",
@@ -513,6 +529,14 @@
       "p95Ms": 1500,
       "maxResponseBytes": 128000,
       "timeoutClass": "interactive_api"
+    },
+    {
+      "route": "/api/cron/security/retention-cleanup",
+      "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "class": "cron",
+      "p95Ms": 55000,
+      "maxResponseBytes": 256000,
+      "timeoutClass": "batch"
     },
     {
       "route": "/api/cron/stripe-webhook-events",
@@ -1499,6 +1523,14 @@
       "timeoutClass": "interactive_api"
     },
     {
+      "route": "/api/security/csp-report",
+      "sourcePath": "src/app/api/security/csp-report/route.ts",
+      "class": "api",
+      "p95Ms": 1500,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "interactive_api"
+    },
+    {
       "route": "/api/segments",
       "sourcePath": "src/app/api/segments/route.ts",
       "class": "api",
@@ -1782,6 +1814,14 @@
       "route": "/campaigns/compare",
       "sourcePath": "src/app/(dashboard)/campaigns/compare/page.tsx",
       "class": "authenticated_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
+      "route": "/contact",
+      "sourcePath": "src/app/(marketing)/contact/page.tsx",
+      "class": "public_page",
       "p95Ms": 3000,
       "maxResponseBytes": 512000,
       "timeoutClass": "page"
@@ -2363,8 +2403,32 @@
       "timeoutClass": "page"
     },
     {
+      "route": "/pricing",
+      "sourcePath": "src/app/(marketing)/pricing/page.tsx",
+      "class": "public_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
       "route": "/privacy",
       "sourcePath": "src/app/(marketing)/privacy/page.tsx",
+      "class": "public_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/loading.tsx",
+      "class": "route_state",
+      "p95Ms": 2000,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "default"
+    },
+    {
+      "route": "/product",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
       "class": "public_page",
       "p95Ms": 3000,
       "maxResponseBytes": 512000,
@@ -2459,6 +2523,14 @@
       "timeoutClass": "page"
     },
     {
+      "route": "/settings/health/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "class": "authenticated_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
       "route": "/settings/operations",
       "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
       "class": "authenticated_page",
@@ -2469,6 +2541,22 @@
     {
       "route": "/settings/policy",
       "sourcePath": "src/app/(dashboard)/settings/policy/page.tsx",
+      "class": "authenticated_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
+      "route": "/settings/policy/diagnostics",
+      "sourcePath": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "class": "authenticated_page",
+      "p95Ms": 3000,
+      "maxResponseBytes": 512000,
+      "timeoutClass": "page"
+    },
+    {
+      "route": "/settings/policy/registry",
+      "sourcePath": "src/app/(dashboard)/settings/policy/registry/page.tsx",
       "class": "authenticated_page",
       "p95Ms": 3000,
       "maxResponseBytes": 512000,
@@ -2659,6 +2747,14 @@
       "timeoutClass": "default"
     },
     {
+      "route": "action:approvals-action-scope.test",
+      "sourcePath": "src/actions/approvals-action-scope.test.ts",
+      "class": "server_action",
+      "p95Ms": 2000,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "default"
+    },
+    {
       "route": "action:approvals.test",
       "sourcePath": "src/actions/approvals.test.ts",
       "class": "server_action",
@@ -2693,6 +2789,14 @@
     {
       "route": "action:auth-actions.test",
       "sourcePath": "src/actions/auth-actions.test.ts",
+      "class": "server_action",
+      "p95Ms": 2000,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "default"
+    },
+    {
+      "route": "action:automation-action-scope.test",
+      "sourcePath": "src/actions/automation-action-scope.test.ts",
       "class": "server_action",
       "p95Ms": 2000,
       "maxResponseBytes": 128000,
@@ -3835,6 +3939,14 @@
       "timeoutClass": "default"
     },
     {
+      "route": "action:server-action-input-safety.test",
+      "sourcePath": "src/actions/server-action-input-safety.test.ts",
+      "class": "server_action",
+      "p95Ms": 2000,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "default"
+    },
+    {
       "route": "action:sessions.test",
       "sourcePath": "src/actions/sessions.test.ts",
       "class": "server_action",
@@ -4445,6 +4557,14 @@
     {
       "route": "action:watchlists-action-scope.test",
       "sourcePath": "src/actions/watchlists-action-scope.test.ts",
+      "class": "server_action",
+      "p95Ms": 2000,
+      "maxResponseBytes": 128000,
+      "timeoutClass": "default"
+    },
+    {
+      "route": "action:workflow-config-action-scope.test",
+      "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
       "class": "server_action",
       "p95Ms": 2000,
       "maxResponseBytes": 128000,

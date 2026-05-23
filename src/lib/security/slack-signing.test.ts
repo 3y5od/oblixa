@@ -31,4 +31,17 @@ describe("verifySlackSigningSecret", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  it("rejects stale timestamp", () => {
+    const staleTs = String(Math.floor(Date.now() / 1000) - 1_000);
+    const staleSig = `v0=${createHmac("sha256", secret).update(`v0:${staleTs}:${body}`).digest("hex")}`;
+    expect(
+      verifySlackSigningSecret({
+        signingSecret: secret,
+        rawBody: body,
+        slackSignatureHeader: staleSig,
+        slackTimestampHeader: staleTs,
+      })
+    ).toEqual({ ok: false, reason: "slack_timestamp_skew" });
+  });
 });

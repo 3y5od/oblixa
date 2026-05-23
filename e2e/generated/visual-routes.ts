@@ -51,7 +51,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "reports",
     "shellFamily": "dashboard",
     "mode": "authenticated",
-    "expectedHeading": "Operational reports"
+    "expectedHeading": "Reports"
   },
   {
     "route": "/settings",

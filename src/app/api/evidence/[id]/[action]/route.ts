@@ -18,8 +18,10 @@ import {
   recordV10AuditEvent,
 } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+const EVIDENCE_ACTIONS = ["approve", "reject"] as const;
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
   return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
@@ -30,6 +32,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   const { id, action } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id, action }, ["id", "action"], "/api/evidence/[id]/[action]");
+  if (routeParamRejection) return routeParamRejection;
+  const routeActionRejection = rejectInvalidRouteParamEnums(
+    { action },
+    { action: EVIDENCE_ACTIONS },
+    "/api/evidence/[id]/[action]"
+  );
+  if (routeActionRejection) return routeActionRejection;
   const ctx = await getApiAuthContext();
   if (!ctx) {
     return jsonV10(
@@ -106,6 +116,24 @@ export async function POST(
       })
     );
   }
+  if (action !== "approve" && action !== "reject") {
+    return jsonV10(
+      buildV10MutationResponse({
+        outcome: "not_found",
+        message: "Unsupported action.",
+        diagnosticId: "v10_evidence_action_unsupported",
+      })
+    );
+  }
+  if (submission.status !== "submitted") {
+    return jsonV10(
+      buildV10MutationResponse({
+        outcome: "conflict",
+        message: "Only submitted evidence can be reviewed.",
+        diagnosticId: "v10_evidence_review_not_submitted",
+      })
+    );
+  }
 
   const mutation = await executeV10IdempotentMutation(
     ctx.admin,
@@ -122,16 +150,26 @@ export async function POST(
     },
     async () => {
       if (action === "approve") {
-    const { error } = await ctx.admin
+    const { data: updatedSubmission, error } = await ctx.admin
       .from("evidence_submissions")
       .update({ status: "approved", reviewer_id: ctx.userId, reviewed_at: new Date().toISOString() })
       .eq("id", id)
-      .eq("organization_id", ctx.orgId);
+      .eq("organization_id", ctx.orgId)
+      .eq("status", "submitted")
+      .select("id, status")
+      .maybeSingle();
     if (error) {
       return buildV10MutationResponse({
         outcome: "server_error",
         message: "Failed to update submission.",
         diagnosticId: "v10_evidence_approve_submission_failed",
+      });
+    }
+    if (!updatedSubmission) {
+      return buildV10MutationResponse({
+        outcome: "conflict",
+        message: "Evidence status changed before approval was saved.",
+        diagnosticId: "v10_evidence_approve_stale_status",
       });
     }
     const { error: reqError } = await ctx.admin
@@ -227,7 +265,7 @@ export async function POST(
       }
 
       if (action === "reject") {
-    const { error } = await ctx.admin
+    const { data: updatedSubmission, error } = await ctx.admin
       .from("evidence_submissions")
       .update({
         status: "rejected",
@@ -236,12 +274,22 @@ export async function POST(
         rejection_reason: rejectBody.reason?.trim() || "Rejected by reviewer",
       })
       .eq("id", id)
-      .eq("organization_id", ctx.orgId);
+      .eq("organization_id", ctx.orgId)
+      .eq("status", "submitted")
+      .select("id, status")
+      .maybeSingle();
     if (error) {
       return buildV10MutationResponse({
         outcome: "server_error",
         message: "Failed to update submission.",
         diagnosticId: "v10_evidence_reject_submission_failed",
+      });
+    }
+    if (!updatedSubmission) {
+      return buildV10MutationResponse({
+        outcome: "conflict",
+        message: "Evidence status changed before rejection was saved.",
+        diagnosticId: "v10_evidence_reject_stale_status",
       });
     }
     const { error: reqError } = await ctx.admin

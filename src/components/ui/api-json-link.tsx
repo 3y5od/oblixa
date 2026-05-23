@@ -18,7 +18,7 @@ export function ApiJsonLink({
       href={href}
       className={className}
       suffix={
-        <span aria-hidden className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+        <span aria-hidden className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
           {badge} ↗
         </span>
       }

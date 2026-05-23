@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
 import { toSafeString } from "@/lib/v5/api";
@@ -8,15 +9,22 @@ import {
 } from "@/lib/v5/campaign-types";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/simulations/[id]/promote-to-campaign";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const simOff = requireV5ApiFeature("v5SimulationAndIntelligence");
   if (simOff) return simOff;
   const campOff = requireV5ApiFeature("v5PortfolioCampaigns");
   if (campOff) return campOff;
-  const { id } = await params;
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -24,17 +32,35 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/simulations/[id]/promote-to-campaign",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.simulations.id.promote-to-campaign",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/simulations/[id]/promote-to-campaign",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;
   const body = (_lb_body.body ?? {}) as { campaignName?: string; campaignType?: string };
+  const { id } = await params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/simulations/[id]/promote-to-campaign");
+  if (routeParamRejection) return routeParamRejection;
   const campaignName = toSafeString(body.campaignName) || `Campaign from simulation ${id.slice(0, 8)}`;
   const rawCampaignType = toSafeString(body.campaignType) || "policy_rollout";
   if (!isValidCampaignType(rawCampaignType)) {
-    return NextResponse.json({ error: campaignTypeValidationError() }, { status: 400 });
+    return jsonProblem(400, {
+      error: campaignTypeValidationError(),
+      code: "invalid_campaign_type",
+      diagnostic_id: "simulation_promotion_campaign_type_invalid",
+      route: ROUTE,
+    });
   }
   const campaignType = rawCampaignType;
 
@@ -44,7 +70,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("organization_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
-  if (!simRow) return NextResponse.json({ error: "Simulation not found" }, { status: 404 });
+  if (!simRow) return jsonNotFound(ROUTE);
   const input = (simRow.input_json ?? {}) as Record<string, unknown>;
   const eligibilityJson: Record<string, unknown> = {
     source: "simulation",
@@ -79,7 +105,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })
     .select("id, name, campaign_type, status, created_at")
     .single();
-  if (campaignError) return NextResponse.json({ error: campaignError.message }, { status: 400 });
+  if (campaignError) {
+    return jsonProblem(400, {
+      error: campaignError.message,
+      code: "simulation_promotion_failed",
+      diagnostic_id: "simulation_promotion_failed",
+      route: ROUTE,
+    });
+  }
 
   const { data: latestRun } = await ctx.admin
     .from("change_simulation_runs")

@@ -66,8 +66,8 @@ export async function resolveBlockingCalibrationPathForUserClient(
     .select("organization_id, role")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
-    .limit(1);
-  if (memErr || !rows?.length) return null;
+    .limit(2);
+  if (memErr || rows?.length !== 1) return null;
   const row = rows[0];
   if (row.role !== "admin") return null;
   const { data: org, error: orgErr } = await supabase

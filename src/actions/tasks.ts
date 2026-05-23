@@ -4,7 +4,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { getContractAccessContext } from "@/lib/actions/access";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
-import { isUuid } from "@/lib/security/validation";
+import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import type {
   ContractTaskPriority,
   ContractTaskStatus,
@@ -257,7 +257,7 @@ export async function createContractTask(input: {
   if (title.length > MAX_TITLE_LEN) return { error: "Task title is too long" };
   if (details.length > MAX_DETAILS_LEN) return { error: "Task details are too long" };
   if (assigneeId && !isUuid(assigneeId)) return { error: "Invalid assignee" };
-  if (dueDate && Number.isNaN(new Date(`${dueDate}T12:00:00`).getTime())) {
+  if (dueDate && !isIsoDateOnly(dueDate)) {
     return { error: "Invalid due date" };
   }
   if (!isTaskPriority(priority)) return { error: "Invalid task priority" };
@@ -266,7 +266,7 @@ export async function createContractTask(input: {
   if (blockedReason && blockedReason.length > MAX_BLOCKED_REASON_LEN) {
     return { error: "Blocked reason is too long" };
   }
-  if (recurrenceAnchorDate && Number.isNaN(new Date(`${recurrenceAnchorDate}T12:00:00`).getTime())) {
+  if (recurrenceAnchorDate && !isIsoDateOnly(recurrenceAnchorDate)) {
     return { error: "Invalid recurrence anchor date" };
   }
   if (slaDueAt && Number.isNaN(new Date(slaDueAt).getTime())) {
@@ -1350,41 +1350,43 @@ export async function updateContractTaskStatus(
       task.recurrence_interval_days > 0
     ) {
       const anchor = task.recurrence_anchor_date ?? new Date().toISOString().slice(0, 10);
-      const anchorTs = new Date(`${anchor}T12:00:00`).getTime();
-      const nextTs = anchorTs + task.recurrence_interval_days * 24 * 60 * 60 * 1000;
-      if (Number.isFinite(nextTs)) {
-        const nextDate = new Date(nextTs).toISOString().slice(0, 10);
-        const { data: nextTask, error: recurrenceError } = await admin
-          .from("contract_tasks")
-          .insert({
-            contract_id: task.contract_id,
-            organization_id: task.organization_id,
-            created_by: user.id,
-            assignee_id: task.assignee_id,
-            title: task.title,
-            details: task.details,
-            status: "open",
-            priority: task.priority,
-            team_key: task.team_key,
-            created_via: "rule",
-            due_date: nextDate,
-            recurrence_rule: "interval_days",
-            recurrence_interval_days: task.recurrence_interval_days,
-            recurrence_anchor_date: nextDate,
-            next_run_date: nextDate,
-          })
-          .select("id")
-          .single();
-        if (!recurrenceError && nextTask?.id) {
-          generatedRecurringTask = true;
-          await appendTaskEvent(admin, {
-            organizationId: task.organization_id,
-            contractId: task.contract_id,
-            taskId: nextTask.id,
-            actorId: user.id,
-            eventType: "created",
-            details: { created_via: "rule", reason: "recurrence_generated" },
-          });
+      if (isIsoDateOnly(anchor)) {
+        const anchorTs = new Date(`${anchor}T12:00:00`).getTime();
+        const nextTs = anchorTs + task.recurrence_interval_days * 24 * 60 * 60 * 1000;
+        if (Number.isFinite(nextTs)) {
+          const nextDate = new Date(nextTs).toISOString().slice(0, 10);
+          const { data: nextTask, error: recurrenceError } = await admin
+            .from("contract_tasks")
+            .insert({
+              contract_id: task.contract_id,
+              organization_id: task.organization_id,
+              created_by: user.id,
+              assignee_id: task.assignee_id,
+              title: task.title,
+              details: task.details,
+              status: "open",
+              priority: task.priority,
+              team_key: task.team_key,
+              created_via: "rule",
+              due_date: nextDate,
+              recurrence_rule: "interval_days",
+              recurrence_interval_days: task.recurrence_interval_days,
+              recurrence_anchor_date: nextDate,
+              next_run_date: nextDate,
+            })
+            .select("id")
+            .single();
+          if (!recurrenceError && nextTask?.id) {
+            generatedRecurringTask = true;
+            await appendTaskEvent(admin, {
+              organizationId: task.organization_id,
+              contractId: task.contract_id,
+              taskId: nextTask.id,
+              actorId: user.id,
+              eventType: "created",
+              details: { created_via: "rule", reason: "recurrence_generated" },
+            });
+          }
         }
       }
     }

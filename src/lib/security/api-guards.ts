@@ -3,11 +3,9 @@ import type { OrgRole } from "@/lib/types";
 import { getApiAuthContext, type AuthContext } from "@/lib/v4/api-auth";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
+import { jsonForbidden, jsonUnauthorized, PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";
 
-export const API_PRIVATE_NO_STORE_HEADERS = {
-  "Cache-Control": "private, no-store",
-  Pragma: "no-cache",
-} as const;
+export const API_PRIVATE_NO_STORE_HEADERS = PRIVATE_NO_STORE_HEADERS;
 
 export type SessionApiContext = AuthContext;
 type BearerSecretEnvVarName =
@@ -25,7 +23,7 @@ export async function requireSessionApiContext(): Promise<
 > {
   const ctx = await getApiAuthContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS });
+    return jsonUnauthorized();
   }
   return ctx;
 }
@@ -45,20 +43,14 @@ export function requireBearerSecret(
   if (!secret) {
     return (
       options.missingSecretResponse?.(envVarName) ??
-      NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS }
-      )
+      jsonUnauthorized()
     );
   }
   const token = parseBearerToken(request.headers.get("authorization"));
   if (!token || !secureCompareUtf8(token, secret)) {
     return (
       options.unauthorizedResponse?.(envVarName) ??
-      NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: API_PRIVATE_NO_STORE_HEADERS }
-      )
+      jsonUnauthorized()
     );
   }
   return null;
@@ -68,7 +60,7 @@ export function requireRoleAtLeast(ctx: SessionApiContext, minimum: OrgRole): Ne
   const order: OrgRole[] = ["viewer", "editor", "admin"];
   const idx = (r: OrgRole) => order.indexOf(r);
   if (idx(ctx.role) < idx(minimum)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: API_PRIVATE_NO_STORE_HEADERS });
+    return jsonForbidden();
   }
   return null;
 }

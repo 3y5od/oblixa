@@ -1,5 +1,6 @@
 import {
   EXTRACTION_CHUNK_CHUNK_SIZE,
+  EXTRACTION_MAX_CHUNKS,
   EXTRACTION_CHUNK_OVERLAP,
   EXTRACTION_CHUNK_THRESHOLD_CHARS,
 } from "@/lib/extraction/constants";
@@ -21,6 +22,9 @@ export function splitTextIntoExtractionChunks(preparedText: string): string[] {
   while (start < t.length) {
     const end = Math.min(start + size, t.length);
     chunks.push(t.slice(start, end));
+    if (chunks.length > EXTRACTION_MAX_CHUNKS) {
+      throw new Error("Extracted contract text exceeds chunk limit");
+    }
     if (end >= t.length) break;
     start = end - overlap;
   }

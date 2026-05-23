@@ -5,7 +5,7 @@ import { AsyncActionButton } from "@/components/ui/async-action-button";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { LoadingCard } from "@/components/ui/segment-loading";
 import { fetchJson, mutateJson } from "@/lib/http/client-json";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 type Props = {
@@ -229,6 +229,9 @@ export function ExternalSubmitForm({ token }: Props) {
       <div className="ui-page-shell mx-auto max-w-lg p-6 text-center sm:p-8">
         <p className="ui-eyebrow">External workflow</p>
         <h1 className="ui-page-title mt-2 text-[1.7rem]">External response</h1>
+        <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
+          External action not found.
+        </p>
         <p className="ui-alert-error mt-3" data-testid={surfaceTestIds.externalSubmitLoadError}>
           {loadError || "Unable to load this link."}
         </p>
@@ -340,7 +343,7 @@ export function ExternalSubmitForm({ token }: Props) {
       {status.action_type === "acknowledge_receipt" ? (
         <>
           <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
-            <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
+            <input type="checkbox" className="ui-checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
             I acknowledge receipt
           </label>
           <label className="block text-xs font-medium text-[var(--text-secondary)]">
@@ -365,7 +368,7 @@ export function ExternalSubmitForm({ token }: Props) {
       {status.action_type === "confirm_renewal_input" ? (
         <>
           <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
-            <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
+            <input type="checkbox" className="ui-checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
             I confirm the renewal input is accurate
           </label>
           <label className="block text-xs font-medium text-[var(--text-secondary)]">
@@ -395,7 +398,7 @@ export function ExternalSubmitForm({ token }: Props) {
       {status.action_type === "confirm_notice_delivery" ? (
         <>
           <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
-            <input type="checkbox" checked={delivered} onChange={(e) => setDelivered(e.target.checked)} />
+            <input type="checkbox" className="ui-checkbox" checked={delivered} onChange={(e) => setDelivered(e.target.checked)} />
             I confirm delivery
           </label>
           <label className="block text-xs font-medium text-[var(--text-secondary)]">
@@ -437,7 +440,7 @@ export function ExternalSubmitForm({ token }: Props) {
       {status.action_type === "review_decision_packet" ? (
         <>
           <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
-            <input type="checkbox" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />
+            <input type="checkbox" className="ui-checkbox" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />
             I have reviewed the decision packet
           </label>
           <label className="block text-xs font-medium text-[var(--text-secondary)]">
@@ -447,7 +450,7 @@ export function ExternalSubmitForm({ token }: Props) {
         </>
       ) : null}
 
-      <AsyncActionButton type="submit" className="ui-btn-primary min-h-12 w-full text-[15px]" pending={busy} pendingLabel="Submitting…">
+      <AsyncActionButton type="submit" className="ui-btn-primary min-h-12 w-full text-[14px]" pending={busy} pendingLabel="Submitting…">
         Submit
       </AsyncActionButton>
     </form>

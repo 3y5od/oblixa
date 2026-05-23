@@ -43,4 +43,15 @@ describe("createContractNote", () => {
     });
     expect(res).toEqual({ error: "Note cannot be empty" });
   });
+
+  it("rejects unsafe note text before contract access lookup", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const { createContractNote } = await import("@/actions/notes");
+    const res = await createContractNote({
+      contractId: "550e8400-e29b-41d4-a716-446655440000",
+      note: "normal text\u202Ehidden",
+    });
+    expect(res).toEqual({ error: "Note contains unsupported characters" });
+    expect(from).not.toHaveBeenCalled();
+  });
 });

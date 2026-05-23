@@ -15,6 +15,18 @@ describe("serializeJsonLdForInlineScript", () => {
     expect(JSON.parse(out)).toEqual(malicious);
   });
 
+  it("escapes user-controlled names and titles with script tags", () => {
+    const malicious = {
+      name: "Acme <script>alert(1)</script>",
+      title: "Contract </script><img src=x onerror=alert(1)>",
+    };
+    const out = serializeJsonLdForInlineScript(malicious);
+    expect(out).not.toContain("<script");
+    expect(out).not.toContain("</script");
+    expect(out).not.toContain("<img");
+    expect(JSON.parse(out)).toEqual(malicious);
+  });
+
   it("escapes angle brackets in nested strings", () => {
     const input = { nested: { x: "<foo>" } };
     const out = serializeJsonLdForInlineScript(input);

@@ -61,8 +61,7 @@ export function ContractEvidenceRequirementsPanel({
   if (requirements.length === 0) {
     return (
       <p className="text-sm text-[var(--text-tertiary)]">
-        No structured evidence requirements on this contract yet. Apply a program that references{" "}
-        <code className="text-xs">evidenceTemplateIds</code> or add templates in Evidence studio.
+        No evidence requests are linked to this contract yet. Use Evidence to request proof tied to contract work.
       </p>
     );
   }

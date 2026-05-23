@@ -63,10 +63,18 @@ describe("product-surface diagnostics leak guards", () => {
 
   it("keeps dashboard advanced data fetching behind surface gates", () => {
     const raw = readFileSync(DASHBOARD_PAGE, "utf8");
-    expect(raw.includes('const isCoreHome = productSurface.mode === "core";')).toBe(true);
-    expect(
-      raw.includes("showPortfolioIntel && (intelligenceOn || showControlRoomStrip) && canViewV5Telemetry")
-    ).toBe(true);
+    // v22 structural refactor: dashboard route is now Core-only — the
+    // route never fetches Advanced/Assurance data sources (portfolio
+    // intelligence, control-room telemetry, behavior metrics, etc.).
+    // The prior inline `isCoreHome` + `showPortfolioIntel` gating was
+    // unnecessary once the page stopped reading those sources. Verify
+    // by absence: no advanced data fetches in page.tsx, all loading
+    // delegated to loadCoreDashboardModel which queries only Core tables.
+    expect(raw).toContain("loadCoreDashboardModel");
+    expect(raw).not.toContain('.from("org_behavior_metrics")');
+    expect(raw).not.toContain("V5ControlRoomStrip");
+    expect(raw).not.toContain("DashboardAssuranceSignalsSection");
+    expect(raw).not.toContain("DashboardOutcomeIntelligenceSection");
   });
 
   it("keeps report-pack cron delivery guarded by report mode and feature eligibility", () => {

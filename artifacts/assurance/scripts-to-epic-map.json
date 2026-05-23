@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-06T10:08:49.131Z",
+  "generatedAt": "2026-05-12T21:56:51.696Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -20,7 +20,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ai-boundary-contract.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-boundary-contract.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-ai-context-redaction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-context-redaction.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -28,7 +40,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ai-prompt-injection-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-ai-tool-call-authz.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ai-tool-call-authz.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -36,11 +56,23 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-allowlist-metadata.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-api-cors-policy.mjs",
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-api-cors-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-api-problem-json.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-problem-json.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -53,6 +85,14 @@
     },
     {
       "path": "scripts/check-api-route-auth-route-index.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-guard-normalization.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-route-guard-normalization.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -73,6 +113,14 @@
     },
     {
       "path": "scripts/check-api-surface-contract-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-tenant-isolation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-api-tenant-isolation.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -108,7 +156,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-audit-event-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-audit-event-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-auth-callback-guardrails.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-auth-callback-guardrails.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -121,6 +181,10 @@
     },
     {
       "path": "scripts/check-auth-error-consistency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-auth-error-consistency.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -196,6 +260,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-checks-integrity-meta.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-ci-artifact-secret-leakage.mjs",
       "primaryEpicNumber": null
     },
@@ -228,6 +296,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-client-bundle-secret-leakage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-client-cache-sensitivity.mjs",
       "primaryEpicNumber": null
     },
@@ -240,7 +312,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-client-storage-sensitivity.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-codeowners-security-paths.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-codeowners-security-paths.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -308,6 +388,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-csp-nonce-hash-consistency.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-csrf-surface-guards.mjs",
       "primaryEpicNumber": null
     },
@@ -337,6 +421,10 @@
     },
     {
       "path": "scripts/check-decompression-bomb-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-decompression-bomb-guards.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -372,6 +460,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-deterministic-org-resolution.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-deterministic-org-resolution.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-dns-rebinding-guards.mjs",
       "primaryEpicNumber": null
     },
@@ -384,6 +480,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-documentation-runtime-dependencies.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-documentation-runtime-dependencies.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-duplicate-execution-policy.mjs",
       "primaryEpicNumber": null
     },
@@ -392,11 +496,23 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-dynamic-import-specifiers.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-dynamic-import-specifiers.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-e2e-env-matrix.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-e2e-generated-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-e2e-generated-drift.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -440,11 +556,27 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-executable-masquerade-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-export-security-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-export-security-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-feature-flag-lifecycle.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-feature-flag-security-bypass.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-feature-flag-security-bypass.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -460,7 +592,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-forwarded-header-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-frontend-component-complexity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-generated-artifact-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-generated-artifact-hygiene.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -477,6 +621,10 @@
     },
     {
       "path": "scripts/check-github-workflows-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-github-workflows-security.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -501,6 +649,10 @@
     },
     {
       "path": "scripts/check-hardening-debt-ratchet.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-hardening-debt-ratchet.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -532,6 +684,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-input-validation-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-input-validation-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-install-script-risk.mjs",
       "primaryEpicNumber": null
     },
@@ -553,6 +713,10 @@
     },
     {
       "path": "scripts/check-json-body-limited-adoption.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-json-body-limited-adoption.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -592,6 +756,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-logging-telemetry-redaction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-logging-telemetry-redaction.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-maximal-assurance-plan-snapshot.mjs",
       "primaryEpicNumber": null
     },
@@ -608,11 +780,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-method-override-abuse.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-middleware-vercel-metadata.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-migration-security-patterns.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-security-patterns.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -632,11 +812,27 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-mutation-race-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-next-config-surface.mjs",
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-next-min-version.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-next-min-version.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-next-public-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-next-public-surface.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -776,11 +972,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-pagination-guardrails.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-pan-in-client-bundle.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-parser-risk-controls.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-parser-risk-controls.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -809,6 +1013,14 @@
     },
     {
       "path": "scripts/check-permissions-policy-security.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-persistence-redaction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-persistence-redaction.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -848,6 +1060,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-privacy-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-privacy-inventory.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-private-network-egress-guards.mjs",
       "primaryEpicNumber": null
     },
@@ -857,6 +1077,26 @@
     },
     {
       "path": "scripts/check-public-seo-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-seo-surface.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-token-negative-tests.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-token-negative-tests.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-token-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-public-token-policy.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -932,7 +1172,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-rate-limit-distribution-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-rate-limit-key-cardinality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rate-limit-key-cardinality.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -976,6 +1224,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-release-security-required-env.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-security-required-env.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-replay-window-policy.mjs",
       "primaryEpicNumber": null
     },
@@ -1004,7 +1260,27 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-response-size-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-response-size-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-retention-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-retention-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-rls-policy-drift.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-rls-policy-drift.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1012,7 +1288,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-rls-sanity-tables.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-robots-crawler-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-role-capability-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-role-capability-inventory.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1080,6 +1368,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-secrets-env-token-quality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-secrets-env-token-quality.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-security-control-coverage.mjs",
       "primaryEpicNumber": null
     },
@@ -1128,6 +1424,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-security-report-checksums.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-route-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-security-telemetry-suppression.mjs",
       "primaryEpicNumber": null
     },
@@ -1136,11 +1440,27 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-sensitive-action-step-up.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sensitive-action-step-up.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-sensitive-cache-controls.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-sensitive-cache-controls.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sensitive-url-propagation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sensitive-url-propagation.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1160,6 +1480,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-server-action-negative-tests.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-action-negative-tests.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-server-action-org-scope.mjs",
       "primaryEpicNumber": null
     },
@@ -1168,7 +1496,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-server-actions-inventory.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-server-lib-admin.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-server-lib-admin.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1224,6 +1560,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-sql-definer-invoker-inventory.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-sql-security-migrations-bundle.mjs",
       "primaryEpicNumber": null
     },
@@ -1237,6 +1577,22 @@
     },
     {
       "path": "scripts/check-ssrf-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-stale-write-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-stale-write-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-static-check-determinism.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-static-check-determinism.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1272,6 +1628,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-supply-chain-waivers.mjs",
       "primaryEpicNumber": null
     },
@@ -1292,6 +1652,22 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-tenant-table-schema-constraints.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-tenant-table-schema-constraints.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-terminal-state-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-terminal-state-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-test-credential-reuse.mjs",
       "primaryEpicNumber": null
     },
@@ -1301,6 +1677,10 @@
     },
     {
       "path": "scripts/check-test-fixture-secrets.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-test-fixture-secrets.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1320,6 +1700,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-timeout-budget-guards.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-timestamp-source-integrity.mjs",
       "primaryEpicNumber": null
     },
@@ -1332,7 +1716,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-token-security-quality.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-tracked-secrets-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-tracked-secrets-hygiene.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1377,6 +1769,10 @@
     },
     {
       "path": "scripts/check-upload-banlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-upload-banlist.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1448,11 +1844,27 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-webhook-inbound-policy.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-webhook-inbound-policy.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-workflow-tier-coverage.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-wrapper-reintroduction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-xss-client-exposure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-xss-client-exposure.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1514,6 +1926,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/report-dependency-risk.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/report-dependency-sunset-readiness.mjs",
       "primaryEpicNumber": null
     },
@@ -1570,7 +1986,15 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/report-security-proxy-matrix.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/report-security-route-matrix.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-security-route-matrix.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1753,6 +2177,22 @@
     },
     {
       "name": "test:e2e:visual:full:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:persona",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:persona:advanced",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:persona:advanced:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:visual:persona:update",
       "primaryEpicNumber": null
     },
     {

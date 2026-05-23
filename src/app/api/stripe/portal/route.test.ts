@@ -7,6 +7,10 @@ const rateLimitCheck = vi.hoisted(() => vi.fn<typeof import("@/lib/rate-limit").
 const getClientIpFromRequest = vi.hoisted(() => vi.fn(() => "203.0.113.7"));
 const portalCreate = vi.hoisted(() => vi.fn());
 const getStripeClient = vi.hoisted(() => vi.fn());
+const isKillBilling = vi.hoisted(() => vi.fn(() => false));
+const killSwitchJsonResponse = vi.hoisted(() =>
+  vi.fn(() => new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 }))
+);
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -24,8 +28,8 @@ vi.mock("@/lib/stripe", () => ({
 }));
 
 vi.mock("@/lib/security/kill-switches", () => ({
-  isKillBilling: vi.fn(() => false),
-  killSwitchJsonResponse: vi.fn(() => new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 })),
+  isKillBilling,
+  killSwitchJsonResponse,
 }));
 
 describe("POST /api/stripe/portal", () => {
@@ -35,6 +39,8 @@ describe("POST /api/stripe/portal", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_ID = "price_123";
     rateLimitCheck.mockResolvedValue({ ok: true });
+    isKillBilling.mockReturnValue(false);
+    killSwitchJsonResponse.mockReturnValue(new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 }));
     portalCreate.mockResolvedValue({ id: "bps_123", url: "https://billing.stripe.com/session/bps_123" });
     getStripeClient.mockResolvedValue({
       ok: true,
@@ -44,6 +50,7 @@ describe("POST /api/stripe/portal", () => {
   });
 
   it("returns 401 when unauthenticated", async () => {
+    isKillBilling.mockReturnValue(true);
     createClient.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
     });
@@ -55,7 +62,24 @@ describe("POST /api/stripe/portal", () => {
     const res = await POST(req);
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
+    expect(killSwitchJsonResponse).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 kill-switch response only after admin auth and rate limit", async () => {
+    isKillBilling.mockReturnValue(true);
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1" } } }) },
+    });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+
+    const { POST } = await import("@/app/api/stripe/portal/route");
+    const res = await POST(new Request("http://localhost:3000/api/stripe/portal", { method: "POST" }));
+
+    expect(res.status).toBe(503);
+    expect(killSwitchJsonResponse).toHaveBeenCalledWith("billing");
+    expect(getStripeClient).not.toHaveBeenCalled();
   });
 
   it("creates a portal session with the expected return_url payload shape", async () => {
@@ -165,11 +189,8 @@ describe("POST /api/stripe/portal", () => {
 
     expect(res.status).toBe(503);
     expect(body).toMatchObject({
-      ok: false,
       code: "dependency_blocked",
       diagnostic_id: "stripe_portal_provider_missing",
-      phase: "dependency_preflight",
     });
   });
 });
-

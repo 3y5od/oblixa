@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
-import { buildRouteUniversePayload, ROUTE_UNIVERSE_ARTIFACTS } from "./lib/build-route-universe.mjs";
+import { buildRouteUniversePayload, HTTP_METHODS, ROUTE_UNIVERSE_ARTIFACTS } from "./lib/build-route-universe.mjs";
 import { APP_ROUTER_STATE_KINDS } from "./lib/route-state-utils.mjs";
 
 const root = process.cwd();
@@ -21,8 +21,8 @@ function stripVolatile(value) {
   return value;
 }
 
-function loadJson(relPath) {
-  const file = path.join(root, relPath);
+function loadJson(rootDir, relPath) {
+  const file = path.join(rootDir, relPath);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
@@ -48,7 +48,7 @@ export function findRouteUniverseFailures(rootDir = root) {
   const failures = [];
 
   for (const [key, relPath] of Object.entries(ROUTE_UNIVERSE_ARTIFACTS)) {
-    const actual = loadJson(relPath);
+    const actual = loadJson(rootDir, relPath);
     if (!actual) {
       failures.push(`${relPath}:missing`);
       continue;
@@ -66,6 +66,15 @@ export function findRouteUniverseFailures(rootDir = root) {
     if (!row.smokeTier) failures.push(`${row.sourcePath}:missing_smoke_tier`);
     if (row.authModel === "requires_review") failures.push(`${row.sourcePath}:auth_model_requires_review`);
     if (row.class === "cron" && row.authModel !== "cron_secret") failures.push(`${row.sourcePath}:cron_auth_model`);
+    if (row.kind === "api_route") {
+      if (!Array.isArray(row.methods) || row.methods.length === 0) {
+        failures.push(`${row.sourcePath}:missing_http_method_export`);
+      } else {
+        for (const method of row.methods) {
+          if (!HTTP_METHODS.includes(method)) failures.push(`${row.sourcePath}:unsupported_http_method:${method}`);
+        }
+      }
+    }
   }
 
   failures.push(...findMissingRequiredAppRouterStateFailures(payload.universe.routes));

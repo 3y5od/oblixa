@@ -30,9 +30,10 @@ describe("UploadForm", () => {
     expect(screen.getByLabelText(/annual value/i)).toBeTruthy();
     expect(screen.getByLabelText(/source system/i)).toBeTruthy();
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
-    expect(screen.getByText(/we create the contract first, then confirm which source files stored successfully/i)).toBeTruthy();
-    expect(screen.getByText(/extraction and source-backed review will stay blocked until at least one signed document is attached/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /create contract without files/i })).toBeTruthy();
+    expect(screen.getByText(/add enough identity to find this agreement later/i)).toBeTruthy();
+    expect(screen.getByText(/source-backed review starts after at least one signed file is attached/i)).toBeTruthy();
+    expect(screen.getByText(/no files selected/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^create contract$/i })).toBeTruthy();
   });
 
   it("summarizes accepted, unsupported, oversized, and duplicate files", async () => {
@@ -69,7 +70,7 @@ describe("UploadForm", () => {
     expect(screen.getByText(/duplicates ignored:/i).parentElement?.textContent).toContain("1");
     expect(screen.getByText(/unsupported:/i).parentElement?.textContent).toContain("1");
     expect(screen.getByText(/over size limit:/i).parentElement?.textContent).toContain("1");
-    expect(screen.getByRole("button", { name: /create contract and start intake/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /create contract and upload files/i })).toBeTruthy();
   });
 
   it("keeps typed metadata when creation returns an error", async () => {
@@ -80,7 +81,7 @@ describe("UploadForm", () => {
 
     const title = screen.getByLabelText(/contract title/i);
     await user.type(title, "Hold my title");
-    await user.click(screen.getByRole("button", { name: /create contract without files/i }));
+    await user.click(screen.getByRole("button", { name: /^create contract$/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalled());
     expect((screen.getByRole("alert").textContent ?? "").toLowerCase()).toMatch(/session/);

@@ -7,10 +7,10 @@ import { describe, expect, it } from "vitest";
 
 describe("tasks vs obligations user language (V9 §12 + §24)", () => {
   it("work hub queue cards use distinct execution-kind labels", () => {
-    const work = readFileSync(join(process.cwd(), "src/app/(dashboard)/work/page.tsx"), "utf8");
-    expect(work).toContain('objectType="Task"');
-    expect(work).toContain('objectType="Obligation"');
-    expect(work).toContain('objectType="Approval"');
+    const spec = readFileSync(join(process.cwd(), "src/lib/work/spec-strings.ts"), "utf8");
+    expect(spec).toContain('contract_task: "Task"');
+    expect(spec).toContain('obligation: "Obligation"');
+    expect(spec).toContain('approval: "Approval"');
   });
 
   it("inline row mutations keep task vs obligation wording in success copy", () => {
@@ -27,9 +27,12 @@ describe("tasks vs obligations user language (V9 §12 + §24)", () => {
     expect(src).toContain("recurring obligation");
   });
 
-  it("primary nav distinguishes Tasks and Obligations destinations", () => {
+  it("Work route tabs distinguish approvals and obligations without old sidebar lanes", () => {
+    const spec = readFileSync(join(process.cwd(), "src/lib/work/spec-strings.ts"), "utf8");
     const nav = readFileSync(join(process.cwd(), "src/lib/navigation.ts"), "utf8");
-    expect(nav).toContain('{ name: "Tasks", href: "/contracts/tasks" }');
-    expect(nav).toContain('{ name: "Obligations", href: "/contracts/obligations" }');
+    expect(spec).toContain('approvals: "Approvals"');
+    expect(spec).toContain('obligations: "Obligations"');
+    expect(nav).toContain('name: "Work"');
+    expect(nav).not.toMatch(/\{\s*name: "Tasks",\s*href: "\/contracts\/tasks"/);
   });
 });

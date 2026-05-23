@@ -12,8 +12,11 @@ import {
   workflowProgramPerformanceTuning,
 } from "@/lib/v6/workflows";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 
-export async function POST() {
+export async function POST(request?: Request) {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
   if (disabled) return disabled;
 
@@ -27,6 +30,22 @@ export async function POST() {
     apiPath: "/api/assurance/workflows/run-all",
   });
   if (modeGate) return modeGate;
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.assurance.workflows.run-all",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/assurance/workflows/run-all",
+    method: "POST",
+  }).catch(() => undefined);
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
 
   const [w1, w2, w3, w4, w5] = await Promise.all([
     workflowFindingToIntervention(ctx.admin, ctx.orgId, ctx.userId),

@@ -44,13 +44,13 @@ test.describe("@v9 V9 core smoke", () => {
       await expect(page.getByRole("heading", { name: /^Work Queue$/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/contracts/renewals", { waitUntil: "domcontentloaded" });
-      await expect(page.getByRole("heading", { name: /Renewals workspace/i })).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("heading", { name: /^Renewals$/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/contracts/exceptions", { waitUntil: "domcontentloaded" });
       await expect(page.getByRole("heading", { name: /Exception ledger/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/contracts/evidence-studio", { waitUntil: "domcontentloaded" });
-      await expect(page.getByRole("heading", { name: /Evidence studio/i })).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("heading", { name: /^Evidence$/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/contracts/review", { waitUntil: "domcontentloaded" });
       await expect(page.getByRole("heading", { name: /Review queue/i })).toBeVisible({ timeout: 20_000 });
@@ -59,8 +59,8 @@ test.describe("@v9 V9 core smoke", () => {
       await expect(page.getByRole("heading", { name: /Bulk import/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/reports", { waitUntil: "domcontentloaded" });
-      await expect(page.getByRole("heading", { name: /Operational reports/i })).toBeVisible({ timeout: 20_000 });
-      await expect(page.getByText(/report delivery posture/i)).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("heading", { name: /^Reports$/i })).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("link", { name: /Export report/i })).toBeVisible({ timeout: 20_000 });
 
       await page.goto("/contracts/data-quality", { waitUntil: "domcontentloaded" });
       await expect(page.getByRole("heading", { name: /Data quality/i })).toBeVisible({ timeout: 20_000 });

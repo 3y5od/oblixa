@@ -65,7 +65,7 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
       </p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <select
-          className="w-full rounded border border-[var(--border-subtle)] px-2 py-1.5 text-sm sm:max-w-md"
+          className="ui-input-compact w-full sm:max-w-md"
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
         >

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Guardrail for serverless memory when buffering packet bytes before upload. */
 const MAX_DECISION_PACKET_UPLOAD_BYTES = 25 * 1024 * 1024;
+export const DECISION_PACKET_SIGNED_URL_TTL_SECONDS = 5 * 60;
 
 /** Private bucket name; create in Supabase Storage and set in server env. */
 export function getV5DecisionPacketBucket(): string | null {
@@ -15,6 +16,23 @@ export function decisionPacketStoragePath(orgId: string, runId: string): string 
 
 export function decisionPacketPdfStoragePath(orgId: string, runId: string): string {
   return `${orgId}/${runId}/packet.pdf`;
+}
+
+export function normalizeDecisionPacketSignedUrlTtl(expiresInSeconds: number): number {
+  const parsed = Math.floor(Number(expiresInSeconds));
+  if (!Number.isFinite(parsed)) return DECISION_PACKET_SIGNED_URL_TTL_SECONDS;
+  return Math.max(60, Math.min(DECISION_PACKET_SIGNED_URL_TTL_SECONDS, parsed));
+}
+
+export function isDecisionPacketArtifactStoragePathScoped(
+  storagePath: string | null | undefined,
+  params: { orgId: string; runId: string; artifact: "json" | "pdf" }
+): boolean {
+  const expected =
+    params.artifact === "pdf"
+      ? decisionPacketPdfStoragePath(params.orgId, params.runId)
+      : decisionPacketStoragePath(params.orgId, params.runId);
+  return storagePath === expected;
 }
 
 /**
@@ -91,20 +109,21 @@ export async function uploadDecisionPacketPdfArtifact(
 export async function createDecisionPacketArtifactSignedUrl(
   admin: SupabaseClient,
   storagePath: string,
-  expiresInSeconds = 3600
-): Promise<{ signedUrl: string } | null> {
+  expiresInSeconds = DECISION_PACKET_SIGNED_URL_TTL_SECONDS
+): Promise<{ signedUrl: string; expiresIn: number } | null> {
   const bucket = getV5DecisionPacketBucket();
   if (!bucket) return null;
   if (!admin.storage?.from) return null;
+  const safeExpiresIn = normalizeDecisionPacketSignedUrlTtl(expiresInSeconds);
 
   const { data, error } = await admin.storage
     .from(bucket)
-    .createSignedUrl(storagePath, expiresInSeconds);
+    .createSignedUrl(storagePath, safeExpiresIn);
 
   if (error || !data?.signedUrl) {
     console.error("[decision-packet-storage] signed URL failed:", error?.message);
     return null;
   }
 
-  return { signedUrl: data.signedUrl };
+  return { signedUrl: data.signedUrl, expiresIn: safeExpiresIn };
 }

@@ -3,6 +3,7 @@ import { Eye } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { STATUS_LABELS } from "@/lib/contracts";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 
 export default async function ContractWatchlistsPage() {
   const ctx = await getAuthContext();
@@ -37,15 +38,12 @@ export default async function ContractWatchlistsPage() {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header border-b border-[var(--border-subtle)] pb-8">
-        <div>
-          <p className="ui-eyebrow">Priority monitoring</p>
-          <h1 className="ui-display-title mt-2">My watchlist</h1>
-          <p className="ui-page-lead mt-3 max-w-2xl">
-            Contracts you flagged for heightened operational attention.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Eye className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Priority monitoring"
+        title="My watchlist"
+        lead="Contracts you flagged for heightened operational attention."
+      />
 
       <OperationalSummaryCard
         eyebrow="Coverage"

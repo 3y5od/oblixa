@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { notFound } from "next/navigation";
 import { isFeatureEnabled, type FeatureFlagKey } from "@/lib/feature-flags";
+import { jsonProblem } from "@/lib/http/problem";
 
 export function assertV6PageFeature(flag: FeatureFlagKey): void {
   if (!isFeatureEnabled(flag)) notFound();
@@ -11,10 +12,11 @@ export function assertAnyV6PageFeature(flags: FeatureFlagKey[]): void {
 }
 
 export function v6ApiForbidden() {
-  return NextResponse.json(
-    { error: "This assurance feature is disabled for your workspace." },
-    { status: 403 }
-  );
+  return jsonProblem(403, {
+    error: "This assurance feature is disabled for your workspace.",
+    code: "feature_disabled",
+    diagnostic_id: "v6_feature_disabled",
+  });
 }
 
 export function requireV6ApiFeature(flag: FeatureFlagKey): NextResponse | null {

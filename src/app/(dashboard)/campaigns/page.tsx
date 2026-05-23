@@ -3,6 +3,7 @@ import { ListOrdered, Megaphone, PauseCircle } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -88,35 +89,32 @@ export default async function CampaignsPage({
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header-compact">
-        <div>
-          <p className="ui-eyebrow">Records</p>
-          <h1 className="ui-page-title-compact mt-2">Campaign Queue</h1>
-          <p className="ui-page-lead mt-2 max-w-2xl">
-            Campaign state, processed volume, simulation readiness, and next action.
-            {statusFilter || typeFilter ? (
-              <span className="mt-2 block text-xs text-[var(--text-secondary)]">
-                {statusFilter && statusOk ? (
-                  <>
-                    Status <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{statusFilter}</code>
-                    {!typeFilter ? ". " : " · "}
-                  </>
-                ) : null}
-                {statusFilter && !statusOk ? <span className="text-[var(--danger-ink)]">Unknown status filter (ignored). </span> : null}
-                {typeFilter && typeOk ? (
-                  <>
-                    Type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
-                  </>
-                ) : null}
-                {typeFilter && !typeOk ? <span className="text-[var(--danger-ink)]">Unknown campaign type filter (ignored). </span> : null}
-                <Link href="/campaigns" className="ui-link">
-                  Clear filters
-                </Link>
-              </span>
-            ) : null}
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<Megaphone className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Records"
+        title="Campaign queue"
+        lead="Campaign state, processed volume, simulation readiness, and next action."
+      />
+      {statusFilter || typeFilter ? (
+        <p className="text-[12.5px] text-[var(--text-secondary)]">
+          {statusFilter && statusOk ? (
+            <>
+              Status <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{statusFilter}</code>
+              {!typeFilter ? ". " : " · "}
+            </>
+          ) : null}
+          {statusFilter && !statusOk ? <span className="text-[var(--danger-ink)]">Unknown status filter (ignored). </span> : null}
+          {typeFilter && typeOk ? (
+            <>
+              Type <code className="rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] px-1">{typeFilter}</code>.{" "}
+            </>
+          ) : null}
+          {typeFilter && !typeOk ? <span className="text-[var(--danger-ink)]">Unknown campaign type filter (ignored). </span> : null}
+          <Link href="/campaigns" className="ui-link">
+            Clear filters
+          </Link>
+        </p>
+      ) : null}
       <DiagnosticDisclosure title="Campaign diagnostics">
         <div className="flex flex-wrap gap-3">
           <ApiJsonLink href="/api/campaigns" className="ui-link text-xs">
@@ -245,7 +243,7 @@ export default async function CampaignsPage({
           <div>
             <p className="ui-eyebrow">Rollout</p>
             <h3 className="ui-section-title mt-1 text-base">Promote to campaign</h3>
-            <p className="ui-muted-tight mt-1 text-[13px]">Create a draft campaign from a completed simulation.</p>
+            <p className="ui-muted-tight mt-1 text-[12.5px]">Create a draft campaign from a completed simulation.</p>
             <div className="mt-4">
               <CampaignSimulationPromote />
             </div>

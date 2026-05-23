@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import {
   RATE_LIMITS,
   getClientIpFromHeaders,
@@ -10,6 +11,12 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
+import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/export/review-packet";
+
+export const maxDuration = 60;
 
 export async function GET() {
   const supabase = await createClient();
@@ -17,10 +24,17 @@ export async function GET() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return jsonUnauthorized(ROUTE);
 
   const membership = await getDeterministicMembership(admin, user.id);
-  if (!membership) return NextResponse.json({ error: "No organization" }, { status: 400 });
+  if (!membership) {
+    return jsonProblem(400, {
+      error: "No organization",
+      code: "organization_missing",
+      diagnostic_id: "review_packet_organization_missing",
+      route: ROUTE,
+    });
+  }
   const orgId = membership.organization_id;
   const modeGate = await requireApiWorkspaceEligibility({
     admin,
@@ -28,16 +42,19 @@ export async function GET() {
     apiPath: "/api/export/review-packet",
   });
   if (modeGate) return modeGate;
+
+  void recordApiRouteAuditEvent(admin, {
+    organizationId: orgId,
+    actorUserId: user.id,
+    route: ROUTE,
+    method: "GET",
+    action: "api.sensitive_read_authorized",
+  }).catch(() => undefined);
+
   const ip = await getClientIpFromHeaders();
   const rl = await rateLimitCheck(`export-review-packet:${user.id}:${ip}`, RATE_LIMITS.exportReviewPacket);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
   const today = new Date().toISOString().slice(0, 10);
   const ninetyDaysOut = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
@@ -93,7 +110,12 @@ export async function GET() {
         reason: "approvals_query_failed",
       },
     });
-    return NextResponse.json({ error: "Could not load approvals" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Could not load approvals",
+      code: "approvals_query_failed",
+      diagnostic_id: "review_packet_approvals_query_failed",
+      route: ROUTE,
+    });
   }
   if (renewalsRes.error) {
     console.error("[export/review-packet] renewals:", renewalsRes.error.message);
@@ -106,7 +128,12 @@ export async function GET() {
         reason: "renewals_query_failed",
       },
     });
-    return NextResponse.json({ error: "Could not load renewals" }, { status: 500 });
+    return jsonProblem(500, {
+      error: "Could not load renewals",
+      code: "renewals_query_failed",
+      diagnostic_id: "review_packet_renewals_query_failed",
+      route: ROUTE,
+    });
   }
   if (approvalsRes.truncated || renewalsRes.truncated) {
     await emitProductTelemetryEvent(admin, {
@@ -121,16 +148,13 @@ export async function GET() {
         max_rows: MAX_REVIEW_PACKET_ROWS,
       },
     });
-    return NextResponse.json(
-      {
-        ok: false,
-        error: `Review packet export exceeded the ${MAX_REVIEW_PACKET_ROWS} row budget. Narrow scope and retry.`,
-        code: "row_budget_exceeded",
-        diagnostic_id: "review_packet_row_budget_exceeded",
-        partial: true,
-      },
-      { status: 413 }
-    );
+    return jsonProblem(413, {
+      error: `Review packet export exceeded the ${MAX_REVIEW_PACKET_ROWS} row budget. Narrow scope and retry.`,
+      code: "row_budget_exceeded",
+      diagnostic_id: "review_packet_row_budget_exceeded",
+      route: ROUTE,
+      details: { partial: true },
+    });
   }
 
   const approvals = approvalsRes.rows;
@@ -178,7 +202,7 @@ export async function GET() {
   }
 
   const csv = lines.join("\r\n");
-  const fileName = `review-packet-${today}.csv`;
+  const fileName = sanitizeExportFileName(`review-packet-${today}.csv`);
   await emitProductTelemetryEvent(admin, {
     organizationId: orgId,
     userId: user.id,
@@ -193,7 +217,8 @@ export async function GET() {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${fileName}"`,
+      "Cache-Control": "private, no-store",
+      "Content-Disposition": contentDispositionAttachment(fileName),
     },
   });
 }

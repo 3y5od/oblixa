@@ -63,7 +63,7 @@ async function fetchContractsForSegment(
   for (let offset = 0; offset < SEGMENT_MAX_SCAN; offset += SEGMENT_PAGE_SIZE) {
     let q = admin
       .from("contracts")
-      .select("id, counterparty, region, status, contract_type, tags, linked_account_key, owner_id")
+      .select("id, counterparty, region, status, contract_type, tags, account_key, owner_id")
       .eq("organization_id", orgId);
     if (criteria.contract_status_in && criteria.contract_status_in.length > 0) {
       q = q.in("status", criteria.contract_status_in);
@@ -194,7 +194,7 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
     if (entityTypes.includes("account")) {
       const keys = new Set<string>();
       for (const c of filtered) {
-        const ak = String((c as { linked_account_key?: string | null }).linked_account_key ?? "").trim();
+        const ak = String((c as { account_key?: string | null }).account_key ?? "").trim();
         if (ak) keys.add(ak);
       }
       for (const k of keys) {
@@ -203,7 +203,7 @@ export async function recomputeSegmentMemberships(admin: AdminClient, orgId: str
           segment_definition_id: segmentId,
           entity_type: "account",
           entity_ref_id: k,
-          metadata_json: { ...metaBase, derived_from: "contracts.linked_account_key" },
+          metadata_json: { ...metaBase, derived_from: "contracts.account_key" },
         });
       }
     }

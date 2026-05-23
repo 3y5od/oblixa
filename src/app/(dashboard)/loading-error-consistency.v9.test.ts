@@ -87,15 +87,39 @@ describe("dashboard loading and error consistency (V9)", () => {
     const reviewLoading = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/review/loading.tsx"), "utf8");
 
     expect(contractsLoading).toContain("ui-page-header");
-    expect(contractsLoading).toContain("ui-page-shell");
-    expect(contractsLoading).toContain("xl:grid-cols-[22rem_minmax(0,1fr)]");
+    // v16: stat strip + next-actions tiles dropped; skeleton mirrors the slim
+    // toolbar + quick-filter chip strip + single table block.
+    expect(contractsLoading).toContain("rounded-full");
+    expect(contractsLoading).toContain("ui-skeleton h-96 rounded-2xl");
 
     expect(workLoading).toContain("ui-page-header");
     expect(workLoading).toContain("ui-page-shell");
     expect(workLoading).toContain("lg:grid-cols-2");
 
-    expect(reviewLoading).toContain("ui-page-header");
-    expect(reviewLoading).toContain("ui-card-hero");
-    expect(reviewLoading).toContain("sm:grid-cols-2 xl:grid-cols-4");
+    // Review loading was migrated to the unified card-raised + flat-identity skeleton vocabulary.
+    expect(reviewLoading).toContain("ui-card-raised");
+    expect(reviewLoading).toContain("ui-skeleton h-10 w-10 rounded-xl");
+    expect(reviewLoading).toContain("xl:grid-cols-4");
+    expect(reviewLoading).not.toContain("ui-page-header flex flex-col gap-6");
+    expect(reviewLoading).not.toContain("ui-card-hero");
+    expect(reviewLoading).not.toContain("grid grid-cols-3 gap-2");
+    expect(reviewLoading).not.toContain("ui-page-header-compact");
+  });
+
+  it("renders the dashboard composition through the Core dashboard model (v22: triage moved into spec sections)", () => {
+    const dashboardPage = readFileSync(
+      join(process.cwd(), "src/app/(dashboard)/dashboard/page.tsx"),
+      "utf8"
+    );
+    // v22 structural refactor: the standalone <OperationalTriagePanel> +
+    // v10HasActiveTriageItems gating was rolled into the canonical Core
+    // dashboard composition. Active items now surface through the 5 spec
+    // main sections (Review Queue, Upcoming Deadlines, Work Needing
+    // Action, Data Gaps, Recent Activity) + the partial-data notice — the
+    // panel concept is gone, the data flow is owned by the Core model
+    // layer. Verify the page delegates to <CoreDashboard> + loads via
+    // loadCoreDashboardModel.
+    expect(dashboardPage).toContain("<CoreDashboard");
+    expect(dashboardPage).toContain("loadCoreDashboardModel");
   });
 });

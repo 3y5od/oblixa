@@ -4,6 +4,8 @@ import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
+import { sanitizeChatSnippet } from "@/lib/messaging/chat-snippet-sanitize";
+import { scrubOutboundMetadata } from "@/lib/messaging/outbound-payload-scrub";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -24,7 +26,7 @@ function buildSlackWebhookBody(input: {
   channel?: string;
   username: string;
 }): Record<string, unknown> {
-  const meta = input.metadata ?? {};
+  const meta = scrubOutboundMetadata(input.metadata ?? {});
   const contractId = typeof meta.contract_id === "string" ? meta.contract_id : null;
   const deepPath =
     typeof meta.deep_link_path === "string" && meta.deep_link_path.startsWith("/")
@@ -33,9 +35,11 @@ function buildSlackWebhookBody(input: {
   const base = getAppBaseUrlFromEnv();
   const openUrl = deepPath ? `${base}${deepPath}` : contractId ? `${base}/contracts/${contractId}` : null;
 
+  const safeTitle = sanitizeChatSnippet(input.title);
+  const safeBody = sanitizeChatSnippet(input.body);
   const textFallback = openUrl
-    ? `${input.title}\n${input.body}\nOpen in Oblixa: ${openUrl}`
-    : `${input.title}\n${input.body}`;
+    ? `${safeTitle}\n${safeBody}\nOpen in Oblixa: ${openUrl}`
+    : `${safeTitle}\n${safeBody}`;
 
   const payload: Record<string, unknown> = {
     text: textFallback,
@@ -49,13 +53,17 @@ function buildSlackWebhookBody(input: {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*${escapeSlackMrkdwn(input.title)}*\n${escapeSlackMrkdwn(input.body)}\n<${openUrl}|Open in Oblixa>`,
+          text: `*${escapeSlackMrkdwn(safeTitle)}*\n${escapeSlackMrkdwn(safeBody)}\n<${openUrl}|Open in Oblixa>`,
         },
       },
     ];
   }
 
   return payload;
+}
+
+function isAllowedSlackWebhookUrl(url: URL): boolean {
+  return url.protocol === "https:" && url.hostname.toLowerCase() === "hooks.slack.com";
 }
 
 export async function sendSlackWorkflowNotification(
@@ -73,12 +81,13 @@ export async function sendSlackWorkflowNotification(
     notificationType: "automation_rule",
   });
   if (!allowed) {
+    const safeMetadata = scrubOutboundMetadata(input.metadata ?? {});
     await markNotificationSuppressed(admin, {
       organizationId: input.organizationId,
       channel: "slack",
       notificationType: "automation_rule",
-      subject: input.title,
-      metadata: input.metadata ?? {},
+      subject: sanitizeChatSnippet(input.title),
+      metadata: safeMetadata,
     });
     return { ok: false, reason: "suppressed_by_policy" };
   }
@@ -99,21 +108,25 @@ export async function sendSlackWorkflowNotification(
   if (!cfg.webhookUrl) return { ok: false, reason: "missing_webhook_url" };
   const webhookUrl = validateOutboundHttpUrl(cfg.webhookUrl);
   if (!webhookUrl) return { ok: false, reason: "invalid_webhook_url" };
+  if (!isAllowedSlackWebhookUrl(webhookUrl)) return { ok: false, reason: "untrusted_webhook_url" };
+  const safeTitle = sanitizeChatSnippet(input.title);
+  const safeBody = sanitizeChatSnippet(input.body);
+  const safeMetadata = scrubOutboundMetadata(input.metadata ?? {});
   const delivery = await deliverWithRetries(admin, {
     organizationId: input.organizationId,
     channel: "slack",
     notificationType: "automation_rule",
-    subject: input.title,
-    metadata: input.metadata ?? {},
+    subject: safeTitle,
+    metadata: safeMetadata,
     maxAttempts: 3,
     retryPayload: {
       kind: "slack_workflow",
       webhookUrl: webhookUrl.toString(),
-      title: input.title,
-      body: input.body,
+      title: safeTitle,
+      body: safeBody,
       channel: cfg.channel ?? null,
       username: cfg.username ?? "Oblixa",
-      metadata: input.metadata ?? {},
+      metadata: safeMetadata,
     },
     send: async () => {
       try {
@@ -122,9 +135,9 @@ export async function sendSlackWorkflowNotification(
           headers: { "content-type": "application/json" },
           body: JSON.stringify(
             buildSlackWebhookBody({
-              title: input.title,
-              body: input.body,
-              metadata: input.metadata,
+              title: safeTitle,
+              body: safeBody,
+              metadata: safeMetadata,
               channel: cfg.channel ?? undefined,
               username: cfg.username ?? "Oblixa",
             })

@@ -9,8 +9,12 @@ describe("Stripe checkout/portal return URLs (V7 billing surface)", () => {
   it("keeps success and cancel targets on settings/billing (no Advanced/Assurance hubs)", () => {
     const checkout = readFileSync(CHECKOUT, "utf8");
     expect(checkout).toContain("success_url:");
-    expect(checkout).toContain("/settings/billing?success=true");
-    expect(checkout).toContain("/settings/billing?canceled=true");
+    // SPEC: docs/billing-page-maximal-pass.md §1.1 + §1.22 — sentinel
+    // changed from ?success=true to ?success=1&session_id={CHECKOUT_SESSION_ID}
+    expect(checkout).toContain(
+      "/settings/billing?success=1&session_id={CHECKOUT_SESSION_ID}"
+    );
+    expect(checkout).toContain("/settings/billing?canceled=1");
     expect(checkout).not.toMatch(/success_url:[^\n]*\/decisions/);
     expect(checkout).not.toMatch(/success_url:[^\n]*\/assurance/);
 

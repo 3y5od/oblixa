@@ -29,7 +29,7 @@ describe("V9 migration 050 import/export job fields in product paths", () => {
   });
 
   it("export API persists export job scope, partial status, and truncation flags", () => {
-    const src = readFileSync(join(process.cwd(), "src/app/api/export/contracts/route.ts"), "utf8");
+    const src = readFileSync(join(process.cwd(), "src/lib/export/contracts-csv.ts"), "utf8");
     expect(src).toContain('.from("contract_export_jobs")');
     expect(src).toContain("truncated");
     expect(src).toMatch(/status[^\n]*partial|["']partial["']/);

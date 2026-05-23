@@ -11,7 +11,10 @@ describe("OG / Twitter preview surfaces (V7)", () => {
   it("keeps neutral Oblixa framing without Advanced/Assurance product names in OG image copy", () => {
     const og = readFileSync(join(process.cwd(), "src/app/opengraph-image.tsx"), "utf8");
     expect(og).toContain("Oblixa");
-    expect(og).toContain("Contract execution for post-signature teams");
+    // v1 marketing pass: aligned to release-state wedge ("Replace the
+    // contract tracking spreadsheet"). Headline leads with the operational
+    // verb instead of the legacy "Contract execution" framing.
+    expect(og).toContain("Track renewals, obligations, and owners from signed contracts");
     expect(og.toLowerCase()).not.toContain("decisions");
     expect(og.toLowerCase()).not.toContain("campaigns");
     expect(og.toLowerCase()).not.toContain("assurance");

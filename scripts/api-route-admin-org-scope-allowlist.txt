@@ -5,8 +5,5 @@
 # internal/debugging-sweep: createAdminClient is only used for optional audit writes
 # when OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID is set; access is gated by env flag, bearer secret,
 # rate limit, and IP allowlist (no session org context on this internal diagnostics surface).
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=internal_diagnostics_route_has_secret_rate_limit_and_ip_allowlist_gates compensatingTest=scripts/check-api-route-admin-org-scope.mjs
 internal/debugging-sweep/route.ts
-# Cron batch jobs: CRON_SECRET-gated; service role scans all organizations by design (no single org context).
-integrations/refresh-tokens/route.ts
-maintenance/prune-operational-data/route.ts
-tasks/run-rules/route.ts

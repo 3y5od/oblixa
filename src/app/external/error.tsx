@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function ExternalError({
   error,
@@ -28,7 +28,7 @@ export default function ExternalError({
       title="This page hit an error"
       copy="Use the link from your email again, or contact the sender if this keeps happening."
       digest={error.digest}
-      icon={<AlertCircle className="h-5 w-5" strokeWidth={1.75} />}
+      icon={<AlertCircle className="h-5 w-5" strokeWidth={1.65} />}
       shellClassName="bg-canvas min-h-[40vh] py-10"
       actions={
         <>

@@ -15,7 +15,7 @@ const APP_FILENAMES = new Set([
 ]);
 
 const STATE_FILENAMES = new Set(["loading.tsx", "error.tsx", "global-error.tsx", "not-found.tsx", "forbidden.tsx"]);
-const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+export const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
 const SEGMENT_PLACEHOLDERS = {
   id: "00000000-0000-0000-0000-000000000001",
   token: "smoke-token",
@@ -90,8 +90,12 @@ function samplePath(route) {
   return `/${out.join("/")}` || "/";
 }
 
-function methodsFromSource(source) {
-  const methods = HTTP_METHODS.filter((method) => new RegExp(`export\\s+async\\s+function\\s+${method}\\b`).test(source));
+export function methodsFromSource(source) {
+  const methods = HTTP_METHODS.filter((method) => {
+    const functionExport = new RegExp(`export\\s+(?:async\\s+)?function\\s+${method}\\b`);
+    const constExport = new RegExp(`export\\s+const\\s+${method}\\s*=`);
+    return functionExport.test(source) || constExport.test(source);
+  });
   return methods.length ? methods : [];
 }
 
@@ -160,7 +164,8 @@ function cachePolicy(auth) {
 function bodyPolicy(methods, source, cls) {
   const mutating = methods.some((method) => ["POST", "PUT", "PATCH", "DELETE"].includes(method));
   if (!mutating) return "no_body_expected";
-  if (/readJsonBodyLimited|parseJsonBodyWithLimit|readRequestBodyLimited|formData\(/.test(source)) return "bounded_or_form_body";
+  if (/readJsonBodyLimited|parseJsonBodyWithLimit|readRequestBodyLimited|readTextBodyLimited|formData\(/.test(source)) return "bounded_or_form_body";
+  if (/rejectUnexpectedBody/.test(source)) return "no_body_rejected";
   if (cls === "webhook") return "signature_bound_raw_body";
   return "body_limit_required";
 }

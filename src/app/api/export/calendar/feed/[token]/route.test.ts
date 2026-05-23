@@ -1,8 +1,14 @@
+import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createAdminClient = vi.fn();
 const buildOrganizationCalendarIcs = vi.fn(async () => "BEGIN:VCALENDAR\nEND:VCALENDAR");
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
+const recordApiRouteAuditEvent = vi.fn();
+
+function sha256(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -16,10 +22,15 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
+vi.mock("@/lib/security/api-mutation-audit", () => ({
+  recordApiRouteAuditEvent,
+}));
+
 describe("GET /api/export/calendar/feed/[token]", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    recordApiRouteAuditEvent.mockResolvedValue("v10-audit-1");
   });
 
   it("returns 404 when token is not found", async () => {
@@ -39,7 +50,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     const res = await GET(req, { params: Promise.resolve({ token: "tok" }) });
     const body = await res.json();
     expect(res.status).toBe(404);
-    expect(body).toEqual({ error: "Feed not found" });
+    expect(body).toMatchObject({ error: "Not found", code: "not_found" });
   });
 
   it("returns 404 when feed is expired or revoked", async () => {
@@ -54,8 +65,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             id: "feed_expired",
             organization_id: "org_1",
             active: true,
-            token: "tok",
-            token_hash: null,
+            token_hash: sha256("tok"),
             expires_at: new Date(Date.now() - 60_000).toISOString(),
             revoked_at: null,
           },
@@ -63,8 +73,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             id: "feed_revoked",
             organization_id: "org_1",
             active: true,
-            token: "tok",
-            token_hash: null,
+            token_hash: sha256("tok"),
             expires_at: null,
             revoked_at: new Date().toISOString(),
           },
@@ -82,7 +91,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     const body = await res.json();
 
     expect(res.status).toBe(404);
-    expect(body).toEqual({ error: "Feed not found" });
+    expect(body).toMatchObject({ error: "Not found", code: "not_found" });
     expect(buildOrganizationCalendarIcs).not.toHaveBeenCalled();
   });
 
@@ -98,8 +107,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             id: "feed_1",
             organization_id: "org_1",
             active: true,
-            token: "tok",
-            token_hash: null,
+            token_hash: sha256("tok"),
             expires_at: null,
             revoked_at: null,
           },
@@ -108,8 +116,9 @@ describe("GET /api/export/calendar/feed/[token]", () => {
       }),
     };
     const updateQuery = {
+      error: null,
       update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ error: null }),
+      eq: vi.fn().mockReturnThis(),
     };
     const from = vi
       .fn()
@@ -124,9 +133,19 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     const res = await GET(req, { params: Promise.resolve({ token: "tok" }) });
     expect(res.status).toBe(200);
     expect(await res.text()).toContain("BEGIN:VCALENDAR");
-    expect(res.headers.get("Cache-Control")).toBe("public, max-age=300, s-maxage=300");
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
     expect(requireApiWorkspaceEligibility).toHaveBeenCalled();
     expect(buildOrganizationCalendarIcs).toHaveBeenCalledWith(expect.anything(), "org_1");
+    expect(recordApiRouteAuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        organizationId: "org_1",
+        actorType: "external",
+        route: "/api/export/calendar/feed/[token]",
+        method: "GET",
+        action: "api.sensitive_read_authorized",
+      })
+    );
   });
 
   it("returns 500 when feed lookup fails", async () => {
@@ -161,8 +180,7 @@ describe("GET /api/export/calendar/feed/[token]", () => {
             id: "feed_1",
             organization_id: "org_1",
             active: true,
-            token: "tok",
-            token_hash: null,
+            token_hash: sha256("tok"),
             expires_at: null,
             revoked_at: null,
           },
@@ -171,8 +189,9 @@ describe("GET /api/export/calendar/feed/[token]", () => {
       }),
     };
     const updateQuery = {
+      error: { message: "write failed" },
       update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ error: { message: "write failed" } }),
+      eq: vi.fn().mockReturnThis(),
     };
     const from = vi
       .fn()
@@ -192,4 +211,3 @@ describe("GET /api/export/calendar/feed/[token]", () => {
     expect(res.headers.get("x-oblixa-diagnostic-id")).toBe("calendar_feed_last_access_update_failed");
   });
 });
-

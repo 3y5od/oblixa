@@ -17,7 +17,9 @@ describe("V9 §9 contract list — URL filters + selection stability anchors", (
 
   it("persists bulk selection across filters/pages with visible off-page counts", () => {
     const table = read("src/components/contracts/contract-table.tsx");
-    expect(table).toContain("oblixa.contract-table.selection:");
+    const storage = read("src/lib/security/client-storage.ts");
+    expect(storage).toContain("oblixa.contract-table.selection:");
+    expect(table).toContain("writeContractTableSelection");
     expect(table).toContain("hiddenSelectedCount");
     expect(table).toMatch(/across pages|filters/i);
   });

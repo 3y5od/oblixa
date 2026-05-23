@@ -175,6 +175,10 @@
     {
       "path": "/api/cron/v10/runtime-artifact-cleanup",
       "schedule": "27 3 * * *"
+    },
+    {
+      "path": "/api/cron/security/retention-cleanup",
+      "schedule": "42 3 * * *"
     }
   ]
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSweepCatalogStats } from "@/lib/debugging-sweep/catalog-index.server";
 import { clientIpMatchesAllowlist, parseInternalDiagAllowlist } from "@/lib/debugging-sweep/internal-diag-allowlist";
 import { getStubsRegisteredCount } from "@/lib/debugging-sweep/stubs/register-stubs";
+import { deepRedactEmailLikeInUnknown } from "@/lib/observability/log-redaction";
 import { createSweepLogger } from "@/lib/observability/logger";
 import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { requireBearerSecret } from "@/lib/security/api-guards";
@@ -16,6 +17,8 @@ const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
   Pragma: "no-cache",
 } as const;
+const INTERNAL_DIAGNOSTIC_KIND = "OblixaDebuggingSweepReport" as const;
+const SAFE_LOCALE_RE = /^[a-z]{2,3}(?:-[a-z0-9]{2,8})?$/;
 
 function sortKeysDeep(value: unknown): unknown {
   if (value === null || typeof value !== "object") {
@@ -35,31 +38,42 @@ function sortKeysDeep(value: unknown): unknown {
 function negotiatedLocale(acceptLanguage: string | null): string {
   if (!acceptLanguage?.trim()) return "en";
   const first = acceptLanguage.split(",")[0]?.trim().split(";")[0]?.trim().toLowerCase();
-  return (first && first.slice(0, 8)) || "en";
+  if (!first) return "en";
+  const candidate = first.slice(0, 12);
+  return SAFE_LOCALE_RE.test(candidate) ? candidate : "en";
+}
+
+function sanitizeDiagnosticPayload(value: unknown): unknown {
+  return sortKeysDeep(deepRedactEmailLikeInUnknown(value));
+}
+
+function diagnosticResponse(
+  status: number,
+  body: Record<string, unknown>,
+  headers: Record<string, string> = NO_STORE_HEADERS
+): NextResponse {
+  return new NextResponse(JSON.stringify(sanitizeDiagnosticPayload(body), null, 2), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...headers,
+    },
+  });
 }
 
 export async function GET(request: Request) {
   const errors: { code: string; detail: string }[] = [];
 
   if (process.env.OBLIXA_DEBUGGING_SWEEP_ENDPOINT !== "1") {
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport", disabled: true }), {
-      status: 404,
-      headers: NO_STORE_HEADERS,
-    });
+    return diagnosticResponse(404, { errors, kind: INTERNAL_DIAGNOSTIC_KIND, disabled: true });
   }
 
   const auth = requireBearerSecret(request, "OBLIXA_INTERNAL_DIAG_SECRET", {
     missingSecretResponse: () =>
-      NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport", disabled: true }), {
-        status: 404,
-        headers: NO_STORE_HEADERS,
-      }),
+      diagnosticResponse(404, { errors, kind: INTERNAL_DIAGNOSTIC_KIND, disabled: true }),
     unauthorizedResponse: () => {
       errors.push({ code: "UNAUTHORIZED", detail: "invalid or missing bearer" });
-      return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
-        status: 403,
-        headers: NO_STORE_HEADERS,
-      });
+      return diagnosticResponse(403, { errors, kind: INTERNAL_DIAGNOSTIC_KIND });
     },
   });
   if (auth) return auth;
@@ -68,12 +82,9 @@ export async function GET(request: Request) {
   const rl = await rateLimitCheck(`internal-debugging-sweep:${ip}`, RATE_LIMITS.internalDebuggingSweep);
   if (!rl.ok) {
     errors.push({ code: "RATE_LIMITED", detail: "retry later" });
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
-      status: 429,
-      headers: {
-        ...NO_STORE_HEADERS,
-        "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)),
-      },
+    return diagnosticResponse(429, { errors, kind: INTERNAL_DIAGNOSTIC_KIND }, {
+      ...NO_STORE_HEADERS,
+      "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)),
     });
   }
 
@@ -81,23 +92,17 @@ export async function GET(request: Request) {
   if (!allow.ok) {
     errors.push({ code: allow.code, detail: "allowlist parse error" });
     log.error("internal diagnostics allowlist invalid");
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
-      status: 403,
-      headers: NO_STORE_HEADERS,
-    });
+    return diagnosticResponse(403, { errors, kind: INTERNAL_DIAGNOSTIC_KIND });
   }
   if (!clientIpMatchesAllowlist(ip, allow.rules)) {
     errors.push({ code: "FORBIDDEN_IP", detail: "not in allowlist" });
-    return NextResponse.json(sortKeysDeep({ errors, kind: "OblixaDebuggingSweepReport" }), {
-      status: 403,
-      headers: NO_STORE_HEADERS,
-    });
+    return diagnosticResponse(403, { errors, kind: INTERNAL_DIAGNOSTIC_KIND });
   }
 
   const catalog = getSweepCatalogStats();
   const body = {
     errors,
-    kind: "OblixaDebuggingSweepReport" as const,
+    kind: INTERNAL_DIAGNOSTIC_KIND,
     catalogVersion: catalog.catalogVersion,
     invariantBuildId: catalog.invariantBuildId,
     negotiatedLocale: negotiatedLocale(request.headers.get("accept-language")),
@@ -133,11 +138,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return new NextResponse(JSON.stringify(sortKeysDeep(body), null, 2), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...NO_STORE_HEADERS,
-    },
-  });
+  return diagnosticResponse(200, body);
 }

@@ -4,7 +4,6 @@ import * as Sentry from "@sentry/nextjs";
 export const SENTRY_SWEEP_MAX_TAGS = 50;
 
 const HAS_SERVER_DSN = Boolean(process.env.SENTRY_DSN?.trim());
-const HAS_CLIENT_DSN = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN?.trim());
 
 export function captureServerException(
   error: unknown,
@@ -20,14 +19,6 @@ export function captureServerMessage(
 ): void {
   if (!HAS_SERVER_DSN) return;
   Sentry.captureMessage(message, context);
-}
-
-export function captureClientException(
-  error: unknown,
-  context?: Parameters<typeof Sentry.captureException>[1]
-): void {
-  if (!HAS_CLIENT_DSN) return;
-  Sentry.captureException(error, context);
 }
 
 export function truncateSweepTag(value: string, max = 200): string {

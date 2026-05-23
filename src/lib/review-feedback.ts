@@ -81,29 +81,21 @@ export function buildFieldReviewStatusMessage(params: {
   fieldLabel?: string;
 }): string {
   const { pendingCount, action, fieldLabel } = params;
-  const fieldPrefix = fieldLabel ? `${fieldLabel} ` : "Field ";
-  const backlogLabel = `${pendingCount} field${pendingCount === 1 ? "" : "s"}`;
-  const backlogVerb = pendingCount === 1 ? "remains" : "remain";
-  if (pendingCount > 0) {
-    if (action === "rejected") {
-      return `${fieldPrefix}marked unresolved. ${backlogLabel} still need review before reminders or downstream work should rely on this contract.`;
-    }
-    if (action === "approved") {
-      return `${fieldPrefix}approved. ${backlogLabel} ${backlogVerb} in review, and reminder or work state will refresh from the latest approved values.`;
-    }
-    if (action === "edited") {
-      return `${fieldPrefix}updated. ${backlogLabel} still need review, and downstream data quality will improve on the next refresh.`;
-    }
-    return `Saved. ${backlogLabel} still need review before reminders or downstream work should rely on this contract.`;
-  }
-  if (action === "rejected") {
-    return `${fieldPrefix}marked unresolved. Review is clear, and the contract is ready for the next downstream refresh.`;
-  }
-  if (action === "approved") {
-    return `${fieldPrefix}approved. Review is clear, and reminders or downstream workflow can now rely on the latest approved record.`;
-  }
-  if (action === "edited") {
-    return `${fieldPrefix}updated. Review is clear, and the extracted record is ready for downstream workflow.`;
-  }
-  return "Saved. Review is clear and the extracted record is ready for downstream workflow.";
+  const prefix = fieldLabel
+    ? `${fieldLabel.charAt(0).toUpperCase()}${fieldLabel.slice(1)} `
+    : "Field ";
+  const remaining =
+    pendingCount > 0
+      ? `${pendingCount} field${pendingCount === 1 ? "" : "s"} remaining.`
+      : "Review complete.";
+  const verb =
+    action === "approved"
+      ? "approved"
+      : action === "rejected"
+        ? "marked unknown"
+        : action === "edited"
+          ? "updated"
+          : null;
+  if (verb) return `${prefix}${verb}. ${remaining}`;
+  return `Saved. ${remaining}`;
 }

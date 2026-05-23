@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Activity, Layers, Mail, Package } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Activity, History, Layers, Mail, Package } from "lucide-react";
 import { ExternalLink } from "@/components/ui/external-link";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
@@ -86,10 +88,13 @@ export default async function ReportsHistoryPage(props: {
     allowedPackIds.has(String((r as { report_pack_id: string }).report_pack_id))
   );
 
-  const selectedRunId = runId || runs?.[0]?.id || null;
   const runRows = runs ?? [];
   const failedDigestRuns = runRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
   const failedPackRuns = packRunRows.filter((r) => String(r.status).toLowerCase() === "failed").length;
+
+  if (workspaceMode === "core") redirect("/reports");
+
+  const selectedRunId = runId || runs?.[0]?.id || null;
   const { data: recipients } = selectedRunId
     ? await admin
         .from("report_run_recipients")
@@ -116,15 +121,12 @@ export default async function ReportsHistoryPage(props: {
 
   return (
     <div className="space-y-8">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Reporting</p>
-          <h1 className="ui-display-title mt-2">Digest run history</h1>
-          <p className="ui-page-lead mt-2">
-            Review report runs and recipient delivery/open/click engagement.
-          </p>
-        </div>
-      </header>
+      <DashboardPageHeader
+        icon={<History className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Reporting"
+        title="Digest run history"
+        lead="Review report runs and recipient delivery/open/click engagement."
+      />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <OperationalSummaryCard
           eyebrow="Digest"
@@ -183,7 +185,7 @@ export default async function ReportsHistoryPage(props: {
             <p className="ui-support-copy mt-1">Create, annotate, and schedule report packs from the same control surface that shows downstream run history and delivery state.</p>
           </div>
           <form action={createReportPackFormAction} className="grid gap-2 border-b border-[var(--border-subtle)] px-5 py-4 md:grid-cols-2">
-            <input name="name" required placeholder="Weekly execution health" className="ui-input" />
+            <input aria-label="Weekly execution health" name="name" required placeholder="Weekly execution health" className="ui-input" />
             <select
               name="reportType"
               className="ui-input"
@@ -195,10 +197,10 @@ export default async function ReportsHistoryPage(props: {
                 </option>
               ))}
             </select>
-            <input name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
+            <input aria-label="15 * * * * (UTC minute hour …) — empty = every cron run" name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
             <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)] md:col-span-2">
-              <input type="checkbox" name="emitWebhooks" className="rounded border-[var(--border-strong)]" />
-              Emit <code className="text-[10px]">report_pack.generated</code> webhook when a run is recorded
+              <input aria-label="Emit webhooks" type="checkbox" name="emitWebhooks" className="ui-checkbox" />
+              Emit <code className="text-[11px]">report_pack.generated</code> webhook when a run is recorded
             </label>
             <button type="submit" className="ui-btn-secondary px-4 py-2 text-xs">
               Create report pack
@@ -264,10 +266,9 @@ export default async function ReportsHistoryPage(props: {
                   <form action={createSubscriptionFormAction} className="space-y-1 border-t border-[var(--border-subtle)] pt-2">
                     <input type="hidden" name="reportPackId" value={pack.id} />
                     <p className="text-[11px] font-medium text-[var(--text-secondary)]">New subscription</p>
-                    <input name="audienceLabel" placeholder="Audience label" className="ui-input text-[11px]" />
-                    <input name="scheduleCron" placeholder="Cron e.g. 0 9 * * MON" className="ui-input text-[11px]" />
-                    <input
-                      name="recipientEmails"
+                    <input aria-label="Audience label" name="audienceLabel" placeholder="Audience label" className="ui-input text-[11px]" />
+                    <input aria-label="Cron e.g. 0 9 * * MON" name="scheduleCron" placeholder="Cron e.g. 0 9 * * MON" className="ui-input text-[11px]" />
+                    <input aria-label="emails comma-separated" name="recipientEmails"
                       placeholder="emails comma-separated"
                       className="ui-input text-[11px]"
                     />

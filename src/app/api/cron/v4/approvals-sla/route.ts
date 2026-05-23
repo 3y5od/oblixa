@@ -96,7 +96,8 @@ export const GET = withCronRoute({
           escalation_status: isBreached ? "pending" : "none",
           escalation_at: isBreached ? nowIso : null,
         })
-        .eq("id", row.id);
+        .eq("id", row.id)
+        .eq("organization_id", row.organization_id);
 
       if (isBreached) {
         breaches += 1;

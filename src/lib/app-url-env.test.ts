@@ -11,18 +11,28 @@ vi.mock("@/lib/security/worker-url", () => ({
   isSafeExtractionWorkerOrigin: (url: string) => isSafeExtractionWorkerOriginMock(url),
 }));
 
+function restoreEnv(key: string, value: string | undefined) {
+  if (value === undefined) delete process.env[key];
+  else process.env[key] = value;
+}
+
 describe("app-url env helpers", () => {
   const prevApp = process.env.NEXT_PUBLIC_APP_URL;
   const prevWorker = process.env.EXTRACTION_WORKER_BASE_URL;
+  const prevTrusted = process.env.OBLIXA_TRUSTED_APP_ORIGINS;
+  const prevNodeEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
     vi.resetModules();
     isSafeExtractionWorkerOriginMock.mockReturnValue(true);
+    restoreEnv("NODE_ENV", prevNodeEnv);
   });
 
   afterEach(() => {
-    process.env.NEXT_PUBLIC_APP_URL = prevApp;
-    process.env.EXTRACTION_WORKER_BASE_URL = prevWorker;
+    restoreEnv("NEXT_PUBLIC_APP_URL", prevApp);
+    restoreEnv("EXTRACTION_WORKER_BASE_URL", prevWorker);
+    restoreEnv("OBLIXA_TRUSTED_APP_ORIGINS", prevTrusted);
+    restoreEnv("NODE_ENV", prevNodeEnv);
     vi.resetModules();
   });
 
@@ -50,5 +60,13 @@ describe("app-url env helpers", () => {
     expect(origin).toBe("https://app.test");
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
+  });
+
+  it("returns null for localhost canonical origin in production-like env", async () => {
+    restoreEnv("NODE_ENV", "production");
+    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
+    process.env.OBLIXA_TRUSTED_APP_ORIGINS = "";
+    const { getCanonicalAppBaseUrlFromEnv } = await import("@/lib/app-url");
+    expect(getCanonicalAppBaseUrlFromEnv()).toBeNull();
   });
 });

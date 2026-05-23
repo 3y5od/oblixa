@@ -76,7 +76,10 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   // Settings extensions (not §10.1 list but product-visible)
   { pattern: "/settings/product", tier: "edge", refinementRef: "appendix" },
   { pattern: "/settings/health", tier: "edge", refinementRef: "appendix" },
+  { pattern: "/settings/health/diagnostics", tier: "edge", refinementRef: "appendix" },
   { pattern: "/settings/policy", tier: "edge", refinementRef: "appendix" },
+  { pattern: "/settings/policy/diagnostics", tier: "edge", refinementRef: "appendix" },
+  { pattern: "/settings/policy/registry", tier: "edge", refinementRef: "appendix" },
   // Persona (appendix)
   { pattern: "/dashboard/persona", tier: "edge", refinementRef: "appendix" },
 ];

@@ -197,14 +197,14 @@ export async function recomputeScorecards(admin: AdminClient, orgId: string) {
 
   const { data: accounts } = await admin
     .from("contracts")
-    .select("linked_account_key")
+    .select("account_key")
     .eq("organization_id", orgId)
-    .not("linked_account_key", "is", null)
+    .not("account_key", "is", null)
     .limit(500);
 
   const acCounts = new Map<string, number>();
   for (const row of accounts ?? []) {
-    const ak = String((row as { linked_account_key?: string }).linked_account_key ?? "").trim();
+    const ak = String((row as { account_key?: string }).account_key ?? "").trim();
     if (!ak) continue;
     acCounts.set(ak, (acCounts.get(ak) ?? 0) + 1);
   }

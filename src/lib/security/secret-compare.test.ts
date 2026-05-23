@@ -13,6 +13,11 @@ describe("secureCompareUtf8", () => {
   it("compares different lengths without throwing", () => {
     expect(secureCompareUtf8("short", "much-longer-secret-value")).toBe(false);
   });
+
+  it("uses digest-length timingSafeEqual semantics for bearer secrets", () => {
+    expect(secureCompareUtf8("Bearer secret-a", "Bearer secret-b")).toBe(false);
+    expect(secureCompareUtf8("same-token", "same-token")).toBe(true);
+  });
 });
 
 describe("parseBearerToken", () => {

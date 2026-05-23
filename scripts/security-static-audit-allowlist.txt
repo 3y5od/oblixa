@@ -2,8 +2,10 @@
 # grep-based checks in scripts/security-static-audit.mjs skip that file.
 # Add only documented false positives; prefer fixing the code.
 # JSON-LD only: serialized with serializeJsonLdForInlineScript (no raw user HTML).
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=json_ld_components_use_safe_serialization_for_inline_structured_data compensatingTest=scripts/security-static-audit.mjs
 src/components/landing/landing-json-ld.tsx
 src/components/landing/legal-page-json-ld.tsx
 # V9 static tests: intentionally scan source for the string "dangerouslySetInnerHTML" (forbidden-API guard).
+# meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=v9_tests_intentionally_contain_forbidden_api_literal_for_static_guard_coverage compensatingTest=scripts/security-static-audit.mjs
 src/lib/v9-dashboard-no-dangerous-html.v9.test.ts
 src/lib/v9-user-generated-content-surfaces.v9.test.ts

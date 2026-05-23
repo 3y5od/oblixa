@@ -39,4 +39,14 @@ describe("watchlists actions", () => {
     await removeWatchlistEntry("bad-id");
     expect(localFrom).not.toHaveBeenCalled();
   });
+
+  it("upsertWatchlistEntryForm rejects unsafe note text before access queries", async () => {
+    getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    const { upsertWatchlistEntryForm } = await import("@/actions/watchlists");
+    const fd = new FormData();
+    fd.set("contractId", "550e8400-e29b-41d4-a716-446655440000");
+    fd.set("note", "safe-looking\u202Ehidden");
+    await upsertWatchlistEntryForm(fd);
+    expect(wlMocks.adminFrom).not.toHaveBeenCalled();
+  });
 });

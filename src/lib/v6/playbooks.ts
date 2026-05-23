@@ -322,22 +322,33 @@ export async function approveAndContinuePlaybookRun(
     sourceFindingId: (run as { source_finding_id?: string | null }).source_finding_id ?? null,
   };
 
+  const approvedAt = nowIso();
+  const { data: claimedRun, error: claimErr } = await admin
+    .from("adaptive_playbook_runs")
+    .update({
+      status: "running",
+      result_json: { approved_at: approvedAt, approved_by: userId },
+    })
+    .eq("organization_id", orgId)
+    .eq("id", runId)
+    .eq("status", "awaiting_approval")
+    .select("id, status")
+    .maybeSingle();
+  if (claimErr || !claimedRun) {
+    return { data: null, error: claimErr ?? { message: "run_not_awaiting_approval" } };
+  }
+
   await admin
     .from("adaptive_playbook_steps")
     .update({
       status: "completed",
-      output_json: { approved: true, approved_by: userId, at: nowIso() },
-      completed_at: nowIso(),
+      output_json: { approved: true, approved_by: userId, at: approvedAt },
+      completed_at: approvedAt,
     })
     .eq("organization_id", orgId)
     .eq("playbook_run_id", runId)
     .eq("step_key", "approval")
     .eq("status", "pending");
-
-  await updateRowById(admin, "adaptive_playbook_runs", orgId, runId, {
-    status: "running",
-    result_json: { approved_at: nowIso(), approved_by: userId },
-  });
 
   const { data: orderRow } = await admin
     .from("adaptive_playbook_steps")

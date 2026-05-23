@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/v4/api-auth";
 import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
@@ -13,15 +14,16 @@ import {
   ensureCounterpartyWorkspaceFromContracts,
   ensureTimelineForCounterparty,
 } from "@/lib/v5/relationship-bootstrap";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/counterparties/[key]/summary";
 
 /** `key` is the counterparty_key string (same as /counterparties/[key] pages), not the workspace row UUID. */
 export async function GET(_request: Request, { params }: { params: Promise<{ key: string }> }) {
   const disabled = requireV5ApiFeature("v5RelationshipLayer");
   if (disabled) return disabled;
-  const { key: rawKey } = await params;
-  const counterpartyKey = decodeURIComponent(rawKey);
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -35,13 +37,24 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
     ctx.role as WorkspaceRole
   );
 
+  const { key: rawKey } = await params;
+
+  const routeParamRejection = rejectUnsafeRouteParams({ key: rawKey }, ["key"], "/api/counterparties/[key]/summary");
+
+  if (routeParamRejection) return routeParamRejection;
+  const counterpartyKey = decodeURIComponent(rawKey);
   const ensured = await ensureCounterpartyWorkspaceFromContracts(
     ctx.admin,
     ctx.orgId,
     counterpartyKey
   );
   if (!ensured) {
-    return NextResponse.json({ error: "Unable to resolve counterparty workspace" }, { status: 400 });
+    return jsonProblem(400, {
+      error: "Unable to resolve counterparty workspace",
+      code: "counterparty_workspace_resolve_failed",
+      diagnostic_id: "counterparty_workspace_resolve_failed",
+      route: ROUTE,
+    });
   }
 
   const [{ data: workspace, error }, { data: contracts }] = await Promise.all([
@@ -59,7 +72,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
       .order("updated_at", { ascending: false })
       .limit(200),
   ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "counterparty_workspace_load_failed",
+      diagnostic_id: "counterparty_workspace_load_failed",
+      route: ROUTE,
+    });
+  }
 
   const timelineId = await ensureTimelineForCounterparty(
     ctx.admin,

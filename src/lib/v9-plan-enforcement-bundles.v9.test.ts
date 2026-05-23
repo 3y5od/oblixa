@@ -225,11 +225,17 @@ describe("V9 plan enforcement bundles", () => {
       expect("Oblixa V9 must be better, not bigger.").toContain("better, not bigger");
     });
 
-    it("does not add a dedicated public /pricing app route tree", () => {
+    it("only renders pricing under the public (marketing) segment", () => {
+      // v1 release-state spec mandates a public /pricing marketing page.
+      // The original v9 constraint forbade in-app pricing surfaces — that
+      // still holds; we just allow the marketing-tree page that the
+      // release-state spec requires.
       const appRoot = join(process.cwd(), "src", "app");
       const pricingDirs = walkDirsWithName(appRoot, "pricing");
       const pageUnderPricing = pricingDirs.filter((d) => existsSync(join(d, "page.tsx")));
-      expect(pageUnderPricing, "unexpected public pricing route").toHaveLength(0);
+      for (const dir of pageUnderPricing) {
+        expect(dir, "pricing route must live under (marketing) only").toContain("(marketing)");
+      }
     });
   });
 

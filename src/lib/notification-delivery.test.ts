@@ -18,11 +18,13 @@ type DeliveryRow = {
 
 const sendReminderEmailMock = vi.fn();
 const sendSavedViewSummaryEmailMock = vi.fn();
+const sendReviewBoardPacketEmailMock = vi.fn();
 const safeFetchMock = vi.fn();
 
 vi.mock("@/lib/email", () => ({
   sendReminderEmail: sendReminderEmailMock,
   sendSavedViewSummaryEmail: sendSavedViewSummaryEmailMock,
+  sendReviewBoardPacketEmail: sendReviewBoardPacketEmailMock,
 }));
 
 vi.mock("@/lib/security/safe-fetch", () => ({
@@ -190,6 +192,7 @@ describe("notification-delivery", () => {
   beforeEach(() => {
     sendReminderEmailMock.mockReset();
     sendSavedViewSummaryEmailMock.mockReset();
+    sendReviewBoardPacketEmailMock.mockReset();
     safeFetchMock.mockReset();
   });
 
@@ -318,7 +321,7 @@ describe("notification-delivery", () => {
       notificationType: "reminder_due",
       recipient: "ops@example.com",
       subject: "Reminder",
-      metadata: { blob: "x".repeat(20_000) },
+      metadata: { blob: Array.from({ length: 30 }, () => "x".repeat(2000)) },
       maxAttempts: 3,
       retryPayload: {
         kind: "reminder_due",
@@ -337,6 +340,40 @@ describe("notification-delivery", () => {
     const retryPayload = metadata.retry_payload as Record<string, unknown>;
     expect(String(retryPayload.contractTitle).length).toBeLessThanOrEqual(240);
     expect(String(retryPayload.sourceSnippet).length).toBeLessThanOrEqual(2000);
+  });
+
+  it("redacts sensitive metadata, retry payload text, and stored Slack webhook URLs", async () => {
+    const { deliverWithRetries } = await import("@/lib/notification-delivery");
+    const { client, rows } = createFakeAdmin([]);
+    await deliverWithRetries(client as never, {
+      organizationId: "org-1",
+      channel: "slack",
+      notificationType: "automation_rule",
+      subject: "Bearer subject-secret-token",
+      metadata: {
+        access_token: "metadata-token",
+        nested: { private_url: "https://files.test/private.pdf?token=abc&signature=def" },
+      },
+      maxAttempts: 3,
+      retryPayload: {
+        kind: "slack_workflow",
+        webhookUrl: "https://hooks.slack.com/services/T000/B000/SECRET",
+        title: "Bearer title-secret-token",
+        body: "Download https://files.test/a.pdf?token=abc",
+        metadata: { cookie: "session=secret" },
+      },
+      send: async () => ({ error: null }),
+    });
+    const row = rows[0]!;
+    const metadata = row.metadata as Record<string, unknown>;
+    const retryPayload = metadata.retry_payload as Record<string, unknown>;
+    expect(row.subject).toBe("Bearer [redacted]");
+    expect(metadata.access_token).toBe("[redacted]");
+    expect(metadata.nested).toMatchObject({ private_url: "[redacted]" });
+    expect(retryPayload.webhookUrl).toBe("[redacted]");
+    expect(retryPayload.title).toBe("Bearer [redacted]");
+    expect(String(retryPayload.body)).toContain("token=[redacted]");
+    expect(retryPayload.metadata).toMatchObject({ cookie: "[redacted]" });
   });
 
   it("short-circuits terminal errors without extra retries", async () => {

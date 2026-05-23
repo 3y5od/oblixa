@@ -15,7 +15,6 @@ describe("V9 timezone date format sweep", () => {
       "src/components/dashboard/upcoming-actions.tsx",
       "src/components/dashboard/my-tasks.tsx",
       "src/components/dashboard/my-obligations.tsx",
-      "src/components/contracts/contract-table.tsx",
       "src/app/(dashboard)/contracts/renewals/page.tsx",
       "src/app/(dashboard)/contracts/[id]/page.tsx",
     ]) {

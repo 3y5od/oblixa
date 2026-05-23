@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
+import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+
+const ROUTE = "/api/maintenance/campaigns";
 
 export async function POST(request: Request) {
   const ctx = await getApiAuthContext();
-  if (!ctx) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!ctx) return jsonUnauthorized(ROUTE);
+  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
+    return jsonForbidden(ROUTE);
+  }
   const modeGate = await requireApiWorkspaceEligibility({
     admin: ctx.admin,
     orgId: ctx.orgId,
@@ -13,9 +21,19 @@ export async function POST(request: Request) {
     apiPath: "/api/maintenance/campaigns",
   });
   if (modeGate) return modeGate;
-  if (!(await canManageCapability(ctx, "maintenance_manage"))) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.maintenance.campaigns",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
+  void recordApiMutationAuditEvent(ctx.admin, {
+    organizationId: ctx.orgId,
+    actorUserId: ctx.userId,
+    route: "/api/maintenance/campaigns",
+    method: "POST",
+  }).catch(() => undefined);
 
   const _lb_body = await readJsonBodyLimited(request);
   if (!_lb_body.ok) return _lb_body.response;
@@ -26,7 +44,14 @@ export async function POST(request: Request) {
     seedContractIds?: string[];
   };
   const name = String(body.name ?? "").trim();
-  if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+  if (!name) {
+    return jsonProblem(400, {
+      error: "name is required",
+      code: "name_required",
+      diagnostic_id: "maintenance_campaign_name_required",
+      route: ROUTE,
+    });
+  }
 
   const { data: campaign, error } = await ctx.admin
     .from("maintenance_campaigns")
@@ -40,7 +65,14 @@ export async function POST(request: Request) {
     })
     .select("id, name, campaign_type, status, created_at")
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "maintenance_campaign_create_failed",
+      diagnostic_id: "maintenance_campaign_create_failed",
+      route: ROUTE,
+    });
+  }
 
   let validSeedIds: string[] = [];
   if (Array.isArray(body.seedContractIds) && body.seedContractIds.length > 0) {

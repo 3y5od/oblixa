@@ -42,7 +42,7 @@ describe("observability sentry helpers", () => {
   });
 
   it("captureClientException no-ops without client DSN", async () => {
-    const { captureClientException } = await import("@/lib/observability/sentry");
+    const { captureClientException } = await import("@/lib/observability/sentry-client");
     captureClientException(new Error("y"));
     expect(captureException).not.toHaveBeenCalled();
   });
@@ -50,7 +50,7 @@ describe("observability sentry helpers", () => {
   it("captureClientException forwards when NEXT_PUBLIC_SENTRY_DSN is set", async () => {
     process.env.NEXT_PUBLIC_SENTRY_DSN =
       "https://examplePublicKey@o0.ingest.sentry.io/0";
-    const { captureClientException } = await import("@/lib/observability/sentry");
+    const { captureClientException } = await import("@/lib/observability/sentry-client");
     const err = new Error("client");
     captureClientException(err);
     expect(captureException).toHaveBeenCalledWith(err, undefined);

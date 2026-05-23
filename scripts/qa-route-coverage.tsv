@@ -19,7 +19,10 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /settings/security	y	y	authenticated	pending_human	y	0	n	settings_segment_loading
 /settings/billing	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
 /settings/health	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
+/settings/health/diagnostics	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
 /settings/policy	y	y	authenticated	pending_human	n	0	n	
+/settings/policy/diagnostics	n	n	authenticated	pending_human	n	0	n	tier3_axe_candidate
+/settings/policy/registry	n	n	authenticated	pending_human	n	0	n	tier3_axe_candidate
 /settings/product	n	n	authenticated,onboarding_calibration_e2e	pending_human	n	0	n	calibration_summary_export_e2e
 /onboarding/calibration	n	n	authenticated,onboarding_calibration_e2e,security_api	pending_human	y	0	n	blocking_fixture_optional_e2e_onboarding_env
 /decisions	y	y	authenticated,v5,v6	pending_human	y	0	n	decisions_segment_loading

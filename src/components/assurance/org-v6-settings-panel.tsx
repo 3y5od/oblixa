@@ -68,6 +68,7 @@ export function OrgV6SettingsPanel({
       <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--text-secondary)]">
         <input
           type="checkbox"
+          className="ui-checkbox"
           checked={autopilotOn}
           onChange={(e) => setAutopilotOn(e.target.checked)}
         />

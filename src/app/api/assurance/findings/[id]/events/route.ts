@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { toSafeString } from "@/lib/v5/api";
 import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
 import { requireV6Context } from "@/lib/v6/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+
+const ROUTE = "/api/assurance/findings/[id]/events";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -25,6 +29,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   );
 
   const findingId = toSafeString((await params).id);
+
+  const routeParamRejection = rejectUnsafeRouteParams({ id: findingId }, ["id"], "/api/assurance/findings/[id]/events");
+
+  if (routeParamRejection) return routeParamRejection;
   const { data: finding } = await ctx.admin
     .from("assurance_findings")
     .select("id")
@@ -32,7 +40,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .eq("id", findingId)
     .maybeSingle();
   if (!finding) {
-    return NextResponse.json({ error: "finding_not_found" }, { status: 404 });
+    return jsonNotFound(ROUTE);
   }
 
   const { data: events, error } = await ctx.admin
@@ -43,6 +51,13 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .order("created_at", { ascending: false })
     .limit(200);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    return jsonProblem(400, {
+      error: error.message,
+      code: "assurance_finding_events_list_failed",
+      diagnostic_id: "assurance_finding_events_list_failed",
+      route: ROUTE,
+    });
+  }
   return NextResponse.json({ events: events ?? [] });
 }

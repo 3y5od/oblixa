@@ -4,6 +4,8 @@ import { externalLinkRelAndReferrer, sanitizeExternalHref } from "./safe-externa
 describe("sanitizeExternalHref", () => {
   it("blocks javascript and data URLs", () => {
     expect(sanitizeExternalHref("javascript:alert(1)")).toBeNull();
+    expect(sanitizeExternalHref(" javaScript :alert(1)")).toBeNull();
+    expect(sanitizeExternalHref("java\nscript:alert(1)")).toBeNull();
     expect(sanitizeExternalHref("data:text/html,<script>")).toBeNull();
     expect(sanitizeExternalHref("vbscript:msgbox(1)")).toBeNull();
     expect(sanitizeExternalHref("file:///etc/passwd")).toBeNull();
@@ -13,6 +15,13 @@ describe("sanitizeExternalHref", () => {
     expect(sanitizeExternalHref("https://example.com/x")).toBe("https://example.com/x");
     expect(sanitizeExternalHref("http://example.com/x")).toBe("http://example.com/x");
     expect(sanitizeExternalHref("/contracts/1")).toBe("/contracts/1");
+  });
+
+  it("rejects control characters and protocol-relative URLs", () => {
+    expect(sanitizeExternalHref("https://exa\nmple.com/x")).toBeNull();
+    expect(sanitizeExternalHref("/contracts/\u00001")).toBeNull();
+    expect(sanitizeExternalHref("https://example.com/\u007f")).toBeNull();
+    expect(sanitizeExternalHref("//evil.example/path")).toBeNull();
   });
 
   it("allows hash-only anchors", () => {

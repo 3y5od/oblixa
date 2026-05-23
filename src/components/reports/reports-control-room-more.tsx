@@ -53,7 +53,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
           <p className="ui-muted-tight mt-1">Active assignment row counts per program.</p>
           <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
             <table className="min-w-full text-left text-sm text-[var(--text-secondary)]">
-              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                 <tr>
                   <th className="px-3 py-2">Program</th>
                   <th className="px-3 py-2">Active assignments</th>
@@ -87,7 +87,7 @@ export function ReportsPortfolioAnalyticsSection(props: {
           <p className="ui-muted-tight mt-1">Contracts with exceptions, grouped by counterparty key.</p>
           <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
             <table className="min-w-full text-left text-sm text-[var(--text-secondary)]">
-              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+              <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
                 <tr>
                   <th className="px-3 py-2">Counterparty</th>
                   <th className="px-3 py-2">Open / in progress</th>
@@ -423,7 +423,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
       ) : null}
       {outcomeIntel && !outcomeIntel.error && outcomeIntel.summary ? (
         <div className="ui-support-panel mt-4 p-4 text-sm text-[var(--text-secondary)] dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Portfolio summary</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Portfolio summary</p>
           <div className="mt-2 flex flex-wrap gap-2" role="list">
             <OperationalMetricChip
               label="Avg effectiveness"
@@ -440,7 +440,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
       ) : null}
       {outcomeIntel && !outcomeIntel.error && (outcomeIntel.weeklyEffectiveness?.length ?? 0) > 0 ? (
         <div className="ui-support-panel mt-4 p-4 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
             Effectiveness by month
           </p>
           <ul className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
@@ -455,7 +455,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
       ) : null}
       {outcomeDrilldown && outcomeDrilldown.rows.length > 0 ? (
         <div className="ui-support-panel mt-4 p-4 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Recent analyses</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Recent analyses</p>
           <ul className="mt-2 space-y-2 text-xs text-[var(--text-secondary)]">
             {outcomeDrilldown.rows.map((row: OutcomeInterventionRow) => (
               <li key={row.id} className="ui-soft-details px-2 py-1.5 dark:bg-[color:color-mix(in_oklab,var(--surface-raised)_35%,transparent)]">

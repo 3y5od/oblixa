@@ -10,6 +10,9 @@ create index if not exists idx_contracts_counterparty_trgm
 create index if not exists idx_contracts_type_trgm
   on public.contracts using gin (contract_type gin_trgm_ops);
 
+alter table public.contracts
+  add column if not exists search_document text;
+
 create index if not exists idx_contracts_search_document_trgm
   on public.contracts using gin (search_document gin_trgm_ops);
 

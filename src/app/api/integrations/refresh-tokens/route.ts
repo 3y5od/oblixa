@@ -4,6 +4,7 @@ import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
+import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -76,7 +77,7 @@ export const GET = withCronRoute({
       (from, to) =>
         admin
           .from("integration_connections")
-          .select("id, provider, refresh_token, token_expires_at, config_json")
+          .select("id, organization_id, provider, refresh_token, token_expires_at, config_json")
           .eq("status", "connected")
           .not("refresh_token", "is", null)
           .lte("token_expires_at", soonIso)
@@ -250,6 +251,16 @@ export const GET = withCronRoute({
               }
             );
             if (wroteState) refreshed++;
+            if (wroteState && row.organization_id) {
+              void recordApiRouteAuditEvent(admin, {
+                organizationId: String(row.organization_id),
+                actorUserId: null,
+                actorType: "system",
+                route: "/api/integrations/refresh-tokens",
+                method: "GET",
+                action: "api.mutation_authorized",
+              }).catch(() => undefined);
+            }
           } catch (err) {
             failed++;
             await updateConnectionState(

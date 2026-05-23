@@ -23,6 +23,7 @@ describe("POST /api/stripe/webhook", () => {
       ok: true,
       stripe: {} as Stripe,
       priceId: "price_test",
+      monthlyPriceId: null,
     });
     const { POST } = await import("@/app/api/stripe/webhook/route");
     const res = await POST(
@@ -33,6 +34,6 @@ describe("POST /api/stripe/webhook", () => {
     );
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body).toEqual({ error: "Missing signature" });
+    expect(body).toMatchObject({ error: "Missing signature" });
   });
 });

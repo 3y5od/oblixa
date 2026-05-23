@@ -2,15 +2,14 @@
  * Optional IP allowlist for internal diagnostics (exact host strings or IPv4 CIDR).
  * Fail closed on malformed env.
  */
+import { isIP } from "node:net";
 
 export type InternalDiagAllowlistResult =
   | { ok: true; rules: string[] }
   | { ok: false; code: "DIAG_IPLIST_INVALID" };
 
 function isIpv4(s: string): boolean {
-  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s);
-  if (!m) return false;
-  return m.slice(1, 5).every((x) => Number(x) <= 255);
+  return isIP(s) === 4;
 }
 
 function ipv4ToInt(s: string): number {
@@ -27,6 +26,14 @@ function ipv4InCidr(ip: string, cidr: string): boolean {
   return (ipv4ToInt(ip) & mask) === (ipv4ToInt(base) & mask);
 }
 
+function isValidIpv4Cidr(rule: string): boolean {
+  const match = /^(\d{1,3}(?:\.\d{1,3}){3})\/(\d{1,2})$/.exec(rule);
+  if (!match) return false;
+  const [, base, prefixRaw] = match;
+  const prefix = Number(prefixRaw);
+  return isIpv4(base) && Number.isInteger(prefix) && prefix >= 0 && prefix <= 32;
+}
+
 export function parseInternalDiagAllowlist(raw: string | undefined): InternalDiagAllowlistResult {
   if (!raw?.trim()) return { ok: true, rules: [] };
   const rules = raw
@@ -36,10 +43,8 @@ export function parseInternalDiagAllowlist(raw: string | undefined): InternalDia
   if (rules.length === 0) return { ok: false, code: "DIAG_IPLIST_INVALID" };
   for (const r of rules) {
     if (r.includes("/")) {
-      const [base] = r.split("/");
-      if (!isIpv4(base ?? "")) return { ok: false, code: "DIAG_IPLIST_INVALID" };
-      if (!/^\d{1,3}(\.\d{1,3}){3}\/\d{1,2}$/.test(r)) return { ok: false, code: "DIAG_IPLIST_INVALID" };
-    } else if (!/^[\d.a-fA-F:]+$/.test(r)) {
+      if (!isValidIpv4Cidr(r)) return { ok: false, code: "DIAG_IPLIST_INVALID" };
+    } else if (isIP(r) === 0) {
       return { ok: false, code: "DIAG_IPLIST_INVALID" };
     }
   }

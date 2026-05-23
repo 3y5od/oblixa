@@ -15,3 +15,7 @@ export function foldIcsTextLine(line: string, maxLen = 75): string {
 export function escapeVcardValue(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 }
+
+export function escapeIcsTextValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/\r\n|\r|\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}

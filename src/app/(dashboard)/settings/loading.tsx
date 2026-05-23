@@ -4,7 +4,7 @@ export default function SettingsLoading() {
   return (
     <>
       <div className="sr-only" role="status" aria-live="polite">
-        Loading settings. Workspace preferences and visibility controls will appear shortly.
+        Loading settings
       </div>
       <div className="ui-page-stack mx-auto max-w-4xl" aria-hidden aria-busy="true">
         <div className="space-y-3">

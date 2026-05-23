@@ -48,23 +48,22 @@ const envMap: Record<FeatureFlagKey, string> = {
   v6AutopilotAllowExecution: "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
 };
 
+export const TRUE_FLAG_VALUES = new Set(["1", "true", "yes", "on"]);
+export const FALSE_FLAG_VALUES = new Set(["0", "false", "no", "off"]);
+export const UNSAFE_FLAG_VALUE_RE =
+  /(?:^|[_\-\s])(bypass|skip|skip_auth|no_auth|disable_auth|auth_disabled|permissive|security_disabled)(?:$|[_\-\s])/i;
+
 /** V4 default: modules are on unless explicitly disabled (unset / empty = enabled). */
-function parseFlag(value: string | undefined): boolean {
+export function parseFeatureFlagEnv(value: string | undefined): boolean {
   const normalized = value?.trim().toLowerCase();
   if (!normalized) return true;
-  if (
-    normalized === "false" ||
-    normalized === "0" ||
-    normalized === "no" ||
-    normalized === "off"
-  ) {
-    return false;
-  }
-  return true;
+  if (FALSE_FLAG_VALUES.has(normalized)) return false;
+  if (TRUE_FLAG_VALUES.has(normalized) && !UNSAFE_FLAG_VALUE_RE.test(normalized)) return true;
+  return false;
 }
 
 export function isFeatureEnabled(key: FeatureFlagKey): boolean {
-  return parseFlag(process.env[envMap[key]]);
+  return parseFeatureFlagEnv(process.env[envMap[key]]);
 }
 
 let cachedFlags: Record<FeatureFlagKey, boolean> | null = null;

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { GitCompare, ListOrdered, Sparkles } from "lucide-react";
+import { GitCompare, ListOrdered, Sparkles, Split } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV5PageFeature } from "@/lib/v5/feature-guards";
 
@@ -69,13 +70,12 @@ export default async function CampaignComparePage(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <p className="ui-eyebrow">Compare view</p>
-        <h1 className="ui-display-title mt-2">Campaign and simulation compare</h1>
-        <p className="ui-page-lead mt-3 max-w-2xl">
-          Review side-by-side output before promoting simulation assumptions into live campaign execution.
-        </p>
-      </header>
+      <DashboardPageHeader
+        icon={<Split className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Compare view"
+        title="Campaign and simulation compare"
+        lead="Review side-by-side output before promoting simulation assumptions into live campaign execution."
+      />
 
       <section className="ui-card p-5">
         <p className="ui-label-caps">Pick items</p>

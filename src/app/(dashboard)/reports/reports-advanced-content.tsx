@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Activity } from "lucide-react";
+import { Activity, FileBarChart2 } from "lucide-react";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import type { WorkspaceRole } from "@/lib/navigation";
 import {
   isAdvancedModuleHidden,
@@ -161,16 +162,20 @@ export async function ReportsAdvancedContent(props: {
 
   return (
     <div className="ui-page-stack">
-      <header className="ui-page-header">
-        <div>
-          <p className="ui-eyebrow">Control-room reports</p>
-          <h1 className="ui-display-title mt-2">Operations reports</h1>
-          <p className="ui-page-lead mt-2 max-w-2xl">Risk, capacity, and intervention effectiveness.</p>
-        </div>
-        <Link href="/contracts/reports" className="ui-btn-secondary px-4 py-2.5 text-[13px]">
-          View report packs
-        </Link>
-      </header>
+      <DashboardPageHeader
+        icon={<FileBarChart2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Control-room reports"
+        title="Operations reports"
+        lead="Risk, capacity, and intervention effectiveness."
+        actions={
+          <Link
+            href="/contracts/reports"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+          >
+            View report packs
+          </Link>
+        }
+      />
 
       {showAnalyticsSurfaces ? (
         <section id="portfolio-signals" className="scroll-mt-8 space-y-3">

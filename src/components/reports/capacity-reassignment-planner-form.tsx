@@ -68,7 +68,7 @@ export function CapacityReassignmentPlannerForm({
       </AsyncActionButton>
       <InlineMutationStatus message={error} variant="error" className="text-xs" />
       {resultJson ? (
-        <pre className="max-h-56 overflow-auto rounded border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] p-3 text-[10px] text-[var(--text-primary)]">
+        <pre className="max-h-56 overflow-auto rounded border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_54%,transparent)] p-3 text-[11px] text-[var(--text-primary)]">
           {resultJson}
         </pre>
       ) : null}

@@ -7,18 +7,21 @@ export default function CampaignsSegmentLoading() {
         Loading campaigns. List filters, simulations, and campaign cards will appear shortly.
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
-        <header className="ui-page-header-compact">
-          <div className="space-y-3">
-            <div className="ui-skeleton h-4 w-32 rounded" />
-            <div className="ui-skeleton h-9 w-64 max-w-full rounded" />
-            <div className="ui-skeleton h-4 max-w-2xl rounded" />
-            <div className="flex flex-wrap gap-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="ui-skeleton h-8 w-24 rounded-full" />
-              ))}
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+          <div className="flex min-w-0 items-start gap-3.5">
+            <div className="ui-skeleton h-10 w-10 rounded-xl" />
+            <div className="min-w-0 space-y-2">
+              <div className="ui-skeleton h-3 w-32 rounded" />
+              <div className="ui-skeleton h-8 w-64 rounded" />
+              <div className="ui-skeleton h-3 w-80 max-w-full rounded" />
             </div>
           </div>
-        </header>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="ui-skeleton h-8 w-24 rounded-full" />
+          ))}
+        </div>
 
         <section className="ui-page-shell space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

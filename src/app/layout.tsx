@@ -21,26 +21,26 @@ const siteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
 export const metadata: Metadata = {
   metadataBase: new URL(getAppBaseUrlFromEnv()),
   title: {
-    default: "Oblixa — Contract Execution Platform",
+    default: "Oblixa — Track renewals, obligations, and owners from signed contracts",
     template: "%s — Oblixa",
   },
   description:
-    "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+    "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
   applicationName: "Oblixa",
   openGraph: {
     type: "website",
     siteName: "Oblixa",
     locale: "en_US",
-    title: "Oblixa — Contract Execution Platform",
+    title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
     description:
-      "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Contract execution for post-signature teams" }],
+      "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Contract tracking workspace for renewals, owners, obligations, evidence, and reports" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Oblixa — Contract Execution Platform",
+    title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
     description:
-      "Turn signed contracts into tracked work, deadlines, approvals, obligations, and audit-ready evidence.",
+      "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
     images: ["/twitter-image"],
   },
   formatDetection: {

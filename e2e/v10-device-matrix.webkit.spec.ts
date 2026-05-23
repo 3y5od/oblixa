@@ -21,6 +21,8 @@ test.describe("@v10 V10 device matrix (webkit mobile)", () => {
     await app.loginAsDefaultUser();
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText(/Daily brief/i)).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByRole("heading", { name: /Contract tracking/i })).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByText("Needs review").first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: "Review Queue" })).toBeVisible({ timeout: 10_000 });
   });
 });

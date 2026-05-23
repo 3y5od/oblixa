@@ -322,7 +322,7 @@ describe("CommandPalette", () => {
     });
   });
 
-  it("keeps /more visible in Cmd-K when the shared Tools visibility boolean is true", async () => {
+  it("keeps /more hidden in Core Cmd-K even when the shared Tools visibility boolean is true", async () => {
     renderWithProviders(
       <CommandPalette
         role="viewer"
@@ -336,7 +336,7 @@ describe("CommandPalette", () => {
       openCommandPalette("");
     });
 
-    expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "/more")).toBe(true);
+    expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "/more")).toBe(false);
   });
 
   it("keeps Cmd-K static destinations aligned with Core sidebar visibility", async () => {

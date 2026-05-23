@@ -80,17 +80,17 @@ export function EvidenceSubmissionForm({
         {pending ? pendingLabel : buttonLabel}
       </button>
       {isDirty && !pending ? (
-        <p className="basis-full text-[12px] text-[var(--text-tertiary)]" role="status" aria-live="polite">
+        <p className="basis-full text-[12.5px] text-[var(--text-tertiary)]" role="status" aria-live="polite">
           Leaving this page now will discard the draft note.
         </p>
       ) : null}
       {errorMessage ? (
-        <p className="ui-alert-error basis-full text-[12px]" role="alert">
+        <p className="ui-alert-error basis-full text-[12.5px]" role="alert">
           {errorMessage}
         </p>
       ) : null}
       {state?.success ? (
-        <p className="ui-alert-success basis-full text-[12px]" role="status" aria-live="polite">
+        <p className="ui-alert-success basis-full text-[12.5px]" role="status" aria-live="polite">
           {state.success}
         </p>
       ) : null}

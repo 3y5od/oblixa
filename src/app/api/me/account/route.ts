@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { jsonForbidden, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
-import { isStepUpCookieValidForUser } from "@/lib/security/step-up-cookie";
-import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
+import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
+import { recordSecurityAuditEvent, recordSecurityAuditEventStrict } from "@/lib/security/audit-write";
 import { getClientIpFromRequest, rateLimitCheck, RATE_LIMITS } from "@/lib/rate-limit";
+import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
+import { enforceIdempotency } from "@/lib/idempotency";
+import { PRIVACY_SAFE_RECORD_INVENTORY, isLegalHoldProfile } from "@/lib/security/privacy-inventory";
+
+const ROUTE = "/api/me/account";
 
 /**
  * Account deletion request hook (DSR). Product deletion orchestration is not automated here;
- * this records an audit event when the operator flag and step-up cookie are satisfied.
+ * this records an audit event when the operator flag and sensitive-action proof are satisfied.
  */
 export async function DELETE(request: Request) {
   if (process.env.OBLIXA_DSR_ACCOUNT_DELETE !== "1") {
-    return NextResponse.json({ error: "Account deletion API is not enabled" }, { status: 403 });
+    return jsonForbidden(ROUTE);
   }
 
   const supabase = await createClient();
@@ -19,28 +24,47 @@ export async function DELETE(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const jar = await cookies();
-  if (!isStepUpCookieValidForUser(jar, user.id)) {
-    return NextResponse.json({ error: "Step-up required" }, { status: 403 });
+    return jsonUnauthorized(ROUTE);
   }
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`dsr-delete:${user.id}:${ip}`, RATE_LIMITS.stepUpPassword);
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(rl.retryAfterMs / 1000))) },
-      }
-    );
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
+
+  const unexpectedBody = await rejectUnexpectedBody(request);
+  if (unexpectedBody) return unexpectedBody;
 
   const admin = await createAdminClient();
   const membership = await getDeterministicMembership(admin, user.id);
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "account.delete.request",
+    actorKey: user.id,
+  });
+  if (duplicate) return duplicate;
+
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
+    if (membership) {
+      void recordSecurityAuditEvent(admin, {
+        organizationId: membership.organization_id,
+        actorUserId: user.id,
+        action: "security.dsr_account_delete_requested",
+        targetType: "user",
+        targetId: user.id,
+        outcome: "forbidden",
+        safeMetadata: { reason: "sensitive_action_proof_required" },
+      }).catch(() => undefined);
+    }
+    return jsonProblem(403, {
+      error: "Step-up required",
+      code: "step_up_required",
+      diagnostic_id: "account_delete_step_up_required",
+      route: ROUTE,
+    });
+  }
+
   if (membership) {
     const { data: profile } = await admin
       .from("profiles")
@@ -48,7 +72,7 @@ export async function DELETE(request: Request) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile && (profile as { legal_hold?: boolean }).legal_hold === true) {
+    if (isLegalHoldProfile(profile)) {
       void recordSecurityAuditEvent(admin, {
         organizationId: membership.organization_id,
         actorUserId: user.id,
@@ -57,19 +81,36 @@ export async function DELETE(request: Request) {
         targetId: user.id,
         outcome: "forbidden",
         safeMetadata: {},
+      }).catch(() => undefined);
+      return jsonProblem(403, {
+        error: "Deletion is blocked by an active legal hold",
+        code: "legal_hold",
+        diagnostic_id: "account_delete_legal_hold",
+        route: ROUTE,
       });
-      return NextResponse.json({ error: "Deletion is blocked by an active legal hold" }, { status: 403 });
     }
 
-    void recordSecurityAuditEvent(admin, {
-      organizationId: membership.organization_id,
-      actorUserId: user.id,
-      action: "security.dsr_account_delete_requested",
-      targetType: "user",
-      targetId: user.id,
-      outcome: "success",
-      safeMetadata: { note: "deletion_orchestration_pending" },
-    });
+    try {
+      await recordSecurityAuditEventStrict(admin, {
+        organizationId: membership.organization_id,
+        actorUserId: user.id,
+        action: "security.dsr_account_delete_requested",
+        targetType: "user",
+        targetId: user.id,
+        outcome: "success",
+        safeMetadata: {
+          note: "deletion_orchestration_pending",
+          inventory_count: PRIVACY_SAFE_RECORD_INVENTORY.length,
+        },
+      });
+    } catch {
+      return jsonProblem(500, {
+        error: "Deletion audit could not be recorded",
+        code: "audit_write_failed",
+        diagnostic_id: "account_delete_audit_write_failed",
+        route: ROUTE,
+      });
+    }
   }
 
   return NextResponse.json(

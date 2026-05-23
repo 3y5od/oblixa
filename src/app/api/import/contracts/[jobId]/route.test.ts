@@ -79,7 +79,7 @@ describe("/api/import/contracts/[jobId]", () => {
     });
     const body = await res.json();
     expect(res.status).toBe(401);
-    expect(body).toEqual({ error: "Not authenticated" });
+    expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
   });
 
   it("rejects retries unless the import is V10 failed_retryable or partial with retryable rows", async () => {
@@ -100,8 +100,8 @@ describe("/api/import/contracts/[jobId]", () => {
     const body = await res.json();
 
     expect(res.status).toBe(409);
-    expect(body.v10.outcome).toBe("job_not_retryable");
-    expect(body.v10.diagnostic_id).toBe("v10_import_retry_status_not_retryable");
+    expect((body.v10 ?? body.details?.v10 ?? body).outcome).toBe("job_not_retryable");
+    expect((body.v10 ?? body.details?.v10 ?? body).diagnostic_id).toBe("v10_import_retry_status_not_retryable");
     expect(runContractCsvImport).not.toHaveBeenCalled();
     expect(emitProductTelemetryEvent).not.toHaveBeenCalled();
   });

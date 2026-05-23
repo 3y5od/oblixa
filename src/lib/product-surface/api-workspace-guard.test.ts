@@ -1,11 +1,21 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getV6OrgSettingsJson = vi.fn();
+const rateLimitCheck = vi.fn<() => Promise<{ ok: true } | { ok: false; retryAfterMs: number }>>(async () => ({ ok: true }));
 vi.mock("@/lib/v6/org-settings", () => ({
   getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
 }));
+vi.mock("@/lib/rate-limit", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
+  return { ...actual, rateLimitCheck };
+});
 
 describe("requireApiWorkspaceEligibility", () => {
+  beforeEach(() => {
+    rateLimitCheck.mockResolvedValue({ ok: true });
+    getV6OrgSettingsJson.mockReset();
+  });
+
   it("returns null for mapped core routes", async () => {
     getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
@@ -30,6 +40,27 @@ describe("requireApiWorkspaceEligibility", () => {
       apiPath: "/api/not-mapped-by-registry",
     });
     expect(res?.status).toBe(404);
+  });
+
+  it("returns 429 before workspace settings lookup when org route bucket is exhausted", async () => {
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 1234 });
+    const { requireApiWorkspaceEligibility } = await import(
+      "@/lib/product-surface/api-workspace-guard"
+    );
+    const res = await requireApiWorkspaceEligibility({
+      admin: {} as never,
+      orgId: "org-1",
+      apiPath: "/api/contracts/recompute-signals",
+    });
+    const body = await res?.json();
+
+    expect(res?.status).toBe(429);
+    expect(body).toMatchObject({
+      code: "rate_limited",
+      diagnostic_id: "route_rate_limited",
+      route: "/api/contracts/recompute-signals",
+    });
+    expect(getV6OrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("returns 403 when workspace mode is below route family floor", async () => {

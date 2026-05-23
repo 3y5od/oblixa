@@ -1,12 +1,23 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
+type AuthErrorLike = { message: string; status?: number; name?: string };
+
 const rlMocks = vi.hoisted(() => ({
   rateLimitCheck: vi.fn(),
   getClientIpFromHeaders: vi.fn(async () => "127.0.0.1"),
 }));
 
 const authServerMocks = vi.hoisted(() => ({
-  signInWithPassword: vi.fn(async () => ({ error: null })),
+  signInWithPassword: vi.fn(async (): Promise<{
+    data: {
+      user: { id: string } | null;
+      session: { access_token: string } | null;
+    };
+    error: AuthErrorLike | null;
+  }> => ({
+    data: { user: { id: "user-1" }, session: { access_token: "token" } },
+    error: null as AuthErrorLike | null,
+  })),
   signUp: vi.fn(async () => ({ data: {}, error: null })),
   resetPasswordForEmail: vi.fn(async () => ({ error: null })),
   getUser: vi.fn(async () => ({ data: { user: { id: "user-1" } } })),
@@ -124,6 +135,17 @@ describe("auth actions rate limits", () => {
       const res = await signIn(fd);
       expect(res).toEqual({ error: "Please enter a valid email address." });
     });
+
+    it("returns error for unsafe email text before password sign-in", async () => {
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "user@example.com\u202Ehidden");
+      fd.set("password", "secret123");
+      const res = await signIn(fd);
+      expect(res).toEqual({ error: "Please enter a valid email address." });
+      expect(authServerMocks.signInWithPassword).not.toHaveBeenCalled();
+    });
+
   });
 
   describe("signUp input validation", () => {
@@ -161,6 +183,17 @@ describe("auth actions rate limits", () => {
       const res = await signUp(fd);
       expect(res).toEqual({ error: "Name is too long." });
     });
+
+    it("returns error for unsafe display names before sign-up", async () => {
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "longpassword123");
+      fd.set("fullName", "Ada\u202Ehidden");
+      const res = await signUp(fd);
+      expect(res).toEqual({ error: "Name contains unsupported characters." });
+      expect(authServerMocks.signUp).not.toHaveBeenCalled();
+    });
   });
 
   describe("signIn blocking calibration redirect", () => {
@@ -176,6 +209,12 @@ describe("auth actions rate limits", () => {
       fd.set("password", "secret");
       const res = await signIn(fd);
       expect(res).toEqual({ redirectTo: "/dashboard" });
+      expect(rlMocks.rateLimitCheck).toHaveBeenCalledWith(
+        "signin:127.0.0.1",
+        expect.any(Object),
+        { backendFailureMode: "memory-fallback", timeoutMs: 1500 }
+      );
+      expect(authServerMocks.getUser).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
 
@@ -187,10 +226,28 @@ describe("auth actions rate limits", () => {
       fd.set("password", "secret");
       const res = await signIn(fd);
       expect(res).toEqual({ redirectTo: "/onboarding/calibration" });
+      expect(authServerMocks.getUser).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
 
-    it("returns a visible form error when post-auth redirect resolution throws", async () => {
+    it("returns a clear retry message when Supabase auth is temporarily unavailable", async () => {
+      authServerMocks.signInWithPassword.mockResolvedValueOnce({
+        data: { user: null, session: null },
+        error: { message: "{}", status: 522, name: "AuthRetryableFetchError" },
+      });
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "secret");
+      const res = await signIn(fd);
+      expect(res).toEqual({
+        error: "Authentication is temporarily unavailable. Try again in a few minutes.",
+      });
+      expect(authServerMocks.getUser).not.toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it("keeps sign-in successful when post-auth redirect resolution throws", async () => {
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
       authServerMocks.getOrEnsureDeterministicMembership.mockRejectedValueOnce(new Error("audit_events insert failed"));
       const { signIn } = await import("@/actions/auth");
@@ -198,7 +255,7 @@ describe("auth actions rate limits", () => {
       fd.set("email", "a@b.co");
       fd.set("password", "secret");
       const res = await signIn(fd);
-      expect(res).toEqual({ error: "Sign-in could not be completed. Refresh the page and try again." });
+      expect(res).toEqual({ redirectTo: "/dashboard" });
       expect(redirect).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
@@ -233,6 +290,15 @@ describe("auth actions rate limits", () => {
       fd.set("password", "short");
       const res = await resetPassword(fd);
       expect(res).toEqual({ error: "Password must be between 8 and 128 characters." });
+      expect(authServerMocks.updateUser).not.toHaveBeenCalled();
+    });
+
+    it("resetPassword rejects unsafe replacement passwords before calling updateUser", async () => {
+      const { resetPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "longpassword123\u202Ehidden");
+      const res = await resetPassword(fd);
+      expect(res).toEqual({ error: "Password contains unsupported characters." });
       expect(authServerMocks.updateUser).not.toHaveBeenCalled();
     });
 

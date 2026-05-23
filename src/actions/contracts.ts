@@ -18,8 +18,15 @@ import { resolveAppBaseUrl } from "@/lib/app-url";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { readApiJson } from "@/lib/parse-api-response";
 import { safeFetch } from "@/lib/security/safe-fetch";
-import { isContractStoragePathSafe, isUuid } from "@/lib/security/validation";
-import { sanitizeUploadedFileName } from "@/lib/security/upload-filename";
+import {
+  isContractStoragePathSafe,
+  isUuid,
+  parseFixedEnumParam,
+  parsePositiveIntParam,
+  validateBoundedString,
+} from "@/lib/security/validation";
+import { sanitizeUploadedFileName, validateUploadedFileName } from "@/lib/security/upload-filename";
+import { scanUploadedFileForMalware, sniffUploadedFileMime } from "@/lib/security/upload-scan";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { autoTransitionTasksForField } from "@/actions/tasks";
@@ -27,6 +34,7 @@ import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
 import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
 import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import type { AuditAction } from "@/lib/security/audit-actions";
 import {
   updateContractStatus as updateContractStatusImpl,
   updateContractOperationalState as updateContractOperationalStateImpl,
@@ -46,9 +54,14 @@ const DATE_FIELDS = new Set([
 
 const REMINDER_OFFSETS_DAYS = [30, 14, 7, 1];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_CONTRACT_UPLOAD_FILES = 12;
 const ALLOWED_TYPES = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+const ALLOWED_EXTENSIONS_BY_TYPE = new Map([
+  ["application/pdf", new Set([".pdf"])],
+  ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", new Set([".docx"])],
 ]);
 
 const ALLOWED_MANUAL_FIELD_NAMES = new Set<string>(FIELD_NAMES);
@@ -61,15 +74,123 @@ const MAX_SOURCE_SYSTEM_LEN = 80;
 const MAX_EXTERNAL_REF_LEN = 160;
 const MAX_REGION_LEN = 40;
 const MAX_ANNUAL_VALUE = 999999999999.99;
+const MAX_ANNUAL_VALUE_INPUT_LEN = 40;
+const MAX_HANDOFF_NOTE_LEN = 4000;
+const MAX_SUPERSEDE_REASON_LEN = 1000;
+const MAX_REQUIRED_NEXT_STEP_LEN = 240;
+const MAX_INTAKE_SOURCE_LABEL_LEN = 160;
+const MAX_REJECTION_REASON_LEN = 1000;
+const CONTRACT_FILE_SIGNED_URL_TTL_SECONDS = 5 * 60;
+
+const CONTRACT_INTAKE_STATUSES = [
+  "awaiting_review",
+  "in_clarification",
+  "active",
+  "at_risk",
+  "renewal_prep",
+  "notice_decision",
+  "archived",
+] as const;
+const CONTRACT_HEALTH_STATUSES = ["healthy", "watch", "at_risk", "unknown"] as const;
+const INTAKE_REQUEST_STATUSES = ["new", "triage", "review", "ready", "rejected"] as const;
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+type ContractAuditAction = Extract<
+  AuditAction,
+  | `contract.${string}`
+  | `contract_field.${string}`
+  | `contract_file.${string}`
+  | `extraction.${string}`
+  | `field.${string}`
+  | `files.${string}`
+  | `import.${string}`
+>;
+
+function contractTextError(
+  label: string,
+  validation: { error: "invalid_string" | "string_too_long" | "unsafe_characters" },
+  options: { requiredMessage?: string } = {}
+): string {
+  if (validation.error === "string_too_long") return `${label} is too long`;
+  if (validation.error === "unsafe_characters") return `${label} contains unsupported characters`;
+  return options.requiredMessage ?? `${label} contains unsupported characters`;
+}
+
+function optionalContractText(
+  value: unknown,
+  label: string,
+  maxLength: number,
+  options: { allowTextWhitespaceControls?: boolean } = {}
+): { ok: true; value: string | null } | { ok: false; error: string } {
+  const validation = validateBoundedString(value ?? "", {
+    maxLength,
+    allowEmpty: true,
+    allowTextWhitespaceControls: options.allowTextWhitespaceControls,
+  });
+  if (!validation.ok) return { ok: false, error: contractTextError(label, validation) };
+  return { ok: true, value: validation.value || null };
+}
+
+function optionalPercentFormValue(formData: FormData, key: string): number | null {
+  const raw = String(formData.get(key) ?? "").trim();
+  if (!raw) return null;
+  return parsePositiveIntParam(raw, { defaultValue: 0, min: 0, max: 100 });
+}
+
+function hasAllowedUploadedContractSignature(fileType: string, signature: Uint8Array): boolean {
+  const sniffed = sniffUploadedFileMime(signature);
+  return sniffed.ok && sniffed.mimeType === fileType;
+}
+
+async function getUploadedContractFileSignature(file: File): Promise<Uint8Array> {
+  return new Uint8Array(await file.slice(0, 8).arrayBuffer());
+}
+
+async function getSafeUploadedContractFile(file: File): Promise<
+  | { ok: true; safeName: string }
+  | { ok: false; safeName: string; reason: "empty" | "size" | "type" | "extension" | "signature" | "filename" | "malware" }
+> {
+  const safeName = sanitizeUploadedFileName(file.name);
+  const nameValidation = validateUploadedFileName(file.name);
+  if (!nameValidation.ok) return { ok: false, safeName, reason: "filename" };
+  if (!file.size) return { ok: false, safeName, reason: "empty" };
+  if (file.size > MAX_FILE_SIZE) return { ok: false, safeName, reason: "size" };
+  if (!ALLOWED_TYPES.has(file.type)) return { ok: false, safeName, reason: "type" };
+  const extension = safeName.toLowerCase().match(/\.[^.]+$/)?.[0] ?? "";
+  if (!ALLOWED_EXTENSIONS_BY_TYPE.get(file.type)?.has(extension)) {
+    return { ok: false, safeName, reason: "extension" };
+  }
+  const signature = await getUploadedContractFileSignature(file);
+  if (!hasAllowedUploadedContractSignature(file.type, signature)) {
+    return { ok: false, safeName, reason: "signature" };
+  }
+  const scan = await scanUploadedFileForMalware(file);
+  if (!scan.ok) {
+    return { ok: false, safeName, reason: "malware" };
+  }
+  return { ok: true, safeName };
+}
+
+async function assertUploadedContractFile(file: File): Promise<string> {
+  const validation = await getSafeUploadedContractFile(file);
+  if (!validation.ok) {
+    if (validation.reason === "size") {
+      throw new Error(`${validation.safeName}: exceeds 20 MB limit`);
+    }
+    if (validation.reason === "filename") {
+      throw new Error(`${validation.safeName}: unsafe file name`);
+    }
+    throw new Error(`${validation.safeName}: unsupported file type`);
+  }
+  return validation.safeName;
+}
 
 async function recordV10ContractMutation(
   admin: Admin,
   input: {
     organizationId: string;
     actorUserId: string;
-    action: string;
+    action: ContractAuditAction;
     targetType: string;
     targetId: string;
     contractId?: string | null;
@@ -113,43 +234,57 @@ type CreateContractResult =
     };
 
 export async function createContract(formData: FormData): Promise<CreateContractResult> {
-  const supabase = await createClient();
-  const admin = await createAdminClient();
+  const titleValidation = validateBoundedString(formData.get("title") ?? "", {
+    maxLength: MAX_CONTRACT_TITLE,
+  });
+  const counterpartyValidation = validateBoundedString(formData.get("counterparty") ?? "", {
+    maxLength: MAX_COUNTERPARTY_LEN,
+    allowEmpty: true,
+  });
+  const contractTypeValidation = validateBoundedString(formData.get("contractType") ?? "", {
+    maxLength: MAX_CONTRACT_TYPE_LEN,
+    allowEmpty: true,
+  });
+  const sourceSystemValidation = validateBoundedString(formData.get("sourceSystem") ?? "", {
+    maxLength: MAX_SOURCE_SYSTEM_LEN,
+    allowEmpty: true,
+  });
+  const regionValidation = validateBoundedString(formData.get("region") ?? "", {
+    maxLength: MAX_REGION_LEN,
+    allowEmpty: true,
+  });
+  const annualValueValidation = validateBoundedString(formData.get("annualValue") ?? "", {
+    maxLength: MAX_ANNUAL_VALUE_INPUT_LEN,
+    allowEmpty: true,
+  });
+  const externalReferenceValidation = validateBoundedString(formData.get("externalReferenceId") ?? "", {
+    maxLength: MAX_EXTERNAL_REF_LEN,
+    allowEmpty: true,
+  });
+  const organizationIdEntry = formData.get("organizationId");
+  const organizationId = typeof organizationIdEntry === "string" ? organizationIdEntry.trim() : "";
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
-
-  const title = (formData.get("title") as string)?.trim();
-  const counterparty = (formData.get("counterparty") as string | null)?.trim() ?? null;
-  const contractType = (formData.get("contractType") as string | null)?.trim() ?? null;
-  const sourceSystem = (formData.get("sourceSystem") as string | null)?.trim() ?? null;
-  const region = (formData.get("region") as string | null)?.trim() ?? null;
-  const annualValueRaw = (formData.get("annualValue") as string | null)?.trim() ?? "";
-  const externalReferenceId =
-    (formData.get("externalReferenceId") as string | null)?.trim() ?? null;
-  const organizationId = (formData.get("organizationId") as string)?.trim() ?? "";
-
-  if (!title) return { error: "Title is required" };
+  if (!titleValidation.ok) {
+    return { error: contractTextError("Title", titleValidation, { requiredMessage: "Title is required" }) };
+  }
   if (!organizationId) return { error: "Organization is required" };
   if (!isUuid(organizationId)) return { error: "Invalid organization" };
-  if (title.length > MAX_CONTRACT_TITLE) return { error: "Title is too long" };
-  if (counterparty && counterparty.length > MAX_COUNTERPARTY_LEN) {
-    return { error: "Counterparty is too long" };
+  if (!counterpartyValidation.ok) return { error: contractTextError("Counterparty", counterpartyValidation) };
+  if (!contractTypeValidation.ok) return { error: contractTextError("Contract type", contractTypeValidation) };
+  if (!sourceSystemValidation.ok) return { error: contractTextError("Source system", sourceSystemValidation) };
+  if (!regionValidation.ok) return { error: contractTextError("Region", regionValidation) };
+  if (!externalReferenceValidation.ok) {
+    return { error: contractTextError("External reference", externalReferenceValidation) };
   }
-  if (contractType && contractType.length > MAX_CONTRACT_TYPE_LEN) {
-    return { error: "Contract type is too long" };
-  }
-  if (sourceSystem && sourceSystem.length > MAX_SOURCE_SYSTEM_LEN) {
-    return { error: "Source system is too long" };
-  }
-  if (region && region.length > MAX_REGION_LEN) {
-    return { error: "Region is too long" };
-  }
-  if (externalReferenceId && externalReferenceId.length > MAX_EXTERNAL_REF_LEN) {
-    return { error: "External reference is too long" };
-  }
+  if (!annualValueValidation.ok) return { error: "Annual value must be a valid positive number." };
+
+  const title = titleValidation.value;
+  const counterparty = counterpartyValidation.value || null;
+  const contractType = contractTypeValidation.value || null;
+  const sourceSystem = sourceSystemValidation.value || null;
+  const region = regionValidation.value || null;
+  const annualValueRaw = annualValueValidation.value;
+  const externalReferenceId = externalReferenceValidation.value || null;
   const annualValue = annualValueRaw ? Number(annualValueRaw) : null;
   if (
     annualValueRaw &&
@@ -157,6 +292,14 @@ export async function createContract(formData: FormData): Promise<CreateContract
   ) {
     return { error: "Annual value must be a valid positive number." };
   }
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
 
   if (!(await verifyOrgMembership(admin, user.id, organizationId))) {
     return { error: "Access denied" };
@@ -170,13 +313,16 @@ export async function createContract(formData: FormData): Promise<CreateContract
     .select("id", { count: "exact", head: true })
     .eq("organization_id", organizationId);
 
-  const files = formData.getAll("files") as File[];
+  const files = formData.getAll("files").filter((entry): entry is File => typeof File !== "undefined" && entry instanceof File);
   const attemptedFiles = files.filter((f) => f.size > 0);
-  const validFiles = attemptedFiles.filter((f) => {
-    if (f.size > MAX_FILE_SIZE) return false;
-    if (!ALLOWED_TYPES.has(f.type)) return false;
-    return true;
-  });
+  if (attemptedFiles.length > MAX_CONTRACT_UPLOAD_FILES) {
+    return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
+  }
+  const validatedFiles = await Promise.all(attemptedFiles.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const validFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  if (validFiles.length > MAX_CONTRACT_UPLOAD_FILES) {
+    return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
+  }
   const skippedInvalidFiles = attemptedFiles.length - validFiles.length;
   if (attemptedFiles.length > 0 && validFiles.length === 0) {
     return {
@@ -217,8 +363,8 @@ export async function createContract(formData: FormData): Promise<CreateContract
   if (error) return { error: mapDataSourceError(error.message) };
 
   const uploadResults = await Promise.all(
-    validFiles.map(async (file) => {
-      const safeName = sanitizeUploadedFileName(file.name);
+    validFiles.map(async ({ file, validation }) => {
+      const safeName = validation.safeName;
       const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
       const { error: uploadError } = await admin.storage
@@ -696,18 +842,28 @@ export async function upsertContractHandoffChecklist(input: {
   toOwnerId: string;
   checklistNote: string;
 }) {
+  if (!isUuid(input.contractId) || !isUuid(input.toOwnerId)) {
+    return { error: "Invalid request" };
+  }
+  const noteValidation = validateBoundedString(input.checklistNote, {
+    maxLength: MAX_HANDOFF_NOTE_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!noteValidation.ok) {
+    return {
+      error: contractTextError("Checklist note", noteValidation, {
+        requiredMessage: "Checklist note is required",
+      }),
+    };
+  }
+  const checklistNote = noteValidation.value;
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.contractId) || !isUuid(input.toOwnerId)) {
-    return { error: "Invalid request" };
-  }
-  const checklistNote = input.checklistNote.trim();
-  if (!checklistNote) return { error: "Checklist note is required" };
-  if (checklistNote.length > 4000) return { error: "Checklist note is too long" };
 
   const { data: contract } = await admin
     .from("contracts")
@@ -838,6 +994,19 @@ export async function addManualField(
   fieldName: string,
   fieldValue: string
 ) {
+  if (!isUuid(contractId)) return { error: "Invalid contract" };
+  if (!ALLOWED_MANUAL_FIELD_NAMES.has(fieldName)) {
+    return { error: "Invalid field name" };
+  }
+  const fieldValueValidation = validateBoundedString(fieldValue, {
+    maxLength: MAX_MANUAL_FIELD_VALUE_LEN,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  if (!fieldValueValidation.ok) {
+    return { error: contractTextError("Value", fieldValueValidation) };
+  }
+
   const supabase = await createClient();
   const admin = await createAdminClient();
 
@@ -845,13 +1014,6 @@ export async function addManualField(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(contractId)) return { error: "Invalid contract" };
-  if (!ALLOWED_MANUAL_FIELD_NAMES.has(fieldName)) {
-    return { error: "Invalid field name" };
-  }
-  if (fieldValue.length > MAX_MANUAL_FIELD_VALUE_LEN) {
-    return { error: "Value is too long" };
-  }
 
   const { data: contract } = await admin
     .from("contracts")
@@ -873,7 +1035,7 @@ export async function addManualField(
     .insert({
       contract_id: contractId,
       field_name: fieldName,
-      field_value: fieldValue,
+      field_value: fieldValueValidation.value,
       source: "human",
       status: "approved",
       reviewed_by: user.id,
@@ -889,17 +1051,17 @@ export async function addManualField(
     contract_id: contractId,
     user_id: user.id,
     action: "field.added",
-    details: { field_name: fieldName, field_value: fieldValue },
+    details: { field_name: fieldName, field_value: fieldValueValidation.value },
   });
   await recomputeContractSignals(admin, contractId);
 
-  if (DATE_FIELDS.has(fieldName) && fieldValue) {
+  if (DATE_FIELDS.has(fieldName) && fieldValueValidation.value) {
     await scheduleReminders(
       admin,
       contractId,
       inserted.id,
       fieldName,
-      fieldValue,
+      fieldValueValidation.value,
       contract.owner_id
     );
   }
@@ -937,14 +1099,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
     files
       .filter((f) => f.size > 0)
       .map(async (file) => {
-        if (file.size > MAX_FILE_SIZE) {
-          throw new Error(`${file.name}: exceeds 20 MB limit`);
-        }
-        if (!ALLOWED_TYPES.has(file.type)) {
-          throw new Error(`${file.name}: unsupported file type`);
-        }
-
-        const safeName = sanitizeUploadedFileName(file.name);
+        const safeName = await assertUploadedContractFile(file);
         const storagePath = `org/${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
 
         const { error: uploadError } = await admin.storage
@@ -994,16 +1149,26 @@ export async function supersedeContractFile(input: {
   reason?: string | null;
   replacementFileId?: string | null;
 }) {
+  if (!isUuid(input.contractId) || !isUuid(input.fileId)) return { error: "Invalid request" };
+  if (input.replacementFileId && !isUuid(input.replacementFileId)) {
+    return { error: "Invalid replacement file" };
+  }
+  const reasonValidation = validateBoundedString(input.reason ?? "", {
+    maxLength: MAX_SUPERSEDE_REASON_LEN,
+    allowEmpty: true,
+    allowTextWhitespaceControls: true,
+  });
+  if (!reasonValidation.ok) {
+    return { error: contractTextError("Reason", reasonValidation) };
+  }
+  const reason = reasonValidation.value || null;
+
   const supabase = await createClient();
   const admin = await createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isUuid(input.contractId) || !isUuid(input.fileId)) return { error: "Invalid request" };
-  if (input.replacementFileId && !isUuid(input.replacementFileId)) {
-    return { error: "Invalid replacement file" };
-  }
 
   const { data: contract } = await admin
     .from("contracts")
@@ -1023,7 +1188,7 @@ export async function supersedeContractFile(input: {
     .update({
       superseded_at: new Date().toISOString(),
       superseded_by_id: input.replacementFileId ?? null,
-      supersede_reason: input.reason?.trim() || null,
+      supersede_reason: reason,
     })
     .eq("id", input.fileId)
     .eq("contract_id", input.contractId);
@@ -1037,7 +1202,7 @@ export async function supersedeContractFile(input: {
     details: {
       file_id: input.fileId,
       replacement_file_id: input.replacementFileId ?? null,
-      reason: input.reason?.trim() || null,
+      reason,
     },
   });
   await recomputeContractSignals(admin, input.contractId);
@@ -1305,12 +1470,12 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   const writeErr = await requireWriteAccess(admin, user.id, organizationId);
   if (writeErr) return writeErr;
 
-  const files = formData.getAll("files") as File[];
-  const validFiles = files.filter((f) => {
-    if (!f.size) return false;
-    if (f.size > MAX_FILE_SIZE) return false;
-    return ALLOWED_TYPES.has(f.type);
-  });
+  const files = (formData.getAll("files") as File[]).filter((file) => file.size > 0);
+  if (files.length > MAX_CONTRACT_UPLOAD_FILES) {
+    return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
+  }
+  const validatedFiles = await Promise.all(files.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const validFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
 
   if (validFiles.length === 0) {
     return { error: "Add at least one PDF or DOCX under 20 MB." };
@@ -1369,8 +1534,8 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   }> = [];
 
   for (let i = 0; i < validFiles.length; i++) {
-    const file = validFiles[i];
-    const safeName = sanitizeUploadedFileName(file.name);
+    const { file, validation } = validFiles[i];
+    const safeName = validation.safeName;
     const title = titleFromFileName(safeName).slice(0, MAX_CONTRACT_TITLE);
     const { data: contract, error: insertErr } = await admin
       .from("contracts")
@@ -1753,7 +1918,7 @@ export async function getFileDownloadUrl(storagePath: string) {
 
   const { data: file } = await admin
     .from("contract_files")
-    .select("contract_id, contracts!inner(organization_id)")
+    .select("id, contract_id, contracts!inner(organization_id)")
     .eq("storage_path", storagePath)
     .single();
 
@@ -1767,10 +1932,23 @@ export async function getFileDownloadUrl(storagePath: string) {
 
   const { data, error } = await admin.storage
     .from("contracts")
-    .createSignedUrl(storagePath, 60 * 60);
+    .createSignedUrl(storagePath, CONTRACT_FILE_SIGNED_URL_TTL_SECONDS);
 
   if (error) return { error: mapDataSourceError(error.message) };
-  return { url: data.signedUrl };
+  await recordV10AuditEvent(admin, {
+    organizationId: orgId,
+    actorUserId: user.id,
+    action: "contract_file.download_url_created",
+    targetType: "contract_file",
+    targetId: String(file.id ?? "unknown"),
+    contractId: String(file.contract_id ?? ""),
+    outcome: "success",
+    safeMetadata: {
+      expires_in_seconds: CONTRACT_FILE_SIGNED_URL_TTL_SECONDS,
+      storage_bucket: "contracts",
+    },
+  });
+  return { url: data.signedUrl, expiresIn: CONTRACT_FILE_SIGNED_URL_TTL_SECONDS };
 }
 
 export async function updateContractStatus(
@@ -1803,27 +1981,40 @@ export async function updateContractOperationalStateForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
   const intakeStatus = String(formData.get("intakeStatus") ?? "").trim();
   const healthStatus = String(formData.get("healthStatus") ?? "").trim();
-  const requiredNextStep = String(formData.get("requiredNextStep") ?? "").trim();
+  const parsedIntakeStatus = parseFixedEnumParam(intakeStatus, CONTRACT_INTAKE_STATUSES, "awaiting_review");
+  const parsedHealthStatus = parseFixedEnumParam(healthStatus, CONTRACT_HEALTH_STATUSES, "unknown");
+  const requiredNextStep = optionalContractText(
+    formData.get("requiredNextStep") ?? "",
+    "Required next step",
+    MAX_REQUIRED_NEXT_STEP_LEN,
+    { allowTextWhitespaceControls: true }
+  );
+  const intakeSource = optionalContractText(formData.get("intakeSource") ?? "", "Intake source", MAX_SOURCE_SYSTEM_LEN);
+  const intakeOwnerId = String(formData.get("intakeOwnerId") ?? "").trim();
+  if (parsedIntakeStatus !== intakeStatus || parsedHealthStatus !== healthStatus) {
+    console.error("[contracts] updateContractOperationalStateForm", "Invalid operational state");
+    return;
+  }
+  if (!requiredNextStep.ok) {
+    console.error("[contracts] updateContractOperationalStateForm", requiredNextStep.error);
+    return;
+  }
+  if (!intakeSource.ok) {
+    console.error("[contracts] updateContractOperationalStateForm", intakeSource.error);
+    return;
+  }
+  if (intakeOwnerId && !isUuid(intakeOwnerId)) {
+    console.error("[contracts] updateContractOperationalStateForm", "Invalid intake owner");
+    return;
+  }
   const res = await updateContractOperationalState({
     contractId,
-    intakeStatus: intakeStatus as
-      | "awaiting_review"
-      | "in_clarification"
-      | "active"
-      | "at_risk"
-      | "renewal_prep"
-      | "notice_decision"
-      | "archived",
-    healthStatus: healthStatus as "healthy" | "watch" | "at_risk" | "unknown",
-    requiredNextStep: requiredNextStep || null,
-    intakeOwnerId: String(formData.get("intakeOwnerId") ?? "").trim() || null,
-    intakeSource: String(formData.get("intakeSource") ?? "").trim() || null,
-    intakeCompletenessScore: (() => {
-      const raw = String(formData.get("intakeCompletenessScore") ?? "").trim();
-      if (!raw) return null;
-      const parsed = Number(raw);
-      return Number.isFinite(parsed) ? parsed : null;
-    })(),
+    intakeStatus: parsedIntakeStatus,
+    healthStatus: parsedHealthStatus,
+    requiredNextStep: requiredNextStep.value,
+    intakeOwnerId: intakeOwnerId || null,
+    intakeSource: intakeSource.value,
+    intakeCompletenessScore: optionalPercentFormValue(formData, "intakeCompletenessScore"),
   });
   if (res && "error" in res && res.error) {
     console.error("[contracts] updateContractOperationalStateForm", res.error);
@@ -1844,25 +2035,50 @@ export async function upsertContractIntakeRequest(input: {
 }
 
 export async function upsertContractIntakeRequestForm(formData: FormData) {
+  const statusRaw = String(formData.get("status") ?? "").trim() || "new";
+  const status = parseFixedEnumParam(statusRaw, INTAKE_REQUEST_STATUSES, "new");
+  const source = optionalContractText(formData.get("source") ?? "", "Source", MAX_SOURCE_SYSTEM_LEN);
+  const sourceLabel = optionalContractText(formData.get("sourceLabel") ?? "", "Source label", MAX_INTAKE_SOURCE_LABEL_LEN);
+  const rejectionReason = optionalContractText(
+    formData.get("rejectionReason") ?? "",
+    "Rejection reason",
+    MAX_REJECTION_REASON_LEN,
+    { allowTextWhitespaceControls: true }
+  );
+  const contractId = String(formData.get("contractId") ?? "").trim();
+  const assignedTo = String(formData.get("assignedTo") ?? "").trim();
+  if (status !== statusRaw) {
+    console.error("[contracts] upsertContractIntakeRequestForm", "Invalid intake status");
+    return;
+  }
+  if (!source.ok) {
+    console.error("[contracts] upsertContractIntakeRequestForm", source.error);
+    return;
+  }
+  if (!sourceLabel.ok) {
+    console.error("[contracts] upsertContractIntakeRequestForm", sourceLabel.error);
+    return;
+  }
+  if (!rejectionReason.ok) {
+    console.error("[contracts] upsertContractIntakeRequestForm", rejectionReason.error);
+    return;
+  }
+  if (contractId && !isUuid(contractId)) {
+    console.error("[contracts] upsertContractIntakeRequestForm", "Invalid contract");
+    return;
+  }
+  if (assignedTo && !isUuid(assignedTo)) {
+    console.error("[contracts] upsertContractIntakeRequestForm", "Invalid assignee");
+    return;
+  }
   const res = await upsertContractIntakeRequest({
-    contractId: String(formData.get("contractId") ?? "").trim() || null,
-    source: String(formData.get("source") ?? "").trim() || null,
-    sourceLabel: String(formData.get("sourceLabel") ?? "").trim() || null,
-    status:
-      (String(formData.get("status") ?? "").trim() as
-        | "new"
-        | "triage"
-        | "review"
-        | "ready"
-        | "rejected") || "new",
-    assignedTo: String(formData.get("assignedTo") ?? "").trim() || null,
-    completenessScore: (() => {
-      const raw = String(formData.get("completenessScore") ?? "").trim();
-      if (!raw) return null;
-      const parsed = Number(raw);
-      return Number.isFinite(parsed) ? parsed : null;
-    })(),
-    rejectionReason: String(formData.get("rejectionReason") ?? "").trim() || null,
+    contractId: contractId || null,
+    source: source.value,
+    sourceLabel: sourceLabel.value,
+    status,
+    assignedTo: assignedTo || null,
+    completenessScore: optionalPercentFormValue(formData, "completenessScore"),
+    rejectionReason: rejectionReason.value,
   });
   if (res && "error" in res && res.error) {
     console.error("[contracts] upsertContractIntakeRequestForm", res.error);
@@ -1881,16 +2097,39 @@ export async function updateContractExternalLink(input: {
 
 export async function updateContractExternalLinkForm(formData: FormData) {
   const contractId = String(formData.get("contractId") ?? "").trim();
-  const sourceSystem = String(formData.get("sourceSystem") ?? "").trim();
-  const region = String(formData.get("region") ?? "").trim();
-  const annualValue = String(formData.get("annualValue") ?? "").trim();
-  const externalReferenceId = String(formData.get("externalReferenceId") ?? "").trim();
+  const sourceSystem = optionalContractText(formData.get("sourceSystem") ?? "", "Source system", MAX_SOURCE_SYSTEM_LEN);
+  const region = optionalContractText(formData.get("region") ?? "", "Region", MAX_REGION_LEN);
+  const annualValueValidation = validateBoundedString(formData.get("annualValue") ?? "", {
+    maxLength: MAX_ANNUAL_VALUE_INPUT_LEN,
+    allowEmpty: true,
+  });
+  const externalReferenceId = optionalContractText(
+    formData.get("externalReferenceId") ?? "",
+    "External reference",
+    MAX_EXTERNAL_REF_LEN
+  );
+  if (!sourceSystem.ok) {
+    console.error("[contracts] updateContractExternalLinkForm", sourceSystem.error);
+    return;
+  }
+  if (!region.ok) {
+    console.error("[contracts] updateContractExternalLinkForm", region.error);
+    return;
+  }
+  if (!externalReferenceId.ok) {
+    console.error("[contracts] updateContractExternalLinkForm", externalReferenceId.error);
+    return;
+  }
+  if (!annualValueValidation.ok) {
+    console.error("[contracts] updateContractExternalLinkForm", "Annual value must be a valid positive number.");
+    return;
+  }
   const res = await updateContractExternalLink({
     contractId,
-    sourceSystem: sourceSystem || null,
-    region: region || null,
-    annualValue: annualValue || null,
-    externalReferenceId: externalReferenceId || null,
+    sourceSystem: sourceSystem.value,
+    region: region.value,
+    annualValue: annualValueValidation.value || null,
+    externalReferenceId: externalReferenceId.value,
   });
   if (res && "error" in res && res.error) {
     console.error("[contracts] updateContractExternalLinkForm", res.error);

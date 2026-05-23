@@ -73,14 +73,17 @@ export async function updateRowById(
   orgId: string,
   id: string,
   payload: Record<string, unknown>,
+  options?: { expectedUpdatedAt?: string | number | null },
 ): Promise<{ data: Record<string, unknown> | null; error: PostgrestError | null }> {
-  const { data, error } = await admin
+  let query = admin
     .from(table)
     .update(payload)
     .eq("organization_id", orgId)
-    .eq("id", id)
-    .select(insertReturnColumnsForTable(table))
-    .maybeSingle();
+    .eq("id", id);
+  if (options?.expectedUpdatedAt !== undefined && options.expectedUpdatedAt !== null) {
+    query = query.eq("updated_at", String(options.expectedUpdatedAt));
+  }
+  const { data, error } = await query.select(insertReturnColumnsForTable(table)).maybeSingle();
   return { data: (data ?? null) as Record<string, unknown> | null, error };
 }
 

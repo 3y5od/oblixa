@@ -3,7 +3,7 @@ import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnosti
 
 const breadcrumbSpy = vi.fn();
 
-vi.mock("@/lib/observability/sentry", () => ({
+vi.mock("@/lib/observability/sentry-client", () => ({
   addProductSurfaceDiagnosticBreadcrumb: (...args: unknown[]) => breadcrumbSpy(...args),
 }));
 

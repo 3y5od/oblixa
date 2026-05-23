@@ -4,6 +4,8 @@ import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
+const enforceIdempotency = vi.fn();
+const recordApiMutationAuditEvent = vi.fn();
 
 vi.mock("@/lib/v4/api-auth", () => ({
   getApiAuthContext,
@@ -18,6 +20,14 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
 }));
 
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency,
+}));
+
+vi.mock("@/lib/security/api-mutation-audit", () => ({
+  recordApiMutationAuditEvent,
+}));
+
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);
 
 describe("POST /api/campaigns/[id]/rollback", () => {
@@ -25,6 +35,8 @@ describe("POST /api/campaigns/[id]/rollback", () => {
     vi.clearAllMocks();
     mockedV5Guard.mockReturnValue(null);
     canManageCapability.mockResolvedValue(true);
+    enforceIdempotency.mockResolvedValue(null);
+    recordApiMutationAuditEvent.mockResolvedValue("audit-1");
   });
 
   it("returns 403 when portfolio campaigns flag is off", async () => {
@@ -36,6 +48,40 @@ describe("POST /api/campaigns/[id]/rollback", () => {
       params: Promise.resolve({ id: "c1" }),
     });
     expect(res.status).toBe(403);
+  });
+
+  it("returns duplicate response before rollback side effects", async () => {
+    const duplicate = new Response(
+      JSON.stringify({ error: "Duplicate request blocked by idempotency key" }),
+      { status: 409, headers: { "content-type": "application/json" } }
+    );
+    const admin = { from: vi.fn() };
+    getApiAuthContext.mockResolvedValueOnce({
+      admin,
+      userId: "u1",
+      orgId: "o1",
+      role: "admin",
+    });
+    enforceIdempotency.mockResolvedValueOnce(duplicate);
+
+    const { POST } = await import("@/app/api/campaigns/[id]/rollback/route");
+    const res = await POST(
+      new Request("http://localhost/api/campaigns/c1/rollback", {
+        method: "POST",
+        headers: { "x-idempotency-key": "campaign-rollback-replay-0001" },
+      }),
+      { params: Promise.resolve({ id: "c1" }) }
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(expect.any(Request), {
+      scope: "api.campaigns.id.rollback",
+      actorKey: "o1:u1",
+    });
+    expect(recordApiMutationAuditEvent).not.toHaveBeenCalled();
+    expect(admin.from).not.toHaveBeenCalled();
   });
 
   it("returns 409 when campaign already rolled back", async () => {
@@ -90,15 +136,17 @@ describe("POST /api/campaigns/[id]/rollback", () => {
               update: vi.fn(() => ({
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    select: vi.fn(() => ({
-                      maybeSingle: vi.fn(async () => ({
-                        data: {
-                          id: "c1",
-                          status: "paused",
-                          rolled_back_at: "2026-01-02T00:00:00Z",
-                          updated_at: "2026-01-02T00:00:00Z",
-                        },
-                        error: null,
+                    is: vi.fn(() => ({
+                      select: vi.fn(() => ({
+                        maybeSingle: vi.fn(async () => ({
+                          data: {
+                            id: "c1",
+                            status: "paused",
+                            rolled_back_at: "2026-01-02T00:00:00Z",
+                            updated_at: "2026-01-02T00:00:00Z",
+                          },
+                          error: null,
+                        })),
                       })),
                     })),
                   })),

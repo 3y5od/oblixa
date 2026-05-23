@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
-import { captureClientException } from "@/lib/observability/sentry";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function MarketingError({
   error,
@@ -26,7 +26,7 @@ export default function MarketingError({
     <RouteStatePanel
       title="This page could not load"
       copy="Try again now. If the problem keeps happening, return to the home page before reopening this page."
-      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.75} />}
+      icon={<AlertCircle className="h-6 w-6" strokeWidth={1.65} />}
       shellClassName="bg-canvas"
       actions={
         <>

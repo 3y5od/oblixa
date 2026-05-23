@@ -60,7 +60,7 @@ export default async function AssuranceAutopilotPage() {
       {!mutatingExecutionEnabled ? (
         <div className="ui-status-panel ui-status-panel-warning text-sm">
           <p className="font-semibold">Dry-run posture</p>
-          <p className="mt-1 text-[13px] leading-relaxed">
+          <p className="mt-1 text-[12.5px] leading-relaxed">
             Mutating autopilot execution is off for this workspace. Rules may still evaluate and log dry-runs; turn on
             execution under Settings → Product experience when you are in Assurance mode and ready for bounded actions.
           </p>
@@ -165,7 +165,7 @@ export default async function AssuranceAutopilotPage() {
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">{row.reason ?? "—"}</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">{String(row.created_at)}</p>
                 {Object.keys(out).length > 0 ? (
-                  <pre className="ui-soft-details mt-2 max-h-28 overflow-auto p-2 text-[10px] text-[var(--text-secondary)]">
+                  <pre className="ui-soft-details mt-2 max-h-28 overflow-auto p-2 text-[11px] text-[var(--text-secondary)]">
                     {JSON.stringify(out, null, 2)}
                   </pre>
                 ) : null}
