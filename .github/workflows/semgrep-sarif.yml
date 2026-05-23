@@ -57,6 +57,6 @@ jobs:
       # Requires GitHub Code Scanning enabled on the repository; do not fail the workflow otherwise.
       - name: Upload SARIF to Code Scanning
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@a723e99345b89ee0bbcbd68ee4e63f9a56b42a25
+        uses: github/codeql-action/upload-sarif@0e150e40762c1253b364a04b0fc9f2cc14effff2
         with:
           sarif_file: semgrep.sarif
